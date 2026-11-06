@@ -84,6 +84,15 @@ export const PointCautionSchema = z
   })
   .strict();
 
+/** Where on the body a point lies (for lookup), whether or not a regional model localises it. */
+export const BODY_AREAS = [
+  "head", "face", "mouth", "neck", "chest", "abdomen", "upper-back", "lower-back", "sacrum-buttock", "perineum",
+  "shoulder", "axilla", "upper-arm", "elbow", "forearm", "wrist", "hand", "finger",
+  "groin", "thigh", "knee", "leg", "ankle", "foot", "toe",
+] as const;
+export const BodyAreaSchema = z.enum(BODY_AREAS);
+export type BodyArea = z.infer<typeof BodyAreaSchema>;
+
 export const AcupointDefinitionSchema = z
   .object({
     /** AcuCraft id: the WHO alphanumeric code (ST36), or the edition's code for extra points (EX-LE4). */
@@ -95,6 +104,9 @@ export const AcupointDefinitionSchema = z
     codes: z.array(z.object({ edition: IdSchema, code: z.string().min(1), relation: z.enum(["same", "reclassified", "absent"]).default("same"), note: z.string().optional() }).strict()).min(1),
     aliases: z.array(z.string()).default([]),
     location: z.object({ edition: IdSchema, text: LocalizedTextSchema, paraphrased: z.boolean().default(true) }).strict(),
+    area: BodyAreaSchema.optional(),
+    /** A group of points under one code (Baxie, Jiaji, Shixuan …): the number of sites, per side for bilateral points. */
+    sites: z.number().int().min(2).optional(),
     /** The reviewed regional model this point is localised in; absent = definition only (no procedural chain yet). */
     region: IdSchema.optional(),
     localisation: LocalisationSchema.optional(),

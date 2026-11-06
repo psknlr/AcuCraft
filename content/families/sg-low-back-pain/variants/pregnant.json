@@ -30,7 +30,7 @@
       },
       {
         "id": "ex-palpate-back",
-        "finding": "No midline bony tenderness. Tight, tender right paraspinal muscles, maximal at one point at the level of L3, above the lumbosacral area."
+        "finding": "No midline bony tenderness. Tight, tender right lumbar muscles, maximal at one point at the level of L3, about four finger-breadths lateral to the spine."
       }
     ],
     "patient": {
@@ -52,12 +52,12 @@
           "region": "lumbar",
           "side": "right",
           "centre": {
-            "u": -4.0,
+            "u": -6.6,
             "v": 3.7
           },
           "radiusCm": 1.0,
           "revealedBy": "ex-palpate-back",
-          "label": "maximal tenderness in the right paraspinal muscles at L3"
+          "label": "maximal tenderness in the right lumbar muscles, lateral to the spine at L3"
         }
       ]
     },

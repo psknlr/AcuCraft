@@ -48,6 +48,20 @@ Play the practitioner yourself (`help` inside; `--mode teaching` shows reference
 npm run acu -- play sg-knee-oa/base --mode teaching
 ```
 
+Browse the point library: counts by channel, one channel, body area or region, or one point in full:
+
+```bash
+npm run acu -- points
+```
+
+```bash
+npm run acu -- points forearm
+```
+
+```bash
+npm run acu -- points ST36
+```
+
 Run the pilot benchmark (dev and held-out splits, Wilson and family-cluster intervals):
 
 ```bash
@@ -68,7 +82,7 @@ npm run bench -- --agent claude --split dev
 | `packages/core` — `@acucraft/core` | schemas; scenario resolution (family + variant overlays); patient-specific anatomy, proportional (B-cun) localisation and needle path assessment; the deterministic encounter engine over ClinicalCraft's clinical session; needle lifecycle and invariants; roles, versioned rules and the simulation guard; consent; delegation and NPC policies; field events; replay; the agent view |
 | `packages/bench` — `@acucraft/bench` | content loader; the independent evaluator (primary endpoint, five tracks, critical errors, unsafe attempts executed/blocked, adjudication, STRICTA-informed documentation); agents (reference oracle, rule-based protocol, Claude); runner; suites; statistics; reports |
 | `packages/cli` — `acucraft` | `validate`, `list`, `show`, `locate`, `run`, `play`, `replay`, `evaluate`, `view` (an HTML encounter viewer: charts with landmarks, structures, reference locations and entries, and the timeline), `bench`, `export-clinicalcraft` |
-| `content/` | 3 standard editions, 41 versioned point definitions (21 localised), 5 regional models, Singapore roles, 3 rule-set series, the clinic, vocabulary, guideline evidence, 5 families, the pilot suite |
+| `content/` | 3 standard editions, the full point library (409: the WHO 2008 standard's 361 meridian points and the WHO 1991 nomenclature's 48 extra points; 45 localised on the regional models), 5 regional models, Singapore roles, 3 rule-set series, the clinic, vocabulary, guideline evidence, 5 families, the pilot suite |
 | `tools/` | `bootstrap.sh` (the pinned engine), `check.sh` (what CI runs), `locate.ts`, `content/` (family authoring scripts) |
 
 ### The case families
@@ -96,7 +110,7 @@ other variant of the family (both are tested).
 | §7 shared action system for all characters; observable delegation; deterministic control; seeded events; replay from recorded outputs; four records per request | yes ([ARCHITECTURE.md](docs/ARCHITECTURE.md)) | LLM-voiced patient and assistant (the patient answers from authored facts) |
 | §8 fixed case state, investigation sequence, "not provided or not modelled" | yes (ClinicalCraft records and turnaround) | |
 | §9 primary endpoint, separate reports, five tracks, multiple pathways, adjudication, family splits, clustering | yes ([EVALUATION.md](docs/EVALUATION.md)) | expert review; the four experiments need live-model runs |
-| §10 MVP: ~40 families, 120 instances, 30–40 points, 4–6 regions | 5 families (3 dev, 2 held-out), 15 instances; 41 points (21 localised); 5 regions; practitioner, patient and support roles; the clinic; interruptions, abnormal sensations, bleeding, a syncope-like event, consent withdrawn mid-procedure, a dropped needle (tests); UI (CLI), action API, case format, replay, reports | 35 more families; a graphical UI |
+| §10 MVP: ~40 families, 120 instances, 30–40 points, 4–6 regions | 5 families (3 dev, 2 held-out), 15 instances; all 409 standard points defined (45 localised); 5 regions; practitioner, patient and support roles; the clinic; interruptions, abnormal sensations, bleeding, a syncope-like event, consent withdrawn mid-procedure, a dropped needle (tests); UI (CLI), action API, case format, replay, reports | 35 more families; a graphical UI |
 | §13 release acceptance criteria | each one is an executable test (`packages/bench/src/acceptance.test.ts`) | |
 
 Electroacupuncture, moxibustion and haptics are out of scope for this release, as the proposal plans.

@@ -198,7 +198,7 @@ pr({"type": "explain", "topics": ["procedure", "benefits", "risks", "alternative
 pr({"type": "seek_consent"})
 pr({"type": "position_patient", "position": "side-lying-left"})
 pr({"type": "assign_task", "to": "assistant", "kind": "monitor-patient", "params": {"intervalMinutes": 5}, "note": "Please stay with her while the needle is in and check every five minutes."})
-pr.mark({"ashi": "ashi-right-l3"}, "lumbar", "right", -4.0, 3.7, method="palpation")
+pr.mark({"ashi": "ashi-right-l3"}, "lumbar", "right", -6.6, 3.7, method="palpation")
 pr.fetch_pack("pack-a")
 pr({"type": "prepare_site", "region": "lumbar", "side": "right"})
 pr({"type": "open_pack", "packId": "pack-a"})
@@ -246,10 +246,11 @@ variants = [
      {"id": "hx-onset", "answer": "It came on gradually in the pregnancy, worse in the last month. No injury."},
      {"id": "hx-meds", "answer": "Prenatal vitamins only. No blood thinners."}],
    "exam": [{"id": "ex-inspect-back", "finding": "Gravid abdomen consistent with about 24 weeks; increased lumbar lordosis; skin intact."},
-     {"id": "ex-palpate-back", "finding": "No midline bony tenderness. Tight, tender right paraspinal muscles, maximal at one point at the level of L3, above the lumbosacral area."}],
+     {"id": "ex-palpate-back", "finding": "No midline bony tenderness. Tight, tender right lumbar muscles, maximal at one point at the level of L3, about four finger-breadths lateral to the spine."}],
    "patient": {"weightKg": 67}},
-  # her tender point is at L3, clear of BL23 and BL25: needling it is not needling a cautioned point by another name
-  field={"patient": {"riskFactors": ["pregnancy"], "ashi": [{"id": "ashi-right-l45", "$remove": True}, {"id": "ashi-right-l3", "region": "lumbar", "side": "right", "centre": {"u": -4.0, "v": 3.7}, "radiusCm": 1.0, "revealedBy": "ex-palpate-back", "label": "maximal tenderness in the right paraspinal muscles at L3"}]},
+  # her tender point is lateral at L3, clear of the lumbosacral points cautioned in pregnancy (BL23-BL25, BL52,
+  # EX-B6): needling it is not needling a cautioned point by another name
+  field={"patient": {"riskFactors": ["pregnancy"], "ashi": [{"id": "ashi-right-l45", "$remove": True}, {"id": "ashi-right-l3", "region": "lumbar", "side": "right", "centre": {"u": -6.6, "v": 3.7}, "radiusCm": 1.0, "revealedBy": "ex-palpate-back", "label": "maximal tenderness in the right lumbar muscles, lateral to the spine at L3"}]},
    "evaluation": {"pathways": [{"id": "p-treat", "$remove": True},
      {"id": "p-treat-pregnancy", "label": "Gentle, modified treatment side-lying, avoiding the points cautioned in pregnancy", "acceptable": True, "when": {"all": [{"disposition": ["treat-modified", "treat"], "visit": 1}, {"needlesInserted": {"gte": 1}}, {"not": {"positioned": "prone"}}, {"not": {"unsafe": "insertion-at-cautioned-point"}}, {"not": {"unsafe": "insertion-without-consent"}}, {"visitEnded": 1}]}},
      {"id": "p-prone", "label": "Positioned prone in mid-pregnancy", "acceptable": False, "when": {"positioned": "prone"}},

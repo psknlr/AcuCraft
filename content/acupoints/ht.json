@@ -1,0 +1,422 @@
+{
+  "schema": "acucraft/acupoints@1",
+  "id": "acucraft-points-ht",
+  "version": "0.2.0",
+  "points": [
+    {
+      "id": "HT1",
+      "names": {
+        "pinyin": "Jíquán",
+        "hanzi": "极泉",
+        "en": "Highest Spring"
+      },
+      "channel": "HT",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "HT1",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "HT1",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the axilla, at the centre of the axillary fossa, over the axillary artery.",
+        "paraphrased": true
+      },
+      "area": "axilla",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "Over the axillary artery: palpate and avoid it.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "HT2",
+      "names": {
+        "pinyin": "Qīnglíng",
+        "hanzi": "青灵",
+        "en": "Cyan Spirit"
+      },
+      "channel": "HT",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "HT2",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "HT2",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the medial aspect of the arm, just medial to the biceps brachii, 3 B-cun superior to the cubital crease.",
+        "paraphrased": true
+      },
+      "area": "upper-arm",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "HT3",
+      "names": {
+        "pinyin": "Shàohǎi",
+        "hanzi": "少海",
+        "en": "Lesser Sea"
+      },
+      "channel": "HT",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "HT3",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "HT3",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the anteromedial aspect of the elbow, just anterior to the medial epicondyle of the humerus, at the level of the cubital crease.",
+        "paraphrased": true
+      },
+      "area": "elbow",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "HT4",
+      "names": {
+        "pinyin": "Língdào",
+        "hanzi": "灵道",
+        "en": "Spirit Path"
+      },
+      "channel": "HT",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "HT4",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "HT4",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the anteromedial aspect of the forearm, just radial to the flexor carpi ulnaris tendon, 1.5 B-cun proximal to the palmar wrist crease.",
+        "paraphrased": true
+      },
+      "area": "forearm",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "HT5",
+      "names": {
+        "pinyin": "Tōnglǐ",
+        "hanzi": "通里",
+        "en": "Connecting Li"
+      },
+      "channel": "HT",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "HT5",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "HT5",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the anteromedial aspect of the forearm, just radial to the flexor carpi ulnaris tendon, 1 B-cun proximal to the palmar wrist crease.",
+        "paraphrased": true
+      },
+      "area": "forearm",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "HT6",
+      "names": {
+        "pinyin": "Yīnxì",
+        "hanzi": "阴郄",
+        "en": "Yin Cleft"
+      },
+      "channel": "HT",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "HT6",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "HT6",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the anteromedial aspect of the forearm, just radial to the flexor carpi ulnaris tendon, 0.5 B-cun proximal to the palmar wrist crease.",
+        "paraphrased": true
+      },
+      "area": "forearm",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "HT7",
+      "names": {
+        "pinyin": "Shénmén",
+        "hanzi": "神门",
+        "en": "Spirit Gate"
+      },
+      "channel": "HT",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "HT7",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "HT7",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the anteromedial aspect of the wrist, radial to the flexor carpi ulnaris tendon, on the palmar wrist crease.",
+        "paraphrased": true
+      },
+      "area": "wrist",
+      "region": "forearm",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "fcu-radial-wrist"
+      },
+      "tolerance": {
+        "cm": 0.5
+      },
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The ulnar artery and nerve lie just radial and deep.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "HT8",
+      "names": {
+        "pinyin": "Shàofǔ",
+        "hanzi": "少府",
+        "en": "Lesser Mansion"
+      },
+      "channel": "HT",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "HT8",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "HT8",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the palm, in the depression between the fourth and fifth metacarpal bones, proximal to the fifth metacarpophalangeal joint.",
+        "paraphrased": true
+      },
+      "area": "hand",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "HT9",
+      "names": {
+        "pinyin": "Shàochōng",
+        "hanzi": "少冲",
+        "en": "Lesser Surge"
+      },
+      "channel": "HT",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "HT9",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "HT9",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the little finger, radial to the distal phalanx, 0.1 F-cun proximal-lateral to the radial corner of the fingernail.",
+        "paraphrased": true
+      },
+      "area": "finger",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    }
+  ]
+}

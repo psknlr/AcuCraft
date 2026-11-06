@@ -1,0 +1,1410 @@
+{
+  "schema": "acucraft/acupoints@1",
+  "id": "acucraft-points-gv",
+  "version": "0.2.0",
+  "points": [
+    {
+      "id": "GV1",
+      "names": {
+        "pinyin": "Chángqiáng",
+        "hanzi": "长强",
+        "en": "Long Strong"
+      },
+      "channel": "GV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "GV1",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "GV1",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "DU1"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the perineal region, inferior to the coccyx, midway between the tip of the coccyx and the anus.",
+        "paraphrased": true
+      },
+      "area": "perineum",
+      "bilateral": false,
+      "cautions": [],
+      "notes": "Needle between the tip of the coccyx and the rectum, close to the sacrum; do not puncture the rectum.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "GV2",
+      "names": {
+        "pinyin": "Yāoshū",
+        "hanzi": "腰俞",
+        "en": "Lumbar Shu"
+      },
+      "channel": "GV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "GV2",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "GV2",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "DU2"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the sacral region, at the sacral hiatus, on the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "sacrum-buttock",
+      "bilateral": false,
+      "cautions": [
+        {
+          "id": "GV2-pregnancy",
+          "when": "pregnancy",
+          "text": "Lumbosacral points: follow local practice in pregnancy.",
+          "severity": "major"
+        }
+      ],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "GV3",
+      "names": {
+        "pinyin": "Yāoyángguān",
+        "hanzi": "腰阳关",
+        "en": "Lumbar Yang Pass"
+      },
+      "channel": "GV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "GV3",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "GV3",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "DU3"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the lumbar region, in the depression below the spinous process of L4, on the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "lower-back",
+      "region": "lumbar",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "l4-spinous",
+        "offset": {
+          "caudal": {
+            "cm": 0.6
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
+      "bilateral": false,
+      "cautions": [
+        {
+          "id": "GV3-pregnancy",
+          "when": "pregnancy",
+          "text": "Lumbosacral points: follow local practice in pregnancy.",
+          "severity": "minor"
+        }
+      ],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "GV4",
+      "names": {
+        "pinyin": "Mìngmén",
+        "hanzi": "命门",
+        "en": "Life Gate"
+      },
+      "channel": "GV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "GV4",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "GV4",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "DU4"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the lumbar region, in the depression below the spinous process of L2, on the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "lower-back",
+      "region": "lumbar",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "l2-spinous",
+        "offset": {
+          "caudal": {
+            "cm": 0.6
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
+      "bilateral": false,
+      "cautions": [
+        {
+          "id": "GV4-pregnancy",
+          "when": "pregnancy",
+          "text": "Lumbosacral points: follow local practice in pregnancy.",
+          "severity": "minor"
+        }
+      ],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "GV5",
+      "names": {
+        "pinyin": "Xuánshū",
+        "hanzi": "悬枢",
+        "en": "Suspended Pivot"
+      },
+      "channel": "GV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "GV5",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "GV5",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "DU5"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the lumbar region, in the depression inferior to the spinous process of L1, on the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "lower-back",
+      "bilateral": false,
+      "cautions": [],
+      "notes": "The spinal canal lies deep to the interspinous space: needle obliquely upward and shallowly.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "GV6",
+      "names": {
+        "pinyin": "Jǐzhōng",
+        "hanzi": "脊中",
+        "en": "Spinal Centre"
+      },
+      "channel": "GV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "GV6",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "GV6",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "DU6"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the upper back, in the depression inferior to the spinous process of T11, on the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "upper-back",
+      "bilateral": false,
+      "cautions": [],
+      "notes": "The spinal canal lies deep to the interspinous space: needle obliquely upward and shallowly.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "GV7",
+      "names": {
+        "pinyin": "Zhōngshū",
+        "hanzi": "中枢",
+        "en": "Central Pivot"
+      },
+      "channel": "GV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "GV7",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "GV7",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "DU7"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the upper back, in the depression inferior to the spinous process of T10, on the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "upper-back",
+      "bilateral": false,
+      "cautions": [],
+      "notes": "The spinal canal lies deep to the interspinous space: needle obliquely upward and shallowly.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "GV8",
+      "names": {
+        "pinyin": "Jīnsuō",
+        "hanzi": "筋缩",
+        "en": "Sinew Contraction"
+      },
+      "channel": "GV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "GV8",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "GV8",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "DU8"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the upper back, in the depression inferior to the spinous process of T9, on the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "upper-back",
+      "bilateral": false,
+      "cautions": [],
+      "notes": "The spinal canal lies deep to the interspinous space: needle obliquely upward and shallowly.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "GV9",
+      "names": {
+        "pinyin": "Zhìyáng",
+        "hanzi": "至阳",
+        "en": "Reaching Yang"
+      },
+      "channel": "GV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "GV9",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "GV9",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "DU9"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the upper back, in the depression inferior to the spinous process of T7, on the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "upper-back",
+      "bilateral": false,
+      "cautions": [],
+      "notes": "The spinal canal lies deep to the interspinous space: needle obliquely upward and shallowly.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "GV10",
+      "names": {
+        "pinyin": "Língtái",
+        "hanzi": "灵台",
+        "en": "Spirit Tower"
+      },
+      "channel": "GV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "GV10",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "GV10",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "DU10"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the upper back, in the depression inferior to the spinous process of T6, on the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "upper-back",
+      "bilateral": false,
+      "cautions": [],
+      "notes": "The spinal canal lies deep to the interspinous space: needle obliquely upward and shallowly.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "GV11",
+      "names": {
+        "pinyin": "Shéndào",
+        "hanzi": "神道",
+        "en": "Spirit Path"
+      },
+      "channel": "GV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "GV11",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "GV11",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "DU11"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the upper back, in the depression inferior to the spinous process of T5, on the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "upper-back",
+      "bilateral": false,
+      "cautions": [],
+      "notes": "The spinal canal lies deep to the interspinous space: needle obliquely upward and shallowly.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "GV12",
+      "names": {
+        "pinyin": "Shēnzhù",
+        "hanzi": "身柱",
+        "en": "Body Pillar"
+      },
+      "channel": "GV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "GV12",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "GV12",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "DU12"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the upper back, in the depression inferior to the spinous process of T3, on the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "upper-back",
+      "bilateral": false,
+      "cautions": [],
+      "notes": "The spinal canal lies deep to the interspinous space: needle obliquely upward and shallowly.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "GV13",
+      "names": {
+        "pinyin": "Táodào",
+        "hanzi": "陶道",
+        "en": "Kiln Path"
+      },
+      "channel": "GV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "GV13",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "GV13",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "DU13"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the upper back, in the depression inferior to the spinous process of T1, on the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "upper-back",
+      "bilateral": false,
+      "cautions": [],
+      "notes": "The spinal canal lies deep to the interspinous space: needle obliquely upward and shallowly.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "GV14",
+      "names": {
+        "pinyin": "Dàzhuī",
+        "hanzi": "大椎",
+        "en": "Great Hammer"
+      },
+      "channel": "GV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "GV14",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "GV14",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "DU14"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the posterior region of the neck, in the depression below the spinous process of C7, on the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "neck",
+      "region": "neck-shoulder",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "c7-spinous",
+        "offset": {
+          "caudal": {
+            "cm": 1.0
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.5
+      },
+      "bilateral": false,
+      "cautions": [],
+      "notes": "The spinal canal lies deep to the interspinous ligament.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "GV15",
+      "names": {
+        "pinyin": "Yǎmén",
+        "hanzi": "哑门",
+        "en": "Mute's Gate"
+      },
+      "channel": "GV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "GV15",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "GV15",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "DU15"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the posterior region of the neck, in the depression superior to the spinous process of C2, on the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "neck",
+      "bilateral": false,
+      "cautions": [],
+      "notes": "The medulla oblongata lies deep: never needle deeply or upward; direct the needle towards the chin.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "GV16",
+      "names": {
+        "pinyin": "Fēngfǔ",
+        "hanzi": "风府",
+        "en": "Wind Mansion"
+      },
+      "channel": "GV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "GV16",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "GV16",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "DU16"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the posterior region of the neck, directly inferior to the external occipital protuberance, in the depression between the trapezius muscles.",
+        "paraphrased": true
+      },
+      "area": "neck",
+      "region": "neck-shoulder",
+      "localisation": {
+        "method": "between",
+        "a": "gb20-depression-left",
+        "b": "gb20-depression-right",
+        "fraction": 0.5
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
+      "bilateral": false,
+      "cautions": [],
+      "notes": "The medulla oblongata lies deep: never needle deeply or upward; direct the needle towards the chin.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "GV17",
+      "names": {
+        "pinyin": "Nǎohù",
+        "hanzi": "脑户",
+        "en": "Brain's Door"
+      },
+      "channel": "GV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "GV17",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "GV17",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "DU17"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the head, in the depression superior to the external occipital protuberance.",
+        "paraphrased": true
+      },
+      "area": "head",
+      "bilateral": false,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "GV18",
+      "names": {
+        "pinyin": "Qiángjiān",
+        "hanzi": "强间",
+        "en": "Unyielding Space"
+      },
+      "channel": "GV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "GV18",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "GV18",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "DU18"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the head, 4 B-cun superior to the posterior hairline, on the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "head",
+      "bilateral": false,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "GV19",
+      "names": {
+        "pinyin": "Hòudǐng",
+        "hanzi": "后顶",
+        "en": "Behind the Vertex"
+      },
+      "channel": "GV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "GV19",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "GV19",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "DU19"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the head, 5.5 B-cun superior to the posterior hairline, on the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "head",
+      "bilateral": false,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "GV20",
+      "names": {
+        "pinyin": "Bǎihuì",
+        "hanzi": "百会",
+        "en": "Hundred Convergences"
+      },
+      "channel": "GV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "GV20",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "GV20",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "DU20"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the head, 5 B-cun superior to the anterior hairline, on the anterior median line.",
+        "paraphrased": true
+      },
+      "area": "head",
+      "tolerance": {
+        "cm": 1
+      },
+      "bilateral": false,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "GV21",
+      "names": {
+        "pinyin": "Qiándǐng",
+        "hanzi": "前顶",
+        "en": "Before the Vertex"
+      },
+      "channel": "GV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "GV21",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "GV21",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "DU21"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the head, 3.5 B-cun superior to the anterior hairline, on the anterior median line.",
+        "paraphrased": true
+      },
+      "area": "head",
+      "bilateral": false,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "GV22",
+      "names": {
+        "pinyin": "Xìnhuì",
+        "hanzi": "囟会",
+        "en": "Fontanel Meeting"
+      },
+      "channel": "GV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "GV22",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "GV22",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "DU22"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the head, 2 B-cun superior to the anterior hairline, on the anterior median line.",
+        "paraphrased": true
+      },
+      "area": "head",
+      "bilateral": false,
+      "cautions": [],
+      "notes": "Not needled in infants before the anterior fontanelle has closed.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "GV23",
+      "names": {
+        "pinyin": "Shàngxīng",
+        "hanzi": "上星",
+        "en": "Upper Star"
+      },
+      "channel": "GV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "GV23",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "GV23",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "DU23"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the head, 1 B-cun superior to the anterior hairline, on the anterior median line.",
+        "paraphrased": true
+      },
+      "area": "head",
+      "bilateral": false,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "GV24",
+      "names": {
+        "pinyin": "Shéntíng",
+        "hanzi": "神庭",
+        "en": "Spirit Court"
+      },
+      "channel": "GV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "GV24",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "GV24",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "DU24"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the head, 0.5 B-cun superior to the anterior hairline, on the anterior median line.",
+        "paraphrased": true
+      },
+      "area": "head",
+      "bilateral": false,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "GV25",
+      "names": {
+        "pinyin": "Sùliáo",
+        "hanzi": "素髎",
+        "en": "White Bone-Hole"
+      },
+      "channel": "GV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "GV25",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "GV25",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "DU25"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the face, at the tip of the nose.",
+        "paraphrased": true
+      },
+      "area": "face",
+      "bilateral": false,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "GV26",
+      "names": {
+        "pinyin": "Shuǐgōu",
+        "hanzi": "水沟",
+        "en": "Water Trough"
+      },
+      "channel": "GV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "GV26",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "GV26",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "DU26"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the face, in the philtrum, at the junction of its upper third and lower two thirds (some standards place it at the midpoint of the philtrum).",
+        "paraphrased": true
+      },
+      "area": "face",
+      "bilateral": false,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "GV27",
+      "names": {
+        "pinyin": "Duìduān",
+        "hanzi": "兑端",
+        "en": "Extremity of the Mouth"
+      },
+      "channel": "GV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "GV27",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "GV27",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "DU27"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the face, at the midpoint of the tubercle of the upper lip.",
+        "paraphrased": true
+      },
+      "area": "face",
+      "bilateral": false,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "GV28",
+      "names": {
+        "pinyin": "Yínjiāo",
+        "hanzi": "龈交",
+        "en": "Gum Intersection"
+      },
+      "channel": "GV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "GV28",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "GV28",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "DU28"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "Inside the upper lip, at the junction of the frenulum of the upper lip with the upper gum.",
+        "paraphrased": true
+      },
+      "area": "mouth",
+      "bilateral": false,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    }
+  ]
+}

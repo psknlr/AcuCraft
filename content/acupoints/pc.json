@@ -1,0 +1,466 @@
+{
+  "schema": "acucraft/acupoints@1",
+  "id": "acucraft-points-pc",
+  "version": "0.2.0",
+  "points": [
+    {
+      "id": "PC1",
+      "names": {
+        "pinyin": "Tiānchí",
+        "hanzi": "天池",
+        "en": "Celestial Pool"
+      },
+      "channel": "PC",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "PC1",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "PC1",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the anterior thoracic region, in the fourth intercostal space, 5 B-cun lateral to the anterior median line.",
+        "paraphrased": true
+      },
+      "area": "chest",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "PC2",
+      "names": {
+        "pinyin": "Tiānquán",
+        "hanzi": "天泉",
+        "en": "Celestial Spring"
+      },
+      "channel": "PC",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "PC2",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "PC2",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the anterior aspect of the arm, between the long and short heads of the biceps brachii, 2 B-cun inferior to the anterior axillary fold.",
+        "paraphrased": true
+      },
+      "area": "upper-arm",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "PC3",
+      "names": {
+        "pinyin": "Qūzé",
+        "hanzi": "曲泽",
+        "en": "Marsh at the Bend"
+      },
+      "channel": "PC",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "PC3",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "PC3",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the anterior aspect of the elbow, at the cubital crease, in the depression medial to the biceps brachii tendon.",
+        "paraphrased": true
+      },
+      "area": "elbow",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The brachial artery lies just medial to the biceps tendon: palpate and avoid it.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "PC4",
+      "names": {
+        "pinyin": "Xìmén",
+        "hanzi": "郄门",
+        "en": "Cleft Gate"
+      },
+      "channel": "PC",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "PC4",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "PC4",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the anterior aspect of the forearm, between the tendons of palmaris longus and flexor carpi radialis, 5 B-cun proximal to the palmar wrist crease.",
+        "paraphrased": true
+      },
+      "area": "forearm",
+      "region": "forearm",
+      "localisation": {
+        "method": "along",
+        "from": "pl-fcr-wrist",
+        "toward": "cubital-crease-mid",
+        "distance": {
+          "cun": 5,
+          "segment": "seg.wrist-elbow"
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.wrist-elbow"
+      },
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "PC5",
+      "names": {
+        "pinyin": "Jiānshǐ",
+        "hanzi": "间使",
+        "en": "Intermediary Courier"
+      },
+      "channel": "PC",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "PC5",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "PC5",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the anterior aspect of the forearm, between the tendons of palmaris longus and flexor carpi radialis, 3 B-cun proximal to the palmar wrist crease.",
+        "paraphrased": true
+      },
+      "area": "forearm",
+      "region": "forearm",
+      "localisation": {
+        "method": "along",
+        "from": "pl-fcr-wrist",
+        "toward": "cubital-crease-mid",
+        "distance": {
+          "cun": 3,
+          "segment": "seg.wrist-elbow"
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.wrist-elbow"
+      },
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "PC6",
+      "names": {
+        "pinyin": "Nèiguān",
+        "hanzi": "内关",
+        "en": "Inner Pass"
+      },
+      "channel": "PC",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "PC6",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "PC6",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the anterior aspect of the forearm, between the tendons of palmaris longus and flexor carpi radialis, 2 B-cun proximal to the palmar wrist crease.",
+        "paraphrased": true
+      },
+      "area": "forearm",
+      "region": "forearm",
+      "localisation": {
+        "method": "along",
+        "from": "pl-fcr-wrist",
+        "toward": "cubital-crease-mid",
+        "distance": {
+          "cun": 2,
+          "segment": "seg.wrist-elbow"
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.wrist-elbow"
+      },
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The median nerve lies close beneath: an electric sensation means the needle has reached it.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "PC7",
+      "names": {
+        "pinyin": "Dàlíng",
+        "hanzi": "大陵",
+        "en": "Great Mound"
+      },
+      "channel": "PC",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "PC7",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "PC7",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the anterior aspect of the wrist, between the tendons of palmaris longus and flexor carpi radialis, on the palmar wrist crease.",
+        "paraphrased": true
+      },
+      "area": "wrist",
+      "region": "forearm",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "pl-fcr-wrist"
+      },
+      "tolerance": {
+        "cm": 0.5
+      },
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The median nerve lies directly beneath: an electric sensation means the needle has reached it.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "PC8",
+      "names": {
+        "pinyin": "Láogōng",
+        "hanzi": "劳宫",
+        "en": "Palace of Toil"
+      },
+      "channel": "PC",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "PC8",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "PC8",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the palm, in the depression between the second and third metacarpal bones, proximal to the metacarpophalangeal joints (some traditions locate it between the third and fourth metacarpal bones).",
+        "paraphrased": true
+      },
+      "area": "hand",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "PC9",
+      "names": {
+        "pinyin": "Zhōngchōng",
+        "hanzi": "中冲",
+        "en": "Central Hub"
+      },
+      "channel": "PC",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "PC9",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "PC9",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "At the centre of the tip of the middle finger (some traditions locate it 0.1 F-cun from the radial corner of the nail).",
+        "paraphrased": true
+      },
+      "area": "finger",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    }
+  ]
+}

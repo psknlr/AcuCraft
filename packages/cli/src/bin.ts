@@ -51,6 +51,8 @@ usage: npm run acu -- <command> [options]
   validate [--verbose]                      check the pack: schemas, references, ClinicalCraft case verification,
                                             and that every reference trajectory reaches an acceptable pathway
   list                                      families, variants and splits
+  points [CHANNEL|AREA|REGION|POINT]        the point library: counts by channel; the points of one channel (ST),
+                                            body area (forearm) or region (knee-leg); or one point in full (ST36, SJ5)
   show <family/variant> [--mode teaching] [--library]
                                             the agent's opening view (and the public reference library)
   locate <family/variant> <position> [POINT:side ...]
@@ -71,6 +73,12 @@ usage: npm run acu -- <command> [options]
 
   --content DIR                             another content pack (default: ./content)
 `;
+
+// a closed pipe (`acu points | head`) ends the command quietly
+process.stdout.on("error", (e: NodeJS.ErrnoException) => {
+  if (e.code === "EPIPE") process.exit(0);
+  throw e;
+});
 
 const { positionals, values } = parseArgs({
   allowPositionals: true,
@@ -177,6 +185,32 @@ async function main(): Promise<void> {
           console.log(`    ${f.id}/${v}  (${vj.kind})  ${vj.title}`);
         }
       }
+      return;
+    }
+    case "points": {
+      const p = pack();
+      const ORDER = ["LU", "LI", "ST", "SP", "HT", "SI", "BL", "KI", "PC", "TE", "GB", "LR", "GV", "CV", "EX"];
+      const rank = (c: string) => (ORDER.indexOf(c) + 1 || ORDER.length + 1);
+      const all = [...p.bundle.acupoints.values()].sort((a, b) => rank(a.channel) - rank(b.channel) || a.id.localeCompare(b.id, "en", { numeric: true }));
+      const key = args[0];
+      const line = (d: (typeof all)[number]) => `${d.id.padEnd(8)} ${`${d.names.pinyin} ${d.names.hanzi}`.padEnd(22)} ${(d.names.en ?? "").padEnd(28)} ${(d.area ?? "").padEnd(14)} ${d.region ? `[${d.region}]` : ""}${d.cautions.length ? ` caution: ${d.cautions.map((c) => c.when).join(", ")}` : ""}`;
+      if (!key) {
+        const by = new Map<string, number>();
+        for (const d of all) by.set(d.channel, (by.get(d.channel) ?? 0) + 1);
+        console.log([...by].map(([c, k]) => `${c} ${k}`).join(" · "));
+        console.log(`${all.length} points, ${all.filter((d) => d.localisation).length} localised on the modelled regions (${[...p.bundle.regions.keys()].join(", ")}).`);
+        return;
+      }
+      const one = all.find((d) => d.id.toUpperCase() === key.toUpperCase() || d.aliases.some((a) => a.toUpperCase() === key.toUpperCase()));
+      if (one) {
+        const { provenance, ...rest } = one;
+        console.log(JSON.stringify({ ...rest, review: provenance.review.status }, null, 2));
+        return;
+      }
+      const k = key.toLowerCase();
+      const list = all.filter((d) => d.channel.toLowerCase() === k || d.area === k || d.region === k);
+      if (list.length === 0) throw new Error(`no point, channel, body area or region ${key}`);
+      for (const d of list) console.log(line(d));
       return;
     }
     case "show": {

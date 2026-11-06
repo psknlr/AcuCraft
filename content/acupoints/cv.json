@@ -1,0 +1,1194 @@
+{
+  "schema": "acucraft/acupoints@1",
+  "id": "acucraft-points-cv",
+  "version": "0.2.0",
+  "points": [
+    {
+      "id": "CV1",
+      "names": {
+        "pinyin": "Huìyīn",
+        "hanzi": "会阴",
+        "en": "Meeting of Yin"
+      },
+      "channel": "CV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "CV1",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "CV1",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "REN1"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the perineal region, at the midpoint between the anus and the posterior border of the scrotum (male) or the posterior labial commissure (female).",
+        "paraphrased": true
+      },
+      "area": "perineum",
+      "bilateral": false,
+      "cautions": [],
+      "notes": "A perineal point: rarely needled; requires explicit consent and a chaperone.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "CV2",
+      "names": {
+        "pinyin": "Qūgǔ",
+        "hanzi": "曲骨",
+        "en": "Curved Bone"
+      },
+      "channel": "CV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "CV2",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "CV2",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "REN2"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the lower abdomen, superior to the pubic symphysis, on the anterior median line.",
+        "paraphrased": true
+      },
+      "area": "abdomen",
+      "bilateral": false,
+      "cautions": [
+        {
+          "id": "CV2-pregnancy",
+          "when": "pregnancy",
+          "text": "Lower abdominal points: traditionally avoided in pregnancy.",
+          "severity": "major"
+        }
+      ],
+      "notes": "The bladder lies beneath: ask the patient to empty it first.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "CV3",
+      "names": {
+        "pinyin": "Zhōngjí",
+        "hanzi": "中极",
+        "en": "Central Pole"
+      },
+      "channel": "CV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "CV3",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "CV3",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "REN3"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the lower abdomen, 4 B-cun inferior to the centre of the umbilicus, on the anterior median line.",
+        "paraphrased": true
+      },
+      "area": "abdomen",
+      "bilateral": false,
+      "cautions": [
+        {
+          "id": "CV3-pregnancy",
+          "when": "pregnancy",
+          "text": "Lower abdominal points: traditionally avoided in pregnancy.",
+          "severity": "major"
+        }
+      ],
+      "notes": "The bladder lies beneath: ask the patient to empty it first.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "CV4",
+      "names": {
+        "pinyin": "Guānyuán",
+        "hanzi": "关元",
+        "en": "Origin Pass"
+      },
+      "channel": "CV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "CV4",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "CV4",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "REN4"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the lower abdomen, 3 B-cun inferior to the centre of the umbilicus, on the anterior median line.",
+        "paraphrased": true
+      },
+      "area": "abdomen",
+      "tolerance": {
+        "cm": 1
+      },
+      "bilateral": false,
+      "cautions": [
+        {
+          "id": "CV4-pregnancy",
+          "when": "pregnancy",
+          "text": "Traditionally avoided in pregnancy.",
+          "severity": "major"
+        }
+      ],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "CV5",
+      "names": {
+        "pinyin": "Shímén",
+        "hanzi": "石门",
+        "en": "Stone Gate"
+      },
+      "channel": "CV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "CV5",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "CV5",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "REN5"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the lower abdomen, 2 B-cun inferior to the centre of the umbilicus, on the anterior median line.",
+        "paraphrased": true
+      },
+      "area": "abdomen",
+      "bilateral": false,
+      "cautions": [
+        {
+          "id": "CV5-pregnancy",
+          "when": "pregnancy",
+          "text": "Lower abdominal points: traditionally avoided in pregnancy.",
+          "severity": "major"
+        }
+      ],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "CV6",
+      "names": {
+        "pinyin": "Qìhǎi",
+        "hanzi": "气海",
+        "en": "Sea of Qi"
+      },
+      "channel": "CV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "CV6",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "CV6",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "REN6"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the lower abdomen, 1.5 B-cun inferior to the centre of the umbilicus, on the anterior median line.",
+        "paraphrased": true
+      },
+      "area": "abdomen",
+      "tolerance": {
+        "cm": 1
+      },
+      "bilateral": false,
+      "cautions": [
+        {
+          "id": "CV6-pregnancy",
+          "when": "pregnancy",
+          "text": "Traditionally avoided in pregnancy.",
+          "severity": "major"
+        }
+      ],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "CV7",
+      "names": {
+        "pinyin": "Yīnjiāo",
+        "hanzi": "阴交",
+        "en": "Yin Intersection"
+      },
+      "channel": "CV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "CV7",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "CV7",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "REN7"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the lower abdomen, 1 B-cun inferior to the centre of the umbilicus, on the anterior median line.",
+        "paraphrased": true
+      },
+      "area": "abdomen",
+      "bilateral": false,
+      "cautions": [
+        {
+          "id": "CV7-pregnancy",
+          "when": "pregnancy",
+          "text": "Lower abdominal points: traditionally avoided in pregnancy.",
+          "severity": "major"
+        }
+      ],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "CV8",
+      "names": {
+        "pinyin": "Shénquè",
+        "hanzi": "神阙",
+        "en": "Spirit Gate Tower"
+      },
+      "channel": "CV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "CV8",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "CV8",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "REN8"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the abdomen, at the centre of the umbilicus.",
+        "paraphrased": true
+      },
+      "area": "abdomen",
+      "bilateral": false,
+      "cautions": [],
+      "notes": "Not needled: moxibustion only (traditionally on salt or ginger).",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "CV9",
+      "names": {
+        "pinyin": "Shuǐfēn",
+        "hanzi": "水分",
+        "en": "Water Divide"
+      },
+      "channel": "CV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "CV9",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "CV9",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "REN9"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the upper abdomen, 1 B-cun superior to the centre of the umbilicus, on the anterior median line.",
+        "paraphrased": true
+      },
+      "area": "abdomen",
+      "bilateral": false,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "CV10",
+      "names": {
+        "pinyin": "Xiàwǎn",
+        "hanzi": "下脘",
+        "en": "Lower Stomach Duct"
+      },
+      "channel": "CV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "CV10",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "CV10",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "REN10"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the upper abdomen, 2 B-cun superior to the centre of the umbilicus, on the anterior median line.",
+        "paraphrased": true
+      },
+      "area": "abdomen",
+      "bilateral": false,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "CV11",
+      "names": {
+        "pinyin": "Jiànlǐ",
+        "hanzi": "建里",
+        "en": "Interior Strengthening"
+      },
+      "channel": "CV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "CV11",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "CV11",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "REN11"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the upper abdomen, 3 B-cun superior to the centre of the umbilicus, on the anterior median line.",
+        "paraphrased": true
+      },
+      "area": "abdomen",
+      "bilateral": false,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "CV12",
+      "names": {
+        "pinyin": "Zhōngwǎn",
+        "hanzi": "中脘",
+        "en": "Middle Cavity"
+      },
+      "channel": "CV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "CV12",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "CV12",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "REN12"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the upper abdomen, 4 B-cun superior to the centre of the umbilicus, on the anterior median line.",
+        "paraphrased": true
+      },
+      "area": "abdomen",
+      "tolerance": {
+        "cm": 1
+      },
+      "bilateral": false,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "CV13",
+      "names": {
+        "pinyin": "Shàngwǎn",
+        "hanzi": "上脘",
+        "en": "Upper Stomach Duct"
+      },
+      "channel": "CV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "CV13",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "CV13",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "REN13"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the upper abdomen, 5 B-cun superior to the centre of the umbilicus, on the anterior median line.",
+        "paraphrased": true
+      },
+      "area": "abdomen",
+      "bilateral": false,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "CV14",
+      "names": {
+        "pinyin": "Jùquè",
+        "hanzi": "巨阙",
+        "en": "Great Tower Gate"
+      },
+      "channel": "CV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "CV14",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "CV14",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "REN14"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the upper abdomen, 6 B-cun superior to the centre of the umbilicus, on the anterior median line.",
+        "paraphrased": true
+      },
+      "area": "abdomen",
+      "bilateral": false,
+      "cautions": [],
+      "notes": "The liver lies beneath (and the heart above it): no deep needling, particularly with an enlarged liver.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "CV15",
+      "names": {
+        "pinyin": "Jiūwěi",
+        "hanzi": "鸠尾",
+        "en": "Turtledove Tail"
+      },
+      "channel": "CV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "CV15",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "CV15",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "REN15"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the upper abdomen, 1 B-cun inferior to the xiphisternal junction, on the anterior median line.",
+        "paraphrased": true
+      },
+      "area": "abdomen",
+      "bilateral": false,
+      "cautions": [],
+      "notes": "Just below the xiphoid process: deep or upward needling may reach the liver or the heart.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "CV16",
+      "names": {
+        "pinyin": "Zhōngtíng",
+        "hanzi": "中庭",
+        "en": "Central Courtyard"
+      },
+      "channel": "CV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "CV16",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "CV16",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "REN16"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the anterior thoracic region, at the midpoint of the xiphisternal junction, on the anterior median line.",
+        "paraphrased": true
+      },
+      "area": "chest",
+      "bilateral": false,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "CV17",
+      "names": {
+        "pinyin": "Dànzhōng",
+        "hanzi": "膻中",
+        "en": "Chest Centre"
+      },
+      "channel": "CV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "CV17",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "CV17",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "REN17"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the anterior thoracic region, at the level of the fourth intercostal space, on the anterior median line.",
+        "paraphrased": true
+      },
+      "area": "chest",
+      "bilateral": false,
+      "cautions": [],
+      "notes": "A congenital sternal foramen may lie beneath: needle transversely only.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "CV18",
+      "names": {
+        "pinyin": "Yùtáng",
+        "hanzi": "玉堂",
+        "en": "Jade Hall"
+      },
+      "channel": "CV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "CV18",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "CV18",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "REN18"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the anterior thoracic region, at the level of the third intercostal space, on the anterior median line.",
+        "paraphrased": true
+      },
+      "area": "chest",
+      "bilateral": false,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "CV19",
+      "names": {
+        "pinyin": "Zǐgōng",
+        "hanzi": "紫宫",
+        "en": "Purple Palace"
+      },
+      "channel": "CV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "CV19",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "CV19",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "REN19"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the anterior thoracic region, at the level of the second intercostal space, on the anterior median line.",
+        "paraphrased": true
+      },
+      "area": "chest",
+      "bilateral": false,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "CV20",
+      "names": {
+        "pinyin": "Huágài",
+        "hanzi": "华盖",
+        "en": "Florid Canopy"
+      },
+      "channel": "CV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "CV20",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "CV20",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "REN20"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the anterior thoracic region, at the level of the first intercostal space, on the anterior median line.",
+        "paraphrased": true
+      },
+      "area": "chest",
+      "bilateral": false,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "CV21",
+      "names": {
+        "pinyin": "Xuánjī",
+        "hanzi": "璇玑",
+        "en": "Jade Pivot"
+      },
+      "channel": "CV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "CV21",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "CV21",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "REN21"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the anterior thoracic region, 1 B-cun inferior to the suprasternal fossa, on the anterior median line.",
+        "paraphrased": true
+      },
+      "area": "chest",
+      "bilateral": false,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "CV22",
+      "names": {
+        "pinyin": "Tiāntū",
+        "hanzi": "天突",
+        "en": "Celestial Chimney"
+      },
+      "channel": "CV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "CV22",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "CV22",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "REN22"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the anterior region of the neck, at the centre of the suprasternal fossa, on the anterior median line.",
+        "paraphrased": true
+      },
+      "area": "neck",
+      "bilateral": false,
+      "cautions": [],
+      "notes": "The trachea lies beneath and the great vessels behind the manubrium: needle shallowly; deeper insertion, downward behind the manubrium, requires specific training.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "CV23",
+      "names": {
+        "pinyin": "Liánquán",
+        "hanzi": "廉泉",
+        "en": "Ridge Spring"
+      },
+      "channel": "CV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "CV23",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "CV23",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "REN23"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the anterior region of the neck, superior to the superior border of the thyroid cartilage, in the depression superior to the hyoid bone, on the anterior median line.",
+        "paraphrased": true
+      },
+      "area": "neck",
+      "bilateral": false,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "CV24",
+      "names": {
+        "pinyin": "Chéngjiāng",
+        "hanzi": "承浆",
+        "en": "Sauce Receptacle"
+      },
+      "channel": "CV",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "CV24",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "CV24",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "REN24"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the face, in the depression at the centre of the mentolabial sulcus.",
+        "paraphrased": true
+      },
+      "area": "face",
+      "bilateral": false,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    }
+  ]
+}
