@@ -17,10 +17,14 @@ const COMMITMENTS: [RegExp, TaskKind][] = [
 const COMMIT_LEAD = /\b(i'?ll|i will|i am going to|i'm going to|let me|i can)\b/;
 
 export function detectCommitment(text: string): TaskKind | null {
-  const t = text.toLowerCase();
-  if (!COMMIT_LEAD.test(t)) return null;
-  if (/\b(not|n't|won't|never)\b/.test(t.slice(t.search(COMMIT_LEAD)))) return null;
-  for (const [re, kind] of COMMITMENTS) if (re.test(t)) return kind;
+  // the commitment is what follows "I'll / I will / let me …" in the same sentence
+  for (const sentence of text.toLowerCase().split(/[.;!?\n]+/)) {
+    const at = sentence.search(COMMIT_LEAD);
+    if (at < 0) continue;
+    const rest = sentence.slice(at);
+    if (/\b(not|n't|won't|never)\b/.test(rest)) continue;
+    for (const [re, kind] of COMMITMENTS) if (re.test(rest)) return kind;
+  }
   return null;
 }
 

@@ -1,0 +1,99 @@
+# Authoring content
+
+The content pack (`content/`) is plain JSON; the loader identifies every file by its `schema` field.
+
+```
+content/
+  standards/standards.json        acucraft/standards@1   point-location editions and their known differences
+  acupoints/core.json             acucraft/acupoints@1   versioned point definitions (41; 21 with a localisation)
+  regions/*.json                  acucraft/region@1      regional models (5) — docs/ANATOMY.md
+  sg/roles.json                   acucraft/roles@1       professional roles and permissions
+  sg/ruleset-*.json               acucraft/ruleset@1     versioned rule sets with effective dates
+  sg/clinic.json                  acucraft/clinic@1      the simulated clinic
+  sg/vocabulary.json              acucraft/vocabulary@1  diagnoses, patterns, red flags (assessment ids)
+  sg/evidence.json                acucraft/evidence@1    guideline recommendations, with versions
+  families/<id>/family.json       acucraft/family@1      a case family: title, condition, split, variants
+  families/<id>/case.json         clinicalcraft/case@1   the consultation (history, exam, records, physiology)
+  families/<id>/field.json        acucraft/field@1       the acupuncture field and the hidden evaluation
+  families/<id>/variants/*.json   acucraft/variant@1     overlays of case and field
+  families/<id>/solutions/*.json                         a variant's reference trajectory (hidden)
+  bench/pilot-v1.json             acucraft/suite@1       the pilot benchmark suite
+```
+
+## Families and variants
+
+A family is one patient and presentation; each variant changes one thing on purpose and says so (`purpose`, hidden
+from agents): `base`, `risk`, `anatomy`, `position`, `event`, `red-flag`, `wording`, `follow-up`. A variant overlays the
+family's `case` and `field` with id-aware merge patches (`engine/util.ts` `applyPatch`):
+
+- objects merge key by key; `null` deletes a key;
+- an array of objects with `id`, patched with such an array, merges item by item: same id merges, `"$remove": true`
+  deletes, a new id appends;
+- `{"$replace": value}` replaces whatever is there;
+- anything else replaces.
+
+The underlying patient state stays fixed and versioned (`family.version`).
+
+## The case (`case.json`)
+
+A ClinicalCraft case (`docs/CASE_AUTHORING.md` in ClinicalCraft). AcuCraft conventions:
+
+- phases `visit-1` and `follow-up`; the follow-up's `enterWhen` is `{"flag": "acu.visit-2"}`;
+- a simulated clock;
+- existing reports as `performedAt: "records"` investigations with `availability.historical`;
+- physiology events may listen to the `acu.*` flags (`acu.vasovagal`, `acu.lying`, `acu.needles-in`);
+- the last objective completes on `{"flag": "acu.finished"}`; `solution` is ClinicalCraft's own walkthrough (checked by
+  `verifyCase`).
+
+## The field (`field.json`)
+
+- `clinic`, `roles`, `ruleSeries`, `visits` (index, phase, date, label), `cast` (who is under test; NPCs and their
+  policy), `regions` modelled in the scenario.
+- `patient`: location, position, risk factors (matched against point cautions), anxiety, positions declined, anatomy
+  (finger cun; per region `both`/`left`/`right`: scale, subcutaneous and muscle scale, landmark and structure shifts),
+  site conditions (circle or whole region, revealed by an exam finding), Ashi points (revealed by an exam finding),
+  consent (required topics; agree, questions, decline texts).
+- `equipment.packs`, `safety.guard`.
+- `events`: `when` (a field condition), `afterMinutes`, seeded `probability`, `interrupts`, severity and effects
+  (ClinicalCraft flags, field flags, speech, patient feedback, consent withdrawal, a needle dropping out or breaking,
+  anxiety).
+- `evaluation`: pathways (acceptable or not), expected and acceptable diagnoses, defensible and implausible patterns,
+  red flags present or absent, points recommended / acceptable / to avoid, critical errors, required history, exam and
+  records, monitoring limits, follow-up pathways, documentation fields. Hidden from agents.
+
+### Field conditions
+
+`all`, `any`, `not`, `always`; `clinical` (any ClinicalCraft condition: `asked`, `examined`, `read`, `flag`, `vital` …);
+`flag`; `needled {point|ashi, side?}`; `needlesInserted`, `needlesRetained` (ranges); `needlesResolved`;
+`disposition (visit?)`; `referred {to?, urgency?}`; `pattern`; `diagnosed`; `redFlag`; `consent`; `explained (visit?)`;
+`position`; `positioned`; `unsafe`; `violation`; `feedback`; `event`; `respondedTo {event, withinMinutes}`;
+`withdrawnAfter {event, withinMinutes}`; `stopped`; `documented`; `visit`; `visitEnded`; `task`; `elapsed`.
+
+## Reference trajectories and authoring scripts
+
+Each variant's reference trajectory (`solutions/<variant>.json`) must reach an acceptable pathway with no rejection
+and no critical error (`npm run validate`). Families after the first are written by scripts in `tools/content/` (one per
+family, sharing `lib.py`) that emit the case, field, variants and solutions together; mark coordinates come from
+
+```bash
+npm run acu -- locate sg-knee-oa/base supine-knee-flexed ST35:right ST36:right
+```
+
+which prints the hidden patient-specific instances. Then:
+
+```bash
+npm run validate
+```
+
+```bash
+npx vitest run
+```
+
+The tests also check that the base trajectory **fails** on every other variant of its family: a variant that does not
+change the outcome of the base course is not testing anything.
+
+## Review status
+
+Every file that carries clinical, anatomical or regulatory content has a `review` (or `provenance.review`) with
+`unreviewed`, `editorial` or `expert-reviewed`, and sources marked `verified: false` until checked. Everything in this
+release is `unreviewed`.

@@ -85,6 +85,12 @@
           "neutropenia"
         ]
       },
+      "patterns": {
+        "$replace": {
+          "defensible": [],
+          "implausible": []
+        }
+      },
       "pathways": [
         {
           "id": "p-treat",

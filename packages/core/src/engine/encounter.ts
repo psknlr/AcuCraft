@@ -1,4 +1,5 @@
 import {
+  createRng,
   createSession,
   matchExam,
   matchHistory,
@@ -7,6 +8,7 @@ import {
   reduce,
   resultFor,
   resultKey,
+  seedFrom,
   t,
   vitalsAt,
   type Result,
@@ -413,6 +415,10 @@ function resolveInvestigation(ctx: Ctx, id: string | undefined, query: string | 
 }
 
 const NOT_MODELLED = "Not provided or not modelled for this case.";
+
+/** How far a palpated landmark may lie from the true one (cm), and the relative error of a tape measurement. */
+export const PALPATION_ERROR_CM = 0.25;
+export const MEASUREMENT_ERROR = 0.015;
 
 function checkClaim(ctx: Ctx, claim: Claim): boolean {
   const { s } = ctx;
@@ -881,12 +887,17 @@ const HANDLERS: HandlerMap = {
     ctx.out.cost = 1;
   },
   identify_landmark(ctx, a) {
-    const { s } = ctx;
+    const { s, sc } = ctx;
     atPatient(ctx);
     const frame = regionFrame(ctx, a.region, a.side);
     const lm = frame.region.landmarks.find((l) => l.id === a.landmark);
     if (!lm) throw new Rejection("unknown-id", `The ${frame.region.title} has no landmark ${a.landmark}.`);
-    const p = frame.landmark(a.landmark)!;
+    // palpation is precise to a few millimetres, never exact: a seeded error per patient, landmark and position
+    const truth = frame.landmark(a.landmark)!;
+    const rng = createRng(seedFrom(s.seed, sc.id, a.region, a.side, a.landmark, frame.configuration));
+    const angle = rng() * 2 * Math.PI;
+    const r = PALPATION_ERROR_CM * Math.sqrt(rng());
+    const p = { u: truth.u + r * Math.cos(angle), v: truth.v + r * Math.sin(angle) };
     s.landmarks.push({ visit: visitIndex(s), by: ctx.actor.id, at: now(s), region: a.region, side: a.side, landmark: a.landmark, position: p, configuration: frame.configuration });
     observe(ctx, `${lm.label} (${a.side} ${frame.region.title}, ${frame.configuration}): ${at2(p)}.`);
     ctx.out.target = `${a.region}:${a.side}:${a.landmark}`;
@@ -904,7 +915,7 @@ const HANDLERS: HandlerMap = {
       if (!a.segment) throw new Rejection("invalid", "Name the segment to measure, or ask for the finger cun.");
       const seg = frame.region.segments.find((x) => x.id === a.segment);
       if (!seg) throw new Rejection("unknown-id", `The ${frame.region.title} has no segment ${a.segment}.`);
-      const cm = frame.segmentCm(seg.id)!;
+      const cm = frame.segmentCm(seg.id)! * (1 + (createRng(seedFrom(s.seed, sc.id, a.region, a.side, seg.id))() - 0.5) * 2 * MEASUREMENT_ERROR);
       s.measurements.push({ visit: visitIndex(s), by: ctx.actor.id, at: now(s), region: a.region, side: a.side, what: seg.id, cm });
       observe(ctx, `${seg.label}: ${fmt(cm)} cm, which the standard divides into ${seg.cun} B-cun.`);
     }

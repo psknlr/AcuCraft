@@ -19,7 +19,9 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "acu": "tsx packages/cli/src/bin.ts",
     "validate": "tsx packages/cli/src/bin.ts validate",
-    "check": "bash tools/check.sh"
+    "check": "bash tools/check.sh",
+    "export:clinicalcraft": "tsx packages/cli/src/bin.ts export-clinicalcraft --out out/clinicalcraft",
+    "bench": "tsx packages/cli/src/bin.ts bench"
   },
   "dependencies": {
     "zod": "3.25.76"

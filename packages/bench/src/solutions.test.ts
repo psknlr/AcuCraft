@@ -25,3 +25,20 @@ describe("content pack", () => {
     });
   }
 });
+
+import { evaluateEncounter } from "./evaluate.js";
+
+describe("variants change the outcome they are meant to", () => {
+  for (const fam of pack.families.values()) {
+    for (const v of fam.variantIds.filter((x) => x !== "base")) {
+      it(`${fam.id}: the base reference course fails on ${v}`, () => {
+        const base = loadScenario(pack, `${fam.id}/base`);
+        const sc = loadScenario(pack, `${fam.id}/${v}`);
+        if (!base.ok || !sc.ok) throw new Error("unresolved");
+        let s = createEncounter(sc.scenario, { seed: 1 });
+        for (const req of base.scenario.field.solution) s = step(sc.scenario, s, req, { strict: true }).state;
+        expect(evaluateEncounter(sc.scenario, s).primary.success).toBe(false);
+      });
+    }
+  }
+});
