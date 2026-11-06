@@ -14,3 +14,4 @@ export * from "./agents/localise.js";
 export * from "./agents/claude.js";
 export * from "./agents/catalogue.js";
 export * from "./report.js";
+export * from "./viewer.js";

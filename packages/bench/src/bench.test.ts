@@ -9,6 +9,7 @@ import { claudeAgent } from "./agents/claude.js";
 import { actionCatalogue } from "./agents/catalogue.js";
 import { clusterBootstrap, wilson } from "./stats.js";
 import { runSuite, SuiteSchema, suiteMarkdown } from "./suite.js";
+import { encounterHtml } from "./viewer.js";
 
 const pack = loadContentPack();
 
@@ -42,6 +43,18 @@ describe("baseline agents", () => {
     expect(r.splits.all.primary.k).toBe(6);
     expect(suiteMarkdown(r)).toMatch(/Primary endpoint/);
   }, 60000);
+});
+
+describe("encounter viewer", () => {
+  it("draws a chart per needled region and side, and the timeline", async () => {
+    const sc = requireScenario(pack, "sg-chemo-nausea/base");
+    const e = await runEpisode(sc, referenceAgent(sc), { seed: 1 });
+    const html = encounterHtml(sc, e.state, e.report);
+    expect(html.match(/<svg /g)?.length).toBe(4); // forearm and leg, left and right
+    expect(html).toMatch(/<title>Encounter viewer<\/title>/);
+    expect(html).toContain("prefers-color-scheme: dark");
+    expect(html.match(/<tr class=/g)!.length).toBe(e.state.attempts.length);
+  });
 });
 
 describe("statistics", () => {

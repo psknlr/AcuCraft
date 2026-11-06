@@ -67,7 +67,7 @@ npm run bench -- --agent claude --split dev
 |---|---|
 | `packages/core` — `@acucraft/core` | schemas; scenario resolution (family + variant overlays); patient-specific anatomy, proportional (B-cun) localisation and needle path assessment; the deterministic encounter engine over ClinicalCraft's clinical session; needle lifecycle and invariants; roles, versioned rules and the simulation guard; consent; delegation and NPC policies; field events; replay; the agent view |
 | `packages/bench` — `@acucraft/bench` | content loader; the independent evaluator (primary endpoint, five tracks, critical errors, unsafe attempts executed/blocked, adjudication, STRICTA-informed documentation); agents (reference oracle, rule-based protocol, Claude); runner; suites; statistics; reports |
-| `packages/cli` — `acucraft` | `validate`, `list`, `show`, `locate`, `run`, `play`, `replay`, `evaluate`, `bench`, `export-clinicalcraft` |
+| `packages/cli` — `acucraft` | `validate`, `list`, `show`, `locate`, `run`, `play`, `replay`, `evaluate`, `view` (an HTML encounter viewer: charts with landmarks, structures, reference locations and entries, and the timeline), `bench`, `export-clinicalcraft` |
 | `content/` | 3 standard editions, 41 versioned point definitions (21 localised), 5 regional models, Singapore roles, 3 rule-set series, the clinic, vocabulary, guideline evidence, 5 families, the pilot suite |
 | `tools/` | `bootstrap.sh` (the pinned engine), `check.sh` (what CI runs), `locate.ts`, `content/` (family authoring scripts) |
 

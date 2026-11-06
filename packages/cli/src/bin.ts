@@ -26,6 +26,7 @@ import {
 } from "@acucraft/core";
 import {
   claudeAgent,
+  encounterHtml,
   episodeMarkdown,
   evaluateEncounter,
   loadContentPack,
@@ -61,6 +62,8 @@ usage: npm run acu -- <command> [options]
                                             play the practitioner yourself (type help inside)
   replay <log.json>                         replay a log, check it reproduces the recorded state, re-evaluate
   evaluate <log.json> [--json]              evaluate a log
+  view <log.json> [--out FILE]              an HTML view of the encounter: charts with landmarks, structures,
+                                            reference locations and entries, and the timeline (shows hidden truth)
   bench [--suite FILE] [--agent ...] [--split dev|held-out|all] [--out DIR] [--model ID] [--effort ...]
                                             run a benchmark suite; writes suite-result.json and report.md
   export-clinicalcraft --out DIR            write every instance's ClinicalCraft case (cases/<id>/case.json) for
@@ -234,10 +237,11 @@ async function main(): Promise<void> {
       write(join(out, "log.json"), `${JSON.stringify(e.log, null, 2)}\n`);
       write(join(out, "report.json"), `${JSON.stringify(e.report, null, 2)}\n`);
       write(join(out, "report.md"), episodeMarkdown(e.report));
+      write(join(out, "viewer.html"), encounterHtml(sc, e.state, e.report));
       console.log(`${id}: ${e.report.primary.status} (${e.stopReason}, ${e.steps} actions)${e.error ? ` — error: ${e.error}` : ""}`);
       for (const reason of e.report.primary.reasons) console.log(`  ${reason}`);
       console.log(`  tracks: ${Object.entries(e.report.tracks).map(([k, t]) => `${k} ${t.score === null ? "—" : t.score.toFixed(2)}`).join(", ")}`);
-      console.log(`  wrote ${out}/log.json, report.json, report.md`);
+      console.log(`  wrote ${out}/log.json, report.json, report.md, viewer.html`);
       return;
     }
     case "play": {
@@ -252,26 +256,36 @@ async function main(): Promise<void> {
       const requests: unknown[] = [];
       console.log(`${sc.family.title} — ${sc.clinic.title}. You are the ${observeAs(sc, s, actor).you.roleLabel}.`);
       console.log(`Opening: "${(sc.case.patient.persona.openingLine as string) ?? ""}"  (type help)`);
-      for (;;) {
-        const line = (await rl.question(`[min ${s.clinical.clock.toFixed(1)}] > `)).trim();
-        if (!line) continue;
+      const prompt = () => process.stdout.write(`[min ${s.clinical.clock.toFixed(1)}] > `);
+      prompt();
+      // the async iterator keeps lines that arrive while a step runs (piped input), unlike rl.question
+      for await (const raw of rl) {
+        const line = raw.trim();
+        if (!line) {
+          prompt();
+          continue;
+        }
         if (line === "quit" || line === "exit") break;
         if (line === "help") {
           console.log("ask <question> | say <text> | exam <manoeuvre> | records <query> | view | lib <topic> [id] | actions | <JSON action> | quit");
+          prompt();
           continue;
         }
         if (line === "view") {
           console.log(JSON.stringify(observeAs(sc, s, actor), null, 2));
+          prompt();
           continue;
         }
         if (line === "actions") {
           console.log(ActionSchema.options.map((o) => (o.shape.type as { value: string }).value).join(", "));
+          prompt();
           continue;
         }
         if (line.startsWith("lib")) {
           const [, topic, which] = line.split(/\s+/);
           const data = topic === "point" ? lib.points.find((x) => x.id === which) : topic === "region" ? lib.regions.find((x) => x.id === which) : (lib as Record<string, unknown>)[topic ?? ""];
           console.log(JSON.stringify(data ?? Object.keys(lib), null, 2));
+          prompt();
           continue;
         }
         let action: unknown;
@@ -286,6 +300,7 @@ async function main(): Promise<void> {
             action = JSON.parse(line);
           } catch {
             console.log("not understood: type help");
+            prompt();
             continue;
           }
         }
@@ -299,6 +314,7 @@ async function main(): Promise<void> {
           for (const o of a.observations) console.log(`  ${o}`);
         }
         if (s.finished) break;
+        prompt();
       }
       rl.close();
       const report = evaluateEncounter(sc, s);
@@ -307,6 +323,16 @@ async function main(): Promise<void> {
       write(join(out, "log.json"), `${JSON.stringify(log, null, 2)}\n`);
       write(join(out, "report.md"), episodeMarkdown(report));
       console.log(`\n${report.primary.status}: ${report.primary.reasons.join("; ") || report.primary.pathway}. Wrote ${out}/log.json and report.md`);
+      return;
+    }
+    case "view": {
+      const p = pack();
+      const log = JSON.parse(readFileSync(args[0] ?? "", "utf8")) as EncounterLog;
+      const sc = requireScenario(p, log.scenarioId);
+      const { state } = replayLog(sc, log, { strict: true });
+      const out = values.out ?? join(dirname(args[0]!), "viewer.html");
+      write(out, encounterHtml(sc, state, evaluateEncounter(sc, state)));
+      console.log(`wrote ${out}`);
       return;
     }
     case "replay":
