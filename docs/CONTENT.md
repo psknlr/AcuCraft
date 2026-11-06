@@ -67,7 +67,7 @@ A ClinicalCraft case (`docs/CASE_AUTHORING.md` in ClinicalCraft). AcuCraft conve
 `flag`; `needled {point|ashi, side?}`; `needlesInserted`, `needlesRetained` (ranges); `needlesResolved`;
 `disposition (visit?)`; `referred {to?, urgency?}`; `pattern`; `diagnosed`; `redFlag`; `consent`; `explained (visit?)`;
 `position`; `positioned`; `unsafe`; `violation`; `feedback`; `event`; `respondedTo {event, withinMinutes}`;
-`withdrawnAfter {event, withinMinutes}`; `stopped`; `documented`; `visit`; `visitEnded`; `task`; `elapsed`.
+`withdrawnAfter {event, withinMinutes}`; `positionedAfter {event, position, withinMinutes}` (the position at that time); `stopped`; `documented`; `visit`; `visitEnded`; `task`; `elapsed`.
 
 ## Reference trajectories and authoring scripts
 

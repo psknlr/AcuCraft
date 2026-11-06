@@ -199,6 +199,8 @@ def standard(prefix, gb21_depth, gb21_angle, depth_note):
 FAINT_EVENT = {"id": "ev-vasovagal", "when": {"all": [{"needlesRetained": {"gte": 3}}, {"position": ["seated", "seated-forward"]}]}, "afterMinutes": 2, "interrupts": True, "severity": "critical",
   "effects": {"feedback": {"kind": "faint", "text": "I feel... strange. Dizzy — I think I'm going to be sick."}, "clinicalFlags": ["acu.vasovagal"]}}
 
+# lying flat after a faint: supine (legs raised if possible) or on her side
+FLAT = ["supine", "supine-knee-flexed", "side-lying-left", "side-lying-right"]
 variants = [
  variant("base", "Base case", "base", "Chronic tension-type headache without red flags: needling GB20 and GB21 at safe angles and depths prone, with LI4; six needles from two packs, so an opened pack's unused needles must also go to the sharps container."),
  variant("faint", "Sitting up, hasn't eaten, faints", "event", "An event during retention: she declines to lie face down and has skipped lunch; treated sitting, she faints after a few minutes. Tests recognition and response: stop, remove the needles, lie her flat, observe and record — no further needling that visit.",
@@ -206,7 +208,8 @@ variants = [
   field={"patient": {"anxiety": 0.5, "declinesPositions": ["prone"], "declinesPositionText": "Sorry — I'd rather not lie face down. It makes me panicky. Can I sit?"},
    "events": [FAINT_EVENT],
    "evaluation": {"pathways": [{"id": "p-treat", "$remove": True},
-     {"id": "p-faint-managed", "label": "Treatment stopped at the faint: needles out, lying flat, observed, recorded", "acceptable": True, "when": {"all": [{"event": "ev-vasovagal"}, {"respondedTo": {"event": "ev-vasovagal", "withinMinutes": 2}}, {"withdrawnAfter": {"event": "ev-vasovagal", "withinMinutes": 3}}, {"positioned": ["supine", "supine-knee-flexed", "side-lying-left", "side-lying-right"]}, {"not": {"unsafe": "continued-after-adverse-event"}}, {"visitEnded": 1}]}},
+     {"id": "p-faint-managed", "label": "Treatment stopped at the faint: needles out, lying flat, observed, recorded", "acceptable": True, "when": {"all": [{"event": "ev-vasovagal"}, {"respondedTo": {"event": "ev-vasovagal", "withinMinutes": 2}}, {"withdrawnAfter": {"event": "ev-vasovagal", "withinMinutes": 3}}, {"positionedAfter": {"event": "ev-vasovagal", "position": FLAT, "withinMinutes": 3}}, {"not": {"unsafe": "continued-after-adverse-event"}}, {"visitEnded": 1}]}},
+     {"id": "p-faint-upright", "label": "Fainted patient left sitting up", "acceptable": False, "when": {"all": [{"event": "ev-vasovagal"}, {"not": {"positionedAfter": {"event": "ev-vasovagal", "position": FLAT, "withinMinutes": 3}}}]}},
      {"id": "p-treat-lying", "label": "Treated lying on her side (no faint)", "acceptable": True, "when": {"all": [{"not": {"event": "ev-vasovagal"}}, {"disposition": ["treat", "treat-modified"], "visit": 1}, {"needlesInserted": {"gte": 1}}, {"explained": "alternatives"}, {"not": {"unsafe": "insertion-without-consent"}}, {"visitEnded": 1}]}}],
     "criticalErrors": [{"id": "ce-faint-ignored", "label": "Needles still in three minutes after the faint", "when": {"all": [{"event": "ev-vasovagal"}, {"not": {"withdrawnAfter": {"event": "ev-vasovagal", "withinMinutes": 3}}}]}}],
     "followUp": {"pathways": [{"id": "fu-review-continue", "$remove": True}, {"id": "fu-modified", "label": "Review; continue with precautions (lying down, after a meal) or stop", "acceptable": True, "when": {"all": [{"clinical": {"asked": "fu-progress"}}, {"disposition": ["treat", "treat-modified", "defer", "decline"], "visit": 2}, {"visitEnded": 2}]}}]}}}),

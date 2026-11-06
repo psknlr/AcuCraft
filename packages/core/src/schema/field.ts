@@ -82,10 +82,12 @@ export type FieldCondition =
   | { violation: string }
   | { feedback: string }
   | { event: string }
-  /** A monitoring observation was made within `withinMinutes` of the event firing. */
+  /** The practitioner under test attended to the patient (monitor, observe, vitals, stop, remove, adjust, reposition, pressure) within `withinMinutes` of the event firing. */
   | { respondedTo: { event: string; withinMinutes: number } }
   /** Every needle in place when the event fired was out within `withinMinutes` of it. */
   | { withdrawnAfter: { event: string; withinMinutes: number } }
+  /** The event fired, and `withinMinutes` later the patient was in one of these positions. */
+  | { positionedAfter: { event: string; position: Position | Position[]; withinMinutes: number } }
   | { stopped: boolean }
   | { documented: string }
   | { visit: number }
@@ -120,6 +122,7 @@ export const FieldConditionSchema: z.ZodType<FieldCondition> = z.lazy(() =>
     z.object({ event: IdSchema }).strict(),
     z.object({ respondedTo: z.object({ event: IdSchema, withinMinutes: z.number().positive() }).strict() }).strict(),
     z.object({ withdrawnAfter: z.object({ event: IdSchema, withinMinutes: z.number().positive() }).strict() }).strict(),
+    z.object({ positionedAfter: z.object({ event: IdSchema, position: z.union([PositionSchema, z.array(PositionSchema).min(1)]), withinMinutes: z.number().positive() }).strict() }).strict(),
     z.object({ stopped: z.boolean() }).strict(),
     z.object({ documented: IdSchema }).strict(),
     z.object({ visit: z.number().int().min(1) }).strict(),

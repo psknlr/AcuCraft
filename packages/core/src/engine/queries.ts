@@ -43,6 +43,12 @@ export function currentPlan(s: EncounterState): PlanVersion | null {
 
 export const refKey = (r: PointRef): string => ("ashi" in r ? `ashi:${r.ashi}` : `${r.point}:${r.side}`);
 
+/** The inverse of `refKey`. */
+export function parseRef(key: string): PointRef {
+  const [head, tail] = key.split(":") as [string, string | undefined];
+  return head === "ashi" ? { ashi: tail ?? "" } : ({ point: head, side: tail ?? "midline" } as PointRef);
+}
+
 export function planIncludes(plan: PlanVersion | null, r: PointRef): boolean {
   if (!plan) return false;
   const key = refKey(r);
@@ -70,3 +76,15 @@ export function supervisorPresent(s: EncounterState, room: string, supervisorIds
 }
 
 export const fmt = (n: number, places = 1): string => (Math.round(n * 10 ** places) / 10 ** places).toFixed(places);
+
+/** The patient's position at time `t`: the initial position, then each executed repositioning (refusals excluded). */
+export function positionAt(s: EncounterState, initial: string, t: number): string {
+  let position = initial;
+  for (const a of s.attempts) {
+    if (a.at > t + 1e-9) break;
+    if (a.request.action.type !== "position_patient" || (a.status !== "executed" && a.status !== "partial")) continue;
+    if (a.executed?.detail.startsWith("the patient declined")) continue;
+    position = (a.request.action as { position: string }).position;
+  }
+  return position;
+}

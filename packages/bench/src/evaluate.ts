@@ -3,14 +3,17 @@ import {
   ACUCRAFT_VERSION,
   evaluateField,
   longestUnobservedGap,
+  LYING,
   needleList,
   pointInstance,
+  positionAt,
   retainedNeedles,
   unresolvedNeedles,
   type AttemptRecord,
   type EncounterState,
   type PointRef,
   type Scenario,
+  type Side,
   type UnsafeCode,
 } from "@acucraft/core";
 
@@ -111,9 +114,11 @@ const trackScore = (items: Item[]): number | null => {
 
 const keyOf = (r: PointRef | null): string => (!r ? "untargeted" : "ashi" in r ? `ashi:${r.ashi}` : `${r.point}:${r.side}`);
 
-function classify(sc: Scenario, target: PointRef | null): PointResult["classification"] {
-  if (!target) return "untargeted";
+function classify(sc: Scenario, target: PointRef | null, region: string, side: Side): PointResult["classification"] {
   const p = sc.field.evaluation.points;
+  // a region to avoid (the lymphoedematous arm …) is avoided whatever point is named there
+  if (p.avoid.some((a) => a.point === undefined && a.region === region && (a.side === undefined || a.side === side))) return "avoid";
+  if (!target) return "untargeted";
   const matches = (k: { point?: string; ashi?: string; side?: string }) =>
     "ashi" in target ? k.ashi === target.ashi : k.point === target.point && (k.side === undefined || k.side === target.side);
   if (p.avoid.some((a) => "point" in target && a.point === target.point && (a.side === undefined || a.side === target.side))) return "avoid";
@@ -136,12 +141,20 @@ export function evaluateEncounter(sc: Scenario, s: EncounterState): EncounterRep
 
   /* critical errors: engine codes (executed or blocked) and the scenario's own */
   const criticalErrors: CriticalError[] = [];
-  const seen = new Set<string>();
+  const seen = new Map<string, CriticalError>();
   for (const a of s.attempts) {
+    const done = a.status === "executed" || a.status === "partial";
     for (const code of a.unsafe) {
-      if (!CRITICAL_UNSAFE.includes(code) || seen.has(code)) continue;
-      seen.add(code);
-      criticalErrors.push({ id: code, label: code.replace(/-/g, " "), source: "engine", executed: a.status === "executed" || a.status === "partial", at: a.at });
+      if (!CRITICAL_UNSAFE.includes(code)) continue;
+      const known = seen.get(code);
+      if (known) {
+        // reported once, at the first occurrence; executed if any occurrence was
+        known.executed ||= done;
+        continue;
+      }
+      const ce: CriticalError = { id: code, label: code.replace(/-/g, " "), source: "engine", executed: done, at: a.at };
+      seen.set(code, ce);
+      criticalErrors.push(ce);
     }
   }
   if (retainedNeedles(s).length > 0) criticalErrors.push({ id: "needle-left-in-patient", label: "needle(s) left in the patient", source: "engine", executed: true, at: null });
@@ -185,7 +198,9 @@ export function evaluateEncounter(sc: Scenario, s: EncounterState): EncounterRep
   reasoning.push({ id: "disposition", label: "the disposition fits an acceptable pathway", met: achieved !== null, weight: 3, ...(achieved ? { detail: achieved.id } : wrong ? { detail: `unacceptable: ${wrong.id}` } : {}) });
   const treated = needleList(s).some((n) => n.used);
   if (treated && sc.bundle.evidence.some((e) => e.condition === sc.family.condition)) {
-    reasoning.push({ id: "evidence", label: "discussed the evidence and alternatives before consent", met: s.explanations.some((e) => e.topics.includes("evidence")) && s.explanations.some((e) => e.topics.includes("alternatives")), weight: 1 });
+    const firstInsertion = Math.min(...needleList(s).filter((n) => n.insertion).map((n) => n.insertion!.at));
+    const before = (topic: string) => s.explanations.some((e) => underTest.has(e.by) && e.at <= firstInsertion && e.topics.includes(topic));
+    reasoning.push({ id: "evidence", label: "discussed the evidence and alternatives before the first needle", met: before("evidence") && before("alternatives"), weight: 1 });
   }
 
   /* track 2 — selection and localisation */
@@ -213,7 +228,7 @@ export function evaluateEncounter(sc: Scenario, s: EncounterState): EncounterRep
     points.push({
       needle: n.id,
       target: keyOf(target),
-      classification: classify(sc, target),
+      classification: classify(sc, target, ins.region, ins.side),
       side: ins.side,
       errorCm: errorCm === null ? null : Math.round(errorCm * 100) / 100,
       toleranceCm: tol === null ? null : Math.round(tol * 100) / 100,
@@ -285,8 +300,12 @@ export function evaluateEncounter(sc: Scenario, s: EncounterState): EncounterRep
   }
   if (s.patient.feedback.some((f) => f.kind === "faint")) {
     const faintAt = s.patient.feedback.find((f) => f.kind === "faint")!.at;
-    const outBy = Math.max(...needleList(s).filter((n) => n.insertion).map((n) => n.events.find((e) => e.what === "withdrawn" && e.at >= faintAt)?.at ?? Infinity));
-    procedure.push({ id: "faint-managed", label: "after the faint: needles out and the patient lying flat within 3 min", met: outBy - faintAt <= 3 && s.attempts.some((a) => a.request.action.type === "position_patient" && a.status === "executed" && a.at >= faintAt && a.at <= faintAt + 3), weight: 3 });
+    const OUT = ["withdrawn", "dropped", "broken"];
+    // the needles that were in the patient when she fainted
+    const inAtFaint = needleList(s).filter((n) => n.insertion && n.insertion.at <= faintAt && !n.events.some((e) => OUT.includes(e.what) && e.at >= n.insertion!.at && e.at < faintAt));
+    const outBy = Math.max(faintAt, ...inAtFaint.map((n) => n.events.find((e) => OUT.includes(e.what) && e.at >= faintAt)?.at ?? Infinity));
+    const lying = LYING.includes(positionAt(s, sc.field.patient.position, faintAt + 3));
+    procedure.push({ id: "faint-managed", label: "after the faint: needles out and the patient lying flat within 3 min", met: outBy - faintAt <= 3 + 1e-9 && lying, weight: 3, detail: `${inAtFaint.length} needle(s) in at the faint; ${Number.isFinite(outBy) ? `out after ${(outBy - faintAt).toFixed(1)} min` : "not all removed"}; ${positionAt(s, sc.field.patient.position, faintAt + 3)} at +3 min` });
   }
 
   /* track 4 — collaboration and handover */
@@ -307,7 +326,9 @@ export function evaluateEncounter(sc: Scenario, s: EncounterState): EncounterRep
   }
   const retentionVisits = s.visits.filter((v) => needleList(s).some((n) => n.insertion?.visit === v.index));
   for (const v of retentionVisits) {
-    const responsible = Object.values(s.tasks).some((t) => t.kind === "monitor-patient" && t.assignedAt >= v.startedAt) || s.monitorLog.some((m) => m.visit === v.index && underTest.has(m.by));
+    const end = v.endedAt ?? s.clinical.clock;
+    const delegated = Object.values(s.tasks).some((t) => t.kind === "monitor-patient" && t.assignedAt >= v.startedAt && t.assignedAt <= end && t.acknowledgedAt !== null && t.status !== "declined" && t.status !== "cancelled");
+    const responsible = delegated || s.monitorLog.some((m) => m.visit === v.index && underTest.has(m.by));
     collaboration.push({ id: `responsibility:v${v.index}`, label: `someone was responsible for observing the patient during retention (visit ${v.index})`, met: responsible, weight: 1 });
   }
 

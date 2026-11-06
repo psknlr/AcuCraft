@@ -548,13 +548,19 @@ export function longestUnobservedGap(s: EncounterState, from: number, to: number
     }
     if (start !== null) windows.push([start, to]);
   }
-  if (windows.length === 0) return 0;
-  const lo = Math.max(from, Math.min(...windows.map((w) => w[0])));
-  const hi = Math.min(to, Math.max(...windows.map((w) => w[1])));
-  if (hi <= lo) return 0;
-  const marks = [lo, ...observations.filter((o) => o > lo && o < hi).sort((a, b) => a - b), hi];
+  // the union of the windows, clipped to [from, to]: time between two retentions needs no observation
+  const merged: [number, number][] = [];
+  for (const [a, b] of windows.map(([a, b]) => [Math.max(a, from), Math.min(b, to)] as [number, number]).filter(([a, b]) => b > a).sort((x, y) => x[0] - y[0])) {
+    const last = merged[merged.length - 1];
+    if (last && a <= last[1]) last[1] = Math.max(last[1], b);
+    else merged.push([a, b]);
+  }
+  const sorted = [...observations].sort((a, b) => a - b);
   let gap = 0;
-  for (let i = 1; i < marks.length; i++) gap = Math.max(gap, marks[i]! - marks[i - 1]!);
+  for (const [lo, hi] of merged) {
+    const marks = [lo, ...sorted.filter((o) => o > lo && o < hi), hi];
+    for (let i = 1; i < marks.length; i++) gap = Math.max(gap, marks[i]! - marks[i - 1]!);
+  }
   return gap;
 }
 
@@ -1383,7 +1389,9 @@ const HANDLERS: HandlerMap = {
     const { s } = ctx;
     const opened = openedNeedles(s);
     const by = (k: string) => opened.filter((n) => n.location.kind === k).length;
-    const visibleFloor = opened.filter((n) => n.location.kind === "floor" && !n.location.hidden).length;
+    const found = opened.filter((n) => n.location.kind === "floor" && !n.location.hidden);
+    const visibleFloor = found.length;
+    const foundAreas = [...new Set(found.map((n) => (n.location.kind === "floor" ? n.location.area : "")))].join(" and ");
     const reported = opened.filter((n) => (n.location.kind === "broken-in-patient" || (n.location.kind === "floor" && n.location.hidden)) && n.resolution !== null).length;
     const retained = by("patient");
     const inHand = by("hand");
@@ -1391,7 +1399,7 @@ const HANDLERS: HandlerMap = {
     const disposed = by("sharps");
     const unaccounted = opened.length - retained - inHand - onTray - disposed - visibleFloor - reported;
     s.counts.push({ visit: visitIndex(s), at: now(s), by: ctx.actor.id, opened: opened.length, retained, inHand, onTray, disposed, unaccounted, reconciled: unaccounted === 0 });
-    observe(ctx, `Needle count: ${opened.length} opened — ${retained} in the patient, ${inHand} in hand, ${onTray} on the tray, ${visibleFloor > 0 ? `${visibleFloor} on the floor, ` : ""}${reported > 0 ? `${reported} lost or broken and reported, ` : ""}${disposed} in the sharps container${unaccounted > 0 ? `; ${unaccounted} NOT ACCOUNTED FOR` : "; all accounted for"}.`);
+    observe(ctx, `Needle count: ${opened.length} opened — ${retained} in the patient, ${inHand} in hand, ${onTray} on the tray, ${visibleFloor > 0 ? `${visibleFloor} found on the ${foundAreas} (to dispose of), ` : ""}${reported > 0 ? `${reported} lost or broken and reported, ` : ""}${disposed} in the sharps container${unaccounted > 0 ? `; ${unaccounted} NOT ACCOUNTED FOR` : "; all accounted for"}.`);
     ctx.out.detail = unaccounted > 0 ? `${unaccounted} unaccounted` : "reconciled";
     ctx.out.cost = 0.5;
   },
@@ -1471,7 +1479,8 @@ const HANDLERS: HandlerMap = {
     if (retained.length > 0) throw new Rejection("needles-retained", `${retained.length} needle(s) are still in the patient: ${retained.map((n) => n.id).join(", ")}.`);
     const unresolved = unresolvedNeedles(s);
     if (unresolved.length > 0) {
-      throw new Rejection("needles-unresolved", `Not accounted for: ${unresolved.map((n) => `${n.id} (${n.location.kind === "floor" && n.location.hidden ? "unaccounted" : n.location.kind})`).join(", ")}. Count, search, dispose of, or report every opened needle.`);
+      const state = (n: NeedleState) => (n.location.kind === "floor" ? (n.location.hidden ? "unaccounted" : `found on the ${n.location.area}: pick it up and dispose of it`) : n.location.kind);
+      throw new Rejection("needles-unresolved", `Not resolved: ${unresolved.map((n) => `${n.id} (${state(n)})`).join(", ")}. Count, search, dispose of, or report every opened needle.`);
     }
     const rules = rulesInForce(sc, s, ctx.actor.id);
     const blockers: Protection[] = [];

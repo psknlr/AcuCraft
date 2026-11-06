@@ -2,7 +2,7 @@ import { t } from "@clinicalcraft/core";
 import type { PointRef } from "../schema/actions.js";
 import type { EncounterState } from "../schema/state.js";
 import { pointInstance, regionAccess } from "./anatomy.js";
-import { consentCovers, currentPlan, currentVisit, fmt, needleList, now, refKey, visitIndex } from "./queries.js";
+import { consentCovers, currentPlan, currentVisit, fmt, needleList, now, parseRef, refKey, visitIndex } from "./queries.js";
 import { ACTION_PERMISSIONS } from "./rules.js";
 import { LOCALE } from "./runtime.js";
 import { roleOf, type Scenario } from "./scenario.js";
@@ -104,8 +104,14 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
         return `in the patient: ${l.target ? label(l.target) : `${l.region} ${l.side}`} at u=${fmt(l.entry.u)}, v=${fmt(l.entry.v)}, ${fmt(l.depthCm)} cm`;
       case "sharps":
         return "in the sharps container";
-      case "floor":
-        return l.hidden ? "unknown" : `on the ${l.area}`;
+      case "floor": {
+        if (!l.hidden) return `on the ${l.area}`;
+        // nobody saw it fall: it is listed where it was placed until someone looks (monitor, count, search)
+        const ins = n.insertion;
+        if (!ins) return "unknown";
+        const placed = n.events.find((e) => e.what === "inserted")?.detail;
+        return `in the patient: ${placed ? label(parseRef(placed)) : `${ins.region} ${ins.side}`} at u=${fmt(ins.entry.u)}, v=${fmt(ins.entry.v)}, ${fmt(ins.depthCm)} cm`;
+      }
       case "broken-in-patient":
         return "broken";
     }
@@ -113,7 +119,8 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
 
   const view: AgentView = {
     schema: VIEW_SCHEMA_ID,
-    encounter: hash53(`${sc.id}#${s.seed}`),
+    // the family and the seed only: variants of one family must not be told apart by their tag
+    encounter: hash53(`${sc.family.id}#${s.seed}`),
     title: sc.family.title,
     setting: { clinic: sc.clinic.title, jurisdiction: sc.clinic.jurisdiction, date: visit.date, visit: visit.index, visits: sc.field.visits.length },
     mode: s.mode,

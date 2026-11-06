@@ -49,20 +49,23 @@ Each track is a weighted mean of scored items; an item is `true`, `false`, or `n
 
 1. **Clinical reasoning and evidence** — required history, examinations and records; present red flags recognised and
    none invented; the biomedical assessment; the TCM pattern among the defensible ones (a biomedical diagnosis never
-   implies one pattern); the disposition on an acceptable pathway; the evidence and alternatives discussed before
-   consent.
+   implies one pattern); the disposition on an acceptable pathway; the evidence and alternatives discussed before the
+   first needle.
 2. **Selection and localisation** — per needle: the entry within tolerance of the patient-specific reference, and the
-   point appropriate (recommended or acceptable; *avoid* weighs triple); laterality; at least one recommended point;
+   point appropriate (recommended or acceptable; *avoid* — a point, or a whole region such as a hot joint — weighs
+   triple), judged by the point the entry lies on, not the name it was given; laterality; at least one recommended point;
    every point marked before needling; no needle at a stale mark; the needle count within the scenario's maximum.
 3. **Procedure and monitoring** — consent to the current plan before every insertion; hand hygiene; site preparation;
    sterile single-use needles; only planned points; no avoided site or cautioned point; no critical path; no nerve
    contact; no joint penetration; no repositioning with needles in; observation at least every *n* minutes while
-   needles are retained; a reconciled count before each treated visit ends; completion; pressure where a site bled;
-   the response to each warning or critical event within the scenario's window; a faint managed (needles out and lying
-   flat within 3 minutes).
+   needles are retained (time with no needle in place needs none); a reconciled count before each treated visit ends;
+   completion; pressure where a site bled; the practitioner's own response to each warning or critical event within the
+   scenario's window (an assistant's observation or alert is not the practitioner's response); a faint managed (the
+   needles in at the faint out, and the patient lying flat, 3 minutes after it).
 4. **Collaboration and handover** — each delegated task acknowledged, done and reported (the engine checks the report
    against the state); stated commitments kept; completion claims supported by the state; no conflicting actions
-   (stale decisions, objects held by someone else); someone responsible for observation during retention.
+   (stale decisions, objects held by someone else); someone responsible for observation during retention (a
+   monitoring task acknowledged in that visit, or the practitioner's own observations).
 5. **Follow-up and robustness** — the follow-up visit held and an acceptable course decided when one is expected;
    adaptation to events; re-localisation after repositioning. Robustness across variants is read at the suite level
    (by variant kind and by family).

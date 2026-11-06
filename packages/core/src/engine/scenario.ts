@@ -222,6 +222,7 @@ export function checkField(sc: Scenario): Issue[] {
       if ("redFlag" in leaf && !redFlags.has(leaf.redFlag)) issues.push(err(path, `unknown red flag ${leaf.redFlag}`));
       if ("event" in leaf && !eventIds.has(leaf.event)) issues.push(err(path, `unknown field event ${leaf.event}`));
       if ("withdrawnAfter" in leaf && !eventIds.has(leaf.withdrawnAfter.event)) issues.push(err(path, `unknown field event ${leaf.withdrawnAfter.event}`));
+      if ("positionedAfter" in leaf && !eventIds.has(leaf.positionedAfter.event)) issues.push(err(path, `unknown field event ${leaf.positionedAfter.event}`));
       if ("respondedTo" in leaf && !eventIds.has(leaf.respondedTo.event)) issues.push(err(path, `unknown field event ${leaf.respondedTo.event}`));
       if ("referred" in leaf) for (const t of leaf.referred.to ?? []) if (!referral.has(t)) issues.push(err(path, `unknown referral target ${t}`));
     });

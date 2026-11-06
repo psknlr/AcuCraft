@@ -108,8 +108,18 @@ Every needle has an identity, a pack, a specification and an event history. Its 
 - the encounter cannot finish with needles in the patient.
 
 A lost needle (`dropped-hidden`) or a broken one stays an explicit unresolved object: `end_visit` refuses until it is
-found and disposed of, or the incident is reported after a search (lost), or reported and the patient referred
-(broken).
+found and disposed of, or the incident is reported after a search made since it fell (lost), or reported and the
+patient referred (broken). A needle that fell unseen is still listed in the agent's view where it was placed: only
+looking (`monitor` lists the needles actually in place), a count or a search shows that it is gone.
+
+### What a needle was for
+
+An insertion records two targets. The *claimed* target is what the operator named (or the mark they needled) and is
+what the agent sees back. The *effective* target is the point the entry actually lies on in this patient's hidden
+anatomy: the claim if it holds (within twice its tolerance), otherwise the nearest modelled point or Ashi point,
+planned points first. Rules, the guard and the evaluator use the effective target, so naming a point "Ashi" does not
+make it a different point: a needle at the location of a point cautioned for one of the patient's risk factors is
+`insertion-at-cautioned-point` whatever it is called.
 
 ## 5. Roles, rules and the guard
 

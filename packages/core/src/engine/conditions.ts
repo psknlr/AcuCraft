@@ -1,8 +1,11 @@
 import { evaluate as evaluateClinical } from "@clinicalcraft/core";
 import type { FieldCondition } from "../schema/field.js";
 import type { EncounterState } from "../schema/state.js";
-import { consentCovers, insertedNeedles, now, retainedNeedles, unresolvedNeedles, visitIndex } from "./queries.js";
+import { consentCovers, insertedNeedles, now, positionAt, retainedNeedles, unresolvedNeedles, visitIndex } from "./queries.js";
 import type { Scenario } from "./scenario.js";
+
+/** Actions that count as attending to the patient after an event. */
+const RESPONSES: ReadonlySet<string> = new Set(["monitor", "observe", "check_vitals", "stop_treatment", "remove_needle", "remove_all_needles", "adjust_needle", "position_patient", "apply_pressure"]);
 
 const inRange = (n: number, r: { gte?: number; lte?: number }) => (r.gte === undefined || n >= r.gte) && (r.lte === undefined || n <= r.lte);
 
@@ -59,7 +62,10 @@ export function evaluateField(sc: Scenario, s: EncounterState, c: FieldCondition
   if ("respondedTo" in c) {
     const fired = s.events[c.respondedTo.event]?.firedAt;
     if (fired == null) return false;
-    return s.monitorLog.some((m) => m.at >= fired && m.at <= fired + c.respondedTo.withinMinutes) || (s.stopped !== null && s.stopped.at >= fired && s.stopped.at <= fired + c.respondedTo.withinMinutes);
+    // the practitioner under test must respond: an assistant's observation or alert is not their response
+    const underTest = new Set(sc.field.cast.filter((m) => m.agent === "under-test").map((m) => m.id));
+    const deadline = fired + c.respondedTo.withinMinutes + 1e-9;
+    return s.attempts.some((a) => underTest.has(a.actor) && RESPONSES.has(a.request.action.type) && (a.status === "executed" || a.status === "partial") && a.at >= fired - 1e-9 && a.at <= deadline);
   }
   if ("withdrawnAfter" in c) {
     const fired = s.events[c.withdrawnAfter.event]?.firedAt;
@@ -70,6 +76,13 @@ export function evaluateField(sc: Scenario, s: EncounterState, c: FieldCondition
       const out = n.events.find((e) => (e.what === "withdrawn" || e.what === "dropped" || e.what === "broken") && e.at >= n.insertion!.at);
       return out !== undefined && out.at <= deadline;
     });
+  }
+  if ("positionedAfter" in c) {
+    const fired = s.events[c.positionedAfter.event]?.firedAt;
+    if (fired == null) return false;
+    // judged at the deadline, or now if the deadline has not come yet
+    const at = Math.min(fired + c.positionedAfter.withinMinutes, now(s));
+    return [c.positionedAfter.position].flat().includes(positionAt(s, sc.field.patient.position, at) as never);
   }
   if ("stopped" in c) return (s.stopped !== null) === c.stopped;
   if ("documented" in c) return s.documents.some((d) => (d.record as Record<string, unknown>)[c.documented] !== undefined);

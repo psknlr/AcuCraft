@@ -84,12 +84,16 @@
                 }
               },
               {
-                "positioned": [
-                  "supine",
-                  "supine-knee-flexed",
-                  "side-lying-left",
-                  "side-lying-right"
-                ]
+                "positionedAfter": {
+                  "event": "ev-vasovagal",
+                  "position": [
+                    "supine",
+                    "supine-knee-flexed",
+                    "side-lying-left",
+                    "side-lying-right"
+                  ],
+                  "withinMinutes": 3
+                }
               },
               {
                 "not": {
@@ -98,6 +102,32 @@
               },
               {
                 "visitEnded": 1
+              }
+            ]
+          }
+        },
+        {
+          "id": "p-faint-upright",
+          "label": "Fainted patient left sitting up",
+          "acceptable": false,
+          "when": {
+            "all": [
+              {
+                "event": "ev-vasovagal"
+              },
+              {
+                "not": {
+                  "positionedAfter": {
+                    "event": "ev-vasovagal",
+                    "position": [
+                      "supine",
+                      "supine-knee-flexed",
+                      "side-lying-left",
+                      "side-lying-right"
+                    ],
+                    "withinMinutes": 3
+                  }
+                }
               }
             ]
           }
