@@ -1,0 +1,193 @@
+{
+  "schema": "acucraft/variant@1",
+  "id": "low-mood",
+  "title": "Low mood with thoughts of suicide",
+  "kind": "red-flag",
+  "purpose": "A red flag found only by asking: he is hopeless and has thought about crashing his taxi. Acceptable: no acupuncture today, same-day urgent help (emergency referral), and safety advice. Missing it is a critical failure.",
+  "case": {
+    "history": [
+      {
+        "id": "hx-mood",
+        "answer": "Honestly, I feel hopeless. I don't enjoy anything any more, even my grandson."
+      },
+      {
+        "id": "hx-self-harm",
+        "answer": "Sometimes I think my family would be better off without me. Last week I thought about crashing the taxi."
+      },
+      {
+        "id": "hx-onset",
+        "answer": "About three months ago, when I lost most of my savings. Since then everything is going wrong."
+      }
+    ],
+    "exam": [
+      {
+        "id": "ex-general",
+        "finding": "Flat affect, poor eye contact, tearful at times.",
+        "abnormal": true
+      }
+    ],
+    "patient": {
+      "persona": {
+        "affect": "distressed"
+      }
+    },
+    "debrief": {
+      "conclusion": "Insomnia with a depressive episode and suicidal thoughts with a method: same-day urgent help, no acupuncture today, and advice not to drive until assessed."
+    }
+  },
+  "field": {
+    "evaluation": {
+      "pathways": [
+        {
+          "id": "p-treat",
+          "$remove": true
+        },
+        {
+          "id": "p-decline-signpost",
+          "$remove": true
+        },
+        {
+          "id": "p-emergency-unindicated",
+          "$remove": true
+        },
+        {
+          "id": "p-treat-unscreened",
+          "$remove": true
+        },
+        {
+          "id": "p-urgent-help",
+          "label": "Same-day urgent help, no needling",
+          "acceptable": true,
+          "when": {
+            "all": [
+              {
+                "referred": {
+                  "to": [
+                    "emergency"
+                  ],
+                  "urgency": [
+                    "emergency",
+                    "urgent"
+                  ]
+                }
+              },
+              {
+                "needlesInserted": {
+                  "lte": 0
+                }
+              },
+              {
+                "visitEnded": 1
+              }
+            ]
+          }
+        },
+        {
+          "id": "p-routine-only",
+          "label": "Only a routine referral",
+          "acceptable": false,
+          "when": {
+            "all": [
+              {
+                "referred": {
+                  "urgency": [
+                    "routine",
+                    "soon"
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "referred": {
+                    "urgency": [
+                      "emergency",
+                      "urgent"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "p-treated",
+          "label": "Acupuncture given instead of urgent help",
+          "acceptable": false,
+          "when": {
+            "needlesInserted": {
+              "gte": 1
+            }
+          }
+        }
+      ],
+      "diagnoses": {
+        "expected": {
+          "$replace": [
+            "depressive-episode"
+          ]
+        },
+        "acceptable": {
+          "$replace": [
+            "insomnia"
+          ]
+        }
+      },
+      "patterns": {
+        "$replace": {
+          "defensible": [],
+          "implausible": []
+        }
+      },
+      "redFlags": {
+        "$replace": [
+          {
+            "id": "suicidal-ideation",
+            "present": true
+          }
+        ]
+      },
+      "points": {
+        "$replace": {
+          "recommended": [],
+          "acceptable": [],
+          "avoid": [],
+          "maxNeedles": 1
+        }
+      },
+      "criticalErrors": [
+        {
+          "id": "ce-no-urgent-help",
+          "label": "No same-day urgent help for suicidal thoughts with a method",
+          "when": {
+            "all": [
+              {
+                "visitEnded": 1
+              },
+              {
+                "not": {
+                  "referred": {
+                    "urgency": [
+                      "emergency",
+                      "urgent"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "required": {
+        "$replace": {
+          "history": [
+            "hx-mood",
+            "hx-self-harm"
+          ],
+          "exam": [],
+          "records": []
+        }
+      },
+      "followUp": null
+    }
+  }
+}

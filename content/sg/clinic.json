@@ -1,0 +1,168 @@
+{
+  "schema": "acucraft/clinic@1",
+  "id": "sg-tcm-outpatient",
+  "version": "0.1.0",
+  "title": "Simulated outpatient TCM clinic, Singapore",
+  "jurisdiction": "SG",
+  "languages": {
+    "primary": "en",
+    "secondary": [
+      "zh-CN"
+    ]
+  },
+  "rooms": [
+    {
+      "id": "reception",
+      "label": "reception",
+      "kind": "reception",
+      "fixtures": [
+        {
+          "id": "desk",
+          "kind": "records-terminal",
+          "label": "reception desk and records"
+        }
+      ]
+    },
+    {
+      "id": "consult-room",
+      "label": "consultation room",
+      "kind": "consult",
+      "fixtures": [
+        {
+          "id": "consult-chair",
+          "kind": "chair",
+          "label": "patient chair"
+        },
+        {
+          "id": "consult-terminal",
+          "kind": "records-terminal",
+          "label": "records terminal"
+        },
+        {
+          "id": "consult-sink",
+          "kind": "hand-hygiene",
+          "label": "hand rub dispenser"
+        }
+      ]
+    },
+    {
+      "id": "treatment-room",
+      "label": "treatment room",
+      "kind": "treatment",
+      "fixtures": [
+        {
+          "id": "couch-1",
+          "kind": "couch",
+          "label": "treatment couch"
+        },
+        {
+          "id": "treat-chair",
+          "kind": "chair",
+          "label": "treatment chair"
+        },
+        {
+          "id": "treat-sink",
+          "kind": "hand-hygiene",
+          "label": "hand-wash sink and hand rub"
+        },
+        {
+          "id": "sharps-1",
+          "kind": "sharps-container",
+          "label": "sharps container"
+        },
+        {
+          "id": "screen-1",
+          "kind": "screen",
+          "label": "privacy screen"
+        }
+      ]
+    },
+    {
+      "id": "prep-area",
+      "label": "preparation area",
+      "kind": "preparation",
+      "fixtures": [
+        {
+          "id": "shelf",
+          "kind": "supplies",
+          "label": "supply shelf"
+        },
+        {
+          "id": "prep-sink",
+          "kind": "hand-hygiene",
+          "label": "hand-wash sink"
+        },
+        {
+          "id": "sharps-prep",
+          "kind": "sharps-container",
+          "label": "sharps container"
+        }
+      ]
+    }
+  ],
+  "supplies": [
+    {
+      "id": "alcohol-swabs",
+      "label": "alcohol skin swabs",
+      "at": "shelf"
+    },
+    {
+      "id": "cotton-balls",
+      "label": "sterile cotton balls",
+      "at": "shelf"
+    },
+    {
+      "id": "gloves",
+      "label": "examination gloves",
+      "at": "shelf"
+    },
+    {
+      "id": "plasters",
+      "label": "plasters",
+      "at": "shelf"
+    }
+  ],
+  "referralTargets": [
+    {
+      "id": "emergency",
+      "label": "Emergency Department (ambulance 995)",
+      "kind": "emergency"
+    },
+    {
+      "id": "gp",
+      "label": "Polyclinic / family physician",
+      "kind": "medical"
+    },
+    {
+      "id": "orthopaedics",
+      "label": "Orthopaedic clinic",
+      "kind": "specialist"
+    },
+    {
+      "id": "oncology",
+      "label": "Treating oncology team",
+      "kind": "specialist"
+    },
+    {
+      "id": "obstetrics",
+      "label": "Obstetric team",
+      "kind": "specialist"
+    },
+    {
+      "id": "neurology",
+      "label": "Neurology",
+      "kind": "specialist"
+    },
+    {
+      "id": "physiotherapy",
+      "label": "Physiotherapy",
+      "kind": "allied-health"
+    },
+    {
+      "id": "senior-tcm",
+      "label": "Senior TCM physician",
+      "kind": "tcm"
+    }
+  ],
+  "notes": "A simulated clinic: rooms, fixtures and referral targets are illustrative, not a real institution."
+}

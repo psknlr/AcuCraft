@@ -1,0 +1,33 @@
+{
+  "schema": "acucraft/family@1",
+  "id": "sg-insomnia",
+  "version": "0.1.0",
+  "title": "Poor sleep · 54-year-old man",
+  "summary": "A 54-year-old taxi driver who has slept badly for three months asks about acupuncture.",
+  "condition": "insomnia",
+  "split": "held-out",
+  "provenance": {
+    "kind": "synthetic",
+    "authors": [
+      "AcuCraft content team"
+    ],
+    "review": {
+      "status": "unreviewed",
+      "reviewers": [],
+      "notes": "Clinical, anatomical and regulatory content to be reviewed by TCM, anatomy and Singapore practice experts."
+    }
+  },
+  "case": "case.json",
+  "field": "field.json",
+  "variants": [
+    {
+      "id": "base"
+    },
+    {
+      "id": "withdraws-consent"
+    },
+    {
+      "id": "low-mood"
+    }
+  ]
+}

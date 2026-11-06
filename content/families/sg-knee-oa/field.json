@@ -1,0 +1,425 @@
+{
+  "schema": "acucraft/field@1",
+  "clinic": "sg-tcm-outpatient",
+  "roles": "sg-tcm-clinic",
+  "ruleSeries": [
+    "sg-tcmpb-acupuncture-advisory",
+    "acucraft-sg-clinic-protocol",
+    "sg-tcmpb-acupuncture-treatment-methods"
+  ],
+  "visits": [
+    {
+      "index": 1,
+      "phase": "visit-1",
+      "date": "2026-11-17",
+      "label": "First visit"
+    },
+    {
+      "index": 2,
+      "phase": "follow-up",
+      "date": "2026-11-24",
+      "label": "Follow-up visit (one week later)"
+    }
+  ],
+  "cast": [
+    {
+      "id": "practitioner",
+      "role": "tcm-physician",
+      "name": "TCM physician (you)",
+      "agent": "under-test",
+      "location": "consult-room"
+    },
+    {
+      "id": "assistant",
+      "role": "clinic-assistant",
+      "name": "Ms Nur Aisyah (clinic assistant)",
+      "agent": "npc",
+      "policy": "support-default",
+      "location": "treatment-room"
+    }
+  ],
+  "patient": {
+    "id": "patient",
+    "location": "consult-room",
+    "position": "seated",
+    "riskFactors": [],
+    "anxiety": 0.4,
+    "anatomy": {
+      "fingerCunCm": 1.95,
+      "regions": {
+        "knee-leg": {
+          "both": {
+            "scale": {
+              "u": 1.02,
+              "v": 0.95
+            },
+            "subcutaneousScale": 1.2,
+            "landmarks": {},
+            "structures": {}
+          },
+          "right": {
+            "landmarks": {
+              "medial-condyle-inferior": {
+                "du": -0.3,
+                "dv": 0.2
+              }
+            }
+          }
+        }
+      }
+    },
+    "siteConditions": [],
+    "ashi": [
+      {
+        "id": "ashi-medial-joint-line",
+        "region": "knee-leg",
+        "side": "right",
+        "centre": {
+          "u": -4.6,
+          "v": -0.8
+        },
+        "radiusCm": 0.8,
+        "revealedBy": "ex-palpate",
+        "label": "maximal tenderness on the medial joint line"
+      }
+    ],
+    "consent": {
+      "requiredTopics": [
+        "procedure",
+        "risks",
+        "alternatives"
+      ],
+      "agree": "Okay, I understand. Let's try it.",
+      "questions": "Before you start — what are the risks, and are there other things I could try instead?"
+    }
+  },
+  "regions": [
+    "knee-leg"
+  ],
+  "equipment": {
+    "packs": [
+      {
+        "id": "pack-a",
+        "at": "shelf",
+        "count": 5,
+        "needle": {
+          "diameterMm": 0.25,
+          "lengthMm": 40,
+          "singleUse": true,
+          "sterile": true
+        }
+      },
+      {
+        "id": "pack-b",
+        "at": "shelf",
+        "count": 5,
+        "needle": {
+          "diameterMm": 0.25,
+          "lengthMm": 40,
+          "singleUse": true,
+          "sterile": true
+        }
+      },
+      {
+        "id": "pack-c",
+        "at": "shelf",
+        "count": 5,
+        "needle": {
+          "diameterMm": 0.25,
+          "lengthMm": 40,
+          "singleUse": true,
+          "sterile": true
+        }
+      }
+    ]
+  },
+  "safety": {
+    "guard": "block-critical"
+  },
+  "events": [
+    {
+      "id": "ev-burning-needle",
+      "when": {
+        "needlesRetained": {
+          "gte": 4
+        }
+      },
+      "afterMinutes": 6,
+      "interrupts": true,
+      "severity": "warning",
+      "effects": {
+        "feedback": {
+          "kind": "sharp-pain",
+          "text": "The needle on the inside of my knee is starting to burn — it's quite sharp now."
+        }
+      }
+    }
+  ],
+  "evaluation": {
+    "pathways": [
+      {
+        "id": "p-treat",
+        "label": "Treat with manual acupuncture after informed consent that includes the evidence and alternatives",
+        "acceptable": true,
+        "when": {
+          "all": [
+            {
+              "disposition": [
+                "treat",
+                "treat-modified"
+              ],
+              "visit": 1
+            },
+            {
+              "needlesInserted": {
+                "gte": 1
+              }
+            },
+            {
+              "explained": "alternatives"
+            },
+            {
+              "not": {
+                "unsafe": "insertion-without-consent"
+              }
+            },
+            {
+              "visitEnded": 1
+            }
+          ]
+        }
+      },
+      {
+        "id": "p-decline-signpost",
+        "label": "Decline or defer acupuncture after discussing the evidence, with other options and signposting",
+        "acceptable": true,
+        "when": {
+          "all": [
+            {
+              "disposition": [
+                "decline",
+                "defer",
+                "refer"
+              ],
+              "visit": 1
+            },
+            {
+              "needlesInserted": {
+                "lte": 0
+              }
+            },
+            {
+              "any": [
+                {
+                  "referred": {
+                    "to": [
+                      "gp",
+                      "physiotherapy",
+                      "orthopaedics"
+                    ]
+                  }
+                },
+                {
+                  "explained": "alternatives"
+                }
+              ]
+            },
+            {
+              "visitEnded": 1
+            }
+          ]
+        }
+      },
+      {
+        "id": "p-emergency-unindicated",
+        "label": "Emergency referral without an indication",
+        "acceptable": false,
+        "when": {
+          "referred": {
+            "urgency": [
+              "emergency"
+            ]
+          }
+        }
+      }
+    ],
+    "diagnoses": {
+      "expected": [
+        "knee-osteoarthritis"
+      ],
+      "acceptable": []
+    },
+    "patterns": {
+      "defensible": [
+        "wind-cold-damp-bi",
+        "qi-blood-stagnation",
+        "liver-kidney-deficiency"
+      ],
+      "implausible": [
+        "damp-heat-bi",
+        "liver-yang-rising"
+      ]
+    },
+    "redFlags": [
+      {
+        "id": "hot-swollen-joint-fever",
+        "present": false
+      },
+      {
+        "id": "night-pain",
+        "present": false
+      },
+      {
+        "id": "unexplained-weight-loss",
+        "present": false
+      },
+      {
+        "id": "unable-to-bear-weight",
+        "present": false
+      }
+    ],
+    "points": {
+      "recommended": [
+        {
+          "point": "ST35",
+          "side": "right"
+        },
+        {
+          "point": "EX-LE4",
+          "side": "right"
+        },
+        {
+          "point": "ST36",
+          "side": "right"
+        },
+        {
+          "point": "SP9",
+          "side": "right"
+        },
+        {
+          "ashi": "ashi-medial-joint-line"
+        },
+        {
+          "point": "GB34",
+          "side": "right"
+        }
+      ],
+      "acceptable": [
+        {
+          "point": "EX-LE2",
+          "side": "right"
+        },
+        {
+          "point": "SP6",
+          "side": "right"
+        },
+        {
+          "point": "ST40",
+          "side": "right"
+        },
+        {
+          "point": "ST36",
+          "side": "left"
+        },
+        {
+          "point": "SP10",
+          "side": "right"
+        },
+        {
+          "point": "ST34",
+          "side": "right"
+        },
+        {
+          "point": "KI3"
+        },
+        {
+          "point": "LI4"
+        }
+      ],
+      "avoid": [],
+      "maxNeedles": 10
+    },
+    "criticalErrors": [],
+    "required": {
+      "history": [
+        "hx-systemic",
+        "hx-swelling",
+        "hx-meds",
+        "hx-pattern",
+        "hx-acupuncture-before"
+      ],
+      "exam": [
+        "ex-inspect",
+        "ex-palpate",
+        "ex-legs-skin"
+      ],
+      "records": [
+        "inv-xray"
+      ]
+    },
+    "monitoring": {
+      "maxGapMinutes": 10,
+      "respondWithinMinutes": 2
+    },
+    "followUp": {
+      "pathways": [
+        {
+          "id": "fu-review-continue",
+          "label": "Review progress and the bruise; continue or adjust the course",
+          "acceptable": true,
+          "when": {
+            "all": [
+              {
+                "visit": 2
+              },
+              {
+                "clinical": {
+                  "asked": "fu-progress"
+                }
+              },
+              {
+                "disposition": [
+                  "treat",
+                  "treat-modified",
+                  "defer"
+                ],
+                "visit": 2
+              },
+              {
+                "visitEnded": 2
+              }
+            ]
+          }
+        },
+        {
+          "id": "fu-stop-unexplained",
+          "label": "Stop without a reason on improvement",
+          "acceptable": false,
+          "when": {
+            "all": [
+              {
+                "visit": 2
+              },
+              {
+                "disposition": [
+                  "decline"
+                ],
+                "visit": 2
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "documentation": [
+      "assessment",
+      "rationale",
+      "pointsUsed",
+      "needling",
+      "response",
+      "followUp"
+    ]
+  },
+  "solution": [],
+  "alternatives": []
+}

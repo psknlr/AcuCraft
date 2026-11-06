@@ -1,0 +1,833 @@
+{
+  "schema": "clinicalcraft/case@1",
+  "id": "sg-low-back-pain",
+  "version": "0.1.0",
+  "title": "Low back pain · 34-year-old woman",
+  "summary": "A 34-year-old office worker with six months of low back pain asks about acupuncture.",
+  "specialty": [
+    "tcm-acupuncture",
+    "musculoskeletal"
+  ],
+  "difficulty": 2,
+  "setting": "outpatient",
+  "facility": "sg-tcm-outpatient",
+  "locales": [
+    "en"
+  ],
+  "estimatedMinutes": 45,
+  "learningOutcomes": [
+    "Screen low back pain for cauda equina and other red flags before needling",
+    "Ask about pregnancy before choosing points in a woman of reproductive age",
+    "Locate the bladder-channel and governor-vessel points of the lower back on this patient and needle them at depths that respect what lies beneath"
+  ],
+  "tags": [
+    "acucraft",
+    "singapore",
+    "low-back-pain"
+  ],
+  "provenance": {
+    "kind": "synthetic",
+    "authors": [
+      "AcuCraft content team"
+    ],
+    "license": "MIT",
+    "notes": "A fictional teaching case. The name and every detail are invented.",
+    "review": {
+      "status": "unreviewed",
+      "reviewers": [],
+      "guidelines": [
+        "NICE NG59 (2016, updated 2020)",
+        "ACP 2017 low back pain guideline"
+      ],
+      "notes": "AI-assisted authoring; not reviewed by a TCM practitioner or a clinician. Review before teaching use."
+    }
+  },
+  "disclaimer": "Simulation for education and agent evaluation. Not clinical advice.",
+  "patient": {
+    "displayName": "Ms Nurul Huda",
+    "age": 34,
+    "sex": "female",
+    "weightKg": 61,
+    "heightCm": 160,
+    "chiefComplaint": "Low back pain for six months",
+    "triageNote": "Walked in; asks whether acupuncture could help her back.",
+    "tags": [
+      "low back pain"
+    ],
+    "persona": {
+      "personality": "Busy, organised project manager; direct and a little impatient.",
+      "speechStyle": "Clear Singapore English.",
+      "healthLiteracy": "high",
+      "affect": "calm",
+      "openingLine": "Hi doctor — it's my lower back. It's been going on for months.",
+      "fallbackUnknown": "I don't really know, sorry.",
+      "concerns": [
+        "She worries it is a slipped disc."
+      ]
+    },
+    "posture": "sitting",
+    "appearance": {
+      "build": "average"
+    }
+  },
+  "phases": [
+    {
+      "id": "visit-1",
+      "label": "First visit",
+      "description": "Thursday 18:30 at the clinic, after work.",
+      "learnerSwitchable": false
+    },
+    {
+      "id": "follow-up",
+      "label": "Follow-up visit",
+      "description": "One week later, same clinic.",
+      "learnerSwitchable": false,
+      "enterWhen": {
+        "flag": "acu.visit-2"
+      }
+    }
+  ],
+  "initialPhase": "visit-1",
+  "clock": {
+    "mode": "simulated",
+    "startTime": "18:30",
+    "actionCosts": {
+      "ask": 1,
+      "examine": 2,
+      "order": 0,
+      "read": 1,
+      "intervene": 1,
+      "answer": 0
+    }
+  },
+  "history": [
+    {
+      "id": "hx-chief",
+      "topic": "presenting-complaint",
+      "question": "What brings you in today?",
+      "answer": "My lower back has been aching for about six months — worse after long days at the desk. A colleague said acupuncture helped him.",
+      "keywords": [
+        "what brings you",
+        "come in today",
+        "main problem"
+      ],
+      "disclosure": "volunteer",
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-onset",
+      "topic": "hpi",
+      "question": "How did it start, and how has it changed?",
+      "answer": "It started gradually during a stressful project with lots of overtime. No injury that I remember. It's been about the same since.",
+      "keywords": [
+        "start",
+        "began",
+        "how long",
+        "injury",
+        "onset"
+      ],
+      "disclosure": "on-ask",
+      "required": true,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-site",
+      "topic": "pain",
+      "question": "Where exactly is the pain?",
+      "answer": "Across the lower back, a bit more on the right side.",
+      "keywords": [
+        "where",
+        "which part",
+        "location",
+        "side"
+      ],
+      "disclosure": "on-ask",
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-radiation",
+      "topic": "pain",
+      "question": "Does the pain go down your leg — any numbness or tingling?",
+      "answer": "No, it stays in the back. No numbness or pins and needles.",
+      "keywords": [
+        "leg",
+        "radiate",
+        "spread",
+        "numb",
+        "tingling",
+        "sciatica",
+        "pins and needles"
+      ],
+      "disclosure": "on-ask",
+      "required": true,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-pattern",
+      "topic": "pain",
+      "question": "What makes it worse or better?",
+      "answer": "Sitting for more than an hour and bending make it worse. Walking around and a hot shower help. It's stiff for ten minutes in the morning.",
+      "keywords": [
+        "worse",
+        "better",
+        "sitting",
+        "bending",
+        "stiff",
+        "morning"
+      ],
+      "disclosure": "on-ask",
+      "required": true,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-cauda",
+      "topic": "ros",
+      "question": "Any numbness around your groin or bottom, or trouble passing urine or opening your bowels?",
+      "answer": "No, nothing like that.",
+      "keywords": [
+        "groin",
+        "bottom",
+        "saddle",
+        "urine",
+        "bladder",
+        "bowel",
+        "pass water",
+        "incontinence"
+      ],
+      "disclosure": "on-ask",
+      "required": true,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-systemic",
+      "topic": "ros",
+      "question": "Any fever, weight loss, pain at night, or a history of cancer?",
+      "answer": "No fever, my weight is stable, no cancer. The pain doesn't wake me.",
+      "keywords": [
+        "fever",
+        "weight loss",
+        "night",
+        "cancer",
+        "unwell"
+      ],
+      "disclosure": "on-ask",
+      "required": true,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-weakness",
+      "topic": "ros",
+      "question": "Any weakness in your legs?",
+      "answer": "No.",
+      "keywords": [
+        "weak",
+        "weakness",
+        "legs give way"
+      ],
+      "disclosure": "on-ask",
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-pregnancy",
+      "topic": "obstetric",
+      "question": "Is there any chance you could be pregnant?",
+      "answer": "No, I'm not pregnant.",
+      "keywords": [
+        "pregnant",
+        "pregnancy",
+        "period",
+        "expecting"
+      ],
+      "disclosure": "on-ask",
+      "required": true,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-pmh",
+      "topic": "pmh",
+      "question": "What other medical conditions do you have?",
+      "answer": "Nothing really — mild eczema.",
+      "keywords": [
+        "medical history",
+        "conditions",
+        "illnesses",
+        "other problems"
+      ],
+      "disclosure": "on-ask",
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-meds",
+      "topic": "medications",
+      "question": "What medicines do you take — including blood thinners or supplements?",
+      "answer": "Just ibuprofen now and then when the back is bad. No blood thinners.",
+      "keywords": [
+        "medicine",
+        "medication",
+        "tablets",
+        "blood thinner",
+        "supplements",
+        "painkillers"
+      ],
+      "disclosure": "on-ask",
+      "required": true,
+      "phases": [
+        "visit-1"
+      ],
+      "safety": {
+        "datum": "anticoagulation",
+        "finding": "negative"
+      }
+    },
+    {
+      "id": "hx-bleeding",
+      "topic": "pmh",
+      "question": "Do you bruise or bleed easily?",
+      "answer": "No.",
+      "keywords": [
+        "bruise",
+        "bleed"
+      ],
+      "disclosure": "on-ask",
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-prior-care",
+      "topic": "hpi",
+      "question": "What treatment have you had so far?",
+      "answer": "My GP said it's muscular and gave me painkillers. I've tried some stretching videos.",
+      "keywords": [
+        "treatment so far",
+        "tried",
+        "gp",
+        "doctor",
+        "physio"
+      ],
+      "disclosure": "on-ask",
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-acupuncture-before",
+      "topic": "other",
+      "question": "Have you had acupuncture before? How do you feel about needles?",
+      "answer": "Never had it. Needles are fine — I donate blood.",
+      "keywords": [
+        "acupuncture before",
+        "needles",
+        "nervous",
+        "faint"
+      ],
+      "disclosure": "on-ask",
+      "required": true,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-work",
+      "topic": "social",
+      "question": "What is your work like?",
+      "answer": "Desk job, ten-hour days, a lot of stress at the moment.",
+      "keywords": [
+        "work",
+        "job",
+        "desk",
+        "stress"
+      ],
+      "disclosure": "on-ask",
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-ice",
+      "topic": "ice",
+      "question": "What worries you, and what would you like to get back to?",
+      "answer": "I'm worried it's a slipped disc. I'd like to play badminton again.",
+      "keywords": [
+        "worried",
+        "concern",
+        "hope",
+        "get back to",
+        "expect"
+      ],
+      "disclosure": "on-ask",
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-tcm",
+      "topic": "other",
+      "question": "Does warmth help? Do you feel tired or cold?",
+      "answer": "A hot shower helps. I get tired easily lately, and by evening my lower back feels weak and sore.",
+      "keywords": [
+        "warmth",
+        "warm",
+        "cold",
+        "tired",
+        "energy",
+        "weak"
+      ],
+      "disclosure": "on-ask",
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-general",
+      "topic": "ros",
+      "question": "How are your sleep, appetite, bowels and periods?",
+      "answer": "I sleep badly when work is stressful. Appetite, bowels and periods are normal.",
+      "keywords": [
+        "sleep",
+        "appetite",
+        "bowels",
+        "periods"
+      ],
+      "disclosure": "on-ask",
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "fu-progress",
+      "topic": "hpi",
+      "question": "How has your back been since the treatment?",
+      "answer": "Better — I can sit through meetings with less pain, about three out of ten now.",
+      "keywords": [
+        "since",
+        "last treatment",
+        "how has it been",
+        "better",
+        "progress"
+      ],
+      "disclosure": "on-ask",
+      "required": true,
+      "phases": [
+        "follow-up"
+      ]
+    },
+    {
+      "id": "fu-new",
+      "topic": "ros",
+      "question": "Any new problems since last time — numbness, bladder or bowel changes?",
+      "answer": "No, nothing new.",
+      "keywords": [
+        "new problems",
+        "anything new",
+        "numb",
+        "bladder",
+        "bowel"
+      ],
+      "disclosure": "on-ask",
+      "required": false,
+      "phases": [
+        "follow-up"
+      ]
+    }
+  ],
+  "exam": [
+    {
+      "id": "ex-inspect-back",
+      "system": "musculoskeletal",
+      "maneuver": "Inspect the back and posture",
+      "keywords": [
+        "inspect",
+        "look at the back",
+        "posture"
+      ],
+      "finding": "Normal posture; no deformity; skin intact over the lower back.",
+      "abnormal": false,
+      "required": true,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "ex-palpate-back",
+      "system": "musculoskeletal",
+      "maneuver": "Palpate the lumbar spine and paraspinal muscles",
+      "keywords": [
+        "palpate",
+        "feel the back",
+        "tender",
+        "spine",
+        "muscles"
+      ],
+      "finding": "No midline bony tenderness. Tight, tender right paraspinal muscles, maximal at one point at the level of L4/5.",
+      "abnormal": true,
+      "required": true,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "ex-rom-back",
+      "system": "musculoskeletal",
+      "maneuver": "Assess lumbar movements",
+      "keywords": [
+        "range of movement",
+        "bend forward",
+        "flexion",
+        "movements"
+      ],
+      "finding": "Flexion mildly limited by pain; extension and side flexion full.",
+      "abnormal": false,
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "ex-slr",
+      "system": "neurological",
+      "maneuver": "Straight leg raise",
+      "keywords": [
+        "straight leg raise",
+        "slr",
+        "lift your leg"
+      ],
+      "finding": "Negative on both sides.",
+      "abnormal": false,
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "ex-neuro",
+      "system": "neurological",
+      "maneuver": "Examine leg power, reflexes and sensation, including the saddle area",
+      "keywords": [
+        "neurological",
+        "power",
+        "reflexes",
+        "sensation",
+        "saddle"
+      ],
+      "finding": "Normal power, reflexes and sensation in both legs; saddle sensation normal.",
+      "abnormal": false,
+      "required": true,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "ex-tongue",
+      "system": "general",
+      "maneuver": "Inspect the tongue",
+      "keywords": [
+        "tongue"
+      ],
+      "finding": "Slightly purple tongue with a thin white coat.",
+      "abnormal": false,
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "ex-pulse-tcm",
+      "system": "general",
+      "maneuver": "Feel the radial pulses (TCM pulse diagnosis)",
+      "keywords": [
+        "pulse diagnosis",
+        "radial pulse",
+        "pulses"
+      ],
+      "finding": "Pulse wiry and slightly choppy.",
+      "abnormal": false,
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "fu-ex-back",
+      "system": "musculoskeletal",
+      "maneuver": "Re-examine the back",
+      "keywords": [
+        "re-examine",
+        "examine the back",
+        "back"
+      ],
+      "finding": "Right paraspinal tenderness much reduced; full lumbar flexion.",
+      "abnormal": false,
+      "required": false,
+      "phases": [
+        "follow-up"
+      ]
+    }
+  ],
+  "examNotRecorded": "Nothing remarkable is recorded for that examination in this case.",
+  "investigations": [
+    {
+      "id": "inv-gp-note",
+      "name": "GP note (September 2026)",
+      "category": "record",
+      "aliases": [
+        "gp note",
+        "gp letter",
+        "doctor's note",
+        "previous notes"
+      ],
+      "requires": [],
+      "turnaroundMinutes": 0,
+      "risk": "none",
+      "performedAt": "records",
+      "value": "useful",
+      "results": {
+        "visit-1": {
+          "available": true,
+          "date": "September 2026",
+          "text": "Mechanical low back pain; no red flags; advised to keep active and take analgesia as needed.",
+          "values": [],
+          "figures": [],
+          "critical": false
+        },
+        "follow-up": {
+          "available": true,
+          "date": "September 2026",
+          "text": "Mechanical low back pain; no red flags; advised to keep active and take analgesia as needed.",
+          "values": [],
+          "figures": [],
+          "critical": false
+        }
+      },
+      "availability": {
+        "historical": true
+      }
+    }
+  ],
+  "physiology": {
+    "baseline": {
+      "hr": 72,
+      "sbp": 118,
+      "dbp": 74,
+      "rr": 14,
+      "spo2": 99,
+      "temp": 36.6,
+      "pain": 4
+    },
+    "noise": 0.5,
+    "events": [
+      {
+        "id": "pe-vasovagal",
+        "when": {
+          "flag": "acu.vasovagal"
+        },
+        "setVitals": {
+          "hr": 48,
+          "sbp": 82,
+          "dbp": 50
+        },
+        "severity": "warning",
+        "speaker": "narrator",
+        "message": "The patient has gone pale and sweaty and says they feel faint."
+      },
+      {
+        "id": "pe-recovered",
+        "when": {
+          "all": [
+            {
+              "flag": "acu.vasovagal"
+            },
+            {
+              "flag": "acu.lying"
+            },
+            {
+              "not": {
+                "flag": "acu.needles-in"
+              }
+            }
+          ]
+        },
+        "setVitals": {
+          "hr": 70,
+          "sbp": 116,
+          "dbp": 72
+        },
+        "severity": "info",
+        "speaker": "narrator",
+        "message": "Lying flat with the needles out, the patient's colour is returning."
+      }
+    ]
+  },
+  "objectives": [
+    {
+      "id": "obj-history",
+      "title": "Take a focused history, including red flags and pregnancy",
+      "hint": "Onset, radiation, cauda equina symptoms, fever, weight loss, night pain, pregnancy, medicines.",
+      "completeWhen": {
+        "all": [
+          {
+            "asked": "hx-radiation"
+          },
+          {
+            "asked": "hx-cauda"
+          },
+          {
+            "asked": "hx-pregnancy"
+          }
+        ]
+      },
+      "waypoints": [
+        {
+          "target": "patient"
+        }
+      ]
+    },
+    {
+      "id": "obj-exam",
+      "title": "Examine the back and the legs",
+      "hint": "Palpate the spine and muscles; check leg power, reflexes and sensation including the saddle area.",
+      "completeWhen": {
+        "all": [
+          {
+            "examined": "ex-palpate-back"
+          },
+          {
+            "examined": "ex-neuro"
+          }
+        ]
+      },
+      "waypoints": [
+        {
+          "target": "patient"
+        }
+      ]
+    },
+    {
+      "id": "obj-close",
+      "title": "Close the encounter safely",
+      "hint": "Every needle accounted for, the record written, follow-up arranged.",
+      "completeWhen": {
+        "flag": "acu.finished"
+      },
+      "waypoints": []
+    }
+  ],
+  "decisions": [],
+  "rubric": [
+    {
+      "id": "rb-cauda",
+      "domain": "safety",
+      "text": "Asked about saddle numbness and bladder or bowel change",
+      "weight": 2,
+      "met": {
+        "asked": "hx-cauda"
+      },
+      "critical": true
+    },
+    {
+      "id": "rb-pregnancy",
+      "domain": "safety",
+      "text": "Asked about pregnancy",
+      "weight": 2,
+      "met": {
+        "asked": "hx-pregnancy"
+      }
+    },
+    {
+      "id": "rb-neuro",
+      "domain": "examination",
+      "text": "Examined the legs neurologically",
+      "weight": 2,
+      "met": {
+        "examined": "ex-neuro"
+      }
+    }
+  ],
+  "npcs": [],
+  "debrief": {
+    "title": "Low back pain in a 34-year-old woman",
+    "conclusion": "Chronic non-specific low back pain without red flags. Acupuncture can be discussed with the conflicting guideline positions made clear (NICE NG59 against; ACP 2017 among first-line non-drug options).",
+    "keyReasoning": [
+      "No radiation, normal neurology and no cauda equina symptoms.",
+      "Not pregnant: the usual point cautions do not apply."
+    ],
+    "teachingPoints": [
+      "Always screen for cauda equina symptoms.",
+      "Ask about pregnancy before needling a woman of reproductive age.",
+      "The kidneys and the dural sac lie deep to the lumbar points: needle depth follows this patient's build."
+    ],
+    "references": [
+      "NICE NG59",
+      "ACP 2017"
+    ],
+    "notice": "Teaching-script measure, not a validated competency score."
+  },
+  "unknowns": [
+    "Imaging (none has been done)"
+  ],
+  "assets": [],
+  "solution": [
+    {
+      "type": "start"
+    },
+    {
+      "type": "ask",
+      "itemId": "hx-radiation"
+    },
+    {
+      "type": "ask",
+      "itemId": "hx-cauda"
+    },
+    {
+      "type": "ask",
+      "itemId": "hx-pregnancy"
+    },
+    {
+      "type": "examine",
+      "findingId": "ex-palpate-back"
+    },
+    {
+      "type": "examine",
+      "findingId": "ex-neuro"
+    },
+    {
+      "type": "flag",
+      "flag": "acu.finished"
+    }
+  ],
+  "extensions": {
+    "acucraft": {
+      "field": "field.json"
+    }
+  }
+}

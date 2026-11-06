@@ -1,0 +1,925 @@
+[
+  {
+    "requestId": "lb-001",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-chief"
+    }
+  },
+  {
+    "requestId": "lb-002",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-onset"
+    }
+  },
+  {
+    "requestId": "lb-003",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-site"
+    }
+  },
+  {
+    "requestId": "lb-004",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-radiation"
+    }
+  },
+  {
+    "requestId": "lb-005",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-pattern"
+    }
+  },
+  {
+    "requestId": "lb-006",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-cauda"
+    }
+  },
+  {
+    "requestId": "lb-007",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-systemic"
+    }
+  },
+  {
+    "requestId": "lb-008",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-weakness"
+    }
+  },
+  {
+    "requestId": "lb-009",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-pregnancy"
+    }
+  },
+  {
+    "requestId": "lb-010",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-pmh"
+    }
+  },
+  {
+    "requestId": "lb-011",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-meds"
+    }
+  },
+  {
+    "requestId": "lb-012",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-bleeding"
+    }
+  },
+  {
+    "requestId": "lb-013",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-prior-care"
+    }
+  },
+  {
+    "requestId": "lb-014",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-acupuncture-before"
+    }
+  },
+  {
+    "requestId": "lb-015",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-work"
+    }
+  },
+  {
+    "requestId": "lb-016",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-ice"
+    }
+  },
+  {
+    "requestId": "lb-017",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-tcm"
+    }
+  },
+  {
+    "requestId": "lb-018",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-general"
+    }
+  },
+  {
+    "requestId": "lb-019",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "review_result",
+      "investigationId": "inv-gp-note"
+    }
+  },
+  {
+    "requestId": "lb-020",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": "treatment-room",
+      "withPatient": true
+    }
+  },
+  {
+    "requestId": "lb-021",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "hand_hygiene"
+    }
+  },
+  {
+    "requestId": "lb-022",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-inspect-back"
+    }
+  },
+  {
+    "requestId": "lb-023",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-palpate-back"
+    }
+  },
+  {
+    "requestId": "lb-024",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-rom-back"
+    }
+  },
+  {
+    "requestId": "lb-025",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-slr"
+    }
+  },
+  {
+    "requestId": "lb-026",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-neuro"
+    }
+  },
+  {
+    "requestId": "lb-027",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-tongue"
+    }
+  },
+  {
+    "requestId": "lb-028",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-pulse-tcm"
+    }
+  },
+  {
+    "requestId": "lb-029",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_vitals"
+    }
+  },
+  {
+    "requestId": "lb-030",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "assess",
+      "diagnoses": [
+        "chronic-nonspecific-lbp"
+      ],
+      "pattern": "qi-blood-stagnation",
+      "redFlags": [],
+      "rationale": "Mechanical non-radiating back pain with normal neurology; stress and sitting; purple tongue, wiry choppy pulse."
+    }
+  },
+  {
+    "requestId": "lb-031",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "decide",
+      "disposition": "treat",
+      "rationale": "No red flags; not pregnant; wants to try acupuncture after the evidence discussion."
+    }
+  },
+  {
+    "requestId": "lb-032",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "propose_plan",
+      "plan": {
+        "points": [
+          {
+            "point": "BL23",
+            "side": "left"
+          },
+          {
+            "point": "BL23",
+            "side": "right"
+          },
+          {
+            "point": "BL25",
+            "side": "right"
+          },
+          {
+            "point": "GV3",
+            "side": "midline"
+          },
+          {
+            "ashi": "ashi-right-l45"
+          }
+        ],
+        "technique": {
+          "method": "manual-filiform",
+          "stimulation": "even",
+          "retentionMinutes": 20
+        },
+        "rationale": "Back-shu points for the lower back with the local Ashi point.",
+        "alternatives": [
+          "Stay active; exercise therapy or physiotherapy",
+          "Analgesia through her doctor"
+        ],
+        "followUp": "Review in one week."
+      }
+    }
+  },
+  {
+    "requestId": "lb-033",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "explain",
+      "topics": [
+        "procedure",
+        "benefits",
+        "risks",
+        "alternatives",
+        "evidence",
+        "right-to-stop"
+      ],
+      "text": "I suggest acupuncture to the lower back: five fine single-use sterile needles, left for about twenty minutes while you lie face down. Guidelines differ: NICE in the UK advises against acupuncture for low back pain, while the American College of Physicians lists it among the first non-drug options. Risks are small — soreness, bruising, feeling faint, very rarely infection or injury to deeper structures. The alternatives are staying active, exercise or physiotherapy, and pain relief through your doctor. You can tell me to stop at any time."
+    }
+  },
+  {
+    "requestId": "lb-034",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "seek_consent"
+    }
+  },
+  {
+    "requestId": "lb-035",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "position_patient",
+      "position": "prone"
+    }
+  },
+  {
+    "requestId": "lb-036",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "assign_task",
+      "to": "assistant",
+      "kind": "monitor-patient",
+      "params": {
+        "intervalMinutes": 5
+      },
+      "note": "Please check on Ms Nurul every five minutes while the needles are in."
+    }
+  },
+  {
+    "requestId": "lb-037",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "lumbar",
+      "side": "midline",
+      "landmark": "l4-spinous"
+    }
+  },
+  {
+    "requestId": "lb-038",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "lumbar",
+      "side": "midline",
+      "landmark": "l2-spinous"
+    }
+  },
+  {
+    "requestId": "lb-039",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "measure",
+      "region": "lumbar",
+      "side": "midline",
+      "segment": "seg.scapulae"
+    }
+  },
+  {
+    "requestId": "lb-040",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "mark_point",
+      "target": {
+        "point": "BL23",
+        "side": "left"
+      },
+      "region": "lumbar",
+      "side": "left",
+      "at": {
+        "u": 3.32,
+        "v": 6.91
+      },
+      "method": "proportional"
+    }
+  },
+  {
+    "requestId": "lb-041",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "mark_point",
+      "target": {
+        "point": "BL23",
+        "side": "right"
+      },
+      "region": "lumbar",
+      "side": "right",
+      "at": {
+        "u": -3.32,
+        "v": 6.91
+      },
+      "method": "proportional"
+    }
+  },
+  {
+    "requestId": "lb-042",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "mark_point",
+      "target": {
+        "point": "BL25",
+        "side": "right"
+      },
+      "region": "lumbar",
+      "side": "right",
+      "at": {
+        "u": -3.32,
+        "v": 0.0
+      },
+      "method": "proportional"
+    }
+  },
+  {
+    "requestId": "lb-043",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "mark_point",
+      "target": {
+        "point": "GV3",
+        "side": "midline"
+      },
+      "region": "lumbar",
+      "side": "midline",
+      "at": {
+        "u": 0.0,
+        "v": -0.6
+      },
+      "method": "landmark"
+    }
+  },
+  {
+    "requestId": "lb-044",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "mark_point",
+      "target": {
+        "ashi": "ashi-right-l45"
+      },
+      "region": "lumbar",
+      "side": "right",
+      "at": {
+        "u": -4.0,
+        "v": -0.5
+      },
+      "method": "palpation"
+    }
+  },
+  {
+    "requestId": "lb-045",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": "prep-area"
+    }
+  },
+  {
+    "requestId": "lb-046",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "hand_hygiene"
+    }
+  },
+  {
+    "requestId": "lb-047",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "fetch",
+      "item": "pack-a"
+    }
+  },
+  {
+    "requestId": "lb-048",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": "treatment-room"
+    }
+  },
+  {
+    "requestId": "lb-049",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "prepare_site",
+      "region": "lumbar",
+      "side": "left"
+    }
+  },
+  {
+    "requestId": "lb-050",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "prepare_site",
+      "region": "lumbar",
+      "side": "right"
+    }
+  },
+  {
+    "requestId": "lb-051",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "prepare_site",
+      "region": "lumbar",
+      "side": "midline"
+    }
+  },
+  {
+    "requestId": "lb-052",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "open_pack",
+      "packId": "pack-a"
+    }
+  },
+  {
+    "requestId": "lb-053",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "pick_up",
+      "object": "pack-a.1"
+    }
+  },
+  {
+    "requestId": "lb-054",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "insert_needle",
+      "needleId": "pack-a.1",
+      "mark": "m1",
+      "angleDeg": 0,
+      "azimuthDeg": 0,
+      "depthCm": 1.8
+    }
+  },
+  {
+    "requestId": "lb-055",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "pick_up",
+      "object": "pack-a.2"
+    }
+  },
+  {
+    "requestId": "lb-056",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "insert_needle",
+      "needleId": "pack-a.2",
+      "mark": "m2",
+      "angleDeg": 0,
+      "azimuthDeg": 0,
+      "depthCm": 1.8
+    }
+  },
+  {
+    "requestId": "lb-057",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "pick_up",
+      "object": "pack-a.3"
+    }
+  },
+  {
+    "requestId": "lb-058",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "insert_needle",
+      "needleId": "pack-a.3",
+      "mark": "m3",
+      "angleDeg": 0,
+      "azimuthDeg": 0,
+      "depthCm": 1.8
+    }
+  },
+  {
+    "requestId": "lb-059",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "pick_up",
+      "object": "pack-a.4"
+    }
+  },
+  {
+    "requestId": "lb-060",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "insert_needle",
+      "needleId": "pack-a.4",
+      "mark": "m4",
+      "angleDeg": 20,
+      "azimuthDeg": 0,
+      "depthCm": 1.5
+    }
+  },
+  {
+    "requestId": "lb-061",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "pick_up",
+      "object": "pack-a.5"
+    }
+  },
+  {
+    "requestId": "lb-062",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "insert_needle",
+      "needleId": "pack-a.5",
+      "mark": "m5",
+      "angleDeg": 0,
+      "azimuthDeg": 0,
+      "depthCm": 1.5
+    }
+  },
+  {
+    "requestId": "lb-063",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "adjust_needle",
+      "needleId": "pack-a.5",
+      "technique": "lift-thrust"
+    }
+  },
+  {
+    "requestId": "lb-064",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "monitor"
+    }
+  },
+  {
+    "requestId": "lb-065",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "wait",
+      "minutes": 10
+    }
+  },
+  {
+    "requestId": "lb-066",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "monitor"
+    }
+  },
+  {
+    "requestId": "lb-067",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "wait",
+      "minutes": 9
+    }
+  },
+  {
+    "requestId": "lb-068",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "monitor"
+    }
+  },
+  {
+    "requestId": "lb-069",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "remove_all_needles"
+    }
+  },
+  {
+    "requestId": "lb-070",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "dispose",
+      "object": "pack-a"
+    }
+  },
+  {
+    "requestId": "lb-071",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "hand_hygiene"
+    }
+  },
+  {
+    "requestId": "lb-072",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "count_needles"
+    }
+  },
+  {
+    "requestId": "lb-073",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "explain",
+      "topics": [
+        "aftercare"
+      ],
+      "text": "Afterwards keep moving gently; a little soreness is normal."
+    }
+  },
+  {
+    "requestId": "lb-074",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "document",
+      "record": {
+        "presentingComplaint": "Low back pain for six months.",
+        "assessment": "Chronic non-specific low back pain; no red flags.",
+        "pattern": "Qi and blood stagnation with kidney deficiency",
+        "rationale": "Local back-shu and Ashi points; guideline positions discussed (NICE NG59 against, ACP 2017 for).",
+        "consent": "Verbal consent after explanation.",
+        "pointsUsed": [
+          {
+            "point": "BL23",
+            "side": "left"
+          },
+          {
+            "point": "BL23",
+            "side": "right"
+          },
+          {
+            "point": "BL25",
+            "side": "right"
+          },
+          {
+            "point": "GV3",
+            "side": "midline"
+          },
+          {
+            "ashi": "ashi-right-l45"
+          }
+        ],
+        "needling": {
+          "needleType": "0.25 × 40 mm single-use sterile filiform",
+          "needleCount": 5,
+          "depth": "1.0–2.0 cm, perpendicular",
+          "responseSought": "deqi",
+          "stimulation": "even",
+          "retentionMinutes": 20
+        },
+        "response": "Tolerated well.",
+        "adverseEvents": "None.",
+        "advice": "Keep active; treated prone.",
+        "followUp": "Review in one week."
+      }
+    }
+  },
+  {
+    "requestId": "lb-075",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "end_visit"
+    }
+  },
+  {
+    "requestId": "lb-076",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "begin_follow_up"
+    }
+  },
+  {
+    "requestId": "lb-077",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "fu-progress"
+    }
+  },
+  {
+    "requestId": "lb-078",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "fu-new"
+    }
+  },
+  {
+    "requestId": "lb-079",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": "treatment-room",
+      "withPatient": true
+    }
+  },
+  {
+    "requestId": "lb-080",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "fu-ex-back"
+    }
+  },
+  {
+    "requestId": "lb-081",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "decide",
+      "disposition": "treat",
+      "rationale": "Improving without red flags: continue the course with home exercises."
+    }
+  },
+  {
+    "requestId": "lb-082",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "document",
+      "record": {
+        "assessment": "Improving chronic non-specific low back pain.",
+        "response": "Pain 4/10 → 3/10.",
+        "adverseEvents": "None.",
+        "followUp": "Two more sessions, then review."
+      }
+    }
+  },
+  {
+    "requestId": "lb-083",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "end_visit"
+    }
+  },
+  {
+    "requestId": "lb-084",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "finish_encounter"
+    }
+  }
+]

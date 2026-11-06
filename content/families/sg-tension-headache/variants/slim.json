@@ -1,0 +1,30 @@
+{
+  "schema": "acucraft/variant@1",
+  "id": "slim",
+  "title": "Very slim build",
+  "kind": "anatomy",
+  "purpose": "Anatomical variation: a very slim build (BMI about 16.7) brings the apical pleura under GB21 to under 2 cm. A depth that is safe for an average adult reaches the pleura: the guard blocks it and records a critical unsafe attempt.",
+  "case": {
+    "patient": {
+      "weightKg": 44,
+      "heightCm": 162,
+      "appearance": {
+        "build": "slim"
+      }
+    }
+  },
+  "field": {
+    "patient": {
+      "anatomy": {
+        "regions": {
+          "neck-shoulder": {
+            "both": {
+              "subcutaneousScale": 0.25,
+              "muscleScale": 0.5
+            }
+          }
+        }
+      }
+    }
+  }
+}

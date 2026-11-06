@@ -1,0 +1,406 @@
+{
+  "schema": "acucraft/region@1",
+  "id": "forearm",
+  "version": "0.1.0",
+  "title": "forearm and wrist (palmar and radial aspects)",
+  "laterality": "bilateral",
+  "chart": {
+    "description": "The forearm unrolled. u: distance round the forearm (cm) from the palmar midline, positive towards the radial (lateral) side and on round to the dorsum, negative towards the ulnar side. v: distance (cm) proximal from the palmar wrist crease. d: depth below the skin (cm).",
+    "uRange": [
+      -6,
+      8
+    ],
+    "vRange": [
+      -2,
+      28
+    ]
+  },
+  "configurations": [
+    {
+      "id": "supinated",
+      "label": "forearm supinated, palm up, supported"
+    }
+  ],
+  "defaultConfiguration": "supinated",
+  "access": [
+    {
+      "position": "seated",
+      "configuration": "supinated",
+      "sides": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "position": "supine",
+      "configuration": "supinated",
+      "sides": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "position": "supine-knee-flexed",
+      "configuration": "supinated",
+      "sides": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "position": "side-lying-left",
+      "configuration": "supinated",
+      "sides": [
+        "right"
+      ]
+    },
+    {
+      "position": "side-lying-right",
+      "configuration": "supinated",
+      "sides": [
+        "left"
+      ]
+    }
+  ],
+  "landmarks": [
+    {
+      "id": "wrist-crease-mid",
+      "label": "midpoint of the palmar wrist crease",
+      "at": {
+        "u": 0,
+        "v": 0
+      }
+    },
+    {
+      "id": "pl-fcr-wrist",
+      "label": "between the palmaris longus and flexor carpi radialis tendons at the palmar wrist crease",
+      "at": {
+        "u": 0.5,
+        "v": 0
+      },
+      "palpation": "Flex the wrist against resistance: the two most prominent tendons; the point lies between them."
+    },
+    {
+      "id": "cubital-crease-mid",
+      "label": "midpoint of the cubital crease",
+      "at": {
+        "u": 0.4,
+        "v": 26.4
+      }
+    },
+    {
+      "id": "fcu-radial-wrist",
+      "label": "radial border of the flexor carpi ulnaris tendon at the palmar wrist crease",
+      "at": {
+        "u": -3.0,
+        "v": 0
+      },
+      "palpation": "Just proximal to the pisiform, on the radial side of the tendon."
+    },
+    {
+      "id": "apl-groove-wrist",
+      "label": "groove of the abductor pollicis longus tendon on the radial aspect, at the level of the wrist crease",
+      "at": {
+        "u": 4.3,
+        "v": 0
+      }
+    },
+    {
+      "id": "radial-border-elbow",
+      "label": "radial end of the cubital crease",
+      "at": {
+        "u": 4.6,
+        "v": 26.0
+      }
+    }
+  ],
+  "segments": [
+    {
+      "id": "seg.wrist-elbow",
+      "label": "palmar wrist crease to cubital crease",
+      "from": "wrist-crease-mid",
+      "to": "cubital-crease-mid",
+      "cun": 12,
+      "source": {
+        "title": "WHO Standard Acupuncture Point Locations (2008): proportional bone measurement",
+        "verified": false
+      }
+    }
+  ],
+  "tissue": {
+    "layers": [
+      {
+        "tissue": "skin",
+        "thicknessCm": 0.2
+      },
+      {
+        "tissue": "subcutaneous",
+        "thicknessCm": 0.5
+      },
+      {
+        "tissue": "muscle",
+        "thicknessCm": 2.3
+      },
+      {
+        "tissue": "bone",
+        "thicknessCm": 1.5
+      }
+    ],
+    "zones": [
+      {
+        "id": "z-pc6",
+        "centre": {
+          "u": 0.4,
+          "v": 4.0
+        },
+        "radiusCm": 2.0,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.4
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.4,
+            "label": "palmaris longus / flexor carpi radialis"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.2,
+            "label": "flexor digitorum superficialis and profundus"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5
+          }
+        ]
+      },
+      {
+        "id": "z-radial-aspect",
+        "centre": {
+          "u": 4.3,
+          "v": 2.0
+        },
+        "radiusCm": 1.6,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "radius"
+          }
+        ]
+      },
+      {
+        "id": "z-ht7",
+        "centre": {
+          "u": -3.0,
+          "v": 0.3
+        },
+        "radiusCm": 1.2,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.4
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.0
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5
+          }
+        ]
+      }
+    ]
+  },
+  "structures": [
+    {
+      "id": "median-nerve",
+      "label": "median nerve",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 0.2,
+          "v": -1.0,
+          "d": 0.7
+        },
+        {
+          "u": 0.3,
+          "v": 4.4,
+          "d": 1.4
+        },
+        {
+          "u": 0.3,
+          "v": 12,
+          "d": 2.0
+        },
+        {
+          "u": 0.3,
+          "v": 24,
+          "d": 2.2
+        }
+      ],
+      "radiusCm": 0.25,
+      "uncertaintyCm": 0.3,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "radial-artery",
+      "label": "radial artery",
+      "kind": "artery",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 2.0,
+          "v": -1.0,
+          "d": 0.5
+        },
+        {
+          "u": 2.2,
+          "v": 6,
+          "d": 0.8
+        },
+        {
+          "u": 1.8,
+          "v": 20,
+          "d": 1.6
+        }
+      ],
+      "radiusCm": 0.15,
+      "uncertaintyCm": 0.3,
+      "consequence": "haematoma"
+    },
+    {
+      "id": "ulnar-nerve",
+      "label": "ulnar nerve",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -2.7,
+          "v": -1.0,
+          "d": 0.7
+        },
+        {
+          "u": -2.9,
+          "v": 10,
+          "d": 1.5
+        }
+      ],
+      "radiusCm": 0.2,
+      "uncertaintyCm": 0.3,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "ulnar-artery",
+      "label": "ulnar artery",
+      "kind": "artery",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -2.3,
+          "v": -1.0,
+          "d": 0.6
+        },
+        {
+          "u": -2.4,
+          "v": 10,
+          "d": 1.3
+        }
+      ],
+      "radiusCm": 0.15,
+      "uncertaintyCm": 0.3,
+      "consequence": "haematoma"
+    },
+    {
+      "id": "cephalic-vein",
+      "label": "cephalic vein",
+      "kind": "vein",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 4.6,
+          "v": -1,
+          "d": 0.3
+        },
+        {
+          "u": 4.8,
+          "v": 10,
+          "d": 0.35
+        },
+        {
+          "u": 4.4,
+          "v": 22,
+          "d": 0.4
+        }
+      ],
+      "radiusCm": 0.2,
+      "uncertaintyCm": 0.3,
+      "consequence": "bleeding"
+    },
+    {
+      "id": "superficial-radial-nerve",
+      "label": "superficial branch of the radial nerve",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 5.0,
+          "v": -1,
+          "d": 0.4
+        },
+        {
+          "u": 5.0,
+          "v": 8,
+          "d": 0.5
+        }
+      ],
+      "radiusCm": 0.1,
+      "uncertaintyCm": 0.3,
+      "consequence": "electric-sensation"
+    }
+  ],
+  "description": "The palmar forearm and wrist. At the wrist the palmaris longus and flexor carpi radialis tendons are superficial; the median nerve lies just deep to and between them and runs up the middle of the forearm under the superficial flexors. The radial artery lies lateral to flexor carpi radialis; on the ulnar side the ulnar artery and nerve run radial to flexor carpi ulnaris. Over the distal radius on the radial aspect the bone is close under the skin and tendons, with the cephalic vein and the superficial branch of the radial nerve in the subcutaneous tissue.",
+  "provenance": {
+    "kind": "schematic",
+    "sources": [
+      {
+        "title": "General regional anatomy of the forearm and wrist (standard anatomy texts)",
+        "verified": false,
+        "note": "Topography only; no third-party geometry or images were used."
+      }
+    ],
+    "licence": "CC0-1.0 (original schematic geometry)",
+    "review": {
+      "status": "unreviewed",
+      "reviewers": [],
+      "notes": "Positions and depths are illustrative approximations of a reference adult written for simulation. They are not measurements or an atlas and are not a guide to safe depths in real patients. Anatomical expert review is required before any teaching use."
+    }
+  }
+}

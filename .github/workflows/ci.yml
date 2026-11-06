@@ -1,0 +1,38 @@
+name: AcuCraft
+
+# AcuCraft is checked against the ClinicalCraft engine at the revision pinned in tools/clinicalcraft.rev — never
+# "whatever main is today". Moving the pin is a change of its own, with this run green.
+on:
+  push:
+    branches: [main, "claude/**"]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install
+        run: npm ci
+      - name: Check (pinned engine, typecheck, tests, content, baseline benchmark)
+        run: tools/check.sh
+      - name: Benchmark report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: baseline-benchmark
+          path: runs/ci-protocol
+          if-no-files-found: ignore

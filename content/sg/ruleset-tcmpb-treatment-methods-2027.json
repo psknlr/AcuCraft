@@ -1,0 +1,32 @@
+{
+  "schema": "acucraft/ruleset@1",
+  "id": "sg-tcmpb-acupuncture-treatment-methods-2027",
+  "series": "sg-tcmpb-acupuncture-treatment-methods",
+  "version": "2027-01",
+  "title": "TCMPB Advisory on Acupuncture Treatment Methods",
+  "jurisdiction": "SG",
+  "publisher": "TCMPB",
+  "publishedAt": "2026-11-01",
+  "effectiveFrom": "2027-01-01",
+  "appliesTo": [
+    "tcm-physician",
+    "registered-acupuncturist",
+    "tcm-supervisor",
+    "tcm-learner"
+  ],
+  "source": {
+    "title": "Advisory on Acupuncture Treatment Methods (announcement)",
+    "publisher": "TCMPB",
+    "publishedAt": "2026-11-01",
+    "url": "https://www.tcmpb.gov.sg/publications-and-newsroom/announcements/advisory-on-acupuncture-treatment-methods/",
+    "verified": false,
+    "note": "The design proposal reports this advisory as announced on 1 November 2026 with effect from 1 January 2027. Neither the announcement nor its content could be retrieved in this session (no network access to gov.sg; a web search did not find it), so no rule is encoded: the version exists so that scenarios dated from 1 January 2027 name it."
+  },
+  "review": {
+    "status": "unreviewed",
+    "reviewers": [],
+    "notes": "Metadata only. Encode the advisory's provisions once its text has been obtained and reviewed."
+  },
+  "encoding": "not-encoded",
+  "rules": []
+}

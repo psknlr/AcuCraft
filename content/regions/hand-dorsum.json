@@ -1,0 +1,316 @@
+{
+  "schema": "acucraft/region@1",
+  "id": "hand-dorsum",
+  "version": "0.1.0",
+  "title": "dorsum of the hand",
+  "laterality": "bilateral",
+  "chart": {
+    "description": "The back of the hand. u: distance (cm) from the axis of the third metacarpal, positive towards the radial (thumb) side, negative towards the ulnar side. v: distance (cm) proximal from the line of the metacarpophalangeal joints (knuckles). d: depth below the skin (cm).",
+    "uRange": [
+      -6,
+      7
+    ],
+    "vRange": [
+      -1,
+      9
+    ]
+  },
+  "configurations": [
+    {
+      "id": "relaxed",
+      "label": "hand relaxed, supported"
+    }
+  ],
+  "defaultConfiguration": "relaxed",
+  "access": [
+    {
+      "position": "seated",
+      "configuration": "relaxed",
+      "sides": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "position": "seated-forward",
+      "configuration": "relaxed",
+      "sides": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "position": "supine",
+      "configuration": "relaxed",
+      "sides": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "position": "supine-knee-flexed",
+      "configuration": "relaxed",
+      "sides": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "position": "prone",
+      "configuration": "relaxed",
+      "sides": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "position": "side-lying-left",
+      "configuration": "relaxed",
+      "sides": [
+        "right"
+      ]
+    },
+    {
+      "position": "side-lying-right",
+      "configuration": "relaxed",
+      "sides": [
+        "left"
+      ]
+    }
+  ],
+  "landmarks": [
+    {
+      "id": "mc2-head",
+      "label": "head of the second metacarpal (radial side of the index knuckle)",
+      "at": {
+        "u": 2.2,
+        "v": 0
+      }
+    },
+    {
+      "id": "mc2-base",
+      "label": "base of the second metacarpal",
+      "at": {
+        "u": 2.0,
+        "v": 6.5
+      }
+    },
+    {
+      "id": "mc1-mc2-junction",
+      "label": "junction of the bases of the first and second metacarpals",
+      "at": {
+        "u": 3.2,
+        "v": 5.8
+      }
+    },
+    {
+      "id": "web-margin",
+      "label": "margin of the first web space",
+      "at": {
+        "u": 5.2,
+        "v": 1.2
+      }
+    },
+    {
+      "id": "mc5-mcp-ulnar",
+      "label": "ulnar side of the fifth metacarpophalangeal joint",
+      "at": {
+        "u": -4.2,
+        "v": 0.3
+      },
+      "palpation": "Make a loose fist: the end of the transverse crease on the ulnar side."
+    },
+    {
+      "id": "wrist-dorsal-crease",
+      "label": "dorsal wrist crease",
+      "at": {
+        "u": 0,
+        "v": 8.0
+      }
+    }
+  ],
+  "segments": [],
+  "tissue": {
+    "layers": [
+      {
+        "tissue": "skin",
+        "thicknessCm": 0.2
+      },
+      {
+        "tissue": "subcutaneous",
+        "thicknessCm": 0.3
+      },
+      {
+        "tissue": "tendon",
+        "thicknessCm": 0.3
+      },
+      {
+        "tissue": "bone",
+        "thicknessCm": 1.0
+      }
+    ],
+    "zones": [
+      {
+        "id": "z-first-web",
+        "centre": {
+          "u": 3.3,
+          "v": 3.2
+        },
+        "radiusCm": 1.4,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.9,
+            "label": "first dorsal interosseous and adductor pollicis"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.4,
+            "label": "palmar"
+          },
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2,
+            "label": "palmar skin"
+          }
+        ]
+      },
+      {
+        "id": "z-hypothenar-edge",
+        "centre": {
+          "u": -4.3,
+          "v": 1.1
+        },
+        "radiusCm": 0.9,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.2,
+            "label": "abductor digiti minimi"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.0
+          }
+        ]
+      }
+    ]
+  },
+  "structures": [
+    {
+      "id": "radial-artery-hand",
+      "label": "radial artery passing into the first web space",
+      "kind": "artery",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 4.5,
+          "v": 9.0,
+          "d": 0.8
+        },
+        {
+          "u": 3.6,
+          "v": 6.5,
+          "d": 1.2
+        },
+        {
+          "u": 3.0,
+          "v": 5.6,
+          "d": 1.9
+        }
+      ],
+      "radiusCm": 0.2,
+      "uncertaintyCm": 0.3,
+      "consequence": "haematoma"
+    },
+    {
+      "id": "superficial-radial-nerve-hand",
+      "label": "dorsal digital branches of the superficial radial nerve",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 4.0,
+          "v": 8.5,
+          "d": 0.3
+        },
+        {
+          "u": 3.8,
+          "v": 5.0,
+          "d": 0.3
+        },
+        {
+          "u": 3.6,
+          "v": 2.5,
+          "d": 0.3
+        }
+      ],
+      "radiusCm": 0.08,
+      "uncertaintyCm": 0.3,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "dorsal-venous-network",
+      "label": "dorsal venous network",
+      "kind": "vein",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 1.0,
+          "v": 1.0,
+          "d": 0.3
+        },
+        {
+          "u": 1.5,
+          "v": 4.0,
+          "d": 0.3
+        },
+        {
+          "u": 1.5,
+          "v": 7.5,
+          "d": 0.3
+        }
+      ],
+      "radiusCm": 0.15,
+      "uncertaintyCm": 0.3,
+      "consequence": "bleeding"
+    }
+  ],
+  "description": "The back of the hand. Between the first and second metacarpals the first web space holds the first dorsal interosseous and, deeper, adductor pollicis; a needle passed straight through it reaches the palmar skin. The radial artery crosses the anatomical snuffbox and dives between the two heads of the first dorsal interosseous near the bases of the metacarpals. Dorsal branches of the superficial radial nerve and the dorsal venous network lie in the subcutaneous tissue.",
+  "provenance": {
+    "kind": "schematic",
+    "sources": [
+      {
+        "title": "General regional anatomy of the hand (standard anatomy texts)",
+        "verified": false,
+        "note": "Topography only; no third-party geometry or images were used."
+      }
+    ],
+    "licence": "CC0-1.0 (original schematic geometry)",
+    "review": {
+      "status": "unreviewed",
+      "reviewers": [],
+      "notes": "Positions and depths are illustrative approximations of a reference adult written for simulation. They are not measurements or an atlas and are not a guide to safe depths in real patients. Anatomical expert review is required before any teaching use."
+    }
+  }
+}

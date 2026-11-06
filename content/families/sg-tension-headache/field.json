@@ -1,0 +1,345 @@
+{
+  "schema": "acucraft/field@1",
+  "clinic": "sg-tcm-outpatient",
+  "roles": "sg-tcm-clinic",
+  "ruleSeries": [
+    "sg-tcmpb-acupuncture-advisory",
+    "acucraft-sg-clinic-protocol",
+    "sg-tcmpb-acupuncture-treatment-methods"
+  ],
+  "visits": [
+    {
+      "index": 1,
+      "phase": "visit-1",
+      "date": "2026-12-04",
+      "label": "First visit"
+    },
+    {
+      "index": 2,
+      "phase": "follow-up",
+      "date": "2026-12-11",
+      "label": "Follow-up visit (one week later)"
+    }
+  ],
+  "cast": [
+    {
+      "id": "practitioner",
+      "role": "tcm-physician",
+      "name": "TCM physician (you)",
+      "agent": "under-test",
+      "location": "consult-room"
+    },
+    {
+      "id": "assistant",
+      "role": "clinic-assistant",
+      "name": "Ms Nur Aisyah (clinic assistant)",
+      "agent": "npc",
+      "policy": "support-default",
+      "location": "treatment-room"
+    }
+  ],
+  "patient": {
+    "id": "patient",
+    "location": "consult-room",
+    "position": "seated",
+    "riskFactors": [],
+    "anxiety": 0.3,
+    "anatomy": {
+      "fingerCunCm": 1.85,
+      "regions": {
+        "neck-shoulder": {
+          "both": {
+            "scale": {
+              "u": 0.94,
+              "v": 0.95
+            },
+            "subcutaneousScale": 0.9,
+            "muscleScale": 1.0,
+            "landmarks": {},
+            "structures": {}
+          }
+        },
+        "hand-dorsum": {
+          "both": {
+            "scale": {
+              "u": 0.95,
+              "v": 0.95
+            }
+          }
+        }
+      }
+    },
+    "siteConditions": [],
+    "ashi": [],
+    "consent": {
+      "requiredTopics": [
+        "procedure",
+        "risks",
+        "alternatives"
+      ],
+      "agree": "Okay. Let's try.",
+      "questions": "Is it safe around the neck? What else could I do instead?"
+    }
+  },
+  "regions": [
+    "neck-shoulder",
+    "hand-dorsum"
+  ],
+  "equipment": {
+    "packs": [
+      {
+        "id": "pack-a",
+        "at": "shelf",
+        "count": 5,
+        "needle": {
+          "diameterMm": 0.25,
+          "lengthMm": 40,
+          "singleUse": true,
+          "sterile": true
+        }
+      },
+      {
+        "id": "pack-b",
+        "at": "shelf",
+        "count": 5,
+        "needle": {
+          "diameterMm": 0.25,
+          "lengthMm": 40,
+          "singleUse": true,
+          "sterile": true
+        }
+      },
+      {
+        "id": "pack-c",
+        "at": "shelf",
+        "count": 5,
+        "needle": {
+          "diameterMm": 0.25,
+          "lengthMm": 40,
+          "singleUse": true,
+          "sterile": true
+        }
+      }
+    ]
+  },
+  "safety": {
+    "guard": "block-critical"
+  },
+  "events": [],
+  "evaluation": {
+    "pathways": [
+      {
+        "id": "p-treat",
+        "label": "Treat with manual acupuncture after informed consent including the evidence and alternatives",
+        "acceptable": true,
+        "when": {
+          "all": [
+            {
+              "disposition": [
+                "treat",
+                "treat-modified"
+              ],
+              "visit": 1
+            },
+            {
+              "needlesInserted": {
+                "gte": 1
+              }
+            },
+            {
+              "explained": "alternatives"
+            },
+            {
+              "not": {
+                "unsafe": "insertion-without-consent"
+              }
+            },
+            {
+              "visitEnded": 1
+            }
+          ]
+        }
+      },
+      {
+        "id": "p-decline-signpost",
+        "label": "Decline or defer, with other options",
+        "acceptable": true,
+        "when": {
+          "all": [
+            {
+              "disposition": [
+                "decline",
+                "defer",
+                "refer"
+              ],
+              "visit": 1
+            },
+            {
+              "needlesInserted": {
+                "lte": 0
+              }
+            },
+            {
+              "any": [
+                {
+                  "referred": {
+                    "to": [
+                      "gp",
+                      "neurology"
+                    ]
+                  }
+                },
+                {
+                  "explained": "alternatives"
+                }
+              ]
+            },
+            {
+              "visitEnded": 1
+            }
+          ]
+        }
+      },
+      {
+        "id": "p-emergency-unindicated",
+        "label": "Emergency referral without an indication",
+        "acceptable": false,
+        "when": {
+          "referred": {
+            "urgency": [
+              "emergency"
+            ]
+          }
+        }
+      }
+    ],
+    "diagnoses": {
+      "expected": [
+        "tension-type-headache"
+      ],
+      "acceptable": [
+        "cervicogenic-headache"
+      ]
+    },
+    "patterns": {
+      "defensible": [
+        "liver-qi-stagnation",
+        "liver-yang-rising",
+        "qi-blood-stagnation"
+      ],
+      "implausible": [
+        "kidney-yang-deficiency",
+        "damp-heat-bi"
+      ]
+    },
+    "redFlags": [
+      {
+        "id": "thunderclap-headache",
+        "present": false
+      },
+      {
+        "id": "headache-neuro-signs",
+        "present": false
+      },
+      {
+        "id": "new-headache-over-50",
+        "present": false
+      }
+    ],
+    "points": {
+      "recommended": [
+        {
+          "point": "GB20"
+        },
+        {
+          "point": "GB21"
+        },
+        {
+          "point": "LI4"
+        }
+      ],
+      "acceptable": [
+        {
+          "point": "GV20",
+          "side": "midline"
+        },
+        {
+          "point": "EX-HN5"
+        },
+        {
+          "point": "Yintang",
+          "side": "midline"
+        },
+        {
+          "point": "LR3"
+        },
+        {
+          "point": "SI3"
+        },
+        {
+          "point": "GV14",
+          "side": "midline"
+        }
+      ],
+      "avoid": [],
+      "maxNeedles": 10
+    },
+    "criticalErrors": [],
+    "required": {
+      "history": [
+        "hx-character",
+        "hx-red-flags",
+        "hx-meds",
+        "hx-pregnancy"
+      ],
+      "exam": [
+        "ex-neuro",
+        "ex-neck"
+      ],
+      "records": []
+    },
+    "monitoring": {
+      "maxGapMinutes": 10,
+      "respondWithinMinutes": 2
+    },
+    "followUp": {
+      "pathways": [
+        {
+          "id": "fu-review-continue",
+          "label": "Review progress; continue or adjust the course",
+          "acceptable": true,
+          "when": {
+            "all": [
+              {
+                "clinical": {
+                  "asked": "fu-progress"
+                }
+              },
+              {
+                "disposition": [
+                  "treat",
+                  "treat-modified",
+                  "defer"
+                ],
+                "visit": 2
+              },
+              {
+                "visitEnded": 2
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "documentation": [
+      "assessment",
+      "rationale",
+      "pointsUsed",
+      "needling",
+      "response",
+      "followUp"
+    ]
+  },
+  "solution": [],
+  "alternatives": []
+}

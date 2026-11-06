@@ -1,0 +1,103 @@
+{
+  "schema": "acucraft/ruleset@1",
+  "id": "sg-tcmpb-acupuncture-advisory-2021",
+  "series": "sg-tcmpb-acupuncture-advisory",
+  "version": "2021-06",
+  "title": "TCMPB General Advisory on Acupuncture and Other Related Treatment",
+  "jurisdiction": "SG",
+  "publisher": "TCMPB",
+  "publishedAt": "2021-06-01",
+  "effectiveFrom": "2021-06-01",
+  "appliesTo": [
+    "tcm-physician",
+    "registered-acupuncturist",
+    "tcm-supervisor",
+    "tcm-learner"
+  ],
+  "source": {
+    "title": "General Advisory on Acupuncture and Other Related Treatment (2021)",
+    "publisher": "Traditional Chinese Medicine Practitioners Board (TCMPB), Singapore",
+    "publishedAt": "2021-06",
+    "url": "https://isomer-user-content.by.gov.sg/80/ed5d3a03-6f68-47c1-8f85-10f5b92c4d47/general-advisory-on-acupuncture-and-other-related-treatment-%282021%29%28eng%29.pdf",
+    "verified": false,
+    "note": "Cited by the design proposal as covering infection prevention, needle safety, treatment records and consent, including single-use sterile needles and appropriate disposal. The document could not be fetched in this session: each rule below is a simulation encoding of the proposal's summary and must be checked against the advisory's text, clause by clause, before use."
+  },
+  "review": {
+    "status": "unreviewed",
+    "reviewers": [],
+    "notes": "Encoded from the proposal's summary, not from the advisory's text. The effective date is taken as the publication month (June 2021)."
+  },
+  "encoding": "partial",
+  "rules": [
+    {
+      "id": "single-use-sterile",
+      "title": "Single-use sterile needles",
+      "summary": "Use sterile, single-use acupuncture needles; a needle is never reused.",
+      "severity": "critical",
+      "enforcement": "record",
+      "check": {
+        "kind": "single-use-sterile-needle"
+      }
+    },
+    {
+      "id": "sharps-disposal",
+      "title": "Dispose of needles as sharps",
+      "summary": "Used needles are disposed of appropriately, into a sharps container.",
+      "severity": "major",
+      "enforcement": "record",
+      "check": {
+        "kind": "sharps-disposal"
+      }
+    },
+    {
+      "id": "hand-hygiene",
+      "title": "Hand hygiene",
+      "summary": "Infection prevention: hand hygiene before handling sterile needles and needling.",
+      "severity": "major",
+      "enforcement": "record",
+      "check": {
+        "kind": "hand-hygiene-before",
+        "actions": [
+          "open_pack",
+          "prepare_site",
+          "insert_needle"
+        ]
+      }
+    },
+    {
+      "id": "skin-preparation",
+      "title": "Prepare the needling site",
+      "summary": "Infection prevention: the skin at the needling site is prepared before insertion.",
+      "severity": "major",
+      "enforcement": "record",
+      "check": {
+        "kind": "site-preparation-before-insertion"
+      }
+    },
+    {
+      "id": "consent",
+      "title": "Consent before treatment",
+      "summary": "The patient's consent to the treatment is obtained before it is given.",
+      "severity": "critical",
+      "enforcement": "record",
+      "check": {
+        "kind": "consent-before-treatment"
+      }
+    },
+    {
+      "id": "treatment-records",
+      "title": "Treatment records",
+      "summary": "Treatment records are kept: the assessment, the points used and the procedure performed.",
+      "severity": "major",
+      "enforcement": "record",
+      "check": {
+        "kind": "treatment-record",
+        "fields": [
+          "assessment",
+          "pointsUsed",
+          "needling"
+        ]
+      }
+    }
+  ]
+}

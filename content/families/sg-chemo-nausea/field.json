@@ -1,0 +1,319 @@
+{
+  "schema": "acucraft/field@1",
+  "clinic": "sg-tcm-outpatient",
+  "roles": "sg-tcm-clinic",
+  "ruleSeries": [
+    "sg-tcmpb-acupuncture-advisory",
+    "acucraft-sg-clinic-protocol",
+    "sg-tcmpb-acupuncture-treatment-methods"
+  ],
+  "visits": [
+    {
+      "index": 1,
+      "phase": "visit-1",
+      "date": "2026-12-03",
+      "label": "First visit"
+    },
+    {
+      "index": 2,
+      "phase": "follow-up",
+      "date": "2026-12-12",
+      "label": "Follow-up visit (after the next cycle)"
+    }
+  ],
+  "cast": [
+    {
+      "id": "practitioner",
+      "role": "tcm-physician",
+      "name": "TCM physician (you)",
+      "agent": "under-test",
+      "location": "consult-room"
+    },
+    {
+      "id": "assistant",
+      "role": "clinic-assistant",
+      "name": "Ms Nur Aisyah (clinic assistant)",
+      "agent": "npc",
+      "policy": "support-default",
+      "location": "treatment-room"
+    }
+  ],
+  "patient": {
+    "id": "patient",
+    "location": "consult-room",
+    "position": "seated",
+    "riskFactors": [
+      "chemotherapy"
+    ],
+    "anxiety": 0.3,
+    "anatomy": {
+      "fingerCunCm": 1.8,
+      "regions": {
+        "knee-leg": {
+          "both": {
+            "scale": {
+              "u": 0.98,
+              "v": 0.93
+            }
+          }
+        },
+        "forearm": {
+          "both": {
+            "scale": {
+              "u": 0.95,
+              "v": 0.94
+            }
+          }
+        }
+      }
+    },
+    "siteConditions": [],
+    "ashi": [],
+    "consent": {
+      "requiredTopics": [
+        "procedure",
+        "risks",
+        "alternatives"
+      ],
+      "agree": "Okay, doctor. Thank you.",
+      "questions": "Is it safe with the chemo? Is there anything else I can do instead?"
+    }
+  },
+  "regions": [
+    "forearm",
+    "knee-leg"
+  ],
+  "equipment": {
+    "packs": [
+      {
+        "id": "pack-a",
+        "at": "shelf",
+        "count": 5,
+        "needle": {
+          "diameterMm": 0.25,
+          "lengthMm": 40,
+          "singleUse": true,
+          "sterile": true
+        }
+      },
+      {
+        "id": "pack-b",
+        "at": "shelf",
+        "count": 5,
+        "needle": {
+          "diameterMm": 0.25,
+          "lengthMm": 40,
+          "singleUse": true,
+          "sterile": true
+        }
+      }
+    ]
+  },
+  "safety": {
+    "guard": "block-critical"
+  },
+  "events": [],
+  "evaluation": {
+    "pathways": [
+      {
+        "id": "p-treat",
+        "label": "Treat as an adjunct after checking the counts and the oncology team's view",
+        "acceptable": true,
+        "when": {
+          "all": [
+            {
+              "disposition": [
+                "treat",
+                "treat-modified"
+              ],
+              "visit": 1
+            },
+            {
+              "needlesInserted": {
+                "gte": 1
+              }
+            },
+            {
+              "clinical": {
+                "read": "inv-fbc"
+              }
+            },
+            {
+              "explained": "alternatives"
+            },
+            {
+              "not": {
+                "unsafe": "insertion-without-consent"
+              }
+            },
+            {
+              "visitEnded": 1
+            }
+          ]
+        }
+      },
+      {
+        "id": "p-defer",
+        "label": "Defer and liaise with the oncology team",
+        "acceptable": true,
+        "when": {
+          "all": [
+            {
+              "disposition": [
+                "defer",
+                "refer",
+                "decline"
+              ],
+              "visit": 1
+            },
+            {
+              "needlesInserted": {
+                "lte": 0
+              }
+            },
+            {
+              "visitEnded": 1
+            }
+          ]
+        }
+      },
+      {
+        "id": "p-treat-unchecked",
+        "label": "Needled without checking the blood count",
+        "acceptable": false,
+        "when": {
+          "all": [
+            {
+              "needlesInserted": {
+                "gte": 1
+              }
+            },
+            {
+              "not": {
+                "clinical": {
+                  "read": "inv-fbc"
+                }
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "diagnoses": {
+      "expected": [
+        "chemotherapy-nausea"
+      ],
+      "acceptable": []
+    },
+    "patterns": {
+      "defensible": [
+        "spleen-stomach-deficiency",
+        "stomach-qi-rebellion"
+      ],
+      "implausible": [
+        "liver-yang-rising",
+        "damp-heat-bi"
+      ]
+    },
+    "redFlags": [
+      {
+        "id": "fever-on-chemotherapy",
+        "present": false
+      }
+    ],
+    "points": {
+      "recommended": [
+        {
+          "point": "PC6",
+          "side": "right"
+        },
+        {
+          "point": "PC6",
+          "side": "left"
+        },
+        {
+          "point": "ST36"
+        }
+      ],
+      "acceptable": [
+        {
+          "point": "CV12",
+          "side": "midline"
+        },
+        {
+          "point": "SP6"
+        },
+        {
+          "point": "LI4"
+        }
+      ],
+      "avoid": [],
+      "maxNeedles": 8
+    },
+    "criticalErrors": [],
+    "required": {
+      "history": [
+        "hx-nausea",
+        "hx-meds",
+        "hx-oncology",
+        "hx-fever",
+        "hx-bleeding",
+        "hx-surgery-arm"
+      ],
+      "exam": [
+        "ex-arms"
+      ],
+      "records": [
+        "inv-fbc"
+      ]
+    },
+    "monitoring": {
+      "maxGapMinutes": 10,
+      "respondWithinMinutes": 2
+    },
+    "followUp": {
+      "pathways": [
+        {
+          "id": "fu-review-continue",
+          "label": "Review after the cycle; continue around chemotherapy or stop",
+          "acceptable": true,
+          "when": {
+            "all": [
+              {
+                "clinical": {
+                  "asked": "fu-progress"
+                }
+              },
+              {
+                "clinical": {
+                  "asked": "fu-new"
+                }
+              },
+              {
+                "disposition": [
+                  "treat",
+                  "treat-modified",
+                  "defer"
+                ],
+                "visit": 2
+              },
+              {
+                "visitEnded": 2
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "documentation": [
+      "assessment",
+      "rationale",
+      "pointsUsed",
+      "needling",
+      "response",
+      "followUp"
+    ]
+  },
+  "solution": [],
+  "alternatives": []
+}

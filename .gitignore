@@ -1,0 +1,9 @@
+node_modules/
+dist/
+*.tsbuildinfo
+.deps/
+runs/
+out/
+.DS_Store
+.clinicalcraft/settings.local.json
+tools/_*.ts

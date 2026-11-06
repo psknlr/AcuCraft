@@ -1,0 +1,209 @@
+{
+  "schema": "acucraft/vocabulary@1",
+  "id": "sg-tcm",
+  "version": "0.1.0",
+  "review": {
+    "status": "unreviewed",
+    "reviewers": [],
+    "notes": "Terminology for structured assessment. Mandarin pattern names are given for reference and need review by a bilingual TCM educator."
+  },
+  "diagnoses": [
+    {
+      "id": "knee-osteoarthritis",
+      "label": "Knee osteoarthritis"
+    },
+    {
+      "id": "septic-arthritis",
+      "label": "Septic arthritis (suspected)"
+    },
+    {
+      "id": "crystal-arthritis",
+      "label": "Gout or pseudogout flare"
+    },
+    {
+      "id": "meniscal-injury",
+      "label": "Meniscal injury"
+    },
+    {
+      "id": "inflammatory-arthritis",
+      "label": "Inflammatory arthritis"
+    },
+    {
+      "id": "chronic-nonspecific-lbp",
+      "label": "Chronic non-specific low back pain"
+    },
+    {
+      "id": "lumbar-radiculopathy",
+      "label": "Lumbar radiculopathy"
+    },
+    {
+      "id": "cauda-equina-syndrome",
+      "label": "Cauda equina syndrome (suspected)"
+    },
+    {
+      "id": "pregnancy-related-lbp",
+      "label": "Pregnancy-related low back / pelvic girdle pain"
+    },
+    {
+      "id": "tension-type-headache",
+      "label": "Tension-type headache"
+    },
+    {
+      "id": "migraine",
+      "label": "Migraine"
+    },
+    {
+      "id": "secondary-headache",
+      "label": "Secondary headache (suspected)"
+    },
+    {
+      "id": "cervicogenic-headache",
+      "label": "Cervicogenic headache"
+    },
+    {
+      "id": "chemotherapy-nausea",
+      "label": "Chemotherapy-induced nausea and vomiting"
+    },
+    {
+      "id": "neutropenia",
+      "label": "Neutropenia"
+    },
+    {
+      "id": "lymphoedema",
+      "label": "Lymphoedema"
+    },
+    {
+      "id": "vasovagal-reaction",
+      "label": "Vasovagal reaction"
+    },
+    {
+      "id": "depressive-episode",
+      "label": "Depressive episode"
+    },
+    {
+      "id": "insomnia",
+      "label": "Insomnia"
+    }
+  ],
+  "patterns": [
+    {
+      "id": "wind-cold-damp-bi",
+      "label": "Wind-cold-damp painful obstruction (Bi)",
+      "zh": "风寒湿痹"
+    },
+    {
+      "id": "damp-heat-bi",
+      "label": "Damp-heat painful obstruction (Bi)",
+      "zh": "湿热痹"
+    },
+    {
+      "id": "qi-blood-stagnation",
+      "label": "Qi and blood stagnation",
+      "zh": "气滞血瘀"
+    },
+    {
+      "id": "liver-kidney-deficiency",
+      "label": "Liver and kidney deficiency",
+      "zh": "肝肾亏虚"
+    },
+    {
+      "id": "kidney-yang-deficiency",
+      "label": "Kidney yang deficiency",
+      "zh": "肾阳虚"
+    },
+    {
+      "id": "liver-yang-rising",
+      "label": "Ascendant liver yang",
+      "zh": "肝阳上亢"
+    },
+    {
+      "id": "liver-qi-stagnation",
+      "label": "Liver qi stagnation",
+      "zh": "肝气郁结"
+    },
+    {
+      "id": "wind-cold-invasion",
+      "label": "External wind-cold",
+      "zh": "风寒外袭"
+    },
+    {
+      "id": "spleen-stomach-deficiency",
+      "label": "Spleen and stomach deficiency",
+      "zh": "脾胃虚弱"
+    },
+    {
+      "id": "stomach-qi-rebellion",
+      "label": "Rebellious stomach qi",
+      "zh": "胃气上逆"
+    },
+    {
+      "id": "phlegm-damp",
+      "label": "Phlegm-damp",
+      "zh": "痰湿"
+    },
+    {
+      "id": "heart-spleen-deficiency",
+      "label": "Heart and spleen deficiency",
+      "zh": "心脾两虚"
+    },
+    {
+      "id": "heart-kidney-disharmony",
+      "label": "Disharmony of heart and kidney",
+      "zh": "心肾不交"
+    }
+  ],
+  "redFlags": [
+    {
+      "id": "hot-swollen-joint-fever",
+      "label": "Hot, swollen joint with fever"
+    },
+    {
+      "id": "unable-to-bear-weight",
+      "label": "Unable to bear weight"
+    },
+    {
+      "id": "saddle-anaesthesia",
+      "label": "Saddle anaesthesia"
+    },
+    {
+      "id": "bladder-bowel-dysfunction",
+      "label": "New bladder or bowel dysfunction"
+    },
+    {
+      "id": "progressive-neuro-deficit",
+      "label": "Progressive neurological deficit"
+    },
+    {
+      "id": "thunderclap-headache",
+      "label": "Sudden, severe (thunderclap) headache"
+    },
+    {
+      "id": "new-headache-over-50",
+      "label": "New headache after 50"
+    },
+    {
+      "id": "headache-neuro-signs",
+      "label": "Headache with neurological signs"
+    },
+    {
+      "id": "fever-on-chemotherapy",
+      "label": "Fever or neutropenia during chemotherapy"
+    },
+    {
+      "id": "unexplained-weight-loss",
+      "label": "Unexplained weight loss"
+    },
+    {
+      "id": "night-pain",
+      "label": "Constant or night pain"
+    },
+    {
+      "id": "trauma",
+      "label": "Significant trauma"
+    },
+    {
+      "id": "suicidal-ideation",
+      "label": "Thoughts of self-harm or suicide"
+    }
+  ]
+}

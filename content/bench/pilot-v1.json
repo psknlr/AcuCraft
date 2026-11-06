@@ -1,0 +1,8 @@
+{
+  "schema": "acucraft/suite@1",
+  "id": "pilot-v1",
+  "description": "Pilot suite: every family of the Singapore pack, every variant, one seed. Families, not instances, are split into dev and held-out (family.json `split`).",
+  "seeds": [1],
+  "mode": "assessment",
+  "maxSteps": 250
+}

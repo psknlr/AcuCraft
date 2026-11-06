@@ -1,0 +1,280 @@
+[
+  {
+    "requestId": "cn-001",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-chief"
+    }
+  },
+  {
+    "requestId": "cn-002",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-nausea"
+    }
+  },
+  {
+    "requestId": "cn-003",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-meds"
+    }
+  },
+  {
+    "requestId": "cn-004",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-oncology"
+    }
+  },
+  {
+    "requestId": "cn-005",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-fever"
+    }
+  },
+  {
+    "requestId": "cn-006",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-bleeding"
+    }
+  },
+  {
+    "requestId": "cn-007",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-surgery-arm"
+    }
+  },
+  {
+    "requestId": "cn-008",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-port"
+    }
+  },
+  {
+    "requestId": "cn-009",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-pmh"
+    }
+  },
+  {
+    "requestId": "cn-010",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-acupuncture-before"
+    }
+  },
+  {
+    "requestId": "cn-011",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-tcm"
+    }
+  },
+  {
+    "requestId": "cn-012",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-ice"
+    }
+  },
+  {
+    "requestId": "cn-013",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "review_result",
+      "investigationId": "inv-onc-letter"
+    }
+  },
+  {
+    "requestId": "cn-014",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "review_result",
+      "investigationId": "inv-fbc"
+    }
+  },
+  {
+    "requestId": "cn-015",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": "treatment-room",
+      "withPatient": true
+    }
+  },
+  {
+    "requestId": "cn-016",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "hand_hygiene"
+    }
+  },
+  {
+    "requestId": "cn-017",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-general"
+    }
+  },
+  {
+    "requestId": "cn-018",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-arms"
+    }
+  },
+  {
+    "requestId": "cn-019",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-legs"
+    }
+  },
+  {
+    "requestId": "cn-020",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-tongue"
+    }
+  },
+  {
+    "requestId": "cn-021",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-pulse-tcm"
+    }
+  },
+  {
+    "requestId": "cn-022",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_vitals"
+    }
+  },
+  {
+    "requestId": "cn-023",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "assess",
+      "diagnoses": [
+        "chemotherapy-nausea",
+        "neutropenia"
+      ],
+      "pattern": "spleen-stomach-deficiency",
+      "redFlags": [
+        "fever-on-chemotherapy"
+      ],
+      "rationale": "Neutrophils 0.6 and platelets 48 on the latest count: infection and bleeding risk."
+    }
+  },
+  {
+    "requestId": "cn-024",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "decide",
+      "disposition": "defer",
+      "rationale": "Defer needling until the counts recover; contact the oncology team."
+    }
+  },
+  {
+    "requestId": "cn-025",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "explain",
+      "topics": [
+        "risks",
+        "alternatives"
+      ],
+      "text": "Your latest blood test shows low white cells and platelets, so needles would carry a risk of infection and bleeding. Let's not needle today. You could use an acupressure wristband on the inner wrist, eat small frequent meals, and I'll let your oncology team know. If you get a fever, go to the hospital straight away."
+    }
+  },
+  {
+    "requestId": "cn-026",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "refer",
+      "to": "oncology",
+      "urgency": "soon",
+      "reason": "Neutrophils 0.6 and platelets 48 ×10⁹/L on 1 Dec; persistent delayed nausea; acupuncture deferred."
+    }
+  },
+  {
+    "requestId": "cn-027",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "document",
+      "record": {
+        "presentingComplaint": "Delayed chemotherapy-related nausea.",
+        "assessment": "Neutropenia (0.6) and thrombocytopenia (48) on 1 Dec FBC; acupuncture deferred.",
+        "advice": "Acupressure wristband; small frequent meals; seek urgent care for fever.",
+        "followUp": "Oncology team informed; reconsider once counts recover."
+      }
+    }
+  },
+  {
+    "requestId": "cn-028",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "end_visit"
+    }
+  },
+  {
+    "requestId": "cn-029",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "finish_encounter"
+    }
+  }
+]

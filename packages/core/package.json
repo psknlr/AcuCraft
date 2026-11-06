@@ -1,0 +1,9 @@
+{
+  "name": "@acucraft/core",
+  "version": "0.1.0",
+  "description": "AcuCraft core: acupuncture field schemas and the deterministic encounter engine layered on @clinicalcraft/core (isomorphic, no I/O)",
+  "type": "module",
+  "license": "MIT",
+  "exports": { ".": "./src/index.ts" },
+  "dependencies": { "zod": "3.25.76" }
+}

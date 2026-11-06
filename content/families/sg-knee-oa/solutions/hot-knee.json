@@ -1,0 +1,168 @@
+[
+  {
+    "requestId": "kh-001",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-chief"
+    }
+  },
+  {
+    "requestId": "kh-002",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-onset"
+    }
+  },
+  {
+    "requestId": "kh-003",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-swelling"
+    }
+  },
+  {
+    "requestId": "kh-004",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-systemic"
+    }
+  },
+  {
+    "requestId": "kh-005",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-prior-care"
+    }
+  },
+  {
+    "requestId": "kh-006",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-meds"
+    }
+  },
+  {
+    "requestId": "kh-007",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-pmh"
+    }
+  },
+  {
+    "requestId": "kh-008",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_vitals"
+    }
+  },
+  {
+    "requestId": "kh-009",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-inspect"
+    }
+  },
+  {
+    "requestId": "kh-010",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-effusion"
+    }
+  },
+  {
+    "requestId": "kh-011",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "assess",
+      "diagnoses": [
+        "septic-arthritis"
+      ],
+      "redFlags": [
+        "hot-swollen-joint-fever",
+        "unable-to-bear-weight"
+      ],
+      "rationale": "Hot, swollen, very painful knee with fever five days after an intra-articular injection: septic arthritis until proven otherwise."
+    }
+  },
+  {
+    "requestId": "kh-012",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "decide",
+      "disposition": "refer",
+      "rationale": "Emergency: no acupuncture; same-day hospital assessment."
+    }
+  },
+  {
+    "requestId": "kh-013",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "say",
+      "to": "patient",
+      "text": "Mdm Lim, your knee may be infected after the injection. This needs to be seen at the Emergency Department today — I'm not going to do acupuncture. We'll call an ambulance for you."
+    }
+  },
+  {
+    "requestId": "kh-014",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "refer",
+      "to": "emergency",
+      "urgency": "emergency",
+      "reason": "Suspected septic arthritis of the right knee: fever 38.4 °C, hot swollen joint, unable to bear weight, five days after an intra-articular injection."
+    }
+  },
+  {
+    "requestId": "kh-015",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "document",
+      "record": {
+        "presentingComplaint": "Right knee pain, much worse for two days.",
+        "assessment": "Suspected septic arthritis (fever, hot swollen knee, recent injection). No acupuncture given.",
+        "consent": "Not applicable: no treatment given.",
+        "followUp": "Emergency referral; review after hospital assessment."
+      }
+    }
+  },
+  {
+    "requestId": "kh-016",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "end_visit"
+    }
+  },
+  {
+    "requestId": "kh-017",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "finish_encounter"
+    }
+  }
+]

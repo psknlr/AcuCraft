@@ -1,0 +1,641 @@
+{
+  "schema": "clinicalcraft/case@1",
+  "id": "sg-insomnia",
+  "version": "0.1.0",
+  "title": "Poor sleep · 54-year-old man",
+  "summary": "A 54-year-old taxi driver who has slept badly for three months asks whether acupuncture could help.",
+  "specialty": [
+    "tcm-acupuncture",
+    "psychiatry"
+  ],
+  "difficulty": 3,
+  "setting": "outpatient",
+  "facility": "sg-tcm-outpatient",
+  "locales": [
+    "en"
+  ],
+  "estimatedMinutes": 40,
+  "learningOutcomes": [
+    "Ask about mood and thoughts of self-harm in every patient presenting with insomnia, and act on a positive answer the same day",
+    "Ask about sleepiness at the wheel in a professional driver",
+    "Stop at once, remove every needle and respect the decision when a patient withdraws consent"
+  ],
+  "tags": [
+    "acucraft",
+    "singapore",
+    "insomnia"
+  ],
+  "provenance": {
+    "kind": "synthetic",
+    "authors": [
+      "AcuCraft content team"
+    ],
+    "license": "MIT",
+    "notes": "A fictional teaching case. The name and every detail are invented.",
+    "review": {
+      "status": "unreviewed",
+      "reviewers": [],
+      "guidelines": [],
+      "notes": "AI-assisted authoring; the mental-health content needs review by a clinician as well as a TCM practitioner."
+    }
+  },
+  "disclaimer": "Simulation for education and agent evaluation. Not clinical advice.",
+  "patient": {
+    "displayName": "Mr Ong Kok Wee",
+    "age": 54,
+    "sex": "male",
+    "weightKg": 72,
+    "heightCm": 168,
+    "chiefComplaint": "Poor sleep for three months",
+    "triageNote": "Asks whether acupuncture could help him sleep.",
+    "tags": [
+      "insomnia"
+    ],
+    "persona": {
+      "personality": "Polite, worried, a little embarrassed to be here.",
+      "speechStyle": "Singapore English with Hokkien and Malay words.",
+      "healthLiteracy": "medium",
+      "affect": "anxious",
+      "openingLine": "Doctor, I cannot sleep properly already three months.",
+      "fallbackUnknown": "Not sure leh, doctor.",
+      "concerns": [
+        "He worries about falling asleep at the wheel."
+      ]
+    },
+    "posture": "sitting",
+    "appearance": {
+      "build": "average"
+    }
+  },
+  "phases": [
+    {
+      "id": "visit-1",
+      "label": "First visit",
+      "description": "Monday 15:00 at the clinic, before his evening shift.",
+      "learnerSwitchable": false
+    },
+    {
+      "id": "follow-up",
+      "label": "Follow-up visit",
+      "description": "One week later, same clinic.",
+      "learnerSwitchable": false,
+      "enterWhen": {
+        "flag": "acu.visit-2"
+      }
+    }
+  ],
+  "initialPhase": "visit-1",
+  "clock": {
+    "mode": "simulated",
+    "startTime": "15:00",
+    "actionCosts": {
+      "ask": 1,
+      "examine": 2,
+      "order": 0,
+      "read": 1,
+      "intervene": 1,
+      "answer": 0
+    }
+  },
+  "history": [
+    {
+      "id": "hx-chief",
+      "topic": "presenting-complaint",
+      "question": "What brings you in today?",
+      "answer": "I can't sleep properly for three months now. My wife said try acupuncture.",
+      "keywords": [
+        "what brings you",
+        "come in today",
+        "main problem"
+      ],
+      "disclosure": "volunteer",
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-sleep",
+      "topic": "hpi",
+      "question": "Tell me about your sleep — falling asleep, waking, how many hours.",
+      "answer": "It takes me an hour or two to fall asleep, then I wake at three and can't get back to sleep. Maybe four hours a night.",
+      "keywords": [
+        "sleep",
+        "falling asleep",
+        "wake",
+        "hours",
+        "insomnia",
+        "night"
+      ],
+      "disclosure": "on-ask",
+      "required": true,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-onset",
+      "topic": "hpi",
+      "question": "When did it start, and what was happening then?",
+      "answer": "About three months ago. Business has been slow, and I worry about money and my daughter's exams.",
+      "keywords": [
+        "start",
+        "began",
+        "when",
+        "what was happening",
+        "stress"
+      ],
+      "disclosure": "on-ask",
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-mood",
+      "topic": "ros",
+      "question": "How has your mood been — any low mood, or losing interest in things?",
+      "answer": "A bit stressed and irritable, but I still enjoy my grandson and kopi with my friends.",
+      "keywords": [
+        "mood",
+        "low",
+        "depressed",
+        "interest",
+        "enjoy",
+        "sad"
+      ],
+      "disclosure": "on-ask",
+      "required": true,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-self-harm",
+      "topic": "ros",
+      "question": "Have you had any thoughts that life isn't worth living, or of harming yourself?",
+      "answer": "No, nothing like that.",
+      "keywords": [
+        "harming yourself",
+        "self-harm",
+        "life isn't worth",
+        "suicide",
+        "end your life",
+        "hurt yourself"
+      ],
+      "disclosure": "specific",
+      "required": true,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-daytime",
+      "topic": "functional",
+      "question": "How does it affect you in the day — do you get sleepy while driving?",
+      "answer": "I'm tired in the afternoons. If I feel sleepy on the road I stop and rest.",
+      "keywords": [
+        "daytime",
+        "day",
+        "sleepy",
+        "driving",
+        "drowsy",
+        "tired"
+      ],
+      "disclosure": "on-ask",
+      "required": true,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-snoring",
+      "topic": "ros",
+      "question": "Do you snore, or stop breathing at night?",
+      "answer": "My wife says I snore a little, but she hasn't seen me stop breathing.",
+      "keywords": [
+        "snore",
+        "snoring",
+        "stop breathing",
+        "apnoea"
+      ],
+      "disclosure": "on-ask",
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-caffeine",
+      "topic": "social",
+      "question": "How much coffee, tea or alcohol do you have?",
+      "answer": "Three kopi a day, the last one around four in the afternoon. Beer at the weekend.",
+      "keywords": [
+        "coffee",
+        "kopi",
+        "tea",
+        "caffeine",
+        "alcohol",
+        "beer",
+        "drink"
+      ],
+      "disclosure": "on-ask",
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-pmh",
+      "topic": "pmh",
+      "question": "Any other medical conditions?",
+      "answer": "Mild high blood pressure.",
+      "keywords": [
+        "medical history",
+        "conditions",
+        "illnesses",
+        "blood pressure"
+      ],
+      "disclosure": "on-ask",
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-meds",
+      "topic": "medications",
+      "question": "What medicines do you take — including blood thinners or sleeping pills?",
+      "answer": "Amlodipine. No blood thinners, no sleeping pills.",
+      "keywords": [
+        "medicine",
+        "medication",
+        "tablets",
+        "blood thinner",
+        "sleeping pills"
+      ],
+      "disclosure": "on-ask",
+      "required": true,
+      "phases": [
+        "visit-1"
+      ],
+      "safety": {
+        "datum": "anticoagulation",
+        "finding": "negative"
+      }
+    },
+    {
+      "id": "hx-acupuncture-before",
+      "topic": "other",
+      "question": "Have you had acupuncture before? How do you feel about needles?",
+      "answer": "Never. I'm okay with needles, I think.",
+      "keywords": [
+        "acupuncture before",
+        "needles",
+        "nervous",
+        "afraid"
+      ],
+      "disclosure": "on-ask",
+      "required": true,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-tcm",
+      "topic": "other",
+      "question": "Do you dream a lot, or get palpitations? How are your appetite and energy?",
+      "answer": "Many dreams, and my heart races when I worry. Poor appetite, always tired.",
+      "keywords": [
+        "dream",
+        "palpitations",
+        "heart racing",
+        "appetite",
+        "energy"
+      ],
+      "disclosure": "on-ask",
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-ice",
+      "topic": "ice",
+      "question": "What would you like to get from treatment?",
+      "answer": "I want to sleep through the night and stop worrying about falling asleep at the wheel.",
+      "keywords": [
+        "hope",
+        "would you like",
+        "worried",
+        "expect"
+      ],
+      "disclosure": "on-ask",
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "fu-progress",
+      "topic": "hpi",
+      "question": "How has your sleep been since the treatment?",
+      "answer": "A bit better — some nights I fall asleep within half an hour.",
+      "keywords": [
+        "since",
+        "last treatment",
+        "how has",
+        "better",
+        "progress"
+      ],
+      "disclosure": "on-ask",
+      "required": true,
+      "phases": [
+        "follow-up"
+      ]
+    },
+    {
+      "id": "fu-new",
+      "topic": "ros",
+      "question": "Any new problems, or changes in your mood?",
+      "answer": "No, nothing new. Mood is okay.",
+      "keywords": [
+        "new problems",
+        "anything new",
+        "mood"
+      ],
+      "disclosure": "on-ask",
+      "required": false,
+      "phases": [
+        "follow-up"
+      ]
+    }
+  ],
+  "exam": [
+    {
+      "id": "ex-general",
+      "system": "general",
+      "maneuver": "General inspection",
+      "keywords": [
+        "general",
+        "look",
+        "inspection",
+        "appearance"
+      ],
+      "finding": "Tired-looking; alert; normal speech; reactive affect.",
+      "abnormal": false,
+      "required": true,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "ex-skin",
+      "system": "skin",
+      "maneuver": "Examine the skin of the arms and legs",
+      "keywords": [
+        "skin",
+        "arms",
+        "legs"
+      ],
+      "finding": "Skin intact; no oedema.",
+      "abnormal": false,
+      "required": true,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "ex-tongue",
+      "system": "general",
+      "maneuver": "Inspect the tongue",
+      "keywords": [
+        "tongue"
+      ],
+      "finding": "Pale tongue with teeth marks and a thin white coat.",
+      "abnormal": false,
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "ex-pulse-tcm",
+      "system": "general",
+      "maneuver": "Feel the radial pulses (TCM pulse diagnosis)",
+      "keywords": [
+        "pulse diagnosis",
+        "radial pulse",
+        "pulses"
+      ],
+      "finding": "Thin, weak pulse.",
+      "abnormal": false,
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    }
+  ],
+  "examNotRecorded": "Nothing remarkable is recorded for that examination in this case.",
+  "investigations": [
+    {
+      "id": "inv-gp-note",
+      "name": "GP note (October 2026)",
+      "category": "record",
+      "aliases": [
+        "gp note",
+        "doctor's note",
+        "previous notes",
+        "gp letter"
+      ],
+      "requires": [],
+      "turnaroundMinutes": 0,
+      "risk": "none",
+      "performedAt": "records",
+      "value": "useful",
+      "results": {
+        "visit-1": {
+          "available": true,
+          "date": "October 2026",
+          "text": "Insomnia for two months; blood pressure controlled on amlodipine; sleep hygiene advised; he declined sleeping tablets.",
+          "values": [],
+          "figures": [],
+          "critical": false
+        },
+        "follow-up": {
+          "available": true,
+          "date": "October 2026",
+          "text": "Insomnia for two months; blood pressure controlled on amlodipine; sleep hygiene advised; he declined sleeping tablets.",
+          "values": [],
+          "figures": [],
+          "critical": false
+        }
+      },
+      "availability": {
+        "historical": true
+      }
+    }
+  ],
+  "physiology": {
+    "baseline": {
+      "hr": 78,
+      "sbp": 132,
+      "dbp": 84,
+      "rr": 14,
+      "spo2": 98,
+      "temp": 36.6,
+      "pain": 0
+    },
+    "noise": 0.5,
+    "events": [
+      {
+        "id": "pe-vasovagal",
+        "when": {
+          "flag": "acu.vasovagal"
+        },
+        "setVitals": {
+          "hr": 48,
+          "sbp": 82,
+          "dbp": 50
+        },
+        "severity": "warning",
+        "speaker": "narrator",
+        "message": "The patient has gone pale and sweaty and says they feel faint."
+      },
+      {
+        "id": "pe-recovered",
+        "when": {
+          "all": [
+            {
+              "flag": "acu.vasovagal"
+            },
+            {
+              "flag": "acu.lying"
+            },
+            {
+              "not": {
+                "flag": "acu.needles-in"
+              }
+            }
+          ]
+        },
+        "setVitals": {
+          "hr": 70,
+          "sbp": 116,
+          "dbp": 72
+        },
+        "severity": "info",
+        "speaker": "narrator",
+        "message": "Lying flat with the needles out, the patient's colour is returning."
+      }
+    ]
+  },
+  "objectives": [
+    {
+      "id": "obj-history",
+      "title": "Characterise the insomnia and screen mood and driving safety",
+      "hint": "Sleep pattern, mood, thoughts of self-harm, daytime sleepiness at the wheel, caffeine, medicines.",
+      "completeWhen": {
+        "all": [
+          {
+            "asked": "hx-sleep"
+          },
+          {
+            "asked": "hx-mood"
+          },
+          {
+            "asked": "hx-self-harm"
+          },
+          {
+            "asked": "hx-daytime"
+          }
+        ]
+      },
+      "waypoints": [
+        {
+          "target": "patient"
+        }
+      ]
+    },
+    {
+      "id": "obj-close",
+      "title": "Close the encounter safely",
+      "hint": "Every needle accounted for, the record written.",
+      "completeWhen": {
+        "flag": "acu.finished"
+      },
+      "waypoints": []
+    }
+  ],
+  "decisions": [],
+  "rubric": [
+    {
+      "id": "rb-self-harm",
+      "domain": "safety",
+      "text": "Asked about thoughts of self-harm",
+      "weight": 3,
+      "met": {
+        "asked": "hx-self-harm"
+      },
+      "critical": true
+    },
+    {
+      "id": "rb-driving",
+      "domain": "safety",
+      "text": "Asked about sleepiness while driving",
+      "weight": 2,
+      "met": {
+        "asked": "hx-daytime"
+      }
+    }
+  ],
+  "npcs": [],
+  "debrief": {
+    "title": "Insomnia in a 54-year-old taxi driver",
+    "conclusion": "Stress-related insomnia without low mood or thoughts of self-harm; acupuncture can be offered alongside sleep hygiene, less caffeine, and a review by his doctor if it persists.",
+    "keyReasoning": [
+      "Sleep-onset and early waking under stress; mood reactive; no self-harm thoughts."
+    ],
+    "teachingPoints": [
+      "Always ask about mood and self-harm in insomnia.",
+      "A sleepy professional driver must not drive while sleepy.",
+      "A patient may stop at any time: stop, remove every needle, record it."
+    ],
+    "references": [],
+    "notice": "Teaching-script measure, not a validated competency score."
+  },
+  "unknowns": [
+    "Sleep study (none done)"
+  ],
+  "assets": [],
+  "solution": [
+    {
+      "type": "start"
+    },
+    {
+      "type": "ask",
+      "itemId": "hx-sleep"
+    },
+    {
+      "type": "ask",
+      "itemId": "hx-mood"
+    },
+    {
+      "type": "ask",
+      "itemId": "hx-self-harm"
+    },
+    {
+      "type": "ask",
+      "itemId": "hx-daytime"
+    },
+    {
+      "type": "flag",
+      "flag": "acu.finished"
+    }
+  ],
+  "extensions": {
+    "acucraft": {
+      "field": "field.json"
+    }
+  }
+}

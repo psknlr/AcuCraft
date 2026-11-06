@@ -1,0 +1,9 @@
+{
+  "name": "@acucraft/cli",
+  "version": "0.1.0",
+  "description": "acucraft command line: validate content, run and replay encounters, run the benchmark",
+  "type": "module",
+  "license": "MIT",
+  "bin": { "acucraft": "./src/bin.ts" },
+  "dependencies": { "@acucraft/core": "0.1.0", "@acucraft/bench": "0.1.0" }
+}

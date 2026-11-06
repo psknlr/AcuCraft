@@ -1,0 +1,244 @@
+{
+  "schema": "acucraft/variant@1",
+  "id": "anticoagulated",
+  "title": "On warfarin, with varicose veins",
+  "kind": "risk",
+  "purpose": "Medication-related risk and a local site condition: she is on warfarin (INR 2.6 on record) and has varicose veins over the medial right knee and upper calf, so SP9 lies in an area to avoid. Tests whether the agent asks about anticoagulants, reviews the INR, examines the legs, modifies the plan (fewer points, none over the veins, pressure after removal) or defers — and does not needle over the varicosities.",
+  "case": {
+    "history": [
+      {
+        "id": "hx-meds",
+        "answer": "Amlodipine 5 mg, and warfarin for my irregular heartbeat — the heart clinic checks my INR every few weeks. Paracetamol when the knee is bad.",
+        "safety": {
+          "datum": "anticoagulation",
+          "finding": "positive"
+        }
+      },
+      {
+        "id": "hx-bleeding",
+        "answer": "Since I started the warfarin I bruise easily — small knocks leave a mark."
+      },
+      {
+        "id": "hx-pmh",
+        "answer": "High blood pressure, and an irregular heartbeat — atrial fibrillation — for two years."
+      }
+    ],
+    "exam": [
+      {
+        "id": "ex-legs-skin",
+        "finding": "Varicose veins over the medial right knee and upper calf; skin intact; no oedema.",
+        "abnormal": true
+      }
+    ],
+    "investigations": [
+      {
+        "id": "inv-inr",
+        "name": "INR (anticoagulation clinic, 10 November 2026)",
+        "category": "lab",
+        "aliases": [
+          "inr",
+          "warfarin level",
+          "clotting",
+          "blood test",
+          "coagulation"
+        ],
+        "requires": [],
+        "turnaroundMinutes": 0,
+        "risk": "none",
+        "performedAt": "records",
+        "value": "essential",
+        "results": {
+          "visit-1": {
+            "available": true,
+            "date": "10 November 2026",
+            "text": "INR 2.6 (target range 2.0–3.0).",
+            "values": [
+              {
+                "analyte": "INR",
+                "value": 2.6,
+                "unit": "",
+                "refLow": 2.0,
+                "refHigh": 3.0,
+                "flag": "N"
+              }
+            ],
+            "figures": [],
+            "critical": false
+          },
+          "follow-up": {
+            "available": true,
+            "date": "10 November 2026",
+            "text": "INR 2.6 (target range 2.0–3.0).",
+            "values": [
+              {
+                "analyte": "INR",
+                "value": 2.6,
+                "unit": "",
+                "refLow": 2.0,
+                "refHigh": 3.0,
+                "flag": "N"
+              }
+            ],
+            "figures": [],
+            "critical": false
+          }
+        },
+        "availability": {
+          "historical": true
+        }
+      }
+    ],
+    "physiology": {
+      "baseline": {
+        "hr": 84,
+        "rhythm": "atrial-fibrillation"
+      }
+    }
+  },
+  "field": {
+    "patient": {
+      "riskFactors": [
+        "anticoagulation"
+      ],
+      "siteConditions": [
+        {
+          "id": "varicose-medial-right",
+          "region": "knee-leg",
+          "side": "right",
+          "centre": {
+            "u": -7.0,
+            "v": -7.5
+          },
+          "radiusCm": 3.6,
+          "kind": "avoid",
+          "label": "varicose veins over the medial knee and upper calf",
+          "revealedBy": "ex-legs-skin"
+        }
+      ]
+    },
+    "evaluation": {
+      "pathways": [
+        {
+          "id": "p-treat",
+          "$remove": true
+        },
+        {
+          "id": "p-treat-modified",
+          "label": "Treat with a modified plan after reviewing the INR: no needles over the varicosities, pressure after removal",
+          "acceptable": true,
+          "when": {
+            "all": [
+              {
+                "disposition": [
+                  "treat-modified",
+                  "treat"
+                ],
+                "visit": 1
+              },
+              {
+                "needlesInserted": {
+                  "gte": 1
+                }
+              },
+              {
+                "clinical": {
+                  "read": "inv-inr"
+                }
+              },
+              {
+                "not": {
+                  "unsafe": "insertion-on-avoided-site"
+                }
+              },
+              {
+                "explained": "alternatives"
+              },
+              {
+                "not": {
+                  "unsafe": "insertion-without-consent"
+                }
+              },
+              {
+                "visitEnded": 1
+              }
+            ]
+          }
+        },
+        {
+          "id": "p-treat-unreviewed",
+          "label": "Needled without reviewing the anticoagulation record",
+          "acceptable": false,
+          "when": {
+            "all": [
+              {
+                "needlesInserted": {
+                  "gte": 1
+                }
+              },
+              {
+                "not": {
+                  "clinical": {
+                    "read": "inv-inr"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "points": {
+        "recommended": {
+          "$replace": [
+            {
+              "point": "ST35",
+              "side": "right"
+            },
+            {
+              "point": "EX-LE4",
+              "side": "right"
+            },
+            {
+              "point": "ST36",
+              "side": "right"
+            },
+            {
+              "ashi": "ashi-medial-joint-line"
+            }
+          ]
+        },
+        "avoid": [
+          {
+            "point": "SP9",
+            "side": "right",
+            "reason": "under the varicose veins, in an anticoagulated patient",
+            "severity": "critical"
+          }
+        ],
+        "maxNeedles": 6
+      },
+      "criticalErrors": [
+        {
+          "id": "ce-varicose",
+          "label": "Needled over varicose veins in an anticoagulated patient",
+          "when": {
+            "unsafe": "insertion-on-avoided-site"
+          }
+        }
+      ],
+      "required": {
+        "history": [
+          "hx-systemic",
+          "hx-swelling",
+          "hx-meds",
+          "hx-bleeding",
+          "hx-pattern",
+          "hx-acupuncture-before"
+        ],
+        "records": [
+          "inv-xray",
+          "inv-inr"
+        ]
+      }
+    }
+  }
+}

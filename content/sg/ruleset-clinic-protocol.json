@@ -1,0 +1,52 @@
+{
+  "schema": "acucraft/ruleset@1",
+  "id": "acucraft-sg-clinic-protocol-1",
+  "series": "acucraft-sg-clinic-protocol",
+  "version": "1.0",
+  "title": "Simulated clinic protocol: needle accountability and observation",
+  "jurisdiction": "SG",
+  "publisher": "AcuCraft (simulated clinic)",
+  "publishedAt": "2026-11-06",
+  "effectiveFrom": "2026-01-01",
+  "appliesTo": [
+    "tcm-physician",
+    "registered-acupuncturist",
+    "tcm-supervisor",
+    "tcm-learner"
+  ],
+  "source": {
+    "title": "AcuCraft simulated clinic protocol",
+    "publisher": "AcuCraft",
+    "verified": true,
+    "note": "The simulated clinic's own procedure, not a regulator's text. It makes the proposal's needle-accountability and monitoring requirements checkable."
+  },
+  "review": {
+    "status": "unreviewed",
+    "reviewers": [],
+    "notes": "A simulation protocol; a real clinic substitutes its own procedures."
+  },
+  "encoding": "encoded",
+  "rules": [
+    {
+      "id": "count-before-completion",
+      "title": "Count every needle before the visit ends",
+      "summary": "Before the patient leaves, a needle count reconciles every opened needle (in the sharps container, or with a recorded response if lost or broken).",
+      "severity": "major",
+      "enforcement": "block",
+      "check": {
+        "kind": "needle-count-before-completion"
+      }
+    },
+    {
+      "id": "observe-during-retention",
+      "title": "Observe the patient while needles are retained",
+      "summary": "Someone observes the patient at least every 10 minutes while needles are in place.",
+      "severity": "major",
+      "enforcement": "record",
+      "check": {
+        "kind": "patient-monitoring",
+        "maxGapMinutes": 10
+      }
+    }
+  ]
+}

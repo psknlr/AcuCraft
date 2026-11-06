@@ -1,0 +1,172 @@
+{
+  "schema": "acucraft/variant@1",
+  "id": "neutropenic",
+  "title": "Low neutrophils and platelets",
+  "kind": "red-flag",
+  "purpose": "A risk found only in the record: the latest blood count shows neutrophils 0.6 and platelets 48 ×10⁹/L. Acupuncture is deferred and the oncology team contacted; needling is a critical error.",
+  "case": {
+    "investigations": [
+      {
+        "id": "inv-fbc",
+        "results": {
+          "visit-1": {
+            "text": "Hb 10.4 g/dL; WBC 1.6 ×10⁹/L; neutrophils 0.6 ×10⁹/L (low); platelets 48 ×10⁹/L (low).",
+            "values": {
+              "$replace": [
+                {
+                  "analyte": "Haemoglobin",
+                  "value": 10.4,
+                  "unit": "g/dL",
+                  "refLow": 12,
+                  "refHigh": 15.5,
+                  "flag": "L"
+                },
+                {
+                  "analyte": "Neutrophils",
+                  "value": 0.6,
+                  "unit": "×10⁹/L",
+                  "refLow": 2.0,
+                  "refHigh": 7.5,
+                  "flag": "LL"
+                },
+                {
+                  "analyte": "Platelets",
+                  "value": 48,
+                  "unit": "×10⁹/L",
+                  "refLow": 150,
+                  "refHigh": 400,
+                  "flag": "LL"
+                }
+              ]
+            }
+          },
+          "follow-up": {
+            "text": "Hb 10.4 g/dL; WBC 1.6 ×10⁹/L; neutrophils 0.6 ×10⁹/L (low); platelets 48 ×10⁹/L (low).",
+            "values": {
+              "$replace": [
+                {
+                  "analyte": "Haemoglobin",
+                  "value": 10.4,
+                  "unit": "g/dL",
+                  "refLow": 12,
+                  "refHigh": 15.5,
+                  "flag": "L"
+                },
+                {
+                  "analyte": "Neutrophils",
+                  "value": 0.6,
+                  "unit": "×10⁹/L",
+                  "refLow": 2.0,
+                  "refHigh": 7.5,
+                  "flag": "LL"
+                },
+                {
+                  "analyte": "Platelets",
+                  "value": 48,
+                  "unit": "×10⁹/L",
+                  "refLow": 150,
+                  "refHigh": 400,
+                  "flag": "LL"
+                }
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "debrief": {
+      "conclusion": "Neutropenia and thrombocytopenia on the latest count: defer acupuncture and contact the oncology team; offer non-invasive measures (acupressure band) meanwhile."
+    }
+  },
+  "field": {
+    "evaluation": {
+      "diagnoses": {
+        "acceptable": [
+          "neutropenia"
+        ]
+      },
+      "patterns": {
+        "$replace": {
+          "defensible": [],
+          "implausible": []
+        }
+      },
+      "pathways": [
+        {
+          "id": "p-treat",
+          "$remove": true
+        },
+        {
+          "id": "p-defer",
+          "label": "Defer and liaise with the oncology team",
+          "acceptable": true,
+          "when": {
+            "all": [
+              {
+                "disposition": [
+                  "defer",
+                  "refer",
+                  "decline"
+                ],
+                "visit": 1
+              },
+              {
+                "needlesInserted": {
+                  "lte": 0
+                }
+              },
+              {
+                "referred": {
+                  "to": [
+                    "oncology"
+                  ]
+                }
+              },
+              {
+                "visitEnded": 1
+              }
+            ]
+          }
+        },
+        {
+          "id": "p-treated-neutropenic",
+          "label": "Needled despite neutropenia and thrombocytopenia",
+          "acceptable": false,
+          "when": {
+            "needlesInserted": {
+              "gte": 1
+            }
+          }
+        }
+      ],
+      "redFlags": {
+        "$replace": [
+          {
+            "id": "fever-on-chemotherapy",
+            "present": true
+          }
+        ]
+      },
+      "points": {
+        "$replace": {
+          "recommended": [],
+          "acceptable": [],
+          "avoid": [],
+          "maxNeedles": 1
+        }
+      },
+      "criticalErrors": [
+        {
+          "id": "ce-needled-neutropenic",
+          "label": "Needled with neutrophils 0.6 and platelets 48",
+          "when": {
+            "needlesInserted": {
+              "gte": 1
+            }
+          }
+        }
+      ],
+      "followUp": null
+    }
+  }
+}

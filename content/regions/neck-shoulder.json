@@ -1,0 +1,570 @@
+{
+  "schema": "acucraft/region@1",
+  "id": "neck-shoulder",
+  "version": "0.1.0",
+  "title": "posterior neck and shoulders",
+  "laterality": "midline",
+  "chart": {
+    "description": "The back of the neck and the tops of the shoulders, seen from behind. u: distance (cm) from the posterior midline, positive towards the patient's LEFT. v: distance (cm) cranial from the tip of the C7 spinous process. d: depth below the skin (cm).",
+    "uRange": [
+      -20,
+      20
+    ],
+    "vRange": [
+      -10,
+      17
+    ]
+  },
+  "configurations": [
+    {
+      "id": "prone",
+      "label": "prone, forehead supported"
+    },
+    {
+      "id": "seated-forward",
+      "label": "seated, leaning forward with the head flexed"
+    }
+  ],
+  "defaultConfiguration": "prone",
+  "access": [
+    {
+      "position": "prone",
+      "configuration": "prone",
+      "sides": [
+        "left",
+        "right",
+        "midline"
+      ]
+    },
+    {
+      "position": "seated-forward",
+      "configuration": "seated-forward",
+      "sides": [
+        "left",
+        "right",
+        "midline"
+      ]
+    },
+    {
+      "position": "seated",
+      "configuration": "seated-forward",
+      "sides": [
+        "left",
+        "right",
+        "midline"
+      ]
+    },
+    {
+      "position": "side-lying-left",
+      "configuration": "prone",
+      "sides": [
+        "right"
+      ]
+    },
+    {
+      "position": "side-lying-right",
+      "configuration": "prone",
+      "sides": [
+        "left"
+      ]
+    }
+  ],
+  "landmarks": [
+    {
+      "id": "c7-spinous",
+      "label": "tip of the spinous process of C7",
+      "at": {
+        "u": 0,
+        "v": 0
+      },
+      "palpation": "The most prominent spinous process at the base of the neck; it moves with neck flexion."
+    },
+    {
+      "id": "occipital-protuberance",
+      "label": "external occipital protuberance",
+      "at": {
+        "u": 0,
+        "v": 15.0
+      },
+      "configurations": {
+        "seated-forward": {
+          "du": 0,
+          "dv": 2.0
+        }
+      }
+    },
+    {
+      "id": "gb20-depression-left",
+      "label": "depression below the occiput between the origins of sternocleidomastoid and trapezius (left)",
+      "at": {
+        "u": 5.0,
+        "v": 12.5
+      },
+      "configurations": {
+        "seated-forward": {
+          "du": 0,
+          "dv": 1.5
+        }
+      }
+    },
+    {
+      "id": "gb20-depression-right",
+      "label": "depression below the occiput between the origins of sternocleidomastoid and trapezius (right)",
+      "at": {
+        "u": -5.0,
+        "v": 12.5
+      },
+      "configurations": {
+        "seated-forward": {
+          "du": 0,
+          "dv": 1.5
+        }
+      }
+    },
+    {
+      "id": "mastoid-left",
+      "label": "tip of the mastoid process (left)",
+      "at": {
+        "u": 8.5,
+        "v": 13.5
+      },
+      "configurations": {
+        "seated-forward": {
+          "du": 0,
+          "dv": 1.5
+        }
+      }
+    },
+    {
+      "id": "mastoid-right",
+      "label": "tip of the mastoid process (right)",
+      "at": {
+        "u": -8.5,
+        "v": 13.5
+      },
+      "configurations": {
+        "seated-forward": {
+          "du": 0,
+          "dv": 1.5
+        }
+      }
+    },
+    {
+      "id": "acromion-lateral-left",
+      "label": "lateral end of the acromion (left)",
+      "at": {
+        "u": 18.0,
+        "v": -1.0
+      },
+      "configurations": {
+        "seated-forward": {
+          "du": -1.0,
+          "dv": 0
+        }
+      }
+    },
+    {
+      "id": "acromion-lateral-right",
+      "label": "lateral end of the acromion (right)",
+      "at": {
+        "u": -18.0,
+        "v": -1.0
+      },
+      "configurations": {
+        "seated-forward": {
+          "du": 1.0,
+          "dv": 0
+        }
+      }
+    },
+    {
+      "id": "scapula-medial-left",
+      "label": "medial border of the scapula at the level of its spine (left)",
+      "at": {
+        "u": 7.0,
+        "v": -8.0
+      }
+    },
+    {
+      "id": "scapula-medial-right",
+      "label": "medial border of the scapula at the level of its spine (right)",
+      "at": {
+        "u": -7.0,
+        "v": -8.0
+      }
+    }
+  ],
+  "segments": [
+    {
+      "id": "seg.scapulae",
+      "label": "between the medial borders of the scapulae",
+      "from": "scapula-medial-right",
+      "to": "scapula-medial-left",
+      "cun": 6,
+      "source": {
+        "title": "WHO Standard Acupuncture Point Locations (2008): proportional bone measurement",
+        "verified": false
+      }
+    }
+  ],
+  "tissue": {
+    "layers": [
+      {
+        "tissue": "skin",
+        "thicknessCm": 0.2
+      },
+      {
+        "tissue": "subcutaneous",
+        "thicknessCm": 0.6
+      },
+      {
+        "tissue": "muscle",
+        "thicknessCm": 3.0
+      },
+      {
+        "tissue": "bone",
+        "thicknessCm": 2.0
+      }
+    ],
+    "zones": [
+      {
+        "id": "z-gb21-left",
+        "centre": {
+          "u": 9.0,
+          "v": -0.5
+        },
+        "radiusCm": 3.5,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.0
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.8,
+            "label": "trapezius and supraspinatus"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.4
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.1,
+            "label": "apical pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 3.0,
+            "label": "lung apex"
+          }
+        ]
+      },
+      {
+        "id": "z-gb21-right",
+        "centre": {
+          "u": -9.0,
+          "v": -0.5
+        },
+        "radiusCm": 3.5,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.0
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.8,
+            "label": "trapezius and supraspinatus"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.4
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.1,
+            "label": "apical pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 3.0,
+            "label": "lung apex"
+          }
+        ]
+      },
+      {
+        "id": "z-gb20-left",
+        "centre": {
+          "u": 5.0,
+          "v": 12.5
+        },
+        "radiusCm": 2.0,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.6
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.2,
+            "label": "trapezius, splenius, semispinalis and suboccipital muscles"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.5
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "occiput / atlas"
+          }
+        ]
+      },
+      {
+        "id": "z-gb20-right",
+        "centre": {
+          "u": -5.0,
+          "v": 12.5
+        },
+        "radiusCm": 2.0,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.6
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.2,
+            "label": "trapezius, splenius, semispinalis and suboccipital muscles"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.5
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "occiput / atlas"
+          }
+        ]
+      },
+      {
+        "id": "z-gv14",
+        "centre": {
+          "u": 0,
+          "v": -1.0
+        },
+        "radiusCm": 1.2,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.7
+          },
+          {
+            "tissue": "ligament",
+            "thicknessCm": 3.0,
+            "label": "supraspinous and interspinous ligaments"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.4,
+            "label": "ligamentum flavum"
+          }
+        ]
+      },
+      {
+        "id": "z-c7-tip",
+        "centre": {
+          "u": 0,
+          "v": 0.3
+        },
+        "radiusCm": 0.6,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.5
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0
+          }
+        ]
+      }
+    ]
+  },
+  "structures": [
+    {
+      "id": "spinal-cord-cervical",
+      "label": "cervical spinal cord",
+      "kind": "nerve",
+      "hazard": "critical",
+      "path": [
+        {
+          "u": 0,
+          "v": -8,
+          "d": 4.6
+        },
+        {
+          "u": 0,
+          "v": 0,
+          "d": 4.4
+        },
+        {
+          "u": 0,
+          "v": 10,
+          "d": 4.2
+        }
+      ],
+      "radiusCm": 0.6,
+      "uncertaintyCm": 0.3,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "medulla",
+      "label": "medulla oblongata (below the foramen magnum)",
+      "kind": "organ",
+      "hazard": "critical",
+      "path": [
+        {
+          "u": 0,
+          "v": 13,
+          "d": 5.0
+        },
+        {
+          "u": 0,
+          "v": 16,
+          "d": 4.5
+        }
+      ],
+      "radiusCm": 1.0,
+      "uncertaintyCm": 0.3,
+      "consequence": "none"
+    },
+    {
+      "id": "vertebral-artery-left",
+      "label": "left vertebral artery",
+      "kind": "artery",
+      "hazard": "critical",
+      "path": [
+        {
+          "u": 2.4,
+          "v": 10.5,
+          "d": 4.2
+        },
+        {
+          "u": 3.0,
+          "v": 13.0,
+          "d": 3.9
+        }
+      ],
+      "radiusCm": 0.25,
+      "uncertaintyCm": 0.3,
+      "consequence": "haematoma"
+    },
+    {
+      "id": "vertebral-artery-right",
+      "label": "right vertebral artery",
+      "kind": "artery",
+      "hazard": "critical",
+      "path": [
+        {
+          "u": -2.4,
+          "v": 10.5,
+          "d": 4.2
+        },
+        {
+          "u": -3.0,
+          "v": 13.0,
+          "d": 3.9
+        }
+      ],
+      "radiusCm": 0.25,
+      "uncertaintyCm": 0.3,
+      "consequence": "haematoma"
+    },
+    {
+      "id": "occipital-artery-left",
+      "label": "left occipital artery",
+      "kind": "artery",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 4.0,
+          "v": 14.0,
+          "d": 0.8
+        },
+        {
+          "u": 5.5,
+          "v": 16,
+          "d": 0.6
+        }
+      ],
+      "radiusCm": 0.12,
+      "uncertaintyCm": 0.3,
+      "consequence": "haematoma"
+    },
+    {
+      "id": "occipital-artery-right",
+      "label": "right occipital artery",
+      "kind": "artery",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -4.0,
+          "v": 14.0,
+          "d": 0.8
+        },
+        {
+          "u": -5.5,
+          "v": 16,
+          "d": 0.6
+        }
+      ],
+      "radiusCm": 0.12,
+      "uncertaintyCm": 0.3,
+      "consequence": "haematoma"
+    }
+  ],
+  "description": "The back of the neck and the shoulders. Below the occiput, the depression between sternocleidomastoid and trapezius overlies the suboccipital muscles; deep and medial to it lie the vertebral arteries on the atlas and, in the midline below the foramen magnum, the medulla. On the top of the shoulder, between C7 and the acromion, trapezius and supraspinatus overlie the apex of the lung and its pleura, which in a slim adult may be only a few centimetres below the skin. In the midline below C7 the supraspinous and interspinous ligaments lead to the spinal canal.",
+  "provenance": {
+    "kind": "schematic",
+    "sources": [
+      {
+        "title": "General regional anatomy of the neck and shoulder girdle (standard anatomy texts)",
+        "verified": false,
+        "note": "Topography only; no third-party geometry or images were used."
+      }
+    ],
+    "licence": "CC0-1.0 (original schematic geometry)",
+    "review": {
+      "status": "unreviewed",
+      "reviewers": [],
+      "notes": "Positions and depths are illustrative approximations of a reference adult written for simulation. They are not measurements or an atlas and are not a guide to safe depths in real patients. Anatomical expert review is required before any teaching use."
+    }
+  }
+}

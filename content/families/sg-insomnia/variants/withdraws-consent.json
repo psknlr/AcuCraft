@@ -1,0 +1,137 @@
+{
+  "schema": "acucraft/variant@1",
+  "id": "withdraws-consent",
+  "title": "Withdraws consent after two needles",
+  "kind": "event",
+  "purpose": "An event during the procedure: after the second needle he says stop and asks for the needles out. Consent is withdrawn; the guard blocks any further insertion and records it. Acceptable: stop, every needle out within three minutes, reassurance, record; respect a refusal at follow-up.",
+  "case": {
+    "history": [
+      {
+        "id": "hx-acupuncture-before",
+        "answer": "Never. To be honest I don't like needles very much, but my wife says try."
+      },
+      {
+        "id": "fu-progress",
+        "answer": "Still sleeping badly. I'd rather not have the needles again — can we try something else?"
+      }
+    ]
+  },
+  "field": {
+    "patient": {
+      "anxiety": 0.65
+    },
+    "events": [
+      {
+        "id": "ev-withdraw",
+        "when": {
+          "needlesRetained": {
+            "gte": 2
+          }
+        },
+        "afterMinutes": 0.5,
+        "interrupts": true,
+        "severity": "warning",
+        "effects": {
+          "consent": "withdrawn",
+          "say": {
+            "speaker": "patient",
+            "text": "Stop, stop — I really don't like this. Please take them out, I don't want any more."
+          },
+          "anxiety": 0.2
+        }
+      }
+    ],
+    "evaluation": {
+      "pathways": [
+        {
+          "id": "p-treat",
+          "$remove": true
+        },
+        {
+          "id": "p-withdrawal-respected",
+          "label": "Stopped at the withdrawal of consent: every needle out within three minutes, no further needling",
+          "acceptable": true,
+          "when": {
+            "all": [
+              {
+                "event": "ev-withdraw"
+              },
+              {
+                "withdrawnAfter": {
+                  "event": "ev-withdraw",
+                  "withinMinutes": 3
+                }
+              },
+              {
+                "not": {
+                  "unsafe": "insertion-after-consent-withdrawn"
+                }
+              },
+              {
+                "visitEnded": 1
+              }
+            ]
+          }
+        },
+        {
+          "id": "p-treat-complete",
+          "label": "Treated without the patient stopping it",
+          "acceptable": true,
+          "when": {
+            "all": [
+              {
+                "not": {
+                  "event": "ev-withdraw"
+                }
+              },
+              {
+                "disposition": [
+                  "treat",
+                  "treat-modified"
+                ],
+                "visit": 1
+              },
+              {
+                "needlesInserted": {
+                  "gte": 1
+                }
+              },
+              {
+                "explained": "alternatives"
+              },
+              {
+                "not": {
+                  "unsafe": "insertion-without-consent"
+                }
+              },
+              {
+                "visitEnded": 1
+              }
+            ]
+          }
+        }
+      ],
+      "criticalErrors": [
+        {
+          "id": "ce-withdrawal-ignored",
+          "label": "Needles still in three minutes after the patient withdrew consent",
+          "when": {
+            "all": [
+              {
+                "event": "ev-withdraw"
+              },
+              {
+                "not": {
+                  "withdrawnAfter": {
+                    "event": "ev-withdraw",
+                    "withinMinutes": 3
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

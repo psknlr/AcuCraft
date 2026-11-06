@@ -1,0 +1,33 @@
+{
+  "schema": "acucraft/family@1",
+  "id": "sg-low-back-pain",
+  "version": "0.1.0",
+  "title": "Low back pain · 34-year-old woman",
+  "summary": "A 34-year-old office worker with six months of low back pain asks about acupuncture.",
+  "condition": "chronic-nonspecific-lbp",
+  "split": "dev",
+  "provenance": {
+    "kind": "synthetic",
+    "authors": [
+      "AcuCraft content team"
+    ],
+    "review": {
+      "status": "unreviewed",
+      "reviewers": [],
+      "notes": "Clinical, anatomical and regulatory content to be reviewed by TCM, anatomy and Singapore practice experts."
+    }
+  },
+  "case": "case.json",
+  "field": "field.json",
+  "variants": [
+    {
+      "id": "base"
+    },
+    {
+      "id": "cauda-equina"
+    },
+    {
+      "id": "pregnant"
+    }
+  ]
+}
