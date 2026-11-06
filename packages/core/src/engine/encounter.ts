@@ -633,6 +633,9 @@ const HANDLERS: HandlerMap = {
     if (ctx.actor.location !== s.patient.location) throw new Rejection("not-at-patient", "The patient is not in this room.");
     const name = t(sc.case.patient.displayName, LOCALE);
     observe(ctx, `${name} is ${s.patient.position} in the ${sc.clinic.rooms.find((r) => r.id === s.patient.location)?.label ?? s.patient.location}.`);
+    const build = sc.case.patient.appearance.build;
+    const bmi = sc.case.patient.weightKg && sc.case.patient.heightCm ? sc.case.patient.weightKg / (sc.case.patient.heightCm / 100) ** 2 : null;
+    observe(ctx, `Build: ${build}${bmi ? ` (${sc.case.patient.weightKg} kg, ${sc.case.patient.heightCm} cm; BMI ${fmt(bmi)})` : ""}.`);
     if (s.patient.fainted) observe(ctx, "Looks pale, clammy and sweaty, and says they feel faint.");
     else if (s.patient.anxiety >= 0.6) observe(ctx, "Looks tense and anxious.");
     else observe(ctx, "Looks comfortable.");
@@ -838,6 +841,12 @@ const HANDLERS: HandlerMap = {
     atPatient(ctx);
     if (a.position === s.patient.position) {
       observe(ctx, `The patient is already ${a.position}.`);
+      return;
+    }
+    if (sc.field.patient.declinesPositions.includes(a.position) && !s.patient.fainted) {
+      utter(s, s.patient.id, ctx.actor.id, sc.field.patient.declinesPositionText, "answer");
+      ctx.out.detail = `the patient declined to be ${a.position}`;
+      ctx.out.target = a.position;
       return;
     }
     const room = sc.clinic.rooms.find((r) => r.id === s.patient.location)!;
@@ -1066,6 +1075,7 @@ const HANDLERS: HandlerMap = {
     let entry: ChartPoint;
     let target: PointRef | null = a.target ?? null;
     let markId: string | null = null;
+    let markStale = false;
     if (a.mark) {
       const m = s.marks[a.mark];
       if (!m || m.visit !== visitIndex(s)) throw new Rejection("unknown-id", `There is no mark ${a.mark} in this visit.`);
@@ -1073,6 +1083,7 @@ const HANDLERS: HandlerMap = {
       entry = m.position;
       target = m.target;
       markId = m.id;
+      markStale = m.stale;
       if (m.stale) observe(ctx, `Mark ${m.id} was made with the patient in another position.`);
     } else {
       if (!a.region || !a.side || !a.at) throw new Rejection("invalid", "Give a mark, or the region, side and chart position.");
@@ -1172,6 +1183,7 @@ const HANDLERS: HandlerMap = {
       entry,
       target,
       mark: markId,
+      markStale,
       requestedDepthCm: a.depthCm,
       depthCm: path.executedDepthCm,
       angleDeg: a.angleDeg,

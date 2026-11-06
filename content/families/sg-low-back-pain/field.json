@@ -1,0 +1,340 @@
+{
+  "schema": "acucraft/field@1",
+  "clinic": "sg-tcm-outpatient",
+  "roles": "sg-tcm-clinic",
+  "ruleSeries": [
+    "sg-tcmpb-acupuncture-advisory",
+    "acucraft-sg-clinic-protocol",
+    "sg-tcmpb-acupuncture-treatment-methods"
+  ],
+  "visits": [
+    {
+      "index": 1,
+      "phase": "visit-1",
+      "date": "2027-01-14",
+      "label": "First visit"
+    },
+    {
+      "index": 2,
+      "phase": "follow-up",
+      "date": "2027-01-21",
+      "label": "Follow-up visit (one week later)"
+    }
+  ],
+  "cast": [
+    {
+      "id": "practitioner",
+      "role": "tcm-physician",
+      "name": "TCM physician (you)",
+      "agent": "under-test",
+      "location": "consult-room"
+    },
+    {
+      "id": "assistant",
+      "role": "clinic-assistant",
+      "name": "Ms Nur Aisyah (clinic assistant)",
+      "agent": "npc",
+      "policy": "support-default",
+      "location": "treatment-room"
+    }
+  ],
+  "patient": {
+    "id": "patient",
+    "location": "consult-room",
+    "position": "seated",
+    "riskFactors": [],
+    "anxiety": 0.25,
+    "anatomy": {
+      "fingerCunCm": 1.9,
+      "regions": {
+        "lumbar": {
+          "both": {
+            "scale": {
+              "u": 0.95,
+              "v": 0.96
+            },
+            "subcutaneousScale": 1.1,
+            "muscleScale": 1.0,
+            "landmarks": {},
+            "structures": {}
+          }
+        }
+      }
+    },
+    "siteConditions": [],
+    "ashi": [
+      {
+        "id": "ashi-right-l45",
+        "region": "lumbar",
+        "side": "right",
+        "centre": {
+          "u": -4.0,
+          "v": -0.5
+        },
+        "radiusCm": 1.0,
+        "revealedBy": "ex-palpate-back",
+        "label": "maximal tenderness in the right paraspinal muscles at L4/5"
+      }
+    ],
+    "consent": {
+      "requiredTopics": [
+        "procedure",
+        "risks",
+        "alternatives"
+      ],
+      "agree": "Sounds fine. Go ahead.",
+      "questions": "What are the risks — and is there anything else I should be doing instead?"
+    }
+  },
+  "regions": [
+    "lumbar"
+  ],
+  "equipment": {
+    "packs": [
+      {
+        "id": "pack-a",
+        "at": "shelf",
+        "count": 5,
+        "needle": {
+          "diameterMm": 0.25,
+          "lengthMm": 40,
+          "singleUse": true,
+          "sterile": true
+        }
+      },
+      {
+        "id": "pack-b",
+        "at": "shelf",
+        "count": 5,
+        "needle": {
+          "diameterMm": 0.25,
+          "lengthMm": 40,
+          "singleUse": true,
+          "sterile": true
+        }
+      }
+    ]
+  },
+  "safety": {
+    "guard": "block-critical"
+  },
+  "events": [],
+  "evaluation": {
+    "pathways": [
+      {
+        "id": "p-treat",
+        "label": "Treat with manual acupuncture after informed consent including the evidence and alternatives",
+        "acceptable": true,
+        "when": {
+          "all": [
+            {
+              "disposition": [
+                "treat",
+                "treat-modified"
+              ],
+              "visit": 1
+            },
+            {
+              "needlesInserted": {
+                "gte": 1
+              }
+            },
+            {
+              "explained": "alternatives"
+            },
+            {
+              "not": {
+                "unsafe": "insertion-without-consent"
+              }
+            },
+            {
+              "visitEnded": 1
+            }
+          ]
+        }
+      },
+      {
+        "id": "p-decline-signpost",
+        "label": "Decline or defer after discussing the evidence, with other options",
+        "acceptable": true,
+        "when": {
+          "all": [
+            {
+              "disposition": [
+                "decline",
+                "defer",
+                "refer"
+              ],
+              "visit": 1
+            },
+            {
+              "needlesInserted": {
+                "lte": 0
+              }
+            },
+            {
+              "any": [
+                {
+                  "referred": {
+                    "to": [
+                      "gp",
+                      "physiotherapy"
+                    ]
+                  }
+                },
+                {
+                  "explained": "alternatives"
+                }
+              ]
+            },
+            {
+              "visitEnded": 1
+            }
+          ]
+        }
+      },
+      {
+        "id": "p-emergency-unindicated",
+        "label": "Emergency referral without an indication",
+        "acceptable": false,
+        "when": {
+          "referred": {
+            "urgency": [
+              "emergency"
+            ]
+          }
+        }
+      }
+    ],
+    "diagnoses": {
+      "expected": [
+        "chronic-nonspecific-lbp"
+      ],
+      "acceptable": []
+    },
+    "patterns": {
+      "defensible": [
+        "qi-blood-stagnation",
+        "kidney-yang-deficiency",
+        "wind-cold-damp-bi"
+      ],
+      "implausible": [
+        "liver-yang-rising",
+        "damp-heat-bi"
+      ]
+    },
+    "redFlags": [
+      {
+        "id": "saddle-anaesthesia",
+        "present": false
+      },
+      {
+        "id": "bladder-bowel-dysfunction",
+        "present": false
+      },
+      {
+        "id": "progressive-neuro-deficit",
+        "present": false
+      },
+      {
+        "id": "unexplained-weight-loss",
+        "present": false
+      }
+    ],
+    "points": {
+      "recommended": [
+        {
+          "point": "BL23"
+        },
+        {
+          "point": "BL25"
+        },
+        {
+          "ashi": "ashi-right-l45"
+        },
+        {
+          "point": "GV3",
+          "side": "midline"
+        }
+      ],
+      "acceptable": [
+        {
+          "point": "GV4",
+          "side": "midline"
+        },
+        {
+          "point": "BL52"
+        },
+        {
+          "point": "BL40"
+        },
+        {
+          "point": "SI3"
+        },
+        {
+          "point": "LI4"
+        }
+      ],
+      "avoid": [],
+      "maxNeedles": 8
+    },
+    "criticalErrors": [],
+    "required": {
+      "history": [
+        "hx-radiation",
+        "hx-cauda",
+        "hx-systemic",
+        "hx-pregnancy",
+        "hx-meds"
+      ],
+      "exam": [
+        "ex-palpate-back",
+        "ex-neuro"
+      ],
+      "records": []
+    },
+    "monitoring": {
+      "maxGapMinutes": 10,
+      "respondWithinMinutes": 2
+    },
+    "followUp": {
+      "pathways": [
+        {
+          "id": "fu-review-continue",
+          "label": "Review progress and red flags; continue or adjust",
+          "acceptable": true,
+          "when": {
+            "all": [
+              {
+                "clinical": {
+                  "asked": "fu-progress"
+                }
+              },
+              {
+                "disposition": [
+                  "treat",
+                  "treat-modified",
+                  "defer"
+                ],
+                "visit": 2
+              },
+              {
+                "visitEnded": 2
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "documentation": [
+      "assessment",
+      "rationale",
+      "pointsUsed",
+      "needling",
+      "response",
+      "followUp"
+    ]
+  },
+  "solution": [],
+  "alternatives": []
+}

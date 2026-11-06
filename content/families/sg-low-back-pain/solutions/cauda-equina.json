@@ -1,0 +1,179 @@
+[
+  {
+    "requestId": "lc-001",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-chief"
+    }
+  },
+  {
+    "requestId": "lc-002",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-onset"
+    }
+  },
+  {
+    "requestId": "lc-003",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-radiation"
+    }
+  },
+  {
+    "requestId": "lc-004",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-cauda"
+    }
+  },
+  {
+    "requestId": "lc-005",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-weakness"
+    }
+  },
+  {
+    "requestId": "lc-006",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-systemic"
+    }
+  },
+  {
+    "requestId": "lc-007",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-pregnancy"
+    }
+  },
+  {
+    "requestId": "lc-008",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-meds"
+    }
+  },
+  {
+    "requestId": "lc-009",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": "treatment-room",
+      "withPatient": true
+    }
+  },
+  {
+    "requestId": "lc-010",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-neuro"
+    }
+  },
+  {
+    "requestId": "lc-011",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-slr"
+    }
+  },
+  {
+    "requestId": "lc-012",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "assess",
+      "diagnoses": [
+        "cauda-equina-syndrome"
+      ],
+      "redFlags": [
+        "saddle-anaesthesia",
+        "bladder-bowel-dysfunction",
+        "progressive-neuro-deficit"
+      ],
+      "rationale": "Bilateral leg symptoms, saddle numbness and urinary retention after lifting: suspected cauda equina syndrome."
+    }
+  },
+  {
+    "requestId": "lc-013",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "decide",
+      "disposition": "refer",
+      "rationale": "Emergency: no acupuncture."
+    }
+  },
+  {
+    "requestId": "lc-014",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "say",
+      "to": "patient",
+      "text": "Ms Nurul, the numbness around your bottom and the trouble passing urine can mean pressure on the nerves at the bottom of the spine. This needs the Emergency Department now — no acupuncture today. We are calling an ambulance."
+    }
+  },
+  {
+    "requestId": "lc-015",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "refer",
+      "to": "emergency",
+      "urgency": "emergency",
+      "reason": "Suspected cauda equina syndrome: saddle anaesthesia, urinary retention, bilateral leg symptoms."
+    }
+  },
+  {
+    "requestId": "lc-016",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "document",
+      "record": {
+        "presentingComplaint": "Acute worsening of back pain after lifting.",
+        "assessment": "Suspected cauda equina syndrome. No acupuncture given.",
+        "followUp": "Emergency referral."
+      }
+    }
+  },
+  {
+    "requestId": "lc-017",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "end_visit"
+    }
+  },
+  {
+    "requestId": "lc-018",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "finish_encounter"
+    }
+  }
+]

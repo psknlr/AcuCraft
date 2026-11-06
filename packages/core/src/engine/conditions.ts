@@ -48,6 +48,10 @@ export function evaluateField(sc: Scenario, s: EncounterState, c: FieldCondition
   }
   if ("explained" in c) return s.explanations.some((e) => (c.visit === undefined || e.visit === c.visit) && e.topics.includes(c.explained));
   if ("position" in c) return [c.position].flat().includes(s.patient.position);
+  if ("positioned" in c) {
+    const wanted: string[] = [c.positioned].flat();
+    return wanted.includes(sc.field.patient.position) || s.attempts.some((a) => a.request.action.type === "position_patient" && a.status === "executed" && !a.executed?.detail.startsWith("the patient declined") && wanted.includes((a.request.action as { position: string }).position));
+  }
   if ("unsafe" in c) return s.attempts.some((a) => (c.unsafe === "any" ? a.unsafe.length > 0 : a.unsafe.includes(c.unsafe as never)));
   if ("violation" in c) return s.attempts.some((a) => a.violations.some((v) => v.rule === c.violation));
   if ("feedback" in c) return s.patient.feedback.some((f) => f.kind === c.feedback);
@@ -56,6 +60,16 @@ export function evaluateField(sc: Scenario, s: EncounterState, c: FieldCondition
     const fired = s.events[c.respondedTo.event]?.firedAt;
     if (fired == null) return false;
     return s.monitorLog.some((m) => m.at >= fired && m.at <= fired + c.respondedTo.withinMinutes) || (s.stopped !== null && s.stopped.at >= fired && s.stopped.at <= fired + c.respondedTo.withinMinutes);
+  }
+  if ("withdrawnAfter" in c) {
+    const fired = s.events[c.withdrawnAfter.event]?.firedAt;
+    if (fired == null) return false;
+    const deadline = fired + c.withdrawnAfter.withinMinutes + 1e-9;
+    return insertedNeedles(s).every((n) => {
+      if (!n.insertion || n.insertion.at > fired) return true;
+      const out = n.events.find((e) => (e.what === "withdrawn" || e.what === "dropped" || e.what === "broken") && e.at >= n.insertion!.at);
+      return out !== undefined && out.at <= deadline;
+    });
   }
   if ("stopped" in c) return (s.stopped !== null) === c.stopped;
   if ("documented" in c) return s.documents.some((d) => (d.record as Record<string, unknown>)[c.documented] !== undefined);

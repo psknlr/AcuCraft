@@ -230,17 +230,20 @@ export function evaluateEncounter(sc: Scenario, s: EncounterState): EncounterRep
     localisation.push({ id: `selection:${p.needle}`, label: `${p.target} is an appropriate point here`, met: p.classification === "recommended" || p.classification === "acceptable" ? true : p.classification === "avoid" || p.classification === "untargeted" ? false : null, weight: p.classification === "avoid" ? 3 : 1, detail: p.classification });
     if (p.classification === "unlisted") adjudication.push({ kind: "point", detail: `${p.target} (${p.needle}) is not in the scenario's lists` });
   }
-  const recommendedSides = new Set(ev.points.recommended.filter((k) => k.side && k.side !== "midline").map((k) => k.side));
-  if (points.length > 0 && recommendedSides.size === 1) {
-    const side = [...recommendedSides][0];
-    const wrongSide = points.filter((p) => p.side !== side && p.side !== "midline" && p.classification !== "acceptable");
-    localisation.push({ id: "laterality", label: `needled the affected (${side}) side`, met: wrongSide.length === 0, weight: 2, ...(wrongSide.length ? { detail: wrongSide.map((p) => p.target).join(", ") } : {}) });
+  // laterality: a point recommended on one side only, needled on the other (and not acceptable there)
+  const sideOnly = new Map<string, Set<string>>();
+  for (const k of ev.points.recommended) if (k.point && k.side && k.side !== "midline") sideOnly.set(k.point, new Set([...(sideOnly.get(k.point) ?? []), k.side]));
+  for (const k of ev.points.recommended) if (k.point && !k.side) sideOnly.delete(k.point);
+  const lateral = points.filter((p) => !p.target.startsWith("ashi:") && sideOnly.has(p.target.split(":")[0]!));
+  if (lateral.length > 0) {
+    const wrongSide = lateral.filter((p) => !sideOnly.get(p.target.split(":")[0]!)!.has(p.side) && p.classification !== "acceptable");
+    localisation.push({ id: "laterality", label: "needled each point on the side it is indicated", met: wrongSide.length === 0, weight: 2, ...(wrongSide.length ? { detail: wrongSide.map((p) => p.target).join(", ") } : {}) });
   }
   if (points.length > 0) {
     localisation.push({ id: "used-recommended", label: "used at least one recommended point", met: points.some((p) => p.classification === "recommended") || ev.points.recommended.length === 0, weight: 1 });
     const marked = points.filter((p) => s.needles[p.needle]?.insertion?.mark !== null).length;
     localisation.push({ id: "marked-before-needling", label: "located and marked each point before inserting", met: marked === points.length, weight: 1, detail: `${marked}/${points.length}` });
-    const staleUsed = Object.values(s.marks).filter((m) => m.stale && needleList(s).some((n) => n.insertion?.mark === m.id));
+    const staleUsed = needleList(s).filter((n) => n.insertion?.markStale);
     localisation.push({ id: "no-stale-marks", label: "re-localised after repositioning (no needle at a stale mark)", met: staleUsed.length === 0, weight: 1 });
     if (ev.points.maxNeedles !== undefined) localisation.push({ id: "needle-count", label: `no more than ${ev.points.maxNeedles} needles`, met: points.length <= ev.points.maxNeedles, weight: 1, detail: String(points.length) });
   }
@@ -325,7 +328,7 @@ export function evaluateEncounter(sc: Scenario, s: EncounterState): EncounterRep
     followUpTrack.push({ id: `adapted:${e.id}`, label: `adapted to the new information (${e.id})`, met: cond({ respondedTo: { event: e.id, withinMinutes: ev.monitoring.respondWithinMinutes * 2 } }), weight: 1 });
   }
   const moved = s.attempts.some((a) => a.request.action.type === "position_patient" && a.status === "executed" && underTest.has(a.actor));
-  if (moved && treated) followUpTrack.push({ id: "re-localised", label: "landmarks re-checked after the patient was repositioned", met: !Object.values(s.marks).some((m) => m.stale && needleList(s).some((n) => n.insertion?.mark === m.id)), weight: 1 });
+  if (moved && treated) followUpTrack.push({ id: "re-localised", label: "landmarks re-checked after the patient was repositioned", met: !needleList(s).some((n) => n.insertion?.markStale), weight: 1 });
 
   /* documentation (STRICTA-informed, scored apart) */
   const docIssues: string[] = [];

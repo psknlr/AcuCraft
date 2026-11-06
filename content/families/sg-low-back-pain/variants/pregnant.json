@@ -1,0 +1,163 @@
+{
+  "schema": "acucraft/variant@1",
+  "id": "pregnant",
+  "title": "Twenty-four weeks pregnant",
+  "kind": "risk",
+  "purpose": "Pregnancy as a risk factor and a position constraint: she is 24 weeks pregnant, so she should not lie prone and the points traditionally avoided in pregnancy (lumbosacral, LI4, SP6) are cautioned. Acceptable: gentle side-lying needling of the local tender point only, or deferral with liaison with her obstetric team.",
+  "case": {
+    "history": [
+      {
+        "id": "hx-pregnancy",
+        "answer": "Yes — I'm 24 weeks pregnant. The baby is fine; my obstetrician is happy."
+      },
+      {
+        "id": "hx-chief",
+        "answer": "My lower back has ached since I got pregnant, worse this last month. A friend said acupuncture helped her."
+      },
+      {
+        "id": "hx-onset",
+        "answer": "It came on gradually in the pregnancy, worse in the last month. No injury."
+      },
+      {
+        "id": "hx-meds",
+        "answer": "Prenatal vitamins only. No blood thinners."
+      }
+    ],
+    "exam": [
+      {
+        "id": "ex-inspect-back",
+        "finding": "Gravid abdomen consistent with about 24 weeks; increased lumbar lordosis; skin intact."
+      }
+    ],
+    "patient": {
+      "weightKg": 67
+    }
+  },
+  "field": {
+    "patient": {
+      "riskFactors": [
+        "pregnancy"
+      ]
+    },
+    "evaluation": {
+      "pathways": [
+        {
+          "id": "p-treat",
+          "$remove": true
+        },
+        {
+          "id": "p-treat-pregnancy",
+          "label": "Gentle, modified treatment side-lying, avoiding the points cautioned in pregnancy",
+          "acceptable": true,
+          "when": {
+            "all": [
+              {
+                "disposition": [
+                  "treat-modified",
+                  "treat"
+                ],
+                "visit": 1
+              },
+              {
+                "needlesInserted": {
+                  "gte": 1
+                }
+              },
+              {
+                "not": {
+                  "positioned": "prone"
+                }
+              },
+              {
+                "not": {
+                  "unsafe": "insertion-at-cautioned-point"
+                }
+              },
+              {
+                "not": {
+                  "unsafe": "insertion-without-consent"
+                }
+              },
+              {
+                "visitEnded": 1
+              }
+            ]
+          }
+        },
+        {
+          "id": "p-prone",
+          "label": "Positioned prone in mid-pregnancy",
+          "acceptable": false,
+          "when": {
+            "positioned": "prone"
+          }
+        },
+        {
+          "id": "p-cautioned",
+          "label": "Needled points traditionally avoided in pregnancy",
+          "acceptable": false,
+          "when": {
+            "unsafe": "insertion-at-cautioned-point"
+          }
+        }
+      ],
+      "diagnoses": {
+        "expected": {
+          "$replace": [
+            "pregnancy-related-lbp"
+          ]
+        },
+        "acceptable": {
+          "$replace": [
+            "chronic-nonspecific-lbp"
+          ]
+        }
+      },
+      "points": {
+        "recommended": {
+          "$replace": [
+            {
+              "ashi": "ashi-right-l45"
+            }
+          ]
+        },
+        "acceptable": {
+          "$replace": []
+        },
+        "avoid": [
+          {
+            "point": "BL23",
+            "reason": "lumbosacral point cautioned in pregnancy",
+            "severity": "major"
+          },
+          {
+            "point": "BL25",
+            "reason": "lumbosacral point cautioned in pregnancy",
+            "severity": "major"
+          },
+          {
+            "point": "GV3",
+            "reason": "lumbosacral point cautioned in pregnancy",
+            "severity": "major"
+          },
+          {
+            "point": "GV4",
+            "reason": "lumbosacral point cautioned in pregnancy",
+            "severity": "major"
+          },
+          {
+            "point": "LI4",
+            "reason": "traditionally avoided in pregnancy",
+            "severity": "critical"
+          },
+          {
+            "point": "SP6",
+            "reason": "traditionally avoided in pregnancy",
+            "severity": "critical"
+          }
+        ],
+        "maxNeedles": 3
+      }
+    }
+  }
+}

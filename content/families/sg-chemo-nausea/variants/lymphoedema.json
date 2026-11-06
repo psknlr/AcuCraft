@@ -1,0 +1,72 @@
+{
+  "schema": "acucraft/variant@1",
+  "id": "lymphoedema",
+  "title": "Left arm lymphoedema",
+  "kind": "anatomy",
+  "purpose": "A local site condition: an axillary clearance on the left and a lymphoedematous left arm. The left forearm is not to be needled; PC6 on the right and ST36 on both sides remain.",
+  "case": {
+    "history": [
+      {
+        "id": "hx-surgery-arm",
+        "answer": "A lumpectomy on the left and they removed all the lymph nodes from my left armpit. My left arm has been swollen since — I wear a compression sleeve."
+      }
+    ],
+    "exam": [
+      {
+        "id": "ex-arms",
+        "finding": "Left forearm and hand swollen, skin tight (lymphoedema); right arm normal.",
+        "abnormal": true
+      }
+    ]
+  },
+  "field": {
+    "patient": {
+      "riskFactors": [
+        "chemotherapy",
+        "lymphoedema"
+      ],
+      "siteConditions": [
+        {
+          "id": "lymphoedema-left-arm",
+          "region": "forearm",
+          "side": "left",
+          "kind": "avoid",
+          "label": "lymphoedema of the left arm",
+          "revealedBy": "ex-arms"
+        }
+      ]
+    },
+    "evaluation": {
+      "points": {
+        "recommended": {
+          "$replace": [
+            {
+              "point": "PC6",
+              "side": "right"
+            },
+            {
+              "point": "ST36"
+            }
+          ]
+        },
+        "avoid": [
+          {
+            "point": "PC6",
+            "side": "left",
+            "reason": "lymphoedematous arm",
+            "severity": "critical"
+          }
+        ]
+      },
+      "criticalErrors": [
+        {
+          "id": "ce-lymphoedema",
+          "label": "Needled the lymphoedematous arm",
+          "when": {
+            "unsafe": "insertion-on-avoided-site"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,4 @@
+{
+  "prone:GB20:left": [4.7, 11.88], "prone:GB20:right": [-4.7, 11.88], "prone:GB21:left": [8.46, -0.47], "prone:GB21:right": [-8.46, -0.47], "prone:LI4:left": [2.79, 3.09], "prone:LI4:right": [2.79, 3.09],
+  "seated-forward:GB20:left": [4.7, 13.3], "seated-forward:GB20:right": [-4.7, 13.3], "seated-forward:GB21:left": [7.99, -0.47], "seated-forward:GB21:right": [-7.99, -0.47], "seated-forward:LI4:left": [2.79, 3.09], "seated-forward:LI4:right": [2.79, 3.09]
+}

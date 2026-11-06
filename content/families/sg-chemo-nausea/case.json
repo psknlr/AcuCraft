@@ -1,0 +1,750 @@
+{
+  "schema": "clinicalcraft/case@1",
+  "id": "sg-chemo-nausea",
+  "version": "0.1.0",
+  "title": "Nausea during chemotherapy · 52-year-old woman",
+  "summary": "A 52-year-old woman having chemotherapy for breast cancer asks whether acupuncture could help her nausea.",
+  "specialty": [
+    "tcm-acupuncture",
+    "oncology"
+  ],
+  "difficulty": 3,
+  "setting": "outpatient",
+  "facility": "sg-tcm-outpatient",
+  "locales": [
+    "en"
+  ],
+  "estimatedMinutes": 40,
+  "learningOutcomes": [
+    "Check the latest blood count and the oncology team's view before needling a patient on chemotherapy",
+    "Avoid needling a limb at risk of, or with, lymphoedema",
+    "Locate PC6 and ST36 on this patient and needle them within their safe depths"
+  ],
+  "tags": [
+    "acucraft",
+    "singapore",
+    "oncology"
+  ],
+  "provenance": {
+    "kind": "synthetic",
+    "authors": [
+      "AcuCraft content team"
+    ],
+    "license": "MIT",
+    "notes": "A fictional teaching case. The name and every detail are invented.",
+    "review": {
+      "status": "unreviewed",
+      "reviewers": [],
+      "guidelines": [],
+      "notes": "AI-assisted authoring; integrative-oncology precautions (blood counts, lymphoedema) need review by an oncologist and a TCM practitioner with oncology experience."
+    }
+  },
+  "disclaimer": "Simulation for education and agent evaluation. Not clinical advice.",
+  "patient": {
+    "displayName": "Mdm Siti Aminah",
+    "age": 52,
+    "sex": "female",
+    "weightKg": 58,
+    "heightCm": 158,
+    "chiefComplaint": "Nausea for several days after each chemotherapy cycle",
+    "triageNote": "On adjuvant chemotherapy for breast cancer; asks about acupuncture for nausea.",
+    "tags": [
+      "nausea",
+      "chemotherapy"
+    ],
+    "persona": {
+      "personality": "Gentle, tired, determined.",
+      "speechStyle": "Soft-spoken Singapore English with some Malay.",
+      "healthLiteracy": "medium",
+      "affect": "calm",
+      "openingLine": "Doctor, the chemo makes me so nauseous. My next cycle is next week.",
+      "fallbackUnknown": "I'm not sure, doctor.",
+      "concerns": [
+        "She wants to be able to eat with her family."
+      ]
+    },
+    "posture": "sitting",
+    "appearance": {
+      "build": "average"
+    }
+  },
+  "phases": [
+    {
+      "id": "visit-1",
+      "label": "First visit",
+      "description": "Thursday 11:00 at the clinic, six days before her next chemotherapy cycle.",
+      "learnerSwitchable": false
+    },
+    {
+      "id": "follow-up",
+      "label": "Follow-up visit",
+      "description": "One week later, three days after the cycle.",
+      "learnerSwitchable": false,
+      "enterWhen": {
+        "flag": "acu.visit-2"
+      }
+    }
+  ],
+  "initialPhase": "visit-1",
+  "clock": {
+    "mode": "simulated",
+    "startTime": "11:00",
+    "actionCosts": {
+      "ask": 1,
+      "examine": 2,
+      "order": 0,
+      "read": 1,
+      "intervene": 1,
+      "answer": 0
+    }
+  },
+  "history": [
+    {
+      "id": "hx-chief",
+      "topic": "presenting-complaint",
+      "question": "What brings you in today?",
+      "answer": "The chemotherapy makes me very nauseous for days afterwards. My next cycle is next week and I want to try acupuncture.",
+      "keywords": [
+        "what brings you",
+        "come in today",
+        "main problem"
+      ],
+      "disclosure": "volunteer",
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-nausea",
+      "topic": "hpi",
+      "question": "Tell me about the nausea — when it comes and how bad it is.",
+      "answer": "From the second to the fifth day after each cycle. I can only eat a little, and I vomited once last time.",
+      "keywords": [
+        "nausea",
+        "vomit",
+        "when",
+        "how bad",
+        "eat"
+      ],
+      "disclosure": "on-ask",
+      "required": true,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-meds",
+      "topic": "medications",
+      "question": "What medicines are you taking — including blood thinners?",
+      "answer": "With the chemo I get ondansetron, dexamethasone and aprepitant. Nothing else regularly, no blood thinners.",
+      "keywords": [
+        "medicine",
+        "medication",
+        "antiemetic",
+        "tablets",
+        "blood thinner"
+      ],
+      "disclosure": "on-ask",
+      "required": true,
+      "phases": [
+        "visit-1"
+      ],
+      "safety": {
+        "datum": "anticoagulation",
+        "finding": "negative"
+      }
+    },
+    {
+      "id": "hx-oncology",
+      "topic": "other",
+      "question": "Does your oncology team know you'd like acupuncture?",
+      "answer": "Yes — my oncologist said it's fine as long as my blood counts are okay.",
+      "keywords": [
+        "oncologist",
+        "oncology team",
+        "cancer doctor",
+        "know about"
+      ],
+      "disclosure": "on-ask",
+      "required": true,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-fever",
+      "topic": "ros",
+      "question": "Any fever, chills or signs of infection?",
+      "answer": "No fever.",
+      "keywords": [
+        "fever",
+        "chills",
+        "infection",
+        "temperature"
+      ],
+      "disclosure": "on-ask",
+      "required": true,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-bleeding",
+      "topic": "pmh",
+      "question": "Any unusual bruising or bleeding?",
+      "answer": "No.",
+      "keywords": [
+        "bruise",
+        "bleed",
+        "bleeding"
+      ],
+      "disclosure": "on-ask",
+      "required": true,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-surgery-arm",
+      "topic": "psh",
+      "question": "What surgery have you had — were any lymph nodes removed, and is there any arm swelling?",
+      "answer": "A lumpectomy on the left two months ago; they took a few lymph nodes from the left armpit. No arm swelling.",
+      "keywords": [
+        "surgery",
+        "operation",
+        "lymph nodes",
+        "arm swelling",
+        "lymphoedema",
+        "armpit"
+      ],
+      "disclosure": "on-ask",
+      "required": true,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-port",
+      "topic": "psh",
+      "question": "Do you have a port or line for the chemotherapy?",
+      "answer": "A port in my right upper chest.",
+      "keywords": [
+        "port",
+        "line",
+        "picc"
+      ],
+      "disclosure": "on-ask",
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-pmh",
+      "topic": "pmh",
+      "question": "Any other medical conditions?",
+      "answer": "No, I was healthy before the cancer.",
+      "keywords": [
+        "medical history",
+        "conditions",
+        "illnesses"
+      ],
+      "disclosure": "on-ask",
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-acupuncture-before",
+      "topic": "other",
+      "question": "Have you had acupuncture before? How do you feel about needles?",
+      "answer": "Never. Needles don't bother me now, after all the drips.",
+      "keywords": [
+        "acupuncture before",
+        "needles",
+        "nervous",
+        "faint"
+      ],
+      "disclosure": "on-ask",
+      "required": true,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-tcm",
+      "topic": "other",
+      "question": "How are your energy, appetite and bowels?",
+      "answer": "Very tired, poor appetite, and my stools are a bit loose.",
+      "keywords": [
+        "energy",
+        "appetite",
+        "bowels",
+        "stools",
+        "tired"
+      ],
+      "disclosure": "on-ask",
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-ice",
+      "topic": "ice",
+      "question": "What would you most like help with?",
+      "answer": "I just want to be able to eat with my family.",
+      "keywords": [
+        "worried",
+        "concern",
+        "hope",
+        "help with"
+      ],
+      "disclosure": "on-ask",
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "fu-progress",
+      "topic": "hpi",
+      "question": "How was the nausea after this cycle?",
+      "answer": "Milder this time — I could eat small meals from the third day.",
+      "keywords": [
+        "since",
+        "this cycle",
+        "how was",
+        "better",
+        "nausea",
+        "progress"
+      ],
+      "disclosure": "on-ask",
+      "required": true,
+      "phases": [
+        "follow-up"
+      ]
+    },
+    {
+      "id": "fu-new",
+      "topic": "ros",
+      "question": "Any fever or new problems?",
+      "answer": "No fever, nothing new.",
+      "keywords": [
+        "fever",
+        "new problems",
+        "anything new"
+      ],
+      "disclosure": "on-ask",
+      "required": false,
+      "phases": [
+        "follow-up"
+      ]
+    }
+  ],
+  "exam": [
+    {
+      "id": "ex-general",
+      "system": "general",
+      "maneuver": "General inspection",
+      "keywords": [
+        "general",
+        "look",
+        "inspection"
+      ],
+      "finding": "Looks tired; alert; no pallor or jaundice.",
+      "abnormal": false,
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "ex-arms",
+      "system": "skin",
+      "maneuver": "Examine both arms and hands, including for swelling",
+      "keywords": [
+        "arms",
+        "swelling",
+        "lymphoedema",
+        "hands",
+        "skin"
+      ],
+      "finding": "No swelling of either arm; skin intact; well-healed left axillary scar.",
+      "abnormal": false,
+      "required": true,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "ex-legs",
+      "system": "skin",
+      "maneuver": "Examine the legs",
+      "keywords": [
+        "legs",
+        "oedema"
+      ],
+      "finding": "Skin intact; no oedema.",
+      "abnormal": false,
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "ex-tongue",
+      "system": "general",
+      "maneuver": "Inspect the tongue",
+      "keywords": [
+        "tongue"
+      ],
+      "finding": "Pale, swollen tongue with teeth marks and a thin white coat.",
+      "abnormal": false,
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "ex-pulse-tcm",
+      "system": "general",
+      "maneuver": "Feel the radial pulses (TCM pulse diagnosis)",
+      "keywords": [
+        "pulse diagnosis",
+        "radial pulse",
+        "pulses"
+      ],
+      "finding": "Weak, slightly slippery pulse.",
+      "abnormal": false,
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "fu-ex-general",
+      "system": "general",
+      "maneuver": "Re-examine",
+      "keywords": [
+        "re-examine",
+        "examine",
+        "look"
+      ],
+      "finding": "Looks less tired; no new findings.",
+      "abnormal": false,
+      "required": false,
+      "phases": [
+        "follow-up"
+      ]
+    }
+  ],
+  "examNotRecorded": "Nothing remarkable is recorded for that examination in this case.",
+  "investigations": [
+    {
+      "id": "inv-fbc",
+      "name": "Full blood count (oncology clinic, 1 December 2026)",
+      "category": "lab",
+      "aliases": [
+        "fbc",
+        "full blood count",
+        "blood count",
+        "blood test",
+        "neutrophils",
+        "platelets",
+        "counts"
+      ],
+      "requires": [],
+      "turnaroundMinutes": 0,
+      "risk": "none",
+      "performedAt": "records",
+      "value": "essential",
+      "results": {
+        "visit-1": {
+          "available": true,
+          "date": "1 December 2026",
+          "text": "Hb 11.2 g/dL; WBC 4.1 ×10⁹/L; neutrophils 2.1 ×10⁹/L; platelets 190 ×10⁹/L.",
+          "values": [
+            {
+              "analyte": "Haemoglobin",
+              "value": 11.2,
+              "unit": "g/dL",
+              "refLow": 12,
+              "refHigh": 15.5,
+              "flag": "L"
+            },
+            {
+              "analyte": "Neutrophils",
+              "value": 2.1,
+              "unit": "×10⁹/L",
+              "refLow": 2.0,
+              "refHigh": 7.5,
+              "flag": "N"
+            },
+            {
+              "analyte": "Platelets",
+              "value": 190,
+              "unit": "×10⁹/L",
+              "refLow": 150,
+              "refHigh": 400,
+              "flag": "N"
+            }
+          ],
+          "figures": [],
+          "critical": false
+        },
+        "follow-up": {
+          "available": true,
+          "date": "1 December 2026",
+          "text": "Hb 11.2 g/dL; WBC 4.1 ×10⁹/L; neutrophils 2.1 ×10⁹/L; platelets 190 ×10⁹/L.",
+          "values": [
+            {
+              "analyte": "Haemoglobin",
+              "value": 11.2,
+              "unit": "g/dL",
+              "refLow": 12,
+              "refHigh": 15.5,
+              "flag": "L"
+            },
+            {
+              "analyte": "Neutrophils",
+              "value": 2.1,
+              "unit": "×10⁹/L",
+              "refLow": 2.0,
+              "refHigh": 7.5,
+              "flag": "N"
+            },
+            {
+              "analyte": "Platelets",
+              "value": 190,
+              "unit": "×10⁹/L",
+              "refLow": 150,
+              "refHigh": 400,
+              "flag": "N"
+            }
+          ],
+          "figures": [],
+          "critical": false
+        }
+      },
+      "availability": {
+        "historical": true
+      }
+    },
+    {
+      "id": "inv-onc-letter",
+      "name": "Oncology clinic letter (November 2026)",
+      "category": "record",
+      "aliases": [
+        "oncology letter",
+        "oncologist letter",
+        "clinic letter",
+        "chemotherapy plan"
+      ],
+      "requires": [],
+      "turnaroundMinutes": 0,
+      "risk": "none",
+      "performedAt": "records",
+      "value": "useful",
+      "results": {
+        "visit-1": {
+          "available": true,
+          "date": "November 2026",
+          "text": "Adjuvant AC chemotherapy, cycle 3 of 4 given on 16 November; cycle 4 due on 9 December. The team is supportive of acupuncture provided her blood counts are satisfactory.",
+          "values": [],
+          "figures": [],
+          "critical": false
+        },
+        "follow-up": {
+          "available": true,
+          "date": "November 2026",
+          "text": "Adjuvant AC chemotherapy, cycle 3 of 4 given on 16 November; cycle 4 due on 9 December. The team is supportive of acupuncture provided her blood counts are satisfactory.",
+          "values": [],
+          "figures": [],
+          "critical": false
+        }
+      },
+      "availability": {
+        "historical": true
+      }
+    }
+  ],
+  "physiology": {
+    "baseline": {
+      "hr": 82,
+      "sbp": 116,
+      "dbp": 72,
+      "rr": 14,
+      "spo2": 98,
+      "temp": 36.8,
+      "pain": 1
+    },
+    "noise": 0.5,
+    "events": [
+      {
+        "id": "pe-vasovagal",
+        "when": {
+          "flag": "acu.vasovagal"
+        },
+        "setVitals": {
+          "hr": 48,
+          "sbp": 82,
+          "dbp": 50
+        },
+        "severity": "warning",
+        "speaker": "narrator",
+        "message": "The patient has gone pale and sweaty and says they feel faint."
+      },
+      {
+        "id": "pe-recovered",
+        "when": {
+          "all": [
+            {
+              "flag": "acu.vasovagal"
+            },
+            {
+              "flag": "acu.lying"
+            },
+            {
+              "not": {
+                "flag": "acu.needles-in"
+              }
+            }
+          ]
+        },
+        "setVitals": {
+          "hr": 70,
+          "sbp": 116,
+          "dbp": 72
+        },
+        "severity": "info",
+        "speaker": "narrator",
+        "message": "Lying flat with the needles out, the patient's colour is returning."
+      }
+    ]
+  },
+  "objectives": [
+    {
+      "id": "obj-history",
+      "title": "Check the oncology context before needling",
+      "hint": "Blood counts, fever, bleeding, lymph node surgery and arm swelling, the oncology team's view.",
+      "completeWhen": {
+        "all": [
+          {
+            "asked": "hx-oncology"
+          },
+          {
+            "asked": "hx-surgery-arm"
+          },
+          {
+            "read": "inv-fbc"
+          }
+        ]
+      },
+      "waypoints": [
+        {
+          "target": "patient"
+        }
+      ]
+    },
+    {
+      "id": "obj-exam",
+      "title": "Examine the arms",
+      "hint": "Look for lymphoedema before needling an arm.",
+      "completeWhen": {
+        "examined": "ex-arms"
+      },
+      "waypoints": [
+        {
+          "target": "patient"
+        }
+      ]
+    },
+    {
+      "id": "obj-close",
+      "title": "Close the encounter safely",
+      "hint": "Every needle accounted for, the record written.",
+      "completeWhen": {
+        "flag": "acu.finished"
+      },
+      "waypoints": []
+    }
+  ],
+  "decisions": [],
+  "rubric": [
+    {
+      "id": "rb-fbc",
+      "domain": "safety",
+      "text": "Reviewed the latest blood count",
+      "weight": 2,
+      "met": {
+        "read": "inv-fbc"
+      },
+      "critical": true
+    },
+    {
+      "id": "rb-arms",
+      "domain": "examination",
+      "text": "Examined the arms for lymphoedema",
+      "weight": 2,
+      "met": {
+        "examined": "ex-arms"
+      }
+    }
+  ],
+  "npcs": [],
+  "debrief": {
+    "title": "Nausea during chemotherapy",
+    "conclusion": "Delayed chemotherapy-related nausea with satisfactory counts and the oncology team's support: PC6 and ST36 are reasonable as an adjunct to her antiemetics.",
+    "keyReasoning": [
+      "Counts satisfactory; no fever; no lymphoedema."
+    ],
+    "teachingPoints": [
+      "Always check the latest blood count during chemotherapy.",
+      "Do not needle a limb with, or at high risk of, lymphoedema.",
+      "Acupuncture is an adjunct: the antiemetics stay."
+    ],
+    "references": [],
+    "notice": "Teaching-script measure, not a validated competency score."
+  },
+  "unknowns": [
+    "Evidence summary for this indication (not yet authored in the pack)"
+  ],
+  "assets": [],
+  "solution": [
+    {
+      "type": "start"
+    },
+    {
+      "type": "ask",
+      "itemId": "hx-oncology"
+    },
+    {
+      "type": "ask",
+      "itemId": "hx-surgery-arm"
+    },
+    {
+      "type": "order",
+      "investigationId": "inv-fbc"
+    },
+    {
+      "type": "read",
+      "investigationId": "inv-fbc"
+    },
+    {
+      "type": "examine",
+      "findingId": "ex-arms"
+    },
+    {
+      "type": "flag",
+      "flag": "acu.finished"
+    }
+  ],
+  "extensions": {
+    "acucraft": {
+      "field": "field.json"
+    }
+  }
+}

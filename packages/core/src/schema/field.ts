@@ -75,6 +75,8 @@ export type FieldCondition =
   /** A topic explained to the patient (in any visit, or in `visit`). */
   | { explained: string; visit?: number }
   | { position: Position | Position[] }
+  /** The patient was placed in one of these positions at some point (by any actor). */
+  | { positioned: Position | Position[] }
   | { unsafe: UnsafeCode | "any" }
   /** A rule of a rule set in force was breached (executed or blocked). */
   | { violation: string }
@@ -82,6 +84,8 @@ export type FieldCondition =
   | { event: string }
   /** A monitoring observation was made within `withinMinutes` of the event firing. */
   | { respondedTo: { event: string; withinMinutes: number } }
+  /** Every needle in place when the event fired was out within `withinMinutes` of it. */
+  | { withdrawnAfter: { event: string; withinMinutes: number } }
   | { stopped: boolean }
   | { documented: string }
   | { visit: number }
@@ -109,11 +113,13 @@ export const FieldConditionSchema: z.ZodType<FieldCondition> = z.lazy(() =>
     z.object({ consent: z.union([z.enum(CONSENT_STATUSES), z.array(z.enum(CONSENT_STATUSES)).min(1)]) }).strict(),
     z.object({ explained: ExplanationTopicSchema, visit: z.number().int().min(1).optional() }).strict(),
     z.object({ position: z.union([PositionSchema, z.array(PositionSchema).min(1)]) }).strict(),
+    z.object({ positioned: z.union([PositionSchema, z.array(PositionSchema).min(1)]) }).strict(),
     z.object({ unsafe: z.union([UnsafeCodeSchema, z.literal("any")]) }).strict(),
     z.object({ violation: IdSchema }).strict(),
     z.object({ feedback: FeedbackKindSchema }).strict(),
     z.object({ event: IdSchema }).strict(),
     z.object({ respondedTo: z.object({ event: IdSchema, withinMinutes: z.number().positive() }).strict() }).strict(),
+    z.object({ withdrawnAfter: z.object({ event: IdSchema, withinMinutes: z.number().positive() }).strict() }).strict(),
     z.object({ stopped: z.boolean() }).strict(),
     z.object({ documented: IdSchema }).strict(),
     z.object({ visit: z.number().int().min(1) }).strict(),
@@ -137,6 +143,8 @@ export const RegionAnatomySchema = z
     scale: z.object({ u: z.number().positive().default(1), v: z.number().positive().default(1) }).strict().default({}),
     /** Subcutaneous thickness relative to the reference (adiposity); deeper layers and structures move with it. */
     subcutaneousScale: z.number().positive().default(1),
+    /** Muscle thickness relative to the reference (a slim or muscular build); deeper layers and structures move with it. */
+    muscleScale: z.number().positive().default(1),
     landmarks: z.record(IdSchema, Shift).default({}),
     structures: z.record(IdSchema, Shift3).default({}),
   })
@@ -148,6 +156,7 @@ export const RegionAnatomyPatchSchema = z
   .object({
     scale: z.object({ u: z.number().positive().default(1), v: z.number().positive().default(1) }).strict().optional(),
     subcutaneousScale: z.number().positive().optional(),
+    muscleScale: z.number().positive().optional(),
     landmarks: z.record(IdSchema, Shift).optional(),
     structures: z.record(IdSchema, Shift3).optional(),
   })
@@ -163,6 +172,9 @@ export const PatientFieldSchema = z
     riskFactors: z.array(IdSchema).default([]),
     /** 0 calm … 1 very anxious. */
     anxiety: z.number().min(0).max(1).default(0.2),
+    /** Positions the patient will not take (claustrophobia face down, late pregnancy …), and what they say. */
+    declinesPositions: z.array(PositionSchema).default([]),
+    declinesPositionText: z.string().default("I'd rather not lie like that."),
     anatomy: z
       .object({
         /** Width of the patient's middle-finger cun (cm): the finger method, kept apart from bone-proportional cun. */

@@ -1,0 +1,793 @@
+[
+  {
+    "requestId": "cl-001",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-chief"
+    }
+  },
+  {
+    "requestId": "cl-002",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-nausea"
+    }
+  },
+  {
+    "requestId": "cl-003",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-meds"
+    }
+  },
+  {
+    "requestId": "cl-004",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-oncology"
+    }
+  },
+  {
+    "requestId": "cl-005",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-fever"
+    }
+  },
+  {
+    "requestId": "cl-006",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-bleeding"
+    }
+  },
+  {
+    "requestId": "cl-007",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-surgery-arm"
+    }
+  },
+  {
+    "requestId": "cl-008",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-port"
+    }
+  },
+  {
+    "requestId": "cl-009",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-pmh"
+    }
+  },
+  {
+    "requestId": "cl-010",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-acupuncture-before"
+    }
+  },
+  {
+    "requestId": "cl-011",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-tcm"
+    }
+  },
+  {
+    "requestId": "cl-012",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-ice"
+    }
+  },
+  {
+    "requestId": "cl-013",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "review_result",
+      "investigationId": "inv-onc-letter"
+    }
+  },
+  {
+    "requestId": "cl-014",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "review_result",
+      "investigationId": "inv-fbc"
+    }
+  },
+  {
+    "requestId": "cl-015",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": "treatment-room",
+      "withPatient": true
+    }
+  },
+  {
+    "requestId": "cl-016",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "hand_hygiene"
+    }
+  },
+  {
+    "requestId": "cl-017",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-general"
+    }
+  },
+  {
+    "requestId": "cl-018",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-arms"
+    }
+  },
+  {
+    "requestId": "cl-019",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-legs"
+    }
+  },
+  {
+    "requestId": "cl-020",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-tongue"
+    }
+  },
+  {
+    "requestId": "cl-021",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-pulse-tcm"
+    }
+  },
+  {
+    "requestId": "cl-022",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_vitals"
+    }
+  },
+  {
+    "requestId": "cl-023",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "assess",
+      "diagnoses": [
+        "chemotherapy-nausea"
+      ],
+      "pattern": "stomach-qi-rebellion",
+      "redFlags": [],
+      "rationale": "Delayed nausea after each cycle; tired, poor appetite, loose stools; pale swollen tongue. Left arm lymphoedema after axillary clearance."
+    }
+  },
+  {
+    "requestId": "cl-024",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "decide",
+      "disposition": "treat-modified",
+      "rationale": "No needling of the lymphoedematous left arm: PC6 right and ST36 on both sides."
+    }
+  },
+  {
+    "requestId": "cl-025",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "propose_plan",
+      "plan": {
+        "points": [
+          {
+            "point": "PC6",
+            "side": "right"
+          },
+          {
+            "point": "ST36",
+            "side": "right"
+          },
+          {
+            "point": "ST36",
+            "side": "left"
+          }
+        ],
+        "technique": {
+          "method": "manual-filiform",
+          "stimulation": "even",
+          "retentionMinutes": 20
+        },
+        "rationale": "PC6 and ST36 for nausea from spleen–stomach deficiency with rebellious stomach qi, as an adjunct to antiemetics.",
+        "alternatives": [
+          "Acupressure wristband at PC6",
+          "Small, frequent meals",
+          "Antiemetic review with her oncologist"
+        ],
+        "followUp": "After the next cycle."
+      }
+    }
+  },
+  {
+    "requestId": "cl-026",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "explain",
+      "topics": [
+        "procedure",
+        "benefits",
+        "risks",
+        "alternatives",
+        "right-to-stop"
+      ],
+      "text": "I suggest acupuncture alongside — not instead of — your anti-sickness medicines: three fine single-use sterile needles — your right inner wrist and below each knee; none in your left arm because of the lymphoedema, for about twenty minutes. Your blood count is satisfactory and your oncologist is supportive. Risks are small: soreness, bruising, feeling faint, and a small risk of infection, which is why we check your counts. Alternatives are an acupressure wristband at the same wrist point, small frequent meals, and telling your oncologist if the medicines aren't working. You can tell me to stop at any time."
+    }
+  },
+  {
+    "requestId": "cl-027",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "seek_consent"
+    }
+  },
+  {
+    "requestId": "cl-028",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "position_patient",
+      "position": "supine-knee-flexed"
+    }
+  },
+  {
+    "requestId": "cl-029",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "assign_task",
+      "to": "assistant",
+      "kind": "monitor-patient",
+      "params": {
+        "intervalMinutes": 5
+      },
+      "note": "Please check on Mdm Siti every five minutes while the needles are in."
+    }
+  },
+  {
+    "requestId": "cl-030",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "forearm",
+      "side": "right",
+      "landmark": "pl-fcr-wrist"
+    }
+  },
+  {
+    "requestId": "cl-031",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "forearm",
+      "side": "right",
+      "landmark": "cubital-crease-mid"
+    }
+  },
+  {
+    "requestId": "cl-032",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "mark_point",
+      "target": {
+        "point": "PC6",
+        "side": "right"
+      },
+      "region": "forearm",
+      "side": "right",
+      "at": {
+        "u": 0.46,
+        "v": 4.14
+      },
+      "method": "proportional"
+    }
+  },
+  {
+    "requestId": "cl-033",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "knee-leg",
+      "side": "right",
+      "landmark": "st35-depression"
+    }
+  },
+  {
+    "requestId": "cl-034",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "knee-leg",
+      "side": "right",
+      "landmark": "ankle-anterior-midpoint"
+    }
+  },
+  {
+    "requestId": "cl-035",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "knee-leg",
+      "side": "right",
+      "landmark": "lateral-malleolus"
+    }
+  },
+  {
+    "requestId": "cl-036",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "mark_point",
+      "target": {
+        "point": "ST36",
+        "side": "right"
+      },
+      "region": "knee-leg",
+      "side": "right",
+      "at": {
+        "u": 1.93,
+        "v": -7.84
+      },
+      "method": "proportional"
+    }
+  },
+  {
+    "requestId": "cl-037",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "knee-leg",
+      "side": "left",
+      "landmark": "st35-depression"
+    }
+  },
+  {
+    "requestId": "cl-038",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "knee-leg",
+      "side": "left",
+      "landmark": "ankle-anterior-midpoint"
+    }
+  },
+  {
+    "requestId": "cl-039",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "knee-leg",
+      "side": "left",
+      "landmark": "lateral-malleolus"
+    }
+  },
+  {
+    "requestId": "cl-040",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "mark_point",
+      "target": {
+        "point": "ST36",
+        "side": "left"
+      },
+      "region": "knee-leg",
+      "side": "left",
+      "at": {
+        "u": 1.93,
+        "v": -7.84
+      },
+      "method": "proportional"
+    }
+  },
+  {
+    "requestId": "cl-041",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": "prep-area"
+    }
+  },
+  {
+    "requestId": "cl-042",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "hand_hygiene"
+    }
+  },
+  {
+    "requestId": "cl-043",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "fetch",
+      "item": "pack-a"
+    }
+  },
+  {
+    "requestId": "cl-044",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": "treatment-room"
+    }
+  },
+  {
+    "requestId": "cl-045",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "prepare_site",
+      "region": "forearm",
+      "side": "right"
+    }
+  },
+  {
+    "requestId": "cl-046",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "prepare_site",
+      "region": "knee-leg",
+      "side": "left"
+    }
+  },
+  {
+    "requestId": "cl-047",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "prepare_site",
+      "region": "knee-leg",
+      "side": "right"
+    }
+  },
+  {
+    "requestId": "cl-048",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "open_pack",
+      "packId": "pack-a"
+    }
+  },
+  {
+    "requestId": "cl-049",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "pick_up",
+      "object": "pack-a.1"
+    }
+  },
+  {
+    "requestId": "cl-050",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "insert_needle",
+      "needleId": "pack-a.1",
+      "mark": "m1",
+      "angleDeg": 0,
+      "azimuthDeg": 0,
+      "depthCm": 1.0
+    }
+  },
+  {
+    "requestId": "cl-051",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "pick_up",
+      "object": "pack-a.2"
+    }
+  },
+  {
+    "requestId": "cl-052",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "insert_needle",
+      "needleId": "pack-a.2",
+      "mark": "m2",
+      "angleDeg": 0,
+      "azimuthDeg": 0,
+      "depthCm": 2.0
+    }
+  },
+  {
+    "requestId": "cl-053",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "pick_up",
+      "object": "pack-a.3"
+    }
+  },
+  {
+    "requestId": "cl-054",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "insert_needle",
+      "needleId": "pack-a.3",
+      "mark": "m3",
+      "angleDeg": 0,
+      "azimuthDeg": 0,
+      "depthCm": 2.0
+    }
+  },
+  {
+    "requestId": "cl-055",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "monitor"
+    }
+  },
+  {
+    "requestId": "cl-056",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "wait",
+      "minutes": 10
+    }
+  },
+  {
+    "requestId": "cl-057",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "monitor"
+    }
+  },
+  {
+    "requestId": "cl-058",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "wait",
+      "minutes": 9
+    }
+  },
+  {
+    "requestId": "cl-059",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "monitor"
+    }
+  },
+  {
+    "requestId": "cl-060",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "remove_all_needles"
+    }
+  },
+  {
+    "requestId": "cl-061",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "dispose",
+      "object": "pack-a"
+    }
+  },
+  {
+    "requestId": "cl-062",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "hand_hygiene"
+    }
+  },
+  {
+    "requestId": "cl-063",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "count_needles"
+    }
+  },
+  {
+    "requestId": "cl-064",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "explain",
+      "topics": [
+        "aftercare"
+      ],
+      "text": "Rest a little before you go; keep taking your anti-sickness medicines as prescribed."
+    }
+  },
+  {
+    "requestId": "cl-065",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "document",
+      "record": {
+        "presentingComplaint": "Delayed nausea after chemotherapy cycles.",
+        "assessment": "Chemotherapy-related nausea; counts satisfactory (1 Dec); oncology supportive.",
+        "pattern": "Spleen–stomach deficiency with rebellious stomach qi",
+        "rationale": "PC6 and ST36 as an adjunct to antiemetics.",
+        "consent": "Verbal consent after explanation.",
+        "pointsUsed": [
+          {
+            "point": "PC6",
+            "side": "right"
+          },
+          {
+            "point": "ST36",
+            "side": "right"
+          },
+          {
+            "point": "ST36",
+            "side": "left"
+          }
+        ],
+        "needling": {
+          "needleType": "0.25 × 40 mm single-use sterile filiform",
+          "needleCount": 3,
+          "depth": "PC6 1.0 cm; ST36 2.0 cm",
+          "responseSought": "mild deqi",
+          "stimulation": "even",
+          "retentionMinutes": 20
+        },
+        "response": "Tolerated.",
+        "adverseEvents": "None.",
+        "advice": "Continue antiemetics; small frequent meals.",
+        "followUp": "After the next cycle."
+      }
+    }
+  },
+  {
+    "requestId": "cl-066",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "end_visit"
+    }
+  },
+  {
+    "requestId": "cl-067",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "begin_follow_up"
+    }
+  },
+  {
+    "requestId": "cl-068",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "fu-progress"
+    }
+  },
+  {
+    "requestId": "cl-069",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "fu-new"
+    }
+  },
+  {
+    "requestId": "cl-070",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "decide",
+      "disposition": "treat",
+      "rationale": "Milder nausea this cycle: continue around the last cycle, checking counts first."
+    }
+  },
+  {
+    "requestId": "cl-071",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "document",
+      "record": {
+        "assessment": "Nausea milder after cycle 4.",
+        "response": "Eating small meals from day 3.",
+        "adverseEvents": "None.",
+        "followUp": "One more session; check counts first."
+      }
+    }
+  },
+  {
+    "requestId": "cl-072",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "end_visit"
+    }
+  },
+  {
+    "requestId": "cl-073",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "finish_encounter"
+    }
+  }
+]

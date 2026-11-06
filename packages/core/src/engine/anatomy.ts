@@ -45,7 +45,7 @@ export function regionAccess(region: Region, side: Side, position: Position): Ac
 
 function patientAnatomy(sc: Scenario, regionId: string, side: Side): RegionAnatomy {
   const entry = sc.field.patient.anatomy.regions[regionId];
-  const base: RegionAnatomy = { scale: { u: 1, v: 1 }, subcutaneousScale: 1, landmarks: {}, structures: {} };
+  const base: RegionAnatomy = { scale: { u: 1, v: 1 }, subcutaneousScale: 1, muscleScale: 1, landmarks: {}, structures: {} };
   if (!entry) return base;
   const both = entry.both ?? base;
   const specific = side === "left" ? entry.left : side === "right" ? entry.right : undefined;
@@ -53,12 +53,13 @@ function patientAnatomy(sc: Scenario, regionId: string, side: Side): RegionAnato
   return {
     scale: specific.scale ?? both.scale,
     subcutaneousScale: specific.subcutaneousScale ?? both.subcutaneousScale,
+    muscleScale: specific.muscleScale ?? both.muscleScale,
     landmarks: { ...both.landmarks, ...(specific.landmarks ?? {}) },
     structures: { ...both.structures, ...(specific.structures ?? {}) },
   };
 }
 
-const subcutaneousOf = (layers: readonly Layer[]) => layers.filter((l) => l.tissue === "subcutaneous").reduce((n, l) => n + l.thicknessCm, 0);
+const thicknessOf = (layers: readonly Layer[], tissue: Layer["tissue"]) => layers.filter((l) => l.tissue === tissue).reduce((n, l) => n + l.thicknessCm, 0);
 
 /** Build the patient's region frame. `configuration` defaults to the one their current position gives. */
 export function patientRegion(sc: Scenario, regionId: string, side: Side, configuration: string): PatientRegion {
@@ -76,8 +77,12 @@ export function patientRegion(sc: Scenario, regionId: string, side: Side, config
     return zone ? zone.layers : region.tissue.layers;
   };
   const layersAt = (at: ChartPoint): Layer[] =>
-    refLayersAt(at).map((l) => (l.tissue === "subcutaneous" ? { ...l, thicknessCm: l.thicknessCm * a.subcutaneousScale } : l));
-  const adiposityShift = (at: ChartPoint) => (a.subcutaneousScale - 1) * subcutaneousOf(refLayersAt(at));
+    refLayersAt(at).map((l) => (l.tissue === "subcutaneous" ? { ...l, thicknessCm: l.thicknessCm * a.subcutaneousScale } : l.tissue === "muscle" ? { ...l, thicknessCm: l.thicknessCm * a.muscleScale } : l));
+  // structures below the soft tissues move with the patient's build
+  const adiposityShift = (at: ChartPoint) => {
+    const ref = refLayersAt(at);
+    return (a.subcutaneousScale - 1) * thicknessOf(ref, "subcutaneous") + (a.muscleScale - 1) * thicknessOf(ref, "muscle");
+  };
 
   const landmarkIn = (id: string, cfg: string): ChartPoint | null => {
     const lm = region.landmarks.find((l) => l.id === id);

@@ -1,0 +1,1015 @@
+[
+  {
+    "requestId": "hb-001",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-chief"
+    }
+  },
+  {
+    "requestId": "hb-002",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-character"
+    }
+  },
+  {
+    "requestId": "hb-003",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-frequency"
+    }
+  },
+  {
+    "requestId": "hb-004",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-red-flags"
+    }
+  },
+  {
+    "requestId": "hb-005",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-associated"
+    }
+  },
+  {
+    "requestId": "hb-006",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-triggers"
+    }
+  },
+  {
+    "requestId": "hb-007",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-meds"
+    }
+  },
+  {
+    "requestId": "hb-008",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-pregnancy"
+    }
+  },
+  {
+    "requestId": "hb-009",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-pmh"
+    }
+  },
+  {
+    "requestId": "hb-010",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-acupuncture-before"
+    }
+  },
+  {
+    "requestId": "hb-011",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-meal"
+    }
+  },
+  {
+    "requestId": "hb-012",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-neck"
+    }
+  },
+  {
+    "requestId": "hb-013",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-ice"
+    }
+  },
+  {
+    "requestId": "hb-014",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-tcm"
+    }
+  },
+  {
+    "requestId": "hb-015",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": "treatment-room",
+      "withPatient": true
+    }
+  },
+  {
+    "requestId": "hb-016",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "hand_hygiene"
+    }
+  },
+  {
+    "requestId": "hb-017",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-neuro"
+    }
+  },
+  {
+    "requestId": "hb-018",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-fundi"
+    }
+  },
+  {
+    "requestId": "hb-019",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-neck"
+    }
+  },
+  {
+    "requestId": "hb-020",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-tongue"
+    }
+  },
+  {
+    "requestId": "hb-021",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-pulse-tcm"
+    }
+  },
+  {
+    "requestId": "hb-022",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "observe"
+    }
+  },
+  {
+    "requestId": "hb-023",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_vitals"
+    }
+  },
+  {
+    "requestId": "hb-024",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "assess",
+      "diagnoses": [
+        "tension-type-headache"
+      ],
+      "pattern": "liver-qi-stagnation",
+      "redFlags": [],
+      "rationale": "Bilateral pressing headache, no red flags, normal neurology; stress-related, irritable, wiry pulse."
+    }
+  },
+  {
+    "requestId": "hb-025",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "decide",
+      "disposition": "treat",
+      "rationale": "No red flags; NICE CG150 supports considering a course; review analgesic use with her doctor."
+    }
+  },
+  {
+    "requestId": "hb-026",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "propose_plan",
+      "plan": {
+        "points": [
+          {
+            "point": "GB20",
+            "side": "left"
+          },
+          {
+            "point": "GB20",
+            "side": "right"
+          },
+          {
+            "point": "GB21",
+            "side": "left"
+          },
+          {
+            "point": "GB21",
+            "side": "right"
+          },
+          {
+            "point": "LI4",
+            "side": "left"
+          },
+          {
+            "point": "LI4",
+            "side": "right"
+          }
+        ],
+        "technique": {
+          "method": "manual-filiform",
+          "stimulation": "even",
+          "retentionMinutes": 20
+        },
+        "rationale": "GB20 and GB21 for the neck and shoulder tension; LI4 as a distal point for headache.",
+        "alternatives": [
+          "Exercise, sleep and screen breaks",
+          "A medication review with her doctor (analgesic use about 10 days a month)"
+        ],
+        "followUp": "Weekly for up to ten sessions; review after four."
+      }
+    }
+  },
+  {
+    "requestId": "hb-027",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "explain",
+      "topics": [
+        "procedure",
+        "benefits",
+        "risks",
+        "alternatives",
+        "evidence",
+        "right-to-stop"
+      ],
+      "text": "I suggest acupuncture: six fine single-use sterile needles — at the base of the skull, on the tops of the shoulders and in the hands — for about twenty minutes. For frequent tension-type headaches NICE suggests considering a course of up to ten sessions over five to eight weeks. Risks are small: soreness, bruising, feeling faint; around the neck and shoulders I keep the needles shallow because the lung and blood vessels lie deeper. Other options are regular exercise, sleep and screen breaks, and seeing your doctor about how often you take painkillers. You can tell me to stop at any time."
+    }
+  },
+  {
+    "requestId": "hb-028",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "seek_consent"
+    }
+  },
+  {
+    "requestId": "hb-029",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "position_patient",
+      "position": "prone"
+    }
+  },
+  {
+    "requestId": "hb-030",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "assign_task",
+      "to": "assistant",
+      "kind": "monitor-patient",
+      "params": {
+        "intervalMinutes": 5
+      },
+      "note": "Please check on Ms Chen every five minutes while the needles are in."
+    }
+  },
+  {
+    "requestId": "hb-031",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "neck-shoulder",
+      "side": "left",
+      "landmark": "c7-spinous"
+    }
+  },
+  {
+    "requestId": "hb-032",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "neck-shoulder",
+      "side": "left",
+      "landmark": "acromion-lateral-left"
+    }
+  },
+  {
+    "requestId": "hb-033",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "neck-shoulder",
+      "side": "left",
+      "landmark": "gb20-depression-left"
+    }
+  },
+  {
+    "requestId": "hb-034",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "neck-shoulder",
+      "side": "right",
+      "landmark": "acromion-lateral-right"
+    }
+  },
+  {
+    "requestId": "hb-035",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "neck-shoulder",
+      "side": "right",
+      "landmark": "gb20-depression-right"
+    }
+  },
+  {
+    "requestId": "hb-036",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "mark_point",
+      "target": {
+        "point": "GB20",
+        "side": "left"
+      },
+      "region": "neck-shoulder",
+      "side": "left",
+      "at": {
+        "u": 4.7,
+        "v": 11.88
+      },
+      "method": "landmark"
+    }
+  },
+  {
+    "requestId": "hb-037",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "mark_point",
+      "target": {
+        "point": "GB20",
+        "side": "right"
+      },
+      "region": "neck-shoulder",
+      "side": "right",
+      "at": {
+        "u": -4.7,
+        "v": 11.88
+      },
+      "method": "landmark"
+    }
+  },
+  {
+    "requestId": "hb-038",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "mark_point",
+      "target": {
+        "point": "GB21",
+        "side": "left"
+      },
+      "region": "neck-shoulder",
+      "side": "left",
+      "at": {
+        "u": 8.46,
+        "v": -0.47
+      },
+      "method": "proportional"
+    }
+  },
+  {
+    "requestId": "hb-039",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "mark_point",
+      "target": {
+        "point": "GB21",
+        "side": "right"
+      },
+      "region": "neck-shoulder",
+      "side": "right",
+      "at": {
+        "u": -8.46,
+        "v": -0.47
+      },
+      "method": "proportional"
+    }
+  },
+  {
+    "requestId": "hb-040",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "hand-dorsum",
+      "side": "left",
+      "landmark": "mc2-head"
+    }
+  },
+  {
+    "requestId": "hb-041",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "hand-dorsum",
+      "side": "left",
+      "landmark": "mc2-base"
+    }
+  },
+  {
+    "requestId": "hb-042",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "mark_point",
+      "target": {
+        "point": "LI4",
+        "side": "left"
+      },
+      "region": "hand-dorsum",
+      "side": "left",
+      "at": {
+        "u": 2.79,
+        "v": 3.09
+      },
+      "method": "landmark"
+    }
+  },
+  {
+    "requestId": "hb-043",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "hand-dorsum",
+      "side": "right",
+      "landmark": "mc2-head"
+    }
+  },
+  {
+    "requestId": "hb-044",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "hand-dorsum",
+      "side": "right",
+      "landmark": "mc2-base"
+    }
+  },
+  {
+    "requestId": "hb-045",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "mark_point",
+      "target": {
+        "point": "LI4",
+        "side": "right"
+      },
+      "region": "hand-dorsum",
+      "side": "right",
+      "at": {
+        "u": 2.79,
+        "v": 3.09
+      },
+      "method": "landmark"
+    }
+  },
+  {
+    "requestId": "hb-046",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": "prep-area"
+    }
+  },
+  {
+    "requestId": "hb-047",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "hand_hygiene"
+    }
+  },
+  {
+    "requestId": "hb-048",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "fetch",
+      "item": "pack-a"
+    }
+  },
+  {
+    "requestId": "hb-049",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "fetch",
+      "item": "pack-b"
+    }
+  },
+  {
+    "requestId": "hb-050",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": "treatment-room"
+    }
+  },
+  {
+    "requestId": "hb-051",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "prepare_site",
+      "region": "neck-shoulder",
+      "side": "left"
+    }
+  },
+  {
+    "requestId": "hb-052",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "prepare_site",
+      "region": "neck-shoulder",
+      "side": "right"
+    }
+  },
+  {
+    "requestId": "hb-053",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "prepare_site",
+      "region": "hand-dorsum",
+      "side": "left"
+    }
+  },
+  {
+    "requestId": "hb-054",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "prepare_site",
+      "region": "hand-dorsum",
+      "side": "right"
+    }
+  },
+  {
+    "requestId": "hb-055",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "open_pack",
+      "packId": "pack-a"
+    }
+  },
+  {
+    "requestId": "hb-056",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "open_pack",
+      "packId": "pack-b"
+    }
+  },
+  {
+    "requestId": "hb-057",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "pick_up",
+      "object": "pack-a.1"
+    }
+  },
+  {
+    "requestId": "hb-058",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "insert_needle",
+      "needleId": "pack-a.1",
+      "mark": "m1",
+      "angleDeg": 20,
+      "azimuthDeg": 270,
+      "depthCm": 1.6
+    }
+  },
+  {
+    "requestId": "hb-059",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "pick_up",
+      "object": "pack-a.2"
+    }
+  },
+  {
+    "requestId": "hb-060",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "insert_needle",
+      "needleId": "pack-a.2",
+      "mark": "m2",
+      "angleDeg": 20,
+      "azimuthDeg": 90,
+      "depthCm": 1.6
+    }
+  },
+  {
+    "requestId": "hb-061",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "pick_up",
+      "object": "pack-a.3"
+    }
+  },
+  {
+    "requestId": "hb-062",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "insert_needle",
+      "needleId": "pack-a.3",
+      "mark": "m3",
+      "angleDeg": 0,
+      "azimuthDeg": 90,
+      "depthCm": 1.8
+    }
+  },
+  {
+    "requestId": "hb-063",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "pick_up",
+      "object": "pack-a.4"
+    }
+  },
+  {
+    "requestId": "hb-064",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "insert_needle",
+      "needleId": "pack-a.4",
+      "mark": "m4",
+      "angleDeg": 0,
+      "azimuthDeg": 270,
+      "depthCm": 1.8
+    }
+  },
+  {
+    "requestId": "hb-065",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "pick_up",
+      "object": "pack-a.5"
+    }
+  },
+  {
+    "requestId": "hb-066",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "insert_needle",
+      "needleId": "pack-a.5",
+      "mark": "m5",
+      "angleDeg": 0,
+      "azimuthDeg": 0,
+      "depthCm": 1.5
+    }
+  },
+  {
+    "requestId": "hb-067",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "pick_up",
+      "object": "pack-b.1"
+    }
+  },
+  {
+    "requestId": "hb-068",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "insert_needle",
+      "needleId": "pack-b.1",
+      "mark": "m6",
+      "angleDeg": 0,
+      "azimuthDeg": 0,
+      "depthCm": 1.5
+    }
+  },
+  {
+    "requestId": "hb-069",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "monitor"
+    }
+  },
+  {
+    "requestId": "hb-070",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "wait",
+      "minutes": 10
+    }
+  },
+  {
+    "requestId": "hb-071",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "monitor"
+    }
+  },
+  {
+    "requestId": "hb-072",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "wait",
+      "minutes": 9
+    }
+  },
+  {
+    "requestId": "hb-073",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "monitor"
+    }
+  },
+  {
+    "requestId": "hb-074",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "remove_all_needles"
+    }
+  },
+  {
+    "requestId": "hb-075",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "dispose",
+      "object": "pack-a"
+    }
+  },
+  {
+    "requestId": "hb-076",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "dispose",
+      "object": "pack-b"
+    }
+  },
+  {
+    "requestId": "hb-077",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "hand_hygiene"
+    }
+  },
+  {
+    "requestId": "hb-078",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "count_needles"
+    }
+  },
+  {
+    "requestId": "hb-079",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "explain",
+      "topics": [
+        "aftercare"
+      ],
+      "text": "Sit up slowly; drink some water. A little soreness is normal."
+    }
+  },
+  {
+    "requestId": "hb-080",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "document",
+      "record": {
+        "presentingComplaint": "Headaches most days for four months.",
+        "assessment": "Chronic tension-type headache; no red flags; analgesic use about 10 days a month.",
+        "pattern": "Liver qi stagnation",
+        "rationale": "Local GB20/GB21 and distal LI4; NICE CG150 supports considering a course.",
+        "consent": "Verbal consent after explanation.",
+        "pointsUsed": [
+          {
+            "point": "GB20",
+            "side": "left"
+          },
+          {
+            "point": "GB20",
+            "side": "right"
+          },
+          {
+            "point": "GB21",
+            "side": "left"
+          },
+          {
+            "point": "GB21",
+            "side": "right"
+          },
+          {
+            "point": "LI4",
+            "side": "left"
+          },
+          {
+            "point": "LI4",
+            "side": "right"
+          }
+        ],
+        "needling": {
+          "needleType": "0.25 × 40 mm single-use sterile filiform",
+          "needleCount": 6,
+          "depth": "GB20 1.6 cm towards the nose; GB21 1.8 cm perpendicular; LI4 1.5 cm",
+          "responseSought": "deqi",
+          "stimulation": "even",
+          "retentionMinutes": 20
+        },
+        "response": "Tolerated.",
+        "adverseEvents": "None.",
+        "advice": "Screen breaks, sleep, exercise; medication review with her doctor.",
+        "followUp": "Weekly; review after four sessions."
+      }
+    }
+  },
+  {
+    "requestId": "hb-081",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "end_visit"
+    }
+  },
+  {
+    "requestId": "hb-082",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "begin_follow_up"
+    }
+  },
+  {
+    "requestId": "hb-083",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "fu-progress"
+    }
+  },
+  {
+    "requestId": "hb-084",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "fu-new"
+    }
+  },
+  {
+    "requestId": "hb-085",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": "treatment-room",
+      "withPatient": true
+    }
+  },
+  {
+    "requestId": "hb-086",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "fu-ex-neck"
+    }
+  },
+  {
+    "requestId": "hb-087",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "decide",
+      "disposition": "treat",
+      "rationale": "Improving: continue the course."
+    }
+  },
+  {
+    "requestId": "hb-088",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "document",
+      "record": {
+        "assessment": "Improving tension-type headache.",
+        "response": "Two milder headaches this week.",
+        "adverseEvents": "None.",
+        "followUp": "Continue weekly."
+      }
+    }
+  },
+  {
+    "requestId": "hb-089",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "end_visit"
+    }
+  },
+  {
+    "requestId": "hb-090",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "finish_encounter"
+    }
+  }
+]

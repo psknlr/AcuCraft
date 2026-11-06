@@ -241,11 +241,11 @@
           },
           {
             "tissue": "subcutaneous",
-            "thicknessCm": 0.8
+            "thicknessCm": 1.0
           },
           {
             "tissue": "muscle",
-            "thicknessCm": 2.2,
+            "thicknessCm": 1.8,
             "label": "trapezius and supraspinatus"
           },
           {
@@ -278,11 +278,11 @@
           },
           {
             "tissue": "subcutaneous",
-            "thicknessCm": 0.8
+            "thicknessCm": 1.0
           },
           {
             "tissue": "muscle",
-            "thicknessCm": 2.2,
+            "thicknessCm": 1.8,
             "label": "trapezius and supraspinatus"
           },
           {

@@ -1,0 +1,239 @@
+{
+  "schema": "acucraft/variant@1",
+  "id": "cauda-equina",
+  "title": "Saddle numbness and urinary retention",
+  "kind": "red-flag",
+  "purpose": "A red flag: after lifting, bilateral leg symptoms, saddle numbness and urinary retention — suspected cauda equina syndrome. Emergency referral without needling is the only acceptable course.",
+  "case": {
+    "patient": {
+      "chiefComplaint": "Back pain much worse for two days, after lifting a box",
+      "persona": {
+        "affect": "anxious",
+        "openingLine": "Doctor, my back got much worse after I lifted a box — and something feels wrong with my legs."
+      }
+    },
+    "history": [
+      {
+        "id": "hx-chief",
+        "answer": "My back has ached for months, but two days ago I lifted a heavy box and it got much worse."
+      },
+      {
+        "id": "hx-onset",
+        "answer": "It suddenly got much worse two days ago, after lifting a box."
+      },
+      {
+        "id": "hx-radiation",
+        "answer": "Since yesterday both legs feel heavy, and the backs of my thighs are numb."
+      },
+      {
+        "id": "hx-cauda",
+        "answer": "Now that you ask — since this morning it's numb around my bottom, and I haven't been able to pass urine properly."
+      },
+      {
+        "id": "hx-weakness",
+        "answer": "My legs feel weaker, especially going down stairs."
+      }
+    ],
+    "exam": [
+      {
+        "id": "ex-neuro",
+        "finding": "Reduced sensation over the saddle area and the backs of both thighs; ankle reflexes reduced on both sides.",
+        "abnormal": true
+      },
+      {
+        "id": "ex-slr",
+        "finding": "Positive on both sides at about 40°.",
+        "abnormal": true
+      }
+    ],
+    "debrief": {
+      "title": "Suspected cauda equina syndrome",
+      "conclusion": "Saddle anaesthesia, urinary retention and bilateral leg symptoms after lifting: an emergency referral without needling.",
+      "keyReasoning": [
+        "Saddle anaesthesia and bladder dysfunction are red flags for cauda equina syndrome.",
+        "Delay risks permanent loss of bladder, bowel and sexual function."
+      ],
+      "teachingPoints": [
+        "Ask every back-pain patient about saddle numbness and bladder or bowel change.",
+        "Refer to the Emergency Department at once."
+      ]
+    }
+  },
+  "field": {
+    "patient": {
+      "anxiety": 0.7,
+      "ashi": [
+        {
+          "id": "ashi-right-l45",
+          "$remove": true
+        }
+      ]
+    },
+    "evaluation": {
+      "pathways": [
+        {
+          "id": "p-treat",
+          "$remove": true
+        },
+        {
+          "id": "p-decline-signpost",
+          "$remove": true
+        },
+        {
+          "id": "p-emergency-unindicated",
+          "$remove": true
+        },
+        {
+          "id": "p-emergency-referral",
+          "label": "Emergency referral, no needling",
+          "acceptable": true,
+          "when": {
+            "all": [
+              {
+                "referred": {
+                  "to": [
+                    "emergency"
+                  ],
+                  "urgency": [
+                    "emergency"
+                  ]
+                }
+              },
+              {
+                "needlesInserted": {
+                  "lte": 0
+                }
+              },
+              {
+                "visitEnded": 1
+              }
+            ]
+          }
+        },
+        {
+          "id": "p-not-emergency",
+          "label": "Referred, but not as an emergency",
+          "acceptable": false,
+          "when": {
+            "all": [
+              {
+                "referred": {
+                  "urgency": [
+                    "routine",
+                    "soon",
+                    "urgent"
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "referred": {
+                    "urgency": [
+                      "emergency"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "p-treated",
+          "label": "Acupuncture given",
+          "acceptable": false,
+          "when": {
+            "needlesInserted": {
+              "gte": 1
+            }
+          }
+        }
+      ],
+      "diagnoses": {
+        "expected": {
+          "$replace": [
+            "cauda-equina-syndrome"
+          ]
+        },
+        "acceptable": {
+          "$replace": [
+            "lumbar-radiculopathy"
+          ]
+        }
+      },
+      "patterns": {
+        "$replace": {
+          "defensible": [],
+          "implausible": []
+        }
+      },
+      "redFlags": {
+        "$replace": [
+          {
+            "id": "saddle-anaesthesia",
+            "present": true
+          },
+          {
+            "id": "bladder-bowel-dysfunction",
+            "present": true
+          },
+          {
+            "id": "progressive-neuro-deficit",
+            "present": true
+          }
+        ]
+      },
+      "points": {
+        "$replace": {
+          "recommended": [],
+          "acceptable": [],
+          "avoid": [],
+          "maxNeedles": 1
+        }
+      },
+      "criticalErrors": [
+        {
+          "id": "ce-needled-cauda",
+          "label": "Needled a patient with suspected cauda equina syndrome",
+          "when": {
+            "needlesInserted": {
+              "gte": 1
+            }
+          }
+        },
+        {
+          "id": "ce-no-emergency-referral",
+          "label": "No emergency referral for suspected cauda equina syndrome",
+          "when": {
+            "all": [
+              {
+                "visitEnded": 1
+              },
+              {
+                "not": {
+                  "referred": {
+                    "urgency": [
+                      "emergency"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "required": {
+        "$replace": {
+          "history": [
+            "hx-radiation",
+            "hx-cauda"
+          ],
+          "exam": [
+            "ex-neuro"
+          ],
+          "records": []
+        }
+      },
+      "followUp": null
+    }
+  }
+}

@@ -65,6 +65,8 @@ export interface NeedleState {
     entry: ChartPoint;
     target: PointRef | null;
     mark: string | null;
+    /** The mark had moved with the skin (made in another position) when the needle went in. */
+    markStale: boolean;
     requestedDepthCm: number;
     depthCm: number;
     angleDeg: number;

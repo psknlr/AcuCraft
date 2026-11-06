@@ -1,0 +1,33 @@
+{
+  "schema": "acucraft/family@1",
+  "id": "sg-tension-headache",
+  "version": "0.1.0",
+  "title": "Headaches · 29-year-old woman",
+  "summary": "A 29-year-old accountant with frequent headaches asks whether acupuncture could help.",
+  "condition": "tension-type-headache",
+  "split": "dev",
+  "provenance": {
+    "kind": "synthetic",
+    "authors": [
+      "AcuCraft content team"
+    ],
+    "review": {
+      "status": "unreviewed",
+      "reviewers": [],
+      "notes": "Clinical, anatomical and regulatory content to be reviewed by TCM, anatomy and Singapore practice experts."
+    }
+  },
+  "case": "case.json",
+  "field": "field.json",
+  "variants": [
+    {
+      "id": "base"
+    },
+    {
+      "id": "faint"
+    },
+    {
+      "id": "slim"
+    }
+  ]
+}

@@ -1,0 +1,678 @@
+{
+  "schema": "clinicalcraft/case@1",
+  "id": "sg-tension-headache",
+  "version": "0.1.0",
+  "title": "Headaches · 29-year-old woman",
+  "summary": "A 29-year-old accountant with frequent headaches asks whether acupuncture could help.",
+  "specialty": [
+    "tcm-acupuncture",
+    "neurology"
+  ],
+  "difficulty": 3,
+  "setting": "outpatient",
+  "facility": "sg-tcm-outpatient",
+  "locales": [
+    "en"
+  ],
+  "estimatedMinutes": 45,
+  "learningOutcomes": [
+    "Screen headache for red flags (thunderclap onset, neurological signs, fever, new headache after 50) before offering acupuncture",
+    "Needle GB20 and GB21 at angles and depths that respect the vertebral artery, the medulla and the lung apex, adjusted to the patient's build",
+    "Recognise and manage a vasovagal reaction during treatment: stop, remove the needles, lie the patient flat and observe"
+  ],
+  "tags": [
+    "acucraft",
+    "singapore",
+    "headache"
+  ],
+  "provenance": {
+    "kind": "synthetic",
+    "authors": [
+      "AcuCraft content team"
+    ],
+    "license": "MIT",
+    "notes": "A fictional teaching case. The name and every detail are invented.",
+    "review": {
+      "status": "unreviewed",
+      "reviewers": [],
+      "guidelines": [
+        "NICE CG150 (headaches in over 12s)"
+      ],
+      "notes": "AI-assisted authoring; not reviewed by a TCM practitioner or a clinician. Review before teaching use."
+    }
+  },
+  "disclaimer": "Simulation for education and agent evaluation. Not clinical advice.",
+  "patient": {
+    "displayName": "Ms Chen Hui Min",
+    "age": 29,
+    "sex": "female",
+    "weightKg": 55,
+    "heightCm": 162,
+    "chiefComplaint": "Headaches most days for four months",
+    "triageNote": "Asks about acupuncture for her headaches.",
+    "tags": [
+      "headache"
+    ],
+    "persona": {
+      "personality": "Conscientious, tired, a little anxious.",
+      "speechStyle": "Quiet Singapore English.",
+      "healthLiteracy": "high",
+      "affect": "calm",
+      "openingLine": "Hello doctor. I keep getting these headaches.",
+      "fallbackUnknown": "Hmm, I'm not sure.",
+      "concerns": [
+        "Her aunt had a brain tumour."
+      ]
+    },
+    "posture": "sitting",
+    "appearance": {
+      "build": "average"
+    }
+  },
+  "phases": [
+    {
+      "id": "visit-1",
+      "label": "First visit",
+      "description": "Friday 13:30 at the clinic.",
+      "learnerSwitchable": false
+    },
+    {
+      "id": "follow-up",
+      "label": "Follow-up visit",
+      "description": "One week later, same clinic.",
+      "learnerSwitchable": false,
+      "enterWhen": {
+        "flag": "acu.visit-2"
+      }
+    }
+  ],
+  "initialPhase": "visit-1",
+  "clock": {
+    "mode": "simulated",
+    "startTime": "13:30",
+    "actionCosts": {
+      "ask": 1,
+      "examine": 2,
+      "order": 0,
+      "read": 1,
+      "intervene": 1,
+      "answer": 0
+    }
+  },
+  "history": [
+    {
+      "id": "hx-chief",
+      "topic": "presenting-complaint",
+      "question": "What brings you in today?",
+      "answer": "I've been getting headaches most days for about four months.",
+      "keywords": [
+        "what brings you",
+        "come in today",
+        "main problem"
+      ],
+      "disclosure": "volunteer",
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-character",
+      "topic": "pain",
+      "question": "Where is the headache and what does it feel like?",
+      "answer": "Like a tight band around my head and the back of my neck — a dull pressure on both sides.",
+      "keywords": [
+        "where",
+        "what does it feel like",
+        "character",
+        "describe",
+        "band",
+        "throbbing"
+      ],
+      "disclosure": "on-ask",
+      "required": true,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-frequency",
+      "topic": "hpi",
+      "question": "How often do you get them, and how long do they last?",
+      "answer": "Fifteen to twenty days a month, a few hours each time, usually by the afternoon.",
+      "keywords": [
+        "how often",
+        "frequency",
+        "how long",
+        "last",
+        "days a month"
+      ],
+      "disclosure": "on-ask",
+      "required": true,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-red-flags",
+      "topic": "ros",
+      "question": "Has any headache come on suddenly and severely, or with fever, weakness, numbness, vision changes or confusion?",
+      "answer": "No, never sudden or the worst ever. No fever, no weakness or numbness, and my eyesight is fine.",
+      "keywords": [
+        "sudden",
+        "worst",
+        "thunderclap",
+        "fever",
+        "weakness",
+        "numbness",
+        "vision",
+        "confusion"
+      ],
+      "disclosure": "on-ask",
+      "required": true,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-associated",
+      "topic": "associated-symptoms",
+      "question": "Any nausea, or sensitivity to light or sound?",
+      "answer": "No nausea. Bright screens bother me a little.",
+      "keywords": [
+        "nausea",
+        "vomit",
+        "light",
+        "sound",
+        "aura"
+      ],
+      "disclosure": "on-ask",
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-triggers",
+      "topic": "hpi",
+      "question": "What brings them on?",
+      "answer": "Long hours at the computer, stress before month-end, and poor sleep.",
+      "keywords": [
+        "trigger",
+        "bring on",
+        "cause",
+        "stress",
+        "worse"
+      ],
+      "disclosure": "on-ask",
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-meds",
+      "topic": "medications",
+      "question": "What medicines do you take — including painkillers, blood thinners or supplements?",
+      "answer": "Panadol Extra about ten days a month, and the contraceptive pill. No blood thinners.",
+      "keywords": [
+        "medicine",
+        "medication",
+        "tablets",
+        "painkillers",
+        "blood thinner",
+        "panadol"
+      ],
+      "disclosure": "on-ask",
+      "required": true,
+      "phases": [
+        "visit-1"
+      ],
+      "safety": {
+        "datum": "anticoagulation",
+        "finding": "negative"
+      }
+    },
+    {
+      "id": "hx-pregnancy",
+      "topic": "obstetric",
+      "question": "Is there any chance you could be pregnant?",
+      "answer": "No — I'm on the pill.",
+      "keywords": [
+        "pregnant",
+        "pregnancy",
+        "period"
+      ],
+      "disclosure": "on-ask",
+      "required": true,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-pmh",
+      "topic": "pmh",
+      "question": "Any other medical conditions?",
+      "answer": "None.",
+      "keywords": [
+        "medical history",
+        "conditions",
+        "illnesses"
+      ],
+      "disclosure": "on-ask",
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-acupuncture-before",
+      "topic": "other",
+      "question": "Have you had acupuncture before? How do you feel about needles?",
+      "answer": "I had it once years ago; it was fine. I'm okay with needles.",
+      "keywords": [
+        "acupuncture before",
+        "needles",
+        "nervous",
+        "faint"
+      ],
+      "disclosure": "on-ask",
+      "required": true,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-meal",
+      "topic": "other",
+      "question": "Have you eaten today?",
+      "answer": "Yes, I had lunch an hour ago.",
+      "keywords": [
+        "eaten",
+        "lunch",
+        "meal",
+        "breakfast",
+        "food today"
+      ],
+      "disclosure": "on-ask",
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-neck",
+      "topic": "pain",
+      "question": "Any stiffness in your neck or shoulders?",
+      "answer": "Yes, my shoulders are always tight.",
+      "keywords": [
+        "neck",
+        "shoulders",
+        "stiff",
+        "tight"
+      ],
+      "disclosure": "on-ask",
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-ice",
+      "topic": "ice",
+      "question": "What worries you about the headaches?",
+      "answer": "My aunt had a brain tumour, so I do worry. I just want them to stop.",
+      "keywords": [
+        "worried",
+        "concern",
+        "afraid",
+        "hope"
+      ],
+      "disclosure": "on-ask",
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-tcm",
+      "topic": "other",
+      "question": "How are your mood, sleep and appetite?",
+      "answer": "I'm irritable when stressed and my sleep is light. Appetite is fine.",
+      "keywords": [
+        "mood",
+        "emotions",
+        "sleep",
+        "appetite",
+        "irritable"
+      ],
+      "disclosure": "on-ask",
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "fu-progress",
+      "topic": "hpi",
+      "question": "How have the headaches been since the treatment?",
+      "answer": "Fewer — two headaches this week, and milder.",
+      "keywords": [
+        "since",
+        "last treatment",
+        "how have",
+        "better",
+        "progress"
+      ],
+      "disclosure": "on-ask",
+      "required": true,
+      "phases": [
+        "follow-up"
+      ]
+    },
+    {
+      "id": "fu-new",
+      "topic": "ros",
+      "question": "Any new symptoms since last time?",
+      "answer": "No, nothing new.",
+      "keywords": [
+        "new symptoms",
+        "anything new",
+        "new problems"
+      ],
+      "disclosure": "on-ask",
+      "required": false,
+      "phases": [
+        "follow-up"
+      ]
+    }
+  ],
+  "exam": [
+    {
+      "id": "ex-neuro",
+      "system": "neurological",
+      "maneuver": "Brief neurological examination (cranial nerves, limbs, gait)",
+      "keywords": [
+        "neurological",
+        "cranial nerves",
+        "power",
+        "reflexes",
+        "gait",
+        "neuro"
+      ],
+      "finding": "Normal cranial nerves, limb power, reflexes, coordination and gait.",
+      "abnormal": false,
+      "required": true,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "ex-fundi",
+      "system": "heent",
+      "maneuver": "Fundoscopy",
+      "keywords": [
+        "fundoscopy",
+        "fundi",
+        "optic disc",
+        "ophthalmoscope"
+      ],
+      "finding": "Optic discs appear normal on both sides.",
+      "abnormal": false,
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "ex-neck",
+      "system": "musculoskeletal",
+      "maneuver": "Palpate the neck and shoulders",
+      "keywords": [
+        "palpate",
+        "neck",
+        "shoulders",
+        "trapezius",
+        "tender"
+      ],
+      "finding": "Tight, tender upper trapezius on both sides and tender suboccipital muscles; full neck movement.",
+      "abnormal": true,
+      "required": true,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "ex-tongue",
+      "system": "general",
+      "maneuver": "Inspect the tongue",
+      "keywords": [
+        "tongue"
+      ],
+      "finding": "Slightly red tongue edges with a thin white coat.",
+      "abnormal": false,
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "ex-pulse-tcm",
+      "system": "general",
+      "maneuver": "Feel the radial pulses (TCM pulse diagnosis)",
+      "keywords": [
+        "pulse diagnosis",
+        "radial pulse",
+        "pulses"
+      ],
+      "finding": "Wiry pulse.",
+      "abnormal": false,
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "fu-ex-neck",
+      "system": "musculoskeletal",
+      "maneuver": "Re-examine the neck and shoulders",
+      "keywords": [
+        "re-examine",
+        "neck",
+        "shoulders"
+      ],
+      "finding": "Upper trapezius less tender.",
+      "abnormal": false,
+      "required": false,
+      "phases": [
+        "follow-up"
+      ]
+    }
+  ],
+  "examNotRecorded": "Nothing remarkable is recorded for that examination in this case.",
+  "investigations": [],
+  "physiology": {
+    "baseline": {
+      "hr": 74,
+      "sbp": 112,
+      "dbp": 70,
+      "rr": 14,
+      "spo2": 99,
+      "temp": 36.6,
+      "pain": 3
+    },
+    "noise": 0.5,
+    "events": [
+      {
+        "id": "pe-vasovagal",
+        "when": {
+          "flag": "acu.vasovagal"
+        },
+        "setVitals": {
+          "hr": 48,
+          "sbp": 82,
+          "dbp": 50
+        },
+        "severity": "warning",
+        "speaker": "narrator",
+        "message": "The patient has gone pale and sweaty and says they feel faint."
+      },
+      {
+        "id": "pe-recovered",
+        "when": {
+          "all": [
+            {
+              "flag": "acu.vasovagal"
+            },
+            {
+              "flag": "acu.lying"
+            },
+            {
+              "not": {
+                "flag": "acu.needles-in"
+              }
+            }
+          ]
+        },
+        "setVitals": {
+          "hr": 70,
+          "sbp": 116,
+          "dbp": 72
+        },
+        "severity": "info",
+        "speaker": "narrator",
+        "message": "Lying flat with the needles out, the patient's colour is returning."
+      }
+    ]
+  },
+  "objectives": [
+    {
+      "id": "obj-history",
+      "title": "Characterise the headache and screen for red flags",
+      "hint": "Character, frequency, red flags, medicines (analgesic use), pregnancy.",
+      "completeWhen": {
+        "all": [
+          {
+            "asked": "hx-character"
+          },
+          {
+            "asked": "hx-red-flags"
+          },
+          {
+            "asked": "hx-meds"
+          }
+        ]
+      },
+      "waypoints": [
+        {
+          "target": "patient"
+        }
+      ]
+    },
+    {
+      "id": "obj-exam",
+      "title": "Examine",
+      "hint": "A neurological screen and the neck and shoulders.",
+      "completeWhen": {
+        "all": [
+          {
+            "examined": "ex-neuro"
+          },
+          {
+            "examined": "ex-neck"
+          }
+        ]
+      },
+      "waypoints": [
+        {
+          "target": "patient"
+        }
+      ]
+    },
+    {
+      "id": "obj-close",
+      "title": "Close the encounter safely",
+      "hint": "Every needle accounted for, the record written.",
+      "completeWhen": {
+        "flag": "acu.finished"
+      },
+      "waypoints": []
+    }
+  ],
+  "decisions": [],
+  "rubric": [
+    {
+      "id": "rb-red-flags",
+      "domain": "history",
+      "text": "Screened for headache red flags",
+      "weight": 2,
+      "met": {
+        "asked": "hx-red-flags"
+      },
+      "critical": true
+    },
+    {
+      "id": "rb-neuro",
+      "domain": "examination",
+      "text": "Neurological screen",
+      "weight": 2,
+      "met": {
+        "examined": "ex-neuro"
+      }
+    }
+  ],
+  "npcs": [],
+  "debrief": {
+    "title": "Chronic tension-type headache",
+    "conclusion": "Chronic tension-type headache without red flags; NICE CG150 says to consider a course of up to 10 acupuncture sessions over 5–8 weeks for prophylaxis. Note the analgesic use (about 10 days a month): a medication-overuse review with her doctor is worthwhile.",
+    "keyReasoning": [
+      "Bilateral pressing headache without nausea or red flags; normal neurology."
+    ],
+    "teachingPoints": [
+      "Never needle GB20 deeply upwards and medially, nor GB21 deeply perpendicular.",
+      "A seated, hungry or anxious patient is prone to faint: lie them down, and stop at the first sign."
+    ],
+    "references": [
+      "NICE CG150"
+    ],
+    "notice": "Teaching-script measure, not a validated competency score."
+  },
+  "unknowns": [
+    "Imaging (none done)"
+  ],
+  "assets": [],
+  "solution": [
+    {
+      "type": "start"
+    },
+    {
+      "type": "ask",
+      "itemId": "hx-character"
+    },
+    {
+      "type": "ask",
+      "itemId": "hx-red-flags"
+    },
+    {
+      "type": "ask",
+      "itemId": "hx-meds"
+    },
+    {
+      "type": "examine",
+      "findingId": "ex-neuro"
+    },
+    {
+      "type": "examine",
+      "findingId": "ex-neck"
+    },
+    {
+      "type": "flag",
+      "flag": "acu.finished"
+    }
+  ],
+  "extensions": {
+    "acucraft": {
+      "field": "field.json"
+    }
+  }
+}
