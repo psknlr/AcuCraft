@@ -83,7 +83,7 @@ Add an agent by implementing `Agent` (`packages/bench/src/agents/types.ts`): `ne
 Families, never instances, are split into **dev** and **held-out** (`family.json` `split`): a family's variants,
 paraphrases and follow-ups stay together. Repeated runs of one family are not new independent cases: suite reports give
 the Wilson interval over episodes **and** a percentile bootstrap that resamples families (seeded, so reports are
-reproducible). The pilot pack has four families (three dev, one held-out): every result is feasibility-scale.
+reproducible). The pilot pack has five families (three dev, two held-out): every result is feasibility-scale.
 
 Comparisons between agents should hold constant the observation access (assessment or teaching mode), the case
 versions (`family.version`, `engine` in the log), the tools, the step budget (`maxSteps`), the assistance and the
@@ -96,11 +96,11 @@ inference budget.
 | split | families | episodes | success |
 |---|---|---|---|
 | dev | 3 | 9 | 8/9 |
-| held-out | 1 | 3 | 3/3 |
+| held-out | 2 | 6 | 6/6 |
 
 The one failure is designed: on `sg-tension-headache/slim` the protocol agent's textbook GB21 depth reaches the apical
 pleura of a very slim patient. The guard blocks the insertion and the evaluator records the blocked attempt as a
-critical error. The reference agent succeeds on all 12 instances. No live-model results are included: this repository
+critical error. The reference agent succeeds on all 15 instances. No live-model results are included: this repository
 was built without API access, and the Claude agent's loop is tested against a mock client only.
 
 ## 8. Validation before interpretation

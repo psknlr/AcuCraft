@@ -1,0 +1,842 @@
+[
+  {
+    "requestId": "ib-001",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-chief"
+    }
+  },
+  {
+    "requestId": "ib-002",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-sleep"
+    }
+  },
+  {
+    "requestId": "ib-003",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-onset"
+    }
+  },
+  {
+    "requestId": "ib-004",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-mood"
+    }
+  },
+  {
+    "requestId": "ib-005",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-self-harm"
+    }
+  },
+  {
+    "requestId": "ib-006",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-daytime"
+    }
+  },
+  {
+    "requestId": "ib-007",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-snoring"
+    }
+  },
+  {
+    "requestId": "ib-008",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-caffeine"
+    }
+  },
+  {
+    "requestId": "ib-009",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-pmh"
+    }
+  },
+  {
+    "requestId": "ib-010",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-meds"
+    }
+  },
+  {
+    "requestId": "ib-011",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-acupuncture-before"
+    }
+  },
+  {
+    "requestId": "ib-012",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-tcm"
+    }
+  },
+  {
+    "requestId": "ib-013",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-ice"
+    }
+  },
+  {
+    "requestId": "ib-014",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "review_result",
+      "investigationId": "inv-gp-note"
+    }
+  },
+  {
+    "requestId": "ib-015",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": "treatment-room",
+      "withPatient": true
+    }
+  },
+  {
+    "requestId": "ib-016",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "hand_hygiene"
+    }
+  },
+  {
+    "requestId": "ib-017",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-general"
+    }
+  },
+  {
+    "requestId": "ib-018",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-skin"
+    }
+  },
+  {
+    "requestId": "ib-019",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-tongue"
+    }
+  },
+  {
+    "requestId": "ib-020",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-pulse-tcm"
+    }
+  },
+  {
+    "requestId": "ib-021",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_vitals"
+    }
+  },
+  {
+    "requestId": "ib-022",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "assess",
+      "diagnoses": [
+        "insomnia"
+      ],
+      "pattern": "heart-spleen-deficiency",
+      "redFlags": [],
+      "rationale": "Sleep-onset and early waking under stress; dreams, palpitations, poor appetite, fatigue; pale tongue with teeth marks, thin weak pulse. Mood reactive; no self-harm thoughts."
+    }
+  },
+  {
+    "requestId": "ib-023",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "decide",
+      "disposition": "treat",
+      "rationale": "No red flags; acupuncture with sleep-hygiene advice."
+    }
+  },
+  {
+    "requestId": "ib-024",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "propose_plan",
+      "plan": {
+        "points": [
+          {
+            "point": "HT7",
+            "side": "left"
+          },
+          {
+            "point": "HT7",
+            "side": "right"
+          },
+          {
+            "point": "SP6",
+            "side": "left"
+          },
+          {
+            "point": "SP6",
+            "side": "right"
+          }
+        ],
+        "technique": {
+          "method": "manual-filiform",
+          "stimulation": "even",
+          "retentionMinutes": 20
+        },
+        "rationale": "HT7 and SP6 to calm the spirit and support heart and spleen.",
+        "alternatives": [
+          "Sleep hygiene and less caffeine",
+          "Review by his doctor (CBT for insomnia)"
+        ],
+        "followUp": "Review in one week."
+      }
+    }
+  },
+  {
+    "requestId": "ib-025",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "explain",
+      "topics": [
+        "procedure",
+        "benefits",
+        "risks",
+        "alternatives",
+        "right-to-stop"
+      ],
+      "text": "I suggest acupuncture: four fine single-use sterile needles — at the inner wrist and the inner lower leg on each side — for about twenty minutes. It may help you relax and sleep; the evidence is limited. Risks are small: soreness, bruising, feeling faint. Just as important: no kopi after lunch, a regular bedtime, and don't drive when you feel sleepy. If it doesn't improve, your doctor can help further. You can tell me to stop at any time."
+    }
+  },
+  {
+    "requestId": "ib-026",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "seek_consent"
+    }
+  },
+  {
+    "requestId": "ib-027",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "position_patient",
+      "position": "supine-knee-flexed"
+    }
+  },
+  {
+    "requestId": "ib-028",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "assign_task",
+      "to": "assistant",
+      "kind": "monitor-patient",
+      "params": {
+        "intervalMinutes": 5
+      },
+      "note": "Please check on Mr Ong every five minutes while the needles are in."
+    }
+  },
+  {
+    "requestId": "ib-029",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "forearm",
+      "side": "left",
+      "landmark": "fcu-radial-wrist"
+    }
+  },
+  {
+    "requestId": "ib-030",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "mark_point",
+      "target": {
+        "point": "HT7",
+        "side": "left"
+      },
+      "region": "forearm",
+      "side": "left",
+      "at": {
+        "u": -3.09,
+        "v": 0.0
+      },
+      "method": "landmark"
+    }
+  },
+  {
+    "requestId": "ib-031",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "forearm",
+      "side": "right",
+      "landmark": "fcu-radial-wrist"
+    }
+  },
+  {
+    "requestId": "ib-032",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "mark_point",
+      "target": {
+        "point": "HT7",
+        "side": "right"
+      },
+      "region": "forearm",
+      "side": "right",
+      "at": {
+        "u": -3.09,
+        "v": 0.0
+      },
+      "method": "landmark"
+    }
+  },
+  {
+    "requestId": "ib-033",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "knee-leg",
+      "side": "left",
+      "landmark": "medial-malleolus"
+    }
+  },
+  {
+    "requestId": "ib-034",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "knee-leg",
+      "side": "left",
+      "landmark": "medial-condyle-inferior"
+    }
+  },
+  {
+    "requestId": "ib-035",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "measure",
+      "region": "knee-leg",
+      "side": "left",
+      "segment": "seg.sp9-medial-malleolus"
+    }
+  },
+  {
+    "requestId": "ib-036",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "mark_point",
+      "target": {
+        "point": "SP6",
+        "side": "left"
+      },
+      "region": "knee-leg",
+      "side": "left",
+      "at": {
+        "u": -5.94,
+        "v": -29.29
+      },
+      "method": "proportional"
+    }
+  },
+  {
+    "requestId": "ib-037",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "knee-leg",
+      "side": "right",
+      "landmark": "medial-malleolus"
+    }
+  },
+  {
+    "requestId": "ib-038",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "knee-leg",
+      "side": "right",
+      "landmark": "medial-condyle-inferior"
+    }
+  },
+  {
+    "requestId": "ib-039",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "measure",
+      "region": "knee-leg",
+      "side": "right",
+      "segment": "seg.sp9-medial-malleolus"
+    }
+  },
+  {
+    "requestId": "ib-040",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "mark_point",
+      "target": {
+        "point": "SP6",
+        "side": "right"
+      },
+      "region": "knee-leg",
+      "side": "right",
+      "at": {
+        "u": -5.94,
+        "v": -29.29
+      },
+      "method": "proportional"
+    }
+  },
+  {
+    "requestId": "ib-041",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": "prep-area"
+    }
+  },
+  {
+    "requestId": "ib-042",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "hand_hygiene"
+    }
+  },
+  {
+    "requestId": "ib-043",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "fetch",
+      "item": "pack-a"
+    }
+  },
+  {
+    "requestId": "ib-044",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": "treatment-room"
+    }
+  },
+  {
+    "requestId": "ib-045",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "prepare_site",
+      "region": "forearm",
+      "side": "left"
+    }
+  },
+  {
+    "requestId": "ib-046",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "prepare_site",
+      "region": "forearm",
+      "side": "right"
+    }
+  },
+  {
+    "requestId": "ib-047",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "prepare_site",
+      "region": "knee-leg",
+      "side": "left"
+    }
+  },
+  {
+    "requestId": "ib-048",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "prepare_site",
+      "region": "knee-leg",
+      "side": "right"
+    }
+  },
+  {
+    "requestId": "ib-049",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "open_pack",
+      "packId": "pack-a"
+    }
+  },
+  {
+    "requestId": "ib-050",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "pick_up",
+      "object": "pack-a.1"
+    }
+  },
+  {
+    "requestId": "ib-051",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "insert_needle",
+      "needleId": "pack-a.1",
+      "mark": "m1",
+      "angleDeg": 0,
+      "azimuthDeg": 0,
+      "depthCm": 0.5
+    }
+  },
+  {
+    "requestId": "ib-052",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "pick_up",
+      "object": "pack-a.2"
+    }
+  },
+  {
+    "requestId": "ib-053",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "insert_needle",
+      "needleId": "pack-a.2",
+      "mark": "m2",
+      "angleDeg": 0,
+      "azimuthDeg": 0,
+      "depthCm": 0.5
+    }
+  },
+  {
+    "requestId": "ib-054",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "pick_up",
+      "object": "pack-a.3"
+    }
+  },
+  {
+    "requestId": "ib-055",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "insert_needle",
+      "needleId": "pack-a.3",
+      "mark": "m3",
+      "angleDeg": 0,
+      "azimuthDeg": 0,
+      "depthCm": 1.5
+    }
+  },
+  {
+    "requestId": "ib-056",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "pick_up",
+      "object": "pack-a.4"
+    }
+  },
+  {
+    "requestId": "ib-057",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "insert_needle",
+      "needleId": "pack-a.4",
+      "mark": "m4",
+      "angleDeg": 0,
+      "azimuthDeg": 0,
+      "depthCm": 1.5
+    }
+  },
+  {
+    "requestId": "ib-058",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "monitor"
+    }
+  },
+  {
+    "requestId": "ib-059",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "wait",
+      "minutes": 10
+    }
+  },
+  {
+    "requestId": "ib-060",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "monitor"
+    }
+  },
+  {
+    "requestId": "ib-061",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "wait",
+      "minutes": 9
+    }
+  },
+  {
+    "requestId": "ib-062",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "monitor"
+    }
+  },
+  {
+    "requestId": "ib-063",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "remove_all_needles"
+    }
+  },
+  {
+    "requestId": "ib-064",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "dispose",
+      "object": "pack-a"
+    }
+  },
+  {
+    "requestId": "ib-065",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "hand_hygiene"
+    }
+  },
+  {
+    "requestId": "ib-066",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "count_needles"
+    }
+  },
+  {
+    "requestId": "ib-067",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "explain",
+      "topics": [
+        "aftercare"
+      ],
+      "text": "Go home and rest; don't drive if you feel drowsy."
+    }
+  },
+  {
+    "requestId": "ib-068",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "document",
+      "record": {
+        "presentingComplaint": "Poor sleep for three months.",
+        "assessment": "Stress-related insomnia; mood reactive; no thoughts of self-harm; advised not to drive when sleepy.",
+        "pattern": "Heart and spleen deficiency",
+        "rationale": "HT7 and SP6 with sleep-hygiene advice.",
+        "consent": "Verbal consent after explanation.",
+        "pointsUsed": [
+          {
+            "point": "HT7",
+            "side": "left"
+          },
+          {
+            "point": "HT7",
+            "side": "right"
+          },
+          {
+            "point": "SP6",
+            "side": "left"
+          },
+          {
+            "point": "SP6",
+            "side": "right"
+          }
+        ],
+        "needling": {
+          "needleType": "0.25 × 40 mm single-use sterile filiform",
+          "needleCount": 4,
+          "depth": "HT7 0.5 cm; SP6 1.5 cm",
+          "responseSought": "mild deqi",
+          "stimulation": "even",
+          "retentionMinutes": 20
+        },
+        "response": "Tolerated; relaxed.",
+        "adverseEvents": "None.",
+        "advice": "No caffeine after lunch; regular bedtime; do not drive when sleepy.",
+        "followUp": "Review in one week."
+      }
+    }
+  },
+  {
+    "requestId": "ib-069",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "end_visit"
+    }
+  },
+  {
+    "requestId": "ib-070",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "begin_follow_up"
+    }
+  },
+  {
+    "requestId": "ib-071",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "fu-progress"
+    }
+  },
+  {
+    "requestId": "ib-072",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "fu-new"
+    }
+  },
+  {
+    "requestId": "ib-073",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "decide",
+      "disposition": "treat",
+      "rationale": "Improving: continue weekly with sleep hygiene."
+    }
+  },
+  {
+    "requestId": "ib-074",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "document",
+      "record": {
+        "assessment": "Insomnia improving; mood okay.",
+        "response": "Falls asleep within 30 minutes on some nights.",
+        "adverseEvents": "None.",
+        "followUp": "Weekly for three more sessions."
+      }
+    }
+  },
+  {
+    "requestId": "ib-075",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "end_visit"
+    }
+  },
+  {
+    "requestId": "ib-076",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "finish_encounter"
+    }
+  }
+]

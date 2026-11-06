@@ -1,0 +1,160 @@
+[
+  {
+    "requestId": "il-001",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-chief"
+    }
+  },
+  {
+    "requestId": "il-002",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-sleep"
+    }
+  },
+  {
+    "requestId": "il-003",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-onset"
+    }
+  },
+  {
+    "requestId": "il-004",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-mood"
+    }
+  },
+  {
+    "requestId": "il-005",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-self-harm"
+    }
+  },
+  {
+    "requestId": "il-006",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-daytime"
+    }
+  },
+  {
+    "requestId": "il-007",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-meds"
+    }
+  },
+  {
+    "requestId": "il-008",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": "treatment-room",
+      "withPatient": true
+    }
+  },
+  {
+    "requestId": "il-009",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-general"
+    }
+  },
+  {
+    "requestId": "il-010",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "assess",
+      "diagnoses": [
+        "depressive-episode"
+      ],
+      "redFlags": [
+        "suicidal-ideation"
+      ],
+      "rationale": "Hopelessness, anhedonia and suicidal thoughts with a method (crashing the taxi)."
+    }
+  },
+  {
+    "requestId": "il-011",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "decide",
+      "disposition": "refer",
+      "rationale": "Suicide risk with a method: same-day urgent help; no acupuncture."
+    }
+  },
+  {
+    "requestId": "il-012",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "say",
+      "to": "patient",
+      "text": "Thank you for telling me, Mr Ong. What you're feeling needs proper help today, not acupuncture. I'd like you to be seen at the hospital now — we'll call your wife to come with you. Please don't drive."
+    }
+  },
+  {
+    "requestId": "il-013",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "refer",
+      "to": "emergency",
+      "urgency": "emergency",
+      "reason": "Depressive symptoms with suicidal thoughts and a method (crashing his taxi); needs same-day assessment."
+    }
+  },
+  {
+    "requestId": "il-014",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "document",
+      "record": {
+        "presentingComplaint": "Poor sleep for three months.",
+        "assessment": "Depressive episode with suicidal thoughts and a method. No acupuncture.",
+        "advice": "Not to drive; accompanied to hospital.",
+        "followUp": "Emergency referral; family informed."
+      }
+    }
+  },
+  {
+    "requestId": "il-015",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "end_visit"
+    }
+  },
+  {
+    "requestId": "il-016",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "finish_encounter"
+    }
+  }
+]

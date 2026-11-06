@@ -1,0 +1,347 @@
+{
+  "schema": "acucraft/field@1",
+  "clinic": "sg-tcm-outpatient",
+  "roles": "sg-tcm-clinic",
+  "ruleSeries": [
+    "sg-tcmpb-acupuncture-advisory",
+    "acucraft-sg-clinic-protocol",
+    "sg-tcmpb-acupuncture-treatment-methods"
+  ],
+  "visits": [
+    {
+      "index": 1,
+      "phase": "visit-1",
+      "date": "2026-12-14",
+      "label": "First visit"
+    },
+    {
+      "index": 2,
+      "phase": "follow-up",
+      "date": "2026-12-21",
+      "label": "Follow-up visit (one week later)"
+    }
+  ],
+  "cast": [
+    {
+      "id": "practitioner",
+      "role": "tcm-physician",
+      "name": "TCM physician (you)",
+      "agent": "under-test",
+      "location": "consult-room"
+    },
+    {
+      "id": "assistant",
+      "role": "clinic-assistant",
+      "name": "Ms Nur Aisyah (clinic assistant)",
+      "agent": "npc",
+      "policy": "support-default",
+      "location": "treatment-room"
+    }
+  ],
+  "patient": {
+    "id": "patient",
+    "location": "consult-room",
+    "position": "seated",
+    "riskFactors": [],
+    "anxiety": 0.45,
+    "anatomy": {
+      "fingerCunCm": 2.05,
+      "regions": {
+        "knee-leg": {
+          "both": {
+            "scale": {
+              "u": 1.03,
+              "v": 0.97
+            }
+          }
+        },
+        "forearm": {
+          "both": {
+            "scale": {
+              "u": 1.03,
+              "v": 1.0
+            }
+          }
+        }
+      }
+    },
+    "siteConditions": [],
+    "ashi": [],
+    "consent": {
+      "requiredTopics": [
+        "procedure",
+        "risks",
+        "alternatives"
+      ],
+      "agree": "Okay, doctor, can.",
+      "questions": "Got any risk? And what else can I do for the sleep?"
+    }
+  },
+  "regions": [
+    "forearm",
+    "knee-leg"
+  ],
+  "equipment": {
+    "packs": [
+      {
+        "id": "pack-a",
+        "at": "shelf",
+        "count": 5,
+        "needle": {
+          "diameterMm": 0.25,
+          "lengthMm": 40,
+          "singleUse": true,
+          "sterile": true
+        }
+      },
+      {
+        "id": "pack-b",
+        "at": "shelf",
+        "count": 5,
+        "needle": {
+          "diameterMm": 0.25,
+          "lengthMm": 40,
+          "singleUse": true,
+          "sterile": true
+        }
+      }
+    ]
+  },
+  "safety": {
+    "guard": "block-critical"
+  },
+  "events": [],
+  "evaluation": {
+    "pathways": [
+      {
+        "id": "p-treat",
+        "label": "Treat after informed consent, with sleep-hygiene advice and driving safety",
+        "acceptable": true,
+        "when": {
+          "all": [
+            {
+              "disposition": [
+                "treat",
+                "treat-modified"
+              ],
+              "visit": 1
+            },
+            {
+              "needlesInserted": {
+                "gte": 1
+              }
+            },
+            {
+              "explained": "alternatives"
+            },
+            {
+              "clinical": {
+                "asked": "hx-self-harm"
+              }
+            },
+            {
+              "not": {
+                "unsafe": "insertion-without-consent"
+              }
+            },
+            {
+              "visitEnded": 1
+            }
+          ]
+        }
+      },
+      {
+        "id": "p-decline-signpost",
+        "label": "Decline or defer, with sleep advice and signposting",
+        "acceptable": true,
+        "when": {
+          "all": [
+            {
+              "disposition": [
+                "decline",
+                "defer",
+                "refer"
+              ],
+              "visit": 1
+            },
+            {
+              "needlesInserted": {
+                "lte": 0
+              }
+            },
+            {
+              "any": [
+                {
+                  "referred": {
+                    "to": [
+                      "gp"
+                    ]
+                  }
+                },
+                {
+                  "explained": "alternatives"
+                }
+              ]
+            },
+            {
+              "visitEnded": 1
+            }
+          ]
+        }
+      },
+      {
+        "id": "p-treat-unscreened",
+        "label": "Treated without asking about thoughts of self-harm",
+        "acceptable": false,
+        "when": {
+          "all": [
+            {
+              "needlesInserted": {
+                "gte": 1
+              }
+            },
+            {
+              "not": {
+                "clinical": {
+                  "asked": "hx-self-harm"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "p-emergency-unindicated",
+        "label": "Emergency referral without an indication",
+        "acceptable": false,
+        "when": {
+          "referred": {
+            "urgency": [
+              "emergency"
+            ]
+          }
+        }
+      }
+    ],
+    "diagnoses": {
+      "expected": [
+        "insomnia"
+      ],
+      "acceptable": []
+    },
+    "patterns": {
+      "defensible": [
+        "heart-spleen-deficiency",
+        "liver-qi-stagnation",
+        "heart-kidney-disharmony"
+      ],
+      "implausible": [
+        "damp-heat-bi",
+        "wind-cold-damp-bi"
+      ]
+    },
+    "redFlags": [
+      {
+        "id": "suicidal-ideation",
+        "present": false
+      }
+    ],
+    "points": {
+      "recommended": [
+        {
+          "point": "HT7"
+        },
+        {
+          "point": "SP6"
+        }
+      ],
+      "acceptable": [
+        {
+          "point": "PC6"
+        },
+        {
+          "point": "ST36"
+        },
+        {
+          "point": "Yintang",
+          "side": "midline"
+        },
+        {
+          "point": "GV20",
+          "side": "midline"
+        },
+        {
+          "point": "KI3"
+        },
+        {
+          "point": "LR3"
+        }
+      ],
+      "avoid": [],
+      "maxNeedles": 8
+    },
+    "criticalErrors": [],
+    "required": {
+      "history": [
+        "hx-sleep",
+        "hx-mood",
+        "hx-self-harm",
+        "hx-daytime",
+        "hx-meds"
+      ],
+      "exam": [
+        "ex-general"
+      ],
+      "records": []
+    },
+    "monitoring": {
+      "maxGapMinutes": 10,
+      "respondWithinMinutes": 2
+    },
+    "followUp": {
+      "pathways": [
+        {
+          "id": "fu-review",
+          "label": "Review sleep and mood; continue, adjust or stop",
+          "acceptable": true,
+          "when": {
+            "all": [
+              {
+                "clinical": {
+                  "asked": "fu-progress"
+                }
+              },
+              {
+                "clinical": {
+                  "asked": "fu-new"
+                }
+              },
+              {
+                "disposition": [
+                  "treat",
+                  "treat-modified",
+                  "defer",
+                  "decline"
+                ],
+                "visit": 2
+              },
+              {
+                "visitEnded": 2
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "documentation": [
+      "assessment",
+      "rationale",
+      "pointsUsed",
+      "needling",
+      "response",
+      "followUp"
+    ]
+  },
+  "solution": [],
+  "alternatives": []
+}

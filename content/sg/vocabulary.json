@@ -75,6 +75,14 @@
     {
       "id": "vasovagal-reaction",
       "label": "Vasovagal reaction"
+    },
+    {
+      "id": "depressive-episode",
+      "label": "Depressive episode"
+    },
+    {
+      "id": "insomnia",
+      "label": "Insomnia"
     }
   ],
   "patterns": [
@@ -137,6 +145,11 @@
       "id": "heart-spleen-deficiency",
       "label": "Heart and spleen deficiency",
       "zh": "心脾两虚"
+    },
+    {
+      "id": "heart-kidney-disharmony",
+      "label": "Disharmony of heart and kidney",
+      "zh": "心肾不交"
     }
   ],
   "redFlags": [
@@ -187,6 +200,10 @@
     {
       "id": "trauma",
       "label": "Significant trauma"
+    },
+    {
+      "id": "suicidal-ideation",
+      "label": "Thoughts of self-harm or suicide"
     }
   ]
 }

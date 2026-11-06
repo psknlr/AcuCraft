@@ -12,7 +12,7 @@ import type { Agent, AgentInit, AgentTurn } from "./types.js";
  * shows where adaptation (build, position, events) matters.
  */
 
-type Complaint = "knee" | "back" | "headache" | "nausea" | "unknown";
+type Complaint = "knee" | "back" | "headache" | "nausea" | "sleep" | "unknown";
 type Side = "left" | "right" | "midline";
 
 interface Protocol {
@@ -77,6 +77,7 @@ export function protocolAgent(): Agent {
   let fainted = false;
   let retried = new Set<string>();
   let discomfortHandled = false;
+  let withdrawn = false;
   let lastIssued: ActionInput | null = null;
   let declined = false;
   let anticoagulated = false;
@@ -88,7 +89,7 @@ export function protocolAgent(): Agent {
   const push = (...a: ActionInput[]) => queue.push(...a);
 
   function detect(v: AgentView): void {
-    const classify = (t: string): Complaint => (/knee/.test(t) ? "knee" : /headache/.test(t) ? "headache" : /nause|chemo/.test(t) ? "nausea" : /\bback\b/.test(t) ? "back" : "unknown");
+    const classify = (t: string): Complaint => (/knee/.test(t) ? "knee" : /headache/.test(t) ? "headache" : /nause|chemo/.test(t) ? "nausea" : /sleep|insomnia/.test(t) ? "sleep" : /\bback\b/.test(t) ? "back" : "unknown");
     // the presenting complaint decides; the answers only when it says nothing recognisable
     complaint = classify(v.patient.presenting.toLowerCase());
     if (complaint === "unknown") complaint = classify(v.record.history.map((h) => h.answer).join(" ").toLowerCase());
@@ -101,6 +102,7 @@ export function protocolAgent(): Agent {
     if (complaint === "knee") q.push("Has the knee been swollen, red or hot?", "Does the knee lock or give way?", "What treatment have you had so far?");
     if (complaint === "back") q.push("Does the pain go down your leg — any numbness or tingling?", "Any numbness around your groin or bottom, or trouble passing urine or opening your bowels?", "Any weakness in your legs?");
     if (complaint === "headache") q.push("How often do you get them, and how long do they last?", "Has any headache come on suddenly and severely, or with weakness, numbness, vision changes or confusion?", "Have you eaten today?");
+    if (complaint === "sleep") q.push("Tell me about your sleep — falling asleep, waking, how many hours.", "How has your mood been — any low mood, or losing interest in things?", "Have you had any thoughts that life isn't worth living, or of harming yourself?", "How does it affect you in the day — do you get sleepy while driving?", "How much coffee, tea or alcohol do you have?");
     if (complaint === "nausea") q.push("Tell me about the nausea — when it comes and how bad it is.", "Does your oncology team know you'd like acupuncture?", "Any fever, chills or signs of infection?", "What surgery have you had — were any lymph nodes removed, and is there any arm swelling?");
     q.push("What other medical conditions do you have?", "What medicines do you take — including blood thinners or supplements?", "Do you bruise or bleed easily?");
     if (v.patient.sex === "female" && v.patient.age >= 14 && v.patient.age <= 50) q.push("Is there any chance you could be pregnant?");
@@ -118,6 +120,8 @@ export function protocolAgent(): Agent {
         return ["Brief neurological examination", "Palpate the neck and shoulders", "Inspect the tongue"];
       case "nausea":
         return ["Examine both arms and hands, including for swelling", "Examine the legs", "Inspect the tongue"];
+      case "sleep":
+        return ["General inspection", "Examine the skin of the arms and legs", "Inspect the tongue"];
       default:
         return ["General inspection"];
     }
@@ -132,6 +136,7 @@ export function protocolAgent(): Agent {
     if (/(haven't been able|unable|can't|cannot) to pass urine|incontinen|retention/.test(t.toLowerCase())) out.push("bladder-bowel-dysfunction");
     if (complaint === "back" && positive(t, /legs? (feel )?(heavy|weak)|reflexes reduced|weaker/)) out.push("progressive-neuro-deficit");
     if (complaint === "headache" && positive(t, /sudden\w* (and )?(severe|worst)|worst (headache )?ever|thunderclap/)) out.push("thunderclap-headache");
+    if (positive(t, /better off without me|kill myself|harm(ing)? myself|end (my life|it all)|crashing the taxi|not worth living/)) out.push("suicidal-ideation");
     if (/neutrophils 0\.\d|neutrophils 1\.[0-4]|platelets [1-9]\d? ×|\(low\)/.test(t.toLowerCase()) || (complaint === "nausea" && positive(t, /\bfever\b/))) out.push("fever-on-chemotherapy");
     return out;
   }
@@ -149,6 +154,8 @@ export function protocolAgent(): Agent {
         return { points: [...lr("GB20"), ...lr("GB21"), ...lr("LI4")], position: "prone", diagnosis: "tension-type-headache", region: ["neck-shoulder", "hand-dorsum"] };
       case "nausea":
         return { points: [...lr("PC6"), ...lr("ST36")], position: "supine-knee-flexed", diagnosis: "chemotherapy-nausea", region: ["forearm", "knee-leg"] };
+      case "sleep":
+        return { points: [...lr("HT7"), ...lr("SP6")], position: "supine-knee-flexed", diagnosis: "insomnia", region: ["forearm", "knee-leg"] };
       default:
         void v;
         return { points: [], position: "seated", diagnosis: "", region: [] };
@@ -161,6 +168,7 @@ export function protocolAgent(): Agent {
     if (complaint === "back") return /tired|weak/.test(t) ? "kidney-yang-deficiency" : "qi-blood-stagnation";
     if (complaint === "headache") return /irritable|stress/.test(t) ? "liver-qi-stagnation" : "liver-yang-rising";
     if (complaint === "nausea") return /appetite|tired|loose/.test(t) ? "spleen-stomach-deficiency" : "stomach-qi-rebellion";
+    if (complaint === "sleep") return /appetite|tired|palpitation|heart races|dreams/.test(t) ? "heart-spleen-deficiency" : "liver-qi-stagnation";
     return undefined;
   }
 
@@ -393,7 +401,14 @@ export function protocolAgent(): Agent {
       // the patient's state comes first, whatever the stage
       const lines = newPatientLines(v);
       if (["insert", "retain"].includes(stage) || (stage === "plan" && needled.length > 0)) {
-        if (!fainted && (v.patient.appearance.includes("faint") || lines.some((l) => /faint|dizzy|grey|going to be sick/i.test(l)))) faint();
+        if (!withdrawn && (v.patient.consent === "withdrawn" || lines.some((l) => /\bstop\b.*\b(take them out|don't want)|take (them|the needles) out|don'?t want any more/i.test(l)))) {
+          // the patient withdraws consent: stop at once, every needle out, no more needling
+          withdrawn = true;
+          adverse.push("The patient withdrew consent during the procedure: stopped and every needle removed.");
+          queue.length = 0;
+          push({ type: "stop_treatment", reason: "the patient withdrew consent" }, { type: "remove_all_needles" }, { type: "say", to: "patient", text: "Of course — I'm taking them all out now. We'll stop here." }, { type: "monitor" });
+          stage = "close";
+        } else if (!fainted && (v.patient.appearance.includes("faint") || lines.some((l) => /faint|dizzy|grey|going to be sick/i.test(l)))) faint();
         else if (lines.some((l) => /sharp|burn|electric|shock|hurts/i.test(l)) && !discomfortHandled && needled.length > 0) {
           const last = needled[needled.length - 1]!;
           adverse.push(`Discomfort at ${last.needle}: withdrawn.`);
@@ -430,7 +445,7 @@ export function protocolAgent(): Agent {
             redFlags = findRedFlags(v);
             if (redFlags.length > 0) {
               const onc = redFlags.includes("fever-on-chemotherapy") && !positive(text(v), /\bfever\b/);
-              const dx = complaint === "knee" ? "septic-arthritis" : complaint === "back" ? "cauda-equina-syndrome" : complaint === "nausea" ? "neutropenia" : "secondary-headache";
+              const dx = complaint === "knee" ? "septic-arthritis" : complaint === "back" ? "cauda-equina-syndrome" : complaint === "nausea" ? "neutropenia" : complaint === "sleep" ? "depressive-episode" : "secondary-headache";
               push(
                 { type: "assess", diagnoses: [dx], redFlags, rationale: `Red flags: ${redFlags.join(", ")}.` },
                 { type: "decide", disposition: onc ? "defer" : "refer", rationale: "Red flags: no acupuncture." },
@@ -496,7 +511,7 @@ export function protocolAgent(): Agent {
             break;
           case "ended":
             if (!v.finished && v.setting.visit < v.setting.visits && needled.length > 0) {
-              push({ type: "begin_follow_up" }, { type: "ask", text: "How have things been since the last treatment?" }, { type: "ask", text: "Any new problems since last time?" }, { type: "decide", disposition: fainted ? "treat-modified" : "treat", rationale: fainted ? "Continue lying down, after a meal, given last week's faint." : "Review: continue the course." }, { type: "document", record: { assessment: "Follow-up review.", followUp: "Continue the course." } }, { type: "end_visit" });
+              push({ type: "begin_follow_up" }, { type: "ask", text: "How have things been since the last treatment?" }, { type: "ask", text: "Any new problems since last time?" }, { type: "decide", disposition: withdrawn ? "decline" : fainted ? "treat-modified" : "treat", rationale: withdrawn ? "He stopped the treatment last time: no needles; other options." : fainted ? "Continue lying down, after a meal, given last week's faint." : "Review: continue the course." }, { type: "document", record: { assessment: "Follow-up review.", followUp: "Continue the course." } }, { type: "end_visit" });
               stage = "follow-up-ended";
             } else {
               push({ type: "finish_encounter" });

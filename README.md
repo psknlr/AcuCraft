@@ -7,7 +7,7 @@ deferral and referral are all valid outcomes), consent, localisation on this pat
 completion, documentation and a follow-up visit. An independent evaluator scores the complete trajectory.
 
 > **Status: first implementation milestone of the design proposal.** The engine, the evaluator and a pilot content pack
-> (4 case families × 3 variants) are implemented and tested. **All clinical, anatomical and regulatory content is
+> (5 case families × 3 variants) are implemented and tested. **All clinical, anatomical and regulatory content is
 > AI-assisted and unreviewed**: the regional anatomy is schematic, the Singapore rule encodings have not been checked
 > against the source documents, and no institution is involved. Scores are teaching-script measures for simulation
 > research — not validated competency scores and not evidence of clinical effectiveness.
@@ -68,7 +68,7 @@ npm run bench -- --agent claude --split dev
 | `packages/core` — `@acucraft/core` | schemas; scenario resolution (family + variant overlays); patient-specific anatomy, proportional (B-cun) localisation and needle path assessment; the deterministic encounter engine over ClinicalCraft's clinical session; needle lifecycle and invariants; roles, versioned rules and the simulation guard; consent; delegation and NPC policies; field events; replay; the agent view |
 | `packages/bench` — `@acucraft/bench` | content loader; the independent evaluator (primary endpoint, five tracks, critical errors, unsafe attempts executed/blocked, adjudication, STRICTA-informed documentation); agents (reference oracle, rule-based protocol, Claude); runner; suites; statistics; reports |
 | `packages/cli` — `acucraft` | `validate`, `list`, `show`, `locate`, `run`, `play`, `replay`, `evaluate`, `bench`, `export-clinicalcraft` |
-| `content/` | 3 standard editions, 41 versioned point definitions (21 localised), 5 regional models, Singapore roles, 3 rule-set series, the clinic, vocabulary, guideline evidence, 4 families, the pilot suite |
+| `content/` | 3 standard editions, 41 versioned point definitions (21 localised), 5 regional models, Singapore roles, 3 rule-set series, the clinic, vocabulary, guideline evidence, 5 families, the pilot suite |
 | `tools/` | `bootstrap.sh` (the pinned engine), `check.sh` (what CI runs), `locate.ts`, `content/` (family authoring scripts) |
 
 ### The case families
@@ -79,6 +79,7 @@ npm run bench -- --agent claude --split dev
 | `sg-low-back-pain` — 34, office worker | dev | base (dated 2027: the newer TCMPB advisory version is in force) · cauda equina (emergency referral) · 24 weeks pregnant (no prone positioning, cautioned points) |
 | `sg-tension-headache` — 29, accountant | dev | base · declines to lie face down, hasn't eaten, faints when treated sitting · very slim build (the pleura under GB21 within 2 cm) |
 | `sg-chemo-nausea` — 52, on chemotherapy | held-out | base · lymphoedematous left arm · neutropenia and thrombocytopenia on the latest count (defer, liaise with oncology) |
+| `sg-insomnia` — 54, taxi driver | held-out | base · withdraws consent after two needles · low mood with suicidal thoughts (same-day urgent help) |
 
 Every variant has a reference trajectory that reaches an acceptable pathway, and each family's base course fails every
 other variant of the family (both are tested).
@@ -95,16 +96,16 @@ other variant of the family (both are tested).
 | §7 shared action system for all characters; observable delegation; deterministic control; seeded events; replay from recorded outputs; four records per request | yes ([ARCHITECTURE.md](docs/ARCHITECTURE.md)) | LLM-voiced patient and assistant (the patient answers from authored facts) |
 | §8 fixed case state, investigation sequence, "not provided or not modelled" | yes (ClinicalCraft records and turnaround) | |
 | §9 primary endpoint, separate reports, five tracks, multiple pathways, adjudication, family splits, clustering | yes ([EVALUATION.md](docs/EVALUATION.md)) | expert review; the four experiments need live-model runs |
-| §10 MVP: ~40 families, 120 instances, 30–40 points, 4–6 regions | 4 families, 12 instances; 41 points (21 localised); 5 regions; practitioner, patient and support roles; the clinic; interruptions, abnormal sensations, bleeding, a syncope-like event, a dropped needle (tests); UI (CLI), action API, case format, replay, reports | 36 more families; a graphical UI |
+| §10 MVP: ~40 families, 120 instances, 30–40 points, 4–6 regions | 5 families (3 dev, 2 held-out), 15 instances; 41 points (21 localised); 5 regions; practitioner, patient and support roles; the clinic; interruptions, abnormal sensations, bleeding, a syncope-like event, consent withdrawn mid-procedure, a dropped needle (tests); UI (CLI), action API, case format, replay, reports | 35 more families; a graphical UI |
 | §13 release acceptance criteria | each one is an executable test (`packages/bench/src/acceptance.test.ts`) | |
 
 Electroacupuncture, moxibustion and haptics are out of scope for this release, as the proposal plans.
 
 ## Baseline result
 
-`npm run bench -- --agent protocol` (pilot-v1, seed 1): **11/12** encounters succeed (dev 8/9, held-out 3/3). The one
+`npm run bench -- --agent protocol` (pilot-v1, seed 1): **14/15** encounters succeed (dev 8/9, held-out 6/6). The one
 failure is designed. On the slim-build headache variant the agent's textbook GB21 depth would reach the pleura. The
-guard blocks it and the blocked attempt counts as a critical error. The reference oracle succeeds on 12/12. There are no live-model results: this release was built without API access, and the Claude agent's loop is tested against a mock client.
+guard blocks it and the blocked attempt counts as a critical error. The reference oracle succeeds on 15/15. There are no live-model results: this release was built without API access, and the Claude agent's loop is tested against a mock client.
 
 ## Documentation
 
