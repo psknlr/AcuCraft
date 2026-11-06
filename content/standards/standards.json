@@ -1,0 +1,62 @@
+{
+  "schema": "acucraft/standards@1",
+  "version": "0.1.0",
+  "editions": [
+    {
+      "id": "who-wpro-2008",
+      "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region",
+      "publisher": "World Health Organization, Regional Office for the Western Pacific",
+      "year": 2008,
+      "kind": "location-standard",
+      "meridianPointCount": 361,
+      "source": {
+        "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region",
+        "publisher": "WHO WPRO",
+        "publishedAt": "2008",
+        "url": "https://iris.who.int/bitstream/handle/10665/353407/9789290613831-eng.pdf",
+        "verified": false,
+        "note": "Cited by the design proposal. The point count (361) and the proportional-bone (B-cun) method are as the proposal states; the location texts in content/acupoints are paraphrases written without access to the document in this session and must be checked against it."
+      },
+      "use": "Anatomical location and terminology reference for the 361 meridian points. Not a source of Singapore practice requirements and not a source of safe needling depths."
+    },
+    {
+      "id": "gb-t-12346-2021",
+      "title": "GB/T 12346-2021 Nomenclature and location of meridian points (经穴名称与定位)",
+      "publisher": "State Administration for Market Regulation / Standardization Administration of China",
+      "year": 2021,
+      "kind": "national-standard",
+      "meridianPointCount": 362,
+      "source": {
+        "title": "GB/T 12346-2021",
+        "publishedAt": "2021",
+        "verified": false,
+        "note": "Cited by the design proposal for its 362 meridian points. AcuCraft records the commonly reported reason for the difference (Yintang assigned to the Governor Vessel); verify before relying on it."
+      },
+      "use": "Comparison edition: point identity and codes where it differs from the WHO 2008 standard."
+    },
+    {
+      "id": "who-1991-nomenclature",
+      "title": "A Proposed Standard International Acupuncture Nomenclature",
+      "publisher": "World Health Organization",
+      "year": 1991,
+      "kind": "nomenclature-standard",
+      "source": {
+        "title": "A Proposed Standard International Acupuncture Nomenclature: report of a WHO Scientific Group",
+        "publisher": "WHO",
+        "publishedAt": "1991",
+        "verified": false,
+        "note": "Source of the EX- codes of extra points (EX-LE2, EX-LE4, EX-HN3, EX-HN5), which the 2008 location standard does not cover."
+      },
+      "use": "Codes and names of extra points."
+    }
+  ],
+  "differences": [
+    {
+      "id": "yintang-reclassified",
+      "editions": ["who-wpro-2008", "gb-t-12346-2021"],
+      "summary": "Yintang is an extra point (EX-HN3) outside the WHO 2008 standard's 361 meridian points; GB/T 12346-2021 is reported to list it on the Governor Vessel (GV29), which accounts for its 362 points.",
+      "points": ["Yintang"],
+      "verified": false
+    }
+  ]
+}

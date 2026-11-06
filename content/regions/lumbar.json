@@ -1,0 +1,435 @@
+{
+  "schema": "acucraft/region@1",
+  "id": "lumbar",
+  "version": "0.1.0",
+  "title": "lower back",
+  "laterality": "midline",
+  "chart": {
+    "description": "The back from the sacrum to the spines of the scapulae, seen from behind. u: distance (cm) from the posterior midline, positive towards the patient's LEFT. v: distance (cm) cranial from the inferior border of the L4 spinous process. d: depth below the skin (cm).",
+    "uRange": [
+      -16,
+      16
+    ],
+    "vRange": [
+      -10,
+      44
+    ]
+  },
+  "configurations": [
+    {
+      "id": "prone",
+      "label": "prone, a pillow under the abdomen"
+    },
+    {
+      "id": "side-lying",
+      "label": "side-lying, hips and knees flexed"
+    },
+    {
+      "id": "seated-forward",
+      "label": "seated, leaning forward"
+    }
+  ],
+  "defaultConfiguration": "prone",
+  "access": [
+    {
+      "position": "prone",
+      "configuration": "prone",
+      "sides": [
+        "left",
+        "right",
+        "midline"
+      ]
+    },
+    {
+      "position": "side-lying-left",
+      "configuration": "side-lying",
+      "sides": [
+        "right",
+        "midline"
+      ]
+    },
+    {
+      "position": "side-lying-right",
+      "configuration": "side-lying",
+      "sides": [
+        "left",
+        "midline"
+      ]
+    },
+    {
+      "position": "seated-forward",
+      "configuration": "seated-forward",
+      "sides": [
+        "left",
+        "right",
+        "midline"
+      ]
+    }
+  ],
+  "landmarks": [
+    {
+      "id": "l4-spinous",
+      "label": "inferior border of the spinous process of L4",
+      "at": {
+        "u": 0,
+        "v": 0
+      },
+      "palpation": "At the level of the line joining the highest points of the iliac crests.",
+      "configurations": {
+        "side-lying": {
+          "du": 0,
+          "dv": 0
+        },
+        "seated-forward": {
+          "du": 0,
+          "dv": 0
+        }
+      }
+    },
+    {
+      "id": "l3-spinous",
+      "label": "inferior border of the spinous process of L3",
+      "at": {
+        "u": 0,
+        "v": 3.6
+      },
+      "configurations": {
+        "side-lying": {
+          "du": 0,
+          "dv": 0.3
+        },
+        "seated-forward": {
+          "du": 0,
+          "dv": 0.6
+        }
+      }
+    },
+    {
+      "id": "l2-spinous",
+      "label": "inferior border of the spinous process of L2",
+      "at": {
+        "u": 0,
+        "v": 7.2
+      },
+      "palpation": "Count up two spinous processes from L4.",
+      "configurations": {
+        "side-lying": {
+          "du": 0,
+          "dv": 0.6
+        },
+        "seated-forward": {
+          "du": 0,
+          "dv": 1.2
+        }
+      }
+    },
+    {
+      "id": "iliac-crest-left",
+      "label": "highest point of the iliac crest (left)",
+      "at": {
+        "u": 12.0,
+        "v": 0.6
+      }
+    },
+    {
+      "id": "iliac-crest-right",
+      "label": "highest point of the iliac crest (right)",
+      "at": {
+        "u": -12.0,
+        "v": 0.6
+      }
+    },
+    {
+      "id": "psis-left",
+      "label": "posterior superior iliac spine (left)",
+      "at": {
+        "u": 4.5,
+        "v": -7.0
+      }
+    },
+    {
+      "id": "psis-right",
+      "label": "posterior superior iliac spine (right)",
+      "at": {
+        "u": -4.5,
+        "v": -7.0
+      }
+    },
+    {
+      "id": "scapula-spine-medial-left",
+      "label": "medial border of the scapula at the level of its spine (left)",
+      "at": {
+        "u": 7.0,
+        "v": 42.0
+      }
+    },
+    {
+      "id": "scapula-spine-medial-right",
+      "label": "medial border of the scapula at the level of its spine (right)",
+      "at": {
+        "u": -7.0,
+        "v": 42.0
+      }
+    }
+  ],
+  "segments": [
+    {
+      "id": "seg.scapulae",
+      "label": "between the medial borders of the scapulae",
+      "from": "scapula-spine-medial-right",
+      "to": "scapula-spine-medial-left",
+      "cun": 6,
+      "source": {
+        "title": "WHO Standard Acupuncture Point Locations (2008): proportional bone measurement",
+        "verified": false
+      }
+    }
+  ],
+  "tissue": {
+    "layers": [
+      {
+        "tissue": "skin",
+        "thicknessCm": 0.2
+      },
+      {
+        "tissue": "subcutaneous",
+        "thicknessCm": 1.2
+      },
+      {
+        "tissue": "muscle",
+        "thicknessCm": 3.8,
+        "label": "erector spinae"
+      },
+      {
+        "tissue": "fascia",
+        "thicknessCm": 0.5,
+        "label": "thoracolumbar fascia"
+      },
+      {
+        "tissue": "muscle",
+        "thicknessCm": 1.8,
+        "label": "quadratus lumborum / psoas"
+      },
+      {
+        "tissue": "organ",
+        "thicknessCm": 3.0,
+        "label": "retroperitoneum"
+      }
+    ],
+    "zones": [
+      {
+        "id": "z-interspinous-l4-l5",
+        "centre": {
+          "u": 0,
+          "v": -0.6
+        },
+        "radiusCm": 1.2,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.2
+          },
+          {
+            "tissue": "ligament",
+            "thicknessCm": 3.6,
+            "label": "supraspinous and interspinous ligaments"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.4,
+            "label": "ligamentum flavum"
+          }
+        ]
+      },
+      {
+        "id": "z-interspinous-l3-l4",
+        "centre": {
+          "u": 0,
+          "v": 3.0
+        },
+        "radiusCm": 1.2,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.2
+          },
+          {
+            "tissue": "ligament",
+            "thicknessCm": 3.6,
+            "label": "supraspinous and interspinous ligaments"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.4,
+            "label": "ligamentum flavum"
+          }
+        ]
+      },
+      {
+        "id": "z-interspinous-l2-l3",
+        "centre": {
+          "u": 0,
+          "v": 6.6
+        },
+        "radiusCm": 1.2,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.2
+          },
+          {
+            "tissue": "ligament",
+            "thicknessCm": 3.6,
+            "label": "supraspinous and interspinous ligaments"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.4,
+            "label": "ligamentum flavum"
+          }
+        ]
+      }
+    ]
+  },
+  "structures": [
+    {
+      "id": "kidney-left",
+      "label": "left kidney",
+      "kind": "organ",
+      "hazard": "critical",
+      "path": [
+        {
+          "u": 7.5,
+          "v": 12,
+          "d": 7.0
+        },
+        {
+          "u": 8.0,
+          "v": 4,
+          "d": 7.5
+        }
+      ],
+      "radiusCm": 2.6,
+      "uncertaintyCm": 0.3,
+      "consequence": "none"
+    },
+    {
+      "id": "kidney-right",
+      "label": "right kidney",
+      "kind": "organ",
+      "hazard": "critical",
+      "path": [
+        {
+          "u": -7.5,
+          "v": 10,
+          "d": 7.0
+        },
+        {
+          "u": -8.0,
+          "v": 2,
+          "d": 7.5
+        }
+      ],
+      "radiusCm": 2.6,
+      "uncertaintyCm": 0.3,
+      "consequence": "none"
+    },
+    {
+      "id": "pleura-costodiaphragmatic-left",
+      "label": "left costodiaphragmatic recess of the pleura",
+      "kind": "pleura",
+      "hazard": "critical",
+      "path": [
+        {
+          "u": 9,
+          "v": 16,
+          "d": 5.5
+        },
+        {
+          "u": 14,
+          "v": 14,
+          "d": 5.0
+        }
+      ],
+      "radiusCm": 0.3,
+      "uncertaintyCm": 0.3,
+      "consequence": "pneumothorax-risk"
+    },
+    {
+      "id": "pleura-costodiaphragmatic-right",
+      "label": "right costodiaphragmatic recess of the pleura",
+      "kind": "pleura",
+      "hazard": "critical",
+      "path": [
+        {
+          "u": -9,
+          "v": 16,
+          "d": 5.5
+        },
+        {
+          "u": -14,
+          "v": 14,
+          "d": 5.0
+        }
+      ],
+      "radiusCm": 0.3,
+      "uncertaintyCm": 0.3,
+      "consequence": "pneumothorax-risk"
+    },
+    {
+      "id": "dura-cauda-equina",
+      "label": "dural sac and cauda equina",
+      "kind": "nerve",
+      "hazard": "critical",
+      "path": [
+        {
+          "u": 0,
+          "v": -6,
+          "d": 5.4
+        },
+        {
+          "u": 0,
+          "v": 4,
+          "d": 5.6
+        },
+        {
+          "u": 0,
+          "v": 14,
+          "d": 5.8
+        }
+      ],
+      "radiusCm": 0.7,
+      "uncertaintyCm": 0.3,
+      "consequence": "electric-sensation"
+    }
+  ],
+  "description": "The lower back. In the midline the spinous processes and the supraspinous and interspinous ligaments lead, deep to the ligamentum flavum, to the dural sac and the cauda equina. Either side, the erector spinae lie in the thoracolumbar fascia over quadratus lumborum and psoas; the kidneys lie deep in the retroperitoneum at the levels of the upper lumbar vertebrae, and above about L1 the costodiaphragmatic recess of the pleura extends laterally.",
+  "provenance": {
+    "kind": "schematic",
+    "sources": [
+      {
+        "title": "General regional anatomy of the back (standard anatomy texts)",
+        "verified": false,
+        "note": "Topography only; no third-party geometry or images were used."
+      }
+    ],
+    "licence": "CC0-1.0 (original schematic geometry)",
+    "review": {
+      "status": "unreviewed",
+      "reviewers": [],
+      "notes": "Positions and depths are illustrative approximations of a reference adult written for simulation. They are not measurements or an atlas and are not a guide to safe depths in real patients. Anatomical expert review is required before any teaching use."
+    }
+  }
+}

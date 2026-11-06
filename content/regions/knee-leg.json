@@ -1,0 +1,92 @@
+{
+  "schema": "acucraft/region@1",
+  "id": "knee-leg",
+  "version": "0.1.0",
+  "title": "knee and leg (anterior, medial and lateral)",
+  "laterality": "bilateral",
+  "chart": {
+    "description": "The knee and leg unrolled. u: distance round the limb (cm) from the anterior midline (patellar ligament, tibial crest), positive towards lateral (the fibular side), negative towards medial (the tibial side). v: distance along the limb (cm) from the inferior pole of the patella, positive cranial (towards the thigh), negative towards the ankle. d: depth below the skin (cm).",
+    "uRange": [-12, 13],
+    "vRange": [-40, 8]
+  },
+  "configurations": [
+    { "id": "knee-flexed", "label": "knee flexed (seated, or supine with a bolster under the knee)" },
+    { "id": "knee-extended", "label": "knee extended (lying flat)" }
+  ],
+  "defaultConfiguration": "knee-flexed",
+  "access": [
+    { "position": "seated", "configuration": "knee-flexed", "sides": ["left", "right"] },
+    { "position": "supine-knee-flexed", "configuration": "knee-flexed", "sides": ["left", "right"] },
+    { "position": "supine", "configuration": "knee-extended", "sides": ["left", "right"] },
+    { "position": "side-lying-left", "configuration": "knee-flexed", "sides": ["right"] },
+    { "position": "side-lying-right", "configuration": "knee-flexed", "sides": ["left"] }
+  ],
+  "landmarks": [
+    { "id": "patella-apex", "label": "inferior pole (apex) of the patella", "at": { "u": 0, "v": 0 }, "palpation": "Follow the patella down to its lower tip.", "configurations": { "knee-extended": { "du": 0, "dv": 2.0 } } },
+    { "id": "patella-base", "label": "midpoint of the superior border (base) of the patella", "at": { "u": 0, "v": 5.5 }, "palpation": "The upper border of the patella, at its middle.", "configurations": { "knee-extended": { "du": 0, "dv": 2.0 } } },
+    { "id": "patella-base-medial", "label": "medial end of the base of the patella", "at": { "u": -2.6, "v": 5.0 }, "configurations": { "knee-extended": { "du": 0, "dv": 2.0 } } },
+    { "id": "st35-depression", "label": "depression lateral to the patellar ligament (lateral knee eye)", "at": { "u": 2.2, "v": -1.5 }, "palpation": "With the knee flexed, the hollow lateral to the patellar ligament, below the patella. Shallower with the knee straight.", "configurations": { "knee-extended": { "du": -0.4, "dv": 1.2 } } },
+    { "id": "medial-knee-eye", "label": "depression medial to the patellar ligament (medial knee eye)", "at": { "u": -2.2, "v": -1.5 }, "palpation": "With the knee flexed, the hollow medial to the patellar ligament.", "configurations": { "knee-extended": { "du": 0.4, "dv": 1.2 } } },
+    { "id": "tibial-tuberosity", "label": "tibial tuberosity", "at": { "u": 0, "v": -6.0 }, "palpation": "The bony prominence where the patellar ligament inserts." },
+    { "id": "fibular-head", "label": "head of the fibula", "at": { "u": 8.5, "v": -6.0 }, "palpation": "The rounded bony knob on the outer side of the leg below the knee." },
+    { "id": "medial-condyle-inferior", "label": "depression below the medial condyle of the tibia, at the medial border of the tibia", "at": { "u": -6.2, "v": -6.5 }, "palpation": "Slide up the medial border of the tibia until the finger stops under the condyle." },
+    { "id": "ankle-anterior-midpoint", "label": "centre of the front of the ankle joint (between extensor hallucis longus and extensor digitorum longus tendons)", "at": { "u": 1.0, "v": -37.0 }, "palpation": "Dorsiflex the foot: the hollow between the two tendons at the ankle crease." },
+    { "id": "lateral-malleolus", "label": "prominence of the lateral malleolus", "at": { "u": 5.5, "v": -38.3 } },
+    { "id": "medial-malleolus", "label": "prominence of the medial malleolus", "at": { "u": -5.0, "v": -37.3 } }
+  ],
+  "segments": [
+    {
+      "id": "seg.knee-ankle-lateral",
+      "label": "knee (level of the lateral knee eye) to the prominence of the lateral malleolus",
+      "from": "st35-depression",
+      "to": "lateral-malleolus",
+      "cun": 16,
+      "source": { "title": "WHO Standard Acupuncture Point Locations (2008): proportional bone measurement, lower limb", "verified": false, "note": "The standard measures 16 B-cun from the popliteal crease level; the lateral knee eye stands in for that level on this anterior chart." }
+    },
+    {
+      "id": "seg.sp9-medial-malleolus",
+      "label": "inferior border of the medial condyle of the tibia to the prominence of the medial malleolus",
+      "from": "medial-condyle-inferior",
+      "to": "medial-malleolus",
+      "cun": 13,
+      "source": { "title": "WHO Standard Acupuncture Point Locations (2008): proportional bone measurement, lower limb", "verified": false }
+    }
+  ],
+  "tissue": {
+    "layers": [
+      { "tissue": "skin", "thicknessCm": 0.2 },
+      { "tissue": "subcutaneous", "thicknessCm": 0.8 },
+      { "tissue": "muscle", "thicknessCm": 2.8 },
+      { "tissue": "bone", "thicknessCm": 2.0 }
+    ],
+    "zones": [
+      { "id": "z-knee-eye-lateral", "centre": { "u": 2.2, "v": -1.5 }, "radiusCm": 1.6, "layers": [ { "tissue": "skin", "thicknessCm": 0.2 }, { "tissue": "subcutaneous", "thicknessCm": 0.4 }, { "tissue": "fat-pad", "thicknessCm": 2.0, "label": "infrapatellar fat pad" }, { "tissue": "joint-space", "thicknessCm": 0.6 }, { "tissue": "bone", "thicknessCm": 2.0 } ] },
+      { "id": "z-knee-eye-medial", "centre": { "u": -2.2, "v": -1.5 }, "radiusCm": 1.6, "layers": [ { "tissue": "skin", "thicknessCm": 0.2 }, { "tissue": "subcutaneous", "thicknessCm": 0.4 }, { "tissue": "fat-pad", "thicknessCm": 2.0, "label": "infrapatellar fat pad" }, { "tissue": "joint-space", "thicknessCm": 0.6 }, { "tissue": "bone", "thicknessCm": 2.0 } ] },
+      { "id": "z-patella", "centre": { "u": 0, "v": 2.7 }, "radiusCm": 2.6, "layers": [ { "tissue": "skin", "thicknessCm": 0.2 }, { "tissue": "subcutaneous", "thicknessCm": 0.3 }, { "tissue": "bone", "thicknessCm": 2.0, "label": "patella" } ] },
+      { "id": "z-suprapatellar", "centre": { "u": 0, "v": 6.1 }, "radiusCm": 1.0, "layers": [ { "tissue": "skin", "thicknessCm": 0.2 }, { "tissue": "subcutaneous", "thicknessCm": 0.5 }, { "tissue": "tendon", "thicknessCm": 0.8, "label": "quadriceps tendon" }, { "tissue": "fat-pad", "thicknessCm": 0.8 }, { "tissue": "joint-space", "thicknessCm": 0.3 }, { "tissue": "bone", "thicknessCm": 2.0 } ] },
+      { "id": "z-tibial-tuberosity", "centre": { "u": 0, "v": -6.0 }, "radiusCm": 1.2, "layers": [ { "tissue": "skin", "thicknessCm": 0.2 }, { "tissue": "subcutaneous", "thicknessCm": 0.3 }, { "tissue": "bone", "thicknessCm": 2.0 } ] },
+      { "id": "z-tibia-medial-1", "centre": { "u": -2.6, "v": -12 }, "radiusCm": 2.2, "layers": [ { "tissue": "skin", "thicknessCm": 0.2 }, { "tissue": "subcutaneous", "thicknessCm": 0.4 }, { "tissue": "periosteum", "thicknessCm": 0.1 }, { "tissue": "bone", "thicknessCm": 2.0 } ] },
+      { "id": "z-tibia-medial-2", "centre": { "u": -2.6, "v": -18 }, "radiusCm": 2.2, "layers": [ { "tissue": "skin", "thicknessCm": 0.2 }, { "tissue": "subcutaneous", "thicknessCm": 0.4 }, { "tissue": "periosteum", "thicknessCm": 0.1 }, { "tissue": "bone", "thicknessCm": 2.0 } ] },
+      { "id": "z-tibia-medial-3", "centre": { "u": -2.6, "v": -24 }, "radiusCm": 2.2, "layers": [ { "tissue": "skin", "thicknessCm": 0.2 }, { "tissue": "subcutaneous", "thicknessCm": 0.4 }, { "tissue": "periosteum", "thicknessCm": 0.1 }, { "tissue": "bone", "thicknessCm": 2.0 } ] },
+      { "id": "z-tibia-medial-4", "centre": { "u": -2.6, "v": -30 }, "radiusCm": 2.0, "layers": [ { "tissue": "skin", "thicknessCm": 0.2 }, { "tissue": "subcutaneous", "thicknessCm": 0.4 }, { "tissue": "periosteum", "thicknessCm": 0.1 }, { "tissue": "bone", "thicknessCm": 2.0 } ] },
+      { "id": "z-fibular-head", "centre": { "u": 8.5, "v": -6.0 }, "radiusCm": 1.0, "layers": [ { "tissue": "skin", "thicknessCm": 0.2 }, { "tissue": "subcutaneous", "thicknessCm": 0.4 }, { "tissue": "bone", "thicknessCm": 2.0 } ] }
+    ]
+  },
+  "structures": [
+    { "id": "great-saphenous-vein", "label": "great saphenous vein", "kind": "vein", "hazard": "caution", "path": [ { "u": -3.8, "v": -37.5, "d": 0.4 }, { "u": -5.0, "v": -30, "d": 0.5 }, { "u": -6.5, "v": -20, "d": 0.5 }, { "u": -7.5, "v": -10, "d": 0.6 }, { "u": -8.5, "v": -2, "d": 0.6 }, { "u": -9.0, "v": 4, "d": 0.7 } ], "radiusCm": 0.25, "uncertaintyCm": 0.4, "consequence": "bleeding" },
+    { "id": "anterior-tibial-artery", "label": "anterior tibial artery", "kind": "artery", "hazard": "caution", "path": [ { "u": 2.6, "v": -7.0, "d": 4.2 }, { "u": 2.4, "v": -15, "d": 3.6 }, { "u": 2.0, "v": -25, "d": 2.6 }, { "u": 1.2, "v": -35, "d": 1.2 } ], "radiusCm": 0.15, "uncertaintyCm": 0.4, "consequence": "haematoma" },
+    { "id": "deep-fibular-nerve", "label": "deep fibular (peroneal) nerve", "kind": "nerve", "hazard": "caution", "path": [ { "u": 4.0, "v": -7.5, "d": 3.4 }, { "u": 2.9, "v": -12, "d": 3.7 }, { "u": 2.6, "v": -20, "d": 3.2 }, { "u": 1.6, "v": -33, "d": 1.5 } ], "radiusCm": 0.15, "uncertaintyCm": 0.4, "consequence": "electric-sensation" },
+    { "id": "common-fibular-nerve", "label": "common fibular (peroneal) nerve at the neck of the fibula", "kind": "nerve", "hazard": "caution", "path": [ { "u": 11.0, "v": -2.5, "d": 1.0 }, { "u": 10.2, "v": -7.0, "d": 1.2 }, { "u": 8.8, "v": -9.0, "d": 1.6 }, { "u": 7.5, "v": -9.5, "d": 2.4 }, { "u": 4.0, "v": -7.5, "d": 3.4 } ], "radiusCm": 0.25, "uncertaintyCm": 0.4, "consequence": "electric-sensation" },
+    { "id": "superficial-fibular-nerve", "label": "superficial fibular (peroneal) nerve", "kind": "nerve", "hazard": "caution", "path": [ { "u": 8.8, "v": -9.0, "d": 1.6 }, { "u": 6.5, "v": -22, "d": 1.0 }, { "u": 4.5, "v": -30, "d": 0.4 } ], "radiusCm": 0.12, "uncertaintyCm": 0.4, "consequence": "electric-sensation" },
+    { "id": "tibial-nerve", "label": "tibial nerve (behind the tibia)", "kind": "nerve", "hazard": "caution", "path": [ { "u": -8.0, "v": -15, "d": 4.5 }, { "u": -7.0, "v": -28, "d": 3.0 }, { "u": -6.3, "v": -36, "d": 1.8 } ], "radiusCm": 0.3, "uncertaintyCm": 0.4, "consequence": "electric-sensation" },
+    { "id": "posterior-tibial-artery", "label": "posterior tibial artery", "kind": "artery", "hazard": "caution", "path": [ { "u": -8.3, "v": -15, "d": 4.3 }, { "u": -7.3, "v": -28, "d": 2.8 }, { "u": -6.6, "v": -36, "d": 1.6 } ], "radiusCm": 0.15, "uncertaintyCm": 0.4, "consequence": "haematoma" },
+    { "id": "knee-joint-cavity", "label": "knee joint cavity (synovium) deep to the fat pad", "kind": "joint-capsule", "hazard": "caution", "path": [ { "u": 2.0, "v": -1.2, "d": 2.8 }, { "u": 0, "v": -0.8, "d": 3.2 }, { "u": -2.0, "v": -1.2, "d": 2.8 } ], "radiusCm": 0.5, "uncertaintyCm": 0.3, "consequence": "joint-penetration" }
+  ],
+  "description": "The anterior knee and leg. The patellar ligament runs from the inferior pole of the patella to the tibial tuberosity, with the 'knee eye' depressions either side of it; deep to them lie the infrapatellar fat pad and then the knee joint cavity. The anteromedial surface of the tibia is subcutaneous. Lateral to the tibial crest lies tibialis anterior; deep to it, on the interosseous membrane, run the anterior tibial vessels with the deep fibular nerve. The common fibular nerve winds round the neck of the fibula just below and behind the fibular head. Medially the great saphenous vein ascends in front of the medial malleolus and along the medial leg; behind the tibia lie the posterior tibial vessels and the tibial nerve.",
+  "provenance": {
+    "kind": "schematic",
+    "sources": [ { "title": "General regional anatomy of the knee and leg (standard anatomy texts)", "verified": false, "note": "Topography only; no third-party geometry or images were used." } ],
+    "licence": "CC0-1.0 (original schematic geometry)",
+    "review": { "status": "unreviewed", "reviewers": [], "notes": "Positions and depths are illustrative approximations of a reference adult written for simulation. They are not measurements or an atlas and are not a guide to safe depths in real patients. Anatomical expert review is required before any teaching use." }
+  }
+}

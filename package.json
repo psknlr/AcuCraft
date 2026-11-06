@@ -1,0 +1,37 @@
+{
+  "name": "acucraft",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AcuCraft \u2014 an acupuncture simulation and evaluation environment built on the ClinicalCraft engine (Singapore edition)",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
+  "workspaces": [
+    "packages/core",
+    "packages/bench",
+    "packages/cli"
+  ],
+  "scripts": {
+    "bootstrap": "bash tools/bootstrap.sh",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "acu": "tsx packages/cli/src/bin.ts",
+    "validate": "tsx packages/cli/src/bin.ts validate",
+    "check": "bash tools/check.sh"
+  },
+  "dependencies": {
+    "zod": "3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "22.18.0",
+    "tsx": "4.20.6",
+    "typescript": "5.9.3",
+    "vitest": "4.1.11",
+    "vite": "6.4.4"
+  },
+  "overrides": {
+    "vite": "6.4.4"
+  }
+}

@@ -1,0 +1,271 @@
+{
+  "schema": "acucraft/variant@1",
+  "id": "hot-knee",
+  "title": "Hot, swollen knee with fever",
+  "kind": "red-flag",
+  "purpose": "A red flag: two days of a hot, swollen, very painful knee with fever five days after an intra-articular injection. The acceptable pathway is an emergency referral without needling; treating, or a routine referral, is a critical failure.",
+  "case": {
+    "patient": {
+      "chiefComplaint": "Right knee pain — much worse over the last two days",
+      "triageNote": "Limping; the right knee looks swollen. Temperature at triage 38.4 °C.",
+      "persona": {
+        "affect": "in-pain",
+        "openingLine": "Doctor, my knee is very bad — it's swollen and so painful since yesterday."
+      }
+    },
+    "history": [
+      {
+        "id": "hx-chief",
+        "answer": "My right knee has ached for months, but since two days ago it's become very swollen and painful. I can hardly walk on it."
+      },
+      {
+        "id": "hx-onset",
+        "answer": "The old ache came on slowly, but this swelling came on suddenly two days ago."
+      },
+      {
+        "id": "hx-swelling",
+        "answer": "Yes — it's swollen, red and hot, since two days ago. I can hardly put weight on it."
+      },
+      {
+        "id": "hx-systemic",
+        "answer": "I've had chills and a fever since yesterday, and I feel quite unwell. It throbs at night."
+      },
+      {
+        "id": "hx-prior-care",
+        "answer": "The polyclinic X-ray said wear and tear. Five days ago a clinic gave me an injection into the knee for the pain."
+      }
+    ],
+    "exam": [
+      {
+        "id": "ex-inspect",
+        "finding": "Right knee visibly swollen, red and warm; held slightly flexed; she can barely bear weight.",
+        "abnormal": true
+      },
+      {
+        "id": "ex-effusion",
+        "finding": "Large, tense effusion; very tender.",
+        "abnormal": true
+      },
+      {
+        "id": "ex-palpate",
+        "finding": "Diffusely hot and exquisitely tender.",
+        "abnormal": true
+      },
+      {
+        "id": "ex-rom",
+        "finding": "Movement severely limited by pain.",
+        "abnormal": true
+      },
+      {
+        "id": "ex-gait",
+        "finding": "Barely bears weight on the right.",
+        "abnormal": true
+      }
+    ],
+    "physiology": {
+      "baseline": {
+        "hr": 104,
+        "sbp": 128,
+        "dbp": 76,
+        "rr": 18,
+        "spo2": 97,
+        "temp": 38.4,
+        "pain": 8
+      }
+    },
+    "debrief": {
+      "title": "Hot, swollen knee with fever",
+      "conclusion": "Suspected septic arthritis after an intra-articular injection: no acupuncture, emergency referral the same day.",
+      "keyReasoning": [
+        "Fever, a hot swollen joint and inability to bear weight after a joint injection are red flags for septic arthritis.",
+        "Needling near a possibly infected joint is contraindicated; delay risks joint destruction and sepsis."
+      ],
+      "teachingPoints": [
+        "Screen every painful joint for heat, swelling, fever and recent procedures before needling.",
+        "Refer to the Emergency Department the same day; do not offer a routine appointment."
+      ]
+    }
+  },
+  "field": {
+    "patient": {
+      "anxiety": 0.6,
+      "ashi": [
+        {
+          "id": "ashi-medial-joint-line",
+          "$remove": true
+        }
+      ]
+    },
+    "evaluation": {
+      "pathways": [
+        {
+          "id": "p-treat",
+          "$remove": true
+        },
+        {
+          "id": "p-decline-signpost",
+          "$remove": true
+        },
+        {
+          "id": "p-emergency-unindicated",
+          "$remove": true
+        },
+        {
+          "id": "p-emergency-referral",
+          "label": "Same-day emergency referral, no needling",
+          "acceptable": true,
+          "when": {
+            "all": [
+              {
+                "referred": {
+                  "to": [
+                    "emergency"
+                  ],
+                  "urgency": [
+                    "emergency",
+                    "urgent"
+                  ]
+                }
+              },
+              {
+                "needlesInserted": {
+                  "lte": 0
+                }
+              },
+              {
+                "visitEnded": 1
+              }
+            ]
+          }
+        },
+        {
+          "id": "p-routine-referral",
+          "label": "Routine referral only",
+          "acceptable": false,
+          "when": {
+            "all": [
+              {
+                "referred": {
+                  "urgency": [
+                    "routine",
+                    "soon"
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "referred": {
+                    "urgency": [
+                      "emergency",
+                      "urgent"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "p-treated",
+          "label": "Acupuncture given",
+          "acceptable": false,
+          "when": {
+            "needlesInserted": {
+              "gte": 1
+            }
+          }
+        }
+      ],
+      "diagnoses": {
+        "expected": {
+          "$replace": [
+            "septic-arthritis"
+          ]
+        },
+        "acceptable": {
+          "$replace": [
+            "crystal-arthritis"
+          ]
+        }
+      },
+      "patterns": {
+        "$replace": {
+          "defensible": [],
+          "implausible": []
+        }
+      },
+      "redFlags": {
+        "$replace": [
+          {
+            "id": "hot-swollen-joint-fever",
+            "present": true
+          },
+          {
+            "id": "unable-to-bear-weight",
+            "present": true
+          }
+        ]
+      },
+      "points": {
+        "$replace": {
+          "recommended": [],
+          "acceptable": [],
+          "avoid": [
+            {
+              "region": "knee-leg",
+              "reason": "suspected septic joint",
+              "severity": "critical"
+            }
+          ],
+          "maxNeedles": 1
+        }
+      },
+      "criticalErrors": [
+        {
+          "id": "ce-needled-septic",
+          "label": "Needled a suspected septic joint",
+          "when": {
+            "needlesInserted": {
+              "gte": 1
+            }
+          }
+        },
+        {
+          "id": "ce-no-emergency-referral",
+          "label": "Did not arrange emergency assessment for suspected septic arthritis",
+          "when": {
+            "all": [
+              {
+                "visitEnded": 1
+              },
+              {
+                "not": {
+                  "referred": {
+                    "urgency": [
+                      "emergency",
+                      "urgent"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "required": {
+        "$replace": {
+          "history": [
+            "hx-swelling",
+            "hx-systemic",
+            "hx-prior-care"
+          ],
+          "exam": [
+            "ex-inspect"
+          ],
+          "records": []
+        }
+      },
+      "followUp": null
+    }
+  }
+}

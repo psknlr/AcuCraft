@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2023", "DOM"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "types": ["node"],
+    "baseUrl": ".",
+    "paths": {
+      "@clinicalcraft/core": ["./.deps/clinicalcraft/packages/core/src/index.ts"],
+      "@acucraft/core": ["./packages/core/src/index.ts"],
+      "@acucraft/bench": ["./packages/bench/src/index.ts"]
+    }
+  },
+  "include": ["packages/*/src", "tools/*.ts", "vitest.config.ts"]
+}

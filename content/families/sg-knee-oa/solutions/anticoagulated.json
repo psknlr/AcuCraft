@@ -1,0 +1,936 @@
+[
+  {
+    "requestId": "ka-001",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-chief"
+    }
+  },
+  {
+    "requestId": "ka-002",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-onset"
+    }
+  },
+  {
+    "requestId": "ka-003",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-site"
+    }
+  },
+  {
+    "requestId": "ka-004",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-pattern"
+    }
+  },
+  {
+    "requestId": "ka-005",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-swelling"
+    }
+  },
+  {
+    "requestId": "ka-006",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-systemic"
+    }
+  },
+  {
+    "requestId": "ka-007",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-mechanical"
+    }
+  },
+  {
+    "requestId": "ka-008",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-pmh"
+    }
+  },
+  {
+    "requestId": "ka-009",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-meds"
+    }
+  },
+  {
+    "requestId": "ka-010",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-bleeding"
+    }
+  },
+  {
+    "requestId": "ka-011",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-prior-care"
+    }
+  },
+  {
+    "requestId": "ka-012",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-acupuncture-before"
+    }
+  },
+  {
+    "requestId": "ka-013",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-weather"
+    }
+  },
+  {
+    "requestId": "ka-014",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-general-tcm"
+    }
+  },
+  {
+    "requestId": "ka-015",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "hx-ice"
+    }
+  },
+  {
+    "requestId": "ka-016",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "review_result",
+      "investigationId": "inv-xray"
+    }
+  },
+  {
+    "requestId": "ka-017",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "review_result",
+      "investigationId": "inv-inr"
+    }
+  },
+  {
+    "requestId": "ka-018",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": "treatment-room",
+      "withPatient": true
+    }
+  },
+  {
+    "requestId": "ka-019",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "hand_hygiene"
+    }
+  },
+  {
+    "requestId": "ka-020",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-inspect"
+    }
+  },
+  {
+    "requestId": "ka-021",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-legs-skin"
+    }
+  },
+  {
+    "requestId": "ka-022",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-palpate"
+    }
+  },
+  {
+    "requestId": "ka-023",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-effusion"
+    }
+  },
+  {
+    "requestId": "ka-024",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-rom"
+    }
+  },
+  {
+    "requestId": "ka-025",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-tongue"
+    }
+  },
+  {
+    "requestId": "ka-026",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-pulse-tcm"
+    }
+  },
+  {
+    "requestId": "ka-027",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_vitals"
+    }
+  },
+  {
+    "requestId": "ka-028",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "assess",
+      "diagnoses": [
+        "knee-osteoarthritis"
+      ],
+      "pattern": "wind-cold-damp-bi",
+      "redFlags": [],
+      "rationale": "Osteoarthritis as before; on warfarin with INR 2.6 in range; varicose veins over the medial right knee and upper calf."
+    }
+  },
+  {
+    "requestId": "ka-029",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "decide",
+      "disposition": "treat-modified",
+      "rationale": "INR in range and no bleeding history beyond easy bruising: fewer points, none over the varicosities, firm pressure after removal."
+    }
+  },
+  {
+    "requestId": "ka-030",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "propose_plan",
+      "plan": {
+        "points": [
+          {
+            "point": "ST35",
+            "side": "right"
+          },
+          {
+            "point": "EX-LE4",
+            "side": "right"
+          },
+          {
+            "point": "ST36",
+            "side": "right"
+          },
+          {
+            "ashi": "ashi-medial-joint-line"
+          }
+        ],
+        "technique": {
+          "method": "manual-filiform",
+          "stimulation": "even",
+          "retentionMinutes": 20
+        },
+        "rationale": "Fewer, shallower points away from the varicose veins because she is anticoagulated.",
+        "alternatives": [
+          "Exercise therapy and weight management (first line)",
+          "Physiotherapy",
+          "Pain relief through her doctor"
+        ],
+        "followUp": "Review in one week."
+      }
+    }
+  },
+  {
+    "requestId": "ka-031",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "explain",
+      "topics": [
+        "procedure",
+        "benefits",
+        "risks",
+        "alternatives",
+        "evidence",
+        "right-to-stop"
+      ],
+      "text": "I'd suggest a course of acupuncture: five fine, single-use sterile needles around your right knee and leg, left in for about twenty minutes. It may ease the pain; the evidence is mixed — the UK NICE guideline advises against acupuncture for osteoarthritis, while the American College of Rheumatology guideline conditionally recommends it. The risks are small: soreness, a little bleeding or bruising, feeling faint, and very rarely infection. The alternatives are strengthening exercises and keeping active, physiotherapy, and pain relief through your doctor — exercise matters whatever we decide. You can ask me to stop at any time."
+    }
+  },
+  {
+    "requestId": "ka-032",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "seek_consent"
+    }
+  },
+  {
+    "requestId": "ka-033",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "position_patient",
+      "position": "supine-knee-flexed"
+    }
+  },
+  {
+    "requestId": "ka-034",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "assign_task",
+      "to": "assistant",
+      "kind": "monitor-patient",
+      "params": {
+        "intervalMinutes": 5
+      },
+      "note": "Please stay with Mdm Lim and check on her every five minutes while the needles are in; tell me at once if anything changes."
+    }
+  },
+  {
+    "requestId": "ka-035",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "knee-leg",
+      "side": "right",
+      "landmark": "st35-depression"
+    }
+  },
+  {
+    "requestId": "ka-036",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "knee-leg",
+      "side": "right",
+      "landmark": "medial-knee-eye"
+    }
+  },
+  {
+    "requestId": "ka-037",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "knee-leg",
+      "side": "right",
+      "landmark": "ankle-anterior-midpoint"
+    }
+  },
+  {
+    "requestId": "ka-038",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "knee-leg",
+      "side": "right",
+      "landmark": "lateral-malleolus"
+    }
+  },
+  {
+    "requestId": "ka-039",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "knee-leg",
+      "side": "right",
+      "landmark": "medial-condyle-inferior"
+    }
+  },
+  {
+    "requestId": "ka-040",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "measure",
+      "region": "knee-leg",
+      "side": "right",
+      "segment": "seg.knee-ankle-lateral"
+    }
+  },
+  {
+    "requestId": "ka-041",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "mark_point",
+      "target": {
+        "point": "ST35",
+        "side": "right"
+      },
+      "region": "knee-leg",
+      "side": "right",
+      "at": {
+        "u": 2.24,
+        "v": -1.42
+      },
+      "method": "landmark"
+    }
+  },
+  {
+    "requestId": "ka-042",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "mark_point",
+      "target": {
+        "point": "EX-LE4",
+        "side": "right"
+      },
+      "region": "knee-leg",
+      "side": "right",
+      "at": {
+        "u": -2.24,
+        "v": -1.42
+      },
+      "method": "landmark"
+    }
+  },
+  {
+    "requestId": "ka-043",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "mark_point",
+      "target": {
+        "point": "ST36",
+        "side": "right"
+      },
+      "region": "knee-leg",
+      "side": "right",
+      "at": {
+        "u": 2.01,
+        "v": -8.01
+      },
+      "method": "proportional"
+    }
+  },
+  {
+    "requestId": "ka-044",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "mark_point",
+      "target": {
+        "ashi": "ashi-medial-joint-line"
+      },
+      "region": "knee-leg",
+      "side": "right",
+      "at": {
+        "u": -4.6,
+        "v": -0.8
+      },
+      "method": "palpation"
+    }
+  },
+  {
+    "requestId": "ka-045",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": "prep-area"
+    }
+  },
+  {
+    "requestId": "ka-046",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "hand_hygiene"
+    }
+  },
+  {
+    "requestId": "ka-047",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "fetch",
+      "item": "pack-a"
+    }
+  },
+  {
+    "requestId": "ka-048",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": "treatment-room"
+    }
+  },
+  {
+    "requestId": "ka-049",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "prepare_site",
+      "region": "knee-leg",
+      "side": "right"
+    }
+  },
+  {
+    "requestId": "ka-050",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "open_pack",
+      "packId": "pack-a"
+    }
+  },
+  {
+    "requestId": "ka-051",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "pick_up",
+      "object": "pack-a.1"
+    }
+  },
+  {
+    "requestId": "ka-052",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "insert_needle",
+      "needleId": "pack-a.1",
+      "mark": "m1",
+      "angleDeg": 30,
+      "azimuthDeg": 270,
+      "depthCm": 1.2
+    }
+  },
+  {
+    "requestId": "ka-053",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "pick_up",
+      "object": "pack-a.2"
+    }
+  },
+  {
+    "requestId": "ka-054",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "insert_needle",
+      "needleId": "pack-a.2",
+      "mark": "m2",
+      "angleDeg": 30,
+      "azimuthDeg": 90,
+      "depthCm": 1.2
+    }
+  },
+  {
+    "requestId": "ka-055",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "pick_up",
+      "object": "pack-a.3"
+    }
+  },
+  {
+    "requestId": "ka-056",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "insert_needle",
+      "needleId": "pack-a.3",
+      "mark": "m3",
+      "angleDeg": 0,
+      "azimuthDeg": 0,
+      "depthCm": 1.8
+    }
+  },
+  {
+    "requestId": "ka-057",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "pick_up",
+      "object": "pack-a.4"
+    }
+  },
+  {
+    "requestId": "ka-058",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "insert_needle",
+      "needleId": "pack-a.4",
+      "mark": "m4",
+      "angleDeg": 0,
+      "azimuthDeg": 0,
+      "depthCm": 0.6
+    }
+  },
+  {
+    "requestId": "ka-059",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "adjust_needle",
+      "needleId": "pack-a.3",
+      "technique": "lift-thrust"
+    }
+  },
+  {
+    "requestId": "ka-060",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "monitor"
+    }
+  },
+  {
+    "requestId": "ka-061",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "wait",
+      "minutes": 10
+    }
+  },
+  {
+    "requestId": "ka-062",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "monitor"
+    }
+  },
+  {
+    "requestId": "ka-063",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "remove_needle",
+      "needleId": "pack-a.4"
+    }
+  },
+  {
+    "requestId": "ka-064",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "dispose",
+      "object": "pack-a.4"
+    }
+  },
+  {
+    "requestId": "ka-065",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "say",
+      "to": "patient",
+      "text": "I've taken out the needle that was burning. How does the knee feel now?"
+    }
+  },
+  {
+    "requestId": "ka-066",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "wait",
+      "minutes": 8
+    }
+  },
+  {
+    "requestId": "ka-067",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "monitor"
+    }
+  },
+  {
+    "requestId": "ka-068",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "remove_all_needles"
+    }
+  },
+  {
+    "requestId": "ka-069",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "apply_pressure",
+      "needleId": "pack-a.1"
+    }
+  },
+  {
+    "requestId": "ka-070",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "apply_pressure",
+      "needleId": "pack-a.2"
+    }
+  },
+  {
+    "requestId": "ka-071",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "apply_pressure",
+      "needleId": "pack-a.3"
+    }
+  },
+  {
+    "requestId": "ka-072",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "dispose",
+      "object": "pack-a"
+    }
+  },
+  {
+    "requestId": "ka-073",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "hand_hygiene"
+    }
+  },
+  {
+    "requestId": "ka-074",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "count_needles"
+    }
+  },
+  {
+    "requestId": "ka-075",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "explain",
+      "topics": [
+        "aftercare"
+      ],
+      "text": "Afterwards rest the knee for the day; a little soreness or a small bruise can happen. Keep up the exercises and call us if anything worries you."
+    }
+  },
+  {
+    "requestId": "ka-076",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "document",
+      "record": {
+        "presentingComplaint": "Right knee pain for eight months.",
+        "assessment": "Mild medial compartment osteoarthritis of the right knee (X-ray March 2025); no red flags.",
+        "pattern": "Wind-cold-damp Bi (cold-damp predominant)",
+        "rationale": "Local and distal points for knee Bi; guideline positions discussed (NICE NG226 against, ACR/AF 2019 conditional for).",
+        "consent": "Verbal consent after explanation of procedure, risks, alternatives and the evidence.",
+        "pointsUsed": [
+          {
+            "point": "ST35",
+            "side": "right"
+          },
+          {
+            "point": "EX-LE4",
+            "side": "right"
+          },
+          {
+            "point": "ST36",
+            "side": "right"
+          },
+          {
+            "ashi": "ashi-medial-joint-line"
+          }
+        ],
+        "needling": {
+          "needleType": "0.25 × 40 mm single-use sterile filiform",
+          "needleCount": 4,
+          "depth": "0.8–2.0 cm",
+          "responseSought": "deqi at ST36",
+          "stimulation": "even",
+          "retentionMinutes": 20
+        },
+        "response": "Tolerated; deqi at ST36.",
+        "adverseEvents": "Burning at the Ashi needle: removed. Firm pressure after every removal (warfarin).",
+        "advice": "Rest the knee today; continue exercises.",
+        "followUp": "Review in one week."
+      }
+    }
+  },
+  {
+    "requestId": "ka-077",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "end_visit"
+    }
+  },
+  {
+    "requestId": "ka-078",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "begin_follow_up"
+    }
+  },
+  {
+    "requestId": "ka-079",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "fu-progress"
+    }
+  },
+  {
+    "requestId": "ka-080",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "fu-new"
+    }
+  },
+  {
+    "requestId": "ka-081",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "fu-exercises"
+    }
+  },
+  {
+    "requestId": "ka-082",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": "treatment-room",
+      "withPatient": true
+    }
+  },
+  {
+    "requestId": "ka-083",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "fu-ex-knee"
+    }
+  },
+  {
+    "requestId": "ka-084",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "decide",
+      "disposition": "treat-modified",
+      "rationale": "Improving with minor bruising only: continue the course and the exercises; review after three more sessions."
+    }
+  },
+  {
+    "requestId": "ka-085",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "document",
+      "record": {
+        "assessment": "Improving knee osteoarthritis; small bruise resolved.",
+        "response": "Pain 7/10 → 5/10 on stairs.",
+        "adverseEvents": "Minor bruising after the first session.",
+        "followUp": "Continue the course; review after three sessions."
+      }
+    }
+  },
+  {
+    "requestId": "ka-086",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "end_visit"
+    }
+  },
+  {
+    "requestId": "ka-087",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "finish_encounter"
+    }
+  }
+]

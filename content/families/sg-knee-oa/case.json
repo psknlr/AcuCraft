@@ -1,0 +1,963 @@
+{
+  "schema": "clinicalcraft/case@1",
+  "id": "sg-knee-oa",
+  "version": "0.1.0",
+  "title": "Knee pain · 63-year-old woman",
+  "summary": "A 63-year-old woman attends an outpatient TCM clinic in Singapore with knee pain and asks whether acupuncture could help.",
+  "specialty": [
+    "tcm-acupuncture",
+    "musculoskeletal"
+  ],
+  "difficulty": 2,
+  "setting": "outpatient",
+  "facility": "sg-tcm-outpatient",
+  "locales": [
+    "en"
+  ],
+  "estimatedMinutes": 45,
+  "learningOutcomes": [
+    "Screen a painful knee for red flags (fever, a hot swollen joint, inability to bear weight) before offering acupuncture",
+    "Explain the conflicting guideline positions on acupuncture for knee osteoarthritis (NICE NG226, ACR/AF 2019) when obtaining consent",
+    "Locate knee and leg points on this patient by proportional bone measurement, and account for every needle before she leaves"
+  ],
+  "tags": [
+    "acucraft",
+    "singapore",
+    "knee"
+  ],
+  "provenance": {
+    "kind": "synthetic",
+    "authors": [
+      "AcuCraft content team"
+    ],
+    "license": "MIT",
+    "notes": "A fictional teaching case. The name and every detail are invented.",
+    "review": {
+      "status": "unreviewed",
+      "reviewers": [],
+      "guidelines": [
+        "NICE NG226 (2022)",
+        "ACR/Arthritis Foundation 2019 OA guideline"
+      ],
+      "notes": "AI-assisted authoring; not reviewed by a TCM practitioner or a clinician. Review before teaching use."
+    }
+  },
+  "disclaimer": "Simulation for education and agent evaluation. Not clinical advice.",
+  "patient": {
+    "displayName": "Mdm Lim Mei Ling",
+    "age": 63,
+    "sex": "female",
+    "weightKg": 68,
+    "heightCm": 156,
+    "chiefComplaint": "Right knee pain for eight months",
+    "triageNote": "Walked in; asks whether acupuncture could help her right knee.",
+    "tags": [
+      "knee pain"
+    ],
+    "persona": {
+      "personality": "Friendly, practical retired hawker-centre stallholder; a little nervous of needles.",
+      "speechStyle": "Singapore English, polite, short answers; uses 'lah' occasionally.",
+      "healthLiteracy": "medium",
+      "affect": "calm",
+      "openingLine": "Good morning, doctor. My right knee has been giving me trouble.",
+      "fallbackUnknown": "I'm not sure about that, doctor.",
+      "concerns": [
+        "She is afraid she will need an operation, like her sister."
+      ]
+    },
+    "posture": "sitting"
+  },
+  "phases": [
+    {
+      "id": "visit-1",
+      "label": "First visit",
+      "description": "Tuesday 10:00 at the clinic.",
+      "learnerSwitchable": false
+    },
+    {
+      "id": "follow-up",
+      "label": "Follow-up visit",
+      "description": "One week later, same clinic.",
+      "learnerSwitchable": false,
+      "enterWhen": {
+        "flag": "acu.visit-2"
+      }
+    }
+  ],
+  "initialPhase": "visit-1",
+  "clock": {
+    "mode": "simulated",
+    "startTime": "10:00",
+    "actionCosts": {
+      "ask": 1,
+      "examine": 2,
+      "order": 0,
+      "read": 1,
+      "intervene": 1,
+      "answer": 0
+    }
+  },
+  "history": [
+    {
+      "id": "hx-chief",
+      "topic": "presenting-complaint",
+      "question": "What brings you in today?",
+      "answer": "My right knee has been aching for about eight months. My daughter said acupuncture might help, so I thought I'd ask.",
+      "keywords": [
+        "what brings you",
+        "come in today",
+        "main problem",
+        "how can i help"
+      ],
+      "disclosure": "volunteer",
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-onset",
+      "topic": "hpi",
+      "question": "How did the knee pain start, and has it changed?",
+      "answer": "It came on slowly — no fall, no injury. It's been about the same for the last few months, maybe a little worse.",
+      "keywords": [
+        "start",
+        "began",
+        "started",
+        "how long",
+        "onset",
+        "injury",
+        "fall"
+      ],
+      "disclosure": "on-ask",
+      "required": true,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-site",
+      "topic": "pain",
+      "question": "Where exactly is the pain — does it spread anywhere?",
+      "answer": "Mostly on the inner side of the right knee. It doesn't go down the leg.",
+      "keywords": [
+        "where",
+        "which part",
+        "inner",
+        "outer",
+        "spread",
+        "radiate",
+        "location"
+      ],
+      "disclosure": "on-ask",
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-pattern",
+      "topic": "pain",
+      "question": "What makes it worse or better — and is it stiff in the morning?",
+      "answer": "Climbing the stairs and walking more than twenty minutes make it ache. In the morning it's stiff for ten, fifteen minutes, then it loosens up. Rest helps.",
+      "keywords": [
+        "worse",
+        "better",
+        "stairs",
+        "stiff",
+        "morning",
+        "aggravate",
+        "relieve"
+      ],
+      "disclosure": "on-ask",
+      "required": true,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-swelling",
+      "topic": "associated-symptoms",
+      "question": "Has the knee been swollen, red or hot?",
+      "answer": "Sometimes a little puffy after a long day of walking, but never red or hot.",
+      "keywords": [
+        "swollen",
+        "swelling",
+        "red",
+        "hot",
+        "warm",
+        "puffy"
+      ],
+      "disclosure": "on-ask",
+      "required": true,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-systemic",
+      "topic": "ros",
+      "question": "Any fever, feeling unwell, weight loss, or pain at night when you're resting?",
+      "answer": "No fever, my weight is the same, and it doesn't wake me at night.",
+      "keywords": [
+        "fever",
+        "unwell",
+        "weight",
+        "night",
+        "rest pain",
+        "chills"
+      ],
+      "disclosure": "on-ask",
+      "required": true,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-mechanical",
+      "topic": "hpi",
+      "question": "Does the knee lock, catch or give way?",
+      "answer": "No locking. It feels a bit weak on the stairs, but it hasn't given way.",
+      "keywords": [
+        "lock",
+        "catch",
+        "give way",
+        "giving way",
+        "unstable"
+      ],
+      "disclosure": "on-ask",
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-pmh",
+      "topic": "pmh",
+      "question": "What other medical conditions do you have?",
+      "answer": "High blood pressure, for about ten years. Nothing else — no diabetes.",
+      "keywords": [
+        "medical history",
+        "conditions",
+        "illnesses",
+        "blood pressure",
+        "diabetes",
+        "other problems"
+      ],
+      "disclosure": "on-ask",
+      "required": true,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-meds",
+      "topic": "medications",
+      "question": "What medicines do you take — including blood thinners or supplements?",
+      "answer": "Amlodipine 5 mg in the morning, and paracetamol when the knee is bad. No blood thinners. Sometimes glucosamine.",
+      "keywords": [
+        "medicine",
+        "medication",
+        "tablets",
+        "blood thinner",
+        "supplements",
+        "drugs",
+        "warfarin",
+        "aspirin"
+      ],
+      "disclosure": "on-ask",
+      "required": true,
+      "phases": [
+        "visit-1"
+      ],
+      "safety": {
+        "datum": "anticoagulation",
+        "finding": "negative"
+      }
+    },
+    {
+      "id": "hx-bleeding",
+      "topic": "pmh",
+      "question": "Do you bruise or bleed easily?",
+      "answer": "No, not that I've noticed.",
+      "keywords": [
+        "bruise",
+        "bleed",
+        "bleeding"
+      ],
+      "disclosure": "on-ask",
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-allergies",
+      "topic": "allergies",
+      "question": "Any allergies?",
+      "answer": "No allergies. Plasters are fine.",
+      "keywords": [
+        "allergy",
+        "allergies",
+        "allergic"
+      ],
+      "disclosure": "on-ask",
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-prior-care",
+      "topic": "hpi",
+      "question": "What treatment have you had for the knee so far?",
+      "answer": "The polyclinic doctor took an X-ray last year and said it's wear and tear. I did the physio exercises for a few months, then stopped. Paracetamol helps a bit.",
+      "keywords": [
+        "treatment so far",
+        "tried",
+        "physio",
+        "x-ray",
+        "doctor",
+        "polyclinic",
+        "seen anyone"
+      ],
+      "disclosure": "on-ask",
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-acupuncture-before",
+      "topic": "other",
+      "question": "Have you had acupuncture before? How do you feel about needles?",
+      "answer": "Never. I'm a little nervous of needles, but I'm willing to try. I don't faint at blood tests.",
+      "keywords": [
+        "acupuncture before",
+        "needles",
+        "nervous",
+        "faint",
+        "tried acupuncture"
+      ],
+      "disclosure": "on-ask",
+      "required": true,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-function",
+      "topic": "functional",
+      "question": "What does the knee stop you doing?",
+      "answer": "The lift doesn't stop at my floor, so the stairs are hard. I want to walk to the wet market without stopping.",
+      "keywords": [
+        "stop you",
+        "daily",
+        "activities",
+        "function",
+        "walk",
+        "market"
+      ],
+      "disclosure": "on-ask",
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-ice",
+      "topic": "ice",
+      "question": "What are you worried about, and what would you like from today?",
+      "answer": "I'm worried I'll need an operation like my sister. I'd like to walk to the market comfortably.",
+      "keywords": [
+        "worried",
+        "concern",
+        "expect",
+        "hope",
+        "would you like"
+      ],
+      "disclosure": "on-ask",
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-weather",
+      "topic": "other",
+      "question": "Is it affected by the weather — cold, rain or warmth?",
+      "answer": "It's worse on rainy days and in the air-conditioning; a warm towel helps. The knee feels heavy.",
+      "keywords": [
+        "weather",
+        "cold",
+        "rain",
+        "warm",
+        "heat",
+        "air-con",
+        "heavy"
+      ],
+      "disclosure": "on-ask",
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-general-tcm",
+      "topic": "ros",
+      "question": "How are your sleep, appetite, bowels and energy?",
+      "answer": "I sleep okay, appetite's fine, bowels are normal. I feel the cold more than my husband.",
+      "keywords": [
+        "sleep",
+        "appetite",
+        "bowels",
+        "energy",
+        "stools",
+        "feel the cold"
+      ],
+      "disclosure": "on-ask",
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "hx-devices",
+      "topic": "pmh",
+      "question": "Do you have a pacemaker or any metal implants?",
+      "answer": "No, nothing like that.",
+      "keywords": [
+        "pacemaker",
+        "implant",
+        "metal"
+      ],
+      "disclosure": "on-ask",
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "fu-progress",
+      "topic": "hpi",
+      "question": "How has the knee been since the last treatment?",
+      "answer": "A bit better — the ache on the stairs is less, maybe five out of ten instead of seven. There was a small bruise on the inside of the knee for two days.",
+      "keywords": [
+        "since last",
+        "last treatment",
+        "how has it been",
+        "better",
+        "worse",
+        "progress",
+        "since then"
+      ],
+      "disclosure": "on-ask",
+      "required": true,
+      "phases": [
+        "follow-up"
+      ]
+    },
+    {
+      "id": "fu-new",
+      "topic": "ros",
+      "question": "Any new problems since last time?",
+      "answer": "No, nothing new.",
+      "keywords": [
+        "new problems",
+        "anything new",
+        "new symptoms",
+        "side effects"
+      ],
+      "disclosure": "on-ask",
+      "required": false,
+      "phases": [
+        "follow-up"
+      ]
+    },
+    {
+      "id": "fu-exercises",
+      "topic": "functional",
+      "question": "Have you been doing the exercises?",
+      "answer": "Yes, the ones you showed me, most days.",
+      "keywords": [
+        "exercises",
+        "exercise",
+        "home"
+      ],
+      "disclosure": "on-ask",
+      "required": false,
+      "phases": [
+        "follow-up"
+      ]
+    }
+  ],
+  "exam": [
+    {
+      "id": "ex-gait",
+      "system": "general",
+      "maneuver": "Watch her walk",
+      "keywords": [
+        "walk",
+        "gait"
+      ],
+      "finding": "Walks independently with a slightly antalgic gait on the right.",
+      "abnormal": false,
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "ex-inspect",
+      "system": "musculoskeletal",
+      "maneuver": "Inspect both knees",
+      "keywords": [
+        "inspect",
+        "look at the knee",
+        "knees",
+        "appearance"
+      ],
+      "finding": "Mild bony enlargement at the medial right knee and slight varus. No redness, no visible swelling; skin intact.",
+      "abnormal": true,
+      "required": true,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "ex-palpate",
+      "system": "musculoskeletal",
+      "maneuver": "Palpate the right knee",
+      "keywords": [
+        "palpate",
+        "feel the knee",
+        "tender",
+        "tenderness",
+        "joint line"
+      ],
+      "finding": "Tender over the medial joint line, maximal at one point; no warmth.",
+      "abnormal": true,
+      "required": true,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "ex-effusion",
+      "system": "musculoskeletal",
+      "maneuver": "Check for an effusion (bulge test, patellar tap)",
+      "keywords": [
+        "effusion",
+        "bulge",
+        "patellar tap",
+        "fluid"
+      ],
+      "finding": "No effusion.",
+      "abnormal": false,
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "ex-rom",
+      "system": "musculoskeletal",
+      "maneuver": "Assess the range of movement",
+      "keywords": [
+        "range of movement",
+        "bend",
+        "straighten",
+        "flexion",
+        "extension",
+        "rom"
+      ],
+      "finding": "Flexion to about 115°, full extension; crepitus on flexion and discomfort at end range.",
+      "abnormal": true,
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "ex-ligaments",
+      "system": "musculoskeletal",
+      "maneuver": "Test ligament stability",
+      "keywords": [
+        "ligament",
+        "stability",
+        "drawer",
+        "valgus",
+        "varus stress"
+      ],
+      "finding": "Collateral and cruciate ligaments stable.",
+      "abnormal": false,
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "ex-legs-skin",
+      "system": "skin",
+      "maneuver": "Examine the skin of the legs, including for varicose veins",
+      "keywords": [
+        "skin",
+        "varicose",
+        "veins",
+        "legs",
+        "oedema"
+      ],
+      "finding": "Skin of both legs intact; no varicose veins; no oedema.",
+      "abnormal": false,
+      "required": true,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "ex-hip",
+      "system": "musculoskeletal",
+      "maneuver": "Examine the right hip",
+      "keywords": [
+        "hip"
+      ],
+      "finding": "Full, painless range of movement at the right hip.",
+      "abnormal": false,
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "ex-tongue",
+      "system": "general",
+      "maneuver": "Inspect the tongue",
+      "keywords": [
+        "tongue"
+      ],
+      "finding": "Pale tongue with a thin, white, slightly greasy coating.",
+      "abnormal": false,
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "ex-pulse-tcm",
+      "system": "general",
+      "maneuver": "Feel the radial pulses (TCM pulse diagnosis)",
+      "keywords": [
+        "pulse diagnosis",
+        "radial pulse",
+        "pulses",
+        "tcm pulse"
+      ],
+      "finding": "Pulse slightly deep and slow, a little slippery.",
+      "abnormal": false,
+      "required": false,
+      "phases": [
+        "visit-1"
+      ]
+    },
+    {
+      "id": "fu-ex-knee",
+      "system": "musculoskeletal",
+      "maneuver": "Re-examine the right knee",
+      "keywords": [
+        "re-examine",
+        "examine the knee",
+        "knee",
+        "bruise",
+        "look at the knee"
+      ],
+      "finding": "Medial joint line still tender, less so than last week; a fading 1 cm bruise at the medial knee; no swelling or warmth.",
+      "abnormal": false,
+      "required": false,
+      "phases": [
+        "follow-up"
+      ]
+    }
+  ],
+  "examNotRecorded": "Nothing remarkable is recorded for that examination in this case.",
+  "investigations": [
+    {
+      "id": "inv-xray",
+      "name": "Right knee X-ray report (polyclinic, March 2025)",
+      "category": "imaging",
+      "aliases": [
+        "x-ray",
+        "xray",
+        "knee x-ray",
+        "radiograph",
+        "imaging",
+        "previous scan"
+      ],
+      "requires": [],
+      "turnaroundMinutes": 0,
+      "risk": "none",
+      "performedAt": "records",
+      "value": "useful",
+      "results": {
+        "visit-1": {
+          "available": true,
+          "date": "March 2025",
+          "text": "Weight-bearing AP and lateral views of the right knee: mild narrowing of the medial compartment with small marginal osteophytes. No fracture, no erosions. Impression: mild medial compartment osteoarthritis.",
+          "values": [],
+          "figures": [],
+          "critical": false
+        },
+        "follow-up": {
+          "available": true,
+          "date": "March 2025",
+          "text": "Weight-bearing AP and lateral views of the right knee: mild narrowing of the medial compartment with small marginal osteophytes. No fracture, no erosions. Impression: mild medial compartment osteoarthritis.",
+          "values": [],
+          "figures": [],
+          "critical": false
+        }
+      },
+      "availability": {
+        "historical": true
+      }
+    }
+  ],
+  "physiology": {
+    "baseline": {
+      "hr": 76,
+      "sbp": 134,
+      "dbp": 82,
+      "rr": 14,
+      "spo2": 98,
+      "temp": 36.7,
+      "pain": 5
+    },
+    "noise": 0.5,
+    "events": [
+      {
+        "id": "pe-vasovagal",
+        "when": {
+          "flag": "acu.vasovagal"
+        },
+        "setVitals": {
+          "hr": 50,
+          "sbp": 84,
+          "dbp": 52
+        },
+        "severity": "warning",
+        "speaker": "narrator",
+        "message": "She has gone pale and sweaty and says she feels faint."
+      },
+      {
+        "id": "pe-recovered",
+        "when": {
+          "all": [
+            {
+              "flag": "acu.vasovagal"
+            },
+            {
+              "flag": "acu.lying"
+            },
+            {
+              "not": {
+                "flag": "acu.needles-in"
+              }
+            }
+          ]
+        },
+        "setVitals": {
+          "hr": 72,
+          "sbp": 120,
+          "dbp": 76
+        },
+        "severity": "info",
+        "speaker": "narrator",
+        "message": "Lying flat with the needles out, her colour is returning."
+      }
+    ]
+  },
+  "objectives": [
+    {
+      "id": "obj-history",
+      "title": "Take a focused history, including red flags and medicines",
+      "hint": "Onset and pattern of the pain, swelling or heat, fever and night pain, other conditions and medicines (blood thinners), prior care.",
+      "completeWhen": {
+        "all": [
+          {
+            "asked": "hx-onset"
+          },
+          {
+            "asked": "hx-pattern"
+          },
+          {
+            "asked": "hx-systemic"
+          },
+          {
+            "asked": "hx-meds"
+          }
+        ]
+      },
+      "waypoints": [
+        {
+          "target": "patient"
+        }
+      ]
+    },
+    {
+      "id": "obj-exam",
+      "title": "Examine the knee",
+      "hint": "Inspect, palpate, check for an effusion and the skin of the legs.",
+      "completeWhen": {
+        "all": [
+          {
+            "examined": "ex-inspect"
+          },
+          {
+            "examined": "ex-palpate"
+          }
+        ]
+      },
+      "waypoints": [
+        {
+          "target": "patient"
+        }
+      ]
+    },
+    {
+      "id": "obj-close",
+      "title": "Close the encounter safely",
+      "hint": "Every needle accounted for, the record written, follow-up arranged.",
+      "completeWhen": {
+        "flag": "acu.finished"
+      },
+      "waypoints": []
+    }
+  ],
+  "decisions": [],
+  "rubric": [
+    {
+      "id": "rb-red-flags",
+      "domain": "history",
+      "text": "Screened for red flags (fever, hot swollen joint, night pain)",
+      "weight": 2,
+      "met": {
+        "all": [
+          {
+            "asked": "hx-systemic"
+          },
+          {
+            "asked": "hx-swelling"
+          }
+        ]
+      },
+      "critical": true
+    },
+    {
+      "id": "rb-meds",
+      "domain": "safety",
+      "text": "Asked about medicines, including anticoagulants",
+      "weight": 2,
+      "met": {
+        "asked": "hx-meds"
+      }
+    },
+    {
+      "id": "rb-needles",
+      "domain": "history",
+      "text": "Asked about previous acupuncture and needle anxiety",
+      "weight": 1,
+      "met": {
+        "asked": "hx-acupuncture-before"
+      }
+    },
+    {
+      "id": "rb-exam",
+      "domain": "examination",
+      "text": "Examined the knee and the skin of the legs",
+      "weight": 2,
+      "met": {
+        "all": [
+          {
+            "examined": "ex-inspect"
+          },
+          {
+            "examined": "ex-palpate"
+          },
+          {
+            "examined": "ex-legs-skin"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rb-records",
+      "domain": "investigations",
+      "text": "Reviewed the existing X-ray report",
+      "weight": 1,
+      "met": {
+        "read": "inv-xray"
+      }
+    }
+  ],
+  "npcs": [],
+  "debrief": {
+    "title": "Knee pain in a 63-year-old woman",
+    "conclusion": "Mild medial compartment knee osteoarthritis without red flags. Acupuncture is a defensible option to discuss — with the conflicting guideline positions made clear — alongside exercise and weight management.",
+    "keyReasoning": [
+      "Gradual onset, mechanical pattern, short morning stiffness and medial joint-line tenderness fit osteoarthritis; the X-ray report agrees.",
+      "No fever, heat or night pain: no red flag for septic or inflammatory arthritis.",
+      "NICE NG226 advises against acupuncture for osteoarthritis; the 2019 ACR/AF guideline conditionally recommends it — consent should reflect that."
+    ],
+    "teachingPoints": [
+      "Screen for red flags before any needling.",
+      "Proportional bone measurement uses this patient's own segments; cun is not a fixed length.",
+      "Count every needle opened, and dispose of each into the sharps container before the visit ends."
+    ],
+    "references": [
+      "NICE NG226 (2022)",
+      "ACR/Arthritis Foundation 2019 guideline for OA of the hand, hip and knee"
+    ],
+    "notice": "Teaching-script measure, not a validated competency score."
+  },
+  "unknowns": [
+    "Recent blood test results",
+    "Body mass index trend"
+  ],
+  "assets": [],
+  "solution": [
+    {
+      "type": "start"
+    },
+    {
+      "type": "ask",
+      "itemId": "hx-onset"
+    },
+    {
+      "type": "ask",
+      "itemId": "hx-pattern"
+    },
+    {
+      "type": "ask",
+      "itemId": "hx-systemic"
+    },
+    {
+      "type": "ask",
+      "itemId": "hx-meds"
+    },
+    {
+      "type": "examine",
+      "findingId": "ex-inspect"
+    },
+    {
+      "type": "examine",
+      "findingId": "ex-palpate"
+    },
+    {
+      "type": "flag",
+      "flag": "acu.finished"
+    }
+  ],
+  "extensions": {
+    "acucraft": {
+      "field": "field.json"
+    }
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "schema": "acucraft/evidence@1",
+  "id": "acupuncture-guidelines",
+  "version": "0.1.0",
+  "review": {
+    "status": "unreviewed",
+    "reviewers": [],
+    "notes": "Each record names the guideline and version it comes from; differences between guidelines are deliberate (evidence-comparison tasks)."
+  },
+  "records": [
+    {
+      "id": "nice-ng226-oa",
+      "guideline": "NICE NG226: Osteoarthritis in over 16s — diagnosis and management",
+      "publisher": "National Institute for Health and Care Excellence",
+      "version": "2022",
+      "jurisdiction": "England and Wales",
+      "condition": "knee-osteoarthritis",
+      "intervention": "acupuncture",
+      "direction": "against",
+      "statement": "Do not offer acupuncture or dry needling for managing osteoarthritis.",
+      "source": {
+        "title": "NICE NG226: Osteoarthritis in over 16s — diagnosis and management",
+        "publisher": "National Institute for Health and Care Excellence",
+        "publishedAt": "2022",
+        "url": "https://www.nice.org.uk/guidance/NG226/chapter/recommendations",
+        "verified": false,
+        "note": "Recommendation as recalled from the guideline, not re-checked in this session: confirm the wording and the current version before use."
+      }
+    },
+    {
+      "id": "acr-af-2019-oa",
+      "guideline": "2019 ACR/Arthritis Foundation Guideline for the Management of Osteoarthritis of the Hand, Hip, and Knee",
+      "publisher": "American College of Rheumatology / Arthritis Foundation",
+      "version": "2019 (published 2020)",
+      "jurisdiction": "United States",
+      "condition": "knee-osteoarthritis",
+      "intervention": "acupuncture",
+      "direction": "conditional-for",
+      "statement": "Acupuncture is conditionally recommended for knee, hip and hand osteoarthritis.",
+      "source": {
+        "title": "2019 ACR/Arthritis Foundation Guideline for the Management of Osteoarthritis of the Hand, Hip, and Knee",
+        "publisher": "American College of Rheumatology / Arthritis Foundation",
+        "publishedAt": "2019 (published 2020)",
+        "verified": false,
+        "note": "Recommendation as recalled from the guideline, not re-checked in this session: confirm the wording and the current version before use."
+      }
+    },
+    {
+      "id": "nice-ng59-lbp",
+      "guideline": "NICE NG59: Low back pain and sciatica in over 16s — assessment and management",
+      "publisher": "National Institute for Health and Care Excellence",
+      "version": "2016 (updated 2020)",
+      "jurisdiction": "England and Wales",
+      "condition": "chronic-nonspecific-lbp",
+      "intervention": "acupuncture",
+      "direction": "against",
+      "statement": "Do not offer acupuncture for managing low back pain with or without sciatica.",
+      "source": {
+        "title": "NICE NG59: Low back pain and sciatica in over 16s — assessment and management",
+        "publisher": "National Institute for Health and Care Excellence",
+        "publishedAt": "2016 (updated 2020)",
+        "verified": false,
+        "note": "Recommendation as recalled from the guideline, not re-checked in this session: confirm the wording and the current version before use."
+      }
+    },
+    {
+      "id": "acp-2017-lbp",
+      "guideline": "Noninvasive Treatments for Acute, Subacute, and Chronic Low Back Pain (clinical practice guideline)",
+      "publisher": "American College of Physicians",
+      "version": "2017",
+      "jurisdiction": "United States",
+      "condition": "chronic-nonspecific-lbp",
+      "intervention": "acupuncture",
+      "direction": "conditional-for",
+      "statement": "For chronic low back pain, clinicians and patients should initially select non-drug treatment, which includes acupuncture among the options (weak recommendation, low-quality evidence).",
+      "source": {
+        "title": "Noninvasive Treatments for Acute, Subacute, and Chronic Low Back Pain (clinical practice guideline)",
+        "publisher": "American College of Physicians",
+        "publishedAt": "2017",
+        "verified": false,
+        "note": "Recommendation as recalled from the guideline, not re-checked in this session: confirm the wording and the current version before use."
+      }
+    },
+    {
+      "id": "nice-cg150-tth",
+      "guideline": "NICE CG150: Headaches in over 12s — diagnosis and management",
+      "publisher": "National Institute for Health and Care Excellence",
+      "version": "2012 (updated)",
+      "jurisdiction": "England and Wales",
+      "condition": "tension-type-headache",
+      "intervention": "acupuncture",
+      "direction": "consider",
+      "statement": "Consider a course of up to 10 sessions of acupuncture over 5 to 8 weeks for the prophylactic treatment of chronic tension-type headache.",
+      "source": {
+        "title": "NICE CG150: Headaches in over 12s — diagnosis and management",
+        "publisher": "National Institute for Health and Care Excellence",
+        "publishedAt": "2012 (updated)",
+        "verified": false,
+        "note": "Recommendation as recalled from the guideline, not re-checked in this session: confirm the wording and the current version before use."
+      }
+    }
+  ]
+}
