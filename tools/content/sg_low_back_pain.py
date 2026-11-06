@@ -192,13 +192,13 @@ pr = Trajectory("lp")
 consult(pr)
 pr({"type": "assess", "diagnoses": ["pregnancy-related-lbp"], "pattern": "qi-blood-stagnation", "redFlags": [], "rationale": "Mechanical back pain in pregnancy (24 weeks); no red flags."})
 pr({"type": "decide", "disposition": "treat-modified", "rationale": "Pregnant: no prone positioning and none of the points traditionally avoided in pregnancy; gentle local needling side-lying only."})
-pts_pr = [{"ashi": "ashi-right-l45"}]
+pts_pr = [{"ashi": "ashi-right-l3"}]
 pr({"type": "propose_plan", "plan": {"points": pts_pr, "technique": {"method": "manual-filiform", "stimulation": "none", "retentionMinutes": 15}, "rationale": "Gentle local Ashi needling only, side-lying, avoiding the lumbosacral and distal points cautioned in pregnancy.", "alternatives": ["Antenatal physiotherapy and exercise", "Support belt; advice from her obstetric team"], "followUp": "Review in one week; tell her obstetric team."}})
 pr({"type": "explain", "topics": ["procedure", "benefits", "risks", "alternatives", "evidence", "right-to-stop"], "text": "Because you are pregnant I'll only use one gentle needle in the tender spot while you lie on your side, for about fifteen minutes. The evidence for acupuncture in back pain is mixed, and limited in pregnancy. Risks are small: soreness, bruising, feeling faint. Other options are antenatal physiotherapy and a support belt. You can ask me to stop at any time."})
 pr({"type": "seek_consent"})
 pr({"type": "position_patient", "position": "side-lying-left"})
 pr({"type": "assign_task", "to": "assistant", "kind": "monitor-patient", "params": {"intervalMinutes": 5}, "note": "Please stay with her while the needle is in and check every five minutes."})
-pr.mark({"ashi": "ashi-right-l45"}, "lumbar", "right", -4.0, -0.5, method="palpation")
+pr.mark({"ashi": "ashi-right-l3"}, "lumbar", "right", -4.0, 3.7, method="palpation")
 pr.fetch_pack("pack-a")
 pr({"type": "prepare_site", "region": "lumbar", "side": "right"})
 pr({"type": "open_pack", "packId": "pack-a"})
@@ -245,15 +245,17 @@ variants = [
      {"id": "hx-chief", "answer": "My lower back has ached since I got pregnant, worse this last month. A friend said acupuncture helped her."},
      {"id": "hx-onset", "answer": "It came on gradually in the pregnancy, worse in the last month. No injury."},
      {"id": "hx-meds", "answer": "Prenatal vitamins only. No blood thinners."}],
-   "exam": [{"id": "ex-inspect-back", "finding": "Gravid abdomen consistent with about 24 weeks; increased lumbar lordosis; skin intact."}],
+   "exam": [{"id": "ex-inspect-back", "finding": "Gravid abdomen consistent with about 24 weeks; increased lumbar lordosis; skin intact."},
+     {"id": "ex-palpate-back", "finding": "No midline bony tenderness. Tight, tender right paraspinal muscles, maximal at one point at the level of L3, above the lumbosacral area."}],
    "patient": {"weightKg": 67}},
-  field={"patient": {"riskFactors": ["pregnancy"]},
+  # her tender point is at L3, clear of BL23 and BL25: needling it is not needling a cautioned point by another name
+  field={"patient": {"riskFactors": ["pregnancy"], "ashi": [{"id": "ashi-right-l45", "$remove": True}, {"id": "ashi-right-l3", "region": "lumbar", "side": "right", "centre": {"u": -4.0, "v": 3.7}, "radiusCm": 1.0, "revealedBy": "ex-palpate-back", "label": "maximal tenderness in the right paraspinal muscles at L3"}]},
    "evaluation": {"pathways": [{"id": "p-treat", "$remove": True},
      {"id": "p-treat-pregnancy", "label": "Gentle, modified treatment side-lying, avoiding the points cautioned in pregnancy", "acceptable": True, "when": {"all": [{"disposition": ["treat-modified", "treat"], "visit": 1}, {"needlesInserted": {"gte": 1}}, {"not": {"positioned": "prone"}}, {"not": {"unsafe": "insertion-at-cautioned-point"}}, {"not": {"unsafe": "insertion-without-consent"}}, {"visitEnded": 1}]}},
      {"id": "p-prone", "label": "Positioned prone in mid-pregnancy", "acceptable": False, "when": {"positioned": "prone"}},
      {"id": "p-cautioned", "label": "Needled points traditionally avoided in pregnancy", "acceptable": False, "when": {"unsafe": "insertion-at-cautioned-point"}}],
     "diagnoses": {"expected": {"$replace": ["pregnancy-related-lbp"]}, "acceptable": {"$replace": ["chronic-nonspecific-lbp"]}},
-    "points": {"recommended": {"$replace": [{"ashi": "ashi-right-l45"}]}, "acceptable": {"$replace": []},
+    "points": {"recommended": {"$replace": [{"ashi": "ashi-right-l3"}]}, "acceptable": {"$replace": []},
      "avoid": [{"point": "BL23", "reason": "lumbosacral point cautioned in pregnancy", "severity": "major"}, {"point": "BL25", "reason": "lumbosacral point cautioned in pregnancy", "severity": "major"}, {"point": "GV3", "reason": "lumbosacral point cautioned in pregnancy", "severity": "major"}, {"point": "GV4", "reason": "lumbosacral point cautioned in pregnancy", "severity": "major"}, {"point": "LI4", "reason": "traditionally avoided in pregnancy", "severity": "critical"}, {"point": "SP6", "reason": "traditionally avoided in pregnancy", "severity": "critical"}], "maxNeedles": 3}}}),
 ]
 solutions = {"base": base, "cauda-equina": ce, "pregnant": pr}

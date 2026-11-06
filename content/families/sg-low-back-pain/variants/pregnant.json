@@ -27,6 +27,10 @@
       {
         "id": "ex-inspect-back",
         "finding": "Gravid abdomen consistent with about 24 weeks; increased lumbar lordosis; skin intact."
+      },
+      {
+        "id": "ex-palpate-back",
+        "finding": "No midline bony tenderness. Tight, tender right paraspinal muscles, maximal at one point at the level of L3, above the lumbosacral area."
       }
     ],
     "patient": {
@@ -37,6 +41,24 @@
     "patient": {
       "riskFactors": [
         "pregnancy"
+      ],
+      "ashi": [
+        {
+          "id": "ashi-right-l45",
+          "$remove": true
+        },
+        {
+          "id": "ashi-right-l3",
+          "region": "lumbar",
+          "side": "right",
+          "centre": {
+            "u": -4.0,
+            "v": 3.7
+          },
+          "radiusCm": 1.0,
+          "revealedBy": "ex-palpate-back",
+          "label": "maximal tenderness in the right paraspinal muscles at L3"
+        }
       ]
     },
     "evaluation": {
@@ -117,7 +139,7 @@
         "recommended": {
           "$replace": [
             {
-              "ashi": "ashi-right-l45"
+              "ashi": "ashi-right-l3"
             }
           ]
         },

@@ -292,7 +292,7 @@
       "plan": {
         "points": [
           {
-            "ashi": "ashi-right-l45"
+            "ashi": "ashi-right-l3"
           }
         ],
         "technique": {
@@ -364,13 +364,13 @@
     "action": {
       "type": "mark_point",
       "target": {
-        "ashi": "ashi-right-l45"
+        "ashi": "ashi-right-l3"
       },
       "region": "lumbar",
       "side": "right",
       "at": {
         "u": -4.0,
-        "v": -0.5
+        "v": 3.7
       },
       "method": "palpation"
     }
@@ -552,7 +552,7 @@
         "consent": "Verbal consent after explanation.",
         "pointsUsed": [
           {
-            "ashi": "ashi-right-l45"
+            "ashi": "ashi-right-l3"
           }
         ],
         "needling": {

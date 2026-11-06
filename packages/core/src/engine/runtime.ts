@@ -44,7 +44,8 @@ export interface Ctx {
   sc: Scenario;
   s: EncounterState;
   req: ActionRequest;
-  actor: ActorState;
+  /** The acting actor, read from the state each time (a nested rollback replaces the state's objects). */
+  readonly actor: ActorState;
   out: Outcome;
   /** Run the scenario's NPC policies (between minutes of a wait and after the action). */
   npcTurn: () => void;
@@ -135,6 +136,8 @@ export function spend(ctx: Ctx, minutes: number, opts: { stopOnInterrupt: boolea
   let remaining = minutes;
   let spent = 0;
   const interrupted: string[] = [];
+  const firedIds = () => sc.field.events.filter((e) => e.interrupts && s.events[e.id]?.firedAt != null).map((e) => e.id);
+  const before = new Set(firedIds());
   while (remaining > 1e-9) {
     const t0 = now(s);
     const boundary = Math.floor(t0 + 1e-9) + 1;
@@ -142,10 +145,12 @@ export function spend(ctx: Ctx, minutes: number, opts: { stopOnInterrupt: boolea
     clin(sc, s, { type: "advance-time", minutes: chunk, reason: "procedure", by: "system" });
     remaining -= chunk;
     spent += chunk;
-    const fired = settle(sc, s);
-    const stops = fired.filter((id) => sc.field.events.find((e) => e.id === id)?.interrupts);
-    interrupted.push(...stops);
+    settle(sc, s);
     ctx.npcTurn();
+    // an interrupting event may fire here or inside an NPC's act: either way it stops what is under way
+    const stops = firedIds().filter((id) => !before.has(id));
+    for (const id of stops) before.add(id);
+    interrupted.push(...stops);
     if (stops.length > 0 && opts.stopOnInterrupt) break;
   }
   return { spent, interrupted };
@@ -166,7 +171,14 @@ export function settle(sc: Scenario, s: EncounterState): string[] {
         changed = true;
       }
       const armed = s.events[ev.id]!;
-      if (!armed.draw || armed.firedAt != null) continue;
+      if (armed.firedAt != null) continue;
+      if (rec && !evaluateField(sc, s, ev.when)) {
+        // the condition no longer holds (the needles came out first): the event waits until it holds again
+        delete s.events[ev.id];
+        changed = true;
+        continue;
+      }
+      if (!armed.draw) continue;
       if (now(s) + 1e-9 < armed.armedAt + ev.afterMinutes) continue;
       armed.firedAt = now(s);
       fire(sc, s, ev);

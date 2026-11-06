@@ -310,7 +310,9 @@ describe("engine details", () => {
     const r = step(sc, s, req({ type: "remove_all_needles" }), { strict: true });
     expect(r.attempt.status).toBe("partial");
     expect(retainedNeedles(r.state).length).toBe(3);
-    expect(r.attempt.executed!.steps.length).toBe(2);
+    // two needles out, then the interruption itself is recorded as what the engine did
+    expect(r.attempt.executed!.steps.length).toBe(3);
+    expect(r.attempt.executed!.steps[2]).toBe("interrupted by ev-faint");
     expect(r.state.patient.fainted).toBe(true);
     // further needling is refused while she is unwell; lying her flat and removing the rest lets her recover
     s = r.state;

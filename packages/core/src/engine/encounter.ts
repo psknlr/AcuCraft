@@ -14,7 +14,7 @@ import {
   type Result,
 } from "@clinicalcraft/core";
 import { ActionRequestSchema, type Action, type ActionRequest, type ActionRequestInput, type ActionType, type PointRef } from "../schema/actions.js";
-import type { ChartPoint, Side } from "../schema/common.js";
+import { PositionSchema, type ChartPoint, type Side } from "../schema/common.js";
 import type { UnsafeCode } from "../schema/field.js";
 import { ENCOUNTER_SCHEMA_ID, type AttemptRecord, type EncounterState, type Mode, type NeedleState, type Protection, type TaskState, type Violation } from "../schema/state.js";
 import { assessPath, patientRegion, pointInstance, regionAccess, type PathAssessment, type PatientRegion } from "./anatomy.js";
@@ -180,7 +180,10 @@ export function step(sc: Scenario, s: EncounterState, input: ActionRequestInput,
     const raw = input as Partial<ActionRequest>;
     if (typeof raw?.requestId !== "string" || typeof raw?.actor !== "string") throw new TypeError(`invalid action request: ${parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; ")}`);
     const draft = clone(s);
-    const rec = placeholderAttempt(draft.attempts.length, raw as ActionRequest, now(draft), draft.version);
+    // keep the request on record, with an action every reader can handle
+    const action = raw.action && typeof raw.action === "object" && typeof (raw.action as { type?: unknown }).type === "string" ? raw.action : ({ type: "invalid" } as unknown as ActionRequest["action"]);
+    const safe = { ...raw, patient: typeof raw.patient === "string" ? raw.patient : "patient", action } as ActionRequest;
+    const rec = placeholderAttempt(draft.attempts.length, safe, now(draft), draft.version);
     rec.code = "invalid-request";
     rec.message = parsed.error.issues.map((i) => `${i.path.join(".") || "request"}: ${i.message}`).join("; ");
     draft.attempts.push(rec);
@@ -190,7 +193,7 @@ export function step(sc: Scenario, s: EncounterState, input: ActionRequestInput,
   const prior = s.attempts.find((a) => a.requestId === req.requestId);
   if (prior) return { state: s, attempt: prior, duplicate: true, attempts: [] };
   const draft = clone(s);
-  const produced = apply(sc, draft, req, "external", opts.npcs !== false);
+  const produced = apply(sc, draft, req, "external", opts.npcs !== false).map((i) => draft.attempts[i]!);
   if (opts.strict) {
     const broken = checkInvariants(sc, draft);
     if (broken.length > 0) throw new Error(`invariant broken after ${req.action.type} (${req.requestId}): ${broken.join("; ")}`);
@@ -199,11 +202,17 @@ export function step(sc: Scenario, s: EncounterState, input: ActionRequestInput,
 }
 
 /** Apply a request to a draft state in place. Returns the attempt records it produced (its own first). */
-function apply(sc: Scenario, s: EncounterState, req: ActionRequest, origin: "external" | "npc", npcs: boolean): AttemptRecord[] {
+/**
+ * Apply a request to a draft state in place. Returns the indices (in `s.attempts`) of the records it produced, its own
+ * first. Nothing here keeps a reference into `s` across a nested request: an NPC request that is rejected restores the
+ * state from its own snapshot, which replaces the objects an outer frame might hold, so records are found by index and
+ * the actor through a getter.
+ */
+function apply(sc: Scenario, s: EncounterState, req: ActionRequest, origin: "external" | "npc", npcs: boolean): number[] {
   const snapshot = clone(s);
-  const rec = placeholderAttempt(s.attempts.length, req, now(s), s.version);
-  s.attempts.push(rec);
-  const produced: AttemptRecord[] = [rec];
+  const index = s.attempts.length;
+  s.attempts.push(placeholderAttempt(index, req, now(s), s.version));
+  const produced: number[] = [index];
   const type = req.action.type;
   const spoken = s.utterances.length;
   const npcTurn = () => {
@@ -212,8 +221,7 @@ function apply(sc: Scenario, s: EncounterState, req: ActionRequest, origin: "ext
   try {
     if (s.finished) throw new Rejection("finished", "The encounter has finished.");
     if (req.patient !== s.patient.id) throw new Rejection("unknown-patient", `There is no patient ${req.patient} in this encounter.`);
-    const actor = s.actors[req.actor];
-    if (!actor) throw new Rejection("unknown-actor", `${req.actor} is not part of this encounter.`);
+    if (!s.actors[req.actor]) throw new Rejection("unknown-actor", `${req.actor} is not part of this encounter.`);
     if (req.expectedVersion !== undefined && req.expectedVersion !== s.version) {
       throw new Rejection("stale-version", `The request was decided on state version ${req.expectedVersion}; the state is now at version ${s.version}. Observe again and decide on the current state.`);
     }
@@ -221,16 +229,28 @@ function apply(sc: Scenario, s: EncounterState, req: ActionRequest, origin: "ext
     if (!perm.ok) {
       throw new Rejection("not-authorised", perm.reason, CLINICAL_ACTS.includes(type) ? { unsafe: ["unauthorised-act"], protection: { by: sc.roles.id, kind: "rule", reason: perm.reason } } : {});
     }
-    const ctx: Ctx = { sc, s, req, actor, out: newOutcome(), npcTurn };
+    const ctx: Ctx = {
+      sc,
+      s,
+      req,
+      get actor() {
+        return s.actors[req.actor]!;
+      },
+      out: newOutcome(),
+      npcTurn,
+    };
     HANDLERS[type](ctx, req.action as never);
     s.version += 1;
     const committed = s.version;
+    // events arm at the minute their condition first holds — the action's own minute — before its time passes
+    settle(sc, s);
     if (ctx.out.cost > 0 && origin === "external") {
       const r = spend(ctx, ctx.out.cost, { stopOnInterrupt: false });
       ctx.out.interrupted.push(...r.interrupted);
-    } else settle(sc, s);
+    }
     for (const u of s.utterances.slice(spoken)) if (u.speaker !== req.actor) ctx.out.observations.push(`${speakerLabel(sc, u.speaker)}: "${u.text}"`);
-    Object.assign(rec, {
+    for (const id of ctx.out.interrupted) ctx.out.steps.push(`interrupted by ${id}`);
+    Object.assign(s.attempts[index]!, {
       status: ctx.out.status,
       target: ctx.out.target,
       executed: { type, detail: ctx.out.detail, steps: ctx.out.steps },
@@ -245,7 +265,7 @@ function apply(sc: Scenario, s: EncounterState, req: ActionRequest, origin: "ext
   } catch (e) {
     if (!(e instanceof Rejection)) throw e;
     for (const key of Object.keys(s) as (keyof EncounterState)[]) (s as unknown as Record<string, unknown>)[key] = (snapshot as unknown as Record<string, unknown>)[key];
-    s.attempts.push(rec);
+    const rec = placeholderAttempt(index, req, now(s), s.version);
     Object.assign(rec, {
       status: e.extra.protection ? "blocked" : "rejected",
       code: e.code,
@@ -255,22 +275,25 @@ function apply(sc: Scenario, s: EncounterState, req: ActionRequest, origin: "ext
       violations: e.extra.violations ?? [],
       resultVersion: s.version,
     } satisfies Partial<AttemptRecord>);
+    s.attempts.push(rec);
     produced.length = 1;
   }
   return produced;
 }
 
-function runNpcs(sc: Scenario, s: EncounterState, produced: AttemptRecord[]): void {
+function runNpcs(sc: Scenario, s: EncounterState, produced: number[]): void {
   for (const member of sc.field.cast) {
     if (member.agent !== "npc" || s.finished) continue;
     const policy = NPC_POLICIES[member.policy ?? "idle"] ?? NPC_POLICIES.idle!;
     for (let i = 0; i < 6; i++) {
       const action = policy(sc, s, member.id);
       if (!action) break;
-      const req = ActionRequestSchema.parse({ requestId: `npc:${member.id}:${s.attempts.length}`, actor: member.id, patient: s.patient.id, action });
-      const recs = apply(sc, s, req, "npc", false);
+      const parsed = ActionRequestSchema.safeParse({ requestId: `npc:${member.id}:${s.attempts.length}`, actor: member.id, patient: s.patient.id, action });
+      if (!parsed.success) break; // a policy never sends what the engine cannot parse; if it did, it waits
+      const recs = apply(sc, s, parsed.data, "npc", false);
       produced.push(...recs);
-      if (recs[0]!.status === "rejected" || recs[0]!.status === "blocked") break;
+      const status = s.attempts[recs[0]!]!.status;
+      if (status === "rejected" || status === "blocked") break;
     }
   }
 }
@@ -538,6 +561,58 @@ export function longestUnobservedGap(s: EncounterState, from: number, to: number
 function enterPhase(sc: Scenario, s: EncounterState, phase: string, visit: number): void {
   setClinicalFlag(sc, s, `acu.visit-${visit}`, true);
   if (s.clinical.phase !== phase) clin(sc, s, { type: "set-phase", phase, by: "system" });
+}
+
+/** Does the named target lie under the entry (within twice its tolerance, or twice an Ashi point's radius)? */
+function claimHolds(sc: Scenario, frame: PatientRegion, claimed: PointRef, region: string, side: Side, entry: ChartPoint): boolean {
+  if ("ashi" in claimed) {
+    const a = sc.field.patient.ashi.find((x) => x.id === claimed.ashi);
+    return !!a && a.region === region && a.side === side && Math.hypot(a.centre.u - entry.u, a.centre.v - entry.v) <= 2 * a.radiusCm;
+  }
+  const def = sc.bundle.acupoints.get(claimed.point);
+  if (!def || def.region !== region) return false;
+  if (def.bilateral && frame.region.laterality === "bilateral" && claimed.side !== side) return false;
+  const inst = pointInstance(sc, def, def.bilateral ? claimed.side : "midline", frame.configuration);
+  return !!inst && Math.hypot(inst.position.u - entry.u, inst.position.v - entry.v) <= 2 * inst.toleranceCm;
+}
+
+/** The point (or Ashi point) the entry lies on: planned points first, then any modelled point, within twice its tolerance. */
+function anatomicalTarget(sc: Scenario, frame: PatientRegion, region: string, side: Side, entry: ChartPoint, plan: ReturnType<typeof currentPlan>): PointRef | null {
+  const found: { ref: PointRef; d: number; planned: boolean }[] = [];
+  for (const def of sc.bundle.acupoints.values()) {
+    if (def.region !== region || !def.localisation) continue;
+    const sides: Side[] = !def.bilateral ? ["midline"] : frame.region.laterality === "bilateral" ? [side] : ["left", "right"];
+    for (const ps of sides) {
+      if (def.bilateral && side === "midline" && frame.region.laterality === "bilateral") continue;
+      const inst = pointInstance(sc, def, ps, frame.configuration);
+      if (!inst) continue;
+      const d = Math.hypot(inst.position.u - entry.u, inst.position.v - entry.v) / inst.toleranceCm;
+      const ref: PointRef = { point: def.id, side: ps };
+      if (d <= 2) found.push({ ref, d, planned: planIncludes(plan, ref) });
+    }
+  }
+  for (const a of sc.field.patient.ashi) {
+    if (a.region !== region || (frame.region.laterality === "bilateral" && a.side !== side)) continue;
+    const d = Math.hypot(a.centre.u - entry.u, a.centre.v - entry.v) / a.radiusCm;
+    const ref: PointRef = { ashi: a.id };
+    if (d <= 2) found.push({ ref, d, planned: planIncludes(plan, ref) });
+  }
+  found.sort((x, y) => Number(y.planned) - Number(x.planned) || x.d - y.d);
+  return found[0]?.ref ?? null;
+}
+
+/** Is the entry over a point cautioned for one of this patient's risk factors (within 1.5 times its tolerance)? */
+function cautionedAt(sc: Scenario, frame: PatientRegion, region: string, side: Side, entry: ChartPoint): boolean {
+  for (const def of sc.bundle.acupoints.values()) {
+    if (def.region !== region || !def.localisation) continue;
+    if (!def.cautions.some((c) => sc.field.patient.riskFactors.includes(c.when))) continue;
+    const sides: Side[] = !def.bilateral ? ["midline"] : frame.region.laterality === "bilateral" ? [side] : ["left", "right"];
+    for (const ps of sides) {
+      const inst = pointInstance(sc, def, ps, frame.configuration);
+      if (inst && Math.hypot(inst.position.u - entry.u, inst.position.v - entry.v) <= 1.5 * inst.toleranceCm) return true;
+    }
+  }
+  return false;
 }
 
 function doRemove(ctx: Ctx, needleId: string): void {
@@ -915,7 +990,7 @@ const HANDLERS: HandlerMap = {
       if (!a.segment) throw new Rejection("invalid", "Name the segment to measure, or ask for the finger cun.");
       const seg = frame.region.segments.find((x) => x.id === a.segment);
       if (!seg) throw new Rejection("unknown-id", `The ${frame.region.title} has no segment ${a.segment}.`);
-      const cm = frame.segmentCm(seg.id)! * (1 + (createRng(seedFrom(s.seed, sc.id, a.region, a.side, seg.id))() - 0.5) * 2 * MEASUREMENT_ERROR);
+      const cm = frame.cunCm(seg.id)! * seg.cun * (1 + (createRng(seedFrom(s.seed, sc.id, a.region, a.side, seg.id))() - 0.5) * 2 * MEASUREMENT_ERROR);
       s.measurements.push({ visit: visitIndex(s), by: ctx.actor.id, at: now(s), region: a.region, side: a.side, what: seg.id, cm });
       observe(ctx, `${seg.label}: ${fmt(cm)} cm, which the standard divides into ${seg.cun} B-cun.`);
     }
@@ -1109,28 +1184,11 @@ const HANDLERS: HandlerMap = {
       addUnsafe(ctx, "continued-after-adverse-event");
       blockers.push({ by: "simulation-guard", kind: "guard", reason: "the patient is unwell: attend to them" });
     }
-    // target: what the needle is for (the plan's point nearest the entry, within tolerance, when none is named)
+    // what the needle is for: the target the operator named (or marked) — shown back to them — and the point the entry
+    // actually lies on, judged against this patient's hidden anatomy, which the evaluator and the rules use
     const plan = currentPlan(s);
-    if (!target && plan) {
-      let best: { ref: PointRef; d: number } | null = null;
-      for (const p of plan.plan.points) {
-        if ("ashi" in p) {
-          const ashi = sc.field.patient.ashi.find((x) => x.id === p.ashi);
-          if (ashi && ashi.region === region && ashi.side === side) {
-            const d = Math.hypot(ashi.centre.u - entry.u, ashi.centre.v - entry.v);
-            if (d <= ashi.radiusCm && (!best || d < best.d)) best = { ref: p, d };
-          }
-          continue;
-        }
-        const def = sc.bundle.acupoints.get(p.point);
-        if (!def || def.region !== region) continue;
-        const inst = pointInstance(sc, def, p.side, frame.configuration);
-        if (!inst || (def.bilateral && p.side !== side)) continue;
-        const d = Math.hypot(inst.position.u - entry.u, inst.position.v - entry.v);
-        if (d <= inst.toleranceCm * 2 && (!best || d < best.d)) best = { ref: p, d };
-      }
-      target = best?.ref ?? null;
-    }
+    const claimed = target;
+    target = claimed && claimHolds(sc, frame, claimed, region, side, entry) ? claimed : anatomicalTarget(sc, frame, region, side, entry, plan);
     const rules = rulesInForce(sc, s, ctx.actor.id);
     // consent
     if (s.patient.consent.status === "withdrawn") {
@@ -1172,15 +1230,15 @@ const HANDLERS: HandlerMap = {
       if (c.centre && Math.hypot(c.centre.u - entry.u, c.centre.v - entry.v) > (c.radiusCm ?? 0)) continue;
       addUnsafe(ctx, "insertion-on-avoided-site");
     }
-    if (target && "point" in target) {
-      const def = sc.bundle.acupoints.get(target.point);
-      if (def?.cautions.some((cv) => sc.field.patient.riskFactors.includes(cv.when))) addUnsafe(ctx, "insertion-at-cautioned-point");
+    // a cautioned point is cautioned wherever the needle went for it: judged by where the entry is, not by its name
+    if (cautionedAt(sc, frame, region, side, entry) || (target && "point" in target && sc.bundle.acupoints.get(target.point)?.cautions.some((cv) => sc.field.patient.riskFactors.includes(cv.when)))) {
+      addUnsafe(ctx, "insertion-at-cautioned-point");
     }
     const path = doInsertCheckPath(ctx, n, frame, entry, a.angleDeg, a.azimuthDeg, a.depthCm, blockers);
     blockIf(ctx, blockers, `Insertion of ${n.id} stopped`);
     // execute
     const monitorTask = Object.values(s.tasks).find((tk) => tk.kind === "monitor-patient" && tk.status === "acknowledged");
-    n.location = { kind: "patient", region, side, entry, depthCm: path.executedDepthCm, angleDeg: a.angleDeg, azimuthDeg: a.azimuthDeg, target, mark: markId };
+    n.location = { kind: "patient", region, side, entry, depthCm: path.executedDepthCm, angleDeg: a.angleDeg, azimuthDeg: a.azimuthDeg, target: claimed, mark: markId };
     n.used = true;
     n.insertedBy = ctx.actor.id;
     n.observer = monitorTask?.assignee ?? ctx.actor.id;
@@ -1203,10 +1261,10 @@ const HANDLERS: HandlerMap = {
       findings: path.findings.map((f) => ({ structure: f.structure, contact: f.contact, clearanceCm: f.clearanceCm })),
     };
     ctx.actor.holding = ctx.actor.holding.filter((o) => o !== n.id);
-    pushNeedleEvent(s, n.id, ctx.actor.id, "inserted", target ? refKey(target) : undefined);
+    pushNeedleEvent(s, n.id, ctx.actor.id, "inserted", claimed ? refKey(claimed) : undefined);
     consequences(ctx, n, path);
     ctx.out.target = `needle:${n.id}`;
-    ctx.out.detail = `${n.id} at ${target ? pointLabel(sc, target) : `${region} ${side}`} (${at2(entry)}), ${fmt(path.executedDepthCm)} cm${path.executedDepthCm + 1e-9 < a.depthCm ? ` of ${fmt(a.depthCm)} cm requested (${path.stoppedBy})` : ""}`;
+    ctx.out.detail = `${n.id} at ${claimed ? pointLabel(sc, claimed) : `${region} ${side}`} (${at2(entry)}), ${fmt(path.executedDepthCm)} cm${path.executedDepthCm + 1e-9 < a.depthCm ? ` of ${fmt(a.depthCm)} cm requested (${path.stoppedBy})` : ""}`;
     observe(ctx, `Inserted ${ctx.out.detail}.`);
     ctx.out.cost = 0.5;
   },
@@ -1221,6 +1279,11 @@ const HANDLERS: HandlerMap = {
       addUnsafe(ctx, "continued-after-adverse-event");
       blockers.push({ by: "simulation-guard", kind: "guard", reason: "the patient is unwell: attend to them" });
     }
+    if (s.patient.consent.status === "withdrawn") {
+      addUnsafe(ctx, "insertion-after-consent-withdrawn");
+      blockers.push({ by: "simulation-guard", kind: "guard", reason: "the patient has withdrawn consent: remove the needles" });
+    }
+    if (s.stopped && s.stopped.visit === visitIndex(s)) addUnsafe(ctx, "continued-after-adverse-event");
     const frame = regionFrame(ctx, loc.region, loc.side);
     const depth = a.depthCm ?? loc.depthCm;
     const path = doInsertCheckPath(ctx, n, frame, loc.entry, loc.angleDeg, loc.azimuthDeg, depth, blockers);
@@ -1286,6 +1349,7 @@ const HANDLERS: HandlerMap = {
       return;
     }
     for (const id of order) {
+      if (s.needles[id]!.location.kind !== "patient") continue; // it fell out or broke while the others came out
       doRemove(ctx, id);
       const r = spend(ctx, 0.25, { stopOnInterrupt: true });
       if (r.interrupted.length > 0) {
@@ -1320,13 +1384,14 @@ const HANDLERS: HandlerMap = {
     const opened = openedNeedles(s);
     const by = (k: string) => opened.filter((n) => n.location.kind === k).length;
     const visibleFloor = opened.filter((n) => n.location.kind === "floor" && !n.location.hidden).length;
+    const reported = opened.filter((n) => (n.location.kind === "broken-in-patient" || (n.location.kind === "floor" && n.location.hidden)) && n.resolution !== null).length;
     const retained = by("patient");
     const inHand = by("hand");
     const onTray = by("tray");
     const disposed = by("sharps");
-    const unaccounted = opened.length - retained - inHand - onTray - disposed - visibleFloor;
+    const unaccounted = opened.length - retained - inHand - onTray - disposed - visibleFloor - reported;
     s.counts.push({ visit: visitIndex(s), at: now(s), by: ctx.actor.id, opened: opened.length, retained, inHand, onTray, disposed, unaccounted, reconciled: unaccounted === 0 });
-    observe(ctx, `Needle count: ${opened.length} opened — ${retained} in the patient, ${inHand} in hand, ${onTray} on the tray, ${visibleFloor > 0 ? `${visibleFloor} on the floor, ` : ""}${disposed} in the sharps container${unaccounted > 0 ? `; ${unaccounted} NOT ACCOUNTED FOR` : "; all accounted for"}.`);
+    observe(ctx, `Needle count: ${opened.length} opened — ${retained} in the patient, ${inHand} in hand, ${onTray} on the tray, ${visibleFloor > 0 ? `${visibleFloor} on the floor, ` : ""}${reported > 0 ? `${reported} lost or broken and reported, ` : ""}${disposed} in the sharps container${unaccounted > 0 ? `; ${unaccounted} NOT ACCOUNTED FOR` : "; all accounted for"}.`);
     ctx.out.detail = unaccounted > 0 ? `${unaccounted} unaccounted` : "reconciled";
     ctx.out.cost = 0.5;
   },
@@ -1379,9 +1444,10 @@ const HANDLERS: HandlerMap = {
     const { s } = ctx;
     s.incidents.push({ visit: visitIndex(s), at: now(s), by: ctx.actor.id, kind: a.kind, needleId: a.needleId ?? null, description: a.description });
     if (a.kind === "lost-needle") {
-      const searched = s.attempts.some((x) => x.request.action.type === "search" && (x.status === "executed" || x.status === "partial") && x.at >= currentVisit(s).startedAt);
       for (const n of needleList(s)) {
         if (n.location.kind === "floor" && n.location.hidden && (a.needleId === undefined || a.needleId === n.id)) {
+          const lostAt = [...n.events].reverse().find((e) => e.what === "dropped")?.at ?? 0;
+          const searched = s.attempts.some((x) => x.request.action.type === "search" && x.status === "executed" && x.at >= lostAt && ["floor", "couch"].includes((x.request.action as { area: string }).area));
           n.resolution = searched ? "searched for, not found: reported as lost" : null;
           if (!searched) observe(ctx, `Reported — but no search has been made for ${n.id} yet.`);
         }
@@ -1486,7 +1552,8 @@ const HANDLERS: HandlerMap = {
     const to = s.actors[a.to];
     if (!to || a.to === ctx.actor.id) throw new Rejection("unknown-id", `${a.to} cannot be assigned a task.`);
     if (!roleAccepts(roleOf(sc, a.to), a.kind)) throw new Rejection("not-within-role", `${speakerLabel(sc, a.to)} (${roleOf(sc, a.to)?.label}) cannot be asked to ${a.kind.replace(/-/g, " ")}.`);
-    if (a.kind === "position-patient" && typeof a.params.position !== "string") throw new Rejection("invalid", "Say which position (params.position).");
+    if (a.kind === "position-patient" && !PositionSchema.safeParse(a.params.position).success) throw new Rejection("invalid", `Say which position (params.position): one of ${PositionSchema.options.join(", ")}.`);
+    if (a.kind === "monitor-patient" && a.params.intervalMinutes !== undefined && !(Number(a.params.intervalMinutes) > 0)) throw new Rejection("invalid", "params.intervalMinutes must be a positive number of minutes.");
     if (a.kind === "fetch" && typeof a.params.item !== "string") throw new Rejection("invalid", "Say what to fetch (params.item).");
     const task = makeTask(ctx, a.to, a.kind, a.params, "assignment", a.note);
     utter(s, ctx.actor.id, a.to, a.note ?? `Please ${a.kind.replace(/-/g, " ")}${Object.keys(a.params).length ? ` (${Object.entries(a.params).map(([k, v]) => `${k}: ${v}`).join(", ")})` : ""}.`, "speech");
