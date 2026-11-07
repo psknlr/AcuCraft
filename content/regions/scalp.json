@@ -1,0 +1,639 @@
+{
+  "schema": "acucraft/region@1",
+  "id": "scalp",
+  "version": "0.1.0",
+  "title": "scalp",
+  "laterality": "midline",
+  "chart": {
+    "description": "The scalp over the vault, from the anterior to the posterior hairline, unrolled. u: distance (cm) along the transverse arc from the median line, positive towards the patient's LEFT. v: distance (cm) along the median sagittal arc from the anterior hairline, positive backwards over the vertex, so a 'cranial' offset here points away from the forehead (the direction of 'superior to the anterior hairline'); points measured from the posterior hairline are constructed along the line towards the anterior hairline. d: depth below the skin (cm). The anterior hairline is idealised as a transverse line through its median point; the corners of the forehead lie just behind it.",
+    "uRange": [
+      -10,
+      10
+    ],
+    "vRange": [
+      -2,
+      30
+    ]
+  },
+  "reference": {
+    "heightCm": 170,
+    "bmi": 22.5
+  },
+  "configurations": [
+    {
+      "id": "neutral",
+      "label": "head supported; the scalp reached from above or behind"
+    }
+  ],
+  "defaultConfiguration": "neutral",
+  "access": [
+    {
+      "position": "seated",
+      "configuration": "neutral",
+      "sides": [
+        "left",
+        "right",
+        "midline"
+      ]
+    },
+    {
+      "position": "seated-forward",
+      "configuration": "neutral",
+      "sides": [
+        "left",
+        "right",
+        "midline"
+      ]
+    },
+    {
+      "position": "supine",
+      "configuration": "neutral",
+      "sides": [
+        "left",
+        "right",
+        "midline"
+      ]
+    },
+    {
+      "position": "supine-knee-flexed",
+      "configuration": "neutral",
+      "sides": [
+        "left",
+        "right",
+        "midline"
+      ]
+    },
+    {
+      "position": "prone",
+      "configuration": "neutral",
+      "sides": [
+        "left",
+        "right",
+        "midline"
+      ]
+    },
+    {
+      "position": "side-lying-left",
+      "configuration": "neutral",
+      "sides": [
+        "right",
+        "midline"
+      ]
+    },
+    {
+      "position": "side-lying-right",
+      "configuration": "neutral",
+      "sides": [
+        "left",
+        "midline"
+      ]
+    }
+  ],
+  "landmarks": [
+    {
+      "id": "anterior-hairline",
+      "label": "anterior hairline on the median line",
+      "at": {
+        "u": 0,
+        "v": 0
+      },
+      "palpation": "Inspect where the skin of the forehead meets the hair on the median line. With a receded or indistinct hairline the standard takes it 3 B-cun above the glabella."
+    },
+    {
+      "id": "anterior-hairline-brow-medial-left",
+      "label": "anterior hairline directly above the medial end of the eyebrow (left)",
+      "at": {
+        "u": 1.15,
+        "v": 0
+      },
+      "palpation": "Follow the vertical line up from the medial end of the eyebrow (the frontal notch) to the anterior hairline."
+    },
+    {
+      "id": "anterior-hairline-brow-medial-right",
+      "label": "anterior hairline directly above the medial end of the eyebrow (right)",
+      "at": {
+        "u": -1.15,
+        "v": 0
+      },
+      "palpation": "Follow the vertical line up from the medial end of the eyebrow (the frontal notch) to the anterior hairline."
+    },
+    {
+      "id": "anterior-hairline-pupil-left",
+      "label": "anterior hairline directly above the pupil (left)",
+      "at": {
+        "u": 3.45,
+        "v": 0
+      },
+      "palpation": "With the eyes looking straight ahead, follow the vertical line up from the pupil to the anterior hairline."
+    },
+    {
+      "id": "anterior-hairline-pupil-right",
+      "label": "anterior hairline directly above the pupil (right)",
+      "at": {
+        "u": -3.45,
+        "v": 0
+      },
+      "palpation": "With the eyes looking straight ahead, follow the vertical line up from the pupil to the anterior hairline."
+    },
+    {
+      "id": "frontal-hairline-corner-left",
+      "label": "corner of the forehead at the anterior hairline (left)",
+      "at": {
+        "u": 7.2,
+        "v": 0.5
+      },
+      "palpation": "Inspect where the frontal hairline turns down into the temporal hairline; the temporalis moves under it when the teeth are clenched."
+    },
+    {
+      "id": "frontal-hairline-corner-right",
+      "label": "corner of the forehead at the anterior hairline (right)",
+      "at": {
+        "u": -7.2,
+        "v": 0.5
+      },
+      "palpation": "Inspect where the frontal hairline turns down into the temporal hairline; the temporalis moves under it when the teeth are clenched."
+    },
+    {
+      "id": "external-occipital-protuberance",
+      "label": "external occipital protuberance",
+      "at": {
+        "u": 0,
+        "v": 23.6
+      },
+      "palpation": "The bony prominence at the back of the head on the median line."
+    },
+    {
+      "id": "posterior-hairline",
+      "label": "posterior hairline on the median line",
+      "at": {
+        "u": 0,
+        "v": 27.6
+      },
+      "palpation": "Inspect the lower margin of the hair at the nape, on the median line. With an indistinct hairline the standard takes it 3 B-cun above the spinous process of C7."
+    }
+  ],
+  "segments": [
+    {
+      "id": "seg.hairlines",
+      "label": "anterior to posterior hairline, along the median line over the vertex",
+      "from": "anterior-hairline",
+      "to": "posterior-hairline",
+      "cun": 12,
+      "source": {
+        "title": "WHO Standard Acupuncture Point Locations (2008): proportional bone measurement",
+        "verified": false
+      }
+    },
+    {
+      "id": "seg.st8",
+      "label": "between the two corners of the forehead (the two ST8)",
+      "from": "frontal-hairline-corner-right",
+      "to": "frontal-hairline-corner-left",
+      "cun": 9,
+      "source": {
+        "title": "WHO Standard Acupuncture Point Locations (2008): proportional bone measurement",
+        "verified": false
+      }
+    }
+  ],
+  "tissue": {
+    "layers": [
+      {
+        "tissue": "skin",
+        "thicknessCm": 0.25
+      },
+      {
+        "tissue": "subcutaneous",
+        "thicknessCm": 0.3,
+        "label": "dense connective tissue with the vessels and nerves"
+      },
+      {
+        "tissue": "fascia",
+        "thicknessCm": 0.1,
+        "label": "galea aponeurotica"
+      },
+      {
+        "tissue": "fascia",
+        "thicknessCm": 0.1,
+        "label": "loose areolar tissue"
+      },
+      {
+        "tissue": "periosteum",
+        "thicknessCm": 0.05,
+        "label": "pericranium"
+      },
+      {
+        "tissue": "bone",
+        "thicknessCm": 0.7,
+        "label": "skull (outer table, diploe, inner table)"
+      }
+    ],
+    "zones": [
+      {
+        "id": "z-temporal-line-left",
+        "centre": {
+          "u": 8.6,
+          "v": 2.5
+        },
+        "radiusCm": 2.0,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.25
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.1,
+            "label": "temporoparietal fascia"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.15,
+            "label": "deep temporal fascia"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.5,
+            "label": "temporalis (upper margin)"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 0.7,
+            "label": "frontal and parietal bones"
+          }
+        ]
+      },
+      {
+        "id": "z-temporal-line-right",
+        "centre": {
+          "u": -8.6,
+          "v": 2.5
+        },
+        "radiusCm": 2.0,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.25
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.1,
+            "label": "temporoparietal fascia"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.15,
+            "label": "deep temporal fascia"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.5,
+            "label": "temporalis (upper margin)"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 0.7,
+            "label": "frontal and parietal bones"
+          }
+        ]
+      }
+    ]
+  },
+  "structures": [
+    {
+      "id": "supraorbital-nerve-scalp-left",
+      "label": "supraorbital nerve and vessels in the scalp (left)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 2.9,
+          "v": -1.5,
+          "d": 0.4
+        },
+        {
+          "u": 3.1,
+          "v": 3.0,
+          "d": 0.35
+        },
+        {
+          "u": 3.4,
+          "v": 9.0,
+          "d": 0.35
+        }
+      ],
+      "radiusCm": 0.08,
+      "uncertaintyCm": 0.3,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "supraorbital-nerve-scalp-right",
+      "label": "supraorbital nerve and vessels in the scalp (right)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -2.9,
+          "v": -1.5,
+          "d": 0.4
+        },
+        {
+          "u": -3.1,
+          "v": 3.0,
+          "d": 0.35
+        },
+        {
+          "u": -3.4,
+          "v": 9.0,
+          "d": 0.35
+        }
+      ],
+      "radiusCm": 0.08,
+      "uncertaintyCm": 0.3,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "supratrochlear-nerve-scalp-left",
+      "label": "supratrochlear nerve and vessels in the scalp (left)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 1.3,
+          "v": -1.5,
+          "d": 0.4
+        },
+        {
+          "u": 1.45,
+          "v": 2.5,
+          "d": 0.35
+        }
+      ],
+      "radiusCm": 0.06,
+      "uncertaintyCm": 0.3,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "supratrochlear-nerve-scalp-right",
+      "label": "supratrochlear nerve and vessels in the scalp (right)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -1.3,
+          "v": -1.5,
+          "d": 0.4
+        },
+        {
+          "u": -1.45,
+          "v": 2.5,
+          "d": 0.35
+        }
+      ],
+      "radiusCm": 0.06,
+      "uncertaintyCm": 0.3,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "superficial-temporal-artery-frontal-scalp-left",
+      "label": "frontal branch of the superficial temporal artery (left)",
+      "kind": "artery",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 9.8,
+          "v": -1.5,
+          "d": 0.35
+        },
+        {
+          "u": 8.4,
+          "v": -0.2,
+          "d": 0.3
+        },
+        {
+          "u": 6.5,
+          "v": -0.9,
+          "d": 0.3
+        }
+      ],
+      "radiusCm": 0.1,
+      "uncertaintyCm": 0.3,
+      "consequence": "bleeding"
+    },
+    {
+      "id": "superficial-temporal-artery-frontal-scalp-right",
+      "label": "frontal branch of the superficial temporal artery (right)",
+      "kind": "artery",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -9.8,
+          "v": -1.5,
+          "d": 0.35
+        },
+        {
+          "u": -8.4,
+          "v": -0.2,
+          "d": 0.3
+        },
+        {
+          "u": -6.5,
+          "v": -0.9,
+          "d": 0.3
+        }
+      ],
+      "radiusCm": 0.1,
+      "uncertaintyCm": 0.3,
+      "consequence": "bleeding"
+    },
+    {
+      "id": "superficial-temporal-artery-parietal-scalp-left",
+      "label": "parietal branch of the superficial temporal artery (left)",
+      "kind": "artery",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 9.8,
+          "v": 10.0,
+          "d": 0.35
+        },
+        {
+          "u": 8.0,
+          "v": 11.0,
+          "d": 0.3
+        },
+        {
+          "u": 6.0,
+          "v": 12.0,
+          "d": 0.3
+        }
+      ],
+      "radiusCm": 0.1,
+      "uncertaintyCm": 0.3,
+      "consequence": "bleeding"
+    },
+    {
+      "id": "superficial-temporal-artery-parietal-scalp-right",
+      "label": "parietal branch of the superficial temporal artery (right)",
+      "kind": "artery",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -9.8,
+          "v": 10.0,
+          "d": 0.35
+        },
+        {
+          "u": -8.0,
+          "v": 11.0,
+          "d": 0.3
+        },
+        {
+          "u": -6.0,
+          "v": 12.0,
+          "d": 0.3
+        }
+      ],
+      "radiusCm": 0.1,
+      "uncertaintyCm": 0.3,
+      "consequence": "bleeding"
+    },
+    {
+      "id": "occipital-artery-scalp-left",
+      "label": "occipital artery in the scalp (left)",
+      "kind": "artery",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 3.6,
+          "v": 27.0,
+          "d": 0.4
+        },
+        {
+          "u": 3.3,
+          "v": 22.0,
+          "d": 0.35
+        },
+        {
+          "u": 2.9,
+          "v": 17.0,
+          "d": 0.35
+        }
+      ],
+      "radiusCm": 0.1,
+      "uncertaintyCm": 0.3,
+      "consequence": "bleeding"
+    },
+    {
+      "id": "occipital-artery-scalp-right",
+      "label": "occipital artery in the scalp (right)",
+      "kind": "artery",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -3.6,
+          "v": 27.0,
+          "d": 0.4
+        },
+        {
+          "u": -3.3,
+          "v": 22.0,
+          "d": 0.35
+        },
+        {
+          "u": -2.9,
+          "v": 17.0,
+          "d": 0.35
+        }
+      ],
+      "radiusCm": 0.1,
+      "uncertaintyCm": 0.3,
+      "consequence": "bleeding"
+    },
+    {
+      "id": "greater-occipital-nerve-scalp-left",
+      "label": "greater occipital nerve in the scalp (left)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 3.0,
+          "v": 27.0,
+          "d": 0.4
+        },
+        {
+          "u": 2.8,
+          "v": 22.0,
+          "d": 0.35
+        },
+        {
+          "u": 2.4,
+          "v": 16.0,
+          "d": 0.35
+        }
+      ],
+      "radiusCm": 0.08,
+      "uncertaintyCm": 0.3,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "greater-occipital-nerve-scalp-right",
+      "label": "greater occipital nerve in the scalp (right)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -3.0,
+          "v": 27.0,
+          "d": 0.4
+        },
+        {
+          "u": -2.8,
+          "v": 22.0,
+          "d": 0.35
+        },
+        {
+          "u": -2.4,
+          "v": 16.0,
+          "d": 0.35
+        }
+      ],
+      "radiusCm": 0.08,
+      "uncertaintyCm": 0.3,
+      "consequence": "electric-sensation"
+    }
+  ],
+  "description": "The scalp: the skin, a dense subcutaneous layer that carries the vessels and nerves, the galea aponeurotica, loose areolar tissue and the pericranium, with the skull usually within about a centimetre of the skin; towards the corners of the forehead the temporalis and its fascia add depth. The supratrochlear and supraorbital nerves and vessels run back from the forehead, the branches of the superficial temporal artery up the sides, and the occipital artery and greater occipital nerve up the back of the head. The chart is an adult's: an open fontanelle (under GV22 in infants) is not modelled. With the patient supine the back of the head rests on the pillow; the model does not restrict access within the scalp.",
+  "provenance": {
+    "kind": "schematic",
+    "sources": [
+      {
+        "title": "General regional anatomy of the scalp and skull (standard anatomy texts)",
+        "verified": false,
+        "note": "Topography only; no third-party geometry or images were used."
+      }
+    ],
+    "licence": "CC0-1.0 (original schematic geometry)",
+    "review": {
+      "status": "unreviewed",
+      "reviewers": [],
+      "notes": "Positions and depths are illustrative approximations of a reference adult written for simulation. They are not measurements or an atlas and are not a guide to safe depths in real patients. Anatomical expert review is required before any teaching use."
+    }
+  }
+}

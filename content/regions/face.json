@@ -1,0 +1,1713 @@
+{
+  "schema": "acucraft/region@1",
+  "id": "face",
+  "version": "0.1.0",
+  "title": "face",
+  "laterality": "midline",
+  "chart": {
+    "description": "The face from the chin to the anterior hairline, seen from the front: the forehead and eyebrows, the eyes and orbits, the nose, the cheeks, the lips and chin, and the front of the temples. u: distance (cm) across the skin from the anterior median line, positive towards the patient's LEFT (lateral runs from the median line out towards the temple). v: distance (cm) cranial from the glabella. d: depth below the skin (cm).",
+    "uRange": [
+      -9,
+      9
+    ],
+    "vRange": [
+      -14,
+      8
+    ]
+  },
+  "reference": {
+    "heightCm": 170,
+    "bmi": 22.5
+  },
+  "configurations": [
+    {
+      "id": "neutral",
+      "label": "head supported in the neutral position, face relaxed, eyes looking straight ahead, mouth closed"
+    }
+  ],
+  "defaultConfiguration": "neutral",
+  "access": [
+    {
+      "position": "supine",
+      "configuration": "neutral",
+      "sides": [
+        "left",
+        "right",
+        "midline"
+      ]
+    },
+    {
+      "position": "supine-knee-flexed",
+      "configuration": "neutral",
+      "sides": [
+        "left",
+        "right",
+        "midline"
+      ]
+    },
+    {
+      "position": "seated",
+      "configuration": "neutral",
+      "sides": [
+        "left",
+        "right",
+        "midline"
+      ]
+    },
+    {
+      "position": "side-lying-left",
+      "configuration": "neutral",
+      "sides": [
+        "right",
+        "midline"
+      ]
+    },
+    {
+      "position": "side-lying-right",
+      "configuration": "neutral",
+      "sides": [
+        "left",
+        "midline"
+      ]
+    }
+  ],
+  "landmarks": [
+    {
+      "id": "glabella",
+      "label": "glabella",
+      "at": {
+        "u": 0,
+        "v": 0
+      },
+      "palpation": "The smooth bony prominence between the eyebrows, above the root of the nose."
+    },
+    {
+      "id": "anterior-hairline",
+      "label": "anterior hairline on the median line",
+      "at": {
+        "u": 0,
+        "v": 6.3
+      },
+      "palpation": "Inspect where the skin of the forehead meets the hair on the median line; frown lines and fine hairs help. With a receded or indistinct hairline the standard takes it 3 B-cun above the glabella."
+    },
+    {
+      "id": "eyebrow-medial-left",
+      "label": "medial end of the eyebrow (left)",
+      "at": {
+        "u": 1.15,
+        "v": 0.2
+      },
+      "palpation": "Inspect the medial end of the eyebrow; a small notch (the supratrochlear or frontal notch) is felt in the orbital margin beneath it."
+    },
+    {
+      "id": "eyebrow-medial-right",
+      "label": "medial end of the eyebrow (right)",
+      "at": {
+        "u": -1.15,
+        "v": 0.2
+      },
+      "palpation": "Inspect the medial end of the eyebrow; a small notch (the supratrochlear or frontal notch) is felt in the orbital margin beneath it."
+    },
+    {
+      "id": "eyebrow-middle-left",
+      "label": "middle of the eyebrow, directly above the pupil (left)",
+      "at": {
+        "u": 3.15,
+        "v": 0.8
+      },
+      "palpation": "With the eyes looking straight ahead, follow the vertical line through the pupil up to the eyebrow."
+    },
+    {
+      "id": "eyebrow-middle-right",
+      "label": "middle of the eyebrow, directly above the pupil (right)",
+      "at": {
+        "u": -3.15,
+        "v": 0.8
+      },
+      "palpation": "With the eyes looking straight ahead, follow the vertical line through the pupil up to the eyebrow."
+    },
+    {
+      "id": "eyebrow-lateral-left",
+      "label": "lateral end of the eyebrow (left)",
+      "at": {
+        "u": 5.3,
+        "v": 0.3
+      },
+      "palpation": "Inspect the lateral end of the eyebrow; a small depression lies over the zygomatic process of the frontal bone."
+    },
+    {
+      "id": "eyebrow-lateral-right",
+      "label": "lateral end of the eyebrow (right)",
+      "at": {
+        "u": -5.3,
+        "v": 0.3
+      },
+      "palpation": "Inspect the lateral end of the eyebrow; a small depression lies over the zygomatic process of the frontal bone."
+    },
+    {
+      "id": "canthus-inner-left",
+      "label": "inner canthus (left)",
+      "at": {
+        "u": 1.6,
+        "v": -1.9
+      },
+      "palpation": "Inspect the medial angle of the eye, where the eyelids meet beside the nose."
+    },
+    {
+      "id": "canthus-inner-right",
+      "label": "inner canthus (right)",
+      "at": {
+        "u": -1.6,
+        "v": -1.9
+      },
+      "palpation": "Inspect the medial angle of the eye, where the eyelids meet beside the nose."
+    },
+    {
+      "id": "canthus-outer-left",
+      "label": "outer canthus (left)",
+      "at": {
+        "u": 4.75,
+        "v": -1.7
+      },
+      "palpation": "Inspect the lateral angle of the eye, where the eyelids meet."
+    },
+    {
+      "id": "canthus-outer-right",
+      "label": "outer canthus (right)",
+      "at": {
+        "u": -4.75,
+        "v": -1.7
+      },
+      "palpation": "Inspect the lateral angle of the eye, where the eyelids meet."
+    },
+    {
+      "id": "pupil-left",
+      "label": "centre of the pupil (eyes looking straight ahead) (left)",
+      "at": {
+        "u": 3.15,
+        "v": -2.0
+      },
+      "palpation": "Ask the patient to look straight ahead and inspect the centre of the pupil."
+    },
+    {
+      "id": "pupil-right",
+      "label": "centre of the pupil (eyes looking straight ahead) (right)",
+      "at": {
+        "u": -3.15,
+        "v": -2.0
+      },
+      "palpation": "Ask the patient to look straight ahead and inspect the centre of the pupil."
+    },
+    {
+      "id": "infraorbital-margin-medial-left",
+      "label": "medial end of the infraorbital margin (left)",
+      "at": {
+        "u": 1.7,
+        "v": -3.2
+      },
+      "palpation": "Follow the lower rim of the orbit medially to where it turns up into the anterior lacrimal crest beside the nose."
+    },
+    {
+      "id": "infraorbital-margin-medial-right",
+      "label": "medial end of the infraorbital margin (right)",
+      "at": {
+        "u": -1.7,
+        "v": -3.2
+      },
+      "palpation": "Follow the lower rim of the orbit medially to where it turns up into the anterior lacrimal crest beside the nose."
+    },
+    {
+      "id": "infraorbital-margin-pupil-left",
+      "label": "infraorbital margin directly below the pupil (left)",
+      "at": {
+        "u": 3.15,
+        "v": -3.7
+      },
+      "palpation": "Palpate the bony lower rim of the orbit through the lower eyelid, on the vertical line through the pupil."
+    },
+    {
+      "id": "infraorbital-margin-pupil-right",
+      "label": "infraorbital margin directly below the pupil (right)",
+      "at": {
+        "u": -3.15,
+        "v": -3.7
+      },
+      "palpation": "Palpate the bony lower rim of the orbit through the lower eyelid, on the vertical line through the pupil."
+    },
+    {
+      "id": "infraorbital-margin-lateral-left",
+      "label": "lateral end of the infraorbital margin (left)",
+      "at": {
+        "u": 5.1,
+        "v": -2.9
+      },
+      "palpation": "Follow the lower rim of the orbit laterally to where it turns up into the lateral orbital margin (zygomatic bone)."
+    },
+    {
+      "id": "infraorbital-margin-lateral-right",
+      "label": "lateral end of the infraorbital margin (right)",
+      "at": {
+        "u": -5.1,
+        "v": -2.9
+      },
+      "palpation": "Follow the lower rim of the orbit laterally to where it turns up into the lateral orbital margin (zygomatic bone)."
+    },
+    {
+      "id": "infraorbital-foramen-left",
+      "label": "infraorbital foramen (left)",
+      "at": {
+        "u": 3.0,
+        "v": -4.6
+      },
+      "palpation": "About 1 cm below the infraorbital margin, roughly in line with the pupil: a small depression felt with firm pressure; pressure here is often tender."
+    },
+    {
+      "id": "infraorbital-foramen-right",
+      "label": "infraorbital foramen (right)",
+      "at": {
+        "u": -3.0,
+        "v": -4.6
+      },
+      "palpation": "About 1 cm below the infraorbital margin, roughly in line with the pupil: a small depression felt with firm pressure; pressure here is often tender."
+    },
+    {
+      "id": "zygoma-lower-border-left",
+      "label": "lower border of the zygomatic bone, directly below the outer canthus (left)",
+      "at": {
+        "u": 4.75,
+        "v": -5.0
+      },
+      "palpation": "Follow the vertical line down from the outer canthus to the lower edge of the cheekbone."
+    },
+    {
+      "id": "zygoma-lower-border-right",
+      "label": "lower border of the zygomatic bone, directly below the outer canthus (right)",
+      "at": {
+        "u": -4.75,
+        "v": -5.0
+      },
+      "palpation": "Follow the vertical line down from the outer canthus to the lower edge of the cheekbone."
+    },
+    {
+      "id": "nasal-bone-lower-end-left",
+      "label": "lower end of the nasal bone, at its junction with the alar cartilage (left)",
+      "at": {
+        "u": 1.25,
+        "v": -3.9
+      },
+      "palpation": "Slide a finger down the side of the nose: the firm nasal bone gives way to the mobile cartilage at the upper end of the nasolabial sulcus."
+    },
+    {
+      "id": "nasal-bone-lower-end-right",
+      "label": "lower end of the nasal bone, at its junction with the alar cartilage (right)",
+      "at": {
+        "u": -1.25,
+        "v": -3.9
+      },
+      "palpation": "Slide a finger down the side of the nose: the firm nasal bone gives way to the mobile cartilage at the upper end of the nasolabial sulcus."
+    },
+    {
+      "id": "ala-lateral-left",
+      "label": "lateral border of the ala of the nose, at its midpoint (left)",
+      "at": {
+        "u": 1.75,
+        "v": -5.4
+      },
+      "palpation": "Inspect the outer curve of the nostril wing; the nasolabial sulcus begins just lateral to it."
+    },
+    {
+      "id": "ala-lateral-right",
+      "label": "lateral border of the ala of the nose, at its midpoint (right)",
+      "at": {
+        "u": -1.75,
+        "v": -5.4
+      },
+      "palpation": "Inspect the outer curve of the nostril wing; the nasolabial sulcus begins just lateral to it."
+    },
+    {
+      "id": "nostril-lateral-left",
+      "label": "lateral margin of the nostril (left)",
+      "at": {
+        "u": 1.05,
+        "v": -6.0
+      },
+      "palpation": "Inspect the outer margin of the nostril opening from the front."
+    },
+    {
+      "id": "nostril-lateral-right",
+      "label": "lateral margin of the nostril (right)",
+      "at": {
+        "u": -1.05,
+        "v": -6.0
+      },
+      "palpation": "Inspect the outer margin of the nostril opening from the front."
+    },
+    {
+      "id": "nose-tip",
+      "label": "tip of the nose",
+      "at": {
+        "u": 0,
+        "v": -5.2
+      },
+      "palpation": "Inspect the most prominent point of the nasal tip."
+    },
+    {
+      "id": "subnasale",
+      "label": "subnasale (upper end of the philtrum)",
+      "at": {
+        "u": 0,
+        "v": -6.3
+      },
+      "palpation": "Inspect where the base of the nasal septum meets the upper lip."
+    },
+    {
+      "id": "philtrum-lower",
+      "label": "lower end of the philtrum, at the vermilion border",
+      "at": {
+        "u": 0,
+        "v": -7.9
+      },
+      "palpation": "Inspect where the philtral groove meets the red margin of the upper lip."
+    },
+    {
+      "id": "upper-lip-tubercle",
+      "label": "tubercle of the upper lip",
+      "at": {
+        "u": 0,
+        "v": -8.15
+      },
+      "palpation": "Inspect the small central prominence of the red part of the upper lip."
+    },
+    {
+      "id": "mouth-angle-left",
+      "label": "angle of the mouth (left)",
+      "at": {
+        "u": 2.5,
+        "v": -8.5
+      },
+      "palpation": "Inspect the corner of the closed mouth, where the lips meet."
+    },
+    {
+      "id": "mouth-angle-right",
+      "label": "angle of the mouth (right)",
+      "at": {
+        "u": -2.5,
+        "v": -8.5
+      },
+      "palpation": "Inspect the corner of the closed mouth, where the lips meet."
+    },
+    {
+      "id": "mentolabial-sulcus",
+      "label": "centre of the mentolabial sulcus",
+      "at": {
+        "u": 0,
+        "v": -10.6
+      },
+      "palpation": "Inspect the transverse groove between the lower lip and the chin, on the median line."
+    },
+    {
+      "id": "chin",
+      "label": "lowest point of the chin (menton)",
+      "at": {
+        "u": 0,
+        "v": -13.0
+      },
+      "palpation": "Palpate the lowest point of the bony chin."
+    }
+  ],
+  "segments": [
+    {
+      "id": "seg.glabella-hairline",
+      "label": "glabella to the anterior hairline",
+      "from": "glabella",
+      "to": "anterior-hairline",
+      "cun": 3,
+      "source": {
+        "title": "WHO Standard Acupuncture Point Locations (2008): proportional bone measurement",
+        "verified": false
+      }
+    }
+  ],
+  "tissue": {
+    "layers": [
+      {
+        "tissue": "skin",
+        "thicknessCm": 0.15
+      },
+      {
+        "tissue": "subcutaneous",
+        "thicknessCm": 0.3
+      },
+      {
+        "tissue": "muscle",
+        "thicknessCm": 0.2,
+        "label": "frontalis, orbicularis and the other mimetic muscles"
+      },
+      {
+        "tissue": "fascia",
+        "thicknessCm": 0.1,
+        "label": "galea and loose areolar tissue"
+      },
+      {
+        "tissue": "periosteum",
+        "thicknessCm": 0.05
+      },
+      {
+        "tissue": "bone",
+        "thicknessCm": 2.0,
+        "label": "frontal bone and facial skeleton"
+      }
+    ],
+    "zones": [
+      {
+        "id": "z-orbit-inferior-left",
+        "centre": {
+          "u": 3.65,
+          "v": -3.2
+        },
+        "radiusCm": 0.8,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.1,
+            "label": "lower eyelid"
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.1
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.2,
+            "label": "orbicularis oculi"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.05,
+            "label": "orbital septum"
+          },
+          {
+            "tissue": "fat-pad",
+            "thicknessCm": 3.0,
+            "label": "orbital fat along the floor of the orbit, below the eyeball"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 1.0,
+            "label": "posterior orbit: optic nerve and ophthalmic vessels",
+            "hazard": "critical"
+          }
+        ]
+      },
+      {
+        "id": "z-orbit-inferior-right",
+        "centre": {
+          "u": -3.65,
+          "v": -3.2
+        },
+        "radiusCm": 0.8,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.1,
+            "label": "lower eyelid"
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.1
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.2,
+            "label": "orbicularis oculi"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.05,
+            "label": "orbital septum"
+          },
+          {
+            "tissue": "fat-pad",
+            "thicknessCm": 3.0,
+            "label": "orbital fat along the floor of the orbit, below the eyeball"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 1.0,
+            "label": "posterior orbit: optic nerve and ophthalmic vessels",
+            "hazard": "critical"
+          }
+        ]
+      },
+      {
+        "id": "z-orbit-medial-left",
+        "centre": {
+          "u": 1.45,
+          "v": -1.7
+        },
+        "radiusCm": 0.4,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.1
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.1
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.15,
+            "label": "orbicularis oculi and the medial palpebral ligament"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.05,
+            "label": "orbital septum"
+          },
+          {
+            "tissue": "fat-pad",
+            "thicknessCm": 3.1,
+            "label": "orbital fat between the eyeball and the medial orbital wall"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 1.0,
+            "label": "posterior orbit: optic canal and ophthalmic vessels",
+            "hazard": "critical"
+          }
+        ]
+      },
+      {
+        "id": "z-orbit-medial-right",
+        "centre": {
+          "u": -1.45,
+          "v": -1.7
+        },
+        "radiusCm": 0.4,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.1
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.1
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.15,
+            "label": "orbicularis oculi and the medial palpebral ligament"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.05,
+            "label": "orbital septum"
+          },
+          {
+            "tissue": "fat-pad",
+            "thicknessCm": 3.1,
+            "label": "orbital fat between the eyeball and the medial orbital wall"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 1.0,
+            "label": "posterior orbit: optic canal and ophthalmic vessels",
+            "hazard": "critical"
+          }
+        ]
+      },
+      {
+        "id": "z-infraorbital-foramen-left",
+        "centre": {
+          "u": 3.0,
+          "v": -4.6
+        },
+        "radiusCm": 0.45,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.3,
+            "label": "levator labii superioris"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.15,
+            "label": "opening of the infraorbital foramen"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "maxilla"
+          }
+        ]
+      },
+      {
+        "id": "z-infraorbital-foramen-right",
+        "centre": {
+          "u": -3.0,
+          "v": -4.6
+        },
+        "radiusCm": 0.45,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.3,
+            "label": "levator labii superioris"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.15,
+            "label": "opening of the infraorbital foramen"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "maxilla"
+          }
+        ]
+      },
+      {
+        "id": "z-cheek-left",
+        "centre": {
+          "u": 3.6,
+          "v": -5.8
+        },
+        "radiusCm": 1.0,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.5,
+            "label": "malar fat"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.5,
+            "label": "levator labii superioris and zygomaticus minor"
+          },
+          {
+            "tissue": "fat-pad",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "maxilla (anterior wall of the maxillary sinus)"
+          }
+        ]
+      },
+      {
+        "id": "z-cheek-right",
+        "centre": {
+          "u": -3.6,
+          "v": -5.8
+        },
+        "radiusCm": 1.0,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.5,
+            "label": "malar fat"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.5,
+            "label": "levator labii superioris and zygomaticus minor"
+          },
+          {
+            "tissue": "fat-pad",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "maxilla (anterior wall of the maxillary sinus)"
+          }
+        ]
+      },
+      {
+        "id": "z-nasolabial-left",
+        "centre": {
+          "u": 2.25,
+          "v": -5.4
+        },
+        "radiusCm": 0.45,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.35,
+            "label": "levator labii superioris alaeque nasi"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "maxilla"
+          }
+        ]
+      },
+      {
+        "id": "z-nasolabial-right",
+        "centre": {
+          "u": -2.25,
+          "v": -5.4
+        },
+        "radiusCm": 0.45,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.35,
+            "label": "levator labii superioris alaeque nasi"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "maxilla"
+          }
+        ]
+      },
+      {
+        "id": "z-nasal-side-left",
+        "centre": {
+          "u": 1.25,
+          "v": -3.9
+        },
+        "radiusCm": 0.4,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.1
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.1,
+            "label": "nasalis"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.0,
+            "label": "nasal bone"
+          }
+        ]
+      },
+      {
+        "id": "z-nasal-side-right",
+        "centre": {
+          "u": -1.25,
+          "v": -3.9
+        },
+        "radiusCm": 0.4,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.1
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.1,
+            "label": "nasalis"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.0,
+            "label": "nasal bone"
+          }
+        ]
+      },
+      {
+        "id": "z-nose-tip",
+        "centre": {
+          "u": 0,
+          "v": -5.2
+        },
+        "radiusCm": 0.5,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.25
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.1
+          },
+          {
+            "tissue": "ligament",
+            "thicknessCm": 0.8,
+            "label": "alar and septal cartilages"
+          }
+        ]
+      },
+      {
+        "id": "z-upper-lip",
+        "centre": {
+          "u": 0,
+          "v": -6.9
+        },
+        "radiusCm": 1.2,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.1
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.6,
+            "label": "orbicularis oris"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.15,
+            "label": "labial glands and mucosa"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.0,
+            "label": "maxillary alveolar process and anterior nasal spine"
+          }
+        ]
+      },
+      {
+        "id": "z-upper-lip-vermilion",
+        "centre": {
+          "u": 0,
+          "v": -8.15
+        },
+        "radiusCm": 0.35,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.1,
+            "label": "vermilion of the upper lip"
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.1
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.6,
+            "label": "orbicularis oris"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.1,
+            "label": "labial mucosa"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.3,
+            "label": "oral vestibule",
+            "hazard": "caution"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.0,
+            "label": "upper incisors and alveolar process"
+          }
+        ]
+      },
+      {
+        "id": "z-mouth-angle-left",
+        "centre": {
+          "u": 3.3,
+          "v": -8.5
+        },
+        "radiusCm": 0.6,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.4
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.7,
+            "label": "orbicularis oris, modiolus and buccinator"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.1,
+            "label": "buccal mucosa"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 1.0,
+            "label": "oral cavity",
+            "hazard": "caution"
+          }
+        ]
+      },
+      {
+        "id": "z-mouth-angle-right",
+        "centre": {
+          "u": -3.3,
+          "v": -8.5
+        },
+        "radiusCm": 0.6,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.4
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.7,
+            "label": "orbicularis oris, modiolus and buccinator"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.1,
+            "label": "buccal mucosa"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 1.0,
+            "label": "oral cavity",
+            "hazard": "caution"
+          }
+        ]
+      },
+      {
+        "id": "z-chin",
+        "centre": {
+          "u": 0,
+          "v": -10.6
+        },
+        "radiusCm": 0.6,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.5,
+            "label": "mentalis and orbicularis oris"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "mandible (symphysis)"
+          }
+        ]
+      },
+      {
+        "id": "z-temple-left",
+        "centre": {
+          "u": 6.5,
+          "v": -1.0
+        },
+        "radiusCm": 1.2,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.2,
+            "label": "temporal fascia"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.8,
+            "label": "temporalis (anterior part)"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "frontal bone and greater wing of the sphenoid"
+          }
+        ]
+      },
+      {
+        "id": "z-temple-right",
+        "centre": {
+          "u": -6.5,
+          "v": -1.0
+        },
+        "radiusCm": 1.2,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.2,
+            "label": "temporal fascia"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.8,
+            "label": "temporalis (anterior part)"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "frontal bone and greater wing of the sphenoid"
+          }
+        ]
+      },
+      {
+        "id": "z-lateral-orbital-rim-left",
+        "centre": {
+          "u": 5.8,
+          "v": -1.7
+        },
+        "radiusCm": 0.4,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.25
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.15,
+            "label": "orbicularis oculi (lateral part)"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.1,
+            "label": "temporal fascia"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.3,
+            "label": "temporalis"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "zygomatic bone and frontal process"
+          }
+        ]
+      },
+      {
+        "id": "z-lateral-orbital-rim-right",
+        "centre": {
+          "u": -5.8,
+          "v": -1.7
+        },
+        "radiusCm": 0.4,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.25
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.15,
+            "label": "orbicularis oculi (lateral part)"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.1,
+            "label": "temporal fascia"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.3,
+            "label": "temporalis"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "zygomatic bone and frontal process"
+          }
+        ]
+      },
+      {
+        "id": "z-below-zygoma-left",
+        "centre": {
+          "u": 4.75,
+          "v": -5.4
+        },
+        "radiusCm": 0.6,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.6
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.6,
+            "label": "zygomaticus major and the anterior border of masseter"
+          },
+          {
+            "tissue": "fat-pad",
+            "thicknessCm": 1.2,
+            "label": "buccal fat pad"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "maxilla"
+          }
+        ]
+      },
+      {
+        "id": "z-below-zygoma-right",
+        "centre": {
+          "u": -4.75,
+          "v": -5.4
+        },
+        "radiusCm": 0.6,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.6
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.6,
+            "label": "zygomaticus major and the anterior border of masseter"
+          },
+          {
+            "tissue": "fat-pad",
+            "thicknessCm": 1.2,
+            "label": "buccal fat pad"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "maxilla"
+          }
+        ]
+      }
+    ]
+  },
+  "structures": [
+    {
+      "id": "eyeball-left",
+      "label": "eyeball (left)",
+      "kind": "organ",
+      "hazard": "critical",
+      "path": [
+        {
+          "u": 3.15,
+          "v": -1.95,
+          "d": 1.25
+        }
+      ],
+      "radiusCm": 1.15,
+      "uncertaintyCm": 0.2,
+      "consequence": "none"
+    },
+    {
+      "id": "eyeball-right",
+      "label": "eyeball (right)",
+      "kind": "organ",
+      "hazard": "critical",
+      "path": [
+        {
+          "u": -3.15,
+          "v": -1.95,
+          "d": 1.25
+        }
+      ],
+      "radiusCm": 1.15,
+      "uncertaintyCm": 0.2,
+      "consequence": "none"
+    },
+    {
+      "id": "orbital-floor-veins-left",
+      "label": "veins of the orbital floor (left)",
+      "kind": "vein",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 2.5,
+          "v": -3.55,
+          "d": 1.8
+        },
+        {
+          "u": 4.2,
+          "v": -3.4,
+          "d": 1.8
+        }
+      ],
+      "radiusCm": 0.1,
+      "uncertaintyCm": 0.3,
+      "consequence": "haematoma"
+    },
+    {
+      "id": "orbital-floor-veins-right",
+      "label": "veins of the orbital floor (right)",
+      "kind": "vein",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -2.5,
+          "v": -3.55,
+          "d": 1.8
+        },
+        {
+          "u": -4.2,
+          "v": -3.4,
+          "d": 1.8
+        }
+      ],
+      "radiusCm": 0.1,
+      "uncertaintyCm": 0.3,
+      "consequence": "haematoma"
+    },
+    {
+      "id": "facial-angular-artery-left",
+      "label": "facial artery and its angular continuation, with the facial vein (left)",
+      "kind": "artery",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 6.0,
+          "v": -12.0,
+          "d": 0.8
+        },
+        {
+          "u": 4.0,
+          "v": -9.2,
+          "d": 0.85
+        },
+        {
+          "u": 3.1,
+          "v": -7.0,
+          "d": 0.8
+        },
+        {
+          "u": 2.6,
+          "v": -5.4,
+          "d": 0.65
+        },
+        {
+          "u": 1.7,
+          "v": -3.6,
+          "d": 0.45
+        },
+        {
+          "u": 1.15,
+          "v": -1.8,
+          "d": 0.35
+        },
+        {
+          "u": 1.0,
+          "v": -0.6,
+          "d": 0.4
+        }
+      ],
+      "radiusCm": 0.12,
+      "uncertaintyCm": 0.3,
+      "consequence": "bleeding"
+    },
+    {
+      "id": "facial-angular-artery-right",
+      "label": "facial artery and its angular continuation, with the facial vein (right)",
+      "kind": "artery",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -6.0,
+          "v": -12.0,
+          "d": 0.8
+        },
+        {
+          "u": -4.0,
+          "v": -9.2,
+          "d": 0.85
+        },
+        {
+          "u": -3.1,
+          "v": -7.0,
+          "d": 0.8
+        },
+        {
+          "u": -2.6,
+          "v": -5.4,
+          "d": 0.65
+        },
+        {
+          "u": -1.7,
+          "v": -3.6,
+          "d": 0.45
+        },
+        {
+          "u": -1.15,
+          "v": -1.8,
+          "d": 0.35
+        },
+        {
+          "u": -1.0,
+          "v": -0.6,
+          "d": 0.4
+        }
+      ],
+      "radiusCm": 0.12,
+      "uncertaintyCm": 0.3,
+      "consequence": "bleeding"
+    },
+    {
+      "id": "infraorbital-nerve-left",
+      "label": "infraorbital nerve (left)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 3.0,
+          "v": -4.6,
+          "d": 0.85
+        },
+        {
+          "u": 2.95,
+          "v": -5.6,
+          "d": 0.6
+        },
+        {
+          "u": 2.7,
+          "v": -7.2,
+          "d": 0.45
+        }
+      ],
+      "radiusCm": 0.12,
+      "uncertaintyCm": 0.3,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "infraorbital-nerve-right",
+      "label": "infraorbital nerve (right)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -3.0,
+          "v": -4.6,
+          "d": 0.85
+        },
+        {
+          "u": -2.95,
+          "v": -5.6,
+          "d": 0.6
+        },
+        {
+          "u": -2.7,
+          "v": -7.2,
+          "d": 0.45
+        }
+      ],
+      "radiusCm": 0.12,
+      "uncertaintyCm": 0.3,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "supraorbital-nerve-left",
+      "label": "supraorbital nerve and vessels (left)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 2.75,
+          "v": -0.1,
+          "d": 0.6
+        },
+        {
+          "u": 2.85,
+          "v": 1.0,
+          "d": 0.5
+        },
+        {
+          "u": 3.0,
+          "v": 3.0,
+          "d": 0.35
+        },
+        {
+          "u": 3.3,
+          "v": 6.0,
+          "d": 0.3
+        }
+      ],
+      "radiusCm": 0.1,
+      "uncertaintyCm": 0.3,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "supraorbital-nerve-right",
+      "label": "supraorbital nerve and vessels (right)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -2.75,
+          "v": -0.1,
+          "d": 0.6
+        },
+        {
+          "u": -2.85,
+          "v": 1.0,
+          "d": 0.5
+        },
+        {
+          "u": -3.0,
+          "v": 3.0,
+          "d": 0.35
+        },
+        {
+          "u": -3.3,
+          "v": 6.0,
+          "d": 0.3
+        }
+      ],
+      "radiusCm": 0.1,
+      "uncertaintyCm": 0.3,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "supratrochlear-nerve-left",
+      "label": "supratrochlear nerve and vessels (left)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 1.25,
+          "v": -0.2,
+          "d": 0.55
+        },
+        {
+          "u": 1.3,
+          "v": 1.0,
+          "d": 0.45
+        },
+        {
+          "u": 1.4,
+          "v": 3.5,
+          "d": 0.35
+        }
+      ],
+      "radiusCm": 0.08,
+      "uncertaintyCm": 0.3,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "supratrochlear-nerve-right",
+      "label": "supratrochlear nerve and vessels (right)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -1.25,
+          "v": -0.2,
+          "d": 0.55
+        },
+        {
+          "u": -1.3,
+          "v": 1.0,
+          "d": 0.45
+        },
+        {
+          "u": -1.4,
+          "v": 3.5,
+          "d": 0.35
+        }
+      ],
+      "radiusCm": 0.08,
+      "uncertaintyCm": 0.3,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "temporal-vein-frontal-left",
+      "label": "frontal tributary of the superficial temporal vein (left)",
+      "kind": "vein",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 8.6,
+          "v": -1.6,
+          "d": 0.35
+        },
+        {
+          "u": 7.4,
+          "v": 0.8,
+          "d": 0.3
+        },
+        {
+          "u": 6.4,
+          "v": 3.0,
+          "d": 0.3
+        }
+      ],
+      "radiusCm": 0.12,
+      "uncertaintyCm": 0.3,
+      "consequence": "bleeding"
+    },
+    {
+      "id": "temporal-vein-frontal-right",
+      "label": "frontal tributary of the superficial temporal vein (right)",
+      "kind": "vein",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -8.6,
+          "v": -1.6,
+          "d": 0.35
+        },
+        {
+          "u": -7.4,
+          "v": 0.8,
+          "d": 0.3
+        },
+        {
+          "u": -6.4,
+          "v": 3.0,
+          "d": 0.3
+        }
+      ],
+      "radiusCm": 0.12,
+      "uncertaintyCm": 0.3,
+      "consequence": "bleeding"
+    }
+  ],
+  "description": "The face. Over the forehead, the nose and the chin bone lies within about a centimetre of the skin. The eyeballs sit in the orbits behind thin eyelids: between the eyeball and the infraorbital margin (ST1, EX-HN7) and beside the inner canthus against the medial orbital wall (BL1) a needle runs into the orbital fat a few millimetres from the eyeball, and the optic nerve and ophthalmic vessels lie at the apex of the orbit a few centimetres behind the rim; bleeding into the orbit is the common complication. The supratrochlear and supraorbital nerves leave the orbit under the medial and middle parts of the eyebrow and run up the forehead; the infraorbital nerve emerges from its foramen below the orbit (ST2). The facial artery runs up from the jaw lateral to the corner of the mouth and along the nasolabial sulcus, and continues as the angular artery beside the nose to the inner canthus. The lips and the cheek beside the corner of the mouth lead into the mouth. The temple lies over the temporalis and its fascia.",
+  "provenance": {
+    "kind": "schematic",
+    "sources": [
+      {
+        "title": "General regional anatomy of the face and orbit (standard anatomy texts)",
+        "verified": false,
+        "note": "Topography only; no third-party geometry or images were used."
+      }
+    ],
+    "licence": "CC0-1.0 (original schematic geometry)",
+    "review": {
+      "status": "unreviewed",
+      "reviewers": [],
+      "notes": "Positions and depths are illustrative approximations of a reference adult written for simulation. They are not measurements or an atlas and are not a guide to safe depths in real patients. Anatomical expert review is required before any teaching use."
+    }
+  }
+}

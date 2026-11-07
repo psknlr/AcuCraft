@@ -88,3 +88,30 @@ less its radius and the needle's; contact is clearance ≤ 0, `near` within the 
 With the guard on (`block-critical`), a path that reaches a critical structure or the pleura is refused before the
 needle touches the skin — the needle stays unused and sterile in the hand — and the attempt is recorded as an unsafe,
 blocked act. Manipulation (`adjust_needle` with a technique) with the tip in muscle or fascia produces deqi.
+
+## 6. Head and face
+
+Four charts cover the head (`tools/content/localise_head.py` places its points on them):
+
+- `face` (midline): u from the anterior median line, positive to the left; v cranial from the glabella. The eyeballs
+  are critical structures a few millimetres from ST1, EX-HN7 and BL1, whose zones run through the orbital fat to a
+  critical orbital apex; glabella to anterior hairline is 3 B-cun.
+- `scalp` (midline): u along the transverse arc from the median line, positive to the left; v along the median arc
+  from the anterior hairline, positive **backwards over the vertex**, so a `cranial` offset points away from the
+  forehead ("superior to the anterior hairline"); points measured from the posterior hairline are built `along` the
+  line towards the anterior hairline. Anterior to posterior hairline is 12 B-cun, between the corners of the
+  forehead (ST8) 9 B-cun. The skull stops a needle within about a centimetre.
+- `head-lateral` (bilateral): u from the anterior border of the tragus, positive **posterior**: as on the leg chart, a
+  `lateral` offset points backwards (further round from the face) and a `medial` one forwards; v cranial from the
+  tragus. Its anterior edge reaches the forehead, where glabella to anterior hairline (3 B-cun) gives the cun used on
+  the side of the head (GB8, GB9, ST8 to GB7). The jaw is shown closed: GB2, SI19 and TE21 are marked in the
+  depressions that open in front of the tragus, over the temporomandibular joint.
+- `neck-shoulder` reaches up over the occiput (GV17, BL9, GB19) and round to behind the ear lobe (TE17, EX-HN14,
+  GB12), with the mastoid processes (9 B-cun) and posterior hairline to C7 (3 B-cun); GV15 and BL10 lie over the
+  spinal canal and the vertebral artery, which only deep, upward or medial needling reaches.
+
+Limits of the engine as used here: a point has one reference location, so the four sites of EX-HN1 share a reference
+at their centre (GV20) with a tolerance of 1.3 B-cun; a configuration follows the patient's position only, so "with
+the mouth open" is described, not modelled; access is per region and side (supine reaches the whole scalp, including
+the occiput on the pillow). Where the standard uses a finger-breadth, or the level of one landmark on the vertical of
+another (ST3, GB19), the offset is in centimetres on the reference adult.
