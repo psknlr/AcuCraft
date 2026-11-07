@@ -644,6 +644,15 @@ function doRemove(ctx: Ctx, needleId: string): void {
   }
 }
 
+/** What the insertion record keeps of a path: the structures met or passed close by, and the hazardous layers the
+ * tip reached (`layer:<label>`, a contact), so a reviewer and the evaluator see them whatever the mode. */
+function insertionFindings(path: PathAssessment): { structure: string; contact: boolean; clearanceCm: number }[] {
+  return [
+    ...path.findings.map((f) => ({ structure: f.structure, contact: f.contact, clearanceCm: f.clearanceCm })),
+    ...path.layersReached.map((l) => ({ structure: `layer:${l.label}`, contact: true, clearanceCm: 0 })),
+  ];
+}
+
 function doInsertCheckPath(ctx: Ctx, n: NeedleState, frame: PatientRegion, entry: ChartPoint, angleDeg: number, azimuthDeg: number, depthCm: number, blockers: Protection[]): PathAssessment {
   const path = assessPath(frame, entry, angleDeg, azimuthDeg, depthCm, n.spec);
   if (path.pleuraPenetrated) addUnsafe(ctx, "pleura-penetration");
@@ -1266,7 +1275,7 @@ const HANDLERS: HandlerMap = {
       angleDeg: a.angleDeg,
       azimuthDeg: a.azimuthDeg,
       tipTissue: path.tipTissue,
-      findings: path.findings.map((f) => ({ structure: f.structure, contact: f.contact, clearanceCm: f.clearanceCm })),
+      findings: insertionFindings(path),
     };
     ctx.actor.holding = ctx.actor.holding.filter((o) => o !== n.id);
     pushNeedleEvent(s, n.id, ctx.actor.id, "inserted", claimed ? refKey(claimed) : undefined);
@@ -1300,7 +1309,7 @@ const HANDLERS: HandlerMap = {
     if (n.insertion) {
       n.insertion.depthCm = path.executedDepthCm;
       n.insertion.tipTissue = path.tipTissue;
-      n.insertion.findings = path.findings.map((f) => ({ structure: f.structure, contact: f.contact, clearanceCm: f.clearanceCm }));
+      n.insertion.findings = insertionFindings(path);
     }
     pushNeedleEvent(s, n.id, ctx.actor.id, "adjusted", `${fmt(path.executedDepthCm)} cm, ${a.technique}`);
     consequences(ctx, n, path);

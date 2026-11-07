@@ -56,7 +56,7 @@ const TOOLS: Anthropic.Beta.BetaTool[] = [
   },
   {
     name: "lookup",
-    description: "Read the public reference library (no simulated time). Topics: points (the index: the points you can needle in this encounter's regions, and every other point id by channel; with id, the points of one channel, body area or region), point (one point in full, by id or alias), region (with id), regions, vocabulary, clinic, roles, rules, evidence, actions.",
+    description: "Read the public reference library (no simulated time). Topics: points (the index: the ids of every point that can be needled, by regional model — the whole body is modelled — and every point id by channel; with id, the points of one channel, body area or region), point (one point in full, by id or alias), region (with id), regions, vocabulary, clinic, roles, rules, evidence, actions.",
     input_schema: {
       type: "object",
       properties: {

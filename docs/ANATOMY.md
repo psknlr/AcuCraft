@@ -31,7 +31,9 @@ Regions in the pack, eighteen, covering the whole body:
 **The whole body is modelled in every encounter.** Every region applies to every patient: a scenario's `regions` list
 names those where its patient's build is authored (`patient.anatomy.regions`); in every other region the build is
 derived from the patient's height, weight and sex against the region's reference body (`region.reference`, default
-170 cm and BMI 22.5): length scales with height, girth with height and BMI, subcutaneous fat with BMI.
+170 cm and BMI 22.5): length scales with height, girth with height and BMI, subcutaneous fat with BMI, and muscle
+with height, BMI and — against a reference body of the other sex — sex. A patient without a recorded weight is taken
+as BMI 22.5.
 
 The upper limb has four bilateral charts. `upper-arm` (shoulder, axilla, arm and elbow) and `forearm` are unrolled round
 the limb from its anterior (palmar) midline, `u` positive lateral and on round the back of the limb, so each chart's two
@@ -59,7 +61,8 @@ with the skin, approximately with the nearest landmark): an insertion at a stale
 scenario's `patient.anatomy.regions[region]` (`both`, with `left`/`right` differences):
 
 - `scale.u`, `scale.v` — girth and limb length;
-- `subcutaneousScale`, `muscleScale` — build; deeper layers and structures move with the soft tissue;
+- `subcutaneousScale`, `muscleScale` — build; deeper layers move with the soft tissue, and a structure by the change
+  in the fat and muscle above it;
 - `landmarks`, `structures` — individual shifts (anatomical variation).
 
 **Cun is the patient's own**: one B-cun of a segment is the patient's segment length (measured in the region's default
@@ -179,7 +182,7 @@ python3 tools/anatomy/fetch_hra.py
 python3 tools/anatomy/build_trunk.py
 ```
 
-`fetch_hra.py` downloads the pinned bodies (a fixed commit of `hubmapconsortium/ccf-releases`, checked by SHA-256)
+`fetch_hra.py` downloads the pinned body (a fixed commit of `hubmapconsortium/ccf-releases`, checked by SHA-256)
 into `tools/anatomy/.cache/`; `build_trunk.py` writes the five regions and the measurements it used
 (`tools/anatomy/derived/vh-male.json`). Each trunk chart unrolls the skin round a horizontal section from the anterior
 or posterior midline (`u` positive towards the patient's left; `v` height above a stated level). Its tissue is a grid of
@@ -201,3 +204,14 @@ capped (chest 5 cm, upper back 6.5 cm, buttocks 7 cm), the lower sacral midline 
 meet nothing takes the median measured wall (chest 3.9 cm, abdomen 4.3 cm, upper back 5.0 cm) with the lung or
 peritoneal cavity under it — never a deeper safe margin than the body measured. Patients are scaled from this
 reference by height and BMI (§1).
+
+The trunk and limb charts meet but are not stitched together. In the groin, ST30 and LR12 lie on `abdomen` (from the
+pubic symphysis) while LR11 and LR10, measured down from ST30, lie on `thigh` from that chart's own `st30-site`
+landmark: the two charts place the level of ST30 independently, so the 2 and 3 B-cun below it are exact on the thigh
+but only approximately in line with ST30 as the abdomen places it.
+
+The left common carotid artery of the reference body lies about 1.1 cm below the skin (to its axis) at the level of
+the thyroid cartilage, shallower than imaging of living subjects reports under ST9. It is kept as measured: a
+structure moves with the fat and muscle above it, so in a slim patient (BMI below about 24) the wall of the carotid
+under ST9, and of the internal jugular vein under LI18, comes within 5 mm of the skin, and the guard stops a
+perpendicular needle there — the teaching is to palpate the pulse and keep the needle off the artery.

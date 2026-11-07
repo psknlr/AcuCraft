@@ -3080,19 +3080,8 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 0.5,
+            "thicknessCm": 1.8,
             "label": "lung"
-          },
-          {
-            "tissue": "muscle",
-            "thicknessCm": 1.1,
-            "label": "deep tissue"
-          },
-          {
-            "tissue": "organ",
-            "thicknessCm": 0.5,
-            "label": "liver",
-            "hazard": "critical"
           }
         ]
       },
@@ -3124,19 +3113,8 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 0.5,
+            "thicknessCm": 1.4,
             "label": "lung"
-          },
-          {
-            "tissue": "muscle",
-            "thicknessCm": 0.95,
-            "label": "deep tissue"
-          },
-          {
-            "tissue": "organ",
-            "thicknessCm": 0.5,
-            "label": "liver",
-            "hazard": "critical"
           }
         ]
       },
@@ -3168,12 +3146,12 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 0.5,
+            "thicknessCm": 0.95,
             "label": "lung"
           },
           {
             "tissue": "muscle",
-            "thicknessCm": 0.85,
+            "thicknessCm": 0.05,
             "label": "deep tissue"
           },
           {
@@ -3676,19 +3654,8 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 0.5,
+            "thicknessCm": 1.0,
             "label": "lung"
-          },
-          {
-            "tissue": "muscle",
-            "thicknessCm": 0.8,
-            "label": "deep tissue"
-          },
-          {
-            "tissue": "organ",
-            "thicknessCm": 2.15,
-            "label": "spleen",
-            "hazard": "critical"
           }
         ]
       },
@@ -3943,7 +3910,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 0.7,
+            "thicknessCm": 10.3,
             "label": "lung"
           }
         ]
@@ -3976,19 +3943,8 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 0.6,
+            "thicknessCm": 3.4,
             "label": "lung"
-          },
-          {
-            "tissue": "muscle",
-            "thicknessCm": 2.55,
-            "label": "deep tissue"
-          },
-          {
-            "tissue": "organ",
-            "thicknessCm": 0.5,
-            "label": "liver",
-            "hazard": "critical"
           }
         ]
       },
@@ -4020,12 +3976,12 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 0.95,
+            "thicknessCm": 2.75,
             "label": "lung"
           },
           {
             "tissue": "muscle",
-            "thicknessCm": 2.15,
+            "thicknessCm": 0.4,
             "label": "deep tissue"
           },
           {
@@ -4064,12 +4020,12 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 1.4,
+            "thicknessCm": 4.55,
             "label": "lung"
           },
           {
             "tissue": "muscle",
-            "thicknessCm": 4.35,
+            "thicknessCm": 1.2,
             "label": "deep tissue"
           },
           {
@@ -4108,7 +4064,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 0.5,
+            "thicknessCm": 10.3,
             "label": "lung"
           }
         ]
@@ -4457,7 +4413,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 1.6,
+            "thicknessCm": 10.25,
             "label": "lung"
           }
         ]
@@ -4490,7 +4446,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 0.6,
+            "thicknessCm": 2.6,
             "label": "lung"
           }
         ]
@@ -4523,19 +4479,8 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 0.5,
+            "thicknessCm": 3.0,
             "label": "lung"
-          },
-          {
-            "tissue": "muscle",
-            "thicknessCm": 2.5,
-            "label": "deep tissue"
-          },
-          {
-            "tissue": "organ",
-            "thicknessCm": 1.0,
-            "label": "spleen",
-            "hazard": "critical"
           }
         ]
       },
@@ -4567,7 +4512,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 0.5,
+            "thicknessCm": 9.7,
             "label": "lung"
           }
         ]
@@ -4753,7 +4698,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 1.25,
+            "thicknessCm": 12.0,
             "label": "lung"
           }
         ]
@@ -4786,7 +4731,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 1.35,
+            "thicknessCm": 12.15,
             "label": "lung"
           }
         ]
@@ -4819,7 +4764,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 1.8,
+            "thicknessCm": 10.1,
             "label": "lung"
           }
         ]
@@ -4852,7 +4797,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 2.1,
+            "thicknessCm": 9.35,
             "label": "lung"
           }
         ]
@@ -4885,7 +4830,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 2.45,
+            "thicknessCm": 8.7,
             "label": "lung"
           }
         ]
@@ -5207,7 +5152,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 1.3,
+            "thicknessCm": 9.85,
             "label": "lung"
           }
         ]
@@ -5240,7 +5185,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 2.55,
+            "thicknessCm": 9.1,
             "label": "lung"
           }
         ]
@@ -5273,7 +5218,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 2.15,
+            "thicknessCm": 9.1,
             "label": "lung"
           }
         ]
@@ -5306,7 +5251,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 1.35,
+            "thicknessCm": 10.05,
             "label": "lung"
           }
         ]
@@ -5339,7 +5284,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 1.3,
+            "thicknessCm": 10.65,
             "label": "lung"
           }
         ]
@@ -5504,7 +5449,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 2.35,
+            "thicknessCm": 12.8,
             "label": "lung"
           }
         ]
@@ -5537,7 +5482,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 2.2,
+            "thicknessCm": 20.05,
             "label": "lung"
           }
         ]
@@ -5570,7 +5515,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 2.8,
+            "thicknessCm": 8.25,
             "label": "lung"
           }
         ]
@@ -5603,7 +5548,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 2.75,
+            "thicknessCm": 7.9,
             "label": "lung"
           }
         ]
@@ -5985,7 +5930,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 3.5,
+            "thicknessCm": 7.95,
             "label": "lung"
           }
         ]
@@ -6018,7 +5963,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 3.05,
+            "thicknessCm": 8.0,
             "label": "lung"
           }
         ]
@@ -6051,7 +5996,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 2.45,
+            "thicknessCm": 19.8,
             "label": "lung"
           }
         ]
@@ -6084,7 +6029,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 2.4,
+            "thicknessCm": 19.55,
             "label": "lung"
           }
         ]
@@ -6249,7 +6194,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 3.0,
+            "thicknessCm": 9.1,
             "label": "lung"
           }
         ]
@@ -6282,7 +6227,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 2.6,
+            "thicknessCm": 5.6,
             "label": "lung"
           }
         ]
@@ -6315,7 +6260,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 3.0,
+            "thicknessCm": 7.7,
             "label": "lung"
           }
         ]
@@ -6348,7 +6293,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 4.65,
+            "thicknessCm": 12.75,
             "label": "lung"
           }
         ]
@@ -6720,7 +6665,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 5.4,
+            "thicknessCm": 8.25,
             "label": "lung"
           }
         ]
@@ -6753,7 +6698,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 3.5,
+            "thicknessCm": 7.7,
             "label": "lung"
           }
         ]
@@ -6786,7 +6731,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 2.9,
+            "thicknessCm": 12.3,
             "label": "lung"
           }
         ]
@@ -6819,7 +6764,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 2.95,
+            "thicknessCm": 19.75,
             "label": "lung"
           }
         ]
@@ -6979,7 +6924,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 3.55,
+            "thicknessCm": 7.3,
             "label": "lung"
           }
         ]
@@ -7012,7 +6957,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 3.1,
+            "thicknessCm": 8.0,
             "label": "lung"
           }
         ]
@@ -7045,7 +6990,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 3.3,
+            "thicknessCm": 8.3,
             "label": "lung"
           }
         ]
@@ -7139,7 +7084,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 0.7,
+            "thicknessCm": 8.65,
             "label": "lung"
           }
         ]
@@ -7478,7 +7423,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 4.05,
+            "thicknessCm": 8.1,
             "label": "lung"
           }
         ]
@@ -7511,7 +7456,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 3.2,
+            "thicknessCm": 8.4,
             "label": "lung"
           }
         ]
@@ -7544,7 +7489,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 3.4,
+            "thicknessCm": 8.1,
             "label": "lung"
           }
         ]
@@ -7704,7 +7649,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 4.45,
+            "thicknessCm": 19.2,
             "label": "lung"
           }
         ]
@@ -7737,7 +7682,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 3.65,
+            "thicknessCm": 8.25,
             "label": "lung"
           }
         ]
@@ -7770,7 +7715,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 4.7,
+            "thicknessCm": 11.15,
             "label": "lung"
           }
         ]
@@ -7859,7 +7804,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 4.35,
+            "thicknessCm": 6.45,
             "label": "lung"
           }
         ]
@@ -8109,7 +8054,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 0.5,
+            "thicknessCm": 11.25,
             "label": "lung"
           }
         ]
@@ -8198,7 +8143,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 4.55,
+            "thicknessCm": 10.35,
             "label": "lung"
           }
         ]
@@ -8231,7 +8176,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 3.8,
+            "thicknessCm": 8.65,
             "label": "lung"
           }
         ]
@@ -8264,7 +8209,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 3.85,
+            "thicknessCm": 7.1,
             "label": "lung"
           }
         ]
@@ -8429,7 +8374,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 5.75,
+            "thicknessCm": 18.75,
             "label": "lung"
           }
         ]
@@ -8462,7 +8407,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 5.05,
+            "thicknessCm": 9.85,
             "label": "lung"
           }
         ]
@@ -8495,7 +8440,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 3.85,
+            "thicknessCm": 12.65,
             "label": "lung"
           }
         ]
@@ -8584,7 +8529,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 3.4,
+            "thicknessCm": 6.8,
             "label": "lung"
           }
         ]
@@ -8829,7 +8774,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 0.85,
+            "thicknessCm": 11.6,
             "label": "lung"
           }
         ]
@@ -8918,7 +8863,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 3.5,
+            "thicknessCm": 10.1,
             "label": "lung"
           }
         ]
@@ -8951,7 +8896,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 4.1,
+            "thicknessCm": 9.95,
             "label": "lung"
           }
         ]
@@ -8984,7 +8929,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 5.1,
+            "thicknessCm": 8.15,
             "label": "lung"
           }
         ]
@@ -9182,7 +9127,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 6.0,
+            "thicknessCm": 18.35,
             "label": "lung"
           }
         ]
@@ -9299,7 +9244,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 1.05,
+            "thicknessCm": 13.95,
             "label": "lung"
           }
         ]
@@ -9549,7 +9494,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 0.5,
+            "thicknessCm": 14.7,
             "label": "lung"
           }
         ]
@@ -9666,7 +9611,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 5.3,
+            "thicknessCm": 7.45,
             "label": "lung"
           }
         ]
@@ -9699,7 +9644,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 6.3,
+            "thicknessCm": 18.55,
             "label": "lung"
           }
         ]
@@ -10009,7 +9954,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 0.5,
+            "thicknessCm": 7.9,
             "label": "lung"
           }
         ]
@@ -10264,7 +10209,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 0.5,
+            "thicknessCm": 15.7,
             "label": "lung"
           }
         ]
@@ -10381,7 +10326,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 5.15,
+            "thicknessCm": 18.55,
             "label": "lung"
           }
         ]
@@ -10537,22 +10482,18 @@
           },
           {
             "tissue": "subcutaneous",
-            "thicknessCm": 1.2
+            "thicknessCm": 1.3
           },
           {
             "tissue": "muscle",
-            "thicknessCm": 3.55,
+            "thicknessCm": 3.95,
             "label": "trapezius / rhomboids / erector spinae"
           },
           {
-            "tissue": "pleura",
-            "thicknessCm": 0.05,
-            "label": "parietal pleura"
-          },
-          {
-            "tissue": "lung",
-            "thicknessCm": 4.95,
-            "label": "lung"
+            "tissue": "organ",
+            "thicknessCm": 1.4,
+            "label": "peritoneal cavity and bowel",
+            "hazard": "caution"
           }
         ]
       },
@@ -11361,18 +11302,8 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 2.6,
+            "thicknessCm": 8.95,
             "label": "lung"
-          },
-          {
-            "tissue": "muscle",
-            "thicknessCm": 3.85,
-            "label": "deep tissue"
-          },
-          {
-            "tissue": "bone",
-            "thicknessCm": 1.5,
-            "label": "vertebra"
           }
         ]
       },
@@ -11404,7 +11335,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 1.6,
+            "thicknessCm": 9.0,
             "label": "lung"
           }
         ]
@@ -11437,7 +11368,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 0.6,
+            "thicknessCm": 12.15,
             "label": "lung"
           }
         ]
@@ -11748,7 +11679,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 0.5,
+            "thicknessCm": 17.15,
             "label": "lung"
           }
         ]
@@ -11781,7 +11712,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 1.45,
+            "thicknessCm": 18.05,
             "label": "lung"
           }
         ]
@@ -11814,7 +11745,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 2.45,
+            "thicknessCm": 15.3,
             "label": "lung"
           }
         ]
@@ -12199,18 +12130,8 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 1.1,
+            "thicknessCm": 8.5,
             "label": "lung"
-          },
-          {
-            "tissue": "muscle",
-            "thicknessCm": 3.75,
-            "label": "deep tissue"
-          },
-          {
-            "tissue": "bone",
-            "thicknessCm": 1.5,
-            "label": "vertebra"
           }
         ]
       },
@@ -12242,7 +12163,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 0.5,
+            "thicknessCm": 11.8,
             "label": "lung"
           }
         ]
@@ -12581,18 +12502,8 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 0.65,
+            "thicknessCm": 12.05,
             "label": "lung"
-          },
-          {
-            "tissue": "muscle",
-            "thicknessCm": 5.45,
-            "label": "deep tissue"
-          },
-          {
-            "tissue": "bone",
-            "thicknessCm": 1.5,
-            "label": "vertebra"
           }
         ]
       },
@@ -12993,7 +12904,7 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 0.5,
+            "thicknessCm": 2.95,
             "label": "lung"
           }
         ]
@@ -13026,19 +12937,19 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 0.5,
+            "thicknessCm": 6.85,
             "label": "lung"
           },
           {
             "tissue": "muscle",
-            "thicknessCm": 5.9,
+            "thicknessCm": 0.55,
             "label": "deep tissue"
           },
           {
             "tissue": "organ",
             "thicknessCm": 0.5,
-            "label": "trachea",
-            "hazard": "caution"
+            "label": "vena cava",
+            "hazard": "critical"
           }
         ]
       },
@@ -13249,12 +13160,12 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 1.15,
+            "thicknessCm": 4.65,
             "label": "lung"
           },
           {
             "tissue": "muscle",
-            "thicknessCm": 4.6,
+            "thicknessCm": 1.15,
             "label": "deep tissue"
           },
           {
@@ -13293,19 +13204,19 @@
           },
           {
             "tissue": "lung",
-            "thicknessCm": 0.5,
+            "thicknessCm": 6.3,
             "label": "lung"
           },
           {
             "tissue": "muscle",
-            "thicknessCm": 5.8,
+            "thicknessCm": 1.1,
             "label": "deep tissue"
           },
           {
             "tissue": "organ",
-            "thicknessCm": 1.9,
-            "label": "trachea",
-            "hazard": "caution"
+            "thicknessCm": 0.5,
+            "label": "vena cava",
+            "hazard": "critical"
           }
         ]
       },

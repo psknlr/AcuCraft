@@ -43,24 +43,36 @@ export function regionAccess(region: Region, side: Side, position: Position): Ac
   return { accessible: false, configuration: region.defaultConfiguration, reason };
 }
 
-/** The reference body of a chart drawn without one. */
+/** The reference body of a chart drawn without one, and the BMI assumed for a patient whose weight is not given. */
 export const DEFAULT_REFERENCE_BODY = { heightCm: 170, bmi: 22.5 } as const;
 
+/** A woman's muscle thickness relative to a man's of the same height and build (a schematic ratio). */
+const FEMALE_MUSCLE = 0.85;
+
 const round3 = (n: number) => Math.round(n * 1000) / 1000;
+const clamp = (n: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, n));
 
 /**
- * The build of a patient in a region their scenario does not author: scaled from the region's reference body by the
- * patient's height (length) and BMI (girth and subcutaneous fat). Muscle stays at the reference.
+ * The build of a patient in a region their scenario does not author, scaled from the region's reference body:
+ * length by height; girth by height and BMI; subcutaneous fat by BMI; muscle by height, BMI and — when the reference
+ * body's sex is known and differs from the patient's — sex. A patient without a recorded weight is taken as BMI 22.5.
  */
 export function derivedBuild(sc: Scenario, region: Region): RegionAnatomy {
   const p = sc.case.patient as { sex?: string; heightCm?: number; weightKg?: number };
   const ref = region.reference ?? DEFAULT_REFERENCE_BODY;
   const height = p.heightCm ?? (p.sex === "female" ? 160 : 172);
-  const bmi = p.weightKg ? p.weightKg / (height / 100) ** 2 : ref.bmi;
-  const v = height / ref.heightCm;
-  const u = v * Math.pow(bmi / ref.bmi, 0.25);
-  const subcutaneous = Math.min(3, Math.max(0.4, Math.pow(bmi / ref.bmi, 1.5)));
-  return { scale: { u: round3(u), v: round3(v) }, subcutaneousScale: round3(subcutaneous), muscleScale: 1, landmarks: {}, structures: {} };
+  const bmi = p.weightKg ? p.weightKg / (height / 100) ** 2 : DEFAULT_REFERENCE_BODY.bmi;
+  const size = height / ref.heightCm;
+  const relBmi = bmi / ref.bmi;
+  const refSex = region.reference?.sex;
+  const sex = refSex && (p.sex === "female" || p.sex === "male") && p.sex !== refSex ? (p.sex === "female" ? FEMALE_MUSCLE : 1 / FEMALE_MUSCLE) : 1;
+  return {
+    scale: { u: round3(size * Math.pow(relBmi, 0.25)), v: round3(size) },
+    subcutaneousScale: round3(clamp(Math.pow(relBmi, 1.5), 0.4, 3)),
+    muscleScale: round3(clamp(size * sex * Math.pow(relBmi, 0.25), 0.5, 1.6)),
+    landmarks: {},
+    structures: {},
+  };
 }
 
 function patientAnatomy(sc: Scenario, regionId: string, side: Side): RegionAnatomy {
@@ -82,7 +94,6 @@ function patientAnatomy(sc: Scenario, regionId: string, side: Side): RegionAnato
   };
 }
 
-const thicknessOf = (layers: readonly Layer[], tissue: Layer["tissue"]) => layers.filter((l) => l.tissue === tissue).reduce((n, l) => n + l.thicknessCm, 0);
 
 /** Build the patient's region frame. `configuration` defaults to the one their current position gives. */
 export function patientRegion(sc: Scenario, regionId: string, side: Side, configuration: string): PatientRegion {
@@ -103,10 +114,18 @@ export function patientRegion(sc: Scenario, regionId: string, side: Side, config
   };
   const layersAt = (at: ChartPoint): Layer[] =>
     refLayersAt(at).map((l) => (l.tissue === "subcutaneous" ? { ...l, thicknessCm: l.thicknessCm * a.subcutaneousScale } : l.tissue === "muscle" ? { ...l, thicknessCm: l.thicknessCm * a.muscleScale } : l));
-  // structures below the soft tissues move with the patient's build
-  const adiposityShift = (at: ChartPoint) => {
-    const ref = refLayersAt(at);
-    return (a.subcutaneousScale - 1) * thicknessOf(ref, "subcutaneous") + (a.muscleScale - 1) * thicknessOf(ref, "muscle");
+  // a structure moves with the patient's build: by the change in the fat and muscle above it (not below it)
+  const adiposityShift = (at: ChartPoint, depthCm: number) => {
+    let top = 0;
+    let shift = 0;
+    for (const l of refLayersAt(at)) {
+      if (top >= depthCm) break;
+      const above = Math.min(l.thicknessCm, depthCm - top);
+      if (l.tissue === "subcutaneous") shift += (a.subcutaneousScale - 1) * above;
+      else if (l.tissue === "muscle") shift += (a.muscleScale - 1) * above;
+      top += l.thicknessCm;
+    }
+    return shift;
   };
 
   const landmarkIn = (id: string, cfg: string): ChartPoint | null => {
@@ -130,7 +149,8 @@ export function patientRegion(sc: Scenario, regionId: string, side: Side, config
     const own = a.structures[s.id] ?? { du: 0, dv: 0, dd: 0 };
     const path = s.path.map((p) => {
       const at = { u: (p.u + shift.du) * su + own.du, v: (p.v + shift.dv) * sv + own.dv };
-      return { ...at, d: Math.max(0, p.d + shift.dd + own.dd + adiposityShift(at)) };
+      const d = p.d + shift.dd + own.dd;
+      return { ...at, d: Math.max(0, d + adiposityShift(at, d)) };
     });
     return { ...s, path };
   });

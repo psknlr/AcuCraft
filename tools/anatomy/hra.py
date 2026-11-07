@@ -1,11 +1,12 @@
-"""Geometry helpers over a HuBMAP Human Reference Atlas "united" reference body (Visible Human Male or Female).
+"""Geometry helpers over a HuBMAP Human Reference Atlas "united" reference body (the Visible Human Male).
 
 The body's frame, in metres: x towards the patient's LEFT, y cranial, z anterior. A trunk chart unrolls the skin
 round a horizontal cross-section: `u` is the arc length (cm) from the anterior or the posterior midline, positive
 towards the patient's left; `v` is the height (cm) above the chart's origin level; `d` is the depth (cm) along the
-inward normal of the skin in that cross-section. Depths to organs come from rays cast inward from the skin.
+skin's inward normal (in 3D, smoothed over the neighbouring faces: the path of a perpendicular needle). Depths to
+organs come from rays cast inward from the skin.
 
-Requires numpy, trimesh, shapely, networkx, rtree (tools/anatomy/requirements.txt). Used only to generate content.
+Requires numpy, trimesh, shapely, networkx, rtree, scipy (tools/anatomy/requirements.txt). Used only to generate content.
 """
 import re
 import warnings

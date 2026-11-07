@@ -250,7 +250,6 @@ export function walkCondition(cond: FieldCondition, visit: (leaf: FieldCondition
   else if ("not" in cond) walkCondition(cond.not, visit);
 }
 
-/** The role of a cast member (or `patient`). */
 /**
  * Every regional model applies to every patient: the whole body is modelled. The scenario's own regions (where its
  * patient's build is authored) come first, then the rest in the bundle's order.
@@ -259,6 +258,7 @@ export function modelledRegions(sc: Scenario): string[] {
   return [...new Set([...sc.field.regions, ...sc.bundle.regions.keys()])];
 }
 
+/** The role of a cast member (or `patient`). */
 export function roleOf(sc: Scenario, actorId: string) {
   if (actorId === sc.field.patient.id) return sc.roles.roles.find((r) => r.kind === "patient") ?? null;
   const member = sc.field.cast.find((m) => m.id === actorId);

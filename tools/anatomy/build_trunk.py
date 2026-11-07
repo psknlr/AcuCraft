@@ -1,6 +1,6 @@
 """Builds the trunk's regional models from the HuBMAP Human Reference Atlas Visible Human Male united body.
 
-    python3 tools/anatomy/fetch_hra.py          # once: downloads the pinned reference bodies (CC BY 4.0)
+    python3 tools/anatomy/fetch_hra.py          # once: downloads the pinned reference body (CC BY 4.0)
     python3 tools/anatomy/build_trunk.py        # writes content/regions/{chest,abdomen,upper-back,sacrum-buttock,neck-anterior}.json
                                                 #   and tools/anatomy/derived/vh-male.json (the measurements used)
 
@@ -18,6 +18,7 @@ import os
 import sys
 
 import numpy as np
+from shapely.geometry import Point
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from hra import Body, Section, r2, ray_hits, vertebra  # noqa: E402
@@ -51,6 +52,7 @@ B = None
 V = {}
 X_MID = 0.0
 M = {}
+SKIN_NEIGHBOURS = []  # for each skin face, the faces sharing an edge with it
 
 
 def load():
@@ -80,6 +82,11 @@ def load():
     }
     for k, p in pats.items():
         M[k] = B.union(p)
+    nb = [[] for _ in range(len(M["skin"].faces))]
+    for a, b in M["skin"].face_adjacency:
+        nb[a].append(b)
+        nb[b].append(a)
+    SKIN_NEIGHBOURS[:] = nb
 
 
 def spine_z(y):
@@ -137,9 +144,9 @@ class Chart:
         if np.dot(normal, horizontal) < 0:
             normal = -normal
         # average the face normal with its neighbours' for a smooth direction
-        nb = M["skin"].face_adjacency[np.any(M["skin"].face_adjacency == tri[0], axis=1)].ravel()
-        if len(nb):
-            avg = -M["skin"].face_normals[np.unique(nb)].mean(axis=0)
+        nb = SKIN_NEIGHBOURS[tri[0]]
+        if nb:
+            avg = -M["skin"].face_normals[[tri[0], *nb]].mean(axis=0)
             if np.dot(avg, horizontal) > 0:
                 normal = avg
         normal = normal / np.linalg.norm(normal)
@@ -166,6 +173,8 @@ class Chart:
             d = math.hypot(p[0] - x, p[1] - z)
             if (best is None or d < best[0]) and np.dot([x - p[0], z - p[1]], n) > 0:
                 best = (d, u)
+        if best is None:
+            return None  # no skin point of this section faces it
         d, u = best
         return {"u": r2(u * 100, 0.1), "v": r2((y - self.y0) * 100, 0.1), "d": r2(d * 100, 0.1)}
 
@@ -179,7 +188,7 @@ class Chart:
         s, to_u, _ = self.section(self.y0 + v_cm / 100)
         xs = np.array(s.poly.exterior.coords)
         i = int(np.argmax(xs[:, 0] * sign))
-        return to_u(s.ring.project(__import__("shapely.geometry", fromlist=["Point"]).Point(*xs[i]))) * 100
+        return to_u(s.ring.project(Point(*xs[i]))) * 100
 
 
 ORGANS = [
@@ -262,7 +271,9 @@ def stack(hits, sub_fraction, default_wall=6.0, bone_cm=1.5, wall_label="muscle"
         at = fill or cap or default_wall
         hits = [{**CAVITY[cavity], "from": at, "to": at + 5}]
     elif hits and cap and hits[0]["from"] > cap:
-        if cavity:
+        if cavity and hits[0]["key"] == CAVITY[cavity]["key"]:
+            hits = [{**hits[0], "from": cap}] + hits[1:]  # the cavity met first: it begins under the capped wall
+        elif cavity:
             # the cavity begins under the capped wall; the organs stay at their measured depths
             hits = [{**CAVITY[cavity], "from": cap, "to": hits[0]["from"]}] + hits
         else:
@@ -299,7 +310,7 @@ def stack(hits, sub_fraction, default_wall=6.0, bone_cm=1.5, wall_label="muscle"
     return layers
 
 
-def fill_gaps(zones):
+def fill_gaps(chart, zones):
     """A zone whose rays met nothing, among neighbours that met the pleura, takes the shallowest neighbour's stack."""
     by = {(z["centre"]["u"], z["centre"]["v"]): z for z in zones}
     step_u = sorted({k[0] for k in by})
@@ -312,7 +323,7 @@ def fill_gaps(zones):
             top += l["thicknessCm"]
         return None
     for (u, v), z in by.items():
-        if pleura_depth(z) is not None or z["layers"][-1]["tissue"] == "bone":
+        if pleura_depth(z) is not None or z["layers"][-1]["tissue"] == "bone" or hits_at(chart, u, v):
             continue
         around = [by.get((u + du * step, v + dv * step)) for du in (-1, 0, 1) for dv in (-1, 0, 1) if du or dv]
         deep = [n for n in around if n is not None and pleura_depth(n) is not None]
@@ -332,7 +343,7 @@ def grid_zones(chart, us, vs, rule, radius):
             if layers is None:
                 continue
             zones.append({"id": f"g{u:+g}{v:+g}".replace("+", "p").replace("-", "m").replace(".", "_"), "centre": {"u": u, "v": v}, "radiusCm": radius, "layers": layers})
-    return fill_gaps(zones)
+    return fill_gaps(chart, zones)
 
 
 def tube(chart, points3d, label, sid, kind, hazard, radius, consequence, uncertainty=0.4):
@@ -410,10 +421,6 @@ BACK_ACCESS = [
 BACK_CONFIGS = [{"id": "prone", "label": "prone, a pillow under the abdomen"}, {"id": "seated-forward", "label": "seated, leaning forward"}, {"id": "side-lying", "label": "side-lying, hips and knees flexed"}]
 
 
-def mirror(id_left):
-    return id_left.replace("-left", "-right")
-
-
 def pair(id_, u, v, label, palpation=None):
     return [lm(f"{id_}-left", u, v, f"{label} (left)", palpation), lm(f"{id_}-right", -u, v, f"{label} (right)", palpation)]
 
@@ -465,9 +472,7 @@ def build_chest(out):
 
     def rule(chart, u, v):
         if abs(u) <= 2.0 and -1 <= v <= notch:
-            h = [x for x in hits_at(chart, u, v, keys={"heart", "aorta", "cava", "lung"}) if x["from"] > 1.5]
-            layers = [{"tissue": "skin", "thicknessCm": 0.2}, {"tissue": "subcutaneous", "thicknessCm": 0.6}, {"tissue": "bone", "thicknessCm": 1.2, "label": "sternum"}]
-            return layers
+            return [{"tissue": "skin", "thicknessCm": 0.2}, {"tissue": "subcutaneous", "thicknessCm": 0.6}, {"tissue": "bone", "thicknessCm": 1.2, "label": "sternum"}]
         thoracic = v < notch - 0.5 and abs(u) < 24
         return stack(hits_at(chart, u, v), 0.4, wall_label="pectoral and intercostal muscles", cap=5.0, cavity="lung" if thoracic else None, fill=fill)
 
@@ -501,16 +506,6 @@ def build_chest(out):
 # ---------------------------------------------------------------------------------------------------------------
 # abdomen: v = 0 at the centre of the umbilicus, u from the anterior midline
 # ---------------------------------------------------------------------------------------------------------------
-
-def anterior_profile(y_from, y_to):
-    ys = np.arange(y_from, y_to, 0.002)
-    zs = []
-    for y in ys:
-        s = Section(M["skin"], y, (X_MID, spine_z(y) + 0.04))
-        _, p = s._midline(X_MID, True)
-        zs.append(p[1])
-    return ys, np.array(zs)
-
 
 def symmetric(pair_):
     """A reference chart is symmetric: a bilateral landmark takes the mean of the two sides' |u| and v."""
@@ -548,9 +543,7 @@ def build_abdomen(out, chest):
     for s, sign in (("left", 1), ("right", -1)):
         a = asis_uv[s]
         landmarks.append(lm(f"asis-{s}", a["u"], a["v"], f"anterior superior iliac spine ({s})", "The front end of the iliac crest."))
-        mid_u = (a["u"] + sign * 0) / 2 + sign * 1.0
-        mid_v = (a["v"] + pub_v) / 2 - 1.0
-        landmarks.append(lm(f"mid-inguinal-{s}", (a["u"] + 0) / 2 + sign * 1.5, (a["v"] + pub_v) / 2 - 1.5, f"mid-inguinal point at the inguinal crease ({s}), over the femoral artery", "Midway between the anterior superior iliac spine and the pubic symphysis; the femoral pulse."))
+        landmarks.append(lm(f"mid-inguinal-{s}", a["u"] / 2 + sign * 1.5, (a["v"] + pub_v) / 2 - 1.5, f"mid-inguinal point at the inguinal crease ({s}), over the femoral artery", "Midway between the anterior superior iliac spine and the pubic symphysis; the femoral pulse."))
         mal = abs(ch.lateral_u(0, sign))
         landmarks.append(lm(f"rib11-tip-{s}", sign * (mal - 2), l2 + 2, f"free extremity of the eleventh rib ({s})"))
         landmarks.append(lm(f"rib12-tip-{s}", sign * (mal + 5), l2 - 1, f"free extremity of the twelfth rib ({s})"))
@@ -762,7 +755,9 @@ def build_neck(out, chest):
     P = {"prominence": ch.uv(*prom, axial=True), "cricoid": ch.uv(*cric, axial=True), "hyoid": ch.uv(*hyo, axial=True)}
     out["neck"] = {"notch_y": y0, **P}
     tv, cv, hv = P["prominence"]["v"], P["cricoid"]["v"], P["hyoid"]["v"]
-    angle_v = hv + 2.0
+    # the mandible is absent from the reference body: its angle is placed 3.5 cm above the body of the hyoid, and
+    # the points "level with the angle of the mandible" share that one level
+    jaw_v = hv + 3.5
     # the common carotid runs under the anterior border of sternocleidomastoid: the border follows the measured artery
     car_pts = [ch.uv(*p) for p in centreline(M["carotid"], y0 + 0.01, y0 + (tv + 1) / 100, 5) if p[0] > X_MID]
     car_pts = [p for p in car_pts if p]
@@ -784,8 +779,8 @@ def build_neck(out, chest):
         *pair("scm-posterior-cricoid", scm_c + 3.6, cv, "posterior border of sternocleidomastoid at the level of the cricoid"),
         *pair("scm-heads", 2.6, 0.8, "lesser supraclavicular fossa between the sternal and clavicular heads of sternocleidomastoid"),
         *pair("greater-supraclavicular-fossa", mcl, 1.4, "greater supraclavicular fossa above the clavicle on the mid-clavicular line"),
-        *pair("mandible-angle", 6.0, angle_v + 1.5, "angle of the mandible"),
-        *pair("scm-posterior-angle", 8.4, angle_v, "posterior border of sternocleidomastoid at the level of the angle of the mandible"),
+        *pair("mandible-angle", 6.0, jaw_v, "angle of the mandible"),
+        *pair("scm-posterior-angle", 8.4, jaw_v, "posterior border of sternocleidomastoid at the level of the angle of the mandible"),
     ]
     landmarks.sort(key=lambda l: l["id"])
 
@@ -793,14 +788,14 @@ def build_neck(out, chest):
         return stack(hits_at(chart, u, v), 0.35, wall_label="platysma / strap muscles / sternocleidomastoid")
 
     us = [x * 1.5 for x in range(-9, 10)]
-    vs = [x * 1.5 for x in range(-2, int(angle_v // 1.5) + 3)]
+    vs = [x * 1.5 for x in range(-2, int(jaw_v // 1.5) + 2)]
     zones = grid_zones(ch, us, vs, rule, 1.1)
     car = centreline(M["carotid"], y0 + 0.01, y0 + (tv + 1) / 100, 5)
     car = [p for p in car if p[0] > X_MID]
     left = tube(ch, car, "common carotid artery (left)", "carotid-left", "artery", "critical", 0.4, "bleeding")
     # above the thyroid cartilage the carotid divides and the internal carotid runs up, deeper, to the skull base
     # (schematic continuation to the angle of the mandible)
-    left["path"].append({"u": 4.2, "v": r2(angle_v + 2, 0.1), "d": 3.2})
+    left["path"].append({"u": 4.2, "v": r2(jaw_v + 0.5, 0.1), "d": 3.2})
     left["label"] = "common and internal carotid artery (left)"
     right = {**left, "id": "carotid-right", "label": "common and internal carotid artery (right; mirrored from the left)", "path": [{**p, "u": -p["u"]} for p in left["path"]]}
     structures = [left, right]
@@ -813,7 +808,7 @@ def build_neck(out, chest):
     write(region(
         "neck-anterior", "front and sides of the neck",
         "The front of the neck unrolled round a horizontal section of the skin. u: arc length (cm) from the anterior median line, positive towards the patient's LEFT, back to the posterior border of sternocleidomastoid. v: height (cm) above the suprasternal notch. d: depth below the skin along the inward normal (cm).",
-        [-14, 14], [-3, round(angle_v) + 4], FRONT_CONFIGS, FRONT_ACCESS, landmarks,
+        [-14, 14], [-3, round(jaw_v) + 3], FRONT_CONFIGS, FRONT_ACCESS, landmarks,
         [seg("seg.neck-mcl", "between the mid-clavicular lines (as between the nipples)", "midclavicular-right", "midclavicular-left", 8)],
         default, zones, structures,
         "In the midline the trachea lies a centimetre or two below the skin above the suprasternal notch, with the thyroid isthmus over its upper rings and the great vessels behind the manubrium below. Either side, under the anterior border of sternocleidomastoid, the common carotid artery (pulsating) and lateral to it the internal jugular vein lie in the carotid sheath. Above the medial clavicle the dome of the pleura rises into the root of the neck.",

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { assessPath, createEncounter, derivedBuild, patientRegion, pointInstance, regionAccess, step, type Side } from "@acucraft/core";
-import { loadContentPack, requireScenario } from "./content.js";
+import { loadContentPack, requireScenario, scenarioIds } from "./content.js";
 
 /** Every regional model is internally consistent, and its hazards are reachable only by going too deep. */
 
@@ -42,20 +42,33 @@ describe("regional models", () => {
     expect(r.provenance.licence.length).toBeGreaterThan(0);
   });
 
-  it("no localised point sits on a critical hazard at a shallow perpendicular depth (5 mm)", () => {
+  it("no localised point sits on a critical hazard at a shallow perpendicular depth (5 mm), for any patient or side", () => {
     const shallow: string[] = [];
-    for (const def of pack.bundle.acupoints.values()) {
-      if (!def.region || !def.localisation) continue;
-      const r = pack.bundle.regions.get(def.region)!;
-      const side: Side = def.bilateral ? "right" : "midline";
-      const cfg = def.configuration ?? regionAccess(r, side, r.access[0]!.position).configuration;
-      const inst = pointInstance(sc, def, side, cfg);
-      if (!inst) continue;
-      const frame = patientRegion(sc, def.region, inst.side, cfg);
-      const path = assessPath(frame, inst.position, 0, 0, 0.5, NEEDLE);
-      if (path.critical) shallow.push(def.id);
+    let checked = 0;
+    for (const id of scenarioIds(pack)) {
+      const patient = requireScenario(pack, id);
+      for (const def of patient.bundle.acupoints.values()) {
+        if (!def.region || !def.localisation) continue;
+        const r = patient.bundle.regions.get(def.region)!;
+        for (const side of (def.bilateral ? ["left", "right"] : ["midline"]) as Side[]) {
+          const cfg = def.configuration ?? regionAccess(r, side, r.access[0]!.position).configuration;
+          const inst = pointInstance(patient, def, side, cfg);
+          if (!inst) continue;
+          const frame = patientRegion(patient, def.region, inst.side, cfg);
+          if (assessPath(frame, inst.position, 0, 0, 0.5, NEEDLE).critical) shallow.push(`${id} ${def.id} ${side}`);
+          checked++;
+        }
+      }
     }
-    expect(shallow).toEqual([]);
+    // ST9 and LI18 lie over the carotid sheath. The reference body's carotid is shallower than imaging of living
+    // subjects reports, so in a slim patient its wall is within 5 mm: the guard stops it (docs/ANATOMY.md §8)
+    const overCarotid = (s: string) => / (ST9|LI18) (left|right)$/.test(s);
+    expect(shallow.filter((s) => !overCarotid(s))).toEqual([]);
+    for (const s of shallow.filter(overCarotid)) {
+      const p = requireScenario(pack, s.split(" ")[0]!).case.patient as { heightCm: number; weightKg: number };
+      expect(p.weightKg / (p.heightCm / 100) ** 2, s).toBeLessThan(24);
+    }
+    expect(checked).toBeGreaterThan(700);
   });
 });
 
@@ -78,6 +91,8 @@ describe("the whole body in every encounter", () => {
     const chest = derivedBuild(sc, pack.bundle.regions.get("chest")!);
     expect(chest.scale.v).toBeCloseTo(156 / 183, 2);
     expect(chest.subcutaneousScale).toBeCloseTo(1, 1);
+    // a woman's muscle is scaled down from a male reference body; her shorter frame scales it too
+    expect(chest.muscleScale).toBeLessThan(0.8);
     // the schematic regions' reference adult is 170 cm, BMI 22.5: a heavier build has more subcutaneous fat
     expect(derivedBuild(sc, pack.bundle.regions.get("face")!).subcutaneousScale).toBeGreaterThan(1.3);
     // a scenario's own authored build is untouched

@@ -12,7 +12,7 @@
     ],
     "vRange": [
       -3,
-      14
+      15
     ]
   },
   "reference": {
@@ -198,7 +198,7 @@
       "label": "posterior border of sternocleidomastoid at the level of the angle of the mandible (left)",
       "at": {
         "u": 8.4,
-        "v": 10.5
+        "v": 12.0
       }
     },
     {
@@ -206,7 +206,7 @@
       "label": "posterior border of sternocleidomastoid at the level of the angle of the mandible (right)",
       "at": {
         "u": -8.4,
-        "v": 10.5
+        "v": 12.0
       }
     },
     {
