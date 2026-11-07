@@ -57,7 +57,7 @@ describe("acupoint library", () => {
     for (const id of scenarioIds(pack)) {
       const sc = requireScenario(pack, id);
       for (const def of sc.bundle.acupoints.values()) {
-        if (!def.localisation || !def.region || !sc.field.regions.includes(def.region)) continue;
+        if (!def.localisation || !def.region) continue;
         const r = sc.bundle.regions.get(def.region)!;
         const sides: Side[] = def.bilateral ? ["left", "right"] : ["midline"];
         for (const side of sides) {
@@ -79,11 +79,11 @@ describe("the library as an agent sees it", () => {
   const sc = requireScenario(pack, "sg-knee-oa/base");
   const lib = referenceLibrary(sc);
 
-  it("offers every point, and marks as localised only those on this encounter's regions", () => {
+  it("offers every point and every regional model: the whole body is modelled in every encounter", () => {
     expect(lib.points.length).toBe(409);
     const localised = lib.points.filter((p) => p.localisation).map((p) => p.region);
-    expect(localised.length).toBeGreaterThan(0);
-    expect(localised.every((r) => sc.field.regions.includes(r!))).toBe(true);
+    expect(localised.length).toBe(points.filter((p) => p.localisation).length);
+    expect(lib.regions.map((r) => r.id).sort()).toEqual([...pack.bundle.regions.keys()].sort());
     // the view is unchanged by the size of the library
     expect(() => observeAs(sc, createEncounter(sc), "practitioner")).not.toThrow();
   });

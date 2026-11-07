@@ -5,7 +5,7 @@ import { pointInstance, regionAccess } from "./anatomy.js";
 import { consentCovers, currentPlan, currentVisit, fmt, needleList, now, parseRef, refKey, visitIndex } from "./queries.js";
 import { ACTION_PERMISSIONS } from "./rules.js";
 import { LOCALE } from "./runtime.js";
-import { roleOf, type Scenario } from "./scenario.js";
+import { modelledRegions, roleOf, type Scenario } from "./scenario.js";
 import { hash53 } from "./util.js";
 import { speakerLabel } from "./encounter.js";
 
@@ -76,7 +76,7 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
   const room = (id: string) => sc.clinic.rooms.find((r) => r.id === id)?.label ?? id;
   const label = (r: PointRef) => ("ashi" in r ? `ashi:${r.ashi}` : `${r.point}:${r.side}`);
 
-  const reachable = sc.field.regions.flatMap((regionId) => {
+  const reachable = modelledRegions(sc).flatMap((regionId) => {
     const region = sc.bundle.regions.get(regionId)!;
     const sides = (region.laterality === "bilateral" ? ["left", "right"] : ["midline", "left", "right"]) as ("left" | "right" | "midline")[];
     const ok = sides.filter((side) => regionAccess(region, side, s.patient.position).accessible);
@@ -198,7 +198,7 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
     for (const p of plan?.plan.points ?? []) {
       if ("ashi" in p) continue;
       const def = sc.bundle.acupoints.get(p.point);
-      if (!def?.region || !sc.field.regions.includes(def.region)) continue;
+      if (!def?.region || !sc.bundle.regions.has(def.region)) continue;
       const region = sc.bundle.regions.get(def.region)!;
       const access = regionAccess(region, p.side, s.patient.position);
       const inst = pointInstance(sc, def, p.side, access.configuration);
@@ -217,7 +217,7 @@ const round2 = (n: number) => Math.round(n * 100) / 100;
  * evidence records. Identical for every variant of a family.
  */
 export function referenceLibrary(sc: Scenario) {
-  const regions = sc.field.regions.map((id) => {
+  const regions = modelledRegions(sc).map((id) => {
     const r = sc.bundle.regions.get(id)!;
     return {
       id: r.id,
@@ -241,8 +241,8 @@ export function referenceLibrary(sc: Scenario) {
     location: t(p.location.text, LOCALE),
     area: p.area ?? null,
     sites: p.sites ?? null,
-    region: p.region && sc.field.regions.includes(p.region) ? p.region : null,
-    localisation: p.region && sc.field.regions.includes(p.region) ? (p.localisation ?? null) : null,
+    region: p.region && sc.bundle.regions.has(p.region) ? p.region : null,
+    localisation: p.region && sc.bundle.regions.has(p.region) ? (p.localisation ?? null) : null,
     configuration: p.configuration ?? null,
     bilateral: p.bilateral,
     cautions: p.cautions.map((c) => ({ when: c.when, text: c.text, severity: c.severity })),

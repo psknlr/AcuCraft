@@ -13,6 +13,7 @@ import {
   createEncounter,
   digest,
   observeAs,
+  modelledRegions,
   patientRegion,
   pointInstance,
   referenceLibrary,
@@ -239,7 +240,7 @@ async function main(): Promise<void> {
         console.log(inst ? `${spec}  u=${inst.position.u.toFixed(2)} v=${inst.position.v.toFixed(2)}  tolerance ${inst.toleranceCm.toFixed(2)} cm  (${inst.configuration}${access.accessible ? "" : ", not reachable in this position"})` : `${spec}: no instance`);
       }
       if (args.length <= 2) {
-        for (const r of sc.field.regions) {
+        for (const r of modelledRegions(sc)) {
           const region = p.bundle.regions.get(r)!;
           for (const side of (region.laterality === "bilateral" ? ["left", "right"] : ["midline"]) as Side[]) {
             const access = regionAccess(region, side, position);

@@ -43,10 +43,33 @@ export function regionAccess(region: Region, side: Side, position: Position): Ac
   return { accessible: false, configuration: region.defaultConfiguration, reason };
 }
 
+/** The reference body of a chart drawn without one. */
+export const DEFAULT_REFERENCE_BODY = { heightCm: 170, bmi: 22.5 } as const;
+
+const round3 = (n: number) => Math.round(n * 1000) / 1000;
+
+/**
+ * The build of a patient in a region their scenario does not author: scaled from the region's reference body by the
+ * patient's height (length) and BMI (girth and subcutaneous fat). Muscle stays at the reference.
+ */
+export function derivedBuild(sc: Scenario, region: Region): RegionAnatomy {
+  const p = sc.case.patient as { sex?: string; heightCm?: number; weightKg?: number };
+  const ref = region.reference ?? DEFAULT_REFERENCE_BODY;
+  const height = p.heightCm ?? (p.sex === "female" ? 160 : 172);
+  const bmi = p.weightKg ? p.weightKg / (height / 100) ** 2 : ref.bmi;
+  const v = height / ref.heightCm;
+  const u = v * Math.pow(bmi / ref.bmi, 0.25);
+  const subcutaneous = Math.min(3, Math.max(0.4, Math.pow(bmi / ref.bmi, 1.5)));
+  return { scale: { u: round3(u), v: round3(v) }, subcutaneousScale: round3(subcutaneous), muscleScale: 1, landmarks: {}, structures: {} };
+}
+
 function patientAnatomy(sc: Scenario, regionId: string, side: Side): RegionAnatomy {
   const entry = sc.field.patient.anatomy.regions[regionId];
   const base: RegionAnatomy = { scale: { u: 1, v: 1 }, subcutaneousScale: 1, muscleScale: 1, landmarks: {}, structures: {} };
-  if (!entry) return base;
+  if (!entry) {
+    const region = sc.bundle.regions.get(regionId);
+    return region ? derivedBuild(sc, region) : base;
+  }
   const both = entry.both ?? base;
   const specific = side === "left" ? entry.left : side === "right" ? entry.right : undefined;
   if (!specific) return { ...base, ...both };
@@ -71,9 +94,11 @@ export function patientRegion(sc: Scenario, regionId: string, side: Side, config
   const lateralSign: 1 | -1 | 0 = region.laterality === "bilateral" ? 1 : side === "left" ? 1 : side === "right" ? -1 : 0;
 
   const refLayersAt = (at: ChartPoint): Layer[] => {
+    // the smallest zone containing the point; among equal ones (a depth grid) the nearest centre
+    const dist = (z: (typeof region.tissue.zones)[number]) => Math.hypot(at.u - z.centre.u * su, at.v - z.centre.v * sv);
     const zone = region.tissue.zones
-      .filter((z) => Math.hypot(at.u - z.centre.u * su, at.v - z.centre.v * sv) <= z.radiusCm * Math.max(su, sv))
-      .sort((x, y) => x.radiusCm - y.radiusCm)[0];
+      .filter((z) => dist(z) <= z.radiusCm * Math.max(su, sv))
+      .sort((x, y) => x.radiusCm - y.radiusCm || dist(x) - dist(y))[0];
     return zone ? zone.layers : region.tissue.layers;
   };
   const layersAt = (at: ChartPoint): Layer[] =>
@@ -168,7 +193,7 @@ export interface PointInstance {
 /** Locate a standard point on this patient, in the region's current configuration (null: not modelled). */
 export function pointInstance(sc: Scenario, point: AcupointDefinition, side: Side, configuration: string): PointInstance | null {
   if (!point.region || !point.localisation) return null;
-  if (!sc.field.regions.includes(point.region)) return null;
+  if (!sc.bundle.regions.has(point.region)) return null;
   const effectiveSide: Side = point.bilateral ? side : "midline";
   const frame = patientRegion(sc, point.region, effectiveSide, configuration);
   const sided = (id: string) => id.replace("{side}", effectiveSide);
@@ -235,6 +260,8 @@ export interface PathAssessment {
   /** Tissues the shaft passes through, from the skin down. */
   traversed: Layer["tissue"][];
   pleuraPenetrated: boolean;
+  /** Hazardous layers the tip reached (an organ, the spinal canal, the peritoneum …), from the skin down. */
+  layersReached: { tissue: Layer["tissue"]; label: string; hazard: "critical" | "caution"; depthCm: number }[];
   findings: StructureFinding[];
   critical: boolean;
 }
@@ -324,6 +351,12 @@ export function assessPath(frame: PatientRegion, entry: ChartPoint, angleDeg: nu
   }
   if (stoppedBy === "bone") tipTissue = "bone";
   const pleuraPenetrated = pleuraTop !== null && vertical > pleuraTop;
+  const layersReached: PathAssessment["layersReached"] = [];
+  top = 0;
+  for (const l of layers) {
+    if (l.hazard && vertical > top) layersReached.push({ tissue: l.tissue, label: l.label ?? l.tissue, hazard: l.hazard, depthCm: top });
+    top += l.thicknessCm;
+  }
   const p0: ChartPoint3 = { u: entry.u, v: entry.v, d: 0 };
   const p1 = tipOf(entry, angleDeg, azimuthDeg, depth);
   const needleRadius = needle.diameterMm / 20;
@@ -338,6 +371,6 @@ export function assessPath(frame: PatientRegion, entry: ChartPoint, angleDeg: nu
     if (contact || near) findings.push({ structure: s.id, label: s.label, kind: s.kind, hazard: s.hazard, consequence: s.consequence, clearanceCm: clearance, contact, near });
   }
   findings.sort((a, b) => a.clearanceCm - b.clearanceCm);
-  const critical = pleuraPenetrated || findings.some((f) => f.contact && f.hazard === "critical");
-  return { requestedDepthCm, executedDepthCm: depth, verticalDepthCm: vertical, stoppedBy, tipTissue, traversed, pleuraPenetrated, findings, critical };
+  const critical = pleuraPenetrated || layersReached.some((l) => l.hazard === "critical") || findings.some((f) => f.contact && f.hazard === "critical");
+  return { requestedDepthCm, executedDepthCm: depth, verticalDepthCm: vertical, stoppedBy, tipTissue, traversed, pleuraPenetrated, layersReached, findings, critical };
 }
