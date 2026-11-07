@@ -30,6 +30,19 @@
         "paraphrased": true
       },
       "area": "face",
+      "region": "face",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "infraorbital-margin-pupil-{side}",
+        "offset": {
+          "cranial": {
+            "cm": 0.25
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.3
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "Between the eyeball and the orbit: needle slowly along the orbital margin without lifting, thrusting or rotating; risk of haematoma and of injury to the eye. Requires specific training.",
@@ -76,6 +89,14 @@
         "paraphrased": true
       },
       "area": "face",
+      "region": "face",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "infraorbital-foramen-{side}"
+      },
+      "tolerance": {
+        "cm": 0.4
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -121,6 +142,19 @@
         "paraphrased": true
       },
       "area": "face",
+      "region": "face",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "pupil-{side}",
+        "offset": {
+          "caudal": {
+            "cm": 3.95
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.5
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -166,6 +200,19 @@
         "paraphrased": true
       },
       "area": "face",
+      "region": "face",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "mouth-angle-{side}",
+        "offset": {
+          "lateral": {
+            "cm": 0.8
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.4
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -211,8 +258,17 @@
         "paraphrased": true
       },
       "area": "face",
+      "region": "head-lateral",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "masseter-anterior-border"
+      },
+      "tolerance": {
+        "cm": 0.5
+      },
       "bilateral": true,
       "cautions": [],
+      "notes": "Over the facial artery at the front of the masseter: palpate and avoid it.",
       "provenance": {
         "sources": [
           {
@@ -256,6 +312,22 @@
         "paraphrased": true
       },
       "area": "face",
+      "region": "head-lateral",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "mandibular-angle",
+        "offset": {
+          "medial": {
+            "cm": 1.3
+          },
+          "cranial": {
+            "cm": 1.3
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -301,6 +373,16 @@
         "paraphrased": true
       },
       "area": "face",
+      "region": "head-lateral",
+      "localisation": {
+        "method": "between",
+        "a": "zygomatic-arch-midpoint",
+        "b": "mandibular-notch",
+        "fraction": 0.6
+      },
+      "tolerance": {
+        "cm": 0.5
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -346,6 +428,21 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "scalp",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "frontal-hairline-corner-{side}",
+        "offset": {
+          "cranial": {
+            "cun": 0.5,
+            "segment": "seg.hairlines"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.hairlines"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -391,6 +488,14 @@
         "paraphrased": true
       },
       "area": "neck",
+      "region": "neck-anterior",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "scm-anterior-thyroid-{side}"
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "Over the common carotid artery: displace the artery and needle shallowly; never deep.",
@@ -437,6 +542,14 @@
         "paraphrased": true
       },
       "area": "neck",
+      "region": "neck-anterior",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "scm-anterior-cricoid-{side}"
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The carotid sheath and the great vessels of the neck lie close: needle shallowly and avoid the pulsating artery.",
@@ -483,6 +596,14 @@
         "paraphrased": true
       },
       "area": "neck",
+      "region": "neck-anterior",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "scm-heads-{side}"
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The carotid sheath and the great vessels of the neck lie close: needle shallowly and avoid the pulsating artery.",
@@ -529,6 +650,14 @@
         "paraphrased": true
       },
       "area": "neck",
+      "region": "neck-anterior",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "greater-supraclavicular-fossa-{side}"
+      },
+      "tolerance": {
+        "cm": 0.8
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
@@ -575,6 +704,15 @@
         "paraphrased": true
       },
       "area": "chest",
+      "region": "chest",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "clavicle-inf-4cun-{side}"
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.nipples"
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
@@ -621,6 +759,15 @@
         "paraphrased": true
       },
       "area": "chest",
+      "region": "chest",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "ics1-4cun-{side}"
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.nipples"
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
@@ -667,6 +814,15 @@
         "paraphrased": true
       },
       "area": "chest",
+      "region": "chest",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "ics2-4cun-{side}"
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.nipples"
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
@@ -713,6 +869,15 @@
         "paraphrased": true
       },
       "area": "chest",
+      "region": "chest",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "ics3-4cun-{side}"
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.nipples"
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
@@ -805,6 +970,15 @@
         "paraphrased": true
       },
       "area": "chest",
+      "region": "chest",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "ics5-4cun-{side}"
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.nipples"
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
@@ -851,6 +1025,26 @@
         "paraphrased": true
       },
       "area": "abdomen",
+      "region": "abdomen",
+      "localisation": {
+        "method": "along",
+        "from": "umbilicus",
+        "toward": "xiphisternal-junction",
+        "distance": {
+          "cun": 6,
+          "segment": "seg.epigastric"
+        },
+        "offset": {
+          "lateral": {
+            "cun": 2,
+            "segment": "seg.mcl"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.epigastric"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -896,6 +1090,26 @@
         "paraphrased": true
       },
       "area": "abdomen",
+      "region": "abdomen",
+      "localisation": {
+        "method": "along",
+        "from": "umbilicus",
+        "toward": "xiphisternal-junction",
+        "distance": {
+          "cun": 5,
+          "segment": "seg.epigastric"
+        },
+        "offset": {
+          "lateral": {
+            "cun": 2,
+            "segment": "seg.mcl"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.epigastric"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -941,6 +1155,26 @@
         "paraphrased": true
       },
       "area": "abdomen",
+      "region": "abdomen",
+      "localisation": {
+        "method": "along",
+        "from": "umbilicus",
+        "toward": "xiphisternal-junction",
+        "distance": {
+          "cun": 4,
+          "segment": "seg.epigastric"
+        },
+        "offset": {
+          "lateral": {
+            "cun": 2,
+            "segment": "seg.mcl"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.epigastric"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -986,6 +1220,26 @@
         "paraphrased": true
       },
       "area": "abdomen",
+      "region": "abdomen",
+      "localisation": {
+        "method": "along",
+        "from": "umbilicus",
+        "toward": "xiphisternal-junction",
+        "distance": {
+          "cun": 3,
+          "segment": "seg.epigastric"
+        },
+        "offset": {
+          "lateral": {
+            "cun": 2,
+            "segment": "seg.mcl"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.epigastric"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -1031,6 +1285,26 @@
         "paraphrased": true
       },
       "area": "abdomen",
+      "region": "abdomen",
+      "localisation": {
+        "method": "along",
+        "from": "umbilicus",
+        "toward": "xiphisternal-junction",
+        "distance": {
+          "cun": 2,
+          "segment": "seg.epigastric"
+        },
+        "offset": {
+          "lateral": {
+            "cun": 2,
+            "segment": "seg.mcl"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.epigastric"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -1076,6 +1350,26 @@
         "paraphrased": true
       },
       "area": "abdomen",
+      "region": "abdomen",
+      "localisation": {
+        "method": "along",
+        "from": "umbilicus",
+        "toward": "xiphisternal-junction",
+        "distance": {
+          "cun": 1,
+          "segment": "seg.epigastric"
+        },
+        "offset": {
+          "lateral": {
+            "cun": 2,
+            "segment": "seg.mcl"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.epigastric"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -1121,8 +1415,20 @@
         "paraphrased": true
       },
       "area": "abdomen",
+      "region": "abdomen",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "umbilicus",
+        "offset": {
+          "lateral": {
+            "cun": 2,
+            "segment": "seg.mcl"
+          }
+        }
+      },
       "tolerance": {
-        "cm": 1
+        "cun": 0.3,
+        "segment": "seg.epigastric"
       },
       "bilateral": true,
       "cautions": [
@@ -1176,6 +1482,26 @@
         "paraphrased": true
       },
       "area": "abdomen",
+      "region": "abdomen",
+      "localisation": {
+        "method": "along",
+        "from": "umbilicus",
+        "toward": "pubic-symphysis",
+        "distance": {
+          "cun": 1,
+          "segment": "seg.hypogastric"
+        },
+        "offset": {
+          "lateral": {
+            "cun": 2,
+            "segment": "seg.mcl"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.hypogastric"
+      },
       "bilateral": true,
       "cautions": [
         {
@@ -1228,6 +1554,26 @@
         "paraphrased": true
       },
       "area": "abdomen",
+      "region": "abdomen",
+      "localisation": {
+        "method": "along",
+        "from": "umbilicus",
+        "toward": "pubic-symphysis",
+        "distance": {
+          "cun": 2,
+          "segment": "seg.hypogastric"
+        },
+        "offset": {
+          "lateral": {
+            "cun": 2,
+            "segment": "seg.mcl"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.hypogastric"
+      },
       "bilateral": true,
       "cautions": [
         {
@@ -1280,6 +1626,26 @@
         "paraphrased": true
       },
       "area": "abdomen",
+      "region": "abdomen",
+      "localisation": {
+        "method": "along",
+        "from": "umbilicus",
+        "toward": "pubic-symphysis",
+        "distance": {
+          "cun": 3,
+          "segment": "seg.hypogastric"
+        },
+        "offset": {
+          "lateral": {
+            "cun": 2,
+            "segment": "seg.mcl"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.hypogastric"
+      },
       "bilateral": true,
       "cautions": [
         {
@@ -1332,6 +1698,26 @@
         "paraphrased": true
       },
       "area": "abdomen",
+      "region": "abdomen",
+      "localisation": {
+        "method": "along",
+        "from": "umbilicus",
+        "toward": "pubic-symphysis",
+        "distance": {
+          "cun": 4,
+          "segment": "seg.hypogastric"
+        },
+        "offset": {
+          "lateral": {
+            "cun": 2,
+            "segment": "seg.mcl"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.hypogastric"
+      },
       "bilateral": true,
       "cautions": [
         {
@@ -1384,6 +1770,21 @@
         "paraphrased": true
       },
       "area": "groin",
+      "region": "abdomen",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "pubic-symphysis",
+        "offset": {
+          "lateral": {
+            "cun": 2,
+            "segment": "seg.mcl"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.hypogastric"
+      },
       "bilateral": true,
       "cautions": [
         {
@@ -1437,6 +1838,15 @@
         "paraphrased": true
       },
       "area": "thigh",
+      "region": "thigh",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "st31-depression"
+      },
+      "tolerance": {
+        "cun": 0.5,
+        "segment": "seg.symphysis-medial-epicondyle"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -1482,6 +1892,20 @@
         "paraphrased": true
       },
       "area": "thigh",
+      "region": "thigh",
+      "localisation": {
+        "method": "along",
+        "from": "patella-base-lateral",
+        "toward": "asis",
+        "distance": {
+          "cun": 6,
+          "segment": "seg.symphysis-medial-epicondyle"
+        }
+      },
+      "tolerance": {
+        "cun": 0.5,
+        "segment": "seg.symphysis-medial-epicondyle"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -1527,6 +1951,20 @@
         "paraphrased": true
       },
       "area": "thigh",
+      "region": "thigh",
+      "localisation": {
+        "method": "along",
+        "from": "patella-base-lateral",
+        "toward": "asis",
+        "distance": {
+          "cun": 3,
+          "segment": "seg.symphysis-medial-epicondyle"
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.symphysis-medial-epicondyle"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -1572,8 +2010,19 @@
         "paraphrased": true
       },
       "area": "thigh",
+      "region": "thigh",
+      "localisation": {
+        "method": "along",
+        "from": "patella-base-lateral",
+        "toward": "asis",
+        "distance": {
+          "cun": 2,
+          "segment": "seg.symphysis-medial-epicondyle"
+        }
+      },
       "tolerance": {
-        "cm": 1
+        "cun": 0.4,
+        "segment": "seg.symphysis-medial-epicondyle"
       },
       "bilateral": true,
       "cautions": [],
@@ -2027,6 +2476,14 @@
         "paraphrased": true
       },
       "area": "foot",
+      "region": "foot",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "mt2-cuneiform-joint"
+      },
+      "tolerance": {
+        "cm": 0.5
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "Over the dorsalis pedis artery: palpate and avoid it.",
@@ -2073,6 +2530,21 @@
         "paraphrased": true
       },
       "area": "foot",
+      "region": "foot",
+      "localisation": {
+        "method": "between",
+        "a": "mtp2",
+        "b": "mtp3",
+        "fraction": 0.5,
+        "offset": {
+          "cranial": {
+            "cm": 1.5
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -2118,6 +2590,19 @@
         "paraphrased": true
       },
       "area": "foot",
+      "region": "foot",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "web-2-3",
+        "offset": {
+          "cranial": {
+            "cm": 0.3
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.4
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -2163,6 +2648,22 @@
         "paraphrased": true
       },
       "area": "toe",
+      "region": "foot",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "toe2-nail-lateral-corner",
+        "offset": {
+          "lateral": {
+            "cm": 0.15
+          },
+          "cranial": {
+            "cm": 0.15
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.3
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {

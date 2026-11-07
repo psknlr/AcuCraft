@@ -30,6 +30,15 @@
         "paraphrased": true
       },
       "area": "chest",
+      "region": "chest",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "ics4-5cun-{side}"
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.nipples"
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
@@ -76,6 +85,20 @@
         "paraphrased": true
       },
       "area": "upper-arm",
+      "region": "upper-arm",
+      "localisation": {
+        "method": "along",
+        "from": "anterior-axillary-fold",
+        "toward": "cubital-crease-mid",
+        "distance": {
+          "cun": 2,
+          "segment": "seg.arm"
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.arm"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -121,6 +144,14 @@
         "paraphrased": true
       },
       "area": "elbow",
+      "region": "upper-arm",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "biceps-tendon-medial-crease"
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The brachial artery lies just medial to the biceps tendon: palpate and avoid it.",
@@ -399,6 +430,14 @@
         "paraphrased": true
       },
       "area": "hand",
+      "region": "hand-palm",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "proximal-palmar-crease-2-3"
+      },
+      "tolerance": {
+        "cm": 0.5
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -444,6 +483,14 @@
         "paraphrased": true
       },
       "area": "finger",
+      "region": "hand-palm",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "tip-3"
+      },
+      "tolerance": {
+        "cm": 0.4
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {

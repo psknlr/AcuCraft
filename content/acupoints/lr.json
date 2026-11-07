@@ -32,6 +32,22 @@
         "paraphrased": true
       },
       "area": "toe",
+      "region": "foot",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "great-toe-nail-lateral-corner",
+        "offset": {
+          "lateral": {
+            "cm": 0.15
+          },
+          "cranial": {
+            "cm": 0.15
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.3
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -79,6 +95,19 @@
         "paraphrased": true
       },
       "area": "foot",
+      "region": "foot",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "web-1-2",
+        "offset": {
+          "cranial": {
+            "cm": 0.3
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.4
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -126,8 +155,18 @@
         "paraphrased": true
       },
       "area": "foot",
+      "region": "foot",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "mt1-mt2-base-junction",
+        "offset": {
+          "caudal": {
+            "cm": 1.0
+          }
+        }
+      },
       "tolerance": {
-        "cm": 1
+        "cm": 0.6
       },
       "bilateral": true,
       "cautions": [],
@@ -176,6 +215,16 @@
         "paraphrased": true
       },
       "area": "ankle",
+      "region": "knee-leg",
+      "localisation": {
+        "method": "between",
+        "a": "medial-malleolus",
+        "b": "tibialis-anterior-tendon-ankle",
+        "fraction": 0.6
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -355,6 +404,21 @@
         "paraphrased": true
       },
       "area": "leg",
+      "region": "knee-leg",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "medial-condyle-inferior",
+        "offset": {
+          "medial": {
+            "cun": 1,
+            "segment": "seg.sp9-medial-malleolus"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.sp9-medial-malleolus"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -402,6 +466,15 @@
         "paraphrased": true
       },
       "area": "knee",
+      "region": "knee-leg",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "medial-popliteal-depression"
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
+      "configuration": "knee-flexed",
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -449,6 +522,24 @@
         "paraphrased": true
       },
       "area": "thigh",
+      "region": "thigh",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "patella-base-medial",
+        "offset": {
+          "cranial": {
+            "cun": 4,
+            "segment": "seg.symphysis-medial-epicondyle"
+          },
+          "medial": {
+            "cm": 8.0
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.5,
+        "segment": "seg.symphysis-medial-epicondyle"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -496,6 +587,21 @@
         "paraphrased": true
       },
       "area": "thigh",
+      "region": "thigh",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "st30-site",
+        "offset": {
+          "caudal": {
+            "cun": 3,
+            "segment": "seg.symphysis-medial-epicondyle"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.symphysis-medial-epicondyle"
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The femoral vessels lie close: palpate and avoid the artery.",
@@ -544,6 +650,21 @@
         "paraphrased": true
       },
       "area": "thigh",
+      "region": "thigh",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "st30-site",
+        "offset": {
+          "caudal": {
+            "cun": 2,
+            "segment": "seg.symphysis-medial-epicondyle"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.symphysis-medial-epicondyle"
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The femoral vessels lie close: palpate and avoid the artery.",
@@ -592,6 +713,21 @@
         "paraphrased": true
       },
       "area": "groin",
+      "region": "abdomen",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "pubic-symphysis",
+        "offset": {
+          "lateral": {
+            "cun": 2.5,
+            "segment": "seg.mcl"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.hypogastric"
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The femoral vessels lie close: palpate and avoid the artery.",
@@ -640,6 +776,19 @@
         "paraphrased": true
       },
       "area": "abdomen",
+      "region": "abdomen",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "rib11-tip-{side}",
+        "offset": {
+          "caudal": {
+            "cm": 0.8
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 1.0
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "An enlarged spleen or liver may lie beneath: no deep needling.",
@@ -688,6 +837,15 @@
         "paraphrased": true
       },
       "area": "chest",
+      "region": "chest",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "ics6-4cun-{side}"
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.nipples"
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",

@@ -32,6 +32,20 @@
       },
       "area": "head",
       "sites": 4,
+      "region": "scalp",
+      "localisation": {
+        "method": "along",
+        "from": "anterior-hairline",
+        "toward": "posterior-hairline",
+        "distance": {
+          "cun": 5,
+          "segment": "seg.hairlines"
+        }
+      },
+      "tolerance": {
+        "cun": 1.3,
+        "segment": "seg.hairlines"
+      },
       "bilateral": false,
       "cautions": [],
       "provenance": {
@@ -78,6 +92,21 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "scalp",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "anterior-hairline-pupil-{side}",
+        "offset": {
+          "cranial": {
+            "cun": 1,
+            "segment": "seg.hairlines"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.hairlines"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -132,8 +161,15 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "face",
+      "localisation": {
+        "method": "between",
+        "a": "eyebrow-medial-left",
+        "b": "eyebrow-medial-right",
+        "fraction": 0.5
+      },
       "tolerance": {
-        "cm": 1
+        "cm": 0.5
       },
       "bilateral": false,
       "cautions": [],
@@ -181,6 +217,14 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "face",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "eyebrow-middle-{side}"
+      },
+      "tolerance": {
+        "cm": 0.4
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -227,8 +271,20 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "face",
+      "localisation": {
+        "method": "between",
+        "a": "eyebrow-lateral-{side}",
+        "b": "canthus-outer-{side}",
+        "fraction": 0.5,
+        "offset": {
+          "lateral": {
+            "cm": 1.8
+          }
+        }
+      },
       "tolerance": {
-        "cm": 1
+        "cm": 0.6
       },
       "bilateral": true,
       "cautions": [],
@@ -276,6 +332,14 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "head-lateral",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "auricular-apex"
+      },
+      "tolerance": {
+        "cm": 0.3
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -322,6 +386,16 @@
         "paraphrased": true
       },
       "area": "face",
+      "region": "face",
+      "localisation": {
+        "method": "between",
+        "a": "infraorbital-margin-medial-{side}",
+        "b": "infraorbital-margin-lateral-{side}",
+        "fraction": 0.75
+      },
+      "tolerance": {
+        "cm": 0.35
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "Between the eyeball and the orbit: needle slowly along the orbital margin without lifting, thrusting or rotating; risk of haematoma and of injury to the eye. Requires specific training.",
@@ -369,6 +443,14 @@
         "paraphrased": true
       },
       "area": "face",
+      "region": "face",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "nasal-bone-lower-end-{side}"
+      },
+      "tolerance": {
+        "cm": 0.4
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -650,6 +732,21 @@
         "paraphrased": true
       },
       "area": "neck",
+      "region": "neck-shoulder",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "earlobe-depression-{side}",
+        "offset": {
+          "medial": {
+            "cun": 1,
+            "segment": "seg.mastoids"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.mastoids"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -696,6 +793,25 @@
         "paraphrased": true
       },
       "area": "neck",
+      "region": "neck-shoulder",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "c7-spinous",
+        "offset": {
+          "cranial": {
+            "cun": 2,
+            "segment": "seg.hairline-c7"
+          },
+          "lateral": {
+            "cun": 1,
+            "segment": "seg.scapulae"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.scapulae"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -742,6 +858,26 @@
         "paraphrased": true
       },
       "area": "abdomen",
+      "region": "abdomen",
+      "localisation": {
+        "method": "along",
+        "from": "umbilicus",
+        "toward": "pubic-symphysis",
+        "distance": {
+          "cun": 4,
+          "segment": "seg.hypogastric"
+        },
+        "offset": {
+          "lateral": {
+            "cun": 3,
+            "segment": "seg.mcl"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.hypogastric"
+      },
       "bilateral": true,
       "cautions": [
         {
@@ -860,6 +996,20 @@
       },
       "area": "upper-back",
       "sites": 17,
+      "region": "upper-back",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "t1-spinous",
+        "offset": {
+          "lateral": {
+            "cun": 0.5,
+            "segment": "seg.scapulae"
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "At thoracic levels the pleura lies lateral and the spinal canal medial: needle shallowly and never towards the midline.",
@@ -907,6 +1057,21 @@
         "paraphrased": true
       },
       "area": "upper-back",
+      "region": "upper-back",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "t8-spinous",
+        "offset": {
+          "lateral": {
+            "cun": 1.5,
+            "segment": "seg.scapulae"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.scapulae"
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
@@ -954,6 +1119,21 @@
         "paraphrased": true
       },
       "area": "lower-back",
+      "region": "lumbar",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "l1-spinous",
+        "offset": {
+          "lateral": {
+            "cun": 3.5,
+            "segment": "seg.scapulae"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.5,
+        "segment": "seg.scapulae"
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The kidney lies deep: no deep perpendicular needling.",
@@ -1204,6 +1384,19 @@
         "paraphrased": true
       },
       "area": "lower-back",
+      "region": "lumbar",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "l5-spinous",
+        "offset": {
+          "caudal": {
+            "cm": 0.6
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": false,
       "cautions": [
         {
@@ -1258,6 +1451,19 @@
         "paraphrased": true
       },
       "area": "sacrum-buttock",
+      "region": "sacrum-buttock",
+      "localisation": {
+        "method": "along",
+        "from": "coccyx-tip",
+        "toward": "sacral-crest-s1",
+        "distance": {
+          "cun": 2,
+          "segment": "seg.back"
+        }
+      },
+      "tolerance": {
+        "cm": 0.8
+      },
       "bilateral": false,
       "cautions": [
         {
@@ -1311,6 +1517,15 @@
         "paraphrased": true
       },
       "area": "elbow",
+      "region": "upper-arm",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "olecranon"
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
+      "configuration": "elbow-flexed",
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -1358,6 +1573,20 @@
       },
       "area": "forearm",
       "sites": 2,
+      "region": "forearm",
+      "localisation": {
+        "method": "along",
+        "from": "pl-fcr-wrist",
+        "toward": "cubital-crease-mid",
+        "distance": {
+          "cun": 4,
+          "segment": "seg.wrist-elbow"
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.wrist-elbow"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -1404,6 +1633,14 @@
         "paraphrased": true
       },
       "area": "wrist",
+      "region": "forearm",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "edc-radial-wrist"
+      },
+      "tolerance": {
+        "cm": 0.5
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -1450,8 +1687,17 @@
         "paraphrased": true
       },
       "area": "finger",
+      "region": "hand-dorsum",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "pip-3-dorsal"
+      },
+      "tolerance": {
+        "cm": 0.4
+      },
       "bilateral": true,
       "cautions": [],
+      "notes": "Over the joint, a few millimetres below the skin: traditionally a moxibustion point.",
       "provenance": {
         "sources": [
           {
@@ -1496,8 +1742,17 @@
         "paraphrased": true
       },
       "area": "finger",
+      "region": "hand-dorsum",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "ip-1-dorsal"
+      },
+      "tolerance": {
+        "cm": 0.4
+      },
       "bilateral": true,
       "cautions": [],
+      "notes": "Over the joint, a few millimetres below the skin: traditionally a moxibustion point.",
       "provenance": {
         "sources": [
           {
@@ -1542,8 +1797,17 @@
         "paraphrased": true
       },
       "area": "finger",
+      "region": "hand-dorsum",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "pip-5-dorsal"
+      },
+      "tolerance": {
+        "cm": 0.4
+      },
       "bilateral": true,
       "cautions": [],
+      "notes": "Over the joint, a few millimetres below the skin: traditionally a moxibustion point.",
       "provenance": {
         "sources": [
           {
@@ -1589,6 +1853,21 @@
       },
       "area": "hand",
       "sites": 2,
+      "region": "hand-dorsum",
+      "localisation": {
+        "method": "between",
+        "a": "cleft-2-3",
+        "b": "wrist-dorsal-crease",
+        "fraction": 0.5,
+        "offset": {
+          "lateral": {
+            "cm": 0.5
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -1635,6 +1914,19 @@
         "paraphrased": true
       },
       "area": "hand",
+      "region": "hand-dorsum",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "cleft-2-3",
+        "offset": {
+          "cranial": {
+            "cm": 1.0
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.5
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -1682,6 +1974,19 @@
       },
       "area": "hand",
       "sites": 4,
+      "region": "hand-dorsum",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "web-margin",
+        "offset": {
+          "cranial": {
+            "cm": 0.3
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.5
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -1729,6 +2034,14 @@
       },
       "area": "finger",
       "sites": 4,
+      "region": "hand-palm",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "pip-crease-2"
+      },
+      "tolerance": {
+        "cm": 0.4
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -1776,6 +2089,14 @@
       },
       "area": "finger",
       "sites": 5,
+      "region": "hand-palm",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "tip-1"
+      },
+      "tolerance": {
+        "cm": 0.4
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "Traditionally pricked to bleed (for example in fever), not retained.",
@@ -1824,6 +2145,26 @@
       },
       "area": "thigh",
       "sites": 2,
+      "region": "thigh",
+      "localisation": {
+        "method": "along",
+        "from": "patella-base-lateral",
+        "toward": "asis",
+        "distance": {
+          "cun": 2,
+          "segment": "seg.symphysis-medial-epicondyle"
+        },
+        "offset": {
+          "lateral": {
+            "cun": 1.5,
+            "segment": "seg.symphysis-medial-epicondyle"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.symphysis-medial-epicondyle"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -1929,6 +2270,21 @@
         "paraphrased": true
       },
       "area": "thigh",
+      "region": "thigh",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "patella-base-medial",
+        "offset": {
+          "cranial": {
+            "cun": 3,
+            "segment": "seg.symphysis-medial-epicondyle"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.symphysis-medial-epicondyle"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -2031,6 +2387,15 @@
       },
       "area": "knee",
       "sites": 2,
+      "region": "knee-leg",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "medial-knee-eye"
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
+      "configuration": "knee-flexed",
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -2077,6 +2442,24 @@
         "paraphrased": true
       },
       "area": "leg",
+      "region": "knee-leg",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "fibular-head",
+        "offset": {
+          "medial": {
+            "cm": 1.3
+          },
+          "caudal": {
+            "cun": 2.65,
+            "segment": "seg.knee-ankle-lateral"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.5,
+        "segment": "seg.knee-ankle-lateral"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -2183,6 +2566,14 @@
         "paraphrased": true
       },
       "area": "ankle",
+      "region": "knee-leg",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "medial-malleolus"
+      },
+      "tolerance": {
+        "cm": 0.5
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -2229,6 +2620,14 @@
         "paraphrased": true
       },
       "area": "ankle",
+      "region": "knee-leg",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "lateral-malleolus"
+      },
+      "tolerance": {
+        "cm": 0.5
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -2276,6 +2675,19 @@
       },
       "area": "foot",
       "sites": 4,
+      "region": "foot",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "web-1-2",
+        "offset": {
+          "cranial": {
+            "cm": 0.3
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.4
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -2322,6 +2734,14 @@
         "paraphrased": true
       },
       "area": "toe",
+      "region": "sole",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "toe2-dip-crease-plantar"
+      },
+      "tolerance": {
+        "cm": 0.3
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -2369,6 +2789,14 @@
       },
       "area": "toe",
       "sites": 5,
+      "region": "foot",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "great-toe-tip"
+      },
+      "tolerance": {
+        "cm": 0.3
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "Traditionally pricked, not retained.",

@@ -172,6 +172,16 @@ NOTES = {
     "EX-HN13": "Traditionally pricked to bleed, not retained.",
     "EX-UE11": "Traditionally pricked to bleed (for example in fever), not retained.",
     "EX-LE12": "Traditionally pricked, not retained.",
+    "HT2": "Over the brachial artery and the median nerve in the medial bicipital groove: palpate and avoid them.",
+    "LI5": "The radial artery crosses the floor of the anatomical snuffbox: palpate and avoid it.",
+    "EX-UE4": "Over the joint, a few millimetres below the skin: traditionally a moxibustion point.",
+    "EX-UE5": "Over the joint, a few millimetres below the skin: traditionally a moxibustion point.",
+    "EX-UE6": "Over the joint, a few millimetres below the skin: traditionally a moxibustion point.",
+    "ST5": "Over the facial artery at the front of the masseter: palpate and avoid it.",
+    "SI19": "In front of the temporomandibular joint: needled with the mouth open; angling forward and deep enters the joint.",
+    "TE21": "Above the temporomandibular joint, beside the superficial temporal artery: needled with the mouth open.",
+    "GB2": "In front of the temporomandibular joint: needled with the mouth open.",
+    "TE17": "The facial nerve leaves the skull just deep to it, and the carotid sheath lies deeper still: no deep needling.",
 }
 
 # ---------------------------------------------------------------------------------------------------------------

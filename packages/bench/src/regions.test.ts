@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { assessPath, patientRegion, pointInstance, regionAccess, type Side } from "@acucraft/core";
+import { assessPath, createEncounter, derivedBuild, patientRegion, pointInstance, regionAccess, step, type Side } from "@acucraft/core";
 import { loadContentPack, requireScenario } from "./content.js";
 
 /** Every regional model is internally consistent, and its hazards are reachable only by going too deep. */
@@ -56,5 +56,57 @@ describe("regional models", () => {
       if (path.critical) shallow.push(def.id);
     }
     expect(shallow).toEqual([]);
+  });
+});
+
+describe("the whole body in every encounter", () => {
+  const at = (id: string, side: Side = "right") => {
+    const def = pack.bundle.acupoints.get(id)!;
+    const r = pack.bundle.regions.get(def.region!)!;
+    const s: Side = def.bilateral ? side : "midline";
+    const cfg = def.configuration ?? regionAccess(r, s, r.access[0]!.position).configuration;
+    const inst = pointInstance(sc, def, s, cfg)!;
+    return { frame: patientRegion(sc, def.region!, inst.side, cfg), entry: inst.position };
+  };
+  const deep = (id: string, depth: number, side?: Side) => {
+    const { frame, entry } = at(id, side);
+    return assessPath(frame, entry, 0, 0, depth, { diameterMm: 0.25, lengthMm: 125 });
+  };
+
+  it("derives the build of a region the scenario does not author from height and BMI", () => {
+    // the knee patient: 156 cm, 68 kg (BMI 27.9); the chest's reference body is 183 cm, BMI 27.8
+    const chest = derivedBuild(sc, pack.bundle.regions.get("chest")!);
+    expect(chest.scale.v).toBeCloseTo(156 / 183, 2);
+    expect(chest.subcutaneousScale).toBeCloseTo(1, 1);
+    // the schematic regions' reference adult is 170 cm, BMI 22.5: a heavier build has more subcutaneous fat
+    expect(derivedBuild(sc, pack.bundle.regions.get("face")!).subcutaneousScale).toBeGreaterThan(1.3);
+    // a scenario's own authored build is untouched
+    expect(sc.field.regions).toContain("knee-leg");
+  });
+
+  it("reaches the measured hazards of the trunk and neck when a needle goes too deep", () => {
+    expect(deep("KI25", 1.5).critical).toBe(false);
+    expect(deep("KI25", 7).pleuraPenetrated).toBe(true);
+    expect(deep("BL13", 8).critical || deep("BL13", 8).stoppedBy === "bone").toBe(true);
+    expect(deep("CV14", 7).layersReached.map((l) => l.label)).toContain("liver");
+    expect(deep("GV9", 8).layersReached.some((l) => l.label.startsWith("spinal canal") && l.hazard === "critical")).toBe(true);
+    expect(deep("CV4", 7).layersReached.some((l) => l.hazard === "caution")).toBe(true);
+    expect(deep("BL28", 5).stoppedBy).toBe("bone");
+    expect(deep("BL32", 3).stoppedBy).toBeNull(); // into the second sacral foramen
+    expect(deep("ST9", 2).findings.some((f) => f.structure === "carotid-right" && f.contact)).toBe(true);
+    expect(deep("GB30", 9).findings.some((f) => f.structure === "sciatic-nerve-right" && (f.contact || f.near))).toBe(true);
+  });
+
+  it("a critical organ layer makes the path critical; the guard blocks a needle into the pleura of a region the scenario never named", () => {
+    const liver = deep("CV14", 7);
+    expect(liver.critical).toBe(true);
+    let s = createEncounter(sc, { seed: 1 });
+    const i = sc.field.solution.findIndex((r) => r.action.type === "insert_needle");
+    for (const r of sc.field.solution.slice(0, i)) s = step(sc, s, r, { strict: true }).state;
+    // the clinic's needles are 40 mm (at most 3.6 cm goes in): enough to reach this patient's pleura under KI25
+    const { entry } = at("KI25");
+    const r = step(sc, s, { requestId: "deep-ki25", actor: "practitioner", patient: "patient", action: { type: "insert_needle", needleId: "pack-a.1", region: "chest", side: "right", at: entry, depthCm: 3.5 } }, { strict: true });
+    expect(r.attempt.status).toBe("blocked");
+    expect(r.attempt.unsafe).toContain("pleura-penetration");
   });
 });

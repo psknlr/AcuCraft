@@ -89,13 +89,15 @@ describe("the library as an agent sees it", () => {
   });
 
   it("keeps the lookup index compact and filterable", () => {
-    const index = lookup(lib, { topic: "points" }) as { total: number; needleable: { id: string }[]; byChannel: Record<string, string[]> };
+    const index = lookup(lib, { topic: "points" }) as { total: number; needleable: Record<string, string[]>; byChannel: Record<string, string[]> };
     expect(index.total).toBe(409);
     expect(JSON.stringify(index).length).toBeLessThan(12000);
     expect(index.byChannel.BL!.length).toBe(67);
-    expect(index.needleable.map((p) => p.id)).toContain("ST36");
+    expect(index.needleable["knee-leg"]).toContain("ST36");
     expect((lookup(lib, { topic: "points", id: "ST" }) as unknown[]).length).toBe(45);
-    expect((lookup(lib, { topic: "points", id: "face" }) as { area: string }[]).every((p) => p.area === "face")).toBe(true);
+    // a key matches a channel, a body area or a region ("face" is both an area and a region)
+    expect((lookup(lib, { topic: "points", id: "face" }) as { area: string; region: string | null }[]).every((p) => p.area === "face" || p.region === "face")).toBe(true);
+    expect((lookup(lib, { topic: "points", id: "wrist" }) as { area: string }[]).every((p) => p.area === "wrist")).toBe(true);
     expect((lookup(lib, { topic: "point", id: "SJ5" }) as { id: string }).id).toBe("TE5");
     expect(lookup(lib, { topic: "point", id: "XX9" })).toHaveProperty("error");
   });

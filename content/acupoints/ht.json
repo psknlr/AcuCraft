@@ -30,6 +30,15 @@
         "paraphrased": true
       },
       "area": "axilla",
+      "region": "upper-arm",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "axillary-fossa-centre"
+      },
+      "tolerance": {
+        "cm": 0.8
+      },
+      "configuration": "arm-abducted",
       "bilateral": true,
       "cautions": [],
       "notes": "Over the axillary artery: palpate and avoid it.",
@@ -76,8 +85,27 @@
         "paraphrased": true
       },
       "area": "upper-arm",
+      "region": "upper-arm",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "cubital-crease-medial-end",
+        "offset": {
+          "cranial": {
+            "cun": 3,
+            "segment": "seg.arm"
+          },
+          "lateral": {
+            "cm": 1.0
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.arm"
+      },
       "bilateral": true,
       "cautions": [],
+      "notes": "Over the brachial artery and the median nerve in the medial bicipital groove: palpate and avoid them.",
       "provenance": {
         "sources": [
           {
@@ -121,6 +149,16 @@
         "paraphrased": true
       },
       "area": "elbow",
+      "region": "upper-arm",
+      "localisation": {
+        "method": "between",
+        "a": "cubital-crease-medial-end",
+        "b": "medial-epicondyle",
+        "fraction": 0.5
+      },
+      "tolerance": {
+        "cm": 0.7
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -166,6 +204,20 @@
         "paraphrased": true
       },
       "area": "forearm",
+      "region": "forearm",
+      "localisation": {
+        "method": "along",
+        "from": "fcu-radial-wrist",
+        "toward": "cubital-crease-medial-end",
+        "distance": {
+          "cun": 1.5,
+          "segment": "seg.wrist-elbow"
+        }
+      },
+      "tolerance": {
+        "cun": 0.25,
+        "segment": "seg.wrist-elbow"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -211,6 +263,20 @@
         "paraphrased": true
       },
       "area": "forearm",
+      "region": "forearm",
+      "localisation": {
+        "method": "along",
+        "from": "fcu-radial-wrist",
+        "toward": "cubital-crease-medial-end",
+        "distance": {
+          "cun": 1,
+          "segment": "seg.wrist-elbow"
+        }
+      },
+      "tolerance": {
+        "cun": 0.25,
+        "segment": "seg.wrist-elbow"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -256,6 +322,20 @@
         "paraphrased": true
       },
       "area": "forearm",
+      "region": "forearm",
+      "localisation": {
+        "method": "along",
+        "from": "fcu-radial-wrist",
+        "toward": "cubital-crease-medial-end",
+        "distance": {
+          "cun": 0.5,
+          "segment": "seg.wrist-elbow"
+        }
+      },
+      "tolerance": {
+        "cun": 0.25,
+        "segment": "seg.wrist-elbow"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -355,6 +435,14 @@
         "paraphrased": true
       },
       "area": "hand",
+      "region": "hand-palm",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "distal-palmar-crease-4-5"
+      },
+      "tolerance": {
+        "cm": 0.5
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -400,6 +488,22 @@
         "paraphrased": true
       },
       "area": "finger",
+      "region": "hand-dorsum",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "nail-5-radial-corner",
+        "offset": {
+          "cranial": {
+            "cm": 0.2
+          },
+          "lateral": {
+            "cm": 0.2
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.4
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {

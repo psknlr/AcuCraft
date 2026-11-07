@@ -1,0 +1,6 @@
+trimesh==5.2.0
+numpy
+shapely
+networkx
+rtree
+scipy

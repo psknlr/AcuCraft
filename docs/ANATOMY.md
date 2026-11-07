@@ -1,8 +1,10 @@
 # Anatomy, localisation and needle paths
 
-> **Every regional model in this pack is schematic and unreviewed.** Positions and depths approximate a reference adult
-> for simulation; they are not measurements, not an atlas, and not a guide to safe needling in real patients. They need
-> anatomical expert review — and licensed anatomical assets where geometry matters — before any teaching use.
+> **Every regional model in this pack is unreviewed.** The trunk and the front of the neck (`chest`, `abdomen`,
+> `upper-back`, `sacrum-buttock`, `neck-anterior`) are derived from one imaging-based reference body, the Visible Human
+> Male of the HuBMAP Human Reference Atlas (CC BY 4.0, §8); the head, the limbs and the older regions are schematic.
+> Positions and depths are for simulation: they are not a guide to safe needling in real patients, and they need
+> anatomical expert review before any teaching use.
 
 ## 1. Charts
 
@@ -16,7 +18,20 @@ A region (`acucraft/region@1`, `content/regions/*.json`) is a surface chart with
   patient's **left**; side-specific landmarks carry the side in their id (`acromion-lateral-left`), and a point
   construction may refer to `acromion-lateral-{side}`.
 
-Regions in the pack: `knee-leg`, `upper-arm`, `forearm`, `hand-dorsum`, `hand-palm`, `neck-shoulder`, `lumbar`.
+Regions in the pack, eighteen, covering the whole body:
+
+| area | regions | source |
+|---|---|---|
+| head and face | `face`, `scalp`, `head-lateral` | schematic (§6) |
+| neck | `neck-anterior` (front and sides), `neck-shoulder` (nape, occiput, tops of the shoulders) | reference body; schematic |
+| trunk | `chest`, `abdomen` (with the groin), `upper-back`, `lumbar`, `sacrum-buttock` (with the hips) | reference body (§8); `lumbar` schematic |
+| upper limb | `upper-arm` (shoulder, axilla, arm, elbow), `forearm`, `hand-dorsum`, `hand-palm` | schematic |
+| lower limb | `thigh`, `knee-leg` (knee, leg, ankle and heel), `foot`, `sole` | schematic (§7) |
+
+**The whole body is modelled in every encounter.** Every region applies to every patient: a scenario's `regions` list
+names those where its patient's build is authored (`patient.anatomy.regions`); in every other region the build is
+derived from the patient's height, weight and sex against the region's reference body (`region.reference`, default
+170 cm and BMI 22.5): length scales with height, girth with height and BMI, subcutaneous fat with BMI.
 
 The upper limb has four bilateral charts. `upper-arm` (shoulder, axilla, arm and elbow) and `forearm` are unrolled round
 the limb from its anterior (palmar) midline, `u` positive lateral and on round the back of the limb, so each chart's two
@@ -57,10 +72,11 @@ the 14 channels, plus the 48 extra points of the WHO standard nomenclature (1991
 edition (and older channel codes as aliases: SJ for TE, LIV for LR, DU for GV, REN for CV), a paraphrased location, a
 body area, cautions by risk factor (pregnancy: LI4, SP6, BL60, BL67, GB21, the lower abdomen and the lumbosacral
 region) and notes on what lies beneath hazardous points. No needling depths are given: safe depth depends on the build
-and must come from reviewed teaching. Only points that lie on a modelled region carry a *localisation* (45 of them);
-the rest are definitions only, which can be looked up, planned and discussed but not needled until their region is
-modelled. The tables are generated (`python3 tools/content/acupoints.py`) from `tools/content/points_*.py`, the
-hand-written detail of the family points (`acupoint_detail.json`) and the placements, cautions and notes in the script.
+and must come from reviewed teaching. 399 of the 409 points carry a *localisation* on a regional model and can be
+needled; ten are definitions only, deliberately: the mucosal points that are pricked, not needled (EX-HN9–EX-HN13,
+GV28), the perineal points (CV1, GV1), the nipple (ST17, a landmark) and the umbilicus (CV8, moxibustion only). The tables are generated (`python3 tools/content/acupoints.py`) from `tools/content/points_*.py`, the
+hand-written detail of the family points (`acupoint_detail.json`), the placements of each body area
+(`tools/content/localise_{trunk,head,upper_limb,lower_limb}.py`) and the cautions and notes in the script.
 Every entry is an unreviewed, AI-assisted paraphrase.
 
 `pointInstance(scenario, point, side, configuration)` constructs the hidden reference location of a point from its
@@ -126,3 +142,62 @@ at their centre (GV20) with a tolerance of 1.3 B-cun; a configuration follows th
 the mouth open" is described, not modelled; access is per region and side (supine reaches the whole scalp, including
 the occiput on the pillow). Where the standard uses a finger-breadth, or the level of one landmark on the vertical of
 another (ST3, GB19), the offset is in centimetres on the reference adult.
+
+## 7. Lower limb
+
+`thigh`, `knee-leg`, `foot` and `sole` are bilateral (`tools/content/localise_lower_limb.py`). The thigh and the leg
+are unrolled round the limb from the anterior midline, `u` positive lateral and on round the back of the limb, so the
+posterior midline is reached round the lateral side (the popliteal fossa and the calf at large positive `u`); round the
+tibial side `medial` (−u) points posterior. The ankle and heel stay on `knee-leg` with the malleoli; `foot` covers the
+dorsum and the sides of the foot from the line of the second metatarsal, `sole` the plantar surface. Segments: pubic
+symphysis to the medial epicondyle 18 B-cun, greater trochanter to the popliteal crease 19, gluteal fold to the
+popliteal crease 14, popliteal crease to the lateral malleolus 16, medial condyle of the tibia to the medial malleolus
+13, medial malleolus to the sole 3. Critical: the femoral and deep femoral arteries, the popliteal artery, the
+posterior tibial and dorsalis pedis arteries; cautions: the sciatic, tibial, common fibular and sural nerves, the
+saphenous veins, the ankle capsule and the plantar bundles.
+
+## 8. The trunk from a reference body
+
+The trunk regions are generated from the **HuBMAP Human Reference Atlas** 3D reference organs, **Visible Human Male
+united body** (CCF release v1.3; CC BY 4.0; data from the Visible Human Project of the US National Library of Medicine;
+Kristen Browne, Heidi Schlehlein, Bruce W. Herr II, Ellen Quardokus, Andreas Bueckle, Katy Börner, *HuBMAP CCF 3D
+Reference Object Library*, humanatlas.io/3d-reference-library). It was chosen because it is open with attribution only,
+anatomist-reviewed, and places the skin, vertebrae, pelvis, femora, larynx, trachea, lungs, heart, liver, spleen,
+kidneys, bowel, bladder, great vessels and spinal cord of one body in one frame. BodyParts3D and Z-Anatomy, which also
+model the ribs, scapulae, nerves and limb vessels, are share-alike (CC BY-SA): content derived from them would have to
+be released under that licence.
+
+```bash
+pip install -r tools/anatomy/requirements.txt
+```
+
+```bash
+python3 tools/anatomy/fetch_hra.py
+```
+
+```bash
+python3 tools/anatomy/build_trunk.py
+```
+
+`fetch_hra.py` downloads the pinned bodies (a fixed commit of `hubmapconsortium/ccf-releases`, checked by SHA-256)
+into `tools/anatomy/.cache/`; `build_trunk.py` writes the five regions and the measurements it used
+(`tools/anatomy/derived/vh-male.json`). Each trunk chart unrolls the skin round a horizontal section from the anterior
+or posterior midline (`u` positive towards the patient's left; `v` height above a stated level). Its tissue is a grid of
+zones (every 1.5–2.5 cm): from each zone's skin point five rays are cast along the skin's inward normal (the path of a
+perpendicular needle), and the shallowest depth at which each organ is met becomes the layer stack — body wall, then
+the pleura and lung, or the peritoneal cavity, or bone, and critical layers for the heart, liver, spleen, kidneys,
+pancreas, great vessels and the spinal canal.
+
+Measured on the reference body: the charts, vertebral levels and spinous processes, the iliac spines, trochanters and
+ischial tuberosities, the larynx, the depths of every organ above, and the courses of the aorta, venae cavae, trachea,
+left carotid artery and spinal cord. Schematic, because the reference body lacks them or cannot separate them: the
+ribs (every non-sternal chest and back location is treated as an intercostal space — the conservative case), the
+intercostal-space levels (from the sternal angle and xiphisternal junction by standard surface anatomy), the sternum,
+the scapulae, the split of the body wall into fat and muscle, the umbilicus (at the L3/L4 disc: the reference skin is
+smoothed), the right carotid (mirrored), the jugular veins, thyroid, internal thoracic, femoral and inferior epigastric
+vessels, the femoral and sciatic nerves, and the sacral foramina. The reference man (about 90 kg; BMI 27.8) lay
+supine with his arms at his sides: where his arms or his flattened buttocks distort the body wall, its thickness is
+capped (chest 5 cm, upper back 6.5 cm, buttocks 7 cm), the lower sacral midline is schematic, and a zone whose rays
+meet nothing takes the median measured wall (chest 3.9 cm, abdomen 4.3 cm, upper back 5.0 cm) with the lung or
+peritoneal cavity under it — never a deeper safe margin than the body measured. Patients are scaled from this
+reference by height and BMI (§1).

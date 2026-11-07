@@ -30,6 +30,22 @@
         "paraphrased": true
       },
       "area": "finger",
+      "region": "hand-dorsum",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "nail-2-radial-corner",
+        "offset": {
+          "cranial": {
+            "cm": 0.2
+          },
+          "lateral": {
+            "cm": 0.2
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.4
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -75,6 +91,19 @@
         "paraphrased": true
       },
       "area": "finger",
+      "region": "hand-dorsum",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "mc2-head",
+        "offset": {
+          "caudal": {
+            "cm": 0.9
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.5
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -246,8 +275,17 @@
         "paraphrased": true
       },
       "area": "wrist",
+      "region": "forearm",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "anatomical-snuffbox"
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": true,
       "cautions": [],
+      "notes": "The radial artery crosses the floor of the anatomical snuffbox: palpate and avoid it.",
       "provenance": {
         "sources": [
           {
@@ -291,6 +329,20 @@
         "paraphrased": true
       },
       "area": "forearm",
+      "region": "forearm",
+      "localisation": {
+        "method": "along",
+        "from": "anatomical-snuffbox",
+        "toward": "radial-border-elbow",
+        "distance": {
+          "cun": 3,
+          "segment": "seg.wrist-elbow"
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.wrist-elbow"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -336,6 +388,20 @@
         "paraphrased": true
       },
       "area": "forearm",
+      "region": "forearm",
+      "localisation": {
+        "method": "along",
+        "from": "anatomical-snuffbox",
+        "toward": "radial-border-elbow",
+        "distance": {
+          "cun": 5,
+          "segment": "seg.wrist-elbow"
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.wrist-elbow"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -381,6 +447,20 @@
         "paraphrased": true
       },
       "area": "forearm",
+      "region": "forearm",
+      "localisation": {
+        "method": "along",
+        "from": "radial-border-elbow",
+        "toward": "anatomical-snuffbox",
+        "distance": {
+          "cun": 4,
+          "segment": "seg.wrist-elbow"
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.wrist-elbow"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -426,6 +506,20 @@
         "paraphrased": true
       },
       "area": "forearm",
+      "region": "forearm",
+      "localisation": {
+        "method": "along",
+        "from": "radial-border-elbow",
+        "toward": "anatomical-snuffbox",
+        "distance": {
+          "cun": 3,
+          "segment": "seg.wrist-elbow"
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.wrist-elbow"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -471,8 +565,19 @@
         "paraphrased": true
       },
       "area": "forearm",
+      "region": "forearm",
+      "localisation": {
+        "method": "along",
+        "from": "radial-border-elbow",
+        "toward": "anatomical-snuffbox",
+        "distance": {
+          "cun": 2,
+          "segment": "seg.wrist-elbow"
+        }
+      },
       "tolerance": {
-        "cm": 1
+        "cun": 0.4,
+        "segment": "seg.wrist-elbow"
       },
       "bilateral": true,
       "cautions": [],
@@ -519,8 +624,15 @@
         "paraphrased": true
       },
       "area": "elbow",
+      "region": "upper-arm",
+      "localisation": {
+        "method": "between",
+        "a": "biceps-tendon-lateral-crease",
+        "b": "lateral-epicondyle",
+        "fraction": 0.5
+      },
       "tolerance": {
-        "cm": 1
+        "cm": 0.7
       },
       "bilateral": true,
       "cautions": [],
@@ -567,6 +679,23 @@
         "paraphrased": true
       },
       "area": "elbow",
+      "region": "upper-arm",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "lateral-epicondyle",
+        "offset": {
+          "cranial": {
+            "cun": 1,
+            "segment": "seg.arm"
+          },
+          "medial": {
+            "cm": 0.8
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.7
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -612,6 +741,20 @@
         "paraphrased": true
       },
       "area": "upper-arm",
+      "region": "upper-arm",
+      "localisation": {
+        "method": "along",
+        "from": "lateral-cubital-depression",
+        "toward": "acromion-anterior-depression",
+        "distance": {
+          "cun": 3,
+          "segment": "seg.arm"
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.arm"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -657,6 +800,20 @@
         "paraphrased": true
       },
       "area": "upper-arm",
+      "region": "upper-arm",
+      "localisation": {
+        "method": "along",
+        "from": "lateral-cubital-depression",
+        "toward": "acromion-anterior-depression",
+        "distance": {
+          "cun": 7,
+          "segment": "seg.arm"
+        }
+      },
+      "tolerance": {
+        "cun": 0.5,
+        "segment": "seg.arm"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -702,8 +859,15 @@
         "paraphrased": true
       },
       "area": "shoulder",
+      "region": "upper-arm",
+      "localisation": {
+        "method": "between",
+        "a": "acromion-anterior",
+        "b": "greater-tubercle",
+        "fraction": 0.5
+      },
       "tolerance": {
-        "cm": 1
+        "cm": 0.8
       },
       "bilateral": true,
       "cautions": [],
@@ -750,6 +914,14 @@
         "paraphrased": true
       },
       "area": "shoulder",
+      "region": "upper-arm",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "clavicle-spine-notch"
+      },
+      "tolerance": {
+        "cm": 0.7
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "Deep needling directed medially may reach the apex of the lung.",
@@ -796,6 +968,14 @@
         "paraphrased": true
       },
       "area": "neck",
+      "region": "neck-anterior",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "scm-posterior-cricoid-{side}"
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The carotid sheath and the great vessels of the neck lie close: needle shallowly and avoid the pulsating artery.",
@@ -842,6 +1022,16 @@
         "paraphrased": true
       },
       "area": "neck",
+      "region": "neck-anterior",
+      "localisation": {
+        "method": "between",
+        "a": "scm-anterior-thyroid-{side}",
+        "b": "scm-posterior-thyroid-{side}",
+        "fraction": 0.5
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The carotid sheath and the great vessels of the neck lie close: needle shallowly and avoid the pulsating artery.",
@@ -888,6 +1078,21 @@
         "paraphrased": true
       },
       "area": "face",
+      "region": "face",
+      "localisation": {
+        "method": "between",
+        "a": "subnasale",
+        "b": "philtrum-lower",
+        "fraction": 0.3333,
+        "offset": {
+          "lateral": {
+            "cm": 1.05
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.4
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -933,6 +1138,19 @@
         "paraphrased": true
       },
       "area": "face",
+      "region": "face",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "ala-lateral-{side}",
+        "offset": {
+          "lateral": {
+            "cm": 0.5
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.4
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {

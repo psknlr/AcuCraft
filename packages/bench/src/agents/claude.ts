@@ -90,11 +90,13 @@ export function lookup(lib: AgentInit["library"], input: { topic?: string; id?: 
         const found = lib.points.filter((p) => p.channel.toLowerCase() === key || p.area === key || p.region === key);
         return found.length > 0 ? found.map((p) => ({ ...summary(p), location: p.location })) : { error: `no points for ${input.id}: give a channel (ST), a body area (forearm) or a region (knee-leg)` };
       }
+      const needleable: Record<string, string[]> = {};
+      for (const p of lib.points) if (p.localisation && p.region) (needleable[p.region] ??= []).push(p.id);
       return {
         total: lib.points.length,
-        needleable: lib.points.filter((p) => p.localisation).map(summary),
+        needleable,
         byChannel: idsByChannel(lib),
-        note: "Only points localised on this encounter's regions can be needled here; the others can be looked up, planned and discussed.",
+        note: "needleable: the points localised on a regional model, by region (ids only: use topic points with a region, channel or body area for names and locations). The others can be looked up, planned and discussed but not needled.",
       };
     }
     case "point": {

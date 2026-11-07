@@ -30,6 +30,20 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "face",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "canthus-outer-{side}",
+        "offset": {
+          "lateral": {
+            "cun": 0.5,
+            "segment": "seg.glabella-hairline"
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.4
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -75,8 +89,22 @@
         "paraphrased": true
       },
       "area": "face",
+      "region": "head-lateral",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "intertragic-notch",
+        "offset": {
+          "medial": {
+            "cm": 0.75
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.4
+      },
       "bilateral": true,
       "cautions": [],
+      "notes": "In front of the temporomandibular joint: needled with the mouth open.",
       "provenance": {
         "sources": [
           {
@@ -120,6 +148,19 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "head-lateral",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "zygomatic-arch-midpoint",
+        "offset": {
+          "cranial": {
+            "cm": 0.8
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.5
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -165,6 +206,23 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "head-lateral",
+      "localisation": {
+        "method": "between",
+        "a": "frontal-hairline-corner",
+        "b": "temporal-hairline-posterior",
+        "fraction": 0.25,
+        "offset": {
+          "cranial": {
+            "cun": 0.375,
+            "segment": "seg.glabella-hairline"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.glabella-hairline"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -210,6 +268,23 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "head-lateral",
+      "localisation": {
+        "method": "between",
+        "a": "frontal-hairline-corner",
+        "b": "temporal-hairline-posterior",
+        "fraction": 0.5,
+        "offset": {
+          "cranial": {
+            "cun": 0.25,
+            "segment": "seg.glabella-hairline"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.glabella-hairline"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -255,6 +330,23 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "head-lateral",
+      "localisation": {
+        "method": "between",
+        "a": "frontal-hairline-corner",
+        "b": "temporal-hairline-posterior",
+        "fraction": 0.75,
+        "offset": {
+          "cranial": {
+            "cun": 0.125,
+            "segment": "seg.glabella-hairline"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.glabella-hairline"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -300,6 +392,14 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "head-lateral",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "temporal-hairline-posterior"
+      },
+      "tolerance": {
+        "cm": 0.5
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -345,6 +445,21 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "head-lateral",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "auricular-apex",
+        "offset": {
+          "cranial": {
+            "cun": 1.5,
+            "segment": "seg.glabella-hairline"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.glabella-hairline"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -390,6 +505,21 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "head-lateral",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "auricular-root-posterior",
+        "offset": {
+          "cranial": {
+            "cun": 2,
+            "segment": "seg.glabella-hairline"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.glabella-hairline"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -435,6 +565,23 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "head-lateral",
+      "localisation": {
+        "method": "between",
+        "a": "auricular-root-posterior",
+        "b": "mastoid-posteroinferior-depression",
+        "fraction": 0.3333,
+        "offset": {
+          "cranial": {
+            "cun": 1.3333,
+            "segment": "seg.glabella-hairline"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.glabella-hairline"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -480,6 +627,23 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "head-lateral",
+      "localisation": {
+        "method": "between",
+        "a": "auricular-root-posterior",
+        "b": "mastoid-posteroinferior-depression",
+        "fraction": 0.6667,
+        "offset": {
+          "cranial": {
+            "cun": 0.6667,
+            "segment": "seg.glabella-hairline"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.glabella-hairline"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -525,6 +689,22 @@
         "paraphrased": true
       },
       "area": "neck",
+      "region": "neck-shoulder",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "mastoid-{side}",
+        "offset": {
+          "medial": {
+            "cm": 1.0
+          },
+          "caudal": {
+            "cm": 0.5
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.5
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -570,6 +750,25 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "scalp",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "anterior-hairline",
+        "offset": {
+          "lateral": {
+            "cun": 3,
+            "segment": "seg.st8"
+          },
+          "cranial": {
+            "cun": 0.5,
+            "segment": "seg.hairlines"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.hairlines"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -615,6 +814,21 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "face",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "eyebrow-middle-{side}",
+        "offset": {
+          "cranial": {
+            "cun": 1,
+            "segment": "seg.glabella-hairline"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.glabella-hairline"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -660,6 +874,21 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "scalp",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "anterior-hairline-pupil-{side}",
+        "offset": {
+          "cranial": {
+            "cun": 0.5,
+            "segment": "seg.hairlines"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.hairlines"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -705,6 +934,21 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "scalp",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "anterior-hairline-pupil-{side}",
+        "offset": {
+          "cranial": {
+            "cun": 1.5,
+            "segment": "seg.hairlines"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.hairlines"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -750,6 +994,21 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "scalp",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "anterior-hairline-pupil-{side}",
+        "offset": {
+          "cranial": {
+            "cun": 2.5,
+            "segment": "seg.hairlines"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.hairlines"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -795,6 +1054,21 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "scalp",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "anterior-hairline-pupil-{side}",
+        "offset": {
+          "cranial": {
+            "cun": 4,
+            "segment": "seg.hairlines"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.hairlines"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -840,6 +1114,19 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "neck-shoulder",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "gb20-depression-{side}",
+        "offset": {
+          "cranial": {
+            "cm": 3.3
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -1003,6 +1290,15 @@
         "paraphrased": true
       },
       "area": "chest",
+      "region": "chest",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "ics4-mal-{side}"
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.nipples"
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
@@ -1049,6 +1345,15 @@
         "paraphrased": true
       },
       "area": "chest",
+      "region": "chest",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "ics4-mal-ant1-{side}"
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.nipples"
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
@@ -1095,6 +1400,15 @@
         "paraphrased": true
       },
       "area": "chest",
+      "region": "chest",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "ics7-4cun-{side}"
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.nipples"
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
@@ -1141,6 +1455,19 @@
         "paraphrased": true
       },
       "area": "abdomen",
+      "region": "abdomen",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "rib12-tip-{side}",
+        "offset": {
+          "caudal": {
+            "cm": 1.0
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 1.0
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The kidney lies deep: no deep perpendicular needling.",
@@ -1187,6 +1514,14 @@
         "paraphrased": true
       },
       "area": "abdomen",
+      "region": "abdomen",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "lateral-umbilical-{side}"
+      },
+      "tolerance": {
+        "cm": 1.0
+      },
       "bilateral": true,
       "cautions": [
         {
@@ -1239,6 +1574,22 @@
         "paraphrased": true
       },
       "area": "abdomen",
+      "region": "abdomen",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "asis-{side}",
+        "offset": {
+          "medial": {
+            "cm": 1.5
+          },
+          "caudal": {
+            "cm": 1.0
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 1.0
+      },
       "bilateral": true,
       "cautions": [
         {
@@ -1291,6 +1642,22 @@
         "paraphrased": true
       },
       "area": "abdomen",
+      "region": "abdomen",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "asis-{side}",
+        "offset": {
+          "medial": {
+            "cm": 2.5
+          },
+          "caudal": {
+            "cm": 2.0
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 1.0
+      },
       "bilateral": true,
       "cautions": [
         {
@@ -1343,6 +1710,16 @@
         "paraphrased": true
       },
       "area": "sacrum-buttock",
+      "region": "sacrum-buttock",
+      "localisation": {
+        "method": "between",
+        "a": "asis-{side}",
+        "b": "greater-trochanter-{side}",
+        "fraction": 0.5
+      },
+      "tolerance": {
+        "cm": 1.2
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -1388,6 +1765,16 @@
         "paraphrased": true
       },
       "area": "sacrum-buttock",
+      "region": "sacrum-buttock",
+      "localisation": {
+        "method": "between",
+        "a": "greater-trochanter-{side}",
+        "b": "sacral-hiatus",
+        "fraction": 0.3333333333333333
+      },
+      "tolerance": {
+        "cm": 1.5
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The sciatic nerve lies deep: an electric sensation down the leg means the needle has reached it.",
@@ -1434,6 +1821,20 @@
         "paraphrased": true
       },
       "area": "thigh",
+      "region": "thigh",
+      "localisation": {
+        "method": "along",
+        "from": "popliteal-crease-lateral",
+        "toward": "greater-trochanter",
+        "distance": {
+          "cun": 9,
+          "segment": "seg.trochanter-popliteal"
+        }
+      },
+      "tolerance": {
+        "cun": 0.6,
+        "segment": "seg.trochanter-popliteal"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -1479,6 +1880,20 @@
         "paraphrased": true
       },
       "area": "thigh",
+      "region": "thigh",
+      "localisation": {
+        "method": "along",
+        "from": "popliteal-crease-lateral",
+        "toward": "greater-trochanter",
+        "distance": {
+          "cun": 7,
+          "segment": "seg.trochanter-popliteal"
+        }
+      },
+      "tolerance": {
+        "cun": 0.5,
+        "segment": "seg.trochanter-popliteal"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -1524,6 +1939,14 @@
         "paraphrased": true
       },
       "area": "knee",
+      "region": "knee-leg",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "lateral-supracondylar-depression"
+      },
+      "tolerance": {
+        "cm": 0.7
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -1951,6 +2374,14 @@
         "paraphrased": true
       },
       "area": "ankle",
+      "region": "knee-leg",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "lateral-malleolus-anteroinferior-depression"
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -1996,6 +2427,19 @@
         "paraphrased": true
       },
       "area": "foot",
+      "region": "foot",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "mt4-mt5-base-junction",
+        "offset": {
+          "caudal": {
+            "cm": 1.2
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -2041,6 +2485,21 @@
         "paraphrased": true
       },
       "area": "foot",
+      "region": "foot",
+      "localisation": {
+        "method": "between",
+        "a": "mtp4",
+        "b": "mtp5",
+        "fraction": 0.5,
+        "offset": {
+          "cranial": {
+            "cm": 1.5
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -2086,6 +2545,19 @@
         "paraphrased": true
       },
       "area": "foot",
+      "region": "foot",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "web-4-5",
+        "offset": {
+          "cranial": {
+            "cm": 0.3
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.4
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -2131,6 +2603,22 @@
         "paraphrased": true
       },
       "area": "toe",
+      "region": "foot",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "toe4-nail-lateral-corner",
+        "offset": {
+          "lateral": {
+            "cm": 0.15
+          },
+          "cranial": {
+            "cm": 0.15
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.3
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {

@@ -170,6 +170,63 @@
         "u": -7.0,
         "v": 42.0
       }
+    },
+    {
+      "id": "l5-spinous",
+      "label": "inferior border of the spinous process of L5",
+      "at": {
+        "u": 0,
+        "v": -3.6
+      },
+      "palpation": "Count from L4, which lies level with the highest points of the iliac crests.",
+      "configurations": {
+        "side-lying": {
+          "du": 0,
+          "dv": -0.3
+        },
+        "seated-forward": {
+          "du": 0,
+          "dv": -0.6
+        }
+      }
+    },
+    {
+      "id": "l1-spinous",
+      "label": "inferior border of the spinous process of L1",
+      "at": {
+        "u": 0,
+        "v": 10.8
+      },
+      "palpation": "Count from L4, which lies level with the highest points of the iliac crests.",
+      "configurations": {
+        "side-lying": {
+          "du": 0,
+          "dv": 0.9
+        },
+        "seated-forward": {
+          "du": 0,
+          "dv": 1.8
+        }
+      }
+    },
+    {
+      "id": "t12-spinous",
+      "label": "inferior border of the spinous process of T12",
+      "at": {
+        "u": 0,
+        "v": 14.4
+      },
+      "palpation": "Count from L4, which lies level with the highest points of the iliac crests.",
+      "configurations": {
+        "side-lying": {
+          "du": 0,
+          "dv": 1.2
+        },
+        "seated-forward": {
+          "du": 0,
+          "dv": 2.4
+        }
+      }
     }
   ],
   "segments": [

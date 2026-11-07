@@ -30,6 +30,15 @@
         "paraphrased": true
       },
       "area": "chest",
+      "region": "chest",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "ics1-6cun-{side}"
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.nipples"
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
@@ -76,6 +85,15 @@
         "paraphrased": true
       },
       "area": "chest",
+      "region": "chest",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "clavicle-inf-6cun-{side}"
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.nipples"
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
@@ -122,6 +140,20 @@
         "paraphrased": true
       },
       "area": "upper-arm",
+      "region": "upper-arm",
+      "localisation": {
+        "method": "along",
+        "from": "biceps-lateral-border-fold-level",
+        "toward": "biceps-tendon-lateral-crease",
+        "distance": {
+          "cun": 3,
+          "segment": "seg.arm"
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.arm"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -167,6 +199,20 @@
         "paraphrased": true
       },
       "area": "upper-arm",
+      "region": "upper-arm",
+      "localisation": {
+        "method": "along",
+        "from": "biceps-lateral-border-fold-level",
+        "toward": "biceps-tendon-lateral-crease",
+        "distance": {
+          "cun": 4,
+          "segment": "seg.arm"
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.arm"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -212,6 +258,14 @@
         "paraphrased": true
       },
       "area": "elbow",
+      "region": "upper-arm",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "biceps-tendon-lateral-crease"
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -257,6 +311,20 @@
         "paraphrased": true
       },
       "area": "forearm",
+      "region": "forearm",
+      "localisation": {
+        "method": "along",
+        "from": "radial-styloid-scaphoid-depression",
+        "toward": "biceps-tendon-lateral-crease",
+        "distance": {
+          "cun": 7,
+          "segment": "seg.wrist-elbow"
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.wrist-elbow"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -362,6 +430,19 @@
         "paraphrased": true
       },
       "area": "forearm",
+      "region": "forearm",
+      "localisation": {
+        "method": "along",
+        "from": "radial-styloid-scaphoid-depression",
+        "toward": "biceps-tendon-lateral-crease",
+        "distance": {
+          "cun": 1,
+          "segment": "seg.wrist-elbow"
+        }
+      },
+      "tolerance": {
+        "cm": 0.5
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The radial artery lies just ulnar: palpate and avoid it.",
@@ -408,6 +489,14 @@
         "paraphrased": true
       },
       "area": "wrist",
+      "region": "forearm",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "radial-styloid-scaphoid-depression"
+      },
+      "tolerance": {
+        "cm": 0.5
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "Beside the radial artery: palpate and avoid it.",
@@ -454,6 +543,21 @@
         "paraphrased": true
       },
       "area": "hand",
+      "region": "hand-palm",
+      "localisation": {
+        "method": "between",
+        "a": "mc1-base",
+        "b": "mc1-head",
+        "fraction": 0.5,
+        "offset": {
+          "lateral": {
+            "cm": 1.2
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -499,6 +603,22 @@
         "paraphrased": true
       },
       "area": "finger",
+      "region": "hand-dorsum",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "nail-1-radial-corner",
+        "offset": {
+          "cranial": {
+            "cm": 0.2
+          },
+          "lateral": {
+            "cm": 0.2
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.4
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {

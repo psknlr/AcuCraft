@@ -80,6 +80,15 @@
         "paraphrased": true
       },
       "area": "abdomen",
+      "region": "abdomen",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "pubic-symphysis"
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.hypogastric"
+      },
       "bilateral": false,
       "cautions": [
         {
@@ -135,6 +144,20 @@
         "paraphrased": true
       },
       "area": "abdomen",
+      "region": "abdomen",
+      "localisation": {
+        "method": "along",
+        "from": "umbilicus",
+        "toward": "pubic-symphysis",
+        "distance": {
+          "cun": 4,
+          "segment": "seg.hypogastric"
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.hypogastric"
+      },
       "bilateral": false,
       "cautions": [
         {
@@ -190,8 +213,19 @@
         "paraphrased": true
       },
       "area": "abdomen",
+      "region": "abdomen",
+      "localisation": {
+        "method": "along",
+        "from": "umbilicus",
+        "toward": "pubic-symphysis",
+        "distance": {
+          "cun": 3,
+          "segment": "seg.hypogastric"
+        }
+      },
       "tolerance": {
-        "cm": 1
+        "cun": 0.3,
+        "segment": "seg.hypogastric"
       },
       "bilateral": false,
       "cautions": [
@@ -247,6 +281,20 @@
         "paraphrased": true
       },
       "area": "abdomen",
+      "region": "abdomen",
+      "localisation": {
+        "method": "along",
+        "from": "umbilicus",
+        "toward": "pubic-symphysis",
+        "distance": {
+          "cun": 2,
+          "segment": "seg.hypogastric"
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.hypogastric"
+      },
       "bilateral": false,
       "cautions": [
         {
@@ -301,8 +349,19 @@
         "paraphrased": true
       },
       "area": "abdomen",
+      "region": "abdomen",
+      "localisation": {
+        "method": "along",
+        "from": "umbilicus",
+        "toward": "pubic-symphysis",
+        "distance": {
+          "cun": 1.5,
+          "segment": "seg.hypogastric"
+        }
+      },
       "tolerance": {
-        "cm": 1
+        "cun": 0.3,
+        "segment": "seg.hypogastric"
       },
       "bilateral": false,
       "cautions": [
@@ -358,6 +417,20 @@
         "paraphrased": true
       },
       "area": "abdomen",
+      "region": "abdomen",
+      "localisation": {
+        "method": "along",
+        "from": "umbilicus",
+        "toward": "pubic-symphysis",
+        "distance": {
+          "cun": 1,
+          "segment": "seg.hypogastric"
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.hypogastric"
+      },
       "bilateral": false,
       "cautions": [
         {
@@ -460,6 +533,20 @@
         "paraphrased": true
       },
       "area": "abdomen",
+      "region": "abdomen",
+      "localisation": {
+        "method": "along",
+        "from": "umbilicus",
+        "toward": "xiphisternal-junction",
+        "distance": {
+          "cun": 1,
+          "segment": "seg.epigastric"
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.epigastric"
+      },
       "bilateral": false,
       "cautions": [],
       "provenance": {
@@ -507,6 +594,20 @@
         "paraphrased": true
       },
       "area": "abdomen",
+      "region": "abdomen",
+      "localisation": {
+        "method": "along",
+        "from": "umbilicus",
+        "toward": "xiphisternal-junction",
+        "distance": {
+          "cun": 2,
+          "segment": "seg.epigastric"
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.epigastric"
+      },
       "bilateral": false,
       "cautions": [],
       "provenance": {
@@ -554,6 +655,20 @@
         "paraphrased": true
       },
       "area": "abdomen",
+      "region": "abdomen",
+      "localisation": {
+        "method": "along",
+        "from": "umbilicus",
+        "toward": "xiphisternal-junction",
+        "distance": {
+          "cun": 3,
+          "segment": "seg.epigastric"
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.epigastric"
+      },
       "bilateral": false,
       "cautions": [],
       "provenance": {
@@ -601,8 +716,19 @@
         "paraphrased": true
       },
       "area": "abdomen",
+      "region": "abdomen",
+      "localisation": {
+        "method": "along",
+        "from": "umbilicus",
+        "toward": "xiphisternal-junction",
+        "distance": {
+          "cun": 4,
+          "segment": "seg.epigastric"
+        }
+      },
       "tolerance": {
-        "cm": 1
+        "cun": 0.3,
+        "segment": "seg.epigastric"
       },
       "bilateral": false,
       "cautions": [],
@@ -651,6 +777,20 @@
         "paraphrased": true
       },
       "area": "abdomen",
+      "region": "abdomen",
+      "localisation": {
+        "method": "along",
+        "from": "umbilicus",
+        "toward": "xiphisternal-junction",
+        "distance": {
+          "cun": 5,
+          "segment": "seg.epigastric"
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.epigastric"
+      },
       "bilateral": false,
       "cautions": [],
       "provenance": {
@@ -698,6 +838,20 @@
         "paraphrased": true
       },
       "area": "abdomen",
+      "region": "abdomen",
+      "localisation": {
+        "method": "along",
+        "from": "umbilicus",
+        "toward": "xiphisternal-junction",
+        "distance": {
+          "cun": 6,
+          "segment": "seg.epigastric"
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.epigastric"
+      },
       "bilateral": false,
       "cautions": [],
       "notes": "The liver lies beneath (and the heart above it): no deep needling, particularly with an enlarged liver.",
@@ -746,6 +900,20 @@
         "paraphrased": true
       },
       "area": "abdomen",
+      "region": "abdomen",
+      "localisation": {
+        "method": "along",
+        "from": "xiphisternal-junction",
+        "toward": "umbilicus",
+        "distance": {
+          "cun": 1,
+          "segment": "seg.epigastric"
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.epigastric"
+      },
       "bilateral": false,
       "cautions": [],
       "notes": "Just below the xiphoid process: deep or upward needling may reach the liver or the heart.",
@@ -794,6 +962,15 @@
         "paraphrased": true
       },
       "area": "chest",
+      "region": "chest",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "xiphisternal-junction"
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.sternum"
+      },
       "bilateral": false,
       "cautions": [],
       "provenance": {
@@ -841,6 +1018,15 @@
         "paraphrased": true
       },
       "area": "chest",
+      "region": "chest",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "midline-ics4"
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.sternum"
+      },
       "bilateral": false,
       "cautions": [],
       "notes": "A congenital sternal foramen may lie beneath: needle transversely only.",
@@ -889,6 +1075,15 @@
         "paraphrased": true
       },
       "area": "chest",
+      "region": "chest",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "midline-ics3"
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.sternum"
+      },
       "bilateral": false,
       "cautions": [],
       "provenance": {
@@ -936,6 +1131,15 @@
         "paraphrased": true
       },
       "area": "chest",
+      "region": "chest",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "midline-ics2"
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.sternum"
+      },
       "bilateral": false,
       "cautions": [],
       "provenance": {
@@ -983,6 +1187,15 @@
         "paraphrased": true
       },
       "area": "chest",
+      "region": "chest",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "midline-ics1"
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.sternum"
+      },
       "bilateral": false,
       "cautions": [],
       "provenance": {
@@ -1030,6 +1243,20 @@
         "paraphrased": true
       },
       "area": "chest",
+      "region": "chest",
+      "localisation": {
+        "method": "along",
+        "from": "suprasternal-notch",
+        "toward": "xiphisternal-junction",
+        "distance": {
+          "cun": 1,
+          "segment": "seg.sternum"
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.sternum"
+      },
       "bilateral": false,
       "cautions": [],
       "provenance": {
@@ -1077,6 +1304,19 @@
         "paraphrased": true
       },
       "area": "neck",
+      "region": "neck-anterior",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "suprasternal-notch",
+        "offset": {
+          "cranial": {
+            "cm": 0.5
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": false,
       "cautions": [],
       "notes": "The trachea lies beneath and the great vessels behind the manubrium: needle shallowly; deeper insertion, downward behind the manubrium, requires specific training.",
@@ -1125,6 +1365,19 @@
         "paraphrased": true
       },
       "area": "neck",
+      "region": "neck-anterior",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "hyoid",
+        "offset": {
+          "cranial": {
+            "cm": 0.8
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": false,
       "cautions": [],
       "provenance": {
@@ -1172,6 +1425,14 @@
         "paraphrased": true
       },
       "area": "face",
+      "region": "face",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "mentolabial-sulcus"
+      },
+      "tolerance": {
+        "cm": 0.4
+      },
       "bilateral": false,
       "cautions": [],
       "provenance": {
