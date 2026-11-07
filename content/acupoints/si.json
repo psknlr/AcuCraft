@@ -30,6 +30,22 @@
         "paraphrased": true
       },
       "area": "finger",
+      "region": "hand-dorsum",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "nail-5-ulnar-corner",
+        "offset": {
+          "cranial": {
+            "cm": 0.2
+          },
+          "medial": {
+            "cm": 0.2
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.4
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -75,6 +91,19 @@
         "paraphrased": true
       },
       "area": "finger",
+      "region": "hand-dorsum",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "mc5-mcp-ulnar",
+        "offset": {
+          "caudal": {
+            "cm": 0.8
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.5
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -178,6 +207,16 @@
         "paraphrased": true
       },
       "area": "wrist",
+      "region": "hand-dorsum",
+      "localisation": {
+        "method": "between",
+        "a": "mc5-base",
+        "b": "triquetrum",
+        "fraction": 0.5
+      },
+      "tolerance": {
+        "cm": 0.5
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -223,6 +262,16 @@
         "paraphrased": true
       },
       "area": "wrist",
+      "region": "forearm",
+      "localisation": {
+        "method": "between",
+        "a": "ulnar-styloid",
+        "b": "triquetrum",
+        "fraction": 0.5
+      },
+      "tolerance": {
+        "cm": 0.5
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -268,6 +317,24 @@
         "paraphrased": true
       },
       "area": "forearm",
+      "region": "forearm",
+      "localisation": {
+        "method": "along",
+        "from": "ulnar-styloid",
+        "toward": "olecranon",
+        "distance": {
+          "cun": 1,
+          "segment": "seg.forearm-dorsal"
+        },
+        "offset": {
+          "medial": {
+            "cm": 1.9
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -313,6 +380,25 @@
         "paraphrased": true
       },
       "area": "forearm",
+      "region": "forearm",
+      "localisation": {
+        "method": "along",
+        "from": "ulnar-styloid",
+        "toward": "olecranon",
+        "distance": {
+          "cun": 5,
+          "segment": "seg.forearm-dorsal"
+        },
+        "offset": {
+          "lateral": {
+            "cm": 1.8
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.5,
+        "segment": "seg.forearm-dorsal"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -358,6 +444,14 @@
         "paraphrased": true
       },
       "area": "elbow",
+      "region": "upper-arm",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "ulnar-groove"
+      },
+      "tolerance": {
+        "cm": 0.5
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "Over the ulnar nerve in its groove: an electric sensation means the needle has reached it.",
@@ -404,6 +498,21 @@
         "paraphrased": true
       },
       "area": "shoulder",
+      "region": "upper-arm",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "posterior-axillary-fold",
+        "offset": {
+          "cranial": {
+            "cun": 1,
+            "segment": "seg.arm"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.arm"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -449,6 +558,19 @@
         "paraphrased": true
       },
       "area": "shoulder",
+      "region": "upper-arm",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "scapular-spine-lower-border",
+        "offset": {
+          "caudal": {
+            "cm": 0.6
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.8
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -494,6 +616,16 @@
         "paraphrased": true
       },
       "area": "upper-back",
+      "region": "upper-back",
+      "localisation": {
+        "method": "between",
+        "a": "scapula-spine-mid-{side}",
+        "b": "scapula-inferior-angle-{side}",
+        "fraction": 0.3333333333333333
+      },
+      "tolerance": {
+        "cm": 1.0
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -539,6 +671,19 @@
         "paraphrased": true
       },
       "area": "upper-back",
+      "region": "upper-back",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "scapula-spine-mid-{side}",
+        "offset": {
+          "cranial": {
+            "cm": 1.5
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 1.0
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -584,6 +729,19 @@
         "paraphrased": true
       },
       "area": "upper-back",
+      "region": "upper-back",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "scapula-spine-medial-{side}",
+        "offset": {
+          "cranial": {
+            "cm": 1.0
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 1.0
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
@@ -630,6 +788,21 @@
         "paraphrased": true
       },
       "area": "upper-back",
+      "region": "upper-back",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "t1-spinous",
+        "offset": {
+          "lateral": {
+            "cun": 3,
+            "segment": "seg.scapulae"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.scapulae"
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
@@ -676,6 +849,24 @@
         "paraphrased": true
       },
       "area": "upper-back",
+      "region": "upper-back",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "c7-spinous",
+        "offset": {
+          "lateral": {
+            "cun": 2,
+            "segment": "seg.scapulae"
+          },
+          "caudal": {
+            "cm": 0.8
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.scapulae"
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
@@ -722,6 +913,19 @@
         "paraphrased": true
       },
       "area": "neck",
+      "region": "neck-anterior",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "scm-posterior-thyroid-{side}",
+        "offset": {
+          "lateral": {
+            "cm": 0.5
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The carotid sheath and the great vessels of the neck lie close: needle shallowly and avoid the pulsating artery.",
@@ -768,6 +972,22 @@
         "paraphrased": true
       },
       "area": "neck",
+      "region": "neck-anterior",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "mandible-angle-{side}",
+        "offset": {
+          "lateral": {
+            "cm": 1.0
+          },
+          "caudal": {
+            "cm": 0.5
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The carotid sheath and the great vessels of the neck lie close: needle shallowly and avoid the pulsating artery.",
@@ -814,6 +1034,19 @@
         "paraphrased": true
       },
       "area": "face",
+      "region": "face",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "zygoma-lower-border-{side}",
+        "offset": {
+          "caudal": {
+            "cm": 0.4
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.5
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -859,8 +1092,22 @@
         "paraphrased": true
       },
       "area": "face",
+      "region": "head-lateral",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "tragus",
+        "offset": {
+          "medial": {
+            "cm": 0.5
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.4
+      },
       "bilateral": true,
       "cautions": [],
+      "notes": "In front of the temporomandibular joint: needled with the mouth open; angling forward and deep enters the joint.",
       "provenance": {
         "sources": [
           {

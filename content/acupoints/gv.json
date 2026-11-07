@@ -80,6 +80,14 @@
         "paraphrased": true
       },
       "area": "sacrum-buttock",
+      "region": "sacrum-buttock",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "sacral-hiatus"
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": false,
       "cautions": [
         {
@@ -268,6 +276,19 @@
         "paraphrased": true
       },
       "area": "lower-back",
+      "region": "lumbar",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "l1-spinous",
+        "offset": {
+          "caudal": {
+            "cm": 0.6
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": false,
       "cautions": [],
       "notes": "The spinal canal lies deep to the interspinous space: needle obliquely upward and shallowly.",
@@ -316,6 +337,19 @@
         "paraphrased": true
       },
       "area": "upper-back",
+      "region": "upper-back",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "t11-spinous",
+        "offset": {
+          "caudal": {
+            "cm": 0.6
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": false,
       "cautions": [],
       "notes": "The spinal canal lies deep to the interspinous space: needle obliquely upward and shallowly.",
@@ -364,6 +398,19 @@
         "paraphrased": true
       },
       "area": "upper-back",
+      "region": "upper-back",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "t10-spinous",
+        "offset": {
+          "caudal": {
+            "cm": 0.6
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": false,
       "cautions": [],
       "notes": "The spinal canal lies deep to the interspinous space: needle obliquely upward and shallowly.",
@@ -412,6 +459,19 @@
         "paraphrased": true
       },
       "area": "upper-back",
+      "region": "upper-back",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "t9-spinous",
+        "offset": {
+          "caudal": {
+            "cm": 0.6
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": false,
       "cautions": [],
       "notes": "The spinal canal lies deep to the interspinous space: needle obliquely upward and shallowly.",
@@ -460,6 +520,19 @@
         "paraphrased": true
       },
       "area": "upper-back",
+      "region": "upper-back",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "t7-spinous",
+        "offset": {
+          "caudal": {
+            "cm": 0.6
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": false,
       "cautions": [],
       "notes": "The spinal canal lies deep to the interspinous space: needle obliquely upward and shallowly.",
@@ -508,6 +581,19 @@
         "paraphrased": true
       },
       "area": "upper-back",
+      "region": "upper-back",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "t6-spinous",
+        "offset": {
+          "caudal": {
+            "cm": 0.6
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": false,
       "cautions": [],
       "notes": "The spinal canal lies deep to the interspinous space: needle obliquely upward and shallowly.",
@@ -556,6 +642,19 @@
         "paraphrased": true
       },
       "area": "upper-back",
+      "region": "upper-back",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "t5-spinous",
+        "offset": {
+          "caudal": {
+            "cm": 0.6
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": false,
       "cautions": [],
       "notes": "The spinal canal lies deep to the interspinous space: needle obliquely upward and shallowly.",
@@ -604,6 +703,19 @@
         "paraphrased": true
       },
       "area": "upper-back",
+      "region": "upper-back",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "t3-spinous",
+        "offset": {
+          "caudal": {
+            "cm": 0.6
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": false,
       "cautions": [],
       "notes": "The spinal canal lies deep to the interspinous space: needle obliquely upward and shallowly.",
@@ -652,6 +764,19 @@
         "paraphrased": true
       },
       "area": "upper-back",
+      "region": "upper-back",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "t1-spinous",
+        "offset": {
+          "caudal": {
+            "cm": 0.6
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": false,
       "cautions": [],
       "notes": "The spinal canal lies deep to the interspinous space: needle obliquely upward and shallowly.",
@@ -761,6 +886,19 @@
         "paraphrased": true
       },
       "area": "neck",
+      "region": "neck-shoulder",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "c2-spinous",
+        "offset": {
+          "cranial": {
+            "cm": 0.5
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.5
+      },
       "bilateral": false,
       "cautions": [],
       "notes": "The medulla oblongata lies deep: never needle deeply or upward; direct the needle towards the chin.",
@@ -867,6 +1005,19 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "neck-shoulder",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "occipital-protuberance-superior",
+        "offset": {
+          "cranial": {
+            "cm": 0.5
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.5
+      },
       "bilateral": false,
       "cautions": [],
       "provenance": {
@@ -914,6 +1065,20 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "scalp",
+      "localisation": {
+        "method": "along",
+        "from": "posterior-hairline",
+        "toward": "anterior-hairline",
+        "distance": {
+          "cun": 4,
+          "segment": "seg.hairlines"
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.hairlines"
+      },
       "bilateral": false,
       "cautions": [],
       "provenance": {
@@ -961,6 +1126,20 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "scalp",
+      "localisation": {
+        "method": "along",
+        "from": "posterior-hairline",
+        "toward": "anterior-hairline",
+        "distance": {
+          "cun": 5.5,
+          "segment": "seg.hairlines"
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.hairlines"
+      },
       "bilateral": false,
       "cautions": [],
       "provenance": {
@@ -1008,8 +1187,19 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "scalp",
+      "localisation": {
+        "method": "along",
+        "from": "anterior-hairline",
+        "toward": "posterior-hairline",
+        "distance": {
+          "cun": 5,
+          "segment": "seg.hairlines"
+        }
+      },
       "tolerance": {
-        "cm": 1
+        "cun": 0.3,
+        "segment": "seg.hairlines"
       },
       "bilateral": false,
       "cautions": [],
@@ -1058,6 +1248,20 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "scalp",
+      "localisation": {
+        "method": "along",
+        "from": "anterior-hairline",
+        "toward": "posterior-hairline",
+        "distance": {
+          "cun": 3.5,
+          "segment": "seg.hairlines"
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.hairlines"
+      },
       "bilateral": false,
       "cautions": [],
       "provenance": {
@@ -1105,6 +1309,20 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "scalp",
+      "localisation": {
+        "method": "along",
+        "from": "anterior-hairline",
+        "toward": "posterior-hairline",
+        "distance": {
+          "cun": 2,
+          "segment": "seg.hairlines"
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.hairlines"
+      },
       "bilateral": false,
       "cautions": [],
       "notes": "Not needled in infants before the anterior fontanelle has closed.",
@@ -1153,6 +1371,20 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "scalp",
+      "localisation": {
+        "method": "along",
+        "from": "anterior-hairline",
+        "toward": "posterior-hairline",
+        "distance": {
+          "cun": 1,
+          "segment": "seg.hairlines"
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.hairlines"
+      },
       "bilateral": false,
       "cautions": [],
       "provenance": {
@@ -1200,6 +1432,20 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "scalp",
+      "localisation": {
+        "method": "along",
+        "from": "anterior-hairline",
+        "toward": "posterior-hairline",
+        "distance": {
+          "cun": 0.5,
+          "segment": "seg.hairlines"
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.hairlines"
+      },
       "bilateral": false,
       "cautions": [],
       "provenance": {
@@ -1247,6 +1493,14 @@
         "paraphrased": true
       },
       "area": "face",
+      "region": "face",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "nose-tip"
+      },
+      "tolerance": {
+        "cm": 0.3
+      },
       "bilateral": false,
       "cautions": [],
       "provenance": {
@@ -1294,6 +1548,16 @@
         "paraphrased": true
       },
       "area": "face",
+      "region": "face",
+      "localisation": {
+        "method": "between",
+        "a": "subnasale",
+        "b": "philtrum-lower",
+        "fraction": 0.3333
+      },
+      "tolerance": {
+        "cm": 0.3
+      },
       "bilateral": false,
       "cautions": [],
       "provenance": {
@@ -1341,6 +1605,14 @@
         "paraphrased": true
       },
       "area": "face",
+      "region": "face",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "upper-lip-tubercle"
+      },
+      "tolerance": {
+        "cm": 0.3
+      },
       "bilateral": false,
       "cautions": [],
       "provenance": {

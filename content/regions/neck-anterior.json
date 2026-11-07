@@ -1,0 +1,7551 @@
+{
+  "schema": "acucraft/region@1",
+  "id": "neck-anterior",
+  "version": "0.1.0",
+  "title": "front and sides of the neck",
+  "laterality": "midline",
+  "chart": {
+    "description": "The front of the neck unrolled round a horizontal section of the skin. u: arc length (cm) from the anterior median line, positive towards the patient's LEFT, back to the posterior border of sternocleidomastoid. v: height (cm) above the suprasternal notch. d: depth below the skin along the inward normal (cm).",
+    "uRange": [
+      -14,
+      14
+    ],
+    "vRange": [
+      -3,
+      15
+    ]
+  },
+  "reference": {
+    "heightCm": 183,
+    "bmi": 27.8,
+    "sex": "male",
+    "body": "Visible Human Male (HuBMAP HRA v1.3 united body; reported 180 cm, about 90 kg; mesh height 183 cm)"
+  },
+  "configurations": [
+    {
+      "id": "supine",
+      "label": "lying on the back"
+    },
+    {
+      "id": "upright",
+      "label": "sitting upright"
+    }
+  ],
+  "defaultConfiguration": "supine",
+  "access": [
+    {
+      "position": "supine",
+      "configuration": "supine",
+      "sides": [
+        "left",
+        "right",
+        "midline"
+      ]
+    },
+    {
+      "position": "supine-knee-flexed",
+      "configuration": "supine",
+      "sides": [
+        "left",
+        "right",
+        "midline"
+      ]
+    },
+    {
+      "position": "seated",
+      "configuration": "upright",
+      "sides": [
+        "left",
+        "right",
+        "midline"
+      ]
+    },
+    {
+      "position": "side-lying-left",
+      "configuration": "supine",
+      "sides": [
+        "right",
+        "midline"
+      ]
+    },
+    {
+      "position": "side-lying-right",
+      "configuration": "supine",
+      "sides": [
+        "left",
+        "midline"
+      ]
+    }
+  ],
+  "landmarks": [
+    {
+      "id": "cricoid",
+      "label": "cricoid cartilage",
+      "at": {
+        "u": 0.0,
+        "v": 3.6
+      },
+      "palpation": "The firm ring below the thyroid cartilage."
+    },
+    {
+      "id": "greater-supraclavicular-fossa-left",
+      "label": "greater supraclavicular fossa above the clavicle on the mid-clavicular line (left)",
+      "at": {
+        "u": 11.7,
+        "v": 1.4
+      }
+    },
+    {
+      "id": "greater-supraclavicular-fossa-right",
+      "label": "greater supraclavicular fossa above the clavicle on the mid-clavicular line (right)",
+      "at": {
+        "u": -11.7,
+        "v": 1.4
+      }
+    },
+    {
+      "id": "hyoid",
+      "label": "body of the hyoid bone",
+      "at": {
+        "u": 0.0,
+        "v": 8.5
+      }
+    },
+    {
+      "id": "mandible-angle-left",
+      "label": "angle of the mandible (left)",
+      "at": {
+        "u": 6.0,
+        "v": 12.0
+      }
+    },
+    {
+      "id": "mandible-angle-right",
+      "label": "angle of the mandible (right)",
+      "at": {
+        "u": -6.0,
+        "v": 12.0
+      }
+    },
+    {
+      "id": "midclavicular-left",
+      "label": "mid-clavicular line at the clavicle (left)",
+      "at": {
+        "u": 11.7,
+        "v": 0.0
+      }
+    },
+    {
+      "id": "midclavicular-right",
+      "label": "mid-clavicular line at the clavicle (right)",
+      "at": {
+        "u": -11.7,
+        "v": 0.0
+      }
+    },
+    {
+      "id": "scm-anterior-cricoid-left",
+      "label": "anterior border of sternocleidomastoid at the level of the cricoid (left)",
+      "at": {
+        "u": 4.2,
+        "v": 3.6
+      }
+    },
+    {
+      "id": "scm-anterior-cricoid-right",
+      "label": "anterior border of sternocleidomastoid at the level of the cricoid (right)",
+      "at": {
+        "u": -4.2,
+        "v": 3.6
+      }
+    },
+    {
+      "id": "scm-anterior-thyroid-left",
+      "label": "anterior border of sternocleidomastoid at the level of the thyroid cartilage, over the carotid pulse (left)",
+      "at": {
+        "u": 5.3,
+        "v": 6.9
+      },
+      "palpation": "Turn the head against resistance to outline the muscle; the carotid pulse lies under its anterior border."
+    },
+    {
+      "id": "scm-anterior-thyroid-right",
+      "label": "anterior border of sternocleidomastoid at the level of the thyroid cartilage, over the carotid pulse (right)",
+      "at": {
+        "u": -5.3,
+        "v": 6.9
+      },
+      "palpation": "Turn the head against resistance to outline the muscle; the carotid pulse lies under its anterior border."
+    },
+    {
+      "id": "scm-heads-left",
+      "label": "lesser supraclavicular fossa between the sternal and clavicular heads of sternocleidomastoid (left)",
+      "at": {
+        "u": 2.6,
+        "v": 0.8
+      }
+    },
+    {
+      "id": "scm-heads-right",
+      "label": "lesser supraclavicular fossa between the sternal and clavicular heads of sternocleidomastoid (right)",
+      "at": {
+        "u": -2.6,
+        "v": 0.8
+      }
+    },
+    {
+      "id": "scm-posterior-angle-left",
+      "label": "posterior border of sternocleidomastoid at the level of the angle of the mandible (left)",
+      "at": {
+        "u": 8.4,
+        "v": 12.0
+      }
+    },
+    {
+      "id": "scm-posterior-angle-right",
+      "label": "posterior border of sternocleidomastoid at the level of the angle of the mandible (right)",
+      "at": {
+        "u": -8.4,
+        "v": 12.0
+      }
+    },
+    {
+      "id": "scm-posterior-cricoid-left",
+      "label": "posterior border of sternocleidomastoid at the level of the cricoid (left)",
+      "at": {
+        "u": 7.8,
+        "v": 3.6
+      }
+    },
+    {
+      "id": "scm-posterior-cricoid-right",
+      "label": "posterior border of sternocleidomastoid at the level of the cricoid (right)",
+      "at": {
+        "u": -7.8,
+        "v": 3.6
+      }
+    },
+    {
+      "id": "scm-posterior-thyroid-left",
+      "label": "posterior border of sternocleidomastoid at the level of the thyroid cartilage (left)",
+      "at": {
+        "u": 8.9,
+        "v": 6.9
+      }
+    },
+    {
+      "id": "scm-posterior-thyroid-right",
+      "label": "posterior border of sternocleidomastoid at the level of the thyroid cartilage (right)",
+      "at": {
+        "u": -8.9,
+        "v": 6.9
+      }
+    },
+    {
+      "id": "suprasternal-notch",
+      "label": "suprasternal notch",
+      "at": {
+        "u": 0.0,
+        "v": 0.0
+      }
+    },
+    {
+      "id": "thyroid-cartilage-superior",
+      "label": "superior border of the thyroid cartilage (laryngeal prominence)",
+      "at": {
+        "u": 0.0,
+        "v": 6.9
+      },
+      "palpation": "The Adam's apple; its upper notch."
+    }
+  ],
+  "segments": [
+    {
+      "id": "seg.neck-mcl",
+      "label": "between the mid-clavicular lines (as between the nipples)",
+      "from": "midclavicular-right",
+      "to": "midclavicular-left",
+      "cun": 8,
+      "source": {
+        "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008): proportional bone measurement",
+        "verified": false
+      }
+    }
+  ],
+  "tissue": {
+    "layers": [
+      {
+        "tissue": "skin",
+        "thicknessCm": 0.15
+      },
+      {
+        "tissue": "subcutaneous",
+        "thicknessCm": 0.5
+      },
+      {
+        "tissue": "muscle",
+        "thicknessCm": 1.5
+      },
+      {
+        "tissue": "organ",
+        "thicknessCm": 2.0,
+        "label": "visceral column of the neck",
+        "hazard": "caution"
+      }
+    ],
+    "zones": [
+      {
+        "id": "gm13_5m3",
+        "centre": {
+          "u": -13.5,
+          "v": -3.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          }
+        ]
+      },
+      {
+        "id": "gm12m3",
+        "centre": {
+          "u": -12.0,
+          "v": -3.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          }
+        ]
+      },
+      {
+        "id": "gm10_5m3",
+        "centre": {
+          "u": -10.5,
+          "v": -3.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.7
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.15,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 13.3,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gm9m3",
+        "centre": {
+          "u": -9.0,
+          "v": -3.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.3
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.4,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 15.1,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gm7_5m3",
+        "centre": {
+          "u": -7.5,
+          "v": -3.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.0,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 15.3,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gm6m3",
+        "centre": {
+          "u": -6.0,
+          "v": -3.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 4.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 7.55,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "bone"
+          }
+        ]
+      },
+      {
+        "id": "gm4_5m3",
+        "centre": {
+          "u": -4.5,
+          "v": -3.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.0
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.9,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 15.0,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gm3m3",
+        "centre": {
+          "u": -3.0,
+          "v": -3.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.2
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.2,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 1.85,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gm1_5m3",
+        "centre": {
+          "u": -1.5,
+          "v": -3.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.55
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.85,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.5,
+            "label": "vena cava",
+            "hazard": "critical"
+          }
+        ]
+      },
+      {
+        "id": "gp0m3",
+        "centre": {
+          "u": 0.0,
+          "v": -3.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.65
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.1,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 1.6,
+            "label": "aorta",
+            "hazard": "critical"
+          }
+        ]
+      },
+      {
+        "id": "gp1_5m3",
+        "centre": {
+          "u": 1.5,
+          "v": -3.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.4
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.6,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 0.5,
+            "label": "lung"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.2,
+            "label": "deep tissue"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.8,
+            "label": "aorta",
+            "hazard": "critical"
+          }
+        ]
+      },
+      {
+        "id": "gp3m3",
+        "centre": {
+          "u": 3.0,
+          "v": -3.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.15
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.15,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 2.1,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gp4_5m3",
+        "centre": {
+          "u": 4.5,
+          "v": -3.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.1
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.05,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 3.45,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gp6m3",
+        "centre": {
+          "u": 6.0,
+          "v": -3.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 3.65
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 6.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "bone"
+          }
+        ]
+      },
+      {
+        "id": "gp7_5m3",
+        "centre": {
+          "u": 7.5,
+          "v": -3.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.8
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.45,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 16.75,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gp9m3",
+        "centre": {
+          "u": 9.0,
+          "v": -3.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.9
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.7,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 16.1,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gp10_5m3",
+        "centre": {
+          "u": 10.5,
+          "v": -3.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.15
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.1,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 15.0,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gp12m3",
+        "centre": {
+          "u": 12.0,
+          "v": -3.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.15
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.1,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 15.0,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gp13_5m3",
+        "centre": {
+          "u": 13.5,
+          "v": -3.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.3
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 4.3,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 7.8,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gm13_5m1_5",
+        "centre": {
+          "u": -13.5,
+          "v": -1.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          }
+        ]
+      },
+      {
+        "id": "gm12m1_5",
+        "centre": {
+          "u": -12.0,
+          "v": -1.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.35
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 4.35,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 8.7,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gm10_5m1_5",
+        "centre": {
+          "u": -10.5,
+          "v": -1.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.8
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.3,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 11.5,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gm9m1_5",
+        "centre": {
+          "u": -9.0,
+          "v": -1.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.45
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.65,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 13.1,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gm7_5m1_5",
+        "centre": {
+          "u": -7.5,
+          "v": -1.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.25
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.3,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 13.9,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gm6m1_5",
+        "centre": {
+          "u": -6.0,
+          "v": -1.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.2
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.2,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 7.15,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gm4_5m1_5",
+        "centre": {
+          "u": -4.5,
+          "v": -1.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.4
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.6,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 6.05,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gm3m1_5",
+        "centre": {
+          "u": -3.0,
+          "v": -1.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.45
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.7,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.5,
+            "label": "vena cava",
+            "hazard": "critical"
+          }
+        ]
+      },
+      {
+        "id": "gm1_5m1_5",
+        "centre": {
+          "u": -1.5,
+          "v": -1.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.35
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.5,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 1.15,
+            "label": "vena cava",
+            "hazard": "critical"
+          }
+        ]
+      },
+      {
+        "id": "gp0m1_5",
+        "centre": {
+          "u": 0.0,
+          "v": -1.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.2
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.2,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 1.25,
+            "label": "vena cava",
+            "hazard": "critical"
+          }
+        ]
+      },
+      {
+        "id": "gp1_5m1_5",
+        "centre": {
+          "u": 1.5,
+          "v": -1.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.3
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.45,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.9,
+            "label": "vena cava",
+            "hazard": "critical"
+          }
+        ]
+      },
+      {
+        "id": "gp3m1_5",
+        "centre": {
+          "u": 3.0,
+          "v": -1.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.8
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.35,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 0.9,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gp4_5m1_5",
+        "centre": {
+          "u": 4.5,
+          "v": -1.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.35
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.5,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 12.5,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gp6m1_5",
+        "centre": {
+          "u": 6.0,
+          "v": -1.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.15
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.15,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 6.85,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gp7_5m1_5",
+        "centre": {
+          "u": 7.5,
+          "v": -1.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.0
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.8,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 7.85,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gp9m1_5",
+        "centre": {
+          "u": 9.0,
+          "v": -1.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.0,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 14.65,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gp10_5m1_5",
+        "centre": {
+          "u": 10.5,
+          "v": -1.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.25
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.35,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 13.0,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gp12m1_5",
+        "centre": {
+          "u": 12.0,
+          "v": -1.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.75
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.25,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 10.4,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gp13_5m1_5",
+        "centre": {
+          "u": 13.5,
+          "v": -1.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.45
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 4.5,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 4.7,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gm13_5p0",
+        "centre": {
+          "u": -13.5,
+          "v": 0.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 3.25
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 6.05,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 3.0,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gm12p0",
+        "centre": {
+          "u": -12.0,
+          "v": 0.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.4
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 4.5,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 9.7,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gm10_5p0",
+        "centre": {
+          "u": -10.5,
+          "v": 0.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.0
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.65,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 12.5,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gm9p0",
+        "centre": {
+          "u": -9.0,
+          "v": 0.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.55
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.85,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 17.35,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gm7_5p0",
+        "centre": {
+          "u": -7.5,
+          "v": 0.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.35
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.5,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 16.95,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gm6p0",
+        "centre": {
+          "u": -6.0,
+          "v": 0.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.35
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.5,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 16.85,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gm4_5p0",
+        "centre": {
+          "u": -4.5,
+          "v": 0.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.1
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.05,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.5,
+            "label": "vena cava",
+            "hazard": "critical"
+          }
+        ]
+      },
+      {
+        "id": "gm3p0",
+        "centre": {
+          "u": -3.0,
+          "v": 0.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.4
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.6,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.5,
+            "label": "vena cava",
+            "hazard": "critical"
+          }
+        ]
+      },
+      {
+        "id": "gm1_5p0",
+        "centre": {
+          "u": -1.5,
+          "v": 0.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.25
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 4.2,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 3.95,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gp0p0",
+        "centre": {
+          "u": 0.0,
+          "v": 0.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.25
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.3,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.85,
+            "label": "vena cava",
+            "hazard": "critical"
+          }
+        ]
+      },
+      {
+        "id": "gp1_5p0",
+        "centre": {
+          "u": 1.5,
+          "v": 0.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.3
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.4,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 1.2,
+            "label": "vena cava",
+            "hazard": "critical"
+          }
+        ]
+      },
+      {
+        "id": "gp3p0",
+        "centre": {
+          "u": 3.0,
+          "v": 0.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.25
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.3,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 1.15,
+            "label": "vena cava",
+            "hazard": "critical"
+          }
+        ]
+      },
+      {
+        "id": "gp4_5p0",
+        "centre": {
+          "u": 4.5,
+          "v": 0.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.2
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.25,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.75,
+            "label": "vena cava",
+            "hazard": "critical"
+          }
+        ]
+      },
+      {
+        "id": "gp6p0",
+        "centre": {
+          "u": 6.0,
+          "v": 0.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.2
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.25,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 12.0,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gp7_5p0",
+        "centre": {
+          "u": 7.5,
+          "v": 0.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.15
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.1,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 18.95,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gp9p0",
+        "centre": {
+          "u": 9.0,
+          "v": 0.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.2
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.2,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 19.45,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gp10_5p0",
+        "centre": {
+          "u": 10.5,
+          "v": 0.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.45
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.7,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 16.3,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gp12p0",
+        "centre": {
+          "u": 12.0,
+          "v": 0.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.85
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.45,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 10.5,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gp13_5p0",
+        "centre": {
+          "u": 13.5,
+          "v": 0.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.4
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 4.5,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 7.3,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gm13_5p1_5",
+        "centre": {
+          "u": -13.5,
+          "v": 1.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          }
+        ]
+      },
+      {
+        "id": "gm12p1_5",
+        "centre": {
+          "u": -12.0,
+          "v": 1.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.75
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 5.1,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 4.05,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gm10_5p1_5",
+        "centre": {
+          "u": -10.5,
+          "v": 1.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.65
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.05,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 12.75,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gm9p1_5",
+        "centre": {
+          "u": -9.0,
+          "v": 1.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.35
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.5,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 11.2,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gm7_5p1_5",
+        "centre": {
+          "u": -7.5,
+          "v": 1.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.3
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.4,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 7.4,
+            "label": "lung"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.05,
+            "label": "deep tissue"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gm6p1_5",
+        "centre": {
+          "u": -6.0,
+          "v": 1.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.2
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.25,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.5,
+            "label": "vena cava",
+            "hazard": "critical"
+          }
+        ]
+      },
+      {
+        "id": "gm4_5p1_5",
+        "centre": {
+          "u": -4.5,
+          "v": 1.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.85
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.55,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 1.7,
+            "label": "vena cava",
+            "hazard": "critical"
+          }
+        ]
+      },
+      {
+        "id": "gm3p1_5",
+        "centre": {
+          "u": -3.0,
+          "v": 1.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.65
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.05,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 3.2,
+            "label": "lung"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.9,
+            "label": "deep tissue"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gm1_5p1_5",
+        "centre": {
+          "u": -1.5,
+          "v": 1.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.35
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.5,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 1.45,
+            "label": "trachea",
+            "hazard": "caution"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.35,
+            "label": "deep tissue"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 2.2,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gp0p1_5",
+        "centre": {
+          "u": 0.0,
+          "v": 1.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.6
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.1,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.5,
+            "label": "trachea",
+            "hazard": "caution"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 5.55,
+            "label": "deep tissue"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp1_5p1_5",
+        "centre": {
+          "u": 1.5,
+          "v": 1.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.95
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.7,
+            "label": "trachea",
+            "hazard": "caution"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 4.75,
+            "label": "deep tissue"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp3p1_5",
+        "centre": {
+          "u": 3.0,
+          "v": 1.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.2
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.2,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.95,
+            "label": "vena cava",
+            "hazard": "critical"
+          }
+        ]
+      },
+      {
+        "id": "gp4_5p1_5",
+        "centre": {
+          "u": 4.5,
+          "v": 1.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.6
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.15,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.5,
+            "label": "vena cava",
+            "hazard": "critical"
+          }
+        ]
+      },
+      {
+        "id": "gp6p1_5",
+        "centre": {
+          "u": 6.0,
+          "v": 1.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.85
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.6,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.5,
+            "label": "vena cava",
+            "hazard": "critical"
+          }
+        ]
+      },
+      {
+        "id": "gp7_5p1_5",
+        "centre": {
+          "u": 7.5,
+          "v": 1.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.1
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.05,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 10.05,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gp9p1_5",
+        "centre": {
+          "u": 9.0,
+          "v": 1.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.15
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.1,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 7.45,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gp10_5p1_5",
+        "centre": {
+          "u": 10.5,
+          "v": 1.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.25
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.3,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 13.8,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gp12p1_5",
+        "centre": {
+          "u": 12.0,
+          "v": 1.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.9
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.5,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 10.65,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gp13_5p1_5",
+        "centre": {
+          "u": 13.5,
+          "v": 1.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          }
+        ]
+      },
+      {
+        "id": "gm13_5p3",
+        "centre": {
+          "u": -13.5,
+          "v": 3.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          }
+        ]
+      },
+      {
+        "id": "gm12p3",
+        "centre": {
+          "u": -12.0,
+          "v": 3.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.9
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.55,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "bone"
+          }
+        ]
+      },
+      {
+        "id": "gm10_5p3",
+        "centre": {
+          "u": -10.5,
+          "v": 3.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.8
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.3,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 7.95,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gm9p3",
+        "centre": {
+          "u": -9.0,
+          "v": 3.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.45
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.7,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 7.2,
+            "label": "lung"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.15,
+            "label": "deep tissue"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gm7_5p3",
+        "centre": {
+          "u": -7.5,
+          "v": 3.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.3
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.4,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 7.05,
+            "label": "lung"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.1,
+            "label": "deep tissue"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 1.0,
+            "label": "spinal canal",
+            "hazard": "critical"
+          }
+        ]
+      },
+      {
+        "id": "gm6p3",
+        "centre": {
+          "u": -6.0,
+          "v": 3.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.2
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.2,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "bone"
+          }
+        ]
+      },
+      {
+        "id": "gm4_5p3",
+        "centre": {
+          "u": -4.5,
+          "v": 3.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.4
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.6,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 3.4,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gm3p3",
+        "centre": {
+          "u": -3.0,
+          "v": 3.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.65
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.05,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 1.75,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gm1_5p3",
+        "centre": {
+          "u": -1.5,
+          "v": 3.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.45
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.8,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 1.05,
+            "label": "larynx",
+            "hazard": "caution"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.55,
+            "label": "deep tissue"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp0p3",
+        "centre": {
+          "u": 0.0,
+          "v": 3.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.1
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.0,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp1_5p3",
+        "centre": {
+          "u": 1.5,
+          "v": 3.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.35,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.5,
+            "label": "larynx",
+            "hazard": "caution"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.5,
+            "label": "trachea",
+            "hazard": "caution"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 4.5,
+            "label": "deep tissue"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp3p3",
+        "centre": {
+          "u": 3.0,
+          "v": 3.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.15
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 4.0,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp4_5p3",
+        "centre": {
+          "u": 4.5,
+          "v": 3.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.55
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.9,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 4.25,
+            "label": "lung"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.95,
+            "label": "deep tissue"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.5,
+            "label": "spinal canal",
+            "hazard": "critical"
+          }
+        ]
+      },
+      {
+        "id": "gp6p3",
+        "centre": {
+          "u": 6.0,
+          "v": 3.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.8
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.45,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "bone"
+          }
+        ]
+      },
+      {
+        "id": "gp7_5p3",
+        "centre": {
+          "u": 7.5,
+          "v": 3.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.25
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.3,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 8.75,
+            "label": "lung"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.3,
+            "label": "deep tissue"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp9p3",
+        "centre": {
+          "u": 9.0,
+          "v": 3.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.25
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.35,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 9.8,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gp10_5p3",
+        "centre": {
+          "u": 10.5,
+          "v": 3.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.4
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.55,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 9.25,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gp12p3",
+        "centre": {
+          "u": 12.0,
+          "v": 3.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.55
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.9,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "bone"
+          }
+        ]
+      },
+      {
+        "id": "gp13_5p3",
+        "centre": {
+          "u": 13.5,
+          "v": 3.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          }
+        ]
+      },
+      {
+        "id": "gm13_5p4_5",
+        "centre": {
+          "u": -13.5,
+          "v": 4.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.6
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 4.85,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 12.05,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gm12p4_5",
+        "centre": {
+          "u": -12.0,
+          "v": 4.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.2
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 4.1,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 8.55,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gm10_5p4_5",
+        "centre": {
+          "u": -10.5,
+          "v": 4.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.1
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.9,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 6.1,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gm9p4_5",
+        "centre": {
+          "u": -9.0,
+          "v": 4.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.75
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.25,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 5.6,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gm7_5p4_5",
+        "centre": {
+          "u": -7.5,
+          "v": 4.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.55
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.9,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 3.5,
+            "label": "lung"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.95,
+            "label": "deep tissue"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.65,
+            "label": "spinal canal",
+            "hazard": "critical"
+          }
+        ]
+      },
+      {
+        "id": "gm6p4_5",
+        "centre": {
+          "u": -6.0,
+          "v": 4.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.9
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.55,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gm4_5p4_5",
+        "centre": {
+          "u": -4.5,
+          "v": 4.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.65
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.05,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gm3p4_5",
+        "centre": {
+          "u": -3.0,
+          "v": 4.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.35
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.7,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.55,
+            "label": "larynx",
+            "hazard": "caution"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.9,
+            "label": "deep tissue"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gm1_5p4_5",
+        "centre": {
+          "u": -1.5,
+          "v": 4.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.25,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.5,
+            "label": "larynx",
+            "hazard": "caution"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 5.0,
+            "label": "deep tissue"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp0p4_5",
+        "centre": {
+          "u": 0.0,
+          "v": 4.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.25,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.5,
+            "label": "larynx",
+            "hazard": "caution"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 4.25,
+            "label": "deep tissue"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp1_5p4_5",
+        "centre": {
+          "u": 1.5,
+          "v": 4.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.25,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.5,
+            "label": "larynx",
+            "hazard": "caution"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 4.95,
+            "label": "deep tissue"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp3p4_5",
+        "centre": {
+          "u": 3.0,
+          "v": 4.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.5,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.55,
+            "label": "larynx",
+            "hazard": "caution"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "deep tissue"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp4_5p4_5",
+        "centre": {
+          "u": 4.5,
+          "v": 4.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.8
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.35,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp6p4_5",
+        "centre": {
+          "u": 6.0,
+          "v": 4.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.7
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.15,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 2.5,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gp7_5p4_5",
+        "centre": {
+          "u": 7.5,
+          "v": 4.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.55
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.85,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 4.75,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gp9p4_5",
+        "centre": {
+          "u": 9.0,
+          "v": 4.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.5
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.8,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 6.65,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gp10_5p4_5",
+        "centre": {
+          "u": 10.5,
+          "v": 4.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.65
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.05,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 7.8,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gp12p4_5",
+        "centre": {
+          "u": 12.0,
+          "v": 4.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.95
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.6,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 7.75,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gp13_5p4_5",
+        "centre": {
+          "u": 13.5,
+          "v": 4.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.5
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 4.7,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 10.3,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gm13_5p6",
+        "centre": {
+          "u": -13.5,
+          "v": 6.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.15
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 4.0,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gm12p6",
+        "centre": {
+          "u": -12.0,
+          "v": 6.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.9
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.55,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gm10_5p6",
+        "centre": {
+          "u": -10.5,
+          "v": 6.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.65
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.05,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gm9p6",
+        "centre": {
+          "u": -9.0,
+          "v": 6.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.3
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.45,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gm7_5p6",
+        "centre": {
+          "u": -7.5,
+          "v": 6.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.3
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.4,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gm6p6",
+        "centre": {
+          "u": -6.0,
+          "v": 6.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.35
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.5,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gm4_5p6",
+        "centre": {
+          "u": -4.5,
+          "v": 6.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.35
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.7,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.5,
+            "label": "larynx",
+            "hazard": "caution"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.85,
+            "label": "deep tissue"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gm3p6",
+        "centre": {
+          "u": -3.0,
+          "v": 6.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.25,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.5,
+            "label": "larynx",
+            "hazard": "caution"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "deep tissue"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gm1_5p6",
+        "centre": {
+          "u": -1.5,
+          "v": 6.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.25,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.5,
+            "label": "larynx",
+            "hazard": "caution"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 5.9,
+            "label": "deep tissue"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp0p6",
+        "centre": {
+          "u": 0.0,
+          "v": 6.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.25,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.5,
+            "label": "larynx",
+            "hazard": "caution"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.1,
+            "label": "deep tissue"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.65,
+            "label": "trachea",
+            "hazard": "caution"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 4.2,
+            "label": "deep tissue"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp1_5p6",
+        "centre": {
+          "u": 1.5,
+          "v": 6.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.25,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.5,
+            "label": "larynx",
+            "hazard": "caution"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.6,
+            "label": "deep tissue"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.5,
+            "label": "trachea",
+            "hazard": "caution"
+          }
+        ]
+      },
+      {
+        "id": "gp3p6",
+        "centre": {
+          "u": 3.0,
+          "v": 6.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.25
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.25,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.5,
+            "label": "larynx",
+            "hazard": "caution"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.8,
+            "label": "deep tissue"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp4_5p6",
+        "centre": {
+          "u": 4.5,
+          "v": 6.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.5,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.65,
+            "label": "larynx",
+            "hazard": "caution"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.75,
+            "label": "deep tissue"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp6p6",
+        "centre": {
+          "u": 6.0,
+          "v": 6.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.5
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.8,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp7_5p6",
+        "centre": {
+          "u": 7.5,
+          "v": 6.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.25
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.35,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp9p6",
+        "centre": {
+          "u": 9.0,
+          "v": 6.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.0
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.7,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp10_5p6",
+        "centre": {
+          "u": 10.5,
+          "v": 6.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.0
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.7,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp12p6",
+        "centre": {
+          "u": 12.0,
+          "v": 6.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.1
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.95,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 7.2,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gp13_5p6",
+        "centre": {
+          "u": 13.5,
+          "v": 6.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.15
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 4.0,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "pleura",
+            "thicknessCm": 0.05,
+            "label": "parietal pleura"
+          },
+          {
+            "tissue": "lung",
+            "thicknessCm": 11.6,
+            "label": "lung"
+          }
+        ]
+      },
+      {
+        "id": "gm13_5p7_5",
+        "centre": {
+          "u": -13.5,
+          "v": 7.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.95
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.6,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gm12p7_5",
+        "centre": {
+          "u": -12.0,
+          "v": 7.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.25
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 4.15,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gm10_5p7_5",
+        "centre": {
+          "u": -10.5,
+          "v": 7.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.45
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 4.55,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gm9p7_5",
+        "centre": {
+          "u": -9.0,
+          "v": 7.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.25
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.35,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gm7_5p7_5",
+        "centre": {
+          "u": -7.5,
+          "v": 7.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.0
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.85,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gm6p7_5",
+        "centre": {
+          "u": -6.0,
+          "v": 7.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.1
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.05,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gm4_5p7_5",
+        "centre": {
+          "u": -4.5,
+          "v": 7.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.4
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.5,
+            "label": "larynx",
+            "hazard": "caution"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.8,
+            "label": "deep tissue"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gm3p7_5",
+        "centre": {
+          "u": -3.0,
+          "v": 7.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.25,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.5,
+            "label": "larynx",
+            "hazard": "caution"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.95,
+            "label": "deep tissue"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gm1_5p7_5",
+        "centre": {
+          "u": -1.5,
+          "v": 7.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.25,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.5,
+            "label": "larynx",
+            "hazard": "caution"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 6.25,
+            "label": "deep tissue"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp0p7_5",
+        "centre": {
+          "u": 0.0,
+          "v": 7.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.25,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.5,
+            "label": "larynx",
+            "hazard": "caution"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 5.2,
+            "label": "deep tissue"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp1_5p7_5",
+        "centre": {
+          "u": 1.5,
+          "v": 7.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.25,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.5,
+            "label": "larynx",
+            "hazard": "caution"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 5.45,
+            "label": "deep tissue"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp3p7_5",
+        "centre": {
+          "u": 3.0,
+          "v": 7.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.25,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.5,
+            "label": "larynx",
+            "hazard": "caution"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 5.45,
+            "label": "deep tissue"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp4_5p7_5",
+        "centre": {
+          "u": 4.5,
+          "v": 7.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.65
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.15,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.6,
+            "label": "larynx",
+            "hazard": "caution"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.75,
+            "label": "deep tissue"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp6p7_5",
+        "centre": {
+          "u": 6.0,
+          "v": 7.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.4
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.55,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp7_5p7_5",
+        "centre": {
+          "u": 7.5,
+          "v": 7.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.1
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.05,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp9p7_5",
+        "centre": {
+          "u": 9.0,
+          "v": 7.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.3
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.45,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp10_5p7_5",
+        "centre": {
+          "u": 10.5,
+          "v": 7.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.9
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.5,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp12p7_5",
+        "centre": {
+          "u": 12.0,
+          "v": 7.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.9
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.5,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp13_5p7_5",
+        "centre": {
+          "u": 13.5,
+          "v": 7.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.85
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.45,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gm13_5p9",
+        "centre": {
+          "u": -13.5,
+          "v": 9.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.0
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gm12p9",
+        "centre": {
+          "u": -12.0,
+          "v": 9.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.15
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.15,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gm10_5p9",
+        "centre": {
+          "u": -10.5,
+          "v": 9.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.9
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.7,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gm9p9",
+        "centre": {
+          "u": -9.0,
+          "v": 9.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.95
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.8,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gm7_5p9",
+        "centre": {
+          "u": -7.5,
+          "v": 9.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.2
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.2,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gm6p9",
+        "centre": {
+          "u": -6.0,
+          "v": 9.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.4
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.65,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gm4_5p9",
+        "centre": {
+          "u": -4.5,
+          "v": 9.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.7
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.3,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 1.9,
+            "label": "larynx",
+            "hazard": "caution"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 5.6,
+            "label": "deep tissue"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gm3p9",
+        "centre": {
+          "u": -3.0,
+          "v": 9.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.45,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.5,
+            "label": "larynx",
+            "hazard": "caution"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 6.1,
+            "label": "deep tissue"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gm1_5p9",
+        "centre": {
+          "u": -1.5,
+          "v": 9.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.6,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.5,
+            "label": "larynx",
+            "hazard": "caution"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 6.8,
+            "label": "deep tissue"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp0p9",
+        "centre": {
+          "u": 0.0,
+          "v": 9.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.3
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.4,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.5,
+            "label": "larynx",
+            "hazard": "caution"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.65,
+            "label": "deep tissue"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp1_5p9",
+        "centre": {
+          "u": 1.5,
+          "v": 9.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.3
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.45,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.6,
+            "label": "larynx",
+            "hazard": "caution"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.9,
+            "label": "deep tissue"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp3p9",
+        "centre": {
+          "u": 3.0,
+          "v": 9.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.9
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 5.4,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp4_5p9",
+        "centre": {
+          "u": 4.5,
+          "v": 9.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.65
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.2,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.6,
+            "label": "larynx",
+            "hazard": "caution"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.6,
+            "label": "deep tissue"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp6p9",
+        "centre": {
+          "u": 6.0,
+          "v": 9.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.55
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.85,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp7_5p9",
+        "centre": {
+          "u": 7.5,
+          "v": 9.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.5
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.8,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp9p9",
+        "centre": {
+          "u": 9.0,
+          "v": 9.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.25
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.3,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp10_5p9",
+        "centre": {
+          "u": 10.5,
+          "v": 9.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.95,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp12p9",
+        "centre": {
+          "u": 12.0,
+          "v": 9.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.25
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.35,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp13_5p9",
+        "centre": {
+          "u": 13.5,
+          "v": 9.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.3
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 4.25,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gm13_5p10_5",
+        "centre": {
+          "u": -13.5,
+          "v": 10.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.15
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.1,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gm12p10_5",
+        "centre": {
+          "u": -12.0,
+          "v": 10.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.85
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.6,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gm10_5p10_5",
+        "centre": {
+          "u": -10.5,
+          "v": 10.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.9
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.7,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gm9p10_5",
+        "centre": {
+          "u": -9.0,
+          "v": 10.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          }
+        ]
+      },
+      {
+        "id": "gm7_5p10_5",
+        "centre": {
+          "u": -7.5,
+          "v": 10.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          }
+        ]
+      },
+      {
+        "id": "gm6p10_5",
+        "centre": {
+          "u": -6.0,
+          "v": 10.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          }
+        ]
+      },
+      {
+        "id": "gm4_5p10_5",
+        "centre": {
+          "u": -4.5,
+          "v": 10.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          }
+        ]
+      },
+      {
+        "id": "gm3p10_5",
+        "centre": {
+          "u": -3.0,
+          "v": 10.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          }
+        ]
+      },
+      {
+        "id": "gm1_5p10_5",
+        "centre": {
+          "u": -1.5,
+          "v": 10.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 3.95
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 7.3,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp0p10_5",
+        "centre": {
+          "u": 0.0,
+          "v": 10.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 3.15
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 5.9,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp1_5p10_5",
+        "centre": {
+          "u": 1.5,
+          "v": 10.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 3.2
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 5.95,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp3p10_5",
+        "centre": {
+          "u": 3.0,
+          "v": 10.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          }
+        ]
+      },
+      {
+        "id": "gp4_5p10_5",
+        "centre": {
+          "u": 4.5,
+          "v": 10.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          }
+        ]
+      },
+      {
+        "id": "gp6p10_5",
+        "centre": {
+          "u": 6.0,
+          "v": 10.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          }
+        ]
+      },
+      {
+        "id": "gp7_5p10_5",
+        "centre": {
+          "u": 7.5,
+          "v": 10.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          }
+        ]
+      },
+      {
+        "id": "gp9p10_5",
+        "centre": {
+          "u": 9.0,
+          "v": 10.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          }
+        ]
+      },
+      {
+        "id": "gp10_5p10_5",
+        "centre": {
+          "u": 10.5,
+          "v": 10.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.45
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp12p10_5",
+        "centre": {
+          "u": 12.0,
+          "v": 10.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.4
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.55,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp13_5p10_5",
+        "centre": {
+          "u": 13.5,
+          "v": 10.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.4
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.55,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gm13_5p12",
+        "centre": {
+          "u": -13.5,
+          "v": 12.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.2
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.25,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gm12p12",
+        "centre": {
+          "u": -12.0,
+          "v": 12.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.25
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.35,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gm10_5p12",
+        "centre": {
+          "u": -10.5,
+          "v": 12.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          }
+        ]
+      },
+      {
+        "id": "gm9p12",
+        "centre": {
+          "u": -9.0,
+          "v": 12.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          }
+        ]
+      },
+      {
+        "id": "gm7_5p12",
+        "centre": {
+          "u": -7.5,
+          "v": 12.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          }
+        ]
+      },
+      {
+        "id": "gm6p12",
+        "centre": {
+          "u": -6.0,
+          "v": 12.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          }
+        ]
+      },
+      {
+        "id": "gm4_5p12",
+        "centre": {
+          "u": -4.5,
+          "v": 12.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          }
+        ]
+      },
+      {
+        "id": "gm3p12",
+        "centre": {
+          "u": -3.0,
+          "v": 12.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 4.0
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 7.4,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gm1_5p12",
+        "centre": {
+          "u": -1.5,
+          "v": 12.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          }
+        ]
+      },
+      {
+        "id": "gp0p12",
+        "centre": {
+          "u": 0.0,
+          "v": 12.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 3.45
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 6.45,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp1_5p12",
+        "centre": {
+          "u": 1.5,
+          "v": 12.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 3.6
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 6.65,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp3p12",
+        "centre": {
+          "u": 3.0,
+          "v": 12.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 3.9
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 7.2,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp4_5p12",
+        "centre": {
+          "u": 4.5,
+          "v": 12.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 3.75
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 7.0,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp6p12",
+        "centre": {
+          "u": 6.0,
+          "v": 12.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          }
+        ]
+      },
+      {
+        "id": "gp7_5p12",
+        "centre": {
+          "u": 7.5,
+          "v": 12.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          }
+        ]
+      },
+      {
+        "id": "gp9p12",
+        "centre": {
+          "u": 9.0,
+          "v": 12.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          }
+        ]
+      },
+      {
+        "id": "gp10_5p12",
+        "centre": {
+          "u": 10.5,
+          "v": 12.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          }
+        ]
+      },
+      {
+        "id": "gp12p12",
+        "centre": {
+          "u": 12.0,
+          "v": 12.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.95
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.6,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp13_5p12",
+        "centre": {
+          "u": 13.5,
+          "v": 12.0
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.2
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.25,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gm13_5p13_5",
+        "centre": {
+          "u": -13.5,
+          "v": 13.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.35
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.45,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gm12p13_5",
+        "centre": {
+          "u": -12.0,
+          "v": 13.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          }
+        ]
+      },
+      {
+        "id": "gm10_5p13_5",
+        "centre": {
+          "u": -10.5,
+          "v": 13.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          }
+        ]
+      },
+      {
+        "id": "gm9p13_5",
+        "centre": {
+          "u": -9.0,
+          "v": 13.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          }
+        ]
+      },
+      {
+        "id": "gm7_5p13_5",
+        "centre": {
+          "u": -7.5,
+          "v": 13.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          }
+        ]
+      },
+      {
+        "id": "gm6p13_5",
+        "centre": {
+          "u": -6.0,
+          "v": 13.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          }
+        ]
+      },
+      {
+        "id": "gm4_5p13_5",
+        "centre": {
+          "u": -4.5,
+          "v": 13.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          }
+        ]
+      },
+      {
+        "id": "gm3p13_5",
+        "centre": {
+          "u": -3.0,
+          "v": 13.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          }
+        ]
+      },
+      {
+        "id": "gm1_5p13_5",
+        "centre": {
+          "u": -1.5,
+          "v": 13.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          }
+        ]
+      },
+      {
+        "id": "gp0p13_5",
+        "centre": {
+          "u": 0.0,
+          "v": 13.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 3.8
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 7.05,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp1_5p13_5",
+        "centre": {
+          "u": 1.5,
+          "v": 13.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          }
+        ]
+      },
+      {
+        "id": "gp3p13_5",
+        "centre": {
+          "u": 3.0,
+          "v": 13.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          }
+        ]
+      },
+      {
+        "id": "gp4_5p13_5",
+        "centre": {
+          "u": 4.5,
+          "v": 13.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 3.65
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 6.8,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp6p13_5",
+        "centre": {
+          "u": 6.0,
+          "v": 13.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 3.5
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 6.5,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "vertebra"
+          }
+        ]
+      },
+      {
+        "id": "gp7_5p13_5",
+        "centre": {
+          "u": 7.5,
+          "v": 13.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          }
+        ]
+      },
+      {
+        "id": "gp9p13_5",
+        "centre": {
+          "u": 9.0,
+          "v": 13.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          }
+        ]
+      },
+      {
+        "id": "gp10_5p13_5",
+        "centre": {
+          "u": 10.5,
+          "v": 13.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          }
+        ]
+      },
+      {
+        "id": "gp12p13_5",
+        "centre": {
+          "u": 12.0,
+          "v": 13.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          }
+        ]
+      },
+      {
+        "id": "gp13_5p13_5",
+        "centre": {
+          "u": 13.5,
+          "v": 13.5
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 2.05
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.75,
+            "label": "platysma / strap muscles / sternocleidomastoid"
+          }
+        ]
+      }
+    ]
+  },
+  "structures": [
+    {
+      "id": "carotid-left",
+      "label": "common and internal carotid artery (left)",
+      "kind": "artery",
+      "hazard": "critical",
+      "path": [
+        {
+          "u": 1.0,
+          "v": 0.9,
+          "d": 4.5
+        },
+        {
+          "u": 4.0,
+          "v": 2.7,
+          "d": 2.4
+        },
+        {
+          "u": 4.4,
+          "v": 4.5,
+          "d": 1.4
+        },
+        {
+          "u": 5.1,
+          "v": 6.2,
+          "d": 1.1
+        },
+        {
+          "u": 5.6,
+          "v": 8.0,
+          "d": 1.2
+        },
+        {
+          "u": 4.2,
+          "v": 12.5,
+          "d": 3.2
+        }
+      ],
+      "radiusCm": 0.4,
+      "uncertaintyCm": 0.4,
+      "consequence": "bleeding"
+    },
+    {
+      "id": "carotid-right",
+      "label": "common and internal carotid artery (right; mirrored from the left)",
+      "kind": "artery",
+      "hazard": "critical",
+      "path": [
+        {
+          "u": -1.0,
+          "v": 0.9,
+          "d": 4.5
+        },
+        {
+          "u": -4.0,
+          "v": 2.7,
+          "d": 2.4
+        },
+        {
+          "u": -4.4,
+          "v": 4.5,
+          "d": 1.4
+        },
+        {
+          "u": -5.1,
+          "v": 6.2,
+          "d": 1.1
+        },
+        {
+          "u": -5.6,
+          "v": 8.0,
+          "d": 1.2
+        },
+        {
+          "u": -4.2,
+          "v": 12.5,
+          "d": 3.2
+        }
+      ],
+      "radiusCm": 0.4,
+      "uncertaintyCm": 0.4,
+      "consequence": "bleeding"
+    },
+    {
+      "id": "internal-jugular-left",
+      "label": "internal jugular vein (left)",
+      "kind": "vein",
+      "hazard": "critical",
+      "path": [
+        {
+          "u": 2.1,
+          "v": 0.9,
+          "d": 4.5
+        },
+        {
+          "u": 5.1,
+          "v": 2.7,
+          "d": 2.4
+        },
+        {
+          "u": 5.5,
+          "v": 4.5,
+          "d": 1.4
+        },
+        {
+          "u": 6.2,
+          "v": 6.2,
+          "d": 1.1
+        },
+        {
+          "u": 6.7,
+          "v": 8.0,
+          "d": 1.2
+        },
+        {
+          "u": 5.3,
+          "v": 12.5,
+          "d": 3.2
+        }
+      ],
+      "radiusCm": 0.6,
+      "uncertaintyCm": 0.4,
+      "consequence": "bleeding"
+    },
+    {
+      "id": "thyroid-lobe-left",
+      "label": "thyroid gland, lateral lobe (left)",
+      "kind": "organ",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 1.6,
+          "v": 1.5,
+          "d": 1.4
+        },
+        {
+          "u": 1.8,
+          "v": 3.6,
+          "d": 1.3
+        }
+      ],
+      "radiusCm": 0.8,
+      "uncertaintyCm": 0.4,
+      "consequence": "bleeding"
+    },
+    {
+      "id": "internal-jugular-right",
+      "label": "internal jugular vein (right)",
+      "kind": "vein",
+      "hazard": "critical",
+      "path": [
+        {
+          "u": -2.1,
+          "v": 0.9,
+          "d": 4.5
+        },
+        {
+          "u": -5.1,
+          "v": 2.7,
+          "d": 2.4
+        },
+        {
+          "u": -5.5,
+          "v": 4.5,
+          "d": 1.4
+        },
+        {
+          "u": -6.2,
+          "v": 6.2,
+          "d": 1.1
+        },
+        {
+          "u": -6.7,
+          "v": 8.0,
+          "d": 1.2
+        },
+        {
+          "u": -5.3,
+          "v": 12.5,
+          "d": 3.2
+        }
+      ],
+      "radiusCm": 0.6,
+      "uncertaintyCm": 0.4,
+      "consequence": "bleeding"
+    },
+    {
+      "id": "thyroid-lobe-right",
+      "label": "thyroid gland, lateral lobe (right)",
+      "kind": "organ",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -1.6,
+          "v": 1.5,
+          "d": 1.4
+        },
+        {
+          "u": -1.8,
+          "v": 3.6,
+          "d": 1.3
+        }
+      ],
+      "radiusCm": 0.8,
+      "uncertaintyCm": 0.4,
+      "consequence": "bleeding"
+    },
+    {
+      "id": "trachea",
+      "label": "trachea",
+      "kind": "organ",
+      "hazard": "critical",
+      "path": [
+        {
+          "u": 0.3,
+          "v": -1.0,
+          "d": 5.7
+        },
+        {
+          "u": 0.3,
+          "v": 0.0,
+          "d": 4.7
+        },
+        {
+          "u": 0.2,
+          "v": 1.0,
+          "d": 3.7
+        },
+        {
+          "u": 0.2,
+          "v": 2.1,
+          "d": 2.8
+        },
+        {
+          "u": 0.2,
+          "v": 3.1,
+          "d": 2.0
+        }
+      ],
+      "radiusCm": 0.9,
+      "uncertaintyCm": 0.3,
+      "consequence": "none"
+    }
+  ],
+  "description": "In the midline the trachea lies a centimetre or two below the skin above the suprasternal notch, with the thyroid isthmus over its upper rings and the great vessels behind the manubrium below. Either side, under the anterior border of sternocleidomastoid, the common carotid artery (pulsating) and lateral to it the internal jugular vein lie in the carotid sheath. Above the medial clavicle the dome of the pleura rises into the root of the neck.",
+  "provenance": {
+    "kind": "imaging-derived",
+    "sources": [
+      {
+        "title": "HuBMAP Human Reference Atlas 3D reference organs: Visible Human Male united body (CCF release v1.3)",
+        "publisher": "HuBMAP consortium; data from the Visible Human Project (US National Library of Medicine)",
+        "url": "https://github.com/hubmapconsortium/ccf-releases/tree/b036a91aaf7234f462b1249d4a5f4fb0e982f412/v1.3/models",
+        "verified": true,
+        "note": "CC BY 4.0. Kristen Browne, Heidi Schlehlein, Bruce W. Herr II, Ellen Quardokus, Andreas Bueckle, Katy Börner. HuBMAP CCF 3D Reference Object Library (humanatlas.io/3d-reference-library). Skin, vertebrae, pelvis, femora, larynx, trachea, lungs, heart, liver, spleen, kidneys, bowel, bladder, great vessels and spinal cord sampled from it."
+      },
+      {
+        "title": "General regional and surface anatomy (standard anatomy texts)",
+        "verified": false,
+        "note": "For what the reference body does not contain (ribs and intercostal spaces, sternum, scapulae, nerves, peripheral vessels, the fat/muscle split of the body wall): topography only, no third-party geometry or images."
+      }
+    ],
+    "licence": "CC BY 4.0 (derived from the HuBMAP Human Reference Atlas: attribution required, see provenance); schematic parts CC0-1.0",
+    "review": {
+      "status": "unreviewed",
+      "reviewers": [],
+      "notes": "Depths below the skin of the lungs, organs, bones and great vessels are measured on one reference body (a 38-year-old man of about 90 kg) and scaled to each patient by height and BMI; the rest is schematic. Not a guide to safe depths in real patients. Anatomical expert review is required before any teaching use."
+    },
+    "notes": "Depth grid (1.5 cm): depths of the trachea, larynx, cervical vertebrae, lung apices and great vessels measured by rays on the reference body; the left common carotid artery is measured and the right mirrored from it; the jugular veins, thyroid lobes and the borders of sternocleidomastoid are schematic."
+  }
+}

@@ -56,7 +56,7 @@ const TOOLS: Anthropic.Beta.BetaTool[] = [
   },
   {
     name: "lookup",
-    description: "Read the public reference library (no simulated time). Topics: points (the index: the points you can needle in this encounter's regions, and every other point id by channel; with id, the points of one channel, body area or region), point (one point in full, by id or alias), region (with id), regions, vocabulary, clinic, roles, rules, evidence, actions.",
+    description: "Read the public reference library (no simulated time). Topics: points (the index: the ids of every point that can be needled, by regional model — the whole body is modelled — and every point id by channel; with id, the points of one channel, body area or region), point (one point in full, by id or alias), region (with id), regions, vocabulary, clinic, roles, rules, evidence, actions.",
     input_schema: {
       type: "object",
       properties: {
@@ -90,11 +90,13 @@ export function lookup(lib: AgentInit["library"], input: { topic?: string; id?: 
         const found = lib.points.filter((p) => p.channel.toLowerCase() === key || p.area === key || p.region === key);
         return found.length > 0 ? found.map((p) => ({ ...summary(p), location: p.location })) : { error: `no points for ${input.id}: give a channel (ST), a body area (forearm) or a region (knee-leg)` };
       }
+      const needleable: Record<string, string[]> = {};
+      for (const p of lib.points) if (p.localisation && p.region) (needleable[p.region] ??= []).push(p.id);
       return {
         total: lib.points.length,
-        needleable: lib.points.filter((p) => p.localisation).map(summary),
+        needleable,
         byChannel: idsByChannel(lib),
-        note: "Only points localised on this encounter's regions can be needled here; the others can be looked up, planned and discussed.",
+        note: "needleable: the points localised on a regional model, by region (ids only: use topic points with a region, channel or body area for names and locations). The others can be looked up, planned and discussed but not needled.",
       };
     }
     case "point": {

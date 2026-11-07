@@ -1,0 +1,1173 @@
+{
+  "schema": "acucraft/region@1",
+  "id": "head-lateral",
+  "version": "0.1.0",
+  "title": "side of the head",
+  "laterality": "bilateral",
+  "chart": {
+    "description": "The side of the head, unrolled round the head and seen from the side: the temple, the region in front of and above the ear, behind the ear over the mastoid, and the cheek over the masseter down to the angle of the mandible. u: horizontal distance (cm) along the skin from the anterior border of the tragus, positive POSTERIOR (towards the occiput), negative anterior (towards the face). As on the leg chart, 'lateral' means further round from the front: a 'lateral' offset on this chart points backwards and a 'medial' offset forwards, towards the face. v: distance (cm) cranial from the level of the centre of the tragus. d: depth below the skin (cm). The chart is mirrored for the two sides; its anterior edge reaches the median line of the forehead, where the glabella and the anterior hairline give the head's B-cun. The auricle is folded forward to reach the points behind it; of the auricle itself only its apex is modelled. The jaw is shown closed: the points found with the mouth open (GB2, SI19, TE21) are marked in the depressions that open in front of the tragus.",
+    "uRange": [
+      -16,
+      7
+    ],
+    "vRange": [
+      -9,
+      11
+    ]
+  },
+  "reference": {
+    "heightCm": 170,
+    "bmi": 22.5
+  },
+  "configurations": [
+    {
+      "id": "neutral",
+      "label": "head supported in the neutral position, face relaxed, eyes looking straight ahead, mouth closed"
+    }
+  ],
+  "defaultConfiguration": "neutral",
+  "access": [
+    {
+      "position": "seated",
+      "configuration": "neutral",
+      "sides": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "position": "seated-forward",
+      "configuration": "neutral",
+      "sides": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "position": "supine",
+      "configuration": "neutral",
+      "sides": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "position": "supine-knee-flexed",
+      "configuration": "neutral",
+      "sides": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "position": "side-lying-left",
+      "configuration": "neutral",
+      "sides": [
+        "right"
+      ]
+    },
+    {
+      "position": "side-lying-right",
+      "configuration": "neutral",
+      "sides": [
+        "left"
+      ]
+    }
+  ],
+  "landmarks": [
+    {
+      "id": "tragus",
+      "label": "tragus (anterior border at its centre)",
+      "at": {
+        "u": 0,
+        "v": 0
+      },
+      "palpation": "Inspect and palpate the small flap in front of the ear canal; the reference is the middle of its anterior border."
+    },
+    {
+      "id": "supratragic-notch",
+      "label": "supratragic notch",
+      "at": {
+        "u": 0.15,
+        "v": 0.85
+      },
+      "palpation": "The small notch between the upper end of the tragus and the root of the helix."
+    },
+    {
+      "id": "intertragic-notch",
+      "label": "intertragic notch",
+      "at": {
+        "u": 0.25,
+        "v": -0.9
+      },
+      "palpation": "The notch between the lower end of the tragus and the antitragus."
+    },
+    {
+      "id": "condyle",
+      "label": "condylar process (head) of the mandible",
+      "at": {
+        "u": -1.3,
+        "v": -0.2
+      },
+      "palpation": "Palpate just in front of the tragus while the patient opens and closes the mouth: the condyle glides forward on opening and leaves a depression behind it."
+    },
+    {
+      "id": "zygomatic-arch-midpoint",
+      "label": "midpoint of the zygomatic arch",
+      "at": {
+        "u": -3.0,
+        "v": 0.1
+      },
+      "palpation": "Follow the bony bar of the arch from the cheekbone back to the front of the ear and take its midpoint."
+    },
+    {
+      "id": "mandibular-notch",
+      "label": "mandibular notch (below the zygomatic arch)",
+      "at": {
+        "u": -2.9,
+        "v": -1.3
+      },
+      "palpation": "With the mouth closed, the depression below the zygomatic arch between the coronoid process and the condyle; it fills when the mouth opens."
+    },
+    {
+      "id": "mandibular-angle",
+      "label": "angle of the mandible",
+      "at": {
+        "u": -0.9,
+        "v": -5.8
+      },
+      "palpation": "Palpate the corner of the jaw below and in front of the ear lobe."
+    },
+    {
+      "id": "masseter-anterior-border",
+      "label": "anterior border of the masseter at the lower border of the mandible",
+      "at": {
+        "u": -3.55,
+        "v": -6.35
+      },
+      "palpation": "Ask the patient to clench the teeth and feel the front edge of the masseter where it meets the lower border of the jaw; the facial artery pulse is felt just in front of it."
+    },
+    {
+      "id": "earlobe-depression",
+      "label": "depression behind the ear lobe",
+      "at": {
+        "u": 1.2,
+        "v": -3.0
+      },
+      "palpation": "Behind the ear lobe, the depression between the mastoid process and the ramus of the mandible."
+    },
+    {
+      "id": "mastoid-tip",
+      "label": "tip of the mastoid process",
+      "at": {
+        "u": 2.8,
+        "v": -3.3
+      },
+      "palpation": "Palpate the bony prominence behind the ear lobe and follow it down to its tip."
+    },
+    {
+      "id": "mastoid-posteroinferior-depression",
+      "label": "depression posteroinferior to the mastoid process",
+      "at": {
+        "u": 3.9,
+        "v": -3.6
+      },
+      "palpation": "Behind and below the mastoid process, the depression at the upper end of the posterior border of sternocleidomastoid."
+    },
+    {
+      "id": "auricular-root-anterior",
+      "label": "anterior (upper) root of the auricle",
+      "at": {
+        "u": 0.4,
+        "v": 1.6
+      },
+      "palpation": "Where the front of the auricle (the root of the helix) joins the side of the head, above the tragus."
+    },
+    {
+      "id": "auricular-root-posterior",
+      "label": "posterior border of the auricular root (upper part)",
+      "at": {
+        "u": 2.6,
+        "v": 2.6
+      },
+      "palpation": "Fold the auricle forward: the upper part of the line where the back of the auricle joins the scalp."
+    },
+    {
+      "id": "auricular-apex",
+      "label": "apex of the auricle",
+      "at": {
+        "u": 1.6,
+        "v": 3.6
+      },
+      "palpation": "Fold the auricle forward: its highest point."
+    },
+    {
+      "id": "temporal-hairline-posterior",
+      "label": "posterior border of the temple hairline, at the level of the auricular apex",
+      "at": {
+        "u": -0.8,
+        "v": 3.6
+      },
+      "palpation": "Follow the posterior edge of the temple (sideburn) hair upwards in front of the ear to the horizontal line through the auricular apex."
+    },
+    {
+      "id": "frontal-hairline-corner",
+      "label": "corner of the forehead at the anterior hairline",
+      "at": {
+        "u": -7.6,
+        "v": 8.4
+      },
+      "palpation": "Inspect where the frontal hairline turns down into the temporal hairline; the temporalis moves under it when the teeth are clenched."
+    },
+    {
+      "id": "glabella",
+      "label": "glabella",
+      "at": {
+        "u": -15.0,
+        "v": 3.5
+      },
+      "palpation": "The smooth bony prominence between the eyebrows, above the root of the nose."
+    },
+    {
+      "id": "anterior-hairline",
+      "label": "anterior hairline on the median line",
+      "at": {
+        "u": -15.0,
+        "v": 9.8
+      },
+      "palpation": "Inspect where the skin of the forehead meets the hair on the median line; with a receded hairline the standard takes it 3 B-cun above the glabella."
+    }
+  ],
+  "segments": [
+    {
+      "id": "seg.glabella-hairline",
+      "label": "glabella to the anterior hairline (the head's B-cun, used on the side of the head)",
+      "from": "glabella",
+      "to": "anterior-hairline",
+      "cun": 3,
+      "source": {
+        "title": "WHO Standard Acupuncture Point Locations (2008): proportional bone measurement",
+        "verified": false
+      }
+    }
+  ],
+  "tissue": {
+    "layers": [
+      {
+        "tissue": "skin",
+        "thicknessCm": 0.2
+      },
+      {
+        "tissue": "subcutaneous",
+        "thicknessCm": 0.3
+      },
+      {
+        "tissue": "fascia",
+        "thicknessCm": 0.1,
+        "label": "temporoparietal fascia"
+      },
+      {
+        "tissue": "fascia",
+        "thicknessCm": 0.15,
+        "label": "deep temporal fascia"
+      },
+      {
+        "tissue": "muscle",
+        "thicknessCm": 0.9,
+        "label": "temporalis"
+      },
+      {
+        "tissue": "periosteum",
+        "thicknessCm": 0.05
+      },
+      {
+        "tissue": "bone",
+        "thicknessCm": 2.0,
+        "label": "temporal squama"
+      }
+    ],
+    "zones": [
+      {
+        "id": "z-preauricular-tmj",
+        "centre": {
+          "u": -0.6,
+          "v": 0.45
+        },
+        "radiusCm": 0.75,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.35
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.45,
+            "label": "parotid gland (upper pole) and periarticular tissue"
+          },
+          {
+            "tissue": "joint-space",
+            "thicknessCm": 0.5,
+            "label": "temporomandibular joint region (behind the condyle when the mouth is open)"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "articular fossa and tympanic plate"
+          }
+        ]
+      },
+      {
+        "id": "z-preauricular-low",
+        "centre": {
+          "u": -0.5,
+          "v": -1.0
+        },
+        "radiusCm": 0.55,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.4
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 1.4,
+            "label": "parotid gland"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "neck of the mandible and styloid region"
+          }
+        ]
+      },
+      {
+        "id": "z-auricular-root-anterior",
+        "centre": {
+          "u": -0.2,
+          "v": 1.65
+        },
+        "radiusCm": 0.45,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.15,
+            "label": "temporal fascia"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.4,
+            "label": "temporalis (posterior fibres)"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "root of the zygomatic process"
+          }
+        ]
+      },
+      {
+        "id": "z-mandibular-notch",
+        "centre": {
+          "u": -2.95,
+          "v": -0.75
+        },
+        "radiusCm": 0.55,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.4
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.3,
+            "label": "parotid gland (anterior part) with the transverse facial vessels"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.5,
+            "label": "masseter (deep part)"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.15,
+            "label": "mandibular notch"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.0,
+            "label": "lateral pterygoid"
+          },
+          {
+            "tissue": "fat-pad",
+            "thicknessCm": 0.8,
+            "label": "infratemporal fossa with the pterygoid venous plexus"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "lateral pterygoid plate and skull base"
+          }
+        ]
+      },
+      {
+        "id": "z-above-zygomatic-arch",
+        "centre": {
+          "u": -3.0,
+          "v": 1.0
+        },
+        "radiusCm": 0.6,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.35
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.2,
+            "label": "temporal fascia (two layers)"
+          },
+          {
+            "tissue": "fat-pad",
+            "thicknessCm": 0.3,
+            "label": "superficial temporal fat pad"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.2,
+            "label": "temporalis"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "temporal squama"
+          }
+        ]
+      },
+      {
+        "id": "z-masseter",
+        "centre": {
+          "u": -2.2,
+          "v": -4.5
+        },
+        "radiusCm": 0.8,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.45
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.1,
+            "label": "parotid-masseteric fascia"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.2,
+            "label": "masseter"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "ramus of the mandible"
+          }
+        ]
+      },
+      {
+        "id": "z-mandible-lower-border",
+        "centre": {
+          "u": -3.55,
+          "v": -6.35
+        },
+        "radiusCm": 0.6,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.5
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.2,
+            "label": "platysma"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.1
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "body of the mandible (lower border)"
+          }
+        ]
+      },
+      {
+        "id": "z-mastoid",
+        "centre": {
+          "u": 2.8,
+          "v": -1.4
+        },
+        "radiusCm": 1.8,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.35
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.1,
+            "label": "auricularis posterior"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "mastoid part of the temporal bone"
+          }
+        ]
+      },
+      {
+        "id": "z-retroauricular-upper",
+        "centre": {
+          "u": 2.7,
+          "v": 2.4
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.35
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.15,
+            "label": "auricularis posterior and superior"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.1
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "temporal bone"
+          }
+        ]
+      },
+      {
+        "id": "z-supra-auricular",
+        "centre": {
+          "u": 2.0,
+          "v": 5.6
+        },
+        "radiusCm": 1.8,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.1,
+            "label": "temporoparietal fascia"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.1,
+            "label": "auricularis superior"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.15,
+            "label": "deep temporal fascia"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.5,
+            "label": "temporalis (posterior part)"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "temporal and parietal bones"
+          }
+        ]
+      },
+      {
+        "id": "z-auricular-apex",
+        "centre": {
+          "u": 1.6,
+          "v": 3.6
+        },
+        "radiusCm": 0.3,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.1
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "ligament",
+            "thicknessCm": 0.15,
+            "label": "auricular cartilage"
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.1,
+            "label": "back of the auricle"
+          }
+        ]
+      }
+    ]
+  },
+  "structures": [
+    {
+      "id": "superficial-temporal-artery",
+      "label": "superficial temporal artery",
+      "kind": "artery",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -0.7,
+          "v": -2.2,
+          "d": 1.1
+        },
+        {
+          "u": -0.8,
+          "v": -0.8,
+          "d": 0.75
+        },
+        {
+          "u": -0.9,
+          "v": 0.5,
+          "d": 0.55
+        },
+        {
+          "u": -1.1,
+          "v": 2.0,
+          "d": 0.4
+        },
+        {
+          "u": -1.2,
+          "v": 3.0,
+          "d": 0.35
+        }
+      ],
+      "radiusCm": 0.12,
+      "uncertaintyCm": 0.3,
+      "consequence": "bleeding"
+    },
+    {
+      "id": "superficial-temporal-artery-frontal",
+      "label": "frontal branch of the superficial temporal artery",
+      "kind": "artery",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -1.2,
+          "v": 3.0,
+          "d": 0.35
+        },
+        {
+          "u": -2.6,
+          "v": 3.8,
+          "d": 0.3
+        },
+        {
+          "u": -5.0,
+          "v": 5.2,
+          "d": 0.3
+        },
+        {
+          "u": -7.5,
+          "v": 6.5,
+          "d": 0.3
+        },
+        {
+          "u": -10.0,
+          "v": 7.3,
+          "d": 0.3
+        }
+      ],
+      "radiusCm": 0.1,
+      "uncertaintyCm": 0.3,
+      "consequence": "bleeding"
+    },
+    {
+      "id": "superficial-temporal-artery-parietal",
+      "label": "parietal branch of the superficial temporal artery",
+      "kind": "artery",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -1.2,
+          "v": 3.0,
+          "d": 0.35
+        },
+        {
+          "u": -1.4,
+          "v": 5.0,
+          "d": 0.3
+        },
+        {
+          "u": -1.0,
+          "v": 7.5,
+          "d": 0.3
+        },
+        {
+          "u": 0.0,
+          "v": 10.0,
+          "d": 0.3
+        }
+      ],
+      "radiusCm": 0.1,
+      "uncertaintyCm": 0.3,
+      "consequence": "bleeding"
+    },
+    {
+      "id": "tmj-capsule",
+      "label": "capsule of the temporomandibular joint",
+      "kind": "joint-capsule",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -1.1,
+          "v": 0.3,
+          "d": 1.2
+        },
+        {
+          "u": -2.1,
+          "v": 0.1,
+          "d": 1.25
+        }
+      ],
+      "radiusCm": 0.4,
+      "uncertaintyCm": 0.3,
+      "consequence": "joint-penetration"
+    },
+    {
+      "id": "facial-nerve-trunk",
+      "label": "facial nerve (trunk, entering the parotid gland)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 1.3,
+          "v": -2.6,
+          "d": 2.2
+        },
+        {
+          "u": 0.3,
+          "v": -2.7,
+          "d": 1.8
+        },
+        {
+          "u": -0.8,
+          "v": -2.6,
+          "d": 1.5
+        }
+      ],
+      "radiusCm": 0.15,
+      "uncertaintyCm": 0.3,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "facial-nerve-temporal-zygomatic",
+      "label": "facial nerve: temporal and zygomatic branches",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -0.8,
+          "v": -2.6,
+          "d": 1.5
+        },
+        {
+          "u": -1.6,
+          "v": -1.6,
+          "d": 1.15
+        },
+        {
+          "u": -2.4,
+          "v": -0.6,
+          "d": 0.85
+        },
+        {
+          "u": -3.6,
+          "v": 0.3,
+          "d": 0.55
+        },
+        {
+          "u": -4.4,
+          "v": 2.0,
+          "d": 0.45
+        },
+        {
+          "u": -5.6,
+          "v": 4.0,
+          "d": 0.4
+        }
+      ],
+      "radiusCm": 0.08,
+      "uncertaintyCm": 0.3,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "facial-nerve-buccal",
+      "label": "facial nerve: buccal branches",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -0.8,
+          "v": -2.6,
+          "d": 1.5
+        },
+        {
+          "u": -2.4,
+          "v": -2.3,
+          "d": 0.95
+        },
+        {
+          "u": -4.5,
+          "v": -2.4,
+          "d": 0.75
+        },
+        {
+          "u": -7.0,
+          "v": -2.8,
+          "d": 0.6
+        }
+      ],
+      "radiusCm": 0.08,
+      "uncertaintyCm": 0.3,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "facial-nerve-marginal-mandibular",
+      "label": "facial nerve: marginal mandibular branch",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -0.8,
+          "v": -2.6,
+          "d": 1.5
+        },
+        {
+          "u": -1.1,
+          "v": -4.6,
+          "d": 1.1
+        },
+        {
+          "u": -2.2,
+          "v": -6.2,
+          "d": 0.8
+        },
+        {
+          "u": -3.7,
+          "v": -6.6,
+          "d": 0.7
+        },
+        {
+          "u": -5.5,
+          "v": -6.5,
+          "d": 0.6
+        }
+      ],
+      "radiusCm": 0.08,
+      "uncertaintyCm": 0.3,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "facial-artery",
+      "label": "facial artery (crossing the mandible)",
+      "kind": "artery",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -3.0,
+          "v": -8.3,
+          "d": 1.3
+        },
+        {
+          "u": -3.7,
+          "v": -6.6,
+          "d": 0.8
+        },
+        {
+          "u": -4.2,
+          "v": -5.8,
+          "d": 0.8
+        },
+        {
+          "u": -6.0,
+          "v": -4.6,
+          "d": 0.9
+        }
+      ],
+      "radiusCm": 0.13,
+      "uncertaintyCm": 0.3,
+      "consequence": "bleeding"
+    },
+    {
+      "id": "facial-vein",
+      "label": "facial vein",
+      "kind": "vein",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -2.4,
+          "v": -8.3,
+          "d": 1.1
+        },
+        {
+          "u": -3.0,
+          "v": -6.6,
+          "d": 0.85
+        },
+        {
+          "u": -3.9,
+          "v": -5.0,
+          "d": 0.9
+        },
+        {
+          "u": -5.4,
+          "v": -3.6,
+          "d": 1.0
+        }
+      ],
+      "radiusCm": 0.15,
+      "uncertaintyCm": 0.3,
+      "consequence": "bleeding"
+    },
+    {
+      "id": "retromandibular-vein",
+      "label": "retromandibular vein (in the parotid gland)",
+      "kind": "vein",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -0.75,
+          "v": -1.6,
+          "d": 1.6
+        },
+        {
+          "u": -0.6,
+          "v": -3.6,
+          "d": 1.5
+        },
+        {
+          "u": -0.4,
+          "v": -6.2,
+          "d": 1.2
+        }
+      ],
+      "radiusCm": 0.2,
+      "uncertaintyCm": 0.3,
+      "consequence": "bleeding"
+    },
+    {
+      "id": "external-carotid-artery",
+      "label": "external carotid artery (in the parotid gland)",
+      "kind": "artery",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -0.3,
+          "v": -6.8,
+          "d": 2.4
+        },
+        {
+          "u": -0.6,
+          "v": -3.6,
+          "d": 2.1
+        },
+        {
+          "u": -0.85,
+          "v": -1.8,
+          "d": 2.0
+        }
+      ],
+      "radiusCm": 0.2,
+      "uncertaintyCm": 0.3,
+      "consequence": "haematoma"
+    },
+    {
+      "id": "maxillary-artery",
+      "label": "maxillary artery (infratemporal fossa)",
+      "kind": "artery",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -0.8,
+          "v": -1.6,
+          "d": 2.6
+        },
+        {
+          "u": -2.5,
+          "v": -1.3,
+          "d": 2.8
+        },
+        {
+          "u": -4.5,
+          "v": -1.0,
+          "d": 3.0
+        }
+      ],
+      "radiusCm": 0.15,
+      "uncertaintyCm": 0.3,
+      "consequence": "haematoma"
+    },
+    {
+      "id": "mandibular-nerve",
+      "label": "mandibular nerve below the foramen ovale",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -2.4,
+          "v": 0.2,
+          "d": 4.0
+        },
+        {
+          "u": -2.6,
+          "v": -1.2,
+          "d": 3.6
+        },
+        {
+          "u": -2.8,
+          "v": -3.0,
+          "d": 3.0
+        }
+      ],
+      "radiusCm": 0.2,
+      "uncertaintyCm": 0.3,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "posterior-auricular-artery",
+      "label": "posterior auricular artery and vein",
+      "kind": "artery",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 1.4,
+          "v": -2.2,
+          "d": 0.6
+        },
+        {
+          "u": 1.7,
+          "v": 0.0,
+          "d": 0.45
+        },
+        {
+          "u": 2.1,
+          "v": 2.5,
+          "d": 0.4
+        }
+      ],
+      "radiusCm": 0.1,
+      "uncertaintyCm": 0.3,
+      "consequence": "bleeding"
+    }
+  ],
+  "description": "The side of the head. In front of the ear the superficial temporal artery ascends between the tragus and the condyle of the mandible, over the root of the zygomatic arch, and divides into frontal and parietal branches. The temporomandibular joint lies under the depression in front of the tragus, which deepens when the mouth opens. The parotid gland fills the space between the ear and the ramus of the mandible; the facial nerve runs forward through it and fans out over the zygomatic arch, across the cheek and along the lower border of the mandible, and the external carotid artery and the retromandibular vein lie deeper in the gland. Below the middle of the zygomatic arch the mandibular notch leads into the infratemporal fossa (maxillary artery, mandibular nerve). The facial artery crosses the lower border of the mandible at the anterior border of the masseter. Above the ear the temporalis lies on the thin temporal squama; behind the ear the mastoid is close under the skin, with the posterior auricular vessels in the groove behind the auricle.",
+  "provenance": {
+    "kind": "schematic",
+    "sources": [
+      {
+        "title": "General regional anatomy of the temporal, parotid and auricular regions (standard anatomy texts)",
+        "verified": false,
+        "note": "Topography only; no third-party geometry or images were used."
+      }
+    ],
+    "licence": "CC0-1.0 (original schematic geometry)",
+    "review": {
+      "status": "unreviewed",
+      "reviewers": [],
+      "notes": "Positions and depths are illustrative approximations of a reference adult written for simulation. They are not measurements or an atlas and are not a guide to safe depths in real patients. Anatomical expert review is required before any teaching use."
+    }
+  }
+}

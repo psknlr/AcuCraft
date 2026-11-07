@@ -1,18 +1,18 @@
 {
   "schema": "acucraft/region@1",
   "id": "neck-shoulder",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "title": "posterior neck and shoulders",
   "laterality": "midline",
   "chart": {
-    "description": "The back of the neck and the tops of the shoulders, seen from behind. u: distance (cm) from the posterior midline, positive towards the patient's LEFT. v: distance (cm) cranial from the tip of the C7 spinous process. d: depth below the skin (cm).",
+    "description": "The back of the neck and the tops of the shoulders, seen from behind. u: distance (cm) from the posterior midline, positive towards the patient's LEFT. v: distance (cm) cranial from the tip of the C7 spinous process. d: depth below the skin (cm). The chart reaches up over the occiput to just above the external occipital protuberance, and wraps round the side of the upper neck to the depression behind the ear lobe.",
     "uRange": [
       -20,
       20
     ],
     "vRange": [
       -10,
-      17
+      19
     ]
   },
   "configurations": [
@@ -192,6 +192,81 @@
         "u": -7.0,
         "v": -8.0
       }
+    },
+    {
+      "id": "c2-spinous",
+      "label": "spinous process of C2 (its upper border)",
+      "at": {
+        "u": 0,
+        "v": 10.5
+      },
+      "palpation": "The first prominent spinous process below the occiput; slide up from it into the depression above its upper border.",
+      "configurations": {
+        "seated-forward": {
+          "du": 0,
+          "dv": 0.7
+        }
+      }
+    },
+    {
+      "id": "posterior-hairline",
+      "label": "posterior hairline on the median line",
+      "at": {
+        "u": 0,
+        "v": 9.4
+      },
+      "palpation": "Inspect the lower margin of the hair at the nape on the median line.",
+      "configurations": {
+        "seated-forward": {
+          "du": 0,
+          "dv": 0.6
+        }
+      }
+    },
+    {
+      "id": "occipital-protuberance-superior",
+      "label": "superior border of the external occipital protuberance",
+      "at": {
+        "u": 0,
+        "v": 15.8
+      },
+      "palpation": "Palpate the protuberance on the median line and slide up to its upper edge.",
+      "configurations": {
+        "seated-forward": {
+          "du": 0,
+          "dv": 2.0
+        }
+      }
+    },
+    {
+      "id": "earlobe-depression-left",
+      "label": "depression behind the ear lobe (left)",
+      "at": {
+        "u": 10.1,
+        "v": 13.7
+      },
+      "palpation": "Behind the ear lobe, the depression between the mastoid process and the ramus of the mandible; seen from behind, just beyond the tip of the mastoid.",
+      "configurations": {
+        "seated-forward": {
+          "du": 0,
+          "dv": 1.5
+        }
+      }
+    },
+    {
+      "id": "earlobe-depression-right",
+      "label": "depression behind the ear lobe (right)",
+      "at": {
+        "u": -10.1,
+        "v": 13.7
+      },
+      "palpation": "Behind the ear lobe, the depression between the mastoid process and the ramus of the mandible; seen from behind, just beyond the tip of the mastoid.",
+      "configurations": {
+        "seated-forward": {
+          "du": 0,
+          "dv": 1.5
+        }
+      }
     }
   ],
   "segments": [
@@ -201,6 +276,28 @@
       "from": "scapula-medial-right",
       "to": "scapula-medial-left",
       "cun": 6,
+      "source": {
+        "title": "WHO Standard Acupuncture Point Locations (2008): proportional bone measurement",
+        "verified": false
+      }
+    },
+    {
+      "id": "seg.mastoids",
+      "label": "between the mastoid processes",
+      "from": "mastoid-right",
+      "to": "mastoid-left",
+      "cun": 9,
+      "source": {
+        "title": "WHO Standard Acupuncture Point Locations (2008): proportional bone measurement",
+        "verified": false
+      }
+    },
+    {
+      "id": "seg.hairline-c7",
+      "label": "posterior hairline to the spinous process of C7",
+      "from": "posterior-hairline",
+      "to": "c7-spinous",
+      "cun": 3,
       "source": {
         "title": "WHO Standard Acupuncture Point Locations (2008): proportional bone measurement",
         "verified": false
@@ -414,6 +511,628 @@
             "thicknessCm": 2.0
           }
         ]
+      },
+      {
+        "id": "z-gv15",
+        "centre": {
+          "u": 0,
+          "v": 11.3
+        },
+        "radiusCm": 0.65,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.6
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.6,
+            "label": "nuchal ligament between the semispinalis capitis muscles"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.3,
+            "label": "posterior atlanto-axial membrane"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 1.0,
+            "label": "dura and spinal canal at the junction of the cord and the medulla",
+            "hazard": "critical"
+          }
+        ]
+      },
+      {
+        "id": "z-bl10-left",
+        "centre": {
+          "u": 2.5,
+          "v": 10.85
+        },
+        "radiusCm": 0.6,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.6
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.2,
+            "label": "trapezius, splenius, semispinalis capitis and suboccipital muscles"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.3,
+            "label": "atlanto-axial interval"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "posterior arch of the atlas and lamina of C2"
+          }
+        ]
+      },
+      {
+        "id": "z-bl10-right",
+        "centre": {
+          "u": -2.5,
+          "v": 10.85
+        },
+        "radiusCm": 0.6,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.6
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 3.2,
+            "label": "trapezius, splenius, semispinalis capitis and suboccipital muscles"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.3,
+            "label": "atlanto-axial interval"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "posterior arch of the atlas and lamina of C2"
+          }
+        ]
+      },
+      {
+        "id": "z-gb12-left",
+        "centre": {
+          "u": 7.5,
+          "v": 13.0
+        },
+        "radiusCm": 0.6,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.5
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.2,
+            "label": "sternocleidomastoid, splenius capitis and longissimus capitis"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "occipital bone behind the mastoid process"
+          }
+        ]
+      },
+      {
+        "id": "z-gb12-right",
+        "centre": {
+          "u": -7.5,
+          "v": 13.0
+        },
+        "radiusCm": 0.6,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.5
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.2,
+            "label": "sternocleidomastoid, splenius capitis and longissimus capitis"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "occipital bone behind the mastoid process"
+          }
+        ]
+      },
+      {
+        "id": "z-gb12-seated-forward-left",
+        "centre": {
+          "u": 7.5,
+          "v": 14.5
+        },
+        "radiusCm": 0.6,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.5
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.2,
+            "label": "sternocleidomastoid, splenius capitis and longissimus capitis"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "occipital bone behind the mastoid process"
+          }
+        ]
+      },
+      {
+        "id": "z-gb12-seated-forward-right",
+        "centre": {
+          "u": -7.5,
+          "v": 14.5
+        },
+        "radiusCm": 0.6,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.5
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.2,
+            "label": "sternocleidomastoid, splenius capitis and longissimus capitis"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "occipital bone behind the mastoid process"
+          }
+        ]
+      },
+      {
+        "id": "z-mastoid-left",
+        "centre": {
+          "u": 8.2,
+          "v": 13.7
+        },
+        "radiusCm": 0.6,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.4
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.6,
+            "label": "sternocleidomastoid and splenius capitis insertions"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "mastoid process"
+          }
+        ]
+      },
+      {
+        "id": "z-mastoid-right",
+        "centre": {
+          "u": -8.2,
+          "v": 13.7
+        },
+        "radiusCm": 0.6,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.4
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.6,
+            "label": "sternocleidomastoid and splenius capitis insertions"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "mastoid process"
+          }
+        ]
+      },
+      {
+        "id": "z-mastoid-seated-forward-left",
+        "centre": {
+          "u": 8.2,
+          "v": 15.2
+        },
+        "radiusCm": 0.6,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.4
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.6,
+            "label": "sternocleidomastoid and splenius capitis insertions"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "mastoid process"
+          }
+        ]
+      },
+      {
+        "id": "z-mastoid-seated-forward-right",
+        "centre": {
+          "u": -8.2,
+          "v": 15.2
+        },
+        "radiusCm": 0.6,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.4
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.6,
+            "label": "sternocleidomastoid and splenius capitis insertions"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "mastoid process"
+          }
+        ]
+      },
+      {
+        "id": "z-te17-left",
+        "centre": {
+          "u": 10.1,
+          "v": 14.2
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.4
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.8,
+            "label": "parotid gland (posterior part)"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.8,
+            "label": "posterior belly of digastric and the styloid muscles"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 1.0,
+            "label": "carotid sheath: internal jugular vein and internal carotid artery",
+            "hazard": "critical"
+          }
+        ]
+      },
+      {
+        "id": "z-te17-right",
+        "centre": {
+          "u": -10.1,
+          "v": 14.2
+        },
+        "radiusCm": 1.1,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.4
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 0.8,
+            "label": "parotid gland (posterior part)"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.8,
+            "label": "posterior belly of digastric and the styloid muscles"
+          },
+          {
+            "tissue": "organ",
+            "thicknessCm": 1.0,
+            "label": "carotid sheath: internal jugular vein and internal carotid artery",
+            "hazard": "critical"
+          }
+        ]
+      },
+      {
+        "id": "z-occiput-median",
+        "centre": {
+          "u": 0,
+          "v": 17.3
+        },
+        "radiusCm": 1.2,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.25
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.35,
+            "label": "dense connective tissue"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.1,
+            "label": "occipitalis and galea aponeurotica"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.1,
+            "label": "loose areolar tissue"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "occipital bone"
+          }
+        ]
+      },
+      {
+        "id": "z-occiput-bl9-left",
+        "centre": {
+          "u": 2.46,
+          "v": 16.8
+        },
+        "radiusCm": 1.2,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.25
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.35,
+            "label": "dense connective tissue"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.1,
+            "label": "occipitalis and galea aponeurotica"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.1,
+            "label": "loose areolar tissue"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "occipital bone"
+          }
+        ]
+      },
+      {
+        "id": "z-occiput-bl9-right",
+        "centre": {
+          "u": -2.46,
+          "v": 16.8
+        },
+        "radiusCm": 1.2,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.25
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.35,
+            "label": "dense connective tissue"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.1,
+            "label": "occipitalis and galea aponeurotica"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.1,
+            "label": "loose areolar tissue"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "occipital bone"
+          }
+        ]
+      },
+      {
+        "id": "z-occiput-gb19-left",
+        "centre": {
+          "u": 5.0,
+          "v": 16.55
+        },
+        "radiusCm": 1.0,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.25
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.35,
+            "label": "dense connective tissue"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.1,
+            "label": "occipitalis and galea aponeurotica"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.1,
+            "label": "loose areolar tissue"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "occipital bone"
+          }
+        ]
+      },
+      {
+        "id": "z-occiput-gb19-right",
+        "centre": {
+          "u": -5.0,
+          "v": 16.55
+        },
+        "radiusCm": 1.0,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.25
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.35,
+            "label": "dense connective tissue"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.1,
+            "label": "occipitalis and galea aponeurotica"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.1,
+            "label": "loose areolar tissue"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "occipital bone"
+          }
+        ]
       }
     ]
   },
@@ -548,9 +1267,292 @@
       "radiusCm": 0.12,
       "uncertaintyCm": 0.3,
       "consequence": "haematoma"
+    },
+    {
+      "id": "cervicomedullary-junction",
+      "label": "spinal cord and medulla at the foramen magnum",
+      "kind": "nerve",
+      "hazard": "critical",
+      "path": [
+        {
+          "u": 0,
+          "v": 10.0,
+          "d": 4.2
+        },
+        {
+          "u": 0,
+          "v": 13.0,
+          "d": 5.0
+        }
+      ],
+      "radiusCm": 0.6,
+      "uncertaintyCm": 0.3,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "greater-occipital-nerve-left",
+      "label": "greater occipital nerve (left)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 2.6,
+          "v": 11.0,
+          "d": 2.4
+        },
+        {
+          "u": 3.0,
+          "v": 12.6,
+          "d": 1.4
+        },
+        {
+          "u": 3.3,
+          "v": 14.0,
+          "d": 0.7
+        },
+        {
+          "u": 3.6,
+          "v": 16.0,
+          "d": 0.45
+        },
+        {
+          "u": 3.8,
+          "v": 18.5,
+          "d": 0.4
+        }
+      ],
+      "radiusCm": 0.1,
+      "uncertaintyCm": 0.3,
+      "configurations": {
+        "seated-forward": {
+          "du": 0,
+          "dv": 1.0
+        }
+      },
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "greater-occipital-nerve-right",
+      "label": "greater occipital nerve (right)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -2.6,
+          "v": 11.0,
+          "d": 2.4
+        },
+        {
+          "u": -3.0,
+          "v": 12.6,
+          "d": 1.4
+        },
+        {
+          "u": -3.3,
+          "v": 14.0,
+          "d": 0.7
+        },
+        {
+          "u": -3.6,
+          "v": 16.0,
+          "d": 0.45
+        },
+        {
+          "u": -3.8,
+          "v": 18.5,
+          "d": 0.4
+        }
+      ],
+      "radiusCm": 0.1,
+      "uncertaintyCm": 0.3,
+      "configurations": {
+        "seated-forward": {
+          "du": 0,
+          "dv": 1.0
+        }
+      },
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "lesser-occipital-nerve-left",
+      "label": "lesser occipital nerve (left)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 7.0,
+          "v": 9.5,
+          "d": 0.9
+        },
+        {
+          "u": 6.7,
+          "v": 12.0,
+          "d": 0.6
+        },
+        {
+          "u": 6.4,
+          "v": 15.0,
+          "d": 0.4
+        },
+        {
+          "u": 6.2,
+          "v": 18.0,
+          "d": 0.35
+        }
+      ],
+      "radiusCm": 0.08,
+      "uncertaintyCm": 0.3,
+      "configurations": {
+        "seated-forward": {
+          "du": 0,
+          "dv": 1.0
+        }
+      },
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "lesser-occipital-nerve-right",
+      "label": "lesser occipital nerve (right)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -7.0,
+          "v": 9.5,
+          "d": 0.9
+        },
+        {
+          "u": -6.7,
+          "v": 12.0,
+          "d": 0.6
+        },
+        {
+          "u": -6.4,
+          "v": 15.0,
+          "d": 0.4
+        },
+        {
+          "u": -6.2,
+          "v": 18.0,
+          "d": 0.35
+        }
+      ],
+      "radiusCm": 0.08,
+      "uncertaintyCm": 0.3,
+      "configurations": {
+        "seated-forward": {
+          "du": 0,
+          "dv": 1.0
+        }
+      },
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "occipital-artery-deep-left",
+      "label": "occipital artery in its groove medial to the mastoid process (left)",
+      "kind": "artery",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 8.2,
+          "v": 11.8,
+          "d": 1.8
+        },
+        {
+          "u": 6.5,
+          "v": 12.8,
+          "d": 1.6
+        },
+        {
+          "u": 4.0,
+          "v": 14.0,
+          "d": 0.8
+        }
+      ],
+      "radiusCm": 0.13,
+      "uncertaintyCm": 0.3,
+      "consequence": "haematoma"
+    },
+    {
+      "id": "occipital-artery-deep-right",
+      "label": "occipital artery in its groove medial to the mastoid process (right)",
+      "kind": "artery",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -8.2,
+          "v": 11.8,
+          "d": 1.8
+        },
+        {
+          "u": -6.5,
+          "v": 12.8,
+          "d": 1.6
+        },
+        {
+          "u": -4.0,
+          "v": 14.0,
+          "d": 0.8
+        }
+      ],
+      "radiusCm": 0.13,
+      "uncertaintyCm": 0.3,
+      "consequence": "haematoma"
+    },
+    {
+      "id": "facial-nerve-trunk-left",
+      "label": "facial nerve leaving the stylomastoid foramen (left)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 9.5,
+          "v": 14.0,
+          "d": 2.3
+        },
+        {
+          "u": 10.4,
+          "v": 13.8,
+          "d": 2.0
+        },
+        {
+          "u": 10.9,
+          "v": 13.75,
+          "d": 1.8
+        }
+      ],
+      "radiusCm": 0.15,
+      "uncertaintyCm": 0.3,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "facial-nerve-trunk-right",
+      "label": "facial nerve leaving the stylomastoid foramen (right)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -9.5,
+          "v": 14.0,
+          "d": 2.3
+        },
+        {
+          "u": -10.4,
+          "v": 13.8,
+          "d": 2.0
+        },
+        {
+          "u": -10.9,
+          "v": 13.75,
+          "d": 1.8
+        }
+      ],
+      "radiusCm": 0.15,
+      "uncertaintyCm": 0.3,
+      "consequence": "electric-sensation"
     }
   ],
-  "description": "The back of the neck and the shoulders. Below the occiput, the depression between sternocleidomastoid and trapezius overlies the suboccipital muscles; deep and medial to it lie the vertebral arteries on the atlas and, in the midline below the foramen magnum, the medulla. On the top of the shoulder, between C7 and the acromion, trapezius and supraspinatus overlie the apex of the lung and its pleura, which in a slim adult may be only a few centimetres below the skin. In the midline below C7 the supraspinous and interspinous ligaments lead to the spinal canal.",
+  "description": "The back of the neck and the shoulders. Below the occiput, the depression between sternocleidomastoid and trapezius overlies the suboccipital muscles; deep and medial to it lie the vertebral arteries on the atlas and, in the midline below the foramen magnum, the medulla. On the top of the shoulder, between C7 and the acromion, trapezius and supraspinatus overlie the apex of the lung and its pleura, which in a slim adult may be only a few centimetres below the skin. In the midline below C7 the supraspinous and interspinous ligaments lead to the spinal canal. Above the spinous process of C2 the depression on the median line (GV15) leads through the nuchal ligament to the posterior atlanto-axial membrane and the spinal canal at the junction of the cord and the medulla, a few centimetres deep; beside it (BL10) the vertebral artery lies deep on the atlas. Behind and below the mastoid process the occipital artery runs in its groove under the muscles, and the greater and lesser occipital nerves ascend to the scalp. Behind the ear lobe (TE17) the parotid gland covers the facial nerve as it leaves the skull, with the internal jugular vein and internal carotid artery deeper still. Above the external occipital protuberance the scalp lies on the occipital bone.",
   "provenance": {
     "kind": "schematic",
     "sources": [

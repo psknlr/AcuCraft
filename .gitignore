@@ -8,3 +8,5 @@ out/
 .clinicalcraft/settings.local.json
 tools/_*.ts
 __pycache__/
+tools/anatomy/.cache/
+.claude/worktrees/

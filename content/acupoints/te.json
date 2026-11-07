@@ -32,6 +32,22 @@
         "paraphrased": true
       },
       "area": "finger",
+      "region": "hand-dorsum",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "nail-4-ulnar-corner",
+        "offset": {
+          "cranial": {
+            "cm": 0.2
+          },
+          "medial": {
+            "cm": 0.2
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.4
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -79,6 +95,19 @@
         "paraphrased": true
       },
       "area": "hand",
+      "region": "hand-dorsum",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "web-4-5",
+        "offset": {
+          "cranial": {
+            "cm": 0.3
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.5
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -126,6 +155,19 @@
         "paraphrased": true
       },
       "area": "hand",
+      "region": "hand-dorsum",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "cleft-4-5",
+        "offset": {
+          "cranial": {
+            "cm": 0.9
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.5
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -173,6 +215,14 @@
         "paraphrased": true
       },
       "area": "wrist",
+      "region": "forearm",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "edc-ulnar-wrist"
+      },
+      "tolerance": {
+        "cm": 0.5
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -220,8 +270,19 @@
         "paraphrased": true
       },
       "area": "forearm",
+      "region": "forearm",
+      "localisation": {
+        "method": "along",
+        "from": "dorsal-wrist-crease-mid",
+        "toward": "olecranon",
+        "distance": {
+          "cun": 2,
+          "segment": "seg.forearm-dorsal"
+        }
+      },
       "tolerance": {
-        "cm": 1
+        "cun": 0.4,
+        "segment": "seg.forearm-dorsal"
       },
       "bilateral": true,
       "cautions": [],
@@ -270,6 +331,20 @@
         "paraphrased": true
       },
       "area": "forearm",
+      "region": "forearm",
+      "localisation": {
+        "method": "along",
+        "from": "dorsal-wrist-crease-mid",
+        "toward": "olecranon",
+        "distance": {
+          "cun": 3,
+          "segment": "seg.forearm-dorsal"
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.forearm-dorsal"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -317,6 +392,25 @@
         "paraphrased": true
       },
       "area": "forearm",
+      "region": "forearm",
+      "localisation": {
+        "method": "along",
+        "from": "dorsal-wrist-crease-mid",
+        "toward": "olecranon",
+        "distance": {
+          "cun": 3,
+          "segment": "seg.forearm-dorsal"
+        },
+        "offset": {
+          "lateral": {
+            "cm": 1.0
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.forearm-dorsal"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -364,6 +458,20 @@
         "paraphrased": true
       },
       "area": "forearm",
+      "region": "forearm",
+      "localisation": {
+        "method": "along",
+        "from": "dorsal-wrist-crease-mid",
+        "toward": "olecranon",
+        "distance": {
+          "cun": 4,
+          "segment": "seg.forearm-dorsal"
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.forearm-dorsal"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -411,6 +519,20 @@
         "paraphrased": true
       },
       "area": "forearm",
+      "region": "forearm",
+      "localisation": {
+        "method": "along",
+        "from": "olecranon",
+        "toward": "dorsal-wrist-crease-mid",
+        "distance": {
+          "cun": 5,
+          "segment": "seg.forearm-dorsal"
+        }
+      },
+      "tolerance": {
+        "cun": 0.5,
+        "segment": "seg.forearm-dorsal"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -458,6 +580,21 @@
         "paraphrased": true
       },
       "area": "elbow",
+      "region": "upper-arm",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "olecranon",
+        "offset": {
+          "cranial": {
+            "cun": 1,
+            "segment": "seg.arm"
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.7
+      },
+      "configuration": "elbow-flexed",
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -505,6 +642,20 @@
         "paraphrased": true
       },
       "area": "upper-arm",
+      "region": "upper-arm",
+      "localisation": {
+        "method": "along",
+        "from": "olecranon",
+        "toward": "acromial-angle",
+        "distance": {
+          "cun": 2,
+          "segment": "seg.arm"
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.arm"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -552,6 +703,20 @@
         "paraphrased": true
       },
       "area": "upper-arm",
+      "region": "upper-arm",
+      "localisation": {
+        "method": "along",
+        "from": "olecranon",
+        "toward": "acromial-angle",
+        "distance": {
+          "cun": 5,
+          "segment": "seg.arm"
+        }
+      },
+      "tolerance": {
+        "cun": 0.5,
+        "segment": "seg.arm"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -599,6 +764,20 @@
         "paraphrased": true
       },
       "area": "upper-arm",
+      "region": "upper-arm",
+      "localisation": {
+        "method": "along",
+        "from": "acromial-angle",
+        "toward": "olecranon",
+        "distance": {
+          "cun": 3,
+          "segment": "seg.arm"
+        }
+      },
+      "tolerance": {
+        "cun": 0.5,
+        "segment": "seg.arm"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -646,6 +825,16 @@
         "paraphrased": true
       },
       "area": "shoulder",
+      "region": "upper-arm",
+      "localisation": {
+        "method": "between",
+        "a": "acromial-angle",
+        "b": "greater-tubercle",
+        "fraction": 0.5
+      },
+      "tolerance": {
+        "cm": 0.8
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -693,6 +882,19 @@
         "paraphrased": true
       },
       "area": "upper-back",
+      "region": "upper-back",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "scapula-superior-angle-{side}",
+        "offset": {
+          "cranial": {
+            "cm": 0.8
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 1.0
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
@@ -741,6 +943,14 @@
         "paraphrased": true
       },
       "area": "neck",
+      "region": "neck-anterior",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "scm-posterior-angle-{side}"
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The carotid sheath and the great vessels of the neck lie close: needle shallowly and avoid the pulsating artery.",
@@ -789,8 +999,17 @@
         "paraphrased": true
       },
       "area": "neck",
+      "region": "neck-shoulder",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "earlobe-depression-{side}"
+      },
+      "tolerance": {
+        "cm": 0.5
+      },
       "bilateral": true,
       "cautions": [],
+      "notes": "The facial nerve leaves the skull just deep to it, and the carotid sheath lies deeper still: no deep needling.",
       "provenance": {
         "sources": [
           {
@@ -836,6 +1055,24 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "head-lateral",
+      "localisation": {
+        "method": "between",
+        "a": "earlobe-depression",
+        "b": "auricular-apex",
+        "fraction": 0.3333,
+        "offset": {
+          "lateral": {
+            "cm": 0.7
+          },
+          "cranial": {
+            "cm": 0.13
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.5
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -883,6 +1120,24 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "head-lateral",
+      "localisation": {
+        "method": "between",
+        "a": "earlobe-depression",
+        "b": "auricular-apex",
+        "fraction": 0.6667,
+        "offset": {
+          "lateral": {
+            "cm": 0.9
+          },
+          "cranial": {
+            "cm": 0.27
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.5
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -930,6 +1185,19 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "head-lateral",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "auricular-apex",
+        "offset": {
+          "cranial": {
+            "cm": 0.4
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.4
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -977,8 +1245,22 @@
         "paraphrased": true
       },
       "area": "face",
+      "region": "head-lateral",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "supratragic-notch",
+        "offset": {
+          "medial": {
+            "cm": 0.65
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.4
+      },
       "bilateral": true,
       "cautions": [],
+      "notes": "Above the temporomandibular joint, beside the superficial temporal artery: needled with the mouth open.",
       "provenance": {
         "sources": [
           {
@@ -1024,6 +1306,19 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "head-lateral",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "auricular-root-anterior",
+        "offset": {
+          "medial": {
+            "cm": 0.6
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.4
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -1071,6 +1366,14 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "face",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "eyebrow-lateral-{side}"
+      },
+      "tolerance": {
+        "cm": 0.4
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {

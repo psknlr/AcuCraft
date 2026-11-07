@@ -317,7 +317,7 @@ function atPatient(ctx: Ctx): void {
 
 function regionFrame(ctx: Ctx, regionId: string, side: Side): PatientRegion {
   const { sc, s } = ctx;
-  if (!sc.field.regions.includes(regionId)) throw new Rejection("not-modelled", `The ${regionId} region is not modelled for this case.`);
+  if (!sc.bundle.regions.has(regionId)) throw new Rejection("not-modelled", `There is no regional model ${regionId}.`);
   const region = sc.bundle.regions.get(regionId)!;
   if (region.laterality === "bilateral" && side === "midline") throw new Rejection("invalid", `The ${region.title} is bilateral: say left or right.`);
   const access = regionAccess(region, side, s.patient.position);
@@ -644,9 +644,19 @@ function doRemove(ctx: Ctx, needleId: string): void {
   }
 }
 
+/** What the insertion record keeps of a path: the structures met or passed close by, and the hazardous layers the
+ * tip reached (`layer:<label>`, a contact), so a reviewer and the evaluator see them whatever the mode. */
+function insertionFindings(path: PathAssessment): { structure: string; contact: boolean; clearanceCm: number }[] {
+  return [
+    ...path.findings.map((f) => ({ structure: f.structure, contact: f.contact, clearanceCm: f.clearanceCm })),
+    ...path.layersReached.map((l) => ({ structure: `layer:${l.label}`, contact: true, clearanceCm: 0 })),
+  ];
+}
+
 function doInsertCheckPath(ctx: Ctx, n: NeedleState, frame: PatientRegion, entry: ChartPoint, angleDeg: number, azimuthDeg: number, depthCm: number, blockers: Protection[]): PathAssessment {
   const path = assessPath(frame, entry, angleDeg, azimuthDeg, depthCm, n.spec);
   if (path.pleuraPenetrated) addUnsafe(ctx, "pleura-penetration");
+  if (path.layersReached.some((l) => l.hazard === "critical")) addUnsafe(ctx, "critical-structure-contact");
   for (const f of path.findings) {
     if (!f.contact) continue;
     if (f.hazard === "critical") addUnsafe(ctx, "critical-structure-contact");
@@ -654,7 +664,7 @@ function doInsertCheckPath(ctx: Ctx, n: NeedleState, frame: PatientRegion, entry
     if ((f.kind === "artery" || f.kind === "vein") && f.hazard === "critical") addUnsafe(ctx, "vessel-puncture");
   }
   if (path.critical && ctx.sc.field.safety.guard === "block-critical") {
-    const what = path.pleuraPenetrated ? "the pleura" : path.findings.filter((f) => f.contact && f.hazard === "critical").map((f) => f.label).join(", ");
+    const what = path.pleuraPenetrated ? "the pleura" : [...path.layersReached.filter((l) => l.hazard === "critical").map((l) => l.label), ...path.findings.filter((f) => f.contact && f.hazard === "critical").map((f) => f.label)].join(", ");
     blockers.push({ by: "simulation-guard", kind: "guard", reason: `the path would reach ${what} (${fmt(path.verticalDepthCm)} cm below the skin)` });
   }
   return path;
@@ -680,6 +690,7 @@ function consequences(ctx: Ctx, n: NeedleState, path: PathAssessment): void {
   if (ctx.s.mode === "teaching") {
     observe(ctx, `Teaching: the shaft passes ${path.traversed.join(" → ")}; tip in ${path.tipTissue}.`);
     for (const f of path.findings) observe(ctx, `Teaching: ${f.label} ${f.contact ? "reached" : `${fmt(Math.max(0, f.clearanceCm))} cm away`}.`);
+    for (const l of path.layersReached) observe(ctx, `Teaching: the tip reached ${l.label} (${fmt(l.depthCm)} cm below the skin).`);
   }
   void sc;
 }
@@ -856,7 +867,7 @@ const HANDLERS: HandlerMap = {
       if (!def) throw new Rejection("unknown-id", `Unknown point ${p.point}.`);
       if (def.bilateral && p.side === "midline") throw new Rejection("invalid", `${p.point} is bilateral: plan it left or right.`);
       if (!def.bilateral && p.side !== "midline") throw new Rejection("invalid", `${p.point} is a midline point: its side is midline.`);
-      if (!def.region || !def.localisation || !sc.field.regions.includes(def.region)) observe(ctx, `${p.point} has no localisation model in this case: it cannot be needled here.`);
+      if (!def.region || !def.localisation || !sc.bundle.regions.has(def.region)) observe(ctx, `${p.point} has no localisation model: it cannot be needled here.`);
     }
     const before = currentPlan(s);
     const coveredBefore = consentCovers(s);
@@ -1264,7 +1275,7 @@ const HANDLERS: HandlerMap = {
       angleDeg: a.angleDeg,
       azimuthDeg: a.azimuthDeg,
       tipTissue: path.tipTissue,
-      findings: path.findings.map((f) => ({ structure: f.structure, contact: f.contact, clearanceCm: f.clearanceCm })),
+      findings: insertionFindings(path),
     };
     ctx.actor.holding = ctx.actor.holding.filter((o) => o !== n.id);
     pushNeedleEvent(s, n.id, ctx.actor.id, "inserted", claimed ? refKey(claimed) : undefined);
@@ -1298,7 +1309,7 @@ const HANDLERS: HandlerMap = {
     if (n.insertion) {
       n.insertion.depthCm = path.executedDepthCm;
       n.insertion.tipTissue = path.tipTissue;
-      n.insertion.findings = path.findings.map((f) => ({ structure: f.structure, contact: f.contact, clearanceCm: f.clearanceCm }));
+      n.insertion.findings = insertionFindings(path);
     }
     pushNeedleEvent(s, n.id, ctx.actor.id, "adjusted", `${fmt(path.executedDepthCm)} cm, ${a.technique}`);
     consequences(ctx, n, path);

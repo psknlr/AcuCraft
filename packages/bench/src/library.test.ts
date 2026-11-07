@@ -57,7 +57,7 @@ describe("acupoint library", () => {
     for (const id of scenarioIds(pack)) {
       const sc = requireScenario(pack, id);
       for (const def of sc.bundle.acupoints.values()) {
-        if (!def.localisation || !def.region || !sc.field.regions.includes(def.region)) continue;
+        if (!def.localisation || !def.region) continue;
         const r = sc.bundle.regions.get(def.region)!;
         const sides: Side[] = def.bilateral ? ["left", "right"] : ["midline"];
         for (const side of sides) {
@@ -79,23 +79,25 @@ describe("the library as an agent sees it", () => {
   const sc = requireScenario(pack, "sg-knee-oa/base");
   const lib = referenceLibrary(sc);
 
-  it("offers every point, and marks as localised only those on this encounter's regions", () => {
+  it("offers every point and every regional model: the whole body is modelled in every encounter", () => {
     expect(lib.points.length).toBe(409);
     const localised = lib.points.filter((p) => p.localisation).map((p) => p.region);
-    expect(localised.length).toBeGreaterThan(0);
-    expect(localised.every((r) => sc.field.regions.includes(r!))).toBe(true);
+    expect(localised.length).toBe(points.filter((p) => p.localisation).length);
+    expect(lib.regions.map((r) => r.id).sort()).toEqual([...pack.bundle.regions.keys()].sort());
     // the view is unchanged by the size of the library
     expect(() => observeAs(sc, createEncounter(sc), "practitioner")).not.toThrow();
   });
 
   it("keeps the lookup index compact and filterable", () => {
-    const index = lookup(lib, { topic: "points" }) as { total: number; needleable: { id: string }[]; byChannel: Record<string, string[]> };
+    const index = lookup(lib, { topic: "points" }) as { total: number; needleable: Record<string, string[]>; byChannel: Record<string, string[]> };
     expect(index.total).toBe(409);
     expect(JSON.stringify(index).length).toBeLessThan(12000);
     expect(index.byChannel.BL!.length).toBe(67);
-    expect(index.needleable.map((p) => p.id)).toContain("ST36");
+    expect(index.needleable["knee-leg"]).toContain("ST36");
     expect((lookup(lib, { topic: "points", id: "ST" }) as unknown[]).length).toBe(45);
-    expect((lookup(lib, { topic: "points", id: "face" }) as { area: string }[]).every((p) => p.area === "face")).toBe(true);
+    // a key matches a channel, a body area or a region ("face" is both an area and a region)
+    expect((lookup(lib, { topic: "points", id: "face" }) as { area: string; region: string | null }[]).every((p) => p.area === "face" || p.region === "face")).toBe(true);
+    expect((lookup(lib, { topic: "points", id: "wrist" }) as { area: string }[]).every((p) => p.area === "wrist")).toBe(true);
     expect((lookup(lib, { topic: "point", id: "SJ5" }) as { id: string }).id).toBe("TE5");
     expect(lookup(lib, { topic: "point", id: "XX9" })).toHaveProperty("error");
   });

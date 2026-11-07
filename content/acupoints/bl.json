@@ -30,6 +30,22 @@
         "paraphrased": true
       },
       "area": "face",
+      "region": "face",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "canthus-inner-{side}",
+        "offset": {
+          "medial": {
+            "cm": 0.2
+          },
+          "cranial": {
+            "cm": 0.2
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.3
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "Between the eyeball and the orbit: needle slowly along the orbital margin without lifting, thrusting or rotating; risk of haematoma and of injury to the eye. Requires specific training.",
@@ -76,6 +92,14 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "face",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "eyebrow-medial-{side}"
+      },
+      "tolerance": {
+        "cm": 0.4
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -121,6 +145,21 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "scalp",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "anterior-hairline-brow-medial-{side}",
+        "offset": {
+          "cranial": {
+            "cun": 0.5,
+            "segment": "seg.hairlines"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.hairlines"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -166,6 +205,25 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "scalp",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "anterior-hairline",
+        "offset": {
+          "lateral": {
+            "cun": 1.5,
+            "segment": "seg.st8"
+          },
+          "cranial": {
+            "cun": 0.5,
+            "segment": "seg.hairlines"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.hairlines"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -211,6 +269,25 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "scalp",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "anterior-hairline",
+        "offset": {
+          "lateral": {
+            "cun": 1.5,
+            "segment": "seg.st8"
+          },
+          "cranial": {
+            "cun": 1,
+            "segment": "seg.hairlines"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.hairlines"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -256,6 +333,25 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "scalp",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "anterior-hairline",
+        "offset": {
+          "lateral": {
+            "cun": 1.5,
+            "segment": "seg.st8"
+          },
+          "cranial": {
+            "cun": 2.5,
+            "segment": "seg.hairlines"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.hairlines"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -301,6 +397,25 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "scalp",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "anterior-hairline",
+        "offset": {
+          "lateral": {
+            "cun": 1.5,
+            "segment": "seg.st8"
+          },
+          "cranial": {
+            "cun": 4,
+            "segment": "seg.hairlines"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.hairlines"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -346,6 +461,25 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "scalp",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "anterior-hairline",
+        "offset": {
+          "lateral": {
+            "cun": 1.5,
+            "segment": "seg.st8"
+          },
+          "cranial": {
+            "cun": 5.5,
+            "segment": "seg.hairlines"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.hairlines"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -391,6 +525,20 @@
         "paraphrased": true
       },
       "area": "head",
+      "region": "neck-shoulder",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "occipital-protuberance-superior",
+        "offset": {
+          "lateral": {
+            "cun": 1.3,
+            "segment": "seg.mastoids"
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -436,6 +584,20 @@
         "paraphrased": true
       },
       "area": "neck",
+      "region": "neck-shoulder",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "c2-spinous",
+        "offset": {
+          "lateral": {
+            "cun": 1.3,
+            "segment": "seg.mastoids"
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The medulla and the vertebral artery lie deep and medial: never needle deeply, medially or upward.",
@@ -482,6 +644,21 @@
         "paraphrased": true
       },
       "area": "upper-back",
+      "region": "upper-back",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "t1-spinous",
+        "offset": {
+          "lateral": {
+            "cun": 1.5,
+            "segment": "seg.scapulae"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.scapulae"
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
@@ -528,6 +705,21 @@
         "paraphrased": true
       },
       "area": "upper-back",
+      "region": "upper-back",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "t2-spinous",
+        "offset": {
+          "lateral": {
+            "cun": 1.5,
+            "segment": "seg.scapulae"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.scapulae"
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
@@ -574,6 +766,21 @@
         "paraphrased": true
       },
       "area": "upper-back",
+      "region": "upper-back",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "t3-spinous",
+        "offset": {
+          "lateral": {
+            "cun": 1.5,
+            "segment": "seg.scapulae"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.scapulae"
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
@@ -620,6 +827,21 @@
         "paraphrased": true
       },
       "area": "upper-back",
+      "region": "upper-back",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "t4-spinous",
+        "offset": {
+          "lateral": {
+            "cun": 1.5,
+            "segment": "seg.scapulae"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.scapulae"
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
@@ -666,6 +888,21 @@
         "paraphrased": true
       },
       "area": "upper-back",
+      "region": "upper-back",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "t5-spinous",
+        "offset": {
+          "lateral": {
+            "cun": 1.5,
+            "segment": "seg.scapulae"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.scapulae"
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
@@ -712,6 +949,21 @@
         "paraphrased": true
       },
       "area": "upper-back",
+      "region": "upper-back",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "t6-spinous",
+        "offset": {
+          "lateral": {
+            "cun": 1.5,
+            "segment": "seg.scapulae"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.scapulae"
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
@@ -758,6 +1010,21 @@
         "paraphrased": true
       },
       "area": "upper-back",
+      "region": "upper-back",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "t7-spinous",
+        "offset": {
+          "lateral": {
+            "cun": 1.5,
+            "segment": "seg.scapulae"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.scapulae"
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
@@ -804,6 +1071,21 @@
         "paraphrased": true
       },
       "area": "upper-back",
+      "region": "upper-back",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "t9-spinous",
+        "offset": {
+          "lateral": {
+            "cun": 1.5,
+            "segment": "seg.scapulae"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.scapulae"
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
@@ -850,6 +1132,21 @@
         "paraphrased": true
       },
       "area": "upper-back",
+      "region": "upper-back",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "t10-spinous",
+        "offset": {
+          "lateral": {
+            "cun": 1.5,
+            "segment": "seg.scapulae"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.scapulae"
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
@@ -896,6 +1193,21 @@
         "paraphrased": true
       },
       "area": "upper-back",
+      "region": "upper-back",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "t11-spinous",
+        "offset": {
+          "lateral": {
+            "cun": 1.5,
+            "segment": "seg.scapulae"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.scapulae"
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
@@ -942,6 +1254,21 @@
         "paraphrased": true
       },
       "area": "upper-back",
+      "region": "upper-back",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "t12-spinous",
+        "offset": {
+          "lateral": {
+            "cun": 1.5,
+            "segment": "seg.scapulae"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.scapulae"
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
@@ -988,6 +1315,21 @@
         "paraphrased": true
       },
       "area": "lower-back",
+      "region": "lumbar",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "l1-spinous",
+        "offset": {
+          "lateral": {
+            "cun": 1.5,
+            "segment": "seg.scapulae"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.scapulae"
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The kidney lies deep: no deep perpendicular needling.",
@@ -1235,6 +1577,21 @@
         "paraphrased": true
       },
       "area": "lower-back",
+      "region": "lumbar",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "l5-spinous",
+        "offset": {
+          "lateral": {
+            "cun": 1.5,
+            "segment": "seg.scapulae"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.scapulae"
+      },
       "bilateral": true,
       "cautions": [
         {
@@ -1287,6 +1644,21 @@
         "paraphrased": true
       },
       "area": "sacrum-buttock",
+      "region": "sacrum-buttock",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "sacral-crest-s1",
+        "offset": {
+          "lateral": {
+            "cun": 1.5,
+            "segment": "seg.back"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.back"
+      },
       "bilateral": true,
       "cautions": [
         {
@@ -1339,6 +1711,21 @@
         "paraphrased": true
       },
       "area": "sacrum-buttock",
+      "region": "sacrum-buttock",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "sacral-crest-s2",
+        "offset": {
+          "lateral": {
+            "cun": 1.5,
+            "segment": "seg.back"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.back"
+      },
       "bilateral": true,
       "cautions": [
         {
@@ -1391,6 +1778,21 @@
         "paraphrased": true
       },
       "area": "sacrum-buttock",
+      "region": "sacrum-buttock",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "sacral-crest-s3",
+        "offset": {
+          "lateral": {
+            "cun": 1.5,
+            "segment": "seg.back"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.back"
+      },
       "bilateral": true,
       "cautions": [
         {
@@ -1443,6 +1845,21 @@
         "paraphrased": true
       },
       "area": "sacrum-buttock",
+      "region": "sacrum-buttock",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "sacral-crest-s4",
+        "offset": {
+          "lateral": {
+            "cun": 1.5,
+            "segment": "seg.back"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.back"
+      },
       "bilateral": true,
       "cautions": [
         {
@@ -1495,6 +1912,14 @@
         "paraphrased": true
       },
       "area": "sacrum-buttock",
+      "region": "sacrum-buttock",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "s1-foramen-{side}"
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": true,
       "cautions": [
         {
@@ -1547,6 +1972,14 @@
         "paraphrased": true
       },
       "area": "sacrum-buttock",
+      "region": "sacrum-buttock",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "s2-foramen-{side}"
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": true,
       "cautions": [
         {
@@ -1599,6 +2032,14 @@
         "paraphrased": true
       },
       "area": "sacrum-buttock",
+      "region": "sacrum-buttock",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "s3-foramen-{side}"
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": true,
       "cautions": [
         {
@@ -1651,6 +2092,14 @@
         "paraphrased": true
       },
       "area": "sacrum-buttock",
+      "region": "sacrum-buttock",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "s4-foramen-{side}"
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": true,
       "cautions": [
         {
@@ -1703,6 +2152,20 @@
         "paraphrased": true
       },
       "area": "sacrum-buttock",
+      "region": "sacrum-buttock",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "coccyx-tip",
+        "offset": {
+          "lateral": {
+            "cun": 0.5,
+            "segment": "seg.back"
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": true,
       "cautions": [
         {
@@ -1755,6 +2218,14 @@
         "paraphrased": true
       },
       "area": "thigh",
+      "region": "thigh",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "gluteal-fold-mid"
+      },
+      "tolerance": {
+        "cm": 0.8
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The sciatic nerve lies deep: an electric sensation down the leg means the needle has reached it.",
@@ -1801,6 +2272,20 @@
         "paraphrased": true
       },
       "area": "thigh",
+      "region": "thigh",
+      "localisation": {
+        "method": "along",
+        "from": "gluteal-fold-mid",
+        "toward": "popliteal-crease-mid",
+        "distance": {
+          "cun": 6,
+          "segment": "seg.gluteal-popliteal"
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.gluteal-popliteal"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -1846,6 +2331,21 @@
         "paraphrased": true
       },
       "area": "knee",
+      "region": "knee-leg",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "popliteal-crease-lateral",
+        "offset": {
+          "cranial": {
+            "cun": 1,
+            "segment": "seg.popliteal-lateral-malleolus"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.3,
+        "segment": "seg.popliteal-lateral-malleolus"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -1891,6 +2391,14 @@
         "paraphrased": true
       },
       "area": "knee",
+      "region": "knee-leg",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "popliteal-crease-lateral"
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -1936,8 +2444,13 @@
         "paraphrased": true
       },
       "area": "knee",
+      "region": "knee-leg",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "popliteal-crease-mid"
+      },
       "tolerance": {
-        "cm": 1
+        "cm": 0.7
       },
       "bilateral": true,
       "cautions": [],
@@ -1985,6 +2498,21 @@
         "paraphrased": true
       },
       "area": "upper-back",
+      "region": "upper-back",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "t2-spinous",
+        "offset": {
+          "lateral": {
+            "cun": 3,
+            "segment": "seg.scapulae"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.scapulae"
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
@@ -2031,6 +2559,21 @@
         "paraphrased": true
       },
       "area": "upper-back",
+      "region": "upper-back",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "t3-spinous",
+        "offset": {
+          "lateral": {
+            "cun": 3,
+            "segment": "seg.scapulae"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.scapulae"
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
@@ -2077,6 +2620,21 @@
         "paraphrased": true
       },
       "area": "upper-back",
+      "region": "upper-back",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "t4-spinous",
+        "offset": {
+          "lateral": {
+            "cun": 3,
+            "segment": "seg.scapulae"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.scapulae"
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
@@ -2123,6 +2681,21 @@
         "paraphrased": true
       },
       "area": "upper-back",
+      "region": "upper-back",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "t5-spinous",
+        "offset": {
+          "lateral": {
+            "cun": 3,
+            "segment": "seg.scapulae"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.scapulae"
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
@@ -2169,6 +2742,21 @@
         "paraphrased": true
       },
       "area": "upper-back",
+      "region": "upper-back",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "t6-spinous",
+        "offset": {
+          "lateral": {
+            "cun": 3,
+            "segment": "seg.scapulae"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.scapulae"
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
@@ -2215,6 +2803,21 @@
         "paraphrased": true
       },
       "area": "upper-back",
+      "region": "upper-back",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "t7-spinous",
+        "offset": {
+          "lateral": {
+            "cun": 3,
+            "segment": "seg.scapulae"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.scapulae"
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
@@ -2261,6 +2864,21 @@
         "paraphrased": true
       },
       "area": "upper-back",
+      "region": "upper-back",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "t9-spinous",
+        "offset": {
+          "lateral": {
+            "cun": 3,
+            "segment": "seg.scapulae"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.scapulae"
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
@@ -2307,6 +2925,21 @@
         "paraphrased": true
       },
       "area": "upper-back",
+      "region": "upper-back",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "t10-spinous",
+        "offset": {
+          "lateral": {
+            "cun": 3,
+            "segment": "seg.scapulae"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.scapulae"
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
@@ -2353,6 +2986,21 @@
         "paraphrased": true
       },
       "area": "upper-back",
+      "region": "upper-back",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "t11-spinous",
+        "offset": {
+          "lateral": {
+            "cun": 3,
+            "segment": "seg.scapulae"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.scapulae"
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
@@ -2399,6 +3047,21 @@
         "paraphrased": true
       },
       "area": "upper-back",
+      "region": "upper-back",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "t12-spinous",
+        "offset": {
+          "lateral": {
+            "cun": 3,
+            "segment": "seg.scapulae"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.scapulae"
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
@@ -2445,6 +3108,21 @@
         "paraphrased": true
       },
       "area": "lower-back",
+      "region": "lumbar",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "l1-spinous",
+        "offset": {
+          "lateral": {
+            "cun": 3,
+            "segment": "seg.scapulae"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.scapulae"
+      },
       "bilateral": true,
       "cautions": [],
       "notes": "The kidney lies deep: no deep perpendicular needling.",
@@ -2559,6 +3237,21 @@
         "paraphrased": true
       },
       "area": "sacrum-buttock",
+      "region": "sacrum-buttock",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "sacral-crest-s2",
+        "offset": {
+          "lateral": {
+            "cun": 3,
+            "segment": "seg.back"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.back"
+      },
       "bilateral": true,
       "cautions": [
         {
@@ -2611,6 +3304,21 @@
         "paraphrased": true
       },
       "area": "sacrum-buttock",
+      "region": "sacrum-buttock",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "sacral-crest-s4",
+        "offset": {
+          "lateral": {
+            "cun": 3,
+            "segment": "seg.back"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.back"
+      },
       "bilateral": true,
       "cautions": [
         {
@@ -2664,6 +3372,20 @@
         "paraphrased": true
       },
       "area": "leg",
+      "region": "knee-leg",
+      "localisation": {
+        "method": "along",
+        "from": "popliteal-crease-mid",
+        "toward": "gastrocnemius-tendon-junction",
+        "distance": {
+          "cun": 2,
+          "segment": "seg.popliteal-lateral-malleolus"
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.popliteal-lateral-malleolus"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -2709,6 +3431,20 @@
         "paraphrased": true
       },
       "area": "leg",
+      "region": "knee-leg",
+      "localisation": {
+        "method": "along",
+        "from": "popliteal-crease-mid",
+        "toward": "gastrocnemius-tendon-junction",
+        "distance": {
+          "cun": 5,
+          "segment": "seg.popliteal-lateral-malleolus"
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.popliteal-lateral-malleolus"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -2754,8 +3490,13 @@
         "paraphrased": true
       },
       "area": "leg",
+      "region": "knee-leg",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "gastrocnemius-tendon-junction"
+      },
       "tolerance": {
-        "cm": 1
+        "cm": 0.8
       },
       "bilateral": true,
       "cautions": [],
@@ -2802,6 +3543,15 @@
         "paraphrased": true
       },
       "area": "leg",
+      "region": "knee-leg",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "gastrocnemius-lateral-lower-border"
+      },
+      "tolerance": {
+        "cun": 0.5,
+        "segment": "seg.popliteal-lateral-malleolus"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -2847,6 +3597,23 @@
         "paraphrased": true
       },
       "area": "leg",
+      "region": "knee-leg",
+      "localisation": {
+        "method": "between",
+        "a": "lateral-malleolus",
+        "b": "calcaneal-tendon-lateral",
+        "fraction": 0.5,
+        "offset": {
+          "cranial": {
+            "cun": 3,
+            "segment": "seg.popliteal-lateral-malleolus"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.popliteal-lateral-malleolus"
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -2892,8 +3659,15 @@
         "paraphrased": true
       },
       "area": "ankle",
+      "region": "knee-leg",
+      "localisation": {
+        "method": "between",
+        "a": "lateral-malleolus",
+        "b": "calcaneal-tendon-lateral",
+        "fraction": 0.5
+      },
       "tolerance": {
-        "cm": 1
+        "cm": 0.6
       },
       "bilateral": true,
       "cautions": [
@@ -2947,6 +3721,14 @@
         "paraphrased": true
       },
       "area": "foot",
+      "region": "knee-leg",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "heel-lateral-red-white"
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -2992,6 +3774,19 @@
         "paraphrased": true
       },
       "area": "ankle",
+      "region": "knee-leg",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "lateral-malleolus-tip",
+        "offset": {
+          "caudal": {
+            "cm": 0.6
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.5
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -3037,6 +3832,14 @@
         "paraphrased": true
       },
       "area": "foot",
+      "region": "foot",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "cuboid-inferior-depression"
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -3082,6 +3885,19 @@
         "paraphrased": true
       },
       "area": "foot",
+      "region": "foot",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "mt5-tuberosity",
+        "offset": {
+          "caudal": {
+            "cm": 1.0
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.5
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -3127,6 +3943,19 @@
         "paraphrased": true
       },
       "area": "foot",
+      "region": "foot",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "mtp5-lateral",
+        "offset": {
+          "cranial": {
+            "cm": 1.2
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.5
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -3172,6 +4001,19 @@
         "paraphrased": true
       },
       "area": "toe",
+      "region": "foot",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "mtp5-lateral",
+        "offset": {
+          "caudal": {
+            "cm": 0.8
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.5
+      },
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -3217,6 +4059,22 @@
         "paraphrased": true
       },
       "area": "toe",
+      "region": "foot",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "toe5-nail-lateral-corner",
+        "offset": {
+          "lateral": {
+            "cm": 0.15
+          },
+          "cranial": {
+            "cm": 0.15
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.3
+      },
       "bilateral": true,
       "cautions": [
         {

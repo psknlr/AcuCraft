@@ -24,7 +24,18 @@ export type Tissue = z.infer<typeof TissueSchema>;
 /** Tissues a needle cannot pass: the insertion stops at their surface. */
 export const STOPPING_TISSUES: readonly Tissue[] = ["bone"];
 
-export const LayerSchema = z.object({ tissue: TissueSchema, thicknessCm: z.number().positive(), label: z.string().optional() }).strict();
+export const LayerSchema = z
+  .object({
+    tissue: TissueSchema,
+    thicknessCm: z.number().positive(),
+    label: z.string().optional(),
+    /**
+     * A needle tip reaching this layer is a `critical` event (heart, liver, kidney, spinal canal …) or a recorded
+     * `caution` (peritoneum …). The pleura is always critical.
+     */
+    hazard: z.enum(["critical", "caution"]).optional(),
+  })
+  .strict();
 export type Layer = z.infer<typeof LayerSchema>;
 
 export const ConfigurationShiftSchema = z.object({ du: z.number().default(0), dv: z.number().default(0), dd: z.number().default(0) }).strict();
@@ -99,6 +110,11 @@ export const RegionSchema = z
         vRange: z.tuple([z.number(), z.number()]),
       })
       .strict(),
+    /**
+     * The body the chart is drawn on. A patient whose build the scenario does not author for this region is scaled
+     * from it by height and BMI (`derivedBuild`). Default: 170 cm, BMI 22.5.
+     */
+    reference: z.object({ heightCm: z.number().positive(), bmi: z.number().positive(), sex: z.enum(["male", "female"]).optional(), body: z.string().optional() }).strict().optional(),
     configurations: z.array(z.object({ id: IdSchema, label: z.string() }).strict()).min(1),
     defaultConfiguration: IdSchema,
     /** Positions in which the region is reachable, and the configuration it is then in. */

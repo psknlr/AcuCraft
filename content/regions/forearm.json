@@ -1,24 +1,28 @@
 {
   "schema": "acucraft/region@1",
   "id": "forearm",
-  "version": "0.1.0",
-  "title": "forearm and wrist (palmar and radial aspects)",
+  "version": "0.2.0",
+  "title": "forearm, wrist and elbow (all aspects)",
   "laterality": "bilateral",
   "chart": {
-    "description": "The forearm unrolled. u: distance round the forearm (cm) from the palmar midline, positive towards the radial (lateral) side and on round to the dorsum, negative towards the ulnar side. v: distance (cm) proximal from the palmar wrist crease. d: depth below the skin (cm).",
+    "description": "The forearm unrolled. u: distance round the forearm (cm) from the palmar midline, positive towards the radial (lateral) side and on round to the dorsum (dorsal midline at about +8.5 at the wrist, the olecranon at about +13.7 at the elbow) and the posterior border of the ulna; negative towards the ulnar side of the palmar surface. The two ends of the chart meet on the ulnar border. v: distance (cm) proximal from the palmar wrist crease (the cubital crease lies at about v = 26.4). d: depth below the skin (cm). Beyond the dorsal midline 'lateral' (+u) points towards the ulnar side of the dorsum.",
     "uRange": [
-      -6,
-      8
+      -8,
+      18
     ],
     "vRange": [
-      -2,
-      28
+      -4,
+      31
     ]
   },
   "configurations": [
     {
       "id": "supinated",
       "label": "forearm supinated, palm up, supported"
+    },
+    {
+      "id": "pronated",
+      "label": "forearm pronated, palm down, resting on a table or pillow (seated leaning forward)"
     }
   ],
   "defaultConfiguration": "supinated",
@@ -59,6 +63,14 @@
       "configuration": "supinated",
       "sides": [
         "left"
+      ]
+    },
+    {
+      "position": "seated-forward",
+      "configuration": "pronated",
+      "sides": [
+        "left",
+        "right"
       ]
     }
   ],
@@ -112,6 +124,155 @@
         "u": 4.6,
         "v": 26.0
       }
+    },
+    {
+      "id": "radial-styloid",
+      "label": "radial styloid process",
+      "at": {
+        "u": 4.5,
+        "v": 0.5
+      },
+      "palpation": "The bony point on the lateral side of the wrist at the end of the radius, at about the level of the wrist crease."
+    },
+    {
+      "id": "radial-styloid-scaphoid-depression",
+      "label": "depression on the palmar wrist crease between the radial styloid process and the scaphoid, ulnar to the abductor pollicis longus tendon",
+      "at": {
+        "u": 2.75,
+        "v": 0.0
+      },
+      "palpation": "Feel the radial pulse at the wrist crease; the hollow just radial to it, between the end of the radius and the scaphoid, on the ulnar side of the abductor pollicis longus tendon."
+    },
+    {
+      "id": "anatomical-snuffbox",
+      "label": "anatomical snuffbox, at the radial end of the dorsal wrist crease",
+      "at": {
+        "u": 5.9,
+        "v": -0.6
+      },
+      "palpation": "Extend the thumb: the hollow at the back of the wrist at the base of the thumb, between the extensor pollicis longus and brevis tendons, just distal to the radial styloid."
+    },
+    {
+      "id": "lister-tubercle",
+      "label": "dorsal tubercle of the radius (Lister's tubercle)",
+      "at": {
+        "u": 7.3,
+        "v": 1.2
+      },
+      "palpation": "The small bony ridge on the back of the distal radius, in line with the cleft between the index and middle fingers."
+    },
+    {
+      "id": "dorsal-wrist-crease-mid",
+      "label": "midpoint of the dorsal wrist crease",
+      "at": {
+        "u": 8.45,
+        "v": 0.3
+      },
+      "palpation": "Extend the wrist slightly: the crease across the back of the wrist; its middle, over the extensor tendons."
+    },
+    {
+      "id": "edc-radial-wrist",
+      "label": "depression on the dorsal wrist crease radial to the extensor digitorum tendons",
+      "at": {
+        "u": 7.7,
+        "v": 0.3
+      },
+      "palpation": "Extend the fingers against resistance to raise the tendons; slide off their radial edge on the crease."
+    },
+    {
+      "id": "edc-ulnar-wrist",
+      "label": "depression on the dorsal wrist crease ulnar to the extensor digitorum tendons",
+      "at": {
+        "u": 9.5,
+        "v": 0.3
+      },
+      "palpation": "Extend the fingers against resistance; slide off the ulnar edge of the tendons on the crease."
+    },
+    {
+      "id": "ulnar-head",
+      "label": "head of the ulna (its dorsal prominence)",
+      "at": {
+        "u": 11.0,
+        "v": 2.2
+      },
+      "palpation": "The rounded knob at the back of the wrist on the little-finger side, most prominent with the forearm pronated.",
+      "configurations": {
+        "pronated": {
+          "du": -0.4,
+          "dv": 0,
+          "dd": 0
+        }
+      }
+    },
+    {
+      "id": "ulnar-styloid",
+      "label": "ulnar styloid process",
+      "at": {
+        "u": 12.0,
+        "v": 0.3
+      },
+      "palpation": "Distal to the head of the ulna, the small bony point at the back of the wrist on the little-finger side.",
+      "configurations": {
+        "pronated": {
+          "du": -0.3,
+          "dv": 0,
+          "dd": 0
+        }
+      }
+    },
+    {
+      "id": "triquetrum",
+      "label": "triquetrum",
+      "at": {
+        "u": 12.5,
+        "v": -1.3
+      },
+      "palpation": "Just distal to the ulnar styloid, the carpal bone felt on the ulnar side of the back of the wrist, clearer with the wrist deviated radially."
+    },
+    {
+      "id": "biceps-tendon-lateral-crease",
+      "label": "depression on the cubital crease just lateral to the biceps brachii tendon",
+      "at": {
+        "u": 2.1,
+        "v": 26.4
+      },
+      "palpation": "Raise the biceps tendon, then slide off its lateral edge into the hollow on the crease."
+    },
+    {
+      "id": "cubital-crease-medial-end",
+      "label": "medial (ulnar) end of the cubital crease",
+      "at": {
+        "u": -4.6,
+        "v": 26.2
+      },
+      "palpation": "Flex the elbow: the end of the crease on the little-finger side."
+    },
+    {
+      "id": "lateral-epicondyle",
+      "label": "lateral epicondyle of the humerus",
+      "at": {
+        "u": 7.0,
+        "v": 26.8
+      },
+      "palpation": "The bony prominence on the outer side of the elbow."
+    },
+    {
+      "id": "medial-epicondyle",
+      "label": "medial epicondyle of the humerus",
+      "at": {
+        "u": -6.2,
+        "v": 27.2
+      },
+      "palpation": "The prominent bony knob on the inner side of the elbow."
+    },
+    {
+      "id": "olecranon",
+      "label": "tip of the olecranon (the point of the elbow)",
+      "at": {
+        "u": 13.65,
+        "v": 27.0
+      },
+      "palpation": "The bony point of the elbow, at the upper end of the subcutaneous border of the ulna."
     }
   ],
   "segments": [
@@ -124,6 +285,18 @@
       "source": {
         "title": "WHO Standard Acupuncture Point Locations (2008): proportional bone measurement",
         "verified": false
+      }
+    },
+    {
+      "id": "seg.forearm-dorsal",
+      "label": "dorsal wrist crease to the prominence of the olecranon",
+      "from": "dorsal-wrist-crease-mid",
+      "to": "olecranon",
+      "cun": 12,
+      "source": {
+        "title": "WHO Standard Acupuncture Point Locations (2008): proportional bone measurement, upper limb",
+        "verified": false,
+        "note": "Used for the points measured from the dorsal wrist crease or from the olecranon (triple energizer and small intestine channels)."
       }
     }
   ],
@@ -233,6 +406,577 @@
           {
             "tissue": "bone",
             "thicknessCm": 1.5
+          }
+        ]
+      },
+      {
+        "id": "z-lu8",
+        "centre": {
+          "u": 2.7,
+          "v": 2.2
+        },
+        "radiusCm": 0.8,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.3,
+            "label": "pronator quadratus and the brachioradialis tendon"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.1
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "radius"
+          }
+        ]
+      },
+      {
+        "id": "z-lu9",
+        "centre": {
+          "u": 2.75,
+          "v": 0.0
+        },
+        "radiusCm": 0.8,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "ligament",
+            "thicknessCm": 0.3,
+            "label": "palmar radiocarpal ligament and joint capsule"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "scaphoid and radius"
+          }
+        ]
+      },
+      {
+        "id": "z-ht4-5",
+        "centre": {
+          "u": -3.17,
+          "v": 2.75
+        },
+        "radiusCm": 0.8,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.3,
+            "label": "flexor carpi ulnaris"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.2,
+            "label": "flexor digitorum profundus"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "ulna"
+          }
+        ]
+      },
+      {
+        "id": "z-snuffbox",
+        "centre": {
+          "u": 5.9,
+          "v": -0.6
+        },
+        "radiusCm": 0.7,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.2,
+            "label": "fascia over the floor of the snuffbox"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "scaphoid"
+          }
+        ]
+      },
+      {
+        "id": "z-li6",
+        "centre": {
+          "u": 5.58,
+          "v": 5.99
+        },
+        "radiusCm": 0.8,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.4
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.8,
+            "label": "abductor pollicis longus, extensor pollicis brevis and extensor carpi radialis brevis"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.1
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "radius"
+          }
+        ]
+      },
+      {
+        "id": "z-li7",
+        "centre": {
+          "u": 5.36,
+          "v": 10.39
+        },
+        "radiusCm": 0.5,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.4
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.0,
+            "label": "extensor carpi radialis longus and brevis, abductor pollicis longus"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.1
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "radius"
+          }
+        ]
+      },
+      {
+        "id": "z-li8",
+        "centre": {
+          "u": 5.03,
+          "v": 17.21
+        },
+        "radiusCm": 0.8,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.5
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.6,
+            "label": "brachioradialis and the radial wrist extensors"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.5,
+            "label": "supinator and pronator teres insertion"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "radius"
+          }
+        ]
+      },
+      {
+        "id": "z-li9",
+        "centre": {
+          "u": 4.92,
+          "v": 19.41
+        },
+        "radiusCm": 0.8,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.5
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.6,
+            "label": "brachioradialis and the radial wrist extensors"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.8,
+            "label": "supinator"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "radius"
+          }
+        ]
+      },
+      {
+        "id": "z-li10",
+        "centre": {
+          "u": 4.81,
+          "v": 21.61
+        },
+        "radiusCm": 0.45,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.5
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.6,
+            "label": "brachioradialis and the radial wrist extensors"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.9,
+            "label": "supinator"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "radius (neck)"
+          }
+        ]
+      },
+      {
+        "id": "z-dorsal-wrist",
+        "centre": {
+          "u": 8.6,
+          "v": 0.3
+        },
+        "radiusCm": 1.3,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.4,
+            "label": "extensor tendons under the extensor retinaculum"
+          },
+          {
+            "tissue": "ligament",
+            "thicknessCm": 0.2,
+            "label": "dorsal radiocarpal ligament and joint capsule"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "lunate and distal radius"
+          }
+        ]
+      },
+      {
+        "id": "z-dorsal-forearm",
+        "centre": {
+          "u": 9.9,
+          "v": 7.0
+        },
+        "radiusCm": 3.0,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.4
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.0,
+            "label": "extensor digitorum, extensor pollicis longus and extensor indicis"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.1,
+            "label": "interosseous membrane"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.1,
+            "label": "flexor pollicis longus, flexor digitorum profundus and pronator quadratus"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.6,
+            "label": "flexor digitorum superficialis"
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.4,
+            "label": "palmaris longus and flexor carpi radialis"
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.4,
+            "label": "palmar"
+          },
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2,
+            "label": "palmar skin"
+          }
+        ]
+      },
+      {
+        "id": "z-te9",
+        "centre": {
+          "u": 11.48,
+          "v": 15.88
+        },
+        "radiusCm": 1.5,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.5
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.2,
+            "label": "extensor digitorum and extensor carpi ulnaris"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.6,
+            "label": "abductor pollicis longus and extensor pollicis longus (origins)"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.1,
+            "label": "interosseous membrane"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.4,
+            "label": "flexor digitorum profundus"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.8,
+            "label": "flexor digitorum superficialis"
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.5,
+            "label": "palmar"
+          },
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2,
+            "label": "palmar skin"
+          }
+        ]
+      },
+      {
+        "id": "z-si5",
+        "centre": {
+          "u": 12.25,
+          "v": -0.5
+        },
+        "radiusCm": 0.7,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "ligament",
+            "thicknessCm": 0.3,
+            "label": "ulnar collateral ligament and wrist capsule"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "triquetrum"
+          }
+        ]
+      },
+      {
+        "id": "z-si6",
+        "centre": {
+          "u": 10.24,
+          "v": 2.56
+        },
+        "radiusCm": 0.7,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.3,
+            "label": "extensor digiti minimi"
+          },
+          {
+            "tissue": "ligament",
+            "thicknessCm": 0.2,
+            "label": "capsule of the distal radio-ulnar joint"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "ulna and radius"
+          }
+        ]
+      },
+      {
+        "id": "z-si7",
+        "centre": {
+          "u": 14.5,
+          "v": 11.61
+        },
+        "radiusCm": 1.2,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.5
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.6,
+            "label": "edge of flexor carpi ulnaris and flexor digitorum profundus"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.1
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "ulna"
+          }
+        ]
+      },
+      {
+        "id": "z-ulna-proximal",
+        "centre": {
+          "u": 13.8,
+          "v": 21.0
+        },
+        "radiusCm": 1.6,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.4
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.1
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "ulna (subcutaneous border)"
+          }
+        ]
+      },
+      {
+        "id": "z-olecranon",
+        "centre": {
+          "u": 13.65,
+          "v": 27.0
+        },
+        "radiusCm": 1.2,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.1,
+            "label": "olecranon bursa"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "olecranon"
           }
         ]
       }
@@ -384,9 +1128,542 @@
       "radiusCm": 0.1,
       "uncertaintyCm": 0.3,
       "consequence": "electric-sensation"
+    },
+    {
+      "id": "radial-artery-wrist",
+      "label": "radial artery at the wrist (the radial pulse)",
+      "kind": "artery",
+      "hazard": "critical",
+      "path": [
+        {
+          "u": 2.0,
+          "v": -1.0,
+          "d": 0.5
+        },
+        {
+          "u": 2.11,
+          "v": 3.0,
+          "d": 0.67
+        },
+        {
+          "u": 2.17,
+          "v": 5.0,
+          "d": 0.76
+        }
+      ],
+      "radiusCm": 0.15,
+      "uncertaintyCm": 0.3,
+      "consequence": "bleeding"
+    },
+    {
+      "id": "radial-artery-snuffbox",
+      "label": "radial artery winding round the radial styloid through the anatomical snuffbox",
+      "kind": "artery",
+      "hazard": "critical",
+      "path": [
+        {
+          "u": 2.0,
+          "v": -1.0,
+          "d": 0.5
+        },
+        {
+          "u": 3.2,
+          "v": -1.5,
+          "d": 0.6
+        },
+        {
+          "u": 4.6,
+          "v": -1.7,
+          "d": 0.7
+        },
+        {
+          "u": 5.6,
+          "v": -1.4,
+          "d": 0.65
+        },
+        {
+          "u": 6.6,
+          "v": -2.4,
+          "d": 0.8
+        },
+        {
+          "u": 7.2,
+          "v": -3.2,
+          "d": 1.0
+        }
+      ],
+      "radiusCm": 0.15,
+      "uncertaintyCm": 0.3,
+      "consequence": "bleeding"
+    },
+    {
+      "id": "radial-artery-proximal",
+      "label": "radial artery from the brachial bifurcation",
+      "kind": "artery",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 1.8,
+          "v": 20.0,
+          "d": 1.6
+        },
+        {
+          "u": 1.3,
+          "v": 23.5,
+          "d": 1.8
+        },
+        {
+          "u": 0.7,
+          "v": 24.5,
+          "d": 1.8
+        }
+      ],
+      "radiusCm": 0.15,
+      "uncertaintyCm": 0.3,
+      "consequence": "haematoma"
+    },
+    {
+      "id": "brachial-artery-elbow",
+      "label": "brachial artery in the cubital fossa, medial to the biceps tendon",
+      "kind": "artery",
+      "hazard": "critical",
+      "path": [
+        {
+          "u": -0.4,
+          "v": 30.0,
+          "d": 1.5
+        },
+        {
+          "u": -0.3,
+          "v": 26.4,
+          "d": 1.3
+        },
+        {
+          "u": 0.5,
+          "v": 24.0,
+          "d": 1.7
+        }
+      ],
+      "radiusCm": 0.22,
+      "uncertaintyCm": 0.4,
+      "consequence": "bleeding"
+    },
+    {
+      "id": "ulnar-artery-proximal",
+      "label": "ulnar artery, deep to the superficial flexors",
+      "kind": "artery",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -2.4,
+          "v": 10.0,
+          "d": 1.3
+        },
+        {
+          "u": -2.0,
+          "v": 17.0,
+          "d": 2.0
+        },
+        {
+          "u": -0.6,
+          "v": 22.0,
+          "d": 2.3
+        },
+        {
+          "u": 0.5,
+          "v": 24.0,
+          "d": 1.7
+        }
+      ],
+      "radiusCm": 0.15,
+      "uncertaintyCm": 0.3,
+      "consequence": "haematoma"
+    },
+    {
+      "id": "ulnar-nerve-proximal",
+      "label": "ulnar nerve under flexor carpi ulnaris, to the back of the medial epicondyle",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -2.9,
+          "v": 10.0,
+          "d": 1.5
+        },
+        {
+          "u": -3.8,
+          "v": 17.0,
+          "d": 1.9
+        },
+        {
+          "u": -5.2,
+          "v": 23.0,
+          "d": 1.5
+        },
+        {
+          "u": -6.6,
+          "v": 26.5,
+          "d": 0.8
+        },
+        {
+          "u": -7.3,
+          "v": 29.0,
+          "d": 0.9
+        }
+      ],
+      "radiusCm": 0.22,
+      "uncertaintyCm": 0.3,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "median-nerve-elbow",
+      "label": "median nerve at the elbow (medial to the brachial artery)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 0.3,
+          "v": 24.0,
+          "d": 2.2
+        },
+        {
+          "u": -0.6,
+          "v": 26.4,
+          "d": 1.7
+        },
+        {
+          "u": -1.0,
+          "v": 30.0,
+          "d": 1.9
+        }
+      ],
+      "radiusCm": 0.25,
+      "uncertaintyCm": 0.3,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "superficial-radial-nerve-proximal",
+      "label": "superficial branch of the radial nerve under brachioradialis",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 5.0,
+          "v": 8.0,
+          "d": 0.5
+        },
+        {
+          "u": 4.7,
+          "v": 12.0,
+          "d": 1.0
+        },
+        {
+          "u": 4.3,
+          "v": 17.0,
+          "d": 1.6
+        },
+        {
+          "u": 4.0,
+          "v": 21.0,
+          "d": 2.1
+        },
+        {
+          "u": 3.7,
+          "v": 24.8,
+          "d": 2.5
+        }
+      ],
+      "radiusCm": 0.12,
+      "uncertaintyCm": 0.3,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "radial-nerve-elbow",
+      "label": "radial nerve in front of the lateral epicondyle, between brachialis and brachioradialis",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 3.4,
+          "v": 30.0,
+          "d": 2.6
+        },
+        {
+          "u": 3.6,
+          "v": 26.4,
+          "d": 2.5
+        },
+        {
+          "u": 3.7,
+          "v": 24.8,
+          "d": 2.5
+        }
+      ],
+      "radiusCm": 0.25,
+      "uncertaintyCm": 0.4,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "posterior-interosseous-nerve",
+      "label": "deep branch of the radial nerve through supinator, then the posterior interosseous nerve on the membrane",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 3.7,
+          "v": 24.8,
+          "d": 2.5
+        },
+        {
+          "u": 4.9,
+          "v": 22.0,
+          "d": 2.9
+        },
+        {
+          "u": 7.0,
+          "v": 19.5,
+          "d": 2.7
+        },
+        {
+          "u": 9.2,
+          "v": 16.5,
+          "d": 2.2
+        },
+        {
+          "u": 9.0,
+          "v": 10.0,
+          "d": 1.7
+        },
+        {
+          "u": 8.4,
+          "v": 4.5,
+          "d": 1.5
+        },
+        {
+          "u": 8.3,
+          "v": 1.0,
+          "d": 1.0
+        }
+      ],
+      "radiusCm": 0.12,
+      "uncertaintyCm": 0.3,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "anterior-interosseous-bundle",
+      "label": "anterior interosseous artery and nerve on the palmar face of the interosseous membrane (as reached from the dorsum)",
+      "kind": "artery",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 8.6,
+          "v": 2.5,
+          "d": 1.7
+        },
+        {
+          "u": 9.4,
+          "v": 10.0,
+          "d": 1.9
+        },
+        {
+          "u": 10.6,
+          "v": 18.0,
+          "d": 2.2
+        }
+      ],
+      "radiusCm": 0.1,
+      "uncertaintyCm": 0.3,
+      "consequence": "haematoma"
+    },
+    {
+      "id": "median-nerve-from-dorsum",
+      "label": "median nerve between the deep and superficial flexors (as reached from the dorsum through the interosseous membrane)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 8.8,
+          "v": 1.5,
+          "d": 2.8
+        },
+        {
+          "u": 9.5,
+          "v": 6.0,
+          "d": 2.9
+        },
+        {
+          "u": 10.2,
+          "v": 10.5,
+          "d": 3.1
+        }
+      ],
+      "radiusCm": 0.25,
+      "uncertaintyCm": 0.4,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "cephalic-vein-elbow",
+      "label": "cephalic vein at the elbow",
+      "kind": "vein",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 4.4,
+          "v": 22.0,
+          "d": 0.4
+        },
+        {
+          "u": 4.2,
+          "v": 26.4,
+          "d": 0.4
+        },
+        {
+          "u": 3.9,
+          "v": 30.0,
+          "d": 0.45
+        }
+      ],
+      "radiusCm": 0.2,
+      "uncertaintyCm": 0.3,
+      "consequence": "bleeding"
+    },
+    {
+      "id": "basilic-vein-forearm",
+      "label": "basilic vein on the ulnar side of the forearm",
+      "kind": "vein",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -4.7,
+          "v": -1.0,
+          "d": 0.3
+        },
+        {
+          "u": -4.7,
+          "v": 10.0,
+          "d": 0.35
+        },
+        {
+          "u": -4.8,
+          "v": 20.0,
+          "d": 0.4
+        },
+        {
+          "u": -4.5,
+          "v": 26.4,
+          "d": 0.4
+        },
+        {
+          "u": -4.5,
+          "v": 30.0,
+          "d": 0.5
+        }
+      ],
+      "radiusCm": 0.2,
+      "uncertaintyCm": 0.4,
+      "consequence": "bleeding"
+    },
+    {
+      "id": "median-cubital-vein",
+      "label": "median cubital vein",
+      "kind": "vein",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 3.9,
+          "v": 23.2,
+          "d": 0.35
+        },
+        {
+          "u": -4.5,
+          "v": 27.4,
+          "d": 0.35
+        }
+      ],
+      "radiusCm": 0.2,
+      "uncertaintyCm": 0.4,
+      "consequence": "bleeding"
+    },
+    {
+      "id": "elbow-joint-anterior",
+      "label": "anterior capsule of the elbow joint",
+      "kind": "joint-capsule",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -3.8,
+          "v": 26.8,
+          "d": 2.95
+        },
+        {
+          "u": 0.0,
+          "v": 26.4,
+          "d": 3.0
+        },
+        {
+          "u": 3.8,
+          "v": 26.6,
+          "d": 2.8
+        }
+      ],
+      "radiusCm": 0.25,
+      "uncertaintyCm": 0.3,
+      "consequence": "joint-penetration"
+    },
+    {
+      "id": "wrist-joint-dorsal",
+      "label": "dorsal capsule of the radiocarpal (wrist) joint",
+      "kind": "joint-capsule",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 6.5,
+          "v": 0.0,
+          "d": 0.95
+        },
+        {
+          "u": 10.8,
+          "v": 0.3,
+          "d": 0.95
+        }
+      ],
+      "radiusCm": 0.15,
+      "uncertaintyCm": 0.3,
+      "consequence": "joint-penetration"
+    },
+    {
+      "id": "dorsal-branch-ulnar-nerve",
+      "label": "dorsal branch of the ulnar nerve crossing the ulnar side of the wrist",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 13.6,
+          "v": 6.0,
+          "d": 0.6
+        },
+        {
+          "u": 12.9,
+          "v": 1.5,
+          "d": 0.35
+        },
+        {
+          "u": 12.6,
+          "v": -1.5,
+          "d": 0.3
+        },
+        {
+          "u": 11.6,
+          "v": -3.0,
+          "d": 0.3
+        }
+      ],
+      "radiusCm": 0.08,
+      "uncertaintyCm": 0.3,
+      "consequence": "electric-sensation"
     }
   ],
-  "description": "The palmar forearm and wrist. At the wrist the palmaris longus and flexor carpi radialis tendons are superficial; the median nerve lies just deep to and between them and runs up the middle of the forearm under the superficial flexors. The radial artery lies lateral to flexor carpi radialis; on the ulnar side the ulnar artery and nerve run radial to flexor carpi ulnaris. Over the distal radius on the radial aspect the bone is close under the skin and tendons, with the cephalic vein and the superficial branch of the radial nerve in the subcutaneous tissue.",
+  "description": "The forearm, wrist and elbow, palmar and dorsal. At the wrist the palmaris longus and flexor carpi radialis tendons are superficial; the median nerve lies just deep to and between them and runs up the middle of the forearm under the superficial flexors. The radial artery lies lateral to flexor carpi radialis, superficial on the distal radius at the wrist (the radial pulse), and winds round the radial styloid through the floor of the anatomical snuffbox to the back of the hand; on the ulnar side the ulnar artery and nerve run radial to flexor carpi ulnaris. Over the distal radius on the radial aspect the bone is close under the skin and tendons, with the cephalic vein and the superficial branch of the radial nerve in the subcutaneous tissue; higher up that branch runs under brachioradialis. On the dorsum the extensor tendons cross the wrist under the extensor retinaculum over the capsule of the wrist joint; between the radius and the ulna the extensors lie on the interosseous membrane, with the posterior interosseous nerve on its dorsal face and the anterior interosseous vessels on its palmar face; a needle passed through the membrane reaches the deep flexors and the median nerve. The head and styloid of the ulna and the posterior border of the ulna up to the olecranon are subcutaneous. At the elbow the brachial artery lies medial to the biceps tendon, with the median nerve medial to it; the radial nerve lies in front of the lateral epicondyle and divides into its superficial branch and the deep branch, which winds through supinator round the neck of the radius. Pronation brings the head of the ulna into prominence.",
   "provenance": {
     "kind": "schematic",
     "sources": [
