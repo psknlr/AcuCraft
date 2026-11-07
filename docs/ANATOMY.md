@@ -16,7 +16,18 @@ A region (`acucraft/region@1`, `content/regions/*.json`) is a surface chart with
   patient's **left**; side-specific landmarks carry the side in their id (`acromion-lateral-left`), and a point
   construction may refer to `acromion-lateral-{side}`.
 
-Regions in the pack: `knee-leg`, `forearm`, `hand-dorsum`, `neck-shoulder`, `lumbar`.
+Regions in the pack: `knee-leg`, `upper-arm`, `forearm`, `hand-dorsum`, `hand-palm`, `neck-shoulder`, `lumbar`.
+
+The upper limb has four bilateral charts. `upper-arm` (shoulder, axilla, arm and elbow) and `forearm` are unrolled round
+the limb from its anterior (palmar) midline, `u` positive lateral and on round the back of the limb, so each chart's two
+ends meet on the ulnar (posteromedial) side; beyond the lateral midline `lateral` (+u) points towards the anatomically
+medial side (towards the ulna on the dorsal forearm). `v` runs from the cubital crease (arm) or the palmar wrist crease
+(forearm); above the acromion the arm chart continues over the top of the shoulder, and both charts cover the elbow.
+`hand-dorsum` and `hand-palm` share their axes (`u` from the third metacarpal, radial positive; `v` proximal from the
+knuckles, negative along the fingers). Segments: `seg.arm` (end of the anterior axillary fold to the cubital crease,
+9 B-cun), `seg.wrist-elbow` (12) and `seg.forearm-dorsal` (dorsal wrist crease to the olecranon, 12); the hands have
+none, and finger-cun offsets are written in cm. A group point (Erbai, Yaotongdian, Baxie, Sifeng, Shixuan) is placed at
+its first site only.
 
 ## 2. Configurations, positions and access
 

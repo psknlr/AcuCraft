@@ -1,0 +1,1713 @@
+{
+  "schema": "acucraft/region@1",
+  "id": "hand-palm",
+  "version": "0.1.0",
+  "title": "palm of the hand, palmar fingers and fingertips",
+  "laterality": "bilateral",
+  "chart": {
+    "description": "The palm and the palmar surface of the fingers. u: distance (cm) from the axis of the third metacarpal, positive towards the radial (thumb) side, negative towards the ulnar side. v: distance (cm) proximal from the level of the heads of the metacarpals (the metacarpophalangeal joints), positive towards the wrist (the distal palmar wrist crease at about +8.5), negative along the fingers to the fingertips (the middle fingertip at about -10). The thumb runs distally and radially from its metacarpophalangeal joint at about (6.4, 2.6). d: depth below the skin (cm).",
+    "uRange": [
+      -6,
+      10
+    ],
+    "vRange": [
+      -12,
+      11
+    ]
+  },
+  "reference": {
+    "heightCm": 170,
+    "bmi": 22.5
+  },
+  "configurations": [
+    {
+      "id": "supinated",
+      "label": "hand supinated, palm up, fingers relaxed and supported"
+    }
+  ],
+  "defaultConfiguration": "supinated",
+  "access": [
+    {
+      "position": "seated",
+      "configuration": "supinated",
+      "sides": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "position": "supine",
+      "configuration": "supinated",
+      "sides": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "position": "supine-knee-flexed",
+      "configuration": "supinated",
+      "sides": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "position": "side-lying-left",
+      "configuration": "supinated",
+      "sides": [
+        "right"
+      ]
+    },
+    {
+      "position": "side-lying-right",
+      "configuration": "supinated",
+      "sides": [
+        "left"
+      ]
+    }
+  ],
+  "landmarks": [
+    {
+      "id": "mc3-head-palmar",
+      "label": "level of the head of the third metacarpal, felt through the palm",
+      "at": {
+        "u": 0.0,
+        "v": 0.0
+      },
+      "palpation": "Press into the palm just proximal to the base of the middle finger: the rounded head of the metacarpal."
+    },
+    {
+      "id": "proximal-palmar-crease-2-3",
+      "label": "proximal transverse palmar crease where it crosses the space between the second and third metacarpals",
+      "at": {
+        "u": 0.95,
+        "v": 2.4
+      },
+      "palpation": "Make a loose fist: the tip of the middle finger rests here, between the second and third metacarpals."
+    },
+    {
+      "id": "distal-palmar-crease-4-5",
+      "label": "distal transverse palmar crease where it crosses the space between the fourth and fifth metacarpals",
+      "at": {
+        "u": -2.7,
+        "v": 1.5
+      },
+      "palpation": "Make a loose fist: the tip of the little finger rests here, between the fourth and fifth metacarpals."
+    },
+    {
+      "id": "mc1-base",
+      "label": "base of the first metacarpal (carpometacarpal joint of the thumb)",
+      "at": {
+        "u": 3.6,
+        "v": 7.6
+      },
+      "palpation": "Slide proximally along the thumb metacarpal over the thenar eminence to the joint at its base."
+    },
+    {
+      "id": "mc1-head",
+      "label": "head of the first metacarpal (metacarpophalangeal joint of the thumb)",
+      "at": {
+        "u": 6.4,
+        "v": 2.6
+      },
+      "palpation": "The joint at the base of the thumb, felt on its palmar side."
+    },
+    {
+      "id": "pisiform",
+      "label": "pisiform",
+      "at": {
+        "u": -3.8,
+        "v": 8.2
+      },
+      "palpation": "The pea-shaped bone at the ulnar end of the distal wrist crease."
+    },
+    {
+      "id": "scaphoid-tubercle",
+      "label": "tubercle of the scaphoid",
+      "at": {
+        "u": 2.6,
+        "v": 8.1
+      },
+      "palpation": "At the radial end of the distal wrist crease, the bony prominence at the base of the thenar eminence."
+    },
+    {
+      "id": "hook-of-hamate",
+      "label": "hook of the hamate (deep)",
+      "at": {
+        "u": -2.4,
+        "v": 6.6
+      },
+      "palpation": "One finger-breadth distal and radial to the pisiform, felt with firm pressure."
+    },
+    {
+      "id": "palmar-wrist-crease-mid",
+      "label": "midpoint of the distal palmar wrist crease",
+      "at": {
+        "u": 0.2,
+        "v": 8.5
+      },
+      "palpation": "The most distal of the creases on the front of the wrist; its middle."
+    },
+    {
+      "id": "pip-crease-2",
+      "label": "centre of the palmar crease of the proximal interphalangeal joint of the index finger",
+      "at": {
+        "u": 2.04,
+        "v": -4.5
+      },
+      "palpation": "Flex the finger slightly: the crease at the first finger joint; its middle."
+    },
+    {
+      "id": "pip-crease-3",
+      "label": "centre of the palmar crease of the proximal interphalangeal joint of the middle finger",
+      "at": {
+        "u": 0.0,
+        "v": -5.0
+      }
+    },
+    {
+      "id": "pip-crease-4",
+      "label": "centre of the palmar crease of the proximal interphalangeal joint of the ring finger",
+      "at": {
+        "u": -1.99,
+        "v": -4.8
+      }
+    },
+    {
+      "id": "pip-crease-5",
+      "label": "centre of the palmar crease of the proximal interphalangeal joint of the little finger",
+      "at": {
+        "u": -3.92,
+        "v": -3.4
+      }
+    },
+    {
+      "id": "tip-1",
+      "label": "tip of the thumb",
+      "at": {
+        "u": 8.31,
+        "v": -2.83
+      },
+      "palpation": "The centre of the tip, just beyond the free edge of the nail."
+    },
+    {
+      "id": "tip-2",
+      "label": "tip of the index finger",
+      "at": {
+        "u": 2.3,
+        "v": -8.9
+      },
+      "palpation": "The centre of the tip, just beyond the free edge of the nail."
+    },
+    {
+      "id": "tip-3",
+      "label": "tip of the middle finger",
+      "at": {
+        "u": 0.0,
+        "v": -9.9
+      },
+      "palpation": "The centre of the tip, just beyond the free edge of the nail."
+    },
+    {
+      "id": "tip-4",
+      "label": "tip of the ring finger",
+      "at": {
+        "u": -2.2,
+        "v": -9.5
+      },
+      "palpation": "The centre of the tip, just beyond the free edge of the nail."
+    },
+    {
+      "id": "tip-5",
+      "label": "tip of the little finger",
+      "at": {
+        "u": -4.3,
+        "v": -7.1
+      },
+      "palpation": "The centre of the tip, just beyond the free edge of the nail."
+    }
+  ],
+  "segments": [],
+  "tissue": {
+    "layers": [
+      {
+        "tissue": "skin",
+        "thicknessCm": 0.3,
+        "label": "palmar skin"
+      },
+      {
+        "tissue": "subcutaneous",
+        "thicknessCm": 0.4
+      },
+      {
+        "tissue": "fascia",
+        "thicknessCm": 0.15,
+        "label": "palmar aponeurosis"
+      },
+      {
+        "tissue": "tendon",
+        "thicknessCm": 0.8,
+        "label": "flexor tendons and lumbricals"
+      },
+      {
+        "tissue": "muscle",
+        "thicknessCm": 0.9,
+        "label": "interossei"
+      },
+      {
+        "tissue": "bone",
+        "thicknessCm": 1.0,
+        "label": "metacarpal"
+      }
+    ],
+    "zones": [
+      {
+        "id": "z-finger-2-proximal",
+        "centre": {
+          "u": 1.95,
+          "v": -3.0
+        },
+        "radiusCm": 1.0,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.25
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.45,
+            "label": "flexor tendons in their fibrous sheath"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 0.8,
+            "label": "phalanx"
+          }
+        ]
+      },
+      {
+        "id": "z-finger-2-middle",
+        "centre": {
+          "u": 2.11,
+          "v": -5.7
+        },
+        "radiusCm": 0.9,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.25
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.45,
+            "label": "flexor tendons in their fibrous sheath"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 0.8,
+            "label": "phalanx"
+          }
+        ]
+      },
+      {
+        "id": "z-finger-2-distal",
+        "centre": {
+          "u": 2.24,
+          "v": -7.95
+        },
+        "radiusCm": 0.6,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.35,
+            "label": "pulp"
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.2,
+            "label": "flexor digitorum profundus insertion"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 0.6,
+            "label": "distal phalanx"
+          }
+        ]
+      },
+      {
+        "id": "z-tip-2",
+        "centre": {
+          "u": 2.3,
+          "v": -8.9
+        },
+        "radiusCm": 0.5,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.25,
+            "label": "pulp"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 0.6,
+            "label": "tuft of the distal phalanx"
+          }
+        ]
+      },
+      {
+        "id": "z-finger-3-proximal",
+        "centre": {
+          "u": 0.0,
+          "v": -3.25
+        },
+        "radiusCm": 1.0,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.25
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.45,
+            "label": "flexor tendons in their fibrous sheath"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 0.8,
+            "label": "phalanx"
+          }
+        ]
+      },
+      {
+        "id": "z-finger-3-middle",
+        "centre": {
+          "u": 0.0,
+          "v": -6.4
+        },
+        "radiusCm": 0.9,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.25
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.45,
+            "label": "flexor tendons in their fibrous sheath"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 0.8,
+            "label": "phalanx"
+          }
+        ]
+      },
+      {
+        "id": "z-finger-3-distal",
+        "centre": {
+          "u": 0.0,
+          "v": -8.9
+        },
+        "radiusCm": 0.6,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.35,
+            "label": "pulp"
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.2,
+            "label": "flexor digitorum profundus insertion"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 0.6,
+            "label": "distal phalanx"
+          }
+        ]
+      },
+      {
+        "id": "z-tip-3",
+        "centre": {
+          "u": 0.0,
+          "v": -9.9
+        },
+        "radiusCm": 0.5,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.25,
+            "label": "pulp"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 0.6,
+            "label": "tuft of the distal phalanx"
+          }
+        ]
+      },
+      {
+        "id": "z-finger-4-proximal",
+        "centre": {
+          "u": -1.92,
+          "v": -3.2
+        },
+        "radiusCm": 1.0,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.25
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.45,
+            "label": "flexor tendons in their fibrous sheath"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 0.8,
+            "label": "phalanx"
+          }
+        ]
+      },
+      {
+        "id": "z-finger-4-middle",
+        "centre": {
+          "u": -2.05,
+          "v": -6.15
+        },
+        "radiusCm": 0.9,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.25
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.45,
+            "label": "flexor tendons in their fibrous sheath"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 0.8,
+            "label": "phalanx"
+          }
+        ]
+      },
+      {
+        "id": "z-finger-4-distal",
+        "centre": {
+          "u": -2.15,
+          "v": -8.55
+        },
+        "radiusCm": 0.6,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.35,
+            "label": "pulp"
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.2,
+            "label": "flexor digitorum profundus insertion"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 0.6,
+            "label": "distal phalanx"
+          }
+        ]
+      },
+      {
+        "id": "z-tip-4",
+        "centre": {
+          "u": -2.2,
+          "v": -9.5
+        },
+        "radiusCm": 0.5,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.25,
+            "label": "pulp"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 0.6,
+            "label": "tuft of the distal phalanx"
+          }
+        ]
+      },
+      {
+        "id": "z-finger-5-proximal",
+        "centre": {
+          "u": -3.81,
+          "v": -2.3
+        },
+        "radiusCm": 1.0,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.25
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.45,
+            "label": "flexor tendons in their fibrous sheath"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 0.8,
+            "label": "phalanx"
+          }
+        ]
+      },
+      {
+        "id": "z-finger-5-middle",
+        "centre": {
+          "u": -4.01,
+          "v": -4.35
+        },
+        "radiusCm": 0.9,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.25
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.45,
+            "label": "flexor tendons in their fibrous sheath"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 0.8,
+            "label": "phalanx"
+          }
+        ]
+      },
+      {
+        "id": "z-finger-5-distal",
+        "centre": {
+          "u": -4.21,
+          "v": -6.25
+        },
+        "radiusCm": 0.6,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.35,
+            "label": "pulp"
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.2,
+            "label": "flexor digitorum profundus insertion"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 0.6,
+            "label": "distal phalanx"
+          }
+        ]
+      },
+      {
+        "id": "z-tip-5",
+        "centre": {
+          "u": -4.3,
+          "v": -7.1
+        },
+        "radiusCm": 0.5,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.25,
+            "label": "pulp"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 0.6,
+            "label": "tuft of the distal phalanx"
+          }
+        ]
+      },
+      {
+        "id": "z-thumb-proximal",
+        "centre": {
+          "u": 6.9,
+          "v": 1.18
+        },
+        "radiusCm": 1.0,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.25
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.45,
+            "label": "flexor tendons in their fibrous sheath"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 0.8,
+            "label": "phalanx"
+          }
+        ]
+      },
+      {
+        "id": "z-thumb-distal",
+        "centre": {
+          "u": 7.83,
+          "v": -1.46
+        },
+        "radiusCm": 0.7,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.25
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.45,
+            "label": "flexor tendons in their fibrous sheath"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 0.8,
+            "label": "phalanx"
+          }
+        ]
+      },
+      {
+        "id": "z-tip-1",
+        "centre": {
+          "u": 8.31,
+          "v": -2.83
+        },
+        "radiusCm": 0.5,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.25,
+            "label": "pulp"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 0.6,
+            "label": "tuft of the distal phalanx"
+          }
+        ]
+      },
+      {
+        "id": "z-pip-crease-2",
+        "centre": {
+          "u": 2.04,
+          "v": -4.5
+        },
+        "radiusCm": 0.5,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.4,
+            "label": "flexor tendons in their sheath"
+          },
+          {
+            "tissue": "ligament",
+            "thicknessCm": 0.15,
+            "label": "palmar plate"
+          },
+          {
+            "tissue": "joint-space",
+            "thicknessCm": 0.1
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 0.8,
+            "label": "phalanx"
+          }
+        ]
+      },
+      {
+        "id": "z-lu10",
+        "centre": {
+          "u": 6.2,
+          "v": 5.1
+        },
+        "radiusCm": 0.8,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.25
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.8,
+            "label": "abductor pollicis brevis and opponens pollicis"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.0,
+            "label": "first metacarpal"
+          }
+        ]
+      },
+      {
+        "id": "z-thenar",
+        "centre": {
+          "u": 4.0,
+          "v": 5.6
+        },
+        "radiusCm": 1.5,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.4
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.0,
+            "label": "abductor and flexor pollicis brevis"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.0,
+            "label": "opponens and adductor pollicis"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.0,
+            "label": "first metacarpal"
+          }
+        ]
+      },
+      {
+        "id": "z-hypothenar",
+        "centre": {
+          "u": -3.7,
+          "v": 4.6
+        },
+        "radiusCm": 1.5,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.5
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.2,
+            "label": "hypothenar muscles"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.0,
+            "label": "fifth metacarpal"
+          }
+        ]
+      },
+      {
+        "id": "z-carpal",
+        "centre": {
+          "u": 0.2,
+          "v": 8.0
+        },
+        "radiusCm": 1.5,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.25
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.3,
+            "label": "flexor retinaculum"
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 1.0,
+            "label": "flexor tendons in the carpal tunnel"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.5,
+            "label": "carpal bones"
+          }
+        ]
+      },
+      {
+        "id": "z-pc8",
+        "centre": {
+          "u": 0.95,
+          "v": 2.4
+        },
+        "radiusCm": 0.7,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.35
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.15,
+            "label": "palmar aponeurosis"
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.7,
+            "label": "flexor tendons of the index finger and the second lumbrical"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.2,
+            "label": "interossei and adductor pollicis (transverse head)"
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.3,
+            "label": "dorsal"
+          },
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2,
+            "label": "dorsal skin"
+          }
+        ]
+      },
+      {
+        "id": "z-ht8",
+        "centre": {
+          "u": -2.7,
+          "v": 1.5
+        },
+        "radiusCm": 0.6,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.35
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.15,
+            "label": "palmar aponeurosis"
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.6,
+            "label": "flexor tendons of the little finger and the fourth lumbrical"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.0,
+            "label": "interossei"
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.3,
+            "label": "dorsal"
+          },
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2,
+            "label": "dorsal skin"
+          }
+        ]
+      }
+    ]
+  },
+  "structures": [
+    {
+      "id": "superficial-palmar-arch",
+      "label": "superficial palmar arch",
+      "kind": "artery",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -3.0,
+          "v": 6.5,
+          "d": 0.8
+        },
+        {
+          "u": -3.0,
+          "v": 5.0,
+          "d": 0.8
+        },
+        {
+          "u": -1.8,
+          "v": 3.6,
+          "d": 0.75
+        },
+        {
+          "u": 0.0,
+          "v": 3.3,
+          "d": 0.75
+        },
+        {
+          "u": 1.8,
+          "v": 3.8,
+          "d": 0.75
+        },
+        {
+          "u": 3.0,
+          "v": 5.0,
+          "d": 0.8
+        },
+        {
+          "u": 3.6,
+          "v": 7.8,
+          "d": 0.8
+        }
+      ],
+      "radiusCm": 0.12,
+      "uncertaintyCm": 0.3,
+      "consequence": "bleeding"
+    },
+    {
+      "id": "deep-palmar-arch",
+      "label": "deep palmar arch",
+      "kind": "artery",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 3.4,
+          "v": 6.6,
+          "d": 2.0
+        },
+        {
+          "u": 1.0,
+          "v": 5.2,
+          "d": 2.1
+        },
+        {
+          "u": -1.5,
+          "v": 5.0,
+          "d": 2.1
+        },
+        {
+          "u": -3.2,
+          "v": 5.6,
+          "d": 2.0
+        }
+      ],
+      "radiusCm": 0.12,
+      "uncertaintyCm": 0.3,
+      "consequence": "bleeding"
+    },
+    {
+      "id": "ulnar-artery-guyon",
+      "label": "ulnar artery in Guyon's canal",
+      "kind": "artery",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -2.7,
+          "v": 10.0,
+          "d": 0.6
+        },
+        {
+          "u": -2.9,
+          "v": 8.0,
+          "d": 0.7
+        },
+        {
+          "u": -3.0,
+          "v": 6.5,
+          "d": 0.8
+        }
+      ],
+      "radiusCm": 0.15,
+      "uncertaintyCm": 0.3,
+      "consequence": "haematoma"
+    },
+    {
+      "id": "ulnar-nerve-guyon",
+      "label": "ulnar nerve in Guyon's canal and its superficial branch",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -3.1,
+          "v": 10.0,
+          "d": 0.7
+        },
+        {
+          "u": -3.2,
+          "v": 8.0,
+          "d": 0.8
+        },
+        {
+          "u": -3.1,
+          "v": 6.6,
+          "d": 0.9
+        },
+        {
+          "u": -2.9,
+          "v": 4.5,
+          "d": 0.9
+        }
+      ],
+      "radiusCm": 0.15,
+      "uncertaintyCm": 0.3,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "median-nerve-carpal-tunnel",
+      "label": "median nerve in the carpal tunnel",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 0.3,
+          "v": 10.0,
+          "d": 0.8
+        },
+        {
+          "u": 0.3,
+          "v": 8.5,
+          "d": 0.9
+        },
+        {
+          "u": 0.4,
+          "v": 6.0,
+          "d": 1.0
+        },
+        {
+          "u": 0.5,
+          "v": 5.0,
+          "d": 1.0
+        }
+      ],
+      "radiusCm": 0.25,
+      "uncertaintyCm": 0.3,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "median-nerve-recurrent-branch",
+      "label": "recurrent (motor) branch of the median nerve to the thenar muscles",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 0.6,
+          "v": 5.6,
+          "d": 1.0
+        },
+        {
+          "u": 2.0,
+          "v": 6.0,
+          "d": 0.7
+        },
+        {
+          "u": 2.8,
+          "v": 6.2,
+          "d": 0.6
+        }
+      ],
+      "radiusCm": 0.08,
+      "uncertaintyCm": 0.3,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "common-palmar-digital-artery-2-3",
+      "label": "common palmar digital artery (2-3 metacarpal space)",
+      "kind": "artery",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 0.6,
+          "v": 3.4,
+          "d": 0.75
+        },
+        {
+          "u": 0.6,
+          "v": 0.5,
+          "d": 0.75
+        },
+        {
+          "u": 0.6,
+          "v": -1.8,
+          "d": 0.6
+        }
+      ],
+      "radiusCm": 0.1,
+      "uncertaintyCm": 0.3,
+      "consequence": "bleeding"
+    },
+    {
+      "id": "common-palmar-digital-nerve-2-3",
+      "label": "common palmar digital nerve (2-3 metacarpal space)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 1.3,
+          "v": 4.6,
+          "d": 0.95
+        },
+        {
+          "u": 1.3,
+          "v": 0.5,
+          "d": 0.85
+        },
+        {
+          "u": 1.3,
+          "v": -1.8,
+          "d": 0.6
+        }
+      ],
+      "radiusCm": 0.1,
+      "uncertaintyCm": 0.3,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "common-palmar-digital-artery-3-4",
+      "label": "common palmar digital artery (3-4 metacarpal space)",
+      "kind": "artery",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -1.2,
+          "v": 3.4,
+          "d": 0.75
+        },
+        {
+          "u": -1.2,
+          "v": 0.5,
+          "d": 0.75
+        },
+        {
+          "u": -1.2,
+          "v": -1.8,
+          "d": 0.6
+        }
+      ],
+      "radiusCm": 0.1,
+      "uncertaintyCm": 0.3,
+      "consequence": "bleeding"
+    },
+    {
+      "id": "common-palmar-digital-nerve-3-4",
+      "label": "common palmar digital nerve (3-4 metacarpal space)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -0.6,
+          "v": 4.6,
+          "d": 0.95
+        },
+        {
+          "u": -0.6,
+          "v": 0.5,
+          "d": 0.85
+        },
+        {
+          "u": -0.6,
+          "v": -1.8,
+          "d": 0.6
+        }
+      ],
+      "radiusCm": 0.1,
+      "uncertaintyCm": 0.3,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "common-palmar-digital-artery-4-5",
+      "label": "common palmar digital artery (4-5 metacarpal space)",
+      "kind": "artery",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -3.05,
+          "v": 3.4,
+          "d": 0.75
+        },
+        {
+          "u": -3.05,
+          "v": 0.5,
+          "d": 0.75
+        },
+        {
+          "u": -3.05,
+          "v": -1.8,
+          "d": 0.6
+        }
+      ],
+      "radiusCm": 0.1,
+      "uncertaintyCm": 0.3,
+      "consequence": "bleeding"
+    },
+    {
+      "id": "common-palmar-digital-nerve-4-5",
+      "label": "common palmar digital nerve (4-5 metacarpal space)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -2.35,
+          "v": 4.6,
+          "d": 0.95
+        },
+        {
+          "u": -2.35,
+          "v": 0.5,
+          "d": 0.85
+        },
+        {
+          "u": -2.35,
+          "v": -1.8,
+          "d": 0.6
+        }
+      ],
+      "radiusCm": 0.1,
+      "uncertaintyCm": 0.3,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "palmar-digital-nerve-2-radial",
+      "label": "proper palmar digital nerve, radial side of the index finger (the digital artery runs alongside)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 2.58,
+          "v": -1.8,
+          "d": 0.45
+        },
+        {
+          "u": 2.74,
+          "v": -4.5,
+          "d": 0.4
+        },
+        {
+          "u": 2.89,
+          "v": -7.2,
+          "d": 0.35
+        }
+      ],
+      "radiusCm": 0.08,
+      "uncertaintyCm": 0.25,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "palmar-digital-nerve-2-ulnar",
+      "label": "proper palmar digital nerve, ulnar side of the index finger (the digital artery runs alongside)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 1.18,
+          "v": -1.8,
+          "d": 0.45
+        },
+        {
+          "u": 1.34,
+          "v": -4.5,
+          "d": 0.4
+        },
+        {
+          "u": 1.49,
+          "v": -7.2,
+          "d": 0.35
+        }
+      ],
+      "radiusCm": 0.08,
+      "uncertaintyCm": 0.25,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "palmar-digital-nerve-3-radial",
+      "label": "proper palmar digital nerve, radial side of the middle finger (the digital artery runs alongside)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 0.75,
+          "v": -1.8,
+          "d": 0.45
+        },
+        {
+          "u": 0.75,
+          "v": -5.0,
+          "d": 0.4
+        },
+        {
+          "u": 0.75,
+          "v": -8.1,
+          "d": 0.35
+        }
+      ],
+      "radiusCm": 0.08,
+      "uncertaintyCm": 0.25,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "palmar-digital-nerve-3-ulnar",
+      "label": "proper palmar digital nerve, ulnar side of the middle finger (the digital artery runs alongside)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -0.75,
+          "v": -1.8,
+          "d": 0.45
+        },
+        {
+          "u": -0.75,
+          "v": -5.0,
+          "d": 0.4
+        },
+        {
+          "u": -0.75,
+          "v": -8.1,
+          "d": 0.35
+        }
+      ],
+      "radiusCm": 0.08,
+      "uncertaintyCm": 0.25,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "palmar-digital-nerve-4-radial",
+      "label": "proper palmar digital nerve, radial side of the ring finger (the digital artery runs alongside)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -1.16,
+          "v": -1.9,
+          "d": 0.45
+        },
+        {
+          "u": -1.29,
+          "v": -4.8,
+          "d": 0.4
+        },
+        {
+          "u": -1.42,
+          "v": -7.8,
+          "d": 0.35
+        }
+      ],
+      "radiusCm": 0.08,
+      "uncertaintyCm": 0.25,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "palmar-digital-nerve-4-ulnar",
+      "label": "proper palmar digital nerve, ulnar side of the ring finger (the digital artery runs alongside)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -2.56,
+          "v": -1.9,
+          "d": 0.45
+        },
+        {
+          "u": -2.69,
+          "v": -4.8,
+          "d": 0.4
+        },
+        {
+          "u": -2.82,
+          "v": -7.8,
+          "d": 0.35
+        }
+      ],
+      "radiusCm": 0.08,
+      "uncertaintyCm": 0.25,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "palmar-digital-nerve-5-radial",
+      "label": "proper palmar digital nerve, radial side of the little finger (the digital artery runs alongside)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -3.18,
+          "v": -1.5,
+          "d": 0.45
+        },
+        {
+          "u": -3.37,
+          "v": -3.4,
+          "d": 0.4
+        },
+        {
+          "u": -3.59,
+          "v": -5.6,
+          "d": 0.35
+        }
+      ],
+      "radiusCm": 0.08,
+      "uncertaintyCm": 0.25,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "palmar-digital-nerve-5-ulnar",
+      "label": "proper palmar digital nerve, ulnar side of the little finger (the digital artery runs alongside)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -4.28,
+          "v": -1.5,
+          "d": 0.45
+        },
+        {
+          "u": -4.47,
+          "v": -3.4,
+          "d": 0.4
+        },
+        {
+          "u": -4.69,
+          "v": -5.6,
+          "d": 0.35
+        }
+      ],
+      "radiusCm": 0.08,
+      "uncertaintyCm": 0.25,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "palmar-digital-nerve-1-radial",
+      "label": "proper palmar digital nerve, radial side of the thumb (the digital artery runs alongside)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 6.99,
+          "v": 3.34,
+          "d": 0.45
+        },
+        {
+          "u": 7.82,
+          "v": 0.98,
+          "d": 0.4
+        },
+        {
+          "u": 8.55,
+          "v": -1.1,
+          "d": 0.35
+        }
+      ],
+      "radiusCm": 0.08,
+      "uncertaintyCm": 0.25,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "palmar-digital-nerve-1-ulnar",
+      "label": "proper palmar digital nerve, ulnar side of the thumb (the digital artery runs alongside)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 5.48,
+          "v": 2.81,
+          "d": 0.45
+        },
+        {
+          "u": 6.31,
+          "v": 0.45,
+          "d": 0.4
+        },
+        {
+          "u": 7.04,
+          "v": -1.63,
+          "d": 0.35
+        }
+      ],
+      "radiusCm": 0.08,
+      "uncertaintyCm": 0.25,
+      "consequence": "electric-sensation"
+    }
+  ],
+  "description": "The palm and the palmar fingers. The palmar skin is thick and bound to the palmar aponeurosis by fibrous septa. Under the aponeurosis the superficial palmar arch crosses the palm at about the level of the extended thumb's web, with the common palmar digital arteries and nerves running distally between the flexor tendons to the webs, where they divide into the proper palmar digital vessels and nerves that run along the sides of each finger. Deeper, on the bases of the metacarpals and the interossei, lies the deep palmar arch. The median nerve enters the palm through the carpal tunnel under the flexor retinaculum and gives the recurrent branch to the thenar muscles; the ulnar nerve and artery pass radial to the pisiform through Guyon's canal. The thenar and hypothenar eminences cover the first and fifth metacarpals. Over the fingers the flexor tendons lie in their fibrous sheaths on the phalanges and palmar plates; the pulp of the fingertip covers the tuft of the distal phalanx.",
+  "provenance": {
+    "kind": "schematic",
+    "sources": [
+      {
+        "title": "General regional anatomy of the hand (standard anatomy texts)",
+        "verified": false,
+        "note": "Topography only; no third-party geometry or images were used."
+      }
+    ],
+    "licence": "CC0-1.0 (original schematic geometry)",
+    "review": {
+      "status": "unreviewed",
+      "reviewers": [],
+      "notes": "Positions and depths are illustrative approximations of a reference adult written for simulation. They are not measurements or an atlas and are not a guide to safe depths in real patients. Anatomical expert review is required before any teaching use."
+    }
+  }
+}

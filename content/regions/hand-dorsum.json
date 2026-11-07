@@ -1,18 +1,18 @@
 {
   "schema": "acucraft/region@1",
   "id": "hand-dorsum",
-  "version": "0.1.0",
-  "title": "dorsum of the hand",
+  "version": "0.2.0",
+  "title": "dorsum of the hand, fingers and thumb",
   "laterality": "bilateral",
   "chart": {
-    "description": "The back of the hand. u: distance (cm) from the axis of the third metacarpal, positive towards the radial (thumb) side, negative towards the ulnar side. v: distance (cm) proximal from the line of the metacarpophalangeal joints (knuckles). d: depth below the skin (cm).",
+    "description": "The back of the hand and of the fingers. u: distance (cm) from the axis of the third metacarpal, positive towards the radial (thumb) side, negative towards the ulnar side. v: distance (cm) proximal from the line of the metacarpophalangeal joints (knuckles); negative along the fingers to the fingertips (the middle fingertip at about -10). The thumb, resting beside the index finger, runs distally and radially from its metacarpophalangeal joint at about (6.4, 2.4). d: depth below the skin (cm).",
     "uRange": [
       -6,
-      7
+      11
     ],
     "vRange": [
-      -1,
-      9
+      -11,
+      10
     ]
   },
   "configurations": [
@@ -127,6 +127,157 @@
         "u": 0,
         "v": 8.0
       }
+    },
+    {
+      "id": "mc3-head",
+      "label": "head of the third metacarpal (the middle knuckle)",
+      "at": {
+        "u": 0.0,
+        "v": 0.0
+      },
+      "palpation": "Make a loose fist: the most prominent knuckle."
+    },
+    {
+      "id": "mc4-head",
+      "label": "head of the fourth metacarpal (the ring knuckle)",
+      "at": {
+        "u": -1.8,
+        "v": 0.1
+      }
+    },
+    {
+      "id": "mc5-head",
+      "label": "head of the fifth metacarpal (the little-finger knuckle)",
+      "at": {
+        "u": -3.6,
+        "v": 0.3
+      }
+    },
+    {
+      "id": "cleft-2-3",
+      "label": "depression between the heads of the second and third metacarpals",
+      "at": {
+        "u": 0.8,
+        "v": 0.5
+      },
+      "palpation": "Between the index and middle knuckles, just proximal to them."
+    },
+    {
+      "id": "cleft-4-5",
+      "label": "depression between the heads of the fourth and fifth metacarpals",
+      "at": {
+        "u": -2.75,
+        "v": 0.6
+      },
+      "palpation": "Between the ring and little-finger knuckles, just proximal to them."
+    },
+    {
+      "id": "web-4-5",
+      "label": "margin of the web between the ring and little fingers",
+      "at": {
+        "u": -2.8,
+        "v": -1.9
+      },
+      "palpation": "With the fingers slightly spread, the free edge of the skin web between the ring and little fingers."
+    },
+    {
+      "id": "mc5-base",
+      "label": "base of the fifth metacarpal (ulnar border)",
+      "at": {
+        "u": -4.3,
+        "v": 6.4
+      },
+      "palpation": "Run a finger proximally along the ulnar border of the fifth metacarpal to the prominence at its base."
+    },
+    {
+      "id": "triquetrum",
+      "label": "triquetrum, on the ulnar border of the wrist",
+      "at": {
+        "u": -4.4,
+        "v": 7.9
+      },
+      "palpation": "Proximal to the base of the fifth metacarpal and distal to the ulnar styloid; clearer with the wrist deviated radially."
+    },
+    {
+      "id": "mcp-1-dorsal",
+      "label": "dorsum of the thumb metacarpophalangeal joint",
+      "at": {
+        "u": 6.4,
+        "v": 2.4
+      },
+      "palpation": "Flex the thumb at its base: the joint line on the back of the thumb."
+    },
+    {
+      "id": "ip-1-dorsal",
+      "label": "centre of the dorsum of the thumb interphalangeal joint",
+      "at": {
+        "u": 7.4,
+        "v": -0.43
+      },
+      "palpation": "Flex the tip of the thumb: the middle of the joint line on the back of the thumb."
+    },
+    {
+      "id": "pip-3-dorsal",
+      "label": "centre of the dorsum of the proximal interphalangeal joint of the middle finger",
+      "at": {
+        "u": 0.0,
+        "v": -5.0
+      },
+      "palpation": "Flex the finger: the middle of the joint line on the back of the middle finger at its first finger joint."
+    },
+    {
+      "id": "pip-5-dorsal",
+      "label": "centre of the dorsum of the proximal interphalangeal joint of the little finger",
+      "at": {
+        "u": -3.92,
+        "v": -3.4
+      },
+      "palpation": "Flex the finger: the middle of the joint line on the back of the little finger at its first finger joint."
+    },
+    {
+      "id": "nail-1-radial-corner",
+      "label": "radial corner of the thumbnail",
+      "at": {
+        "u": 8.27,
+        "v": -0.65
+      },
+      "palpation": "Where the radial border of the nail meets the line of its base (the proximal nail fold)."
+    },
+    {
+      "id": "nail-2-radial-corner",
+      "label": "radial corner of the nail of the index finger",
+      "at": {
+        "u": 2.8,
+        "v": -7.3
+      },
+      "palpation": "Where the radial border of the nail meets the line of its base."
+    },
+    {
+      "id": "nail-4-ulnar-corner",
+      "label": "ulnar corner of the nail of the ring finger",
+      "at": {
+        "u": -2.72,
+        "v": -7.9
+      },
+      "palpation": "Where the ulnar border of the nail meets the line of its base."
+    },
+    {
+      "id": "nail-5-radial-corner",
+      "label": "radial corner of the nail of the little finger",
+      "at": {
+        "u": -3.65,
+        "v": -5.7
+      },
+      "palpation": "Where the radial border of the nail meets the line of its base."
+    },
+    {
+      "id": "nail-5-ulnar-corner",
+      "label": "ulnar corner of the nail of the little finger",
+      "at": {
+        "u": -4.65,
+        "v": -5.7
+      },
+      "palpation": "Where the ulnar border of the nail meets the line of its base."
     }
   ],
   "segments": [],
@@ -213,6 +364,807 @@
             "thicknessCm": 1.0
           }
         ]
+      },
+      {
+        "id": "z-finger-2-proximal",
+        "centre": {
+          "u": 1.92,
+          "v": -2.5
+        },
+        "radiusCm": 1.0,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.15,
+            "label": "extensor expansion"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 0.8,
+            "label": "phalanx"
+          }
+        ]
+      },
+      {
+        "id": "z-finger-2-middle",
+        "centre": {
+          "u": 2.11,
+          "v": -5.7
+        },
+        "radiusCm": 0.9,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.15,
+            "label": "extensor expansion"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 0.8,
+            "label": "phalanx"
+          }
+        ]
+      },
+      {
+        "id": "z-finger-3-proximal",
+        "centre": {
+          "u": 0.0,
+          "v": -2.75
+        },
+        "radiusCm": 1.0,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.15,
+            "label": "extensor expansion"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 0.8,
+            "label": "phalanx"
+          }
+        ]
+      },
+      {
+        "id": "z-finger-3-middle",
+        "centre": {
+          "u": 0.0,
+          "v": -6.4
+        },
+        "radiusCm": 0.9,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.15,
+            "label": "extensor expansion"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 0.8,
+            "label": "phalanx"
+          }
+        ]
+      },
+      {
+        "id": "z-finger-4-proximal",
+        "centre": {
+          "u": -1.89,
+          "v": -2.7
+        },
+        "radiusCm": 1.0,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.15,
+            "label": "extensor expansion"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 0.8,
+            "label": "phalanx"
+          }
+        ]
+      },
+      {
+        "id": "z-finger-4-middle",
+        "centre": {
+          "u": -2.05,
+          "v": -6.15
+        },
+        "radiusCm": 0.9,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.15,
+            "label": "extensor expansion"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 0.8,
+            "label": "phalanx"
+          }
+        ]
+      },
+      {
+        "id": "z-finger-5-proximal",
+        "centre": {
+          "u": -3.76,
+          "v": -1.8
+        },
+        "radiusCm": 1.0,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.15,
+            "label": "extensor expansion"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 0.8,
+            "label": "phalanx"
+          }
+        ]
+      },
+      {
+        "id": "z-finger-5-middle",
+        "centre": {
+          "u": -4.01,
+          "v": -4.35
+        },
+        "radiusCm": 0.9,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.15,
+            "label": "extensor expansion"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 0.8,
+            "label": "phalanx"
+          }
+        ]
+      },
+      {
+        "id": "z-thumb-proximal",
+        "centre": {
+          "u": 6.9,
+          "v": 0.98
+        },
+        "radiusCm": 1.0,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.15,
+            "label": "extensor expansion"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 0.8,
+            "label": "phalanx"
+          }
+        ]
+      },
+      {
+        "id": "z-pip-3",
+        "centre": {
+          "u": 0.0,
+          "v": -5.0
+        },
+        "radiusCm": 0.6,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.1
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.2,
+            "label": "central slip of the extensor tendon"
+          },
+          {
+            "tissue": "joint-space",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 0.8,
+            "label": "phalanx"
+          }
+        ]
+      },
+      {
+        "id": "z-pip-5",
+        "centre": {
+          "u": -3.92,
+          "v": -3.4
+        },
+        "radiusCm": 0.5,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.1
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.2,
+            "label": "central slip of the extensor tendon"
+          },
+          {
+            "tissue": "joint-space",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 0.8,
+            "label": "phalanx"
+          }
+        ]
+      },
+      {
+        "id": "z-ip-1",
+        "centre": {
+          "u": 7.4,
+          "v": -0.43
+        },
+        "radiusCm": 0.55,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.1
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.2,
+            "label": "extensor pollicis longus tendon"
+          },
+          {
+            "tissue": "joint-space",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 0.8,
+            "label": "phalanx"
+          }
+        ]
+      },
+      {
+        "id": "z-nail-1",
+        "centre": {
+          "u": 8.47,
+          "v": -0.45
+        },
+        "radiusCm": 0.45,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 0.6,
+            "label": "distal phalanx"
+          }
+        ]
+      },
+      {
+        "id": "z-nail-2",
+        "centre": {
+          "u": 3.0,
+          "v": -7.1
+        },
+        "radiusCm": 0.45,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 0.6,
+            "label": "distal phalanx"
+          }
+        ]
+      },
+      {
+        "id": "z-nail-4",
+        "centre": {
+          "u": -2.92,
+          "v": -7.7
+        },
+        "radiusCm": 0.45,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 0.6,
+            "label": "distal phalanx"
+          }
+        ]
+      },
+      {
+        "id": "z-nail-5-radial",
+        "centre": {
+          "u": -3.45,
+          "v": -5.5
+        },
+        "radiusCm": 0.45,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 0.6,
+            "label": "distal phalanx"
+          }
+        ]
+      },
+      {
+        "id": "z-nail-5-ulnar",
+        "centre": {
+          "u": -4.85,
+          "v": -5.5
+        },
+        "radiusCm": 0.45,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.05
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 0.6,
+            "label": "distal phalanx"
+          }
+        ]
+      },
+      {
+        "id": "z-li2",
+        "centre": {
+          "u": 2.2,
+          "v": -0.9
+        },
+        "radiusCm": 0.6,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.2,
+            "label": "first dorsal interosseous insertion and the extensor hood"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 0.9,
+            "label": "base of the proximal phalanx"
+          }
+        ]
+      },
+      {
+        "id": "z-si2",
+        "centre": {
+          "u": -4.2,
+          "v": -0.5
+        },
+        "radiusCm": 0.6,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.2,
+            "label": "abductor digiti minimi insertion"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 0.9,
+            "label": "base of the proximal phalanx"
+          }
+        ]
+      },
+      {
+        "id": "z-te2",
+        "centre": {
+          "u": -2.8,
+          "v": -1.6
+        },
+        "radiusCm": 0.5,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.5
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.2,
+            "label": "web-space fascia"
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.5,
+            "label": "palmar web"
+          },
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.3,
+            "label": "palmar skin"
+          }
+        ]
+      },
+      {
+        "id": "z-te3",
+        "centre": {
+          "u": -2.75,
+          "v": 1.5
+        },
+        "radiusCm": 0.7,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.4,
+            "label": "fourth dorsal and third palmar interossei"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.2,
+            "label": "deep palmar fascia"
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.5,
+            "label": "flexor tendons and lumbrical of the little finger"
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.5,
+            "label": "palmar"
+          },
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.3,
+            "label": "palmar skin"
+          }
+        ]
+      },
+      {
+        "id": "z-ex-ue7",
+        "centre": {
+          "u": 0.9,
+          "v": 4.25
+        },
+        "radiusCm": 0.5,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.3,
+            "label": "second dorsal interosseous"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.6,
+            "label": "adductor pollicis (transverse head)"
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.6,
+            "label": "palmar"
+          },
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.4,
+            "label": "palmar skin"
+          }
+        ]
+      },
+      {
+        "id": "z-ex-ue8",
+        "centre": {
+          "u": 0.8,
+          "v": 1.5
+        },
+        "radiusCm": 0.4,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.2,
+            "label": "second dorsal interosseous"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.6,
+            "label": "flexor tendons and lumbrical of the middle finger"
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.5,
+            "label": "palmar"
+          },
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.3,
+            "label": "palmar skin"
+          }
+        ]
+      },
+      {
+        "id": "z-web-1",
+        "centre": {
+          "u": 5.2,
+          "v": 1.5
+        },
+        "radiusCm": 0.6,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.4
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.6,
+            "label": "first dorsal interosseous and adductor pollicis (free edge)"
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.4,
+            "label": "palmar"
+          },
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2,
+            "label": "palmar skin"
+          }
+        ]
+      },
+      {
+        "id": "z-si4",
+        "centre": {
+          "u": -4.35,
+          "v": 7.15
+        },
+        "radiusCm": 0.6,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.4,
+            "label": "abductor digiti minimi (origin)"
+          },
+          {
+            "tissue": "ligament",
+            "thicknessCm": 0.2,
+            "label": "carpometacarpal ligaments"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.0,
+            "label": "base of the fifth metacarpal and hamate"
+          }
+        ]
       }
     ]
   },
@@ -294,9 +1246,285 @@
       "radiusCm": 0.15,
       "uncertaintyCm": 0.3,
       "consequence": "bleeding"
+    },
+    {
+      "id": "dorsal-digital-nerve-1-radial",
+      "label": "dorsal digital nerve, radial side of the thumb (and the dorsal branch of the palmar digital nerve at the nail fold)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 7.65,
+          "v": 2.31,
+          "d": 0.3
+        },
+        {
+          "u": 8.24,
+          "v": 0.93,
+          "d": 0.25
+        },
+        {
+          "u": 8.87,
+          "v": -0.87,
+          "d": 0.2
+        }
+      ],
+      "radiusCm": 0.05,
+      "uncertaintyCm": 0.25,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "dorsal-digital-nerve-2-radial",
+      "label": "dorsal digital nerve, radial side of the index finger (and the dorsal branch of the palmar digital nerve at the nail fold)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 2.94,
+          "v": -2.0,
+          "d": 0.3
+        },
+        {
+          "u": 3.09,
+          "v": -4.5,
+          "d": 0.25
+        },
+        {
+          "u": 3.28,
+          "v": -7.8,
+          "d": 0.2
+        }
+      ],
+      "radiusCm": 0.05,
+      "uncertaintyCm": 0.25,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "dorsal-digital-nerve-4-ulnar",
+      "label": "dorsal digital nerve, ulnar side of the ring finger (and the dorsal branch of the palmar digital nerve at the nail fold)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -2.92,
+          "v": -2.1,
+          "d": 0.3
+        },
+        {
+          "u": -3.04,
+          "v": -4.8,
+          "d": 0.25
+        },
+        {
+          "u": -3.2,
+          "v": -8.4,
+          "d": 0.2
+        }
+      ],
+      "radiusCm": 0.05,
+      "uncertaintyCm": 0.25,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "dorsal-digital-nerve-5-radial",
+      "label": "dorsal digital nerve, radial side of the little finger (and the dorsal branch of the palmar digital nerve at the nail fold)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -2.85,
+          "v": -1.7,
+          "d": 0.3
+        },
+        {
+          "u": -3.02,
+          "v": -3.4,
+          "d": 0.25
+        },
+        {
+          "u": -3.3,
+          "v": -6.2,
+          "d": 0.2
+        }
+      ],
+      "radiusCm": 0.05,
+      "uncertaintyCm": 0.25,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "dorsal-digital-nerve-5-ulnar",
+      "label": "dorsal digital nerve, ulnar side of the little finger (and the dorsal branch of the palmar digital nerve at the nail fold)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -4.65,
+          "v": -1.7,
+          "d": 0.3
+        },
+        {
+          "u": -4.82,
+          "v": -3.4,
+          "d": 0.25
+        },
+        {
+          "u": -5.1,
+          "v": -6.2,
+          "d": 0.2
+        }
+      ],
+      "radiusCm": 0.05,
+      "uncertaintyCm": 0.25,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "dorsal-branch-ulnar-nerve-hand",
+      "label": "dorsal branch of the ulnar nerve and its digital branches",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -4.6,
+          "v": 9.5,
+          "d": 0.3
+        },
+        {
+          "u": -4.0,
+          "v": 7.0,
+          "d": 0.3
+        },
+        {
+          "u": -3.3,
+          "v": 3.5,
+          "d": 0.3
+        },
+        {
+          "u": -3.0,
+          "v": 1.0,
+          "d": 0.25
+        }
+      ],
+      "radiusCm": 0.08,
+      "uncertaintyCm": 0.3,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "dorsal-metacarpal-artery-4",
+      "label": "fourth dorsal metacarpal artery",
+      "kind": "artery",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -2.5,
+          "v": 6.0,
+          "d": 0.6
+        },
+        {
+          "u": -2.45,
+          "v": 1.0,
+          "d": 0.55
+        },
+        {
+          "u": -2.5,
+          "v": -1.3,
+          "d": 0.45
+        }
+      ],
+      "radiusCm": 0.08,
+      "uncertaintyCm": 0.3,
+      "consequence": "haematoma"
+    },
+    {
+      "id": "palmar-digital-bundle-4-5",
+      "label": "common palmar digital nerve and artery of the ring-little web (as reached from the dorsum)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -2.55,
+          "v": 0.5,
+          "d": 1.3
+        },
+        {
+          "u": -2.55,
+          "v": -1.6,
+          "d": 0.9
+        },
+        {
+          "u": -2.6,
+          "v": -2.4,
+          "d": 0.8
+        }
+      ],
+      "radiusCm": 0.1,
+      "uncertaintyCm": 0.3,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "pip-3-joint",
+      "label": "proximal interphalangeal joint of the middle finger",
+      "kind": "joint-capsule",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -0.7,
+          "v": -5.0,
+          "d": 0.5
+        },
+        {
+          "u": 0.7,
+          "v": -5.0,
+          "d": 0.5
+        }
+      ],
+      "radiusCm": 0.12,
+      "uncertaintyCm": 0.2,
+      "consequence": "joint-penetration"
+    },
+    {
+      "id": "pip-5-joint",
+      "label": "proximal interphalangeal joint of the little finger",
+      "kind": "joint-capsule",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -4.47,
+          "v": -3.4,
+          "d": 0.45
+        },
+        {
+          "u": -3.37,
+          "v": -3.4,
+          "d": 0.45
+        }
+      ],
+      "radiusCm": 0.1,
+      "uncertaintyCm": 0.2,
+      "consequence": "joint-penetration"
+    },
+    {
+      "id": "ip-1-joint",
+      "label": "interphalangeal joint of the thumb",
+      "kind": "joint-capsule",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 6.78,
+          "v": -0.65,
+          "d": 0.5
+        },
+        {
+          "u": 8.01,
+          "v": -0.22,
+          "d": 0.5
+        }
+      ],
+      "radiusCm": 0.12,
+      "uncertaintyCm": 0.2,
+      "consequence": "joint-penetration"
     }
   ],
-  "description": "The back of the hand. Between the first and second metacarpals the first web space holds the first dorsal interosseous and, deeper, adductor pollicis; a needle passed straight through it reaches the palmar skin. The radial artery crosses the anatomical snuffbox and dives between the two heads of the first dorsal interosseous near the bases of the metacarpals. Dorsal branches of the superficial radial nerve and the dorsal venous network lie in the subcutaneous tissue.",
+  "description": "The back of the hand and of the fingers. Between the first and second metacarpals the first web space holds the first dorsal interosseous and, deeper, adductor pollicis; a needle passed straight through it reaches the palmar skin. The radial artery crosses the anatomical snuffbox and dives between the two heads of the first dorsal interosseous near the bases of the metacarpals. Dorsal branches of the superficial radial nerve and the dorsal venous network lie in the subcutaneous tissue; the dorsal branch of the ulnar nerve supplies the ulnar side. Between the metacarpals the dorsal interossei lie over the palmar interossei and, deeper, the flexor tendons, lumbricals and the common palmar digital vessels and nerves. On the fingers the skin and extensor expansion are thin over the phalanges and the interphalangeal joints; at the nail folds bone lies a few millimetres deep, with the digital nerves along the sides of the fingers.",
   "provenance": {
     "kind": "schematic",
     "sources": [

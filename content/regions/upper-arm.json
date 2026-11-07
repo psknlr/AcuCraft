@@ -1,0 +1,1684 @@
+{
+  "schema": "acucraft/region@1",
+  "id": "upper-arm",
+  "version": "0.1.0",
+  "title": "shoulder, axilla, arm and elbow",
+  "laterality": "bilateral",
+  "chart": {
+    "description": "The shoulder, arm and elbow unrolled round the limb. u: distance round the limb (cm) from the anterior midline of the arm (over biceps brachii), positive towards lateral (deltoid, lateral epicondyle) and on round the back of the arm (triceps, olecranon at about +13.7) to the posteromedial elbow (ulnar groove at about +18.4); negative towards medial (medial bicipital groove, medial epicondyle, axilla). The two ends of the chart meet on the posteromedial arm. v: distance (cm) along the arm from the level of the cubital crease (v = 0 at its midpoint), positive cranial towards the shoulder; above the lateral border of the acromion (v about 31) v continues over the top of the shoulder towards the base of the neck. d: depth below the skin (cm).",
+    "uRange": [
+      -12,
+      23
+    ],
+    "vRange": [
+      -6,
+      41
+    ]
+  },
+  "reference": {
+    "heightCm": 170,
+    "bmi": 22.5
+  },
+  "configurations": [
+    {
+      "id": "arm-at-side",
+      "label": "arm by the side, elbow extended (the anatomical position; prone with the arms alongside)"
+    },
+    {
+      "id": "elbow-flexed",
+      "label": "arm by the side, elbow flexed to about 90 degrees with the forearm supported (seated or side-lying)"
+    },
+    {
+      "id": "arm-abducted",
+      "label": "arm abducted to about 90 degrees and supported, elbow extended, palm up (supine)"
+    }
+  ],
+  "defaultConfiguration": "arm-at-side",
+  "access": [
+    {
+      "position": "seated",
+      "configuration": "elbow-flexed",
+      "sides": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "position": "supine",
+      "configuration": "arm-abducted",
+      "sides": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "position": "supine-knee-flexed",
+      "configuration": "arm-abducted",
+      "sides": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "position": "side-lying-left",
+      "configuration": "elbow-flexed",
+      "sides": [
+        "right"
+      ]
+    },
+    {
+      "position": "side-lying-right",
+      "configuration": "elbow-flexed",
+      "sides": [
+        "left"
+      ]
+    },
+    {
+      "position": "prone",
+      "configuration": "arm-at-side",
+      "sides": [
+        "left",
+        "right"
+      ]
+    }
+  ],
+  "landmarks": [
+    {
+      "id": "cubital-crease-mid",
+      "label": "midpoint of the cubital crease",
+      "at": {
+        "u": 0.4,
+        "v": 0.0
+      },
+      "palpation": "The transverse skin crease at the front of the elbow, seen with the elbow slightly flexed; its midpoint."
+    },
+    {
+      "id": "biceps-tendon",
+      "label": "biceps brachii tendon at the elbow",
+      "at": {
+        "u": 1.1,
+        "v": 0.3
+      },
+      "palpation": "Flex the elbow against resistance: the firm cord in the middle of the front of the elbow."
+    },
+    {
+      "id": "biceps-tendon-lateral-crease",
+      "label": "depression on the cubital crease just lateral to the biceps brachii tendon",
+      "at": {
+        "u": 2.1,
+        "v": 0.0
+      },
+      "palpation": "Raise the biceps tendon, then slide off its lateral (radial) edge into the hollow on the crease."
+    },
+    {
+      "id": "biceps-tendon-medial-crease",
+      "label": "depression on the cubital crease just medial to the biceps brachii tendon",
+      "at": {
+        "u": 0.1,
+        "v": 0.0
+      },
+      "palpation": "Slide off the medial (ulnar) edge of the tendon into the hollow on the crease; the brachial pulse is felt just medial and deep to it."
+    },
+    {
+      "id": "cubital-crease-lateral-end",
+      "label": "lateral (radial) end of the cubital crease",
+      "at": {
+        "u": 4.6,
+        "v": -0.3
+      },
+      "palpation": "Flex the elbow fully: the end of the crease on the thumb side."
+    },
+    {
+      "id": "cubital-crease-medial-end",
+      "label": "medial (ulnar) end of the cubital crease",
+      "at": {
+        "u": -4.6,
+        "v": -0.2
+      },
+      "palpation": "Flex the elbow: the end of the crease on the little-finger side, in front of the medial epicondyle."
+    },
+    {
+      "id": "lateral-cubital-depression",
+      "label": "depression at the lateral end of the cubital crease, midway between the biceps tendon and the lateral epicondyle",
+      "at": {
+        "u": 4.55,
+        "v": 0.15
+      },
+      "palpation": "With the elbow flexed to a right angle, the hollow at the lateral end of the crease, half-way from the biceps tendon to the lateral epicondyle."
+    },
+    {
+      "id": "lateral-epicondyle",
+      "label": "lateral epicondyle of the humerus",
+      "at": {
+        "u": 7.0,
+        "v": 0.3
+      },
+      "palpation": "The bony prominence on the outer side of the elbow."
+    },
+    {
+      "id": "medial-epicondyle",
+      "label": "medial epicondyle of the humerus",
+      "at": {
+        "u": -6.2,
+        "v": 0.8
+      },
+      "palpation": "The prominent bony knob on the inner side of the elbow."
+    },
+    {
+      "id": "olecranon",
+      "label": "tip of the olecranon (the point of the elbow)",
+      "at": {
+        "u": 13.65,
+        "v": 0.6
+      },
+      "palpation": "With the elbow straight it lies level with the two epicondyles; flexing the elbow brings it distally, below the line joining them.",
+      "configurations": {
+        "elbow-flexed": {
+          "du": 0,
+          "dv": -1.8,
+          "dd": 0
+        }
+      }
+    },
+    {
+      "id": "ulnar-groove",
+      "label": "groove between the olecranon and the medial epicondyle (ulnar nerve)",
+      "at": {
+        "u": 18.4,
+        "v": 0.7
+      },
+      "palpation": "Behind the medial epicondyle: the hollow in which the ulnar nerve can be rolled under the fingertip (a tingle to the little finger)."
+    },
+    {
+      "id": "anterior-axillary-fold",
+      "label": "end of the anterior axillary fold",
+      "at": {
+        "u": -0.6,
+        "v": 20.7
+      },
+      "palpation": "With the arm at the side, follow the lower border of pectoralis major to where the fold meets the front of the arm."
+    },
+    {
+      "id": "biceps-lateral-border-fold-level",
+      "label": "lateral border of biceps brachii, level with the end of the anterior axillary fold",
+      "at": {
+        "u": 3.5,
+        "v": 20.7
+      },
+      "palpation": "Level with the end of the anterior axillary fold, the groove along the lateral edge of biceps (tense the muscle to find it)."
+    },
+    {
+      "id": "posterior-axillary-fold",
+      "label": "end of the posterior axillary fold",
+      "at": {
+        "u": 16.2,
+        "v": 19.8
+      },
+      "palpation": "With the arm at the side, follow the fold at the back of the armpit (teres major and latissimus dorsi) to where it meets the arm."
+    },
+    {
+      "id": "axillary-fossa-centre",
+      "label": "centre of the axillary fossa",
+      "at": {
+        "u": -7.5,
+        "v": 24.5
+      },
+      "palpation": "With the arm abducted: the deepest point of the hollow of the armpit, between the two axillary folds, where the axillary pulse is felt."
+    },
+    {
+      "id": "deltoid-insertion",
+      "label": "deltoid tuberosity (lower apex of the deltoid)",
+      "at": {
+        "u": 6.6,
+        "v": 16.6
+      },
+      "palpation": "Abduct the arm against resistance: the lower point of the V of the deltoid on the outer arm, about half-way down the humerus."
+    },
+    {
+      "id": "greater-tubercle",
+      "label": "greater tubercle of the humerus",
+      "at": {
+        "u": 6.6,
+        "v": 27.8
+      },
+      "palpation": "Below the lateral border of the acromion, the most lateral bony point of the shoulder; it rolls under the finger when the arm is rotated."
+    },
+    {
+      "id": "acromion-anterior",
+      "label": "anterior end of the lateral border of the acromion",
+      "at": {
+        "u": 4.8,
+        "v": 30.4
+      },
+      "palpation": "Follow the lateral border of the acromion forwards to its front corner."
+    },
+    {
+      "id": "acromion-lateral",
+      "label": "midpoint of the lateral border of the acromion",
+      "at": {
+        "u": 7.8,
+        "v": 30.9
+      },
+      "palpation": "The flat bony shelf at the top of the shoulder; its outer edge."
+    },
+    {
+      "id": "acromial-angle",
+      "label": "acromial angle (posterolateral corner of the acromion)",
+      "at": {
+        "u": 11.4,
+        "v": 29.8
+      },
+      "palpation": "Follow the spine of the scapula laterally to where it turns forwards into the lateral border of the acromion."
+    },
+    {
+      "id": "acromion-anterior-depression",
+      "label": "depression anterior and inferior to the acromion, between it and the greater tubercle",
+      "at": {
+        "u": 5.7,
+        "v": 29.1
+      },
+      "palpation": "Abduct the arm: two hollows appear at the shoulder; this is the anterior one, between the front of the acromion and the greater tubercle."
+    },
+    {
+      "id": "acromioclavicular-joint",
+      "label": "acromioclavicular joint",
+      "at": {
+        "u": 5.8,
+        "v": 33.4
+      },
+      "palpation": "On top of the shoulder, the small step where the lateral end of the clavicle meets the acromion."
+    },
+    {
+      "id": "clavicle-spine-notch",
+      "label": "depression between the lateral end of the clavicle and the spine of the scapula",
+      "at": {
+        "u": 8.4,
+        "v": 35.2
+      },
+      "palpation": "On top of the shoulder, medial to the acromion: the V-shaped hollow between the clavicle in front and the spine of the scapula behind."
+    },
+    {
+      "id": "scapular-spine-lower-border",
+      "label": "lower border of the spine of the scapula, directly above the end of the posterior axillary fold",
+      "at": {
+        "u": 16.2,
+        "v": 28.4
+      },
+      "palpation": "Follow the posterior axillary fold straight up to the lower edge of the bony spine of the scapula."
+    },
+    {
+      "id": "coracoid-process",
+      "label": "coracoid process",
+      "at": {
+        "u": -0.4,
+        "v": 30.8
+      },
+      "palpation": "Deep in the groove between deltoid and pectoralis major, one finger-breadth below the clavicle; tender on firm pressure."
+    }
+  ],
+  "segments": [
+    {
+      "id": "seg.arm",
+      "label": "end of the anterior axillary fold to the cubital crease",
+      "from": "anterior-axillary-fold",
+      "to": "cubital-crease-mid",
+      "cun": 9,
+      "source": {
+        "title": "WHO Standard Acupuncture Point Locations (2008): proportional bone measurement, upper limb",
+        "verified": false,
+        "note": "The standard gives 9 B-cun from the anterior or posterior axillary fold to the cubital crease; the posterior arm uses the same cun."
+      }
+    }
+  ],
+  "tissue": {
+    "layers": [
+      {
+        "tissue": "skin",
+        "thicknessCm": 0.2
+      },
+      {
+        "tissue": "subcutaneous",
+        "thicknessCm": 0.7
+      },
+      {
+        "tissue": "muscle",
+        "thicknessCm": 3.2,
+        "label": "arm muscles (biceps and brachialis in front, triceps behind)"
+      },
+      {
+        "tissue": "bone",
+        "thicknessCm": 2.2,
+        "label": "humerus"
+      }
+    ],
+    "zones": [
+      {
+        "id": "z-li15",
+        "centre": {
+          "u": 5.7,
+          "v": 29.1
+        },
+        "radiusCm": 1.2,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.5
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.9,
+            "label": "deltoid (anterior fibres)"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.2,
+            "label": "subacromial-subdeltoid bursa"
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.5,
+            "label": "supraspinatus and the long head of biceps"
+          },
+          {
+            "tissue": "joint-space",
+            "thicknessCm": 0.2,
+            "label": "shoulder joint"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 3.0,
+            "label": "head of the humerus"
+          }
+        ]
+      },
+      {
+        "id": "z-te14",
+        "centre": {
+          "u": 9.0,
+          "v": 28.8
+        },
+        "radiusCm": 1.2,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.6
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.2,
+            "label": "deltoid (posterior fibres)"
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.2,
+            "label": "subdeltoid bursa"
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.6,
+            "label": "infraspinatus and teres minor"
+          },
+          {
+            "tissue": "joint-space",
+            "thicknessCm": 0.2,
+            "label": "shoulder joint"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 3.0,
+            "label": "head of the humerus"
+          }
+        ]
+      },
+      {
+        "id": "z-acromion",
+        "centre": {
+          "u": 7.9,
+          "v": 31.3
+        },
+        "radiusCm": 1.0,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.1
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.0,
+            "label": "acromion"
+          }
+        ]
+      },
+      {
+        "id": "z-li16",
+        "centre": {
+          "u": 8.4,
+          "v": 35.2
+        },
+        "radiusCm": 1.5,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.6
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.9,
+            "label": "trapezius"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.2,
+            "label": "supraspinatus"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.0,
+            "label": "scapula (supraspinous fossa)"
+          }
+        ]
+      },
+      {
+        "id": "z-axilla",
+        "centre": {
+          "u": -7.5,
+          "v": 24.5
+        },
+        "radiusCm": 2.2,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.15
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 1.0
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.2,
+            "label": "axillary fascia"
+          },
+          {
+            "tissue": "fat-pad",
+            "thicknessCm": 2.6,
+            "label": "axillary fat and lymph nodes around the neurovascular bundle"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.5,
+            "label": "subscapularis and serratus anterior"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "scapula and ribs"
+          }
+        ]
+      },
+      {
+        "id": "z-si9",
+        "centre": {
+          "u": 16.2,
+          "v": 22.1
+        },
+        "radiusCm": 1.5,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.8
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.5,
+            "label": "deltoid (posterior fibres)"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.2,
+            "label": "teres major and minor, long head of triceps"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "lateral border of the scapula"
+          }
+        ]
+      },
+      {
+        "id": "z-si10",
+        "centre": {
+          "u": 16.2,
+          "v": 27.8
+        },
+        "radiusCm": 1.5,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.8
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.0,
+            "label": "deltoid (posterior fibres)"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.8,
+            "label": "infraspinatus"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 1.0,
+            "label": "scapula (infraspinous fossa)"
+          }
+        ]
+      },
+      {
+        "id": "z-li14",
+        "centre": {
+          "u": 5.19,
+          "v": 16.26
+        },
+        "radiusCm": 1.4,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.6
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.8,
+            "label": "deltoid insertion and brachialis"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.2,
+            "label": "humerus"
+          }
+        ]
+      },
+      {
+        "id": "z-ht2",
+        "centre": {
+          "u": -3.6,
+          "v": 6.71
+        },
+        "radiusCm": 1.0,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.6
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.2,
+            "label": "deep fascia over the medial bicipital groove"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.2,
+            "label": "brachialis and the medial head of triceps"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.2,
+            "label": "humerus"
+          }
+        ]
+      },
+      {
+        "id": "z-cubital-fossa",
+        "centre": {
+          "u": 1.1,
+          "v": 0.0
+        },
+        "radiusCm": 1.3,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.5
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.4,
+            "label": "biceps tendon and bicipital aponeurosis"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.8,
+            "label": "brachialis"
+          },
+          {
+            "tissue": "joint-space",
+            "thicknessCm": 0.2,
+            "label": "elbow joint"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "trochlea and capitulum of the humerus"
+          }
+        ]
+      },
+      {
+        "id": "z-li11",
+        "centre": {
+          "u": 4.55,
+          "v": 0.15
+        },
+        "radiusCm": 1.0,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.5
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 2.0,
+            "label": "brachioradialis and extensor carpi radialis longus"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.4,
+            "label": "brachialis"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "capitulum of the humerus"
+          }
+        ]
+      },
+      {
+        "id": "z-li12",
+        "centre": {
+          "u": 6.2,
+          "v": 2.6
+        },
+        "radiusCm": 0.9,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.4
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.9,
+            "label": "brachioradialis and extensor carpi radialis longus (origin)"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.1
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "lateral supracondylar ridge"
+          }
+        ]
+      },
+      {
+        "id": "z-ht3",
+        "centre": {
+          "u": -5.4,
+          "v": 0.3
+        },
+        "radiusCm": 1.0,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.5
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.5,
+            "label": "pronator teres and the common flexor origin"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 0.6,
+            "label": "brachialis"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "humerus"
+          }
+        ]
+      },
+      {
+        "id": "z-olecranon",
+        "centre": {
+          "u": 13.65,
+          "v": -1.2
+        },
+        "radiusCm": 0.9,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.1,
+            "label": "olecranon bursa"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.1
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "olecranon"
+          }
+        ]
+      },
+      {
+        "id": "z-olecranon-fossa",
+        "centre": {
+          "u": 13.65,
+          "v": 1.1
+        },
+        "radiusCm": 0.9,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.7,
+            "label": "triceps tendon"
+          },
+          {
+            "tissue": "fat-pad",
+            "thicknessCm": 0.6,
+            "label": "fat pad of the olecranon fossa"
+          },
+          {
+            "tissue": "joint-space",
+            "thicknessCm": 0.2,
+            "label": "elbow joint"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "humerus (olecranon fossa)"
+          }
+        ]
+      },
+      {
+        "id": "z-ulnar-groove",
+        "centre": {
+          "u": 18.4,
+          "v": 0.7
+        },
+        "radiusCm": 0.9,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.3
+          },
+          {
+            "tissue": "fascia",
+            "thicknessCm": 0.3,
+            "label": "cubital tunnel retinaculum around the ulnar nerve"
+          },
+          {
+            "tissue": "periosteum",
+            "thicknessCm": 0.1
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.0,
+            "label": "medial epicondyle (posterior surface)"
+          }
+        ]
+      },
+      {
+        "id": "z-te11",
+        "centre": {
+          "u": 13.3,
+          "v": 4.3
+        },
+        "radiusCm": 1.6,
+        "layers": [
+          {
+            "tissue": "skin",
+            "thicknessCm": 0.2
+          },
+          {
+            "tissue": "subcutaneous",
+            "thicknessCm": 0.5
+          },
+          {
+            "tissue": "tendon",
+            "thicknessCm": 0.6,
+            "label": "triceps tendon"
+          },
+          {
+            "tissue": "muscle",
+            "thicknessCm": 1.2,
+            "label": "triceps (medial head)"
+          },
+          {
+            "tissue": "bone",
+            "thicknessCm": 2.2,
+            "label": "humerus"
+          }
+        ]
+      }
+    ]
+  },
+  "structures": [
+    {
+      "id": "axillary-artery",
+      "label": "axillary artery",
+      "kind": "artery",
+      "hazard": "critical",
+      "path": [
+        {
+          "u": -8.6,
+          "v": 31.0,
+          "d": 3.4
+        },
+        {
+          "u": -7.9,
+          "v": 27.0,
+          "d": 2.6
+        },
+        {
+          "u": -7.3,
+          "v": 24.5,
+          "d": 2.1
+        },
+        {
+          "u": -6.0,
+          "v": 21.5,
+          "d": 1.8
+        },
+        {
+          "u": -5.0,
+          "v": 19.5,
+          "d": 1.7
+        }
+      ],
+      "radiusCm": 0.4,
+      "uncertaintyCm": 0.4,
+      "consequence": "bleeding",
+      "configurations": {
+        "arm-abducted": {
+          "du": 0,
+          "dv": 0,
+          "dd": -0.3
+        }
+      }
+    },
+    {
+      "id": "axillary-vein",
+      "label": "axillary vein (medial to the artery)",
+      "kind": "vein",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -9.3,
+          "v": 31.0,
+          "d": 3.3
+        },
+        {
+          "u": -8.5,
+          "v": 27.0,
+          "d": 2.5
+        },
+        {
+          "u": -8.2,
+          "v": 24.5,
+          "d": 2.0
+        },
+        {
+          "u": -7.0,
+          "v": 21.5,
+          "d": 1.8
+        },
+        {
+          "u": -5.8,
+          "v": 19.5,
+          "d": 1.7
+        }
+      ],
+      "radiusCm": 0.45,
+      "uncertaintyCm": 0.4,
+      "consequence": "bleeding",
+      "configurations": {
+        "arm-abducted": {
+          "du": 0,
+          "dv": 0,
+          "dd": -0.3
+        }
+      }
+    },
+    {
+      "id": "brachial-plexus",
+      "label": "cords and terminal branches of the brachial plexus around the axillary artery",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -7.4,
+          "v": 31.0,
+          "d": 3.6
+        },
+        {
+          "u": -7.0,
+          "v": 27.0,
+          "d": 2.7
+        },
+        {
+          "u": -6.7,
+          "v": 24.5,
+          "d": 2.3
+        },
+        {
+          "u": -5.8,
+          "v": 21.5,
+          "d": 2.0
+        }
+      ],
+      "radiusCm": 0.45,
+      "uncertaintyCm": 0.4,
+      "consequence": "electric-sensation",
+      "configurations": {
+        "arm-abducted": {
+          "du": 0,
+          "dv": 0,
+          "dd": -0.3
+        }
+      }
+    },
+    {
+      "id": "brachial-artery",
+      "label": "brachial artery (medial bicipital groove to the cubital fossa)",
+      "kind": "artery",
+      "hazard": "critical",
+      "path": [
+        {
+          "u": -5.0,
+          "v": 19.5,
+          "d": 1.7
+        },
+        {
+          "u": -4.1,
+          "v": 14.0,
+          "d": 1.9
+        },
+        {
+          "u": -3.1,
+          "v": 7.0,
+          "d": 1.8
+        },
+        {
+          "u": -1.4,
+          "v": 2.5,
+          "d": 1.5
+        },
+        {
+          "u": -0.3,
+          "v": 0.0,
+          "d": 1.3
+        },
+        {
+          "u": 0.5,
+          "v": -2.5,
+          "d": 1.6
+        }
+      ],
+      "radiusCm": 0.22,
+      "uncertaintyCm": 0.4,
+      "consequence": "bleeding"
+    },
+    {
+      "id": "median-nerve-arm",
+      "label": "median nerve (beside the brachial artery; medial to it at the elbow)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -5.8,
+          "v": 21.5,
+          "d": 2.0
+        },
+        {
+          "u": -4.6,
+          "v": 18.0,
+          "d": 1.8
+        },
+        {
+          "u": -3.7,
+          "v": 14.0,
+          "d": 1.7
+        },
+        {
+          "u": -3.3,
+          "v": 7.0,
+          "d": 1.9
+        },
+        {
+          "u": -1.9,
+          "v": 2.5,
+          "d": 1.6
+        },
+        {
+          "u": -1.1,
+          "v": 0.0,
+          "d": 1.5
+        },
+        {
+          "u": -0.6,
+          "v": -3.0,
+          "d": 2.0
+        }
+      ],
+      "radiusCm": 0.22,
+      "uncertaintyCm": 0.3,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "ulnar-nerve-arm",
+      "label": "ulnar nerve in the arm (as far as the back of the medial epicondyle)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -8.2,
+          "v": 31.0,
+          "d": 3.5
+        },
+        {
+          "u": -8.0,
+          "v": 27.0,
+          "d": 2.7
+        },
+        {
+          "u": -7.9,
+          "v": 24.5,
+          "d": 2.3
+        },
+        {
+          "u": -7.0,
+          "v": 19.5,
+          "d": 1.7
+        },
+        {
+          "u": -7.4,
+          "v": 12.0,
+          "d": 1.3
+        },
+        {
+          "u": -8.3,
+          "v": 5.0,
+          "d": 1.0
+        },
+        {
+          "u": -8.6,
+          "v": 2.0,
+          "d": 0.9
+        }
+      ],
+      "radiusCm": 0.25,
+      "uncertaintyCm": 0.3,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "ulnar-nerve-elbow",
+      "label": "ulnar nerve in its groove behind the medial epicondyle",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 18.2,
+          "v": 6.0,
+          "d": 1.2
+        },
+        {
+          "u": 18.5,
+          "v": 2.5,
+          "d": 0.85
+        },
+        {
+          "u": 18.6,
+          "v": 0.7,
+          "d": 0.75
+        },
+        {
+          "u": 18.4,
+          "v": -2.0,
+          "d": 1.0
+        },
+        {
+          "u": 18.0,
+          "v": -5.0,
+          "d": 1.6
+        }
+      ],
+      "radiusCm": 0.2,
+      "uncertaintyCm": 0.3,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "radial-nerve-axilla",
+      "label": "radial nerve leaving the axilla below teres major",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -8.0,
+          "v": 31.0,
+          "d": 3.9
+        },
+        {
+          "u": -8.4,
+          "v": 26.0,
+          "d": 3.2
+        },
+        {
+          "u": -9.6,
+          "v": 21.0,
+          "d": 3.0
+        },
+        {
+          "u": -11.0,
+          "v": 19.5,
+          "d": 3.0
+        }
+      ],
+      "radiusCm": 0.25,
+      "uncertaintyCm": 0.4,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "radial-nerve",
+      "label": "radial nerve in the spiral groove of the humerus, then between brachialis and brachioradialis",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 17.5,
+          "v": 19.0,
+          "d": 3.4
+        },
+        {
+          "u": 15.0,
+          "v": 15.5,
+          "d": 3.6
+        },
+        {
+          "u": 11.0,
+          "v": 12.0,
+          "d": 3.1
+        },
+        {
+          "u": 8.2,
+          "v": 9.8,
+          "d": 2.6
+        },
+        {
+          "u": 5.8,
+          "v": 6.0,
+          "d": 2.5
+        },
+        {
+          "u": 4.0,
+          "v": 2.0,
+          "d": 2.4
+        },
+        {
+          "u": 3.8,
+          "v": -1.0,
+          "d": 2.4
+        },
+        {
+          "u": 3.7,
+          "v": -1.6,
+          "d": 2.5
+        }
+      ],
+      "radiusCm": 0.25,
+      "uncertaintyCm": 0.5,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "radial-nerve-superficial-branch",
+      "label": "superficial branch of the radial nerve (start)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 3.7,
+          "v": -1.6,
+          "d": 2.5
+        },
+        {
+          "u": 4.0,
+          "v": -5.5,
+          "d": 2.1
+        }
+      ],
+      "radiusCm": 0.12,
+      "uncertaintyCm": 0.4,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "radial-nerve-deep-branch",
+      "label": "deep branch of the radial nerve entering supinator",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 3.7,
+          "v": -1.6,
+          "d": 2.5
+        },
+        {
+          "u": 4.9,
+          "v": -4.4,
+          "d": 2.9
+        }
+      ],
+      "radiusCm": 0.15,
+      "uncertaintyCm": 0.4,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "musculocutaneous-nerve",
+      "label": "musculocutaneous nerve (between biceps and brachialis), emerging as the lateral cutaneous nerve of the forearm",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -5.0,
+          "v": 24.0,
+          "d": 2.6
+        },
+        {
+          "u": -3.0,
+          "v": 20.0,
+          "d": 2.6
+        },
+        {
+          "u": -0.9,
+          "v": 16.5,
+          "d": 2.5
+        },
+        {
+          "u": 1.4,
+          "v": 10.0,
+          "d": 2.4
+        },
+        {
+          "u": 2.5,
+          "v": 3.5,
+          "d": 1.5
+        },
+        {
+          "u": 2.8,
+          "v": 0.5,
+          "d": 0.6
+        },
+        {
+          "u": 3.2,
+          "v": -3.0,
+          "d": 0.4
+        }
+      ],
+      "radiusCm": 0.15,
+      "uncertaintyCm": 0.4,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "axillary-nerve",
+      "label": "axillary nerve (quadrilateral space, then round the surgical neck under deltoid)",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 17.5,
+          "v": 22.5,
+          "d": 4.3
+        },
+        {
+          "u": 15.0,
+          "v": 23.6,
+          "d": 4.0
+        },
+        {
+          "u": 12.0,
+          "v": 24.4,
+          "d": 3.1
+        },
+        {
+          "u": 9.0,
+          "v": 24.6,
+          "d": 2.7
+        },
+        {
+          "u": 6.5,
+          "v": 24.2,
+          "d": 2.6
+        },
+        {
+          "u": 4.5,
+          "v": 23.6,
+          "d": 2.6
+        }
+      ],
+      "radiusCm": 0.2,
+      "uncertaintyCm": 0.4,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "suprascapular-nerve",
+      "label": "suprascapular nerve on the floor of the supraspinous fossa",
+      "kind": "nerve",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 7.0,
+          "v": 37.6,
+          "d": 3.6
+        },
+        {
+          "u": 10.0,
+          "v": 35.5,
+          "d": 3.7
+        },
+        {
+          "u": 12.5,
+          "v": 31.8,
+          "d": 3.8
+        }
+      ],
+      "radiusCm": 0.15,
+      "uncertaintyCm": 0.4,
+      "consequence": "electric-sensation"
+    },
+    {
+      "id": "cephalic-vein-arm",
+      "label": "cephalic vein (lateral bicipital groove, then the deltopectoral groove)",
+      "kind": "vein",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 4.4,
+          "v": -4.4,
+          "d": 0.4
+        },
+        {
+          "u": 4.1,
+          "v": 0.0,
+          "d": 0.4
+        },
+        {
+          "u": 3.7,
+          "v": 8.0,
+          "d": 0.5
+        },
+        {
+          "u": 3.5,
+          "v": 16.0,
+          "d": 0.6
+        },
+        {
+          "u": 2.6,
+          "v": 24.0,
+          "d": 0.7
+        },
+        {
+          "u": 1.4,
+          "v": 28.5,
+          "d": 0.9
+        },
+        {
+          "u": 0.4,
+          "v": 31.5,
+          "d": 1.6
+        }
+      ],
+      "radiusCm": 0.25,
+      "uncertaintyCm": 0.4,
+      "consequence": "bleeding"
+    },
+    {
+      "id": "basilic-vein-arm",
+      "label": "basilic vein (medial arm; deep to the fascia above the mid-arm)",
+      "kind": "vein",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -4.4,
+          "v": -3.0,
+          "d": 0.4
+        },
+        {
+          "u": -4.6,
+          "v": 0.5,
+          "d": 0.4
+        },
+        {
+          "u": -4.4,
+          "v": 4.0,
+          "d": 0.45
+        },
+        {
+          "u": -4.5,
+          "v": 8.0,
+          "d": 0.6
+        },
+        {
+          "u": -4.7,
+          "v": 11.0,
+          "d": 0.9
+        },
+        {
+          "u": -5.2,
+          "v": 14.0,
+          "d": 1.4
+        },
+        {
+          "u": -5.8,
+          "v": 19.5,
+          "d": 1.7
+        }
+      ],
+      "radiusCm": 0.25,
+      "uncertaintyCm": 0.4,
+      "consequence": "bleeding"
+    },
+    {
+      "id": "median-cubital-vein",
+      "label": "median cubital vein",
+      "kind": "vein",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 3.9,
+          "v": -3.2,
+          "d": 0.35
+        },
+        {
+          "u": -4.5,
+          "v": 1.0,
+          "d": 0.35
+        }
+      ],
+      "radiusCm": 0.2,
+      "uncertaintyCm": 0.4,
+      "consequence": "bleeding"
+    },
+    {
+      "id": "shoulder-joint-capsule",
+      "label": "capsule of the shoulder joint over the head of the humerus",
+      "kind": "joint-capsule",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 4.6,
+          "v": 29.0,
+          "d": 3.3
+        },
+        {
+          "u": 5.7,
+          "v": 29.1,
+          "d": 3.3
+        },
+        {
+          "u": 7.4,
+          "v": 29.3,
+          "d": 3.5
+        },
+        {
+          "u": 9.0,
+          "v": 28.8,
+          "d": 3.75
+        },
+        {
+          "u": 10.4,
+          "v": 28.4,
+          "d": 3.75
+        }
+      ],
+      "radiusCm": 0.3,
+      "uncertaintyCm": 0.3,
+      "consequence": "joint-penetration"
+    },
+    {
+      "id": "elbow-joint-anterior",
+      "label": "anterior capsule of the elbow joint",
+      "kind": "joint-capsule",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": -3.8,
+          "v": 0.4,
+          "d": 2.95
+        },
+        {
+          "u": 0.0,
+          "v": 0.0,
+          "d": 3.0
+        },
+        {
+          "u": 3.8,
+          "v": 0.2,
+          "d": 2.8
+        }
+      ],
+      "radiusCm": 0.25,
+      "uncertaintyCm": 0.3,
+      "consequence": "joint-penetration"
+    },
+    {
+      "id": "elbow-joint-posterior",
+      "label": "posterior capsule of the elbow joint (olecranon fossa)",
+      "kind": "joint-capsule",
+      "hazard": "caution",
+      "path": [
+        {
+          "u": 12.0,
+          "v": 1.1,
+          "d": 1.75
+        },
+        {
+          "u": 15.3,
+          "v": 1.1,
+          "d": 1.75
+        }
+      ],
+      "radiusCm": 0.2,
+      "uncertaintyCm": 0.3,
+      "consequence": "joint-penetration"
+    }
+  ],
+  "description": "The shoulder girdle, axilla, arm and elbow. At the shoulder the deltoid covers the head of the humerus; with the arm abducted two hollows appear below the acromion, in front of and behind the greater tubercle, and deep to them lie the subacromial bursa, the rotator cuff and the capsule of the shoulder joint. On top of the shoulder, between the clavicle and the spine of the scapula, trapezius and supraspinatus lie over the supraspinous fossa (the apex of the lung lies medially and is not modelled here). In the axilla the axillary artery, with the axillary vein medial to it and the cords of the brachial plexus around it, lies in fat at the centre of the fossa. In the arm the brachial artery and the median nerve run in the medial bicipital groove to the cubital fossa, where the artery lies just medial to the biceps tendon, deep to the bicipital aponeurosis, with the median nerve medial to it; the ulnar nerve passes behind the medial epicondyle, where it can be rolled under the finger. The radial nerve winds round the back of the humerus in the spiral groove, pierces the lateral intermuscular septum about a third of the way up the arm and runs down between brachialis and brachioradialis in front of the lateral epicondyle, dividing at the elbow. The cephalic vein runs in the lateral bicipital groove and the deltopectoral groove; the basilic vein on the medial side, and the median cubital vein crosses the front of the elbow. Configurations move the olecranon (distally with the elbow flexed) and bring the axillary bundle nearer the skin with the arm abducted; tissue zones do not move with the configuration. Prone, the anterior arm and the axilla face the couch: the engine grants access to the region as a whole.",
+  "provenance": {
+    "kind": "schematic",
+    "sources": [
+      {
+        "title": "General regional anatomy of the shoulder, axilla, arm and elbow (standard anatomy texts)",
+        "verified": false,
+        "note": "Topography only; no third-party geometry or images were used."
+      }
+    ],
+    "licence": "CC0-1.0 (original schematic geometry)",
+    "review": {
+      "status": "unreviewed",
+      "reviewers": [],
+      "notes": "Positions and depths are illustrative approximations of a reference adult written for simulation. They are not measurements or an atlas and are not a guide to safe depths in real patients. Anatomical expert review is required before any teaching use."
+    }
+  }
+}
