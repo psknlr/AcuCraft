@@ -176,6 +176,21 @@ NOTES = {
 
 # ---------------------------------------------------------------------------------------------------------------
 
+# Placements contributed per body area (tools/content/localise_*.py): each module defines LOCALISE in the same form
+# as above, with an optional fourth item, the configuration the standard locates the point in.
+def extra_placements():
+    import glob, importlib.util
+    here = os.path.dirname(os.path.abspath(__file__))
+    merged = {}
+    for path in sorted(glob.glob(os.path.join(here, "localise_*.py"))):
+        spec = importlib.util.spec_from_file_location(os.path.basename(path)[:-3], path)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        for pid, entry in mod.LOCALISE.items():
+            assert pid not in merged and pid not in LOCALISE, f"{pid} placed twice ({os.path.basename(path)})"
+            merged[pid] = entry
+    return merged
+
 def meridian_rows():
     tables = {**ARM, **LEG, **MID}
     for ch in ORDER:
@@ -188,6 +203,7 @@ def extra_rows():
 
 def build():
     detail = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "acupoint_detail.json")))["points"]
+    placements = {**LOCALISE, **extra_placements()}
     by_file = {}
     seen = set()
     for ch, code, n, pinyin, hanzi, en, area, text, bilateral, sites in [*meridian_rows(), *extra_rows()]:
@@ -220,9 +236,11 @@ def build():
                 if k in d:
                     p[k] = d[k]
             p["tolerance"] = d["tolerance"]
-        elif pid in LOCALISE:
-            region, loc, tol = LOCALISE[pid]
+        elif pid in placements:
+            region, loc, tol, *rest = placements[pid]
             p["region"], p["localisation"], p["tolerance"] = region, loc, tol
+            if rest and rest[0]:
+                p["configuration"] = rest[0]
         elif "tolerance" in d:
             p["tolerance"] = d["tolerance"]
         p["bilateral"] = d.get("bilateral", bilateral)
@@ -239,7 +257,7 @@ def build():
         by_file.setdefault(ch, []).append(p)
     missing = set(detail) - seen
     assert not missing, f"detail for unknown points: {missing}"
-    unknown = (set(LOCALISE) | set(PREGNANCY) | set(NOTES)) - seen
+    unknown = (set(placements) | set(PREGNANCY) | set(NOTES)) - seen
     assert not unknown, f"unknown points: {unknown}"
     return by_file
 
