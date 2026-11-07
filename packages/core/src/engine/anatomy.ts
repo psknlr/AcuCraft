@@ -212,25 +212,43 @@ export interface PointInstance {
 
 /** Locate a standard point on this patient, in the region's current configuration (null: not modelled). */
 export function pointInstance(sc: Scenario, point: AcupointDefinition, side: Side, configuration: string): PointInstance | null {
+  return locate(sc, point, side, configuration, 0);
+}
+
+/** How many `point:` anchors may be followed from one point (a chain, never a cycle). */
+const MAX_ANCHOR_DEPTH = 4;
+
+function locate(sc: Scenario, point: AcupointDefinition, side: Side, configuration: string, depth: number): PointInstance | null {
   if (!point.region || !point.localisation) return null;
   if (!sc.bundle.regions.has(point.region)) return null;
+  const region = point.region;
   const effectiveSide: Side = point.bilateral ? side : "midline";
-  const frame = patientRegion(sc, point.region, effectiveSide, configuration);
+  const frame = patientRegion(sc, region, effectiveSide, configuration);
   const sided = (id: string) => id.replace("{side}", effectiveSide);
+  // a landmark of this chart, or another point where it is placed on this patient (across a seam if need be)
+  const anchor = (ref: string): ChartPoint | null => {
+    if (!ref.startsWith("point:")) return frame.landmark(sided(ref));
+    const other = sc.bundle.acupoints.get(ref.slice("point:".length));
+    if (!other?.region || depth >= MAX_ANCHOR_DEPTH) return null;
+    if (other.region === region) return locate(sc, other, side, configuration, depth + 1)?.position ?? null;
+    const seam = seamMap(sc, other.region, region, side, configuration);
+    const at = seam && locate(sc, other, side, seam.fromConfiguration, depth + 1);
+    return seam && at ? seam.map(at.position) : null;
+  };
   const loc = point.localisation;
   let base: ChartPoint | null = null;
   let anchors: string[] = [];
   if (loc.method === "landmark") {
-    base = frame.landmark(sided(loc.landmark));
+    base = anchor(loc.landmark);
     anchors = [sided(loc.landmark)];
   } else if (loc.method === "between") {
-    const a = frame.landmark(sided(loc.a));
-    const b = frame.landmark(sided(loc.b));
+    const a = anchor(loc.a);
+    const b = anchor(loc.b);
     if (a && b) base = { u: a.u + loc.fraction * (b.u - a.u), v: a.v + loc.fraction * (b.v - a.v) };
     anchors = [sided(loc.a), sided(loc.b)];
   } else {
-    const from = frame.landmark(sided(loc.from));
-    const toward = frame.landmark(sided(loc.toward));
+    const from = anchor(loc.from);
+    const toward = anchor(loc.toward);
     const dist = distanceCm(frame, loc.distance);
     if (from && toward && dist !== null) {
       const len = Math.hypot(toward.u - from.u, toward.v - from.v) || 1;
@@ -251,6 +269,139 @@ export function pointInstance(sc: Scenario, point: AcupointDefinition, side: Sid
     toleranceCm: tol,
     anchors,
     configurationMismatch: point.configuration !== undefined && point.configuration !== configuration,
+  };
+}
+
+/* ------------------------------------------------------------------ */
+/* Seams between charts                                                 */
+/* ------------------------------------------------------------------ */
+
+export interface SeamMap {
+  from: string;
+  to: string;
+  /** The configuration of `from` that matches `to` in the configuration asked for. */
+  fromConfiguration: string;
+  /** Carry a chart point of `from` to `to`, on this patient. */
+  map(p: ChartPoint): ChartPoint;
+  /** Scale of the fitted map (cm on `to` per cm on `from`). */
+  scale: number;
+  /** The pairs: where `to` has them, where the map puts `from`'s, and the distance between the two (cm). */
+  pairs: { here: string; there: string; at: ChartPoint; mapped: ChartPoint; residualCm: number }[];
+}
+
+type SeamRegion = { id: string; laterality: Region["laterality"]; defaultConfiguration: string; seams: Region["seams"] };
+
+/**
+ * The seam joining two charts, oriented from `from` to `to` (null: they do not meet): its pairs as the landmark on
+ * `from` and the landmark on `to` (`{side}` read as `side`), and the configuration of `from` that goes with a
+ * configuration of `to`. Works on regions or on the reference library's public view of them.
+ */
+export function orientSeam(from: SeamRegion, to: SeamRegion, side: Side): { pairs: { from: string; to: string }[]; reversed: boolean; fromConfiguration(toConfiguration: string): string } | null {
+  const own = to.seams.find((m) => m.region === from.id);
+  const theirs = own ? undefined : from.seams.find((m) => m.region === to.id);
+  if (!own && !theirs) return null;
+  const sided = (id: string) => id.replace("{side}", side);
+  return {
+    pairs: own ? own.pairs.map((p) => ({ from: sided(p.there), to: sided(p.here) })) : theirs!.pairs.map((p) => ({ from: sided(p.here), to: sided(p.there) })),
+    // declared on `from`: the map is fitted the way the seam is declared and inverted, so the two directions agree
+    reversed: !own,
+    fromConfiguration: (cfg) =>
+      own ? (own.configurations[cfg] ?? from.defaultConfiguration) : (Object.entries(theirs!.configurations).find(([, there]) => there === cfg)?.[0] ?? from.defaultConfiguration),
+  };
+}
+
+/** +1 when `u` points lateral on this side of a chart of this laterality, −1 when it points medial. */
+export function lateralSignOf(laterality: Region["laterality"], side: Side): 1 | -1 {
+  return laterality === "midline" && side === "right" ? -1 : 1;
+}
+
+/**
+ * The similarity (scale, rotation, translation; no reflection) that best carries the `from` positions of a seam's
+ * pairs onto their `to` positions, by least squares — after turning each chart so that `u` points lateral on this
+ * side (`lateralFrom`, `lateralTo`: see `lateralSignOf`). `reversed` (from `orientSeam`): fit `to` onto `from`, as
+ * the seam is declared, and invert it. Null when the pairs do not span any distance.
+ */
+export function fitSeam(pairs: readonly { from: ChartPoint; to: ChartPoint }[], lateralFrom: 1 | -1, lateralTo: 1 | -1, reversed = false): { map(p: ChartPoint): ChartPoint; scale: number } | null {
+  if (reversed) {
+    const back = fitSeamOnce(pairs.map((p) => ({ from: p.to, to: p.from })), lateralTo, lateralFrom);
+    return back && { map: back.inverse, scale: 1 / back.scale };
+  }
+  const fit = fitSeamOnce(pairs, lateralFrom, lateralTo);
+  return fit && { map: fit.map, scale: fit.scale };
+}
+
+function fitSeamOnce(pairs: readonly { from: ChartPoint; to: ChartPoint }[], lateralFrom: 1 | -1, lateralTo: 1 | -1): { map(p: ChartPoint): ChartPoint; inverse(p: ChartPoint): ChartPoint; scale: number } | null {
+  const n = pairs.length;
+  if (n < 2) return null;
+  // complex numbers z = u·lateral + i·v on each chart
+  const f = pairs.map((p) => ({ u: p.from.u * lateralFrom, v: p.from.v }));
+  const t = pairs.map((p) => ({ u: p.to.u * lateralTo, v: p.to.v }));
+  const mean = (xs: ChartPoint[]) => ({ u: xs.reduce((a, x) => a + x.u, 0) / n, v: xs.reduce((a, x) => a + x.v, 0) / n });
+  const mf = mean(f);
+  const mt = mean(t);
+  // a = Σ (t − mt)·conj(f − mf) / Σ |f − mf|²
+  let re = 0;
+  let im = 0;
+  let norm = 0;
+  for (let i = 0; i < n; i++) {
+    const fu = f[i]!.u - mf.u;
+    const fv = f[i]!.v - mf.v;
+    const tu = t[i]!.u - mt.u;
+    const tv = t[i]!.v - mt.v;
+    re += tu * fu + tv * fv;
+    im += tv * fu - tu * fv;
+    norm += fu * fu + fv * fv;
+  }
+  if (norm < 1e-9) return null;
+  const ar = re / norm;
+  const ai = im / norm;
+  const a2 = ar * ar + ai * ai;
+  return {
+    scale: Math.sqrt(a2),
+    map: (p) => {
+      const fu = p.u * lateralFrom - mf.u;
+      const fv = p.v - mf.v;
+      return { u: (mt.u + ar * fu - ai * fv) / lateralTo, v: mt.v + ai * fu + ar * fv };
+    },
+    // z = (z' − mt) / a + mf
+    inverse: (p) => {
+      const tu = p.u * lateralTo - mt.u;
+      const tv = p.v - mt.v;
+      return { u: (mf.u + (ar * tu + ai * tv) / a2) / lateralFrom, v: mf.v + (ar * tv - ai * tu) / a2 };
+    },
+  };
+}
+
+/** The map that carries points of region `from` to region `to` across their seam, for this patient, side and `to`
+ * configuration (null: the charts do not meet). */
+export function seamMap(sc: Scenario, from: string, to: string, side: Side, toConfiguration: string): SeamMap | null {
+  const rf = sc.bundle.regions.get(from);
+  const rt = sc.bundle.regions.get(to);
+  if (!rf || !rt) return null;
+  const seam = orientSeam(rf, rt, side);
+  if (!seam) return null;
+  const fromConfiguration = seam.fromConfiguration(toConfiguration);
+  const ff = patientRegion(sc, from, side, fromConfiguration);
+  const ft = patientRegion(sc, to, side, toConfiguration);
+  const pairs: { here: string; there: string; from: ChartPoint; to: ChartPoint }[] = [];
+  for (const p of seam.pairs) {
+    const a = ff.landmark(p.from);
+    const b = ft.landmark(p.to);
+    if (!a || !b) return null;
+    pairs.push({ here: p.to, there: p.from, from: a, to: b });
+  }
+  const fit = fitSeam(pairs, lateralSignOf(rf.laterality, side), lateralSignOf(rt.laterality, side), seam.reversed);
+  if (!fit) return null;
+  return {
+    from,
+    to,
+    fromConfiguration,
+    map: fit.map,
+    scale: fit.scale,
+    pairs: pairs.map((p) => {
+      const mapped = fit.map(p.from);
+      return { here: p.here, there: p.there, at: p.to, mapped, residualCm: Math.hypot(mapped.u - p.to.u, mapped.v - p.to.v) };
+    }),
   };
 }
 

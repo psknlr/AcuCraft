@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { assessPath, createEncounter, derivedBuild, patientRegion, pointInstance, regionAccess, step, type Side } from "@acucraft/core";
+import { assessPath, createEncounter, derivedBuild, patientRegion, pointInstance, referenceLibrary, regionAccess, seamMap, step, type Side } from "@acucraft/core";
+import { constructPoint, requirements } from "./agents/localise.js";
 import { loadContentPack, requireScenario, scenarioIds } from "./content.js";
 
 /** Every regional model is internally consistent, and its hazards are reachable only by going too deep. */
@@ -123,5 +124,88 @@ describe("the whole body in every encounter", () => {
     const r = step(sc, s, { requestId: "deep-ki25", actor: "practitioner", patient: "patient", action: { type: "insert_needle", needleId: "pack-a.1", region: "chest", side: "right", at: entry, depthCm: 3.5 } }, { strict: true });
     expect(r.attempt.status).toBe("blocked");
     expect(r.attempt.unsafe).toContain("pleura-penetration");
+  });
+});
+
+describe("the groin: abdomen and thigh stitched at their seam", () => {
+  const def = (id: string) => pack.bundle.acupoints.get(id)!;
+  const sides: Side[] = ["left", "right"];
+  const cases = scenarioIds(pack).flatMap((id) => sides.flatMap((side) => pack.bundle.regions.get("thigh")!.configurations.map((c) => [id, side, c.id] as const)));
+  // distance from a point to a polyline in the chart
+  const toPath = (p: { u: number; v: number }, path: { u: number; v: number }[]) => {
+    let best = Infinity;
+    for (let i = 0; i + 1 < path.length; i++) {
+      const a = path[i]!;
+      const b = path[i + 1]!;
+      const len2 = (b.u - a.u) ** 2 + (b.v - a.v) ** 2 || 1;
+      const t = Math.max(0, Math.min(1, ((p.u - a.u) * (b.u - a.u) + (p.v - a.v) * (b.v - a.v)) / len2));
+      best = Math.min(best, Math.hypot(p.u - (a.u + t * (b.u - a.u)), p.v - (a.v + t * (b.v - a.v))));
+    }
+    return best;
+  };
+
+  it.each(cases)("%s %s %s: the landmarks of the seam agree, and the femoral artery runs on across it", (id, side, cfg) => {
+    const patient = requireScenario(pack, id);
+    const seam = seamMap(patient, "abdomen", "thigh", side, cfg)!;
+    expect(seam).not.toBeNull();
+    for (const p of seam.pairs) expect(p.residualCm, `${p.here} ↔ ${p.there}`).toBeLessThan(1);
+    // where both charts draw the femoral artery (the abdomen's from above the inguinal ligament to the crease, the
+    // thigh's from the ligament down), the abdomen's, carried to the thigh, runs on the thigh's
+    const abd = patientRegion(patient, "abdomen", side, seam.fromConfiguration).structures.find((s) => s.id === `femoral-artery-${side}`)!.path.map((p) => seam.map(p));
+    const thigh = patientRegion(patient, "thigh", side, cfg).structures.find((s) => s.id === "femoral-artery")!.path;
+    const [lo, hi] = [Math.min(...abd.map((p) => p.v)), Math.max(...abd.map((p) => p.v))];
+    const shared = thigh.filter((p) => p.v >= lo && p.v <= hi);
+    expect(shared.length).toBeGreaterThan(0);
+    for (const p of shared) expect(toPath(p, abd), `femoral artery at v ${p.v.toFixed(1)}`).toBeLessThan(1);
+    // and back: the map from the thigh is its exact inverse
+    const back = seamMap(patient, "thigh", "abdomen", side, seam.fromConfiguration)!;
+    const q = back.map(seam.map({ u: 3, v: -2 }));
+    expect(Math.hypot(q.u - 3, q.v + 2)).toBeLessThan(1e-9);
+  });
+
+  it.each(cases)("%s %s %s: LR11 and LR10 are measured down the thigh from ST30 where the abdomen places it", (id, side, cfg) => {
+    const patient = requireScenario(pack, id);
+    const seam = seamMap(patient, "abdomen", "thigh", side, cfg)!;
+    const st30 = seam.map(pointInstance(patient, def("ST30"), side, seam.fromConfiguration)!.position);
+    const thigh = patientRegion(patient, "thigh", side, cfg);
+    // ST30 is level with the upper border of the pubic symphysis, medial to the femoral artery, on both charts
+    expect(Math.abs(st30.v - thigh.landmark("pubic-symphysis-upper")!.v)).toBeLessThan(1);
+    expect(st30.u).toBeLessThan(thigh.landmark("femoral-pulse-inguinal")!.u);
+    const cun = thigh.cunCm("seg.symphysis-medial-epicondyle")!;
+    for (const [pid, n] of [["LR11", 2], ["LR10", 3]] as const) {
+      const p = pointInstance(patient, def(pid), side, cfg)!.position;
+      expect(p.u, pid).toBeCloseTo(st30.u, 6);
+      expect(st30.v - p.v, pid).toBeCloseTo(n * cun, 6);
+    }
+    // SP11 lies a third of the way from SP12 to the patella, over the femoral artery
+    const sp12 = seam.map(pointInstance(patient, def("SP12"), side, seam.fromConfiguration)!.position);
+    const sp11 = pointInstance(patient, def("SP11"), side, cfg)!.position;
+    const pbm = thigh.landmark("patella-base-medial")!;
+    expect(Math.hypot(sp11.u - (pbm.u + (2 / 3) * (sp12.u - pbm.u)), sp11.v - (pbm.v + (2 / 3) * (sp12.v - pbm.v)))).toBeLessThan(0.01);
+    expect(toPath(sp11, thigh.structures.find((s) => s.id === "femoral-artery")!.path)).toBeLessThan(1.5);
+  });
+
+  it("an agent constructs them from what it palpates on both charts, as the engine places them", () => {
+    const lib = referenceLibrary(sc);
+    const cfgOf = (region: string) => (region === "thigh" ? "knee-extended" : "supine");
+    for (const id of ["LR11", "LR10", "SP11"]) {
+      for (const side of sides) {
+        const reqs = requirements(lib, id, side)!;
+        expect(reqs.map((r) => r.region), id).toEqual(["thigh", "abdomen"]);
+        // a perfect palpation and tape: the patient's own positions and lengths
+        const observed = (region: string, s: Side) => {
+          const frame = patientRegion(sc, region, s, cfgOf(region));
+          const r = reqs.find((x) => x.region === region && x.side === s)!;
+          return { landmarks: new Map(r.landmarks.map((l) => [l, frame.landmark(l)!] as const)), segments: new Map(r.segments.map((g) => [g, frame.segmentCm(g)!] as const)) };
+        };
+        const at = constructPoint(lib, id, side, observed)!;
+        const truth = pointInstance(sc, def(id), side, "knee-extended")!.position;
+        expect(Math.hypot(at.u - truth.u, at.v - truth.v), `${id} ${side}`).toBeLessThan(1e-9);
+      }
+    }
+  });
+
+  it("only charts that meet have a seam", () => {
+    expect(seamMap(sc, "face", "sole", "left", "supine")).toBeNull();
   });
 });

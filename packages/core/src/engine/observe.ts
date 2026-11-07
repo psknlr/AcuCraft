@@ -225,9 +225,12 @@ export function referenceLibrary(sc: Scenario) {
       laterality: r.laterality,
       chart: r.chart,
       configurations: r.configurations,
+      defaultConfiguration: r.defaultConfiguration,
       access: r.access,
       landmarks: r.landmarks.map((l) => ({ id: l.id, label: l.label, palpation: l.palpation })),
       segments: r.segments.map((g) => ({ id: g.id, label: g.label, from: g.from, to: g.to, cun: g.cun })),
+      // where the chart meets a neighbouring one: the landmarks both charts share (no positions)
+      seams: r.seams,
       description: r.description,
       review: r.provenance.review.status,
     };

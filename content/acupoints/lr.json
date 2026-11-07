@@ -590,7 +590,7 @@
       "region": "thigh",
       "localisation": {
         "method": "landmark",
-        "landmark": "st30-site",
+        "landmark": "point:ST30",
         "offset": {
           "caudal": {
             "cun": 3,
@@ -653,7 +653,7 @@
       "region": "thigh",
       "localisation": {
         "method": "landmark",
-        "landmark": "st30-site",
+        "landmark": "point:ST30",
         "offset": {
           "caudal": {
             "cun": 2,

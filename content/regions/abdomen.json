@@ -97,6 +97,24 @@
       "palpation": "The front end of the iliac crest."
     },
     {
+      "id": "inguinal-crease-left",
+      "label": "femoral pulse at the inguinal crease (left), below the mid-inguinal point",
+      "at": {
+        "u": 9.4,
+        "v": -17.8
+      },
+      "palpation": "Supine, the strongest pulsation in the groin crease, below the middle of the line from the anterior superior iliac spine to the pubic symphysis."
+    },
+    {
+      "id": "inguinal-crease-right",
+      "label": "femoral pulse at the inguinal crease (right), below the mid-inguinal point",
+      "at": {
+        "u": -9.4,
+        "v": -17.8
+      },
+      "palpation": "Supine, the strongest pulsation in the groin crease, below the middle of the line from the anterior superior iliac spine to the pubic symphysis."
+    },
+    {
       "id": "lateral-umbilical-left",
       "label": "lateral abdomen at the level of the umbilicus, below the eleventh rib (left)",
       "at": {
@@ -114,21 +132,19 @@
     },
     {
       "id": "mid-inguinal-left",
-      "label": "mid-inguinal point at the inguinal crease (left), over the femoral artery",
+      "label": "mid-inguinal point (left): midway between the anterior superior iliac spine and the pubic symphysis, where the femoral artery passes under the inguinal ligament",
       "at": {
-        "u": 10.9,
-        "v": -17.3
-      },
-      "palpation": "Midway between the anterior superior iliac spine and the pubic symphysis; the femoral pulse."
+        "u": 9.4,
+        "v": -15.8
+      }
     },
     {
       "id": "mid-inguinal-right",
-      "label": "mid-inguinal point at the inguinal crease (right), over the femoral artery",
+      "label": "mid-inguinal point (right): midway between the anterior superior iliac spine and the pubic symphysis, where the femoral artery passes under the inguinal ligament",
       "at": {
-        "u": -10.9,
-        "v": -17.3
-      },
-      "palpation": "Midway between the anterior superior iliac spine and the pubic symphysis; the femoral pulse."
+        "u": -9.4,
+        "v": -15.8
+      }
     },
     {
       "id": "midclavicular-left",
@@ -17159,13 +17175,13 @@
       "hazard": "critical",
       "path": [
         {
-          "u": 10.9,
-          "v": -15.8,
+          "u": 9.4,
+          "v": -14.3,
           "d": 3.0
         },
         {
-          "u": 10.9,
-          "v": -18.3,
+          "u": 9.4,
+          "v": -18.8,
           "d": 2.2
         }
       ],
@@ -17180,13 +17196,13 @@
       "hazard": "critical",
       "path": [
         {
-          "u": 9.700000000000001,
-          "v": -15.8,
+          "u": 8.200000000000001,
+          "v": -14.3,
           "d": 3.2
         },
         {
-          "u": 9.700000000000001,
-          "v": -18.3,
+          "u": 8.200000000000001,
+          "v": -18.8,
           "d": 2.4
         }
       ],
@@ -17201,13 +17217,13 @@
       "hazard": "caution",
       "path": [
         {
-          "u": 12.1,
-          "v": -15.8,
+          "u": 10.6,
+          "v": -14.3,
           "d": 3.2
         },
         {
-          "u": 12.1,
-          "v": -18.3,
+          "u": 10.6,
+          "v": -18.8,
           "d": 2.4
         }
       ],
@@ -17222,8 +17238,8 @@
       "hazard": "caution",
       "path": [
         {
-          "u": 9.9,
-          "v": -15.3,
+          "u": 8.9,
+          "v": -14.3,
           "d": 3.0
         },
         {
@@ -17248,13 +17264,13 @@
       "hazard": "critical",
       "path": [
         {
-          "u": -10.9,
-          "v": -15.8,
+          "u": -9.4,
+          "v": -14.3,
           "d": 3.0
         },
         {
-          "u": -10.9,
-          "v": -18.3,
+          "u": -9.4,
+          "v": -18.8,
           "d": 2.2
         }
       ],
@@ -17269,13 +17285,13 @@
       "hazard": "critical",
       "path": [
         {
-          "u": -9.700000000000001,
-          "v": -15.8,
+          "u": -8.200000000000001,
+          "v": -14.3,
           "d": 3.2
         },
         {
-          "u": -9.700000000000001,
-          "v": -18.3,
+          "u": -8.200000000000001,
+          "v": -18.8,
           "d": 2.4
         }
       ],
@@ -17290,13 +17306,13 @@
       "hazard": "caution",
       "path": [
         {
-          "u": -12.1,
-          "v": -15.8,
+          "u": -10.6,
+          "v": -14.3,
           "d": 3.2
         },
         {
-          "u": -12.1,
-          "v": -18.3,
+          "u": -10.6,
+          "v": -18.8,
           "d": 2.4
         }
       ],
@@ -17311,8 +17327,8 @@
       "hazard": "caution",
       "path": [
         {
-          "u": -9.9,
-          "v": -15.3,
+          "u": -8.9,
+          "v": -14.3,
           "d": 3.0
         },
         {

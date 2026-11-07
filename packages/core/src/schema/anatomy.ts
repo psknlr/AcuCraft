@@ -17,6 +17,9 @@ import { ChartPoint3Schema, ChartPointSchema, IdSchema, PositionSchema, ReviewSc
 
 export const REGION_SCHEMA_ID = "acucraft/region@1" as const;
 
+/** A landmark id, optionally with one `{side}` placeholder (read as the side in a midline region). */
+export const LANDMARK_REF = /^[A-Za-z0-9][A-Za-z0-9._-]*(\{side\}[A-Za-z0-9._-]*)?$/;
+
 export const TISSUES = ["skin", "subcutaneous", "fascia", "muscle", "tendon", "ligament", "fat-pad", "joint-space", "periosteum", "bone", "pleura", "lung", "organ"] as const;
 export const TissueSchema = z.enum(TISSUES);
 export type Tissue = z.infer<typeof TissueSchema>;
@@ -96,6 +99,24 @@ export const TissueZoneSchema = z
   })
   .strict();
 
+/**
+ * Where a chart meets a neighbouring one. `pairs` are the same skin points on both charts (`here` on this chart,
+ * `there` on the other; `{side}` is read as the side). A point on one chart is carried to the other by the
+ * similarity (scale, rotation, translation) that best maps the pairs' positions on this patient, so a point measured
+ * from a point of the neighbouring chart (`point:ST30`) is placed where that chart puts it. `configurations` gives the
+ * other chart's configuration for each of this chart's (default: its default configuration).
+ */
+export const SeamSchema = z
+  .object({
+    region: IdSchema,
+    pairs: z
+      .array(z.object({ here: z.string().regex(LANDMARK_REF), there: z.string().regex(LANDMARK_REF), label: z.string().optional() }).strict())
+      .min(2),
+    configurations: z.record(IdSchema, IdSchema).default({}),
+  })
+  .strict();
+export type Seam = z.infer<typeof SeamSchema>;
+
 export const RegionSchema = z
   .object({
     schema: z.literal(REGION_SCHEMA_ID),
@@ -134,6 +155,7 @@ export const RegionSchema = z
     segments: z.array(SegmentSchema).default([]),
     tissue: z.object({ layers: z.array(LayerSchema).min(1), zones: z.array(TissueZoneSchema).default([]) }).strict(),
     structures: z.array(StructureSchema).default([]),
+    seams: z.array(SeamSchema).default([]),
     /** Public anatomical summary a practitioner may know (no patient-specific coordinates). */
     description: z.string(),
     provenance: z
