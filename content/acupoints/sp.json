@@ -1,0 +1,1055 @@
+{
+  "schema": "acucraft/acupoints@1",
+  "id": "acucraft-points-sp",
+  "version": "0.2.0",
+  "points": [
+    {
+      "id": "SP1",
+      "names": {
+        "pinyin": "Yǐnbái",
+        "hanzi": "隐白",
+        "en": "Hidden White"
+      },
+      "channel": "SP",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "SP1",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "SP1",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the great toe, medial to the distal phalanx, 0.1 F-cun proximal-medial to the medial corner of the toenail.",
+        "paraphrased": true
+      },
+      "area": "toe",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "SP2",
+      "names": {
+        "pinyin": "Dàdū",
+        "hanzi": "大都",
+        "en": "Great Metropolis"
+      },
+      "channel": "SP",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "SP2",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "SP2",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the great toe, in the depression distal to the first metatarsophalangeal joint, at the border between the red and white skin.",
+        "paraphrased": true
+      },
+      "area": "toe",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "SP3",
+      "names": {
+        "pinyin": "Tàibái",
+        "hanzi": "太白",
+        "en": "Supreme White"
+      },
+      "channel": "SP",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "SP3",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "SP3",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the medial aspect of the foot, in the depression proximal to the first metatarsophalangeal joint, at the border between the red and white skin.",
+        "paraphrased": true
+      },
+      "area": "foot",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "SP4",
+      "names": {
+        "pinyin": "Gōngsūn",
+        "hanzi": "公孙",
+        "en": "Yellow Emperor"
+      },
+      "channel": "SP",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "SP4",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "SP4",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the medial aspect of the foot, anteroinferior to the base of the first metatarsal bone, at the border between the red and white skin.",
+        "paraphrased": true
+      },
+      "area": "foot",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "SP5",
+      "names": {
+        "pinyin": "Shāngqiū",
+        "hanzi": "商丘",
+        "en": "Shang Hill"
+      },
+      "channel": "SP",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "SP5",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "SP5",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the medial aspect of the foot, anteroinferior to the medial malleolus, in the depression midway between the tuberosity of the navicular bone and the prominence of the medial malleolus.",
+        "paraphrased": true
+      },
+      "area": "ankle",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "SP6",
+      "names": {
+        "pinyin": "Sānyīnjiāo",
+        "hanzi": "三阴交",
+        "en": "Three Yin Intersection"
+      },
+      "channel": "SP",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "SP6",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "SP6",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the tibial aspect of the leg, posterior to the medial border of the tibia, 3 B-cun superior to the prominence of the medial malleolus.",
+        "paraphrased": true
+      },
+      "area": "leg",
+      "region": "knee-leg",
+      "localisation": {
+        "method": "along",
+        "from": "medial-malleolus",
+        "toward": "medial-condyle-inferior",
+        "distance": {
+          "cun": 3,
+          "segment": "seg.sp9-medial-malleolus"
+        },
+        "offset": {
+          "medial": {
+            "cm": 0.5
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.sp9-medial-malleolus"
+      },
+      "bilateral": true,
+      "cautions": [
+        {
+          "id": "SP6-pregnancy",
+          "when": "pregnancy",
+          "text": "Traditionally avoided in pregnancy.",
+          "severity": "major"
+        }
+      ],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "SP7",
+      "names": {
+        "pinyin": "Lòugǔ",
+        "hanzi": "漏谷",
+        "en": "Leaking Valley"
+      },
+      "channel": "SP",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "SP7",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "SP7",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the tibial aspect of the leg, posterior to the medial border of the tibia, 6 B-cun superior to the prominence of the medial malleolus.",
+        "paraphrased": true
+      },
+      "area": "leg",
+      "region": "knee-leg",
+      "localisation": {
+        "method": "along",
+        "from": "medial-malleolus",
+        "toward": "medial-condyle-inferior",
+        "distance": {
+          "cun": 6,
+          "segment": "seg.sp9-medial-malleolus"
+        },
+        "offset": {
+          "medial": {
+            "cm": 0.5
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.sp9-medial-malleolus"
+      },
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "SP8",
+      "names": {
+        "pinyin": "Dìjī",
+        "hanzi": "地机",
+        "en": "Earth's Crux"
+      },
+      "channel": "SP",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "SP8",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "SP8",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the tibial aspect of the leg, posterior to the medial border of the tibia, 3 B-cun inferior to SP9.",
+        "paraphrased": true
+      },
+      "area": "leg",
+      "region": "knee-leg",
+      "localisation": {
+        "method": "along",
+        "from": "medial-condyle-inferior",
+        "toward": "medial-malleolus",
+        "distance": {
+          "cun": 3,
+          "segment": "seg.sp9-medial-malleolus"
+        },
+        "offset": {
+          "medial": {
+            "cm": 0.5
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.sp9-medial-malleolus"
+      },
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "SP9",
+      "names": {
+        "pinyin": "Yīnlíngquán",
+        "hanzi": "阴陵泉",
+        "en": "Yin Mound Spring"
+      },
+      "channel": "SP",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "SP9",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "SP9",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the tibial aspect of the leg, in the depression between the inferior border of the medial condyle of the tibia and the medial border of the tibia.",
+        "paraphrased": true
+      },
+      "area": "leg",
+      "region": "knee-leg",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "medial-condyle-inferior"
+      },
+      "tolerance": {
+        "cm": 0.7
+      },
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "SP10",
+      "names": {
+        "pinyin": "Xuèhǎi",
+        "hanzi": "血海",
+        "en": "Sea of Blood"
+      },
+      "channel": "SP",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "SP10",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "SP10",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the anteromedial aspect of the thigh, on the bulge of the vastus medialis, 2 B-cun superior to the medial end of the base of the patella.",
+        "paraphrased": true
+      },
+      "area": "thigh",
+      "tolerance": {
+        "cm": 1
+      },
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "SP11",
+      "names": {
+        "pinyin": "Jīmén",
+        "hanzi": "箕门",
+        "en": "Winnower Gate"
+      },
+      "channel": "SP",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "SP11",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "SP11",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the medial aspect of the thigh, at the junction of the upper third and lower two thirds of the line connecting the medial end of the base of the patella with SP12, between the sartorius and adductor longus muscles, over the femoral artery.",
+        "paraphrased": true
+      },
+      "area": "thigh",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The femoral vessels lie close: palpate and avoid the artery.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "SP12",
+      "names": {
+        "pinyin": "Chōngmén",
+        "hanzi": "冲门",
+        "en": "Surging Gate"
+      },
+      "channel": "SP",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "SP12",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "SP12",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the groin region, at the inguinal crease, lateral to the femoral artery.",
+        "paraphrased": true
+      },
+      "area": "groin",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The femoral vessels lie close: palpate and avoid the artery.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "SP13",
+      "names": {
+        "pinyin": "Fǔshè",
+        "hanzi": "府舍",
+        "en": "Bowel Abode"
+      },
+      "channel": "SP",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "SP13",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "SP13",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the lower abdomen, 4.3 B-cun inferior to the centre of the umbilicus, 4 B-cun lateral to the anterior median line.",
+        "paraphrased": true
+      },
+      "area": "abdomen",
+      "bilateral": true,
+      "cautions": [
+        {
+          "id": "SP13-pregnancy",
+          "when": "pregnancy",
+          "text": "Lower abdominal points: traditionally avoided in pregnancy.",
+          "severity": "major"
+        }
+      ],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "SP14",
+      "names": {
+        "pinyin": "Fùjié",
+        "hanzi": "腹结",
+        "en": "Abdominal Bind"
+      },
+      "channel": "SP",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "SP14",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "SP14",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the lower abdomen, 1.3 B-cun inferior to the centre of the umbilicus, 4 B-cun lateral to the anterior median line.",
+        "paraphrased": true
+      },
+      "area": "abdomen",
+      "bilateral": true,
+      "cautions": [
+        {
+          "id": "SP14-pregnancy",
+          "when": "pregnancy",
+          "text": "Lower abdominal points: traditionally avoided in pregnancy.",
+          "severity": "major"
+        }
+      ],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "SP15",
+      "names": {
+        "pinyin": "Dàhéng",
+        "hanzi": "大横",
+        "en": "Great Horizontal"
+      },
+      "channel": "SP",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "SP15",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "SP15",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the abdomen, 4 B-cun lateral to the centre of the umbilicus.",
+        "paraphrased": true
+      },
+      "area": "abdomen",
+      "bilateral": true,
+      "cautions": [
+        {
+          "id": "SP15-pregnancy",
+          "when": "pregnancy",
+          "text": "Lower abdominal points: traditionally avoided in pregnancy.",
+          "severity": "major"
+        }
+      ],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "SP16",
+      "names": {
+        "pinyin": "Fùāi",
+        "hanzi": "腹哀",
+        "en": "Abdominal Lament"
+      },
+      "channel": "SP",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "SP16",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "SP16",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the upper abdomen, 3 B-cun superior to the centre of the umbilicus, 4 B-cun lateral to the anterior median line.",
+        "paraphrased": true
+      },
+      "area": "abdomen",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "SP17",
+      "names": {
+        "pinyin": "Shídòu",
+        "hanzi": "食窦",
+        "en": "Food Hole"
+      },
+      "channel": "SP",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "SP17",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "SP17",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the anterolateral thoracic region, in the fifth intercostal space, 6 B-cun lateral to the anterior median line.",
+        "paraphrased": true
+      },
+      "area": "chest",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "SP18",
+      "names": {
+        "pinyin": "Tiānxī",
+        "hanzi": "天溪",
+        "en": "Celestial Ravine"
+      },
+      "channel": "SP",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "SP18",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "SP18",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the anterolateral thoracic region, in the fourth intercostal space, 6 B-cun lateral to the anterior median line.",
+        "paraphrased": true
+      },
+      "area": "chest",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "SP19",
+      "names": {
+        "pinyin": "Xiōngxiāng",
+        "hanzi": "胸乡",
+        "en": "Chest Village"
+      },
+      "channel": "SP",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "SP19",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "SP19",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the anterolateral thoracic region, in the third intercostal space, 6 B-cun lateral to the anterior median line.",
+        "paraphrased": true
+      },
+      "area": "chest",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "SP20",
+      "names": {
+        "pinyin": "Zhōuróng",
+        "hanzi": "周荣",
+        "en": "Encircling Glory"
+      },
+      "channel": "SP",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "SP20",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "SP20",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the anterolateral thoracic region, in the second intercostal space, 6 B-cun lateral to the anterior median line.",
+        "paraphrased": true
+      },
+      "area": "chest",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "SP21",
+      "names": {
+        "pinyin": "Dàbāo",
+        "hanzi": "大包",
+        "en": "Great Embracement"
+      },
+      "channel": "SP",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "SP21",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "SP21",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the lateral thoracic region, in the sixth intercostal space, on the mid-axillary line.",
+        "paraphrased": true
+      },
+      "area": "chest",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,2392 @@
+{
+  "schema": "acucraft/acupoints@1",
+  "id": "acucraft-points-ex",
+  "version": "0.2.0",
+  "points": [
+    {
+      "id": "EX-HN1",
+      "names": {
+        "pinyin": "Sìshéncōng",
+        "hanzi": "四神聪",
+        "en": "Four Alert Spirit"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-HN1",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-HN1",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "On the vertex, four points 1 B-cun anterior, posterior and lateral to GV20.",
+        "paraphrased": true
+      },
+      "area": "head",
+      "sites": 4,
+      "bilateral": false,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-HN2",
+      "names": {
+        "pinyin": "Dāngyáng",
+        "hanzi": "当阳",
+        "en": "Facing Yang"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-HN2",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-HN2",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "On the head, directly superior to the pupil, 1 B-cun superior to the anterior hairline.",
+        "paraphrased": true
+      },
+      "area": "head",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "Yintang",
+      "names": {
+        "pinyin": "Yìntáng",
+        "hanzi": "印堂",
+        "en": "Hall of Impression"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-HN3",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-HN3",
+          "relation": "absent",
+          "note": "Not among the 2008 standard's 361 meridian points."
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "GV29",
+          "relation": "reclassified",
+          "note": "Reported as assigned to the Governor Vessel in GB/T 12346-2021; verify."
+        }
+      ],
+      "aliases": [
+        "EX-HN3"
+      ],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "On the head, in the depression midway between the medial ends of the two eyebrows.",
+        "paraphrased": true
+      },
+      "area": "head",
+      "tolerance": {
+        "cm": 1
+      },
+      "bilateral": false,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-HN4",
+      "names": {
+        "pinyin": "Yúyāo",
+        "hanzi": "鱼腰",
+        "en": "Fish Waist"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-HN4",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-HN4",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "On the forehead, directly superior to the pupil, at the middle of the eyebrow.",
+        "paraphrased": true
+      },
+      "area": "head",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-HN5",
+      "names": {
+        "pinyin": "Tàiyáng",
+        "hanzi": "太阳",
+        "en": "Sun"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-HN5",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-HN5",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "In the temple, in the depression about one finger-breadth behind the midpoint between the lateral end of the eyebrow and the outer canthus.",
+        "paraphrased": true
+      },
+      "area": "head",
+      "tolerance": {
+        "cm": 1
+      },
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-HN6",
+      "names": {
+        "pinyin": "Ěrjiān",
+        "hanzi": "耳尖",
+        "en": "Ear Apex"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-HN6",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-HN6",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "At the apex of the auricle, found with the ear folded forward.",
+        "paraphrased": true
+      },
+      "area": "head",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-HN7",
+      "names": {
+        "pinyin": "Qiúhòu",
+        "hanzi": "球后",
+        "en": "Behind the Ball"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-HN7",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-HN7",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "On the face, at the junction of the lateral quarter and medial three quarters of the infraorbital margin.",
+        "paraphrased": true
+      },
+      "area": "face",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "Between the eyeball and the orbit: needle slowly along the orbital margin without lifting, thrusting or rotating; risk of haematoma and of injury to the eye. Requires specific training.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-HN8",
+      "names": {
+        "pinyin": "Shàngyíngxiāng",
+        "hanzi": "上迎香",
+        "en": "Upper Welcome Fragrance"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-HN8",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-HN8",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "On the face, at the upper end of the nasolabial sulcus, at the junction of the alar cartilage and the nasal bone.",
+        "paraphrased": true
+      },
+      "area": "face",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-HN9",
+      "names": {
+        "pinyin": "Nèiyíngxiāng",
+        "hanzi": "内迎香",
+        "en": "Inner Welcome Fragrance"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-HN9",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-HN9",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "Inside the nostril, on the mucosa at the junction of the alar cartilage and the nasal concha.",
+        "paraphrased": true
+      },
+      "area": "face",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "On the nasal mucosa: traditionally pricked, not retained.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-HN10",
+      "names": {
+        "pinyin": "Jùquán",
+        "hanzi": "聚泉",
+        "en": "Gathering Spring"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-HN10",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-HN10",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "In the mouth, at the midpoint of the dorsal median line of the tongue.",
+        "paraphrased": true
+      },
+      "area": "mouth",
+      "bilateral": false,
+      "cautions": [],
+      "notes": "Traditionally pricked, not retained.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-HN11",
+      "names": {
+        "pinyin": "Hǎiquán",
+        "hanzi": "海泉",
+        "en": "Sea Spring"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-HN11",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-HN11",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "In the mouth, at the midpoint of the frenulum of the tongue.",
+        "paraphrased": true
+      },
+      "area": "mouth",
+      "bilateral": false,
+      "cautions": [],
+      "notes": "Traditionally pricked, not retained.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-HN12",
+      "names": {
+        "pinyin": "Jīnjīn",
+        "hanzi": "金津",
+        "en": "Golden Liquid"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-HN12",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-HN12",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "In the mouth, on the vein on the left side of the frenulum of the tongue.",
+        "paraphrased": true
+      },
+      "area": "mouth",
+      "bilateral": false,
+      "cautions": [],
+      "notes": "Traditionally pricked to bleed, not retained.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-HN13",
+      "names": {
+        "pinyin": "Yùyè",
+        "hanzi": "玉液",
+        "en": "Jade Humor"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-HN13",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-HN13",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "In the mouth, on the vein on the right side of the frenulum of the tongue.",
+        "paraphrased": true
+      },
+      "area": "mouth",
+      "bilateral": false,
+      "cautions": [],
+      "notes": "Traditionally pricked to bleed, not retained.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-HN14",
+      "names": {
+        "pinyin": "Yìmíng",
+        "hanzi": "翳明",
+        "en": "Shielding Brightness"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-HN14",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-HN14",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "On the neck, 1 B-cun posterior to TE17.",
+        "paraphrased": true
+      },
+      "area": "neck",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-HN15",
+      "names": {
+        "pinyin": "Jǐngbǎiláo",
+        "hanzi": "颈百劳",
+        "en": "Neck Hundred Taxations"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-HN15",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-HN15",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "On the nape, 2 B-cun superior to the spinous process of C7, 1 B-cun lateral to the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "neck",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-CA1",
+      "names": {
+        "pinyin": "Zǐgōng",
+        "hanzi": "子宫",
+        "en": "Uterus"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-CA1",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-CA1",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "On the lower abdomen, 4 B-cun inferior to the centre of the umbilicus, 3 B-cun lateral to the anterior median line.",
+        "paraphrased": true
+      },
+      "area": "abdomen",
+      "bilateral": true,
+      "cautions": [
+        {
+          "id": "EX-CA1-pregnancy",
+          "when": "pregnancy",
+          "text": "Lower abdominal points: traditionally avoided in pregnancy.",
+          "severity": "major"
+        }
+      ],
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-B1",
+      "names": {
+        "pinyin": "Dìngchuǎn",
+        "hanzi": "定喘",
+        "en": "Stop Wheezing"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-B1",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-B1",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "In the upper back, 0.5 B-cun lateral to the inferior border of the spinous process of C7.",
+        "paraphrased": true
+      },
+      "area": "neck",
+      "region": "neck-shoulder",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "c7-spinous",
+        "offset": {
+          "caudal": {
+            "cm": 1.0
+          },
+          "lateral": {
+            "cun": 0.5,
+            "segment": "seg.scapulae"
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.5
+      },
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The spinal canal lies medial and the apex of the lung lateral and deep: needle shallowly, never medially.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-B2",
+      "names": {
+        "pinyin": "Jiájǐ",
+        "hanzi": "夹脊",
+        "en": "Spine-Pinching Points"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-B2",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-B2",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "On the back, 0.5 B-cun lateral to the inferior border of each spinous process from T1 to L5: seventeen points on each side.",
+        "paraphrased": true
+      },
+      "area": "upper-back",
+      "sites": 17,
+      "bilateral": true,
+      "cautions": [],
+      "notes": "At thoracic levels the pleura lies lateral and the spinal canal medial: needle shallowly and never towards the midline.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-B3",
+      "names": {
+        "pinyin": "Wèiwǎnxiàshū",
+        "hanzi": "胃脘下俞",
+        "en": "Stomach Duct Lower Shu"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-B3",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-B3",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "In the upper back, at the level of the inferior border of the spinous process of T8, 1.5 B-cun lateral to the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "upper-back",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-B4",
+      "names": {
+        "pinyin": "Pǐgēn",
+        "hanzi": "痞根",
+        "en": "Glomus Root"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-B4",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-B4",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "In the lumbar region, at the level of the inferior border of the spinous process of L1, 3.5 B-cun lateral to the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "lower-back",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The kidney lies deep: no deep perpendicular needling.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-B5",
+      "names": {
+        "pinyin": "Xiàjíshū",
+        "hanzi": "下极俞",
+        "en": "Lower Extremity Shu"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-B5",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-B5",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "In the lumbar region, in the depression inferior to the spinous process of L3, on the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "lower-back",
+      "region": "lumbar",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "l3-spinous",
+        "offset": {
+          "caudal": {
+            "cm": 0.6
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
+      "bilateral": false,
+      "cautions": [
+        {
+          "id": "EX-B5-pregnancy",
+          "when": "pregnancy",
+          "text": "Lumbosacral points: follow local practice in pregnancy.",
+          "severity": "major"
+        }
+      ],
+      "notes": "The spinal canal lies deep to the interspinous space: needle obliquely upward and shallowly.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-B6",
+      "names": {
+        "pinyin": "Yāoyí",
+        "hanzi": "腰宜",
+        "en": "Lumbar Appropriateness"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-B6",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-B6",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "In the lumbar region, at the level of the inferior border of the spinous process of L4, 3 B-cun lateral to the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "lower-back",
+      "region": "lumbar",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "l4-spinous",
+        "offset": {
+          "lateral": {
+            "cun": 3,
+            "segment": "seg.scapulae"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.5,
+        "segment": "seg.scapulae"
+      },
+      "bilateral": true,
+      "cautions": [
+        {
+          "id": "EX-B6-pregnancy",
+          "when": "pregnancy",
+          "text": "Lumbosacral points: follow local practice in pregnancy.",
+          "severity": "major"
+        }
+      ],
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-B7",
+      "names": {
+        "pinyin": "Yāoyǎn",
+        "hanzi": "腰眼",
+        "en": "Lumbar Eye"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-B7",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-B7",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "In the lumbar region, in the depression at the level of the inferior border of the spinous process of L4, about 3.5 B-cun lateral to the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "lower-back",
+      "region": "lumbar",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "l4-spinous",
+        "offset": {
+          "lateral": {
+            "cun": 3.5,
+            "segment": "seg.scapulae"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.5,
+        "segment": "seg.scapulae"
+      },
+      "bilateral": true,
+      "cautions": [
+        {
+          "id": "EX-B7-pregnancy",
+          "when": "pregnancy",
+          "text": "Lumbosacral points: follow local practice in pregnancy.",
+          "severity": "major"
+        }
+      ],
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-B8",
+      "names": {
+        "pinyin": "Shíqīzhuī",
+        "hanzi": "十七椎",
+        "en": "Seventeenth Vertebra"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-B8",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-B8",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "In the lumbar region, in the depression inferior to the spinous process of L5, on the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "lower-back",
+      "bilateral": false,
+      "cautions": [
+        {
+          "id": "EX-B8-pregnancy",
+          "when": "pregnancy",
+          "text": "Lumbosacral points: follow local practice in pregnancy.",
+          "severity": "major"
+        }
+      ],
+      "notes": "The spinal canal lies deep to the interspinous space: needle obliquely upward and shallowly.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-B9",
+      "names": {
+        "pinyin": "Yāoqí",
+        "hanzi": "腰奇",
+        "en": "Lumbar Curiosity"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-B9",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-B9",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "In the sacral region, 2 B-cun directly superior to the tip of the coccyx, in the depression between the sacral cornua.",
+        "paraphrased": true
+      },
+      "area": "sacrum-buttock",
+      "bilateral": false,
+      "cautions": [
+        {
+          "id": "EX-B9-pregnancy",
+          "when": "pregnancy",
+          "text": "Lumbosacral points: follow local practice in pregnancy.",
+          "severity": "major"
+        }
+      ],
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-UE1",
+      "names": {
+        "pinyin": "Zhǒujiān",
+        "hanzi": "肘尖",
+        "en": "Elbow Tip"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-UE1",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-UE1",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "On the posterior aspect of the elbow, at the tip of the olecranon (with the elbow flexed).",
+        "paraphrased": true
+      },
+      "area": "elbow",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-UE2",
+      "names": {
+        "pinyin": "Èrbái",
+        "hanzi": "二白",
+        "en": "Two Whites"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-UE2",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-UE2",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "On the anterior aspect of the forearm, 4 B-cun proximal to the palmar wrist crease, one point on each side of the flexor carpi radialis tendon.",
+        "paraphrased": true
+      },
+      "area": "forearm",
+      "sites": 2,
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-UE3",
+      "names": {
+        "pinyin": "Zhōngquán",
+        "hanzi": "中泉",
+        "en": "Central Spring"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-UE3",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-UE3",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "On the dorsal wrist crease, in the depression radial to the extensor digitorum tendon, between LI5 and TE4.",
+        "paraphrased": true
+      },
+      "area": "wrist",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-UE4",
+      "names": {
+        "pinyin": "Zhōngkuí",
+        "hanzi": "中魁",
+        "en": "Middle Eminence"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-UE4",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-UE4",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "On the dorsal aspect of the middle finger, at the centre of the proximal interphalangeal joint.",
+        "paraphrased": true
+      },
+      "area": "finger",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-UE5",
+      "names": {
+        "pinyin": "Dàgǔkōng",
+        "hanzi": "大骨空",
+        "en": "Great Bone Hollow"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-UE5",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-UE5",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "On the dorsal aspect of the thumb, at the centre of the interphalangeal joint.",
+        "paraphrased": true
+      },
+      "area": "finger",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-UE6",
+      "names": {
+        "pinyin": "Xiǎogǔkōng",
+        "hanzi": "小骨空",
+        "en": "Small Bone Hollow"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-UE6",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-UE6",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "On the dorsal aspect of the little finger, at the centre of the proximal interphalangeal joint.",
+        "paraphrased": true
+      },
+      "area": "finger",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-UE7",
+      "names": {
+        "pinyin": "Yāotòngdiǎn",
+        "hanzi": "腰痛点",
+        "en": "Lumbar Pain Points"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-UE7",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-UE7",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "On the dorsum of the hand, between the second and third and between the fourth and fifth metacarpal bones, midway between the dorsal wrist crease and the metacarpophalangeal joints: two points on each hand.",
+        "paraphrased": true
+      },
+      "area": "hand",
+      "sites": 2,
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-UE8",
+      "names": {
+        "pinyin": "Wàiláogōng",
+        "hanzi": "外劳宫",
+        "en": "Outer Palace of Toil"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-UE8",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-UE8",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "On the dorsum of the hand, between the second and third metacarpal bones, about 0.5 B-cun proximal to the metacarpophalangeal joints.",
+        "paraphrased": true
+      },
+      "area": "hand",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-UE9",
+      "names": {
+        "pinyin": "Bāxié",
+        "hanzi": "八邪",
+        "en": "Eight Pathogens"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-UE9",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-UE9",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "On the dorsum of the hand, proximal to the margins of the webs between the five fingers, at the border between the red and white skin: four points on each hand.",
+        "paraphrased": true
+      },
+      "area": "hand",
+      "sites": 4,
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-UE10",
+      "names": {
+        "pinyin": "Sìfèng",
+        "hanzi": "四缝",
+        "en": "Four Seams"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-UE10",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-UE10",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "On the palmar aspect of the second to fifth fingers, at the centre of the crease of the proximal interphalangeal joint: four points on each hand.",
+        "paraphrased": true
+      },
+      "area": "finger",
+      "sites": 4,
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-UE11",
+      "names": {
+        "pinyin": "Shíxuān",
+        "hanzi": "十宣",
+        "en": "Ten Diffusions"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-UE11",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-UE11",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "At the tips of the ten fingers, about 0.1 F-cun from the free margin of the nail: five points on each hand.",
+        "paraphrased": true
+      },
+      "area": "finger",
+      "sites": 5,
+      "bilateral": true,
+      "cautions": [],
+      "notes": "Traditionally pricked to bleed (for example in fever), not retained.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-LE1",
+      "names": {
+        "pinyin": "Kuāngǔ",
+        "hanzi": "髋骨",
+        "en": "Hip Bone"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-LE1",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-LE1",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "On the anterior aspect of the thigh, 1.5 B-cun lateral and medial to ST34: two points on each leg.",
+        "paraphrased": true
+      },
+      "area": "thigh",
+      "sites": 2,
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-LE2",
+      "names": {
+        "pinyin": "Hèdǐng",
+        "hanzi": "鹤顶",
+        "en": "Crane's Summit"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-LE2",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-LE2",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "Above the knee, in the depression at the midpoint of the superior border of the patella.",
+        "paraphrased": true
+      },
+      "area": "knee",
+      "region": "knee-leg",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "patella-base",
+        "offset": {
+          "cranial": {
+            "cm": 0.6
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.7
+      },
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-LE3",
+      "names": {
+        "pinyin": "Bǎichóngwō",
+        "hanzi": "百虫窝",
+        "en": "Hundred Insect Burrow"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-LE3",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-LE3",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "On the medial aspect of the thigh, 3 B-cun superior to the medial end of the base of the patella (1 B-cun superior to SP10).",
+        "paraphrased": true
+      },
+      "area": "thigh",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-LE4",
+      "names": {
+        "pinyin": "Nèixīyǎn",
+        "hanzi": "内膝眼",
+        "en": "Medial Knee Eye"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-LE4",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-LE4",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "On the anterior aspect of the knee, in the depression medial to the patellar ligament (with the knee flexed).",
+        "paraphrased": true
+      },
+      "area": "knee",
+      "region": "knee-leg",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "medial-knee-eye"
+      },
+      "configuration": "knee-flexed",
+      "tolerance": {
+        "cm": 0.6
+      },
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-LE5",
+      "names": {
+        "pinyin": "Xīyǎn",
+        "hanzi": "膝眼",
+        "en": "Knee Eyes"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-LE5",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-LE5",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "On the anterior aspect of the knee, in the two depressions medial and lateral to the patellar ligament (with the knee flexed): the medial one is EX-LE4, the lateral one coincides with ST35.",
+        "paraphrased": true
+      },
+      "area": "knee",
+      "sites": 2,
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-LE6",
+      "names": {
+        "pinyin": "Dǎnnáng",
+        "hanzi": "胆囊",
+        "en": "Gallbladder Point"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-LE6",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-LE6",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "On the fibular aspect of the leg, 2 B-cun directly inferior to GB34.",
+        "paraphrased": true
+      },
+      "area": "leg",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-LE7",
+      "names": {
+        "pinyin": "Lánwěi",
+        "hanzi": "阑尾",
+        "en": "Appendix Point"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-LE7",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-LE7",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "On the anterior aspect of the leg, 2 B-cun inferior to ST36, one finger-breadth lateral to the anterior crest of the tibia.",
+        "paraphrased": true
+      },
+      "area": "leg",
+      "region": "knee-leg",
+      "localisation": {
+        "method": "along",
+        "from": "st35-depression",
+        "toward": "ankle-anterior-midpoint",
+        "distance": {
+          "cun": 5,
+          "segment": "seg.knee-ankle-lateral"
+        }
+      },
+      "tolerance": {
+        "cun": 0.5,
+        "segment": "seg.knee-ankle-lateral"
+      },
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-LE8",
+      "names": {
+        "pinyin": "Nèihuáijiān",
+        "hanzi": "内踝尖",
+        "en": "Tip of the Medial Malleolus"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-LE8",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-LE8",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "On the medial aspect of the ankle, at the prominence of the medial malleolus.",
+        "paraphrased": true
+      },
+      "area": "ankle",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-LE9",
+      "names": {
+        "pinyin": "Wàihuáijiān",
+        "hanzi": "外踝尖",
+        "en": "Tip of the Lateral Malleolus"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-LE9",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-LE9",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "On the lateral aspect of the ankle, at the prominence of the lateral malleolus.",
+        "paraphrased": true
+      },
+      "area": "ankle",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-LE10",
+      "names": {
+        "pinyin": "Bāfēng",
+        "hanzi": "八风",
+        "en": "Eight Winds"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-LE10",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-LE10",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "On the dorsum of the foot, proximal to the margins of the webs between the five toes, at the border between the red and white skin: four points on each foot.",
+        "paraphrased": true
+      },
+      "area": "foot",
+      "sites": 4,
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-LE11",
+      "names": {
+        "pinyin": "Dúyīn",
+        "hanzi": "独阴",
+        "en": "Solitary Yin"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-LE11",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-LE11",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "On the plantar aspect of the second toe, at the centre of the crease of the distal interphalangeal joint.",
+        "paraphrased": true
+      },
+      "area": "toe",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "EX-LE12",
+      "names": {
+        "pinyin": "Qìduān",
+        "hanzi": "气端",
+        "en": "Qi Extremity"
+      },
+      "channel": "EX",
+      "codes": [
+        {
+          "edition": "who-1991-nomenclature",
+          "code": "EX-LE12",
+          "relation": "same"
+        },
+        {
+          "edition": "who-wpro-2008",
+          "code": "EX-LE12",
+          "relation": "absent",
+          "note": "Extra point: outside the 2008 standard's 361 meridian points."
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-1991-nomenclature",
+        "text": "At the tips of the ten toes, about 0.1 F-cun from the free margin of the nail: five points on each foot.",
+        "paraphrased": true
+      },
+      "area": "toe",
+      "sites": 5,
+      "bilateral": true,
+      "cautions": [],
+      "notes": "Traditionally pricked, not retained.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "A Proposed Standard International Acupuncture Nomenclature (WHO, 1991): extra points",
+            "publisher": "WHO",
+            "verified": false,
+            "note": "Extra-point code and name; location paraphrased from common usage, check against GB/T 40997-2021 or the reviewer's reference."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    }
+  ]
+}

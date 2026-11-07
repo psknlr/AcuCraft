@@ -56,12 +56,12 @@ const TOOLS: Anthropic.Beta.BetaTool[] = [
   },
   {
     name: "lookup",
-    description: "Read the public reference library (no simulated time). Topics: points (index), point (with id), region (with id), regions, vocabulary, clinic, roles, rules, evidence, actions.",
+    description: "Read the public reference library (no simulated time). Topics: points (the index: the points you can needle in this encounter's regions, and every other point id by channel; with id, the points of one channel, body area or region), point (one point in full, by id or alias), region (with id), regions, vocabulary, clinic, roles, rules, evidence, actions.",
     input_schema: {
       type: "object",
       properties: {
         topic: { type: "string", enum: ["points", "point", "region", "regions", "vocabulary", "clinic", "roles", "rules", "evidence", "actions"] },
-        id: { type: "string", description: "A point id (ST36) or region id (knee-leg), for the point and region topics." },
+        id: { type: "string", description: "For point: a point id or alias (ST36, SJ5). For region: a region id (knee-leg). For points: a channel (ST), a body area (forearm) or a region (knee-leg)." },
       },
       required: ["topic"],
       additionalProperties: false,
@@ -74,12 +74,33 @@ const TOOLS: Anthropic.Beta.BetaTool[] = [
   },
 ];
 
-function lookup(lib: AgentInit["library"], input: { topic?: string; id?: string }): unknown {
+/** Point ids grouped by channel: the whole library in a few kilobytes. */
+const idsByChannel = (lib: AgentInit["library"]) => {
+  const out: Record<string, string[]> = {};
+  for (const p of lib.points) (out[p.channel] ??= []).push(p.id);
+  return out;
+};
+
+export function lookup(lib: AgentInit["library"], input: { topic?: string; id?: string }): unknown {
   switch (input.topic) {
-    case "points":
-      return lib.points.map((p) => ({ id: p.id, name: `${p.names.pinyin} ${p.names.hanzi}`, channel: p.channel, region: p.region }));
-    case "point":
-      return lib.points.find((p) => p.id === input.id) ?? { error: `no point ${input.id}`, available: lib.points.map((p) => p.id) };
+    case "points": {
+      const summary = (p: AgentInit["library"]["points"][number]) => ({ id: p.id, name: `${p.names.pinyin} ${p.names.hanzi}`, channel: p.channel, area: p.area, region: p.region });
+      if (input.id) {
+        const key = input.id.toLowerCase();
+        const found = lib.points.filter((p) => p.channel.toLowerCase() === key || p.area === key || p.region === key);
+        return found.length > 0 ? found.map((p) => ({ ...summary(p), location: p.location })) : { error: `no points for ${input.id}: give a channel (ST), a body area (forearm) or a region (knee-leg)` };
+      }
+      return {
+        total: lib.points.length,
+        needleable: lib.points.filter((p) => p.localisation).map(summary),
+        byChannel: idsByChannel(lib),
+        note: "Only points localised on this encounter's regions can be needled here; the others can be looked up, planned and discussed.",
+      };
+    }
+    case "point": {
+      const key = (input.id ?? "").toUpperCase();
+      return lib.points.find((p) => p.id.toUpperCase() === key || p.aliases.some((a) => a.toUpperCase() === key)) ?? { error: `no point ${input.id}`, byChannel: idsByChannel(lib) };
+    }
     case "region":
       return lib.regions.find((r) => r.id === input.id) ?? { error: `no region ${input.id} in this encounter`, available: lib.regions.map((r) => r.id) };
     case "regions":

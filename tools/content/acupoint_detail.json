@@ -1,0 +1,1625 @@
+{
+ "_note": "Hand-written detail for points first authored in acupoints/core.json (names, codes, location text, localisation, tolerance, cautions, notes). tools/content/acupoints.py merges it over the generated tables.",
+ "points": {
+  "ST35": {
+   "id": "ST35",
+   "names": {
+    "pinyin": "Dúbí",
+    "hanzi": "犊鼻",
+    "en": "Calf's Nose"
+   },
+   "channel": "ST",
+   "codes": [
+    {
+     "edition": "who-wpro-2008",
+     "code": "ST35",
+     "relation": "same"
+    },
+    {
+     "edition": "gb-t-12346-2021",
+     "code": "ST35",
+     "relation": "same"
+    }
+   ],
+   "aliases": [],
+   "location": {
+    "edition": "who-wpro-2008",
+    "text": "On the anterior aspect of the knee, in the depression lateral to the patellar ligament (with the knee flexed).",
+    "paraphrased": true
+   },
+   "region": "knee-leg",
+   "localisation": {
+    "method": "landmark",
+    "landmark": "st35-depression"
+   },
+   "configuration": "knee-flexed",
+   "tolerance": {
+    "cm": 0.6
+   },
+   "bilateral": true,
+   "cautions": [],
+   "notes": "Located with the knee flexed. Deep to it lie the infrapatellar fat pad and the joint cavity: intra-articular penetration is to be avoided."
+  },
+  "EX-LE4": {
+   "id": "EX-LE4",
+   "names": {
+    "pinyin": "Nèixīyǎn",
+    "hanzi": "内膝眼",
+    "en": "Medial Knee Eye"
+   },
+   "channel": "EX",
+   "codes": [
+    {
+     "edition": "who-1991-nomenclature",
+     "code": "EX-LE4",
+     "relation": "same"
+    },
+    {
+     "edition": "who-wpro-2008",
+     "code": "EX-LE4",
+     "relation": "absent",
+     "note": "Extra point: outside the 2008 standard's 361 meridian points."
+    }
+   ],
+   "aliases": [],
+   "location": {
+    "edition": "who-1991-nomenclature",
+    "text": "On the anterior aspect of the knee, in the depression medial to the patellar ligament (with the knee flexed).",
+    "paraphrased": true
+   },
+   "region": "knee-leg",
+   "localisation": {
+    "method": "landmark",
+    "landmark": "medial-knee-eye"
+   },
+   "configuration": "knee-flexed",
+   "tolerance": {
+    "cm": 0.6
+   },
+   "bilateral": true,
+   "cautions": []
+  },
+  "EX-LE2": {
+   "id": "EX-LE2",
+   "names": {
+    "pinyin": "Hèdǐng",
+    "hanzi": "鹤顶",
+    "en": "Crane's Summit"
+   },
+   "channel": "EX",
+   "codes": [
+    {
+     "edition": "who-1991-nomenclature",
+     "code": "EX-LE2",
+     "relation": "same"
+    },
+    {
+     "edition": "who-wpro-2008",
+     "code": "EX-LE2",
+     "relation": "absent",
+     "note": "Extra point: outside the 2008 standard's 361 meridian points."
+    }
+   ],
+   "aliases": [],
+   "location": {
+    "edition": "who-1991-nomenclature",
+    "text": "Above the knee, in the depression at the midpoint of the superior border of the patella.",
+    "paraphrased": true
+   },
+   "region": "knee-leg",
+   "localisation": {
+    "method": "landmark",
+    "landmark": "patella-base",
+    "offset": {
+     "cranial": {
+      "cm": 0.6
+     }
+    }
+   },
+   "tolerance": {
+    "cm": 0.7
+   },
+   "bilateral": true,
+   "cautions": []
+  },
+  "ST36": {
+   "id": "ST36",
+   "names": {
+    "pinyin": "Zúsānlǐ",
+    "hanzi": "足三里",
+    "en": "Leg Three Miles"
+   },
+   "channel": "ST",
+   "codes": [
+    {
+     "edition": "who-wpro-2008",
+     "code": "ST36",
+     "relation": "same"
+    },
+    {
+     "edition": "gb-t-12346-2021",
+     "code": "ST36",
+     "relation": "same"
+    }
+   ],
+   "aliases": [],
+   "location": {
+    "edition": "who-wpro-2008",
+    "text": "On the anterior aspect of the leg, on the line connecting ST35 with ST41, 3 B-cun inferior to ST35.",
+    "paraphrased": true
+   },
+   "region": "knee-leg",
+   "localisation": {
+    "method": "along",
+    "from": "st35-depression",
+    "toward": "ankle-anterior-midpoint",
+    "distance": {
+     "cun": 3,
+     "segment": "seg.knee-ankle-lateral"
+    }
+   },
+   "tolerance": {
+    "cun": 0.4,
+    "segment": "seg.knee-ankle-lateral"
+   },
+   "bilateral": true,
+   "cautions": []
+  },
+  "ST40": {
+   "id": "ST40",
+   "names": {
+    "pinyin": "Fēnglóng",
+    "hanzi": "丰隆",
+    "en": "Abundant Bulge"
+   },
+   "channel": "ST",
+   "codes": [
+    {
+     "edition": "who-wpro-2008",
+     "code": "ST40",
+     "relation": "same"
+    },
+    {
+     "edition": "gb-t-12346-2021",
+     "code": "ST40",
+     "relation": "same"
+    }
+   ],
+   "aliases": [],
+   "location": {
+    "edition": "who-wpro-2008",
+    "text": "On the anterolateral aspect of the leg, at the lateral border of the tibialis anterior muscle, 8 B-cun superior to the prominence of the lateral malleolus.",
+    "paraphrased": true
+   },
+   "region": "knee-leg",
+   "localisation": {
+    "method": "between",
+    "a": "st35-depression",
+    "b": "ankle-anterior-midpoint",
+    "fraction": 0.5,
+    "offset": {
+     "lateral": {
+      "cun": 1,
+      "segment": "seg.knee-ankle-lateral"
+     }
+    }
+   },
+   "tolerance": {
+    "cun": 0.5,
+    "segment": "seg.knee-ankle-lateral"
+   },
+   "bilateral": true,
+   "cautions": [],
+   "notes": "Constructed as one finger-breadth (taken as 1 B-cun) lateral to the midpoint of the ST35–ST41 line."
+  },
+  "GB34": {
+   "id": "GB34",
+   "names": {
+    "pinyin": "Yánglíngquán",
+    "hanzi": "阳陵泉",
+    "en": "Yang Mound Spring"
+   },
+   "channel": "GB",
+   "codes": [
+    {
+     "edition": "who-wpro-2008",
+     "code": "GB34",
+     "relation": "same"
+    },
+    {
+     "edition": "gb-t-12346-2021",
+     "code": "GB34",
+     "relation": "same"
+    }
+   ],
+   "aliases": [],
+   "location": {
+    "edition": "who-wpro-2008",
+    "text": "On the fibular aspect of the leg, in the depression anterior and distal to the head of the fibula.",
+    "paraphrased": true
+   },
+   "region": "knee-leg",
+   "localisation": {
+    "method": "landmark",
+    "landmark": "fibular-head",
+    "offset": {
+     "caudal": {
+      "cm": 1.5
+     },
+     "medial": {
+      "cm": 1.3
+     }
+    }
+   },
+   "tolerance": {
+    "cm": 0.8
+   },
+   "bilateral": true,
+   "cautions": [],
+   "notes": "On this chart 'medial' from the fibular head means anterior, towards the tibial crest. The common fibular nerve winds round the fibular neck just behind and below."
+  },
+  "SP9": {
+   "id": "SP9",
+   "names": {
+    "pinyin": "Yīnlíngquán",
+    "hanzi": "阴陵泉",
+    "en": "Yin Mound Spring"
+   },
+   "channel": "SP",
+   "codes": [
+    {
+     "edition": "who-wpro-2008",
+     "code": "SP9",
+     "relation": "same"
+    },
+    {
+     "edition": "gb-t-12346-2021",
+     "code": "SP9",
+     "relation": "same"
+    }
+   ],
+   "aliases": [],
+   "location": {
+    "edition": "who-wpro-2008",
+    "text": "On the tibial aspect of the leg, in the depression between the inferior border of the medial condyle of the tibia and the medial border of the tibia.",
+    "paraphrased": true
+   },
+   "region": "knee-leg",
+   "localisation": {
+    "method": "landmark",
+    "landmark": "medial-condyle-inferior"
+   },
+   "tolerance": {
+    "cm": 0.7
+   },
+   "bilateral": true,
+   "cautions": []
+  },
+  "SP6": {
+   "id": "SP6",
+   "names": {
+    "pinyin": "Sānyīnjiāo",
+    "hanzi": "三阴交",
+    "en": "Three Yin Intersection"
+   },
+   "channel": "SP",
+   "codes": [
+    {
+     "edition": "who-wpro-2008",
+     "code": "SP6",
+     "relation": "same"
+    },
+    {
+     "edition": "gb-t-12346-2021",
+     "code": "SP6",
+     "relation": "same"
+    }
+   ],
+   "aliases": [],
+   "location": {
+    "edition": "who-wpro-2008",
+    "text": "On the tibial aspect of the leg, posterior to the medial border of the tibia, 3 B-cun superior to the prominence of the medial malleolus.",
+    "paraphrased": true
+   },
+   "region": "knee-leg",
+   "localisation": {
+    "method": "along",
+    "from": "medial-malleolus",
+    "toward": "medial-condyle-inferior",
+    "distance": {
+     "cun": 3,
+     "segment": "seg.sp9-medial-malleolus"
+    },
+    "offset": {
+     "medial": {
+      "cm": 0.5
+     }
+    }
+   },
+   "tolerance": {
+    "cun": 0.4,
+    "segment": "seg.sp9-medial-malleolus"
+   },
+   "bilateral": true,
+   "cautions": [
+    {
+     "id": "SP6-pregnancy",
+     "when": "pregnancy",
+     "text": "Traditionally avoided in pregnancy.",
+     "severity": "major"
+    }
+   ]
+  },
+  "ST34": {
+   "id": "ST34",
+   "names": {
+    "pinyin": "Liángqiū",
+    "hanzi": "梁丘",
+    "en": "Ridge Mound"
+   },
+   "channel": "ST",
+   "codes": [
+    {
+     "edition": "who-wpro-2008",
+     "code": "ST34",
+     "relation": "same"
+    },
+    {
+     "edition": "gb-t-12346-2021",
+     "code": "ST34",
+     "relation": "same"
+    }
+   ],
+   "aliases": [],
+   "location": {
+    "edition": "who-wpro-2008",
+    "text": "On the anterolateral aspect of the thigh, between the vastus lateralis and the lateral border of the rectus femoris tendon, 2 B-cun superior to the base of the patella.",
+    "paraphrased": true
+   },
+   "tolerance": {
+    "cm": 1
+   },
+   "bilateral": true,
+   "cautions": []
+  },
+  "SP10": {
+   "id": "SP10",
+   "names": {
+    "pinyin": "Xuèhǎi",
+    "hanzi": "血海",
+    "en": "Sea of Blood"
+   },
+   "channel": "SP",
+   "codes": [
+    {
+     "edition": "who-wpro-2008",
+     "code": "SP10",
+     "relation": "same"
+    },
+    {
+     "edition": "gb-t-12346-2021",
+     "code": "SP10",
+     "relation": "same"
+    }
+   ],
+   "aliases": [],
+   "location": {
+    "edition": "who-wpro-2008",
+    "text": "On the anteromedial aspect of the thigh, on the bulge of the vastus medialis, 2 B-cun superior to the medial end of the base of the patella.",
+    "paraphrased": true
+   },
+   "tolerance": {
+    "cm": 1
+   },
+   "bilateral": true,
+   "cautions": []
+  },
+  "ST41": {
+   "id": "ST41",
+   "names": {
+    "pinyin": "Jiěxī",
+    "hanzi": "解溪",
+    "en": "Ravine Divide"
+   },
+   "channel": "ST",
+   "codes": [
+    {
+     "edition": "who-wpro-2008",
+     "code": "ST41",
+     "relation": "same"
+    },
+    {
+     "edition": "gb-t-12346-2021",
+     "code": "ST41",
+     "relation": "same"
+    }
+   ],
+   "aliases": [],
+   "location": {
+    "edition": "who-wpro-2008",
+    "text": "On the anterior aspect of the ankle, in the depression at the centre of the front of the ankle joint, between the tendons of extensor hallucis longus and extensor digitorum longus.",
+    "paraphrased": true
+   },
+   "tolerance": {
+    "cm": 1
+   },
+   "bilateral": true,
+   "cautions": []
+  },
+  "KI3": {
+   "id": "KI3",
+   "names": {
+    "pinyin": "Tàixī",
+    "hanzi": "太溪",
+    "en": "Great Ravine"
+   },
+   "channel": "KI",
+   "codes": [
+    {
+     "edition": "who-wpro-2008",
+     "code": "KI3",
+     "relation": "same"
+    },
+    {
+     "edition": "gb-t-12346-2021",
+     "code": "KI3",
+     "relation": "same"
+    }
+   ],
+   "aliases": [],
+   "location": {
+    "edition": "who-wpro-2008",
+    "text": "On the posteromedial aspect of the ankle, in the depression between the prominence of the medial malleolus and the calcaneal tendon.",
+    "paraphrased": true
+   },
+   "tolerance": {
+    "cm": 1
+   },
+   "bilateral": true,
+   "cautions": []
+  },
+  "LR3": {
+   "id": "LR3",
+   "names": {
+    "pinyin": "Tàichōng",
+    "hanzi": "太冲",
+    "en": "Great Surge"
+   },
+   "channel": "LR",
+   "codes": [
+    {
+     "edition": "who-wpro-2008",
+     "code": "LR3",
+     "relation": "same"
+    },
+    {
+     "edition": "gb-t-12346-2021",
+     "code": "LR3",
+     "relation": "same"
+    }
+   ],
+   "aliases": [],
+   "location": {
+    "edition": "who-wpro-2008",
+    "text": "On the dorsum of the foot, between the first and second metatarsal bones, in the depression distal to the junction of their bases, over the dorsalis pedis artery.",
+    "paraphrased": true
+   },
+   "tolerance": {
+    "cm": 1
+   },
+   "bilateral": true,
+   "cautions": []
+  },
+  "BL40": {
+   "id": "BL40",
+   "names": {
+    "pinyin": "Wěizhōng",
+    "hanzi": "委中",
+    "en": "Bend Middle"
+   },
+   "channel": "BL",
+   "codes": [
+    {
+     "edition": "who-wpro-2008",
+     "code": "BL40",
+     "relation": "same"
+    },
+    {
+     "edition": "gb-t-12346-2021",
+     "code": "BL40",
+     "relation": "same"
+    }
+   ],
+   "aliases": [],
+   "location": {
+    "edition": "who-wpro-2008",
+    "text": "On the posterior aspect of the knee, at the midpoint of the popliteal crease.",
+    "paraphrased": true
+   },
+   "tolerance": {
+    "cm": 1
+   },
+   "bilateral": true,
+   "cautions": [],
+   "notes": "Over the popliteal neurovascular bundle."
+  },
+  "BL57": {
+   "id": "BL57",
+   "names": {
+    "pinyin": "Chéngshān",
+    "hanzi": "承山",
+    "en": "Mountain Support"
+   },
+   "channel": "BL",
+   "codes": [
+    {
+     "edition": "who-wpro-2008",
+     "code": "BL57",
+     "relation": "same"
+    },
+    {
+     "edition": "gb-t-12346-2021",
+     "code": "BL57",
+     "relation": "same"
+    }
+   ],
+   "aliases": [],
+   "location": {
+    "edition": "who-wpro-2008",
+    "text": "On the posterior aspect of the leg, where the calcaneal tendon joins the two muscle bellies of the gastrocnemius.",
+    "paraphrased": true
+   },
+   "tolerance": {
+    "cm": 1
+   },
+   "bilateral": true,
+   "cautions": []
+  },
+  "BL60": {
+   "id": "BL60",
+   "names": {
+    "pinyin": "Kūnlún",
+    "hanzi": "昆仑",
+    "en": "Kunlun Mountains"
+   },
+   "channel": "BL",
+   "codes": [
+    {
+     "edition": "who-wpro-2008",
+     "code": "BL60",
+     "relation": "same"
+    },
+    {
+     "edition": "gb-t-12346-2021",
+     "code": "BL60",
+     "relation": "same"
+    }
+   ],
+   "aliases": [],
+   "location": {
+    "edition": "who-wpro-2008",
+    "text": "On the posterolateral aspect of the ankle, in the depression between the prominence of the lateral malleolus and the calcaneal tendon.",
+    "paraphrased": true
+   },
+   "tolerance": {
+    "cm": 1
+   },
+   "bilateral": true,
+   "cautions": [
+    {
+     "id": "BL60-pregnancy",
+     "when": "pregnancy",
+     "text": "Traditionally avoided in pregnancy.",
+     "severity": "major"
+    }
+   ]
+  },
+  "GB39": {
+   "id": "GB39",
+   "names": {
+    "pinyin": "Xuánzhōng",
+    "hanzi": "悬钟",
+    "en": "Suspended Bell"
+   },
+   "channel": "GB",
+   "codes": [
+    {
+     "edition": "who-wpro-2008",
+     "code": "GB39",
+     "relation": "same"
+    },
+    {
+     "edition": "gb-t-12346-2021",
+     "code": "GB39",
+     "relation": "same"
+    }
+   ],
+   "aliases": [],
+   "location": {
+    "edition": "who-wpro-2008",
+    "text": "On the fibular aspect of the leg, anterior to the fibula, 3 B-cun proximal to the prominence of the lateral malleolus.",
+    "paraphrased": true
+   },
+   "tolerance": {
+    "cm": 1
+   },
+   "bilateral": true,
+   "cautions": []
+  },
+  "PC6": {
+   "id": "PC6",
+   "names": {
+    "pinyin": "Nèiguān",
+    "hanzi": "内关",
+    "en": "Inner Pass"
+   },
+   "channel": "PC",
+   "codes": [
+    {
+     "edition": "who-wpro-2008",
+     "code": "PC6",
+     "relation": "same"
+    },
+    {
+     "edition": "gb-t-12346-2021",
+     "code": "PC6",
+     "relation": "same"
+    }
+   ],
+   "aliases": [],
+   "location": {
+    "edition": "who-wpro-2008",
+    "text": "On the anterior aspect of the forearm, between the tendons of palmaris longus and flexor carpi radialis, 2 B-cun proximal to the palmar wrist crease.",
+    "paraphrased": true
+   },
+   "region": "forearm",
+   "localisation": {
+    "method": "along",
+    "from": "pl-fcr-wrist",
+    "toward": "cubital-crease-mid",
+    "distance": {
+     "cun": 2,
+     "segment": "seg.wrist-elbow"
+    }
+   },
+   "tolerance": {
+    "cun": 0.3,
+    "segment": "seg.wrist-elbow"
+   },
+   "bilateral": true,
+   "cautions": [],
+   "notes": "The median nerve lies close beneath: an electric sensation means the needle has reached it."
+  },
+  "HT7": {
+   "id": "HT7",
+   "names": {
+    "pinyin": "Shénmén",
+    "hanzi": "神门",
+    "en": "Spirit Gate"
+   },
+   "channel": "HT",
+   "codes": [
+    {
+     "edition": "who-wpro-2008",
+     "code": "HT7",
+     "relation": "same"
+    },
+    {
+     "edition": "gb-t-12346-2021",
+     "code": "HT7",
+     "relation": "same"
+    }
+   ],
+   "aliases": [],
+   "location": {
+    "edition": "who-wpro-2008",
+    "text": "On the anteromedial aspect of the wrist, radial to the flexor carpi ulnaris tendon, on the palmar wrist crease.",
+    "paraphrased": true
+   },
+   "region": "forearm",
+   "localisation": {
+    "method": "landmark",
+    "landmark": "fcu-radial-wrist"
+   },
+   "tolerance": {
+    "cm": 0.5
+   },
+   "bilateral": true,
+   "cautions": [],
+   "notes": "The ulnar artery and nerve lie just radial and deep."
+  },
+  "LU7": {
+   "id": "LU7",
+   "names": {
+    "pinyin": "Lièquē",
+    "hanzi": "列缺",
+    "en": "Broken Sequence"
+   },
+   "channel": "LU",
+   "codes": [
+    {
+     "edition": "who-wpro-2008",
+     "code": "LU7",
+     "relation": "same"
+    },
+    {
+     "edition": "gb-t-12346-2021",
+     "code": "LU7",
+     "relation": "same"
+    }
+   ],
+   "aliases": [],
+   "location": {
+    "edition": "who-wpro-2008",
+    "text": "On the radial aspect of the forearm, between the tendons of abductor pollicis longus and extensor pollicis brevis, in the groove for the abductor pollicis longus tendon, 1.5 B-cun proximal to the palmar wrist crease.",
+    "paraphrased": true
+   },
+   "region": "forearm",
+   "localisation": {
+    "method": "along",
+    "from": "apl-groove-wrist",
+    "toward": "radial-border-elbow",
+    "distance": {
+     "cun": 1.5,
+     "segment": "seg.wrist-elbow"
+    }
+   },
+   "tolerance": {
+    "cun": 0.3,
+    "segment": "seg.wrist-elbow"
+   },
+   "bilateral": true,
+   "cautions": [],
+   "notes": "Bone lies close beneath: usually needled obliquely or transversely."
+  },
+  "TE5": {
+   "id": "TE5",
+   "names": {
+    "pinyin": "Wàiguān",
+    "hanzi": "外关",
+    "en": "Outer Pass"
+   },
+   "channel": "TE",
+   "codes": [
+    {
+     "edition": "who-wpro-2008",
+     "code": "TE5",
+     "relation": "same"
+    },
+    {
+     "edition": "gb-t-12346-2021",
+     "code": "TE5",
+     "relation": "same"
+    }
+   ],
+   "aliases": [],
+   "location": {
+    "edition": "who-wpro-2008",
+    "text": "On the posterior aspect of the forearm, at the midpoint of the interosseous space between the radius and the ulna, 2 B-cun proximal to the dorsal wrist crease.",
+    "paraphrased": true
+   },
+   "tolerance": {
+    "cm": 1
+   },
+   "bilateral": true,
+   "cautions": []
+  },
+  "LI10": {
+   "id": "LI10",
+   "names": {
+    "pinyin": "Shǒusānlǐ",
+    "hanzi": "手三里",
+    "en": "Arm Three Miles"
+   },
+   "channel": "LI",
+   "codes": [
+    {
+     "edition": "who-wpro-2008",
+     "code": "LI10",
+     "relation": "same"
+    },
+    {
+     "edition": "gb-t-12346-2021",
+     "code": "LI10",
+     "relation": "same"
+    }
+   ],
+   "aliases": [],
+   "location": {
+    "edition": "who-wpro-2008",
+    "text": "On the posterolateral aspect of the forearm, on the line connecting LI5 with LI11, 2 B-cun inferior to the cubital crease.",
+    "paraphrased": true
+   },
+   "tolerance": {
+    "cm": 1
+   },
+   "bilateral": true,
+   "cautions": []
+  },
+  "LI11": {
+   "id": "LI11",
+   "names": {
+    "pinyin": "Qūchí",
+    "hanzi": "曲池",
+    "en": "Pool at the Bend"
+   },
+   "channel": "LI",
+   "codes": [
+    {
+     "edition": "who-wpro-2008",
+     "code": "LI11",
+     "relation": "same"
+    },
+    {
+     "edition": "gb-t-12346-2021",
+     "code": "LI11",
+     "relation": "same"
+    }
+   ],
+   "aliases": [],
+   "location": {
+    "edition": "who-wpro-2008",
+    "text": "On the lateral aspect of the elbow, at the midpoint of the line connecting LU5 with the lateral epicondyle of the humerus.",
+    "paraphrased": true
+   },
+   "tolerance": {
+    "cm": 1
+   },
+   "bilateral": true,
+   "cautions": []
+  },
+  "LI4": {
+   "id": "LI4",
+   "names": {
+    "pinyin": "Hégǔ",
+    "hanzi": "合谷",
+    "en": "Union Valley"
+   },
+   "channel": "LI",
+   "codes": [
+    {
+     "edition": "who-wpro-2008",
+     "code": "LI4",
+     "relation": "same"
+    },
+    {
+     "edition": "gb-t-12346-2021",
+     "code": "LI4",
+     "relation": "same"
+    }
+   ],
+   "aliases": [],
+   "location": {
+    "edition": "who-wpro-2008",
+    "text": "On the dorsum of the hand, radial to the midpoint of the second metacarpal bone.",
+    "paraphrased": true
+   },
+   "region": "hand-dorsum",
+   "localisation": {
+    "method": "between",
+    "a": "mc2-head",
+    "b": "mc2-base",
+    "fraction": 0.5,
+    "offset": {
+     "lateral": {
+      "cm": 0.8
+     }
+    }
+   },
+   "tolerance": {
+    "cm": 0.6
+   },
+   "bilateral": true,
+   "cautions": [
+    {
+     "id": "LI4-pregnancy",
+     "when": "pregnancy",
+     "text": "Traditionally avoided in pregnancy.",
+     "severity": "major"
+    }
+   ],
+   "notes": "In the first dorsal interosseous; a perpendicular needle that goes too far passes into the palm."
+  },
+  "SI3": {
+   "id": "SI3",
+   "names": {
+    "pinyin": "Hòuxī",
+    "hanzi": "后溪",
+    "en": "Back Ravine"
+   },
+   "channel": "SI",
+   "codes": [
+    {
+     "edition": "who-wpro-2008",
+     "code": "SI3",
+     "relation": "same"
+    },
+    {
+     "edition": "gb-t-12346-2021",
+     "code": "SI3",
+     "relation": "same"
+    }
+   ],
+   "aliases": [],
+   "location": {
+    "edition": "who-wpro-2008",
+    "text": "On the dorsum of the hand, in the depression proximal to the ulnar side of the fifth metacarpophalangeal joint, at the border between the red and white flesh.",
+    "paraphrased": true
+   },
+   "region": "hand-dorsum",
+   "localisation": {
+    "method": "landmark",
+    "landmark": "mc5-mcp-ulnar",
+    "offset": {
+     "cranial": {
+      "cm": 0.8
+     }
+    }
+   },
+   "tolerance": {
+    "cm": 0.6
+   },
+   "bilateral": true,
+   "cautions": []
+  },
+  "GB20": {
+   "id": "GB20",
+   "names": {
+    "pinyin": "Fēngchí",
+    "hanzi": "风池",
+    "en": "Wind Pool"
+   },
+   "channel": "GB",
+   "codes": [
+    {
+     "edition": "who-wpro-2008",
+     "code": "GB20",
+     "relation": "same"
+    },
+    {
+     "edition": "gb-t-12346-2021",
+     "code": "GB20",
+     "relation": "same"
+    }
+   ],
+   "aliases": [],
+   "location": {
+    "edition": "who-wpro-2008",
+    "text": "In the neck, below the occipital bone, in the depression between the origins of the sternocleidomastoid and trapezius muscles.",
+    "paraphrased": true
+   },
+   "region": "neck-shoulder",
+   "localisation": {
+    "method": "landmark",
+    "landmark": "gb20-depression-{side}"
+   },
+   "tolerance": {
+    "cm": 0.6
+   },
+   "bilateral": true,
+   "cautions": [],
+   "notes": "Directed towards the tip of the nose, never deeply medially and upwards: the vertebral artery and the medulla lie deep and medial."
+  },
+  "GB21": {
+   "id": "GB21",
+   "names": {
+    "pinyin": "Jiānjǐng",
+    "hanzi": "肩井",
+    "en": "Shoulder Well"
+   },
+   "channel": "GB",
+   "codes": [
+    {
+     "edition": "who-wpro-2008",
+     "code": "GB21",
+     "relation": "same"
+    },
+    {
+     "edition": "gb-t-12346-2021",
+     "code": "GB21",
+     "relation": "same"
+    }
+   ],
+   "aliases": [],
+   "location": {
+    "edition": "who-wpro-2008",
+    "text": "In the posterior region of the neck, at the midpoint of the line connecting the spinous process of C7 with the lateral end of the acromion.",
+    "paraphrased": true
+   },
+   "region": "neck-shoulder",
+   "localisation": {
+    "method": "between",
+    "a": "c7-spinous",
+    "b": "acromion-lateral-{side}",
+    "fraction": 0.5
+   },
+   "tolerance": {
+    "cun": 0.4,
+    "segment": "seg.scapulae"
+   },
+   "bilateral": true,
+   "cautions": [
+    {
+     "id": "GB21-pregnancy",
+     "when": "pregnancy",
+     "text": "Traditionally avoided in pregnancy.",
+     "severity": "major"
+    }
+   ],
+   "notes": "The apex of the lung lies beneath: deep perpendicular needling risks pneumothorax, especially in slim patients."
+  },
+  "GV14": {
+   "id": "GV14",
+   "names": {
+    "pinyin": "Dàzhuī",
+    "hanzi": "大椎",
+    "en": "Great Hammer"
+   },
+   "channel": "GV",
+   "codes": [
+    {
+     "edition": "who-wpro-2008",
+     "code": "GV14",
+     "relation": "same"
+    },
+    {
+     "edition": "gb-t-12346-2021",
+     "code": "GV14",
+     "relation": "same"
+    }
+   ],
+   "aliases": [],
+   "location": {
+    "edition": "who-wpro-2008",
+    "text": "In the posterior region of the neck, in the depression below the spinous process of C7, on the posterior median line.",
+    "paraphrased": true
+   },
+   "region": "neck-shoulder",
+   "localisation": {
+    "method": "landmark",
+    "landmark": "c7-spinous",
+    "offset": {
+     "caudal": {
+      "cm": 1.0
+     }
+    }
+   },
+   "tolerance": {
+    "cm": 0.5
+   },
+   "bilateral": false,
+   "cautions": [],
+   "notes": "The spinal canal lies deep to the interspinous ligament."
+  },
+  "LI15": {
+   "id": "LI15",
+   "names": {
+    "pinyin": "Jiānyú",
+    "hanzi": "肩髃",
+    "en": "Shoulder Bone"
+   },
+   "channel": "LI",
+   "codes": [
+    {
+     "edition": "who-wpro-2008",
+     "code": "LI15",
+     "relation": "same"
+    },
+    {
+     "edition": "gb-t-12346-2021",
+     "code": "LI15",
+     "relation": "same"
+    }
+   ],
+   "aliases": [],
+   "location": {
+    "edition": "who-wpro-2008",
+    "text": "On the shoulder girdle, in the depression between the anterior end of the lateral border of the acromion and the greater tubercle of the humerus.",
+    "paraphrased": true
+   },
+   "tolerance": {
+    "cm": 1
+   },
+   "bilateral": true,
+   "cautions": []
+  },
+  "BL23": {
+   "id": "BL23",
+   "names": {
+    "pinyin": "Shènshū",
+    "hanzi": "肾俞",
+    "en": "Kidney Shu"
+   },
+   "channel": "BL",
+   "codes": [
+    {
+     "edition": "who-wpro-2008",
+     "code": "BL23",
+     "relation": "same"
+    },
+    {
+     "edition": "gb-t-12346-2021",
+     "code": "BL23",
+     "relation": "same"
+    }
+   ],
+   "aliases": [],
+   "location": {
+    "edition": "who-wpro-2008",
+    "text": "In the lumbar region, at the level of the inferior border of the spinous process of L2, 1.5 B-cun lateral to the posterior median line.",
+    "paraphrased": true
+   },
+   "region": "lumbar",
+   "localisation": {
+    "method": "landmark",
+    "landmark": "l2-spinous",
+    "offset": {
+     "lateral": {
+      "cun": 1.5,
+      "segment": "seg.scapulae"
+     }
+    }
+   },
+   "tolerance": {
+    "cun": 0.4,
+    "segment": "seg.scapulae"
+   },
+   "bilateral": true,
+   "cautions": [
+    {
+     "id": "BL23-pregnancy",
+     "when": "pregnancy",
+     "text": "Lumbosacral points: follow local practice in pregnancy.",
+     "severity": "minor"
+    }
+   ]
+  },
+  "BL25": {
+   "id": "BL25",
+   "names": {
+    "pinyin": "Dàchángshū",
+    "hanzi": "大肠俞",
+    "en": "Large Intestine Shu"
+   },
+   "channel": "BL",
+   "codes": [
+    {
+     "edition": "who-wpro-2008",
+     "code": "BL25",
+     "relation": "same"
+    },
+    {
+     "edition": "gb-t-12346-2021",
+     "code": "BL25",
+     "relation": "same"
+    }
+   ],
+   "aliases": [],
+   "location": {
+    "edition": "who-wpro-2008",
+    "text": "In the lumbar region, at the level of the inferior border of the spinous process of L4, 1.5 B-cun lateral to the posterior median line.",
+    "paraphrased": true
+   },
+   "region": "lumbar",
+   "localisation": {
+    "method": "landmark",
+    "landmark": "l4-spinous",
+    "offset": {
+     "lateral": {
+      "cun": 1.5,
+      "segment": "seg.scapulae"
+     }
+    }
+   },
+   "tolerance": {
+    "cun": 0.4,
+    "segment": "seg.scapulae"
+   },
+   "bilateral": true,
+   "cautions": [
+    {
+     "id": "BL25-pregnancy",
+     "when": "pregnancy",
+     "text": "Lumbosacral points: follow local practice in pregnancy.",
+     "severity": "minor"
+    }
+   ]
+  },
+  "BL52": {
+   "id": "BL52",
+   "names": {
+    "pinyin": "Zhìshì",
+    "hanzi": "志室",
+    "en": "Will Chamber"
+   },
+   "channel": "BL",
+   "codes": [
+    {
+     "edition": "who-wpro-2008",
+     "code": "BL52",
+     "relation": "same"
+    },
+    {
+     "edition": "gb-t-12346-2021",
+     "code": "BL52",
+     "relation": "same"
+    }
+   ],
+   "aliases": [],
+   "location": {
+    "edition": "who-wpro-2008",
+    "text": "In the lumbar region, at the level of the inferior border of the spinous process of L2, 3 B-cun lateral to the posterior median line.",
+    "paraphrased": true
+   },
+   "region": "lumbar",
+   "localisation": {
+    "method": "landmark",
+    "landmark": "l2-spinous",
+    "offset": {
+     "lateral": {
+      "cun": 3,
+      "segment": "seg.scapulae"
+     }
+    }
+   },
+   "tolerance": {
+    "cun": 0.4,
+    "segment": "seg.scapulae"
+   },
+   "bilateral": true,
+   "cautions": [],
+   "notes": "The kidney lies deep: no deep perpendicular needling."
+  },
+  "GV4": {
+   "id": "GV4",
+   "names": {
+    "pinyin": "Mìngmén",
+    "hanzi": "命门",
+    "en": "Life Gate"
+   },
+   "channel": "GV",
+   "codes": [
+    {
+     "edition": "who-wpro-2008",
+     "code": "GV4",
+     "relation": "same"
+    },
+    {
+     "edition": "gb-t-12346-2021",
+     "code": "GV4",
+     "relation": "same"
+    }
+   ],
+   "aliases": [],
+   "location": {
+    "edition": "who-wpro-2008",
+    "text": "In the lumbar region, in the depression below the spinous process of L2, on the posterior median line.",
+    "paraphrased": true
+   },
+   "region": "lumbar",
+   "localisation": {
+    "method": "landmark",
+    "landmark": "l2-spinous",
+    "offset": {
+     "caudal": {
+      "cm": 0.6
+     }
+    }
+   },
+   "tolerance": {
+    "cm": 0.6
+   },
+   "bilateral": false,
+   "cautions": [
+    {
+     "id": "GV4-pregnancy",
+     "when": "pregnancy",
+     "text": "Lumbosacral points: follow local practice in pregnancy.",
+     "severity": "minor"
+    }
+   ]
+  },
+  "GV3": {
+   "id": "GV3",
+   "names": {
+    "pinyin": "Yāoyángguān",
+    "hanzi": "腰阳关",
+    "en": "Lumbar Yang Pass"
+   },
+   "channel": "GV",
+   "codes": [
+    {
+     "edition": "who-wpro-2008",
+     "code": "GV3",
+     "relation": "same"
+    },
+    {
+     "edition": "gb-t-12346-2021",
+     "code": "GV3",
+     "relation": "same"
+    }
+   ],
+   "aliases": [],
+   "location": {
+    "edition": "who-wpro-2008",
+    "text": "In the lumbar region, in the depression below the spinous process of L4, on the posterior median line.",
+    "paraphrased": true
+   },
+   "region": "lumbar",
+   "localisation": {
+    "method": "landmark",
+    "landmark": "l4-spinous",
+    "offset": {
+     "caudal": {
+      "cm": 0.6
+     }
+    }
+   },
+   "tolerance": {
+    "cm": 0.6
+   },
+   "bilateral": false,
+   "cautions": [
+    {
+     "id": "GV3-pregnancy",
+     "when": "pregnancy",
+     "text": "Lumbosacral points: follow local practice in pregnancy.",
+     "severity": "minor"
+    }
+   ]
+  },
+  "GV20": {
+   "id": "GV20",
+   "names": {
+    "pinyin": "Bǎihuì",
+    "hanzi": "百会",
+    "en": "Hundred Convergences"
+   },
+   "channel": "GV",
+   "codes": [
+    {
+     "edition": "who-wpro-2008",
+     "code": "GV20",
+     "relation": "same"
+    },
+    {
+     "edition": "gb-t-12346-2021",
+     "code": "GV20",
+     "relation": "same"
+    }
+   ],
+   "aliases": [],
+   "location": {
+    "edition": "who-wpro-2008",
+    "text": "On the head, 5 B-cun superior to the anterior hairline, on the anterior median line.",
+    "paraphrased": true
+   },
+   "tolerance": {
+    "cm": 1
+   },
+   "bilateral": false,
+   "cautions": []
+  },
+  "Yintang": {
+   "id": "Yintang",
+   "names": {
+    "pinyin": "Yìntáng",
+    "hanzi": "印堂",
+    "en": "Hall of Impression"
+   },
+   "channel": "EX",
+   "codes": [
+    {
+     "edition": "who-1991-nomenclature",
+     "code": "EX-HN3",
+     "relation": "same"
+    },
+    {
+     "edition": "who-wpro-2008",
+     "code": "EX-HN3",
+     "relation": "absent",
+     "note": "Not among the 2008 standard's 361 meridian points."
+    },
+    {
+     "edition": "gb-t-12346-2021",
+     "code": "GV29",
+     "relation": "reclassified",
+     "note": "Reported as assigned to the Governor Vessel in GB/T 12346-2021; verify."
+    }
+   ],
+   "aliases": [],
+   "location": {
+    "edition": "who-1991-nomenclature",
+    "text": "On the head, in the depression midway between the medial ends of the two eyebrows.",
+    "paraphrased": true
+   },
+   "tolerance": {
+    "cm": 1
+   },
+   "bilateral": false,
+   "cautions": []
+  },
+  "EX-HN5": {
+   "id": "EX-HN5",
+   "names": {
+    "pinyin": "Tàiyáng",
+    "hanzi": "太阳",
+    "en": "Sun"
+   },
+   "channel": "EX",
+   "codes": [
+    {
+     "edition": "who-1991-nomenclature",
+     "code": "EX-HN5",
+     "relation": "same"
+    },
+    {
+     "edition": "who-wpro-2008",
+     "code": "EX-HN5",
+     "relation": "absent",
+     "note": "Extra point: outside the 2008 standard's 361 meridian points."
+    }
+   ],
+   "aliases": [],
+   "location": {
+    "edition": "who-1991-nomenclature",
+    "text": "In the temple, in the depression about one finger-breadth behind the midpoint between the lateral end of the eyebrow and the outer canthus.",
+    "paraphrased": true
+   },
+   "tolerance": {
+    "cm": 1
+   },
+   "bilateral": true,
+   "cautions": []
+  },
+  "CV12": {
+   "id": "CV12",
+   "names": {
+    "pinyin": "Zhōngwǎn",
+    "hanzi": "中脘",
+    "en": "Middle Cavity"
+   },
+   "channel": "CV",
+   "codes": [
+    {
+     "edition": "who-wpro-2008",
+     "code": "CV12",
+     "relation": "same"
+    },
+    {
+     "edition": "gb-t-12346-2021",
+     "code": "CV12",
+     "relation": "same"
+    }
+   ],
+   "aliases": [],
+   "location": {
+    "edition": "who-wpro-2008",
+    "text": "In the upper abdomen, 4 B-cun superior to the centre of the umbilicus, on the anterior median line.",
+    "paraphrased": true
+   },
+   "tolerance": {
+    "cm": 1
+   },
+   "bilateral": false,
+   "cautions": []
+  },
+  "CV6": {
+   "id": "CV6",
+   "names": {
+    "pinyin": "Qìhǎi",
+    "hanzi": "气海",
+    "en": "Sea of Qi"
+   },
+   "channel": "CV",
+   "codes": [
+    {
+     "edition": "who-wpro-2008",
+     "code": "CV6",
+     "relation": "same"
+    },
+    {
+     "edition": "gb-t-12346-2021",
+     "code": "CV6",
+     "relation": "same"
+    }
+   ],
+   "aliases": [],
+   "location": {
+    "edition": "who-wpro-2008",
+    "text": "In the lower abdomen, 1.5 B-cun inferior to the centre of the umbilicus, on the anterior median line.",
+    "paraphrased": true
+   },
+   "tolerance": {
+    "cm": 1
+   },
+   "bilateral": false,
+   "cautions": [
+    {
+     "id": "CV6-pregnancy",
+     "when": "pregnancy",
+     "text": "Traditionally avoided in pregnancy.",
+     "severity": "major"
+    }
+   ]
+  },
+  "CV4": {
+   "id": "CV4",
+   "names": {
+    "pinyin": "Guānyuán",
+    "hanzi": "关元",
+    "en": "Origin Pass"
+   },
+   "channel": "CV",
+   "codes": [
+    {
+     "edition": "who-wpro-2008",
+     "code": "CV4",
+     "relation": "same"
+    },
+    {
+     "edition": "gb-t-12346-2021",
+     "code": "CV4",
+     "relation": "same"
+    }
+   ],
+   "aliases": [],
+   "location": {
+    "edition": "who-wpro-2008",
+    "text": "In the lower abdomen, 3 B-cun inferior to the centre of the umbilicus, on the anterior median line.",
+    "paraphrased": true
+   },
+   "tolerance": {
+    "cm": 1
+   },
+   "bilateral": false,
+   "cautions": [
+    {
+     "id": "CV4-pregnancy",
+     "when": "pregnancy",
+     "text": "Traditionally avoided in pregnancy.",
+     "severity": "major"
+    }
+   ]
+  },
+  "ST25": {
+   "id": "ST25",
+   "names": {
+    "pinyin": "Tiānshū",
+    "hanzi": "天枢",
+    "en": "Celestial Pivot"
+   },
+   "channel": "ST",
+   "codes": [
+    {
+     "edition": "who-wpro-2008",
+     "code": "ST25",
+     "relation": "same"
+    },
+    {
+     "edition": "gb-t-12346-2021",
+     "code": "ST25",
+     "relation": "same"
+    }
+   ],
+   "aliases": [],
+   "location": {
+    "edition": "who-wpro-2008",
+    "text": "In the abdomen, 2 B-cun lateral to the centre of the umbilicus.",
+    "paraphrased": true
+   },
+   "tolerance": {
+    "cm": 1
+   },
+   "bilateral": true,
+   "cautions": [
+    {
+     "id": "ST25-pregnancy",
+     "when": "pregnancy",
+     "text": "Traditionally avoided in pregnancy.",
+     "severity": "major"
+    }
+   ]
+  }
+ }
+}

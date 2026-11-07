@@ -1,0 +1,3246 @@
+{
+  "schema": "acucraft/acupoints@1",
+  "id": "acucraft-points-bl",
+  "version": "0.2.0",
+  "points": [
+    {
+      "id": "BL1",
+      "names": {
+        "pinyin": "Jīngmíng",
+        "hanzi": "睛明",
+        "en": "Bright Eyes"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL1",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL1",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the face, in the depression between the superomedial part of the inner canthus of the eye and the medial wall of the orbit.",
+        "paraphrased": true
+      },
+      "area": "face",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "Between the eyeball and the orbit: needle slowly along the orbital margin without lifting, thrusting or rotating; risk of haematoma and of injury to the eye. Requires specific training.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL2",
+      "names": {
+        "pinyin": "Cuánzhú",
+        "hanzi": "攒竹",
+        "en": "Bamboo Gathering"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL2",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL2",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the head, in the depression at the medial end of the eyebrow.",
+        "paraphrased": true
+      },
+      "area": "head",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL3",
+      "names": {
+        "pinyin": "Méichōng",
+        "hanzi": "眉冲",
+        "en": "Eyebrow Ascension"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL3",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL3",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the head, superior to the frontal notch, 0.5 B-cun superior to the anterior hairline.",
+        "paraphrased": true
+      },
+      "area": "head",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL4",
+      "names": {
+        "pinyin": "Qūchā",
+        "hanzi": "曲差",
+        "en": "Deviating Turn"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL4",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL4",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the head, 0.5 B-cun superior to the anterior hairline, 1.5 B-cun lateral to the anterior median line.",
+        "paraphrased": true
+      },
+      "area": "head",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL5",
+      "names": {
+        "pinyin": "Wǔchù",
+        "hanzi": "五处",
+        "en": "Fifth Place"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL5",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL5",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the head, 1 B-cun superior to the anterior hairline, 1.5 B-cun lateral to the anterior median line.",
+        "paraphrased": true
+      },
+      "area": "head",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL6",
+      "names": {
+        "pinyin": "Chéngguāng",
+        "hanzi": "承光",
+        "en": "Light Guard"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL6",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL6",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the head, 2.5 B-cun superior to the anterior hairline, 1.5 B-cun lateral to the anterior median line.",
+        "paraphrased": true
+      },
+      "area": "head",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL7",
+      "names": {
+        "pinyin": "Tōngtiān",
+        "hanzi": "通天",
+        "en": "Celestial Connection"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL7",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL7",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the head, 4 B-cun superior to the anterior hairline, 1.5 B-cun lateral to the anterior median line.",
+        "paraphrased": true
+      },
+      "area": "head",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL8",
+      "names": {
+        "pinyin": "Luòquè",
+        "hanzi": "络却",
+        "en": "Declining Connection"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL8",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL8",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the head, 5.5 B-cun superior to the anterior hairline, 1.5 B-cun lateral to the median line.",
+        "paraphrased": true
+      },
+      "area": "head",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL9",
+      "names": {
+        "pinyin": "Yùzhěn",
+        "hanzi": "玉枕",
+        "en": "Jade Pillow"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL9",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL9",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the head, at the level of the superior border of the external occipital protuberance, 1.3 B-cun lateral to the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "head",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL10",
+      "names": {
+        "pinyin": "Tiānzhù",
+        "hanzi": "天柱",
+        "en": "Celestial Pillar"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL10",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL10",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the posterior region of the neck, at the level of the superior border of the spinous process of C2, in the depression lateral to the trapezius muscle.",
+        "paraphrased": true
+      },
+      "area": "neck",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The medulla and the vertebral artery lie deep and medial: never needle deeply, medially or upward.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL11",
+      "names": {
+        "pinyin": "Dàzhù",
+        "hanzi": "大杼",
+        "en": "Great Shuttle"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL11",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL11",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the upper back, at the level of the inferior border of the spinous process of T1, 1.5 B-cun lateral to the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "upper-back",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL12",
+      "names": {
+        "pinyin": "Fēngmén",
+        "hanzi": "风门",
+        "en": "Wind Gate"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL12",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL12",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the upper back, at the level of the inferior border of the spinous process of T2, 1.5 B-cun lateral to the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "upper-back",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL13",
+      "names": {
+        "pinyin": "Fèishū",
+        "hanzi": "肺俞",
+        "en": "Lung Shu"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL13",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL13",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the upper back, at the level of the inferior border of the spinous process of T3, 1.5 B-cun lateral to the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "upper-back",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL14",
+      "names": {
+        "pinyin": "Juéyīnshū",
+        "hanzi": "厥阴俞",
+        "en": "Jueyin Shu"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL14",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL14",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the upper back, at the level of the inferior border of the spinous process of T4, 1.5 B-cun lateral to the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "upper-back",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL15",
+      "names": {
+        "pinyin": "Xīnshū",
+        "hanzi": "心俞",
+        "en": "Heart Shu"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL15",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL15",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the upper back, at the level of the inferior border of the spinous process of T5, 1.5 B-cun lateral to the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "upper-back",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL16",
+      "names": {
+        "pinyin": "Dūshū",
+        "hanzi": "督俞",
+        "en": "Governor Shu"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL16",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL16",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the upper back, at the level of the inferior border of the spinous process of T6, 1.5 B-cun lateral to the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "upper-back",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL17",
+      "names": {
+        "pinyin": "Géshū",
+        "hanzi": "膈俞",
+        "en": "Diaphragm Shu"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL17",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL17",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the upper back, at the level of the inferior border of the spinous process of T7, 1.5 B-cun lateral to the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "upper-back",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL18",
+      "names": {
+        "pinyin": "Gānshū",
+        "hanzi": "肝俞",
+        "en": "Liver Shu"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL18",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL18",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the upper back, at the level of the inferior border of the spinous process of T9, 1.5 B-cun lateral to the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "upper-back",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL19",
+      "names": {
+        "pinyin": "Dǎnshū",
+        "hanzi": "胆俞",
+        "en": "Gallbladder Shu"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL19",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL19",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the upper back, at the level of the inferior border of the spinous process of T10, 1.5 B-cun lateral to the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "upper-back",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL20",
+      "names": {
+        "pinyin": "Píshū",
+        "hanzi": "脾俞",
+        "en": "Spleen Shu"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL20",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL20",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the upper back, at the level of the inferior border of the spinous process of T11, 1.5 B-cun lateral to the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "upper-back",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL21",
+      "names": {
+        "pinyin": "Wèishū",
+        "hanzi": "胃俞",
+        "en": "Stomach Shu"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL21",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL21",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the upper back, at the level of the inferior border of the spinous process of T12, 1.5 B-cun lateral to the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "upper-back",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL22",
+      "names": {
+        "pinyin": "Sānjiāoshū",
+        "hanzi": "三焦俞",
+        "en": "Triple Energizer Shu"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL22",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL22",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the lumbar region, at the level of the inferior border of the spinous process of L1, 1.5 B-cun lateral to the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "lower-back",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The kidney lies deep: no deep perpendicular needling.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL23",
+      "names": {
+        "pinyin": "Shènshū",
+        "hanzi": "肾俞",
+        "en": "Kidney Shu"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL23",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL23",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the lumbar region, at the level of the inferior border of the spinous process of L2, 1.5 B-cun lateral to the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "lower-back",
+      "region": "lumbar",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "l2-spinous",
+        "offset": {
+          "lateral": {
+            "cun": 1.5,
+            "segment": "seg.scapulae"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.scapulae"
+      },
+      "bilateral": true,
+      "cautions": [
+        {
+          "id": "BL23-pregnancy",
+          "when": "pregnancy",
+          "text": "Lumbosacral points: follow local practice in pregnancy.",
+          "severity": "minor"
+        }
+      ],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL24",
+      "names": {
+        "pinyin": "Qìhǎishū",
+        "hanzi": "气海俞",
+        "en": "Sea-of-Qi Shu"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL24",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL24",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the lumbar region, at the level of the inferior border of the spinous process of L3, 1.5 B-cun lateral to the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "lower-back",
+      "region": "lumbar",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "l3-spinous",
+        "offset": {
+          "lateral": {
+            "cun": 1.5,
+            "segment": "seg.scapulae"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.scapulae"
+      },
+      "bilateral": true,
+      "cautions": [
+        {
+          "id": "BL24-pregnancy",
+          "when": "pregnancy",
+          "text": "Lumbosacral points: follow local practice in pregnancy.",
+          "severity": "major"
+        }
+      ],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL25",
+      "names": {
+        "pinyin": "Dàchángshū",
+        "hanzi": "大肠俞",
+        "en": "Large Intestine Shu"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL25",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL25",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the lumbar region, at the level of the inferior border of the spinous process of L4, 1.5 B-cun lateral to the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "lower-back",
+      "region": "lumbar",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "l4-spinous",
+        "offset": {
+          "lateral": {
+            "cun": 1.5,
+            "segment": "seg.scapulae"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.scapulae"
+      },
+      "bilateral": true,
+      "cautions": [
+        {
+          "id": "BL25-pregnancy",
+          "when": "pregnancy",
+          "text": "Lumbosacral points: follow local practice in pregnancy.",
+          "severity": "minor"
+        }
+      ],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL26",
+      "names": {
+        "pinyin": "Guānyuánshū",
+        "hanzi": "关元俞",
+        "en": "Origin Pass Shu"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL26",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL26",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the lumbar region, at the level of the inferior border of the spinous process of L5, 1.5 B-cun lateral to the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "lower-back",
+      "bilateral": true,
+      "cautions": [
+        {
+          "id": "BL26-pregnancy",
+          "when": "pregnancy",
+          "text": "Lumbosacral points: follow local practice in pregnancy.",
+          "severity": "major"
+        }
+      ],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL27",
+      "names": {
+        "pinyin": "Xiǎochángshū",
+        "hanzi": "小肠俞",
+        "en": "Small Intestine Shu"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL27",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL27",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the sacral region, at the level of the first posterior sacral foramen, 1.5 B-cun lateral to the median sacral crest.",
+        "paraphrased": true
+      },
+      "area": "sacrum-buttock",
+      "bilateral": true,
+      "cautions": [
+        {
+          "id": "BL27-pregnancy",
+          "when": "pregnancy",
+          "text": "Lumbosacral points: follow local practice in pregnancy.",
+          "severity": "major"
+        }
+      ],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL28",
+      "names": {
+        "pinyin": "Pángguāngshū",
+        "hanzi": "膀胱俞",
+        "en": "Bladder Shu"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL28",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL28",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the sacral region, at the level of the second posterior sacral foramen, 1.5 B-cun lateral to the median sacral crest.",
+        "paraphrased": true
+      },
+      "area": "sacrum-buttock",
+      "bilateral": true,
+      "cautions": [
+        {
+          "id": "BL28-pregnancy",
+          "when": "pregnancy",
+          "text": "Lumbosacral points: follow local practice in pregnancy.",
+          "severity": "major"
+        }
+      ],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL29",
+      "names": {
+        "pinyin": "Zhōnglǚshū",
+        "hanzi": "中膂俞",
+        "en": "Central Backbone Shu"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL29",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL29",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the sacral region, at the level of the third posterior sacral foramen, 1.5 B-cun lateral to the median sacral crest.",
+        "paraphrased": true
+      },
+      "area": "sacrum-buttock",
+      "bilateral": true,
+      "cautions": [
+        {
+          "id": "BL29-pregnancy",
+          "when": "pregnancy",
+          "text": "Lumbosacral points: follow local practice in pregnancy.",
+          "severity": "major"
+        }
+      ],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL30",
+      "names": {
+        "pinyin": "Báihuánshū",
+        "hanzi": "白环俞",
+        "en": "White Ring Shu"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL30",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL30",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the sacral region, at the level of the fourth posterior sacral foramen, 1.5 B-cun lateral to the median sacral crest.",
+        "paraphrased": true
+      },
+      "area": "sacrum-buttock",
+      "bilateral": true,
+      "cautions": [
+        {
+          "id": "BL30-pregnancy",
+          "when": "pregnancy",
+          "text": "Lumbosacral points: follow local practice in pregnancy.",
+          "severity": "major"
+        }
+      ],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL31",
+      "names": {
+        "pinyin": "Shàngliáo",
+        "hanzi": "上髎",
+        "en": "Upper Bone-Hole"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL31",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL31",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the sacral region, in the first posterior sacral foramen.",
+        "paraphrased": true
+      },
+      "area": "sacrum-buttock",
+      "bilateral": true,
+      "cautions": [
+        {
+          "id": "BL31-pregnancy",
+          "when": "pregnancy",
+          "text": "Lumbosacral points: follow local practice in pregnancy.",
+          "severity": "major"
+        }
+      ],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL32",
+      "names": {
+        "pinyin": "Cìliáo",
+        "hanzi": "次髎",
+        "en": "Second Bone-Hole"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL32",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL32",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the sacral region, in the second posterior sacral foramen.",
+        "paraphrased": true
+      },
+      "area": "sacrum-buttock",
+      "bilateral": true,
+      "cautions": [
+        {
+          "id": "BL32-pregnancy",
+          "when": "pregnancy",
+          "text": "Lumbosacral points: follow local practice in pregnancy.",
+          "severity": "major"
+        }
+      ],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL33",
+      "names": {
+        "pinyin": "Zhōngliáo",
+        "hanzi": "中髎",
+        "en": "Central Bone-Hole"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL33",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL33",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the sacral region, in the third posterior sacral foramen.",
+        "paraphrased": true
+      },
+      "area": "sacrum-buttock",
+      "bilateral": true,
+      "cautions": [
+        {
+          "id": "BL33-pregnancy",
+          "when": "pregnancy",
+          "text": "Lumbosacral points: follow local practice in pregnancy.",
+          "severity": "major"
+        }
+      ],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL34",
+      "names": {
+        "pinyin": "Xiàliáo",
+        "hanzi": "下髎",
+        "en": "Lower Bone-Hole"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL34",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL34",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the sacral region, in the fourth posterior sacral foramen.",
+        "paraphrased": true
+      },
+      "area": "sacrum-buttock",
+      "bilateral": true,
+      "cautions": [
+        {
+          "id": "BL34-pregnancy",
+          "when": "pregnancy",
+          "text": "Lumbosacral points: follow local practice in pregnancy.",
+          "severity": "major"
+        }
+      ],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL35",
+      "names": {
+        "pinyin": "Huìyáng",
+        "hanzi": "会阳",
+        "en": "Meeting of Yang"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL35",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL35",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the buttock region, 0.5 B-cun lateral to the tip of the coccyx.",
+        "paraphrased": true
+      },
+      "area": "sacrum-buttock",
+      "bilateral": true,
+      "cautions": [
+        {
+          "id": "BL35-pregnancy",
+          "when": "pregnancy",
+          "text": "Lumbosacral points: follow local practice in pregnancy.",
+          "severity": "major"
+        }
+      ],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL36",
+      "names": {
+        "pinyin": "Chéngfú",
+        "hanzi": "承扶",
+        "en": "Support"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL36",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL36",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the buttock region, at the midpoint of the gluteal fold.",
+        "paraphrased": true
+      },
+      "area": "thigh",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The sciatic nerve lies deep: an electric sensation down the leg means the needle has reached it.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL37",
+      "names": {
+        "pinyin": "Yīnmén",
+        "hanzi": "殷门",
+        "en": "Gate of Abundance"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL37",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL37",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the posterior aspect of the thigh, between the biceps femoris and semitendinosus muscles, 6 B-cun inferior to the gluteal fold.",
+        "paraphrased": true
+      },
+      "area": "thigh",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL38",
+      "names": {
+        "pinyin": "Fúxì",
+        "hanzi": "浮郄",
+        "en": "Superficial Cleft"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL38",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL38",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the posterior aspect of the knee, just medial to the biceps femoris tendon, 1 B-cun proximal to the popliteal crease.",
+        "paraphrased": true
+      },
+      "area": "knee",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL39",
+      "names": {
+        "pinyin": "Wěiyáng",
+        "hanzi": "委阳",
+        "en": "Bend Yang"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL39",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL39",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the posterolateral aspect of the knee, just medial to the biceps femoris tendon, in the popliteal crease.",
+        "paraphrased": true
+      },
+      "area": "knee",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL40",
+      "names": {
+        "pinyin": "Wěizhōng",
+        "hanzi": "委中",
+        "en": "Bend Middle"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL40",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL40",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the posterior aspect of the knee, at the midpoint of the popliteal crease.",
+        "paraphrased": true
+      },
+      "area": "knee",
+      "tolerance": {
+        "cm": 1
+      },
+      "bilateral": true,
+      "cautions": [],
+      "notes": "Over the popliteal neurovascular bundle.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL41",
+      "names": {
+        "pinyin": "Fùfēn",
+        "hanzi": "附分",
+        "en": "Attached Branch"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL41",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL41",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the upper back, at the level of the inferior border of the spinous process of T2, 3 B-cun lateral to the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "upper-back",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL42",
+      "names": {
+        "pinyin": "Pòhù",
+        "hanzi": "魄户",
+        "en": "Corporeal Soul Door"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL42",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL42",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the upper back, at the level of the inferior border of the spinous process of T3, 3 B-cun lateral to the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "upper-back",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL43",
+      "names": {
+        "pinyin": "Gāohuāng",
+        "hanzi": "膏肓",
+        "en": "Gao Huang"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL43",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL43",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the upper back, at the level of the inferior border of the spinous process of T4, 3 B-cun lateral to the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "upper-back",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL44",
+      "names": {
+        "pinyin": "Shéntáng",
+        "hanzi": "神堂",
+        "en": "Spirit Hall"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL44",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL44",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the upper back, at the level of the inferior border of the spinous process of T5, 3 B-cun lateral to the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "upper-back",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL45",
+      "names": {
+        "pinyin": "Yìxǐ",
+        "hanzi": "譩譆",
+        "en": "Yi Xi"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL45",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL45",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the upper back, at the level of the inferior border of the spinous process of T6, 3 B-cun lateral to the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "upper-back",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL46",
+      "names": {
+        "pinyin": "Géguān",
+        "hanzi": "膈关",
+        "en": "Diaphragm Pass"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL46",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL46",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the upper back, at the level of the inferior border of the spinous process of T7, 3 B-cun lateral to the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "upper-back",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL47",
+      "names": {
+        "pinyin": "Húnmén",
+        "hanzi": "魂门",
+        "en": "Ethereal Soul Gate"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL47",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL47",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the upper back, at the level of the inferior border of the spinous process of T9, 3 B-cun lateral to the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "upper-back",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL48",
+      "names": {
+        "pinyin": "Yánggāng",
+        "hanzi": "阳纲",
+        "en": "Yang Headrope"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL48",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL48",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the upper back, at the level of the inferior border of the spinous process of T10, 3 B-cun lateral to the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "upper-back",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL49",
+      "names": {
+        "pinyin": "Yìshè",
+        "hanzi": "意舍",
+        "en": "Reflection Abode"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL49",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL49",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the upper back, at the level of the inferior border of the spinous process of T11, 3 B-cun lateral to the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "upper-back",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL50",
+      "names": {
+        "pinyin": "Wèicāng",
+        "hanzi": "胃仓",
+        "en": "Stomach Granary"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL50",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL50",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the upper back, at the level of the inferior border of the spinous process of T12, 3 B-cun lateral to the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "upper-back",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL51",
+      "names": {
+        "pinyin": "Huāngmén",
+        "hanzi": "肓门",
+        "en": "Huang Gate"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL51",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL51",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the lumbar region, at the level of the inferior border of the spinous process of L1, 3 B-cun lateral to the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "lower-back",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The kidney lies deep: no deep perpendicular needling.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL52",
+      "names": {
+        "pinyin": "Zhìshì",
+        "hanzi": "志室",
+        "en": "Will Chamber"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL52",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL52",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the lumbar region, at the level of the inferior border of the spinous process of L2, 3 B-cun lateral to the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "lower-back",
+      "region": "lumbar",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "l2-spinous",
+        "offset": {
+          "lateral": {
+            "cun": 3,
+            "segment": "seg.scapulae"
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.4,
+        "segment": "seg.scapulae"
+      },
+      "bilateral": true,
+      "cautions": [
+        {
+          "id": "BL52-pregnancy",
+          "when": "pregnancy",
+          "text": "Lumbosacral points: follow local practice in pregnancy.",
+          "severity": "major"
+        }
+      ],
+      "notes": "The kidney lies deep: no deep perpendicular needling.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL53",
+      "names": {
+        "pinyin": "Bāohuāng",
+        "hanzi": "胞肓",
+        "en": "Bladder Huang"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL53",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL53",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the buttock region, at the level of the second posterior sacral foramen, 3 B-cun lateral to the median sacral crest.",
+        "paraphrased": true
+      },
+      "area": "sacrum-buttock",
+      "bilateral": true,
+      "cautions": [
+        {
+          "id": "BL53-pregnancy",
+          "when": "pregnancy",
+          "text": "Lumbosacral points: follow local practice in pregnancy.",
+          "severity": "major"
+        }
+      ],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL54",
+      "names": {
+        "pinyin": "Zhìbiān",
+        "hanzi": "秩边",
+        "en": "Sequential Limit"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL54",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL54",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the buttock region, at the level of the fourth posterior sacral foramen, 3 B-cun lateral to the median sacral crest.",
+        "paraphrased": true
+      },
+      "area": "sacrum-buttock",
+      "bilateral": true,
+      "cautions": [
+        {
+          "id": "BL54-pregnancy",
+          "when": "pregnancy",
+          "text": "Lumbosacral points: follow local practice in pregnancy.",
+          "severity": "major"
+        }
+      ],
+      "notes": "The sciatic nerve lies deep: an electric sensation down the leg means the needle has reached it.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL55",
+      "names": {
+        "pinyin": "Héyáng",
+        "hanzi": "合阳",
+        "en": "Yang Union"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL55",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL55",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the posterior aspect of the leg, between the lateral and medial heads of the gastrocnemius muscle, 2 B-cun distal to the popliteal crease.",
+        "paraphrased": true
+      },
+      "area": "leg",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL56",
+      "names": {
+        "pinyin": "Chéngjīn",
+        "hanzi": "承筋",
+        "en": "Sinew Support"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL56",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL56",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the posterior aspect of the leg, between the two bellies of the gastrocnemius muscle, 5 B-cun distal to the popliteal crease.",
+        "paraphrased": true
+      },
+      "area": "leg",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL57",
+      "names": {
+        "pinyin": "Chéngshān",
+        "hanzi": "承山",
+        "en": "Mountain Support"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL57",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL57",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the posterior aspect of the leg, where the calcaneal tendon joins the two muscle bellies of the gastrocnemius.",
+        "paraphrased": true
+      },
+      "area": "leg",
+      "tolerance": {
+        "cm": 1
+      },
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL58",
+      "names": {
+        "pinyin": "Fēiyáng",
+        "hanzi": "飞扬",
+        "en": "Taking Flight"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL58",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL58",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the posterolateral aspect of the leg, between the inferior border of the lateral head of the gastrocnemius muscle and the calcaneal tendon, at the level of 7 B-cun proximal to BL60.",
+        "paraphrased": true
+      },
+      "area": "leg",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL59",
+      "names": {
+        "pinyin": "Fūyáng",
+        "hanzi": "跗阳",
+        "en": "Instep Yang"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL59",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL59",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the posterolateral aspect of the leg, between the fibula and the calcaneal tendon, at the level of 3 B-cun proximal to BL60.",
+        "paraphrased": true
+      },
+      "area": "leg",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL60",
+      "names": {
+        "pinyin": "Kūnlún",
+        "hanzi": "昆仑",
+        "en": "Kunlun Mountains"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL60",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL60",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the posterolateral aspect of the ankle, in the depression between the prominence of the lateral malleolus and the calcaneal tendon.",
+        "paraphrased": true
+      },
+      "area": "ankle",
+      "tolerance": {
+        "cm": 1
+      },
+      "bilateral": true,
+      "cautions": [
+        {
+          "id": "BL60-pregnancy",
+          "when": "pregnancy",
+          "text": "Traditionally avoided in pregnancy.",
+          "severity": "major"
+        }
+      ],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL61",
+      "names": {
+        "pinyin": "Púcān",
+        "hanzi": "仆参",
+        "en": "Subservient Visitor"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL61",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL61",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the lateral aspect of the foot, distal to BL60, lateral to the calcaneus, at the border between the red and white skin.",
+        "paraphrased": true
+      },
+      "area": "foot",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL62",
+      "names": {
+        "pinyin": "Shēnmài",
+        "hanzi": "申脉",
+        "en": "Extending Vessel"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL62",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL62",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the lateral aspect of the foot, directly inferior to the prominence of the lateral malleolus, in the depression between the inferior border of the lateral malleolus and the calcaneus.",
+        "paraphrased": true
+      },
+      "area": "ankle",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL63",
+      "names": {
+        "pinyin": "Jīnmén",
+        "hanzi": "金门",
+        "en": "Metal Gate"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL63",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL63",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the dorsum of the foot, distal to the anterior border of the lateral malleolus, posterior to the tuberosity of the fifth metatarsal bone, in the depression inferior to the cuboid bone.",
+        "paraphrased": true
+      },
+      "area": "foot",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL64",
+      "names": {
+        "pinyin": "Jīnggǔ",
+        "hanzi": "京骨",
+        "en": "Capital Bone"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL64",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL64",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the lateral aspect of the foot, distal to the tuberosity of the fifth metatarsal bone, at the border between the red and white skin.",
+        "paraphrased": true
+      },
+      "area": "foot",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL65",
+      "names": {
+        "pinyin": "Shùgǔ",
+        "hanzi": "束骨",
+        "en": "Bundle Bone"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL65",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL65",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the lateral aspect of the foot, in the depression proximal to the fifth metatarsophalangeal joint, at the border between the red and white skin.",
+        "paraphrased": true
+      },
+      "area": "foot",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL66",
+      "names": {
+        "pinyin": "Zútōnggǔ",
+        "hanzi": "足通谷",
+        "en": "Foot Valley Passage"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL66",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL66",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the little toe, in the depression distal to the lateral side of the fifth metatarsophalangeal joint, at the border between the red and white skin.",
+        "paraphrased": true
+      },
+      "area": "toe",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "BL67",
+      "names": {
+        "pinyin": "Zhìyīn",
+        "hanzi": "至阴",
+        "en": "Reaching Yin"
+      },
+      "channel": "BL",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "BL67",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "BL67",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the little toe, lateral to the distal phalanx, 0.1 F-cun proximal-lateral to the lateral corner of the toenail.",
+        "paraphrased": true
+      },
+      "area": "toe",
+      "bilateral": true,
+      "cautions": [
+        {
+          "id": "BL67-pregnancy",
+          "when": "pregnancy",
+          "text": "Traditionally avoided in pregnancy.",
+          "severity": "major"
+        }
+      ],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    }
+  ]
+}

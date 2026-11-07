@@ -1,0 +1,881 @@
+{
+  "schema": "acucraft/acupoints@1",
+  "id": "acucraft-points-si",
+  "version": "0.2.0",
+  "points": [
+    {
+      "id": "SI1",
+      "names": {
+        "pinyin": "Shàozé",
+        "hanzi": "少泽",
+        "en": "Lesser Marsh"
+      },
+      "channel": "SI",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "SI1",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "SI1",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the little finger, ulnar to the distal phalanx, 0.1 F-cun proximal-medial to the ulnar corner of the fingernail.",
+        "paraphrased": true
+      },
+      "area": "finger",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "SI2",
+      "names": {
+        "pinyin": "Qiángǔ",
+        "hanzi": "前谷",
+        "en": "Front Valley"
+      },
+      "channel": "SI",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "SI2",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "SI2",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the little finger, in the depression distal to the ulnar side of the fifth metacarpophalangeal joint, at the border between the red and white skin.",
+        "paraphrased": true
+      },
+      "area": "finger",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "SI3",
+      "names": {
+        "pinyin": "Hòuxī",
+        "hanzi": "后溪",
+        "en": "Back Ravine"
+      },
+      "channel": "SI",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "SI3",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "SI3",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the dorsum of the hand, in the depression proximal to the ulnar side of the fifth metacarpophalangeal joint, at the border between the red and white flesh.",
+        "paraphrased": true
+      },
+      "area": "hand",
+      "region": "hand-dorsum",
+      "localisation": {
+        "method": "landmark",
+        "landmark": "mc5-mcp-ulnar",
+        "offset": {
+          "cranial": {
+            "cm": 0.8
+          }
+        }
+      },
+      "tolerance": {
+        "cm": 0.6
+      },
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "SI4",
+      "names": {
+        "pinyin": "Wàngǔ",
+        "hanzi": "腕骨",
+        "en": "Wrist Bone"
+      },
+      "channel": "SI",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "SI4",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "SI4",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the posteromedial aspect of the wrist, in the depression between the base of the fifth metacarpal bone and the triquetrum, at the border between the red and white skin.",
+        "paraphrased": true
+      },
+      "area": "wrist",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "SI5",
+      "names": {
+        "pinyin": "Yánggǔ",
+        "hanzi": "阳谷",
+        "en": "Yang Valley"
+      },
+      "channel": "SI",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "SI5",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "SI5",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the posteromedial aspect of the wrist, in the depression between the triquetrum and the ulnar styloid process.",
+        "paraphrased": true
+      },
+      "area": "wrist",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "SI6",
+      "names": {
+        "pinyin": "Yǎnglǎo",
+        "hanzi": "养老",
+        "en": "Nursing the Aged"
+      },
+      "channel": "SI",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "SI6",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "SI6",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the posteromedial aspect of the forearm, in the depression radial to the head of the ulna, 1 B-cun proximal to the dorsal wrist crease.",
+        "paraphrased": true
+      },
+      "area": "forearm",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "SI7",
+      "names": {
+        "pinyin": "Zhīzhèng",
+        "hanzi": "支正",
+        "en": "Branch to the Correct"
+      },
+      "channel": "SI",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "SI7",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "SI7",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the posteromedial aspect of the forearm, between the medial border of the ulna and the flexor carpi ulnaris muscle, 5 B-cun proximal to the dorsal wrist crease.",
+        "paraphrased": true
+      },
+      "area": "forearm",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "SI8",
+      "names": {
+        "pinyin": "Xiǎohǎi",
+        "hanzi": "小海",
+        "en": "Small Sea"
+      },
+      "channel": "SI",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "SI8",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "SI8",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the posteromedial aspect of the elbow, in the depression between the olecranon and the medial epicondyle of the humerus.",
+        "paraphrased": true
+      },
+      "area": "elbow",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "Over the ulnar nerve in its groove: an electric sensation means the needle has reached it.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "SI9",
+      "names": {
+        "pinyin": "Jiānzhēn",
+        "hanzi": "肩贞",
+        "en": "True Shoulder"
+      },
+      "channel": "SI",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "SI9",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "SI9",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the shoulder girdle region, posteroinferior to the shoulder joint, 1 B-cun superior to the posterior axillary fold.",
+        "paraphrased": true
+      },
+      "area": "shoulder",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "SI10",
+      "names": {
+        "pinyin": "Nàoshū",
+        "hanzi": "臑俞",
+        "en": "Upper Arm Shu"
+      },
+      "channel": "SI",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "SI10",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "SI10",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the shoulder girdle region, superior to the end of the posterior axillary fold, in the depression inferior to the spine of the scapula.",
+        "paraphrased": true
+      },
+      "area": "shoulder",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "SI11",
+      "names": {
+        "pinyin": "Tiānzōng",
+        "hanzi": "天宗",
+        "en": "Celestial Gathering"
+      },
+      "channel": "SI",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "SI11",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "SI11",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the scapular region, in the depression at the junction of the upper third and lower two thirds of the line connecting the midpoint of the spine of the scapula with the inferior angle of the scapula.",
+        "paraphrased": true
+      },
+      "area": "upper-back",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "SI12",
+      "names": {
+        "pinyin": "Bǐngfēng",
+        "hanzi": "秉风",
+        "en": "Grasping the Wind"
+      },
+      "channel": "SI",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "SI12",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "SI12",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the scapular region, in the supraspinous fossa, superior to the midpoint of the spine of the scapula.",
+        "paraphrased": true
+      },
+      "area": "upper-back",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "SI13",
+      "names": {
+        "pinyin": "Qūyuán",
+        "hanzi": "曲垣",
+        "en": "Crooked Wall"
+      },
+      "channel": "SI",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "SI13",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "SI13",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the scapular region, in the depression superior to the medial end of the spine of the scapula.",
+        "paraphrased": true
+      },
+      "area": "upper-back",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "SI14",
+      "names": {
+        "pinyin": "Jiānwàishū",
+        "hanzi": "肩外俞",
+        "en": "Outer Shoulder Shu"
+      },
+      "channel": "SI",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "SI14",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "SI14",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the upper back, at the level of the inferior border of the spinous process of T1, 3 B-cun lateral to the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "upper-back",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "SI15",
+      "names": {
+        "pinyin": "Jiānzhōngshū",
+        "hanzi": "肩中俞",
+        "en": "Central Shoulder Shu"
+      },
+      "channel": "SI",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "SI15",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "SI15",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the upper back, at the level of the inferior border of the spinous process of C7, 2 B-cun lateral to the posterior median line.",
+        "paraphrased": true
+      },
+      "area": "upper-back",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "SI16",
+      "names": {
+        "pinyin": "Tiānchuāng",
+        "hanzi": "天窗",
+        "en": "Celestial Window"
+      },
+      "channel": "SI",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "SI16",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "SI16",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the anterior region of the neck, at the level of the superior border of the thyroid cartilage, posterior to the sternocleidomastoid muscle.",
+        "paraphrased": true
+      },
+      "area": "neck",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The carotid sheath and the great vessels of the neck lie close: needle shallowly and avoid the pulsating artery.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "SI17",
+      "names": {
+        "pinyin": "Tiānróng",
+        "hanzi": "天容",
+        "en": "Celestial Countenance"
+      },
+      "channel": "SI",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "SI17",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "SI17",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the anterior region of the neck, posterior to the angle of the mandible, in the depression anterior to the sternocleidomastoid muscle.",
+        "paraphrased": true
+      },
+      "area": "neck",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The carotid sheath and the great vessels of the neck lie close: needle shallowly and avoid the pulsating artery.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "SI18",
+      "names": {
+        "pinyin": "Quánliáo",
+        "hanzi": "颧髎",
+        "en": "Cheek Bone-Hole"
+      },
+      "channel": "SI",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "SI18",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "SI18",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the face, inferior to the zygomatic bone, in the depression directly inferior to the outer canthus of the eye.",
+        "paraphrased": true
+      },
+      "area": "face",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "SI19",
+      "names": {
+        "pinyin": "Tīnggōng",
+        "hanzi": "听宫",
+        "en": "Palace of Hearing"
+      },
+      "channel": "SI",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "SI19",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "SI19",
+          "relation": "same"
+        }
+      ],
+      "aliases": [],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the face, in the depression between the anterior border of the centre of the tragus and the posterior border of the condylar process of the mandible (with the mouth open).",
+        "paraphrased": true
+      },
+      "area": "face",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    }
+  ]
+}

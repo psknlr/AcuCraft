@@ -1,0 +1,711 @@
+{
+  "schema": "acucraft/acupoints@1",
+  "id": "acucraft-points-lr",
+  "version": "0.2.0",
+  "points": [
+    {
+      "id": "LR1",
+      "names": {
+        "pinyin": "Dàdūn",
+        "hanzi": "大敦",
+        "en": "Large Pile"
+      },
+      "channel": "LR",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "LR1",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "LR1",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "LIV1"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the great toe, lateral to the distal phalanx, 0.1 F-cun proximal-lateral to the lateral corner of the toenail.",
+        "paraphrased": true
+      },
+      "area": "toe",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "LR2",
+      "names": {
+        "pinyin": "Xíngjiān",
+        "hanzi": "行间",
+        "en": "Moving Between"
+      },
+      "channel": "LR",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "LR2",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "LR2",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "LIV2"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the dorsum of the foot, between the first and second toes, proximal to the web margin, at the border between the red and white skin.",
+        "paraphrased": true
+      },
+      "area": "foot",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "LR3",
+      "names": {
+        "pinyin": "Tàichōng",
+        "hanzi": "太冲",
+        "en": "Great Surge"
+      },
+      "channel": "LR",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "LR3",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "LR3",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "LIV3"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the dorsum of the foot, between the first and second metatarsal bones, in the depression distal to the junction of their bases, over the dorsalis pedis artery.",
+        "paraphrased": true
+      },
+      "area": "foot",
+      "tolerance": {
+        "cm": 1
+      },
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "LR4",
+      "names": {
+        "pinyin": "Zhōngfēng",
+        "hanzi": "中封",
+        "en": "Mound Centre"
+      },
+      "channel": "LR",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "LR4",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "LR4",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "LIV4"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the anteromedial aspect of the ankle, medial to the tibialis anterior tendon, in the depression anterior to the medial malleolus.",
+        "paraphrased": true
+      },
+      "area": "ankle",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "LR5",
+      "names": {
+        "pinyin": "Lígōu",
+        "hanzi": "蠡沟",
+        "en": "Woodworm Canal"
+      },
+      "channel": "LR",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "LR5",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "LR5",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "LIV5"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the anteromedial aspect of the leg, at the centre of the medial surface of the tibia, 5 B-cun proximal to the prominence of the medial malleolus.",
+        "paraphrased": true
+      },
+      "area": "leg",
+      "region": "knee-leg",
+      "localisation": {
+        "method": "along",
+        "from": "medial-malleolus",
+        "toward": "medial-condyle-inferior",
+        "distance": {
+          "cun": 5,
+          "segment": "seg.sp9-medial-malleolus"
+        },
+        "offset": {
+          "lateral": {
+            "cm": 2.5
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.5,
+        "segment": "seg.sp9-medial-malleolus"
+      },
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "LR6",
+      "names": {
+        "pinyin": "Zhōngdū",
+        "hanzi": "中都",
+        "en": "Central Metropolis"
+      },
+      "channel": "LR",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "LR6",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "LR6",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "LIV6"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the anteromedial aspect of the leg, at the centre of the medial surface of the tibia, 7 B-cun proximal to the prominence of the medial malleolus.",
+        "paraphrased": true
+      },
+      "area": "leg",
+      "region": "knee-leg",
+      "localisation": {
+        "method": "along",
+        "from": "medial-malleolus",
+        "toward": "medial-condyle-inferior",
+        "distance": {
+          "cun": 7,
+          "segment": "seg.sp9-medial-malleolus"
+        },
+        "offset": {
+          "lateral": {
+            "cm": 2.5
+          }
+        }
+      },
+      "tolerance": {
+        "cun": 0.5,
+        "segment": "seg.sp9-medial-malleolus"
+      },
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "LR7",
+      "names": {
+        "pinyin": "Xīguān",
+        "hanzi": "膝关",
+        "en": "Knee Joint"
+      },
+      "channel": "LR",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "LR7",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "LR7",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "LIV7"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the tibial aspect of the leg, inferior to the medial condyle of the tibia, 1 B-cun posterior to SP9.",
+        "paraphrased": true
+      },
+      "area": "leg",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "LR8",
+      "names": {
+        "pinyin": "Qūquán",
+        "hanzi": "曲泉",
+        "en": "Spring at the Bend"
+      },
+      "channel": "LR",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "LR8",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "LR8",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "LIV8"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the medial aspect of the knee, in the depression medial to the tendons of the semitendinosus and semimembranosus muscles, at the medial end of the popliteal crease.",
+        "paraphrased": true
+      },
+      "area": "knee",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "LR9",
+      "names": {
+        "pinyin": "Yīnbāo",
+        "hanzi": "阴包",
+        "en": "Yin Bladder"
+      },
+      "channel": "LR",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "LR9",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "LR9",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "LIV9"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the medial aspect of the thigh, between the gracilis and sartorius muscles, 4 B-cun proximal to the base of the patella.",
+        "paraphrased": true
+      },
+      "area": "thigh",
+      "bilateral": true,
+      "cautions": [],
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "LR10",
+      "names": {
+        "pinyin": "Zúwǔlǐ",
+        "hanzi": "足五里",
+        "en": "Foot Five Li"
+      },
+      "channel": "LR",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "LR10",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "LR10",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "LIV10"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the medial aspect of the thigh, 3 B-cun distal to ST30, over the artery.",
+        "paraphrased": true
+      },
+      "area": "thigh",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The femoral vessels lie close: palpate and avoid the artery.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "LR11",
+      "names": {
+        "pinyin": "Yīnlián",
+        "hanzi": "阴廉",
+        "en": "Yin Corner"
+      },
+      "channel": "LR",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "LR11",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "LR11",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "LIV11"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the medial aspect of the thigh, 2 B-cun distal to ST30.",
+        "paraphrased": true
+      },
+      "area": "thigh",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The femoral vessels lie close: palpate and avoid the artery.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "LR12",
+      "names": {
+        "pinyin": "Jímài",
+        "hanzi": "急脉",
+        "en": "Urgent Pulse"
+      },
+      "channel": "LR",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "LR12",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "LR12",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "LIV12"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "In the groin region, at the level of the superior border of the pubic symphysis, 2.5 B-cun lateral to the anterior median line.",
+        "paraphrased": true
+      },
+      "area": "groin",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The femoral vessels lie close: palpate and avoid the artery.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "LR13",
+      "names": {
+        "pinyin": "Zhāngmén",
+        "hanzi": "章门",
+        "en": "Camphorwood Gate"
+      },
+      "channel": "LR",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "LR13",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "LR13",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "LIV13"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the lateral abdomen, inferior to the free extremity of the eleventh rib.",
+        "paraphrased": true
+      },
+      "area": "abdomen",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "An enlarged spleen or liver may lie beneath: no deep needling.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    },
+    {
+      "id": "LR14",
+      "names": {
+        "pinyin": "Qīmén",
+        "hanzi": "期门",
+        "en": "Cycle Gate"
+      },
+      "channel": "LR",
+      "codes": [
+        {
+          "edition": "who-wpro-2008",
+          "code": "LR14",
+          "relation": "same"
+        },
+        {
+          "edition": "gb-t-12346-2021",
+          "code": "LR14",
+          "relation": "same"
+        }
+      ],
+      "aliases": [
+        "LIV14"
+      ],
+      "location": {
+        "edition": "who-wpro-2008",
+        "text": "On the anterior thoracic region, in the sixth intercostal space, 4 B-cun lateral to the anterior median line.",
+        "paraphrased": true
+      },
+      "area": "chest",
+      "bilateral": true,
+      "cautions": [],
+      "notes": "The pleura and lung lie beneath: needle obliquely or transversely and shallowly; deep perpendicular needling risks pneumothorax, especially in slim patients.",
+      "provenance": {
+        "sources": [
+          {
+            "title": "WHO Standard Acupuncture Point Locations in the Western Pacific Region (2008)",
+            "publisher": "WHO WPRO",
+            "verified": false,
+            "note": "Location paraphrased; check against the standard."
+          }
+        ],
+        "review": {
+          "status": "unreviewed",
+          "reviewers": [],
+          "notes": "AI-assisted paraphrase; requires review by a qualified acupuncture educator."
+        }
+      }
+    }
+  ]
+}

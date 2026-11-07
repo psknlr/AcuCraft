@@ -41,6 +41,17 @@ configuration) divided by the segment's cun (`segments[]`, e.g. knee to lateral 
 fixed number of centimetres; the finger cun (`fingerCunCm`) is a separate measurement, kept apart (`measure` with
 `fingerCun: true`; `mark_point` records the method used).
 
+The library (`content/acupoints/`, one file per channel) defines every point of the WHO standard (2008): 361 points on
+the 14 channels, plus the 48 extra points of the WHO standard nomenclature (1991). Each has its names, codes per
+edition (and older channel codes as aliases: SJ for TE, LIV for LR, DU for GV, REN for CV), a paraphrased location, a
+body area, cautions by risk factor (pregnancy: LI4, SP6, BL60, BL67, GB21, the lower abdomen and the lumbosacral
+region) and notes on what lies beneath hazardous points. No needling depths are given: safe depth depends on the build
+and must come from reviewed teaching. Only points that lie on a modelled region carry a *localisation* (45 of them);
+the rest are definitions only, which can be looked up, planned and discussed but not needled until their region is
+modelled. The tables are generated (`python3 tools/content/acupoints.py`) from `tools/content/points_*.py`, the
+hand-written detail of the family points (`acupoint_detail.json`) and the placements, cautions and notes in the script.
+Every entry is an unreviewed, AI-assisted paraphrase.
+
 `pointInstance(scenario, point, side, configuration)` constructs the hidden reference location of a point from its
 definition (`acucraft/acupoints@1`): `landmark` (+ offset), `between` two landmarks at a fraction, or `along` a line a
 distance in cun or cm, then offsets `lateral`/`medial`/`cranial`/`caudal`. Its tolerance is the definition's (cm or
