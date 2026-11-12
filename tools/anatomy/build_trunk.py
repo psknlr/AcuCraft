@@ -520,6 +520,9 @@ def bone_point(pattern, key):
     return v[np.argmax(key(v))]
 
 
+CREASE_CM = 2.0  # the inguinal crease lies about 2 cm below the inguinal ligament over the femoral artery
+
+
 def build_abdomen(out, chest):
     # the reference skin is smoothed (no navel): the umbilicus is placed at the level of the L3/L4 disc
     y_umb = disc("lumbar_vertebra_3", "lumbar_vertebra_4")
@@ -543,7 +546,10 @@ def build_abdomen(out, chest):
     for s, sign in (("left", 1), ("right", -1)):
         a = asis_uv[s]
         landmarks.append(lm(f"asis-{s}", a["u"], a["v"], f"anterior superior iliac spine ({s})", "The front end of the iliac crest."))
-        landmarks.append(lm(f"mid-inguinal-{s}", a["u"] / 2 + sign * 1.5, (a["v"] + pub_v) / 2 - 1.5, f"mid-inguinal point at the inguinal crease ({s}), over the femoral artery", "Midway between the anterior superior iliac spine and the pubic symphysis; the femoral pulse."))
+        # the femoral artery passes under the inguinal ligament at the mid-inguinal point and is felt at the crease below
+        mid = (a["u"] / 2, (a["v"] + pub_v) / 2)
+        landmarks.append(lm(f"mid-inguinal-{s}", *mid, f"mid-inguinal point ({s}): midway between the anterior superior iliac spine and the pubic symphysis, where the femoral artery passes under the inguinal ligament"))
+        landmarks.append(lm(f"inguinal-crease-{s}", mid[0], mid[1] - CREASE_CM, f"femoral pulse at the inguinal crease ({s}), below the mid-inguinal point", "Supine, the strongest pulsation in the groin crease, below the middle of the line from the anterior superior iliac spine to the pubic symphysis."))
         mal = abs(ch.lateral_u(0, sign))
         landmarks.append(lm(f"rib11-tip-{s}", sign * (mal - 2), l2 + 2, f"free extremity of the eleventh rib ({s})"))
         landmarks.append(lm(f"rib12-tip-{s}", sign * (mal + 5), l2 - 1, f"free extremity of the twelfth rib ({s})"))
@@ -563,10 +569,11 @@ def build_abdomen(out, chest):
     structures = [tube(ch, centreline(M["aorta"], level("lumbar_vertebra_4"), level("thoracic_vertebra_12"), 6), "abdominal aorta", "aorta", "artery", "critical", 1.1, "bleeding")]
     for s, sign in (("left", 1), ("right", -1)):
         mi = next(l for l in landmarks if l["id"] == f"mid-inguinal-{s}")["at"]
-        structures.append({"id": f"femoral-artery-{s}", "label": f"femoral artery ({s})", "kind": "artery", "hazard": "critical", "path": [{"u": mi["u"], "v": mi["v"] + 1.5, "d": 3.0}, {"u": mi["u"], "v": mi["v"] - 1.0, "d": 2.2}], "radiusCm": 0.4, "uncertaintyCm": 0.4, "consequence": "bleeding"})
-        structures.append({"id": f"femoral-vein-{s}", "label": f"femoral vein ({s})", "kind": "vein", "hazard": "critical", "path": [{"u": mi["u"] - sign * 1.2, "v": mi["v"] + 1.5, "d": 3.2}, {"u": mi["u"] - sign * 1.2, "v": mi["v"] - 1.0, "d": 2.4}], "radiusCm": 0.5, "uncertaintyCm": 0.4, "consequence": "bleeding"})
-        structures.append({"id": f"femoral-nerve-{s}", "label": f"femoral nerve ({s})", "kind": "nerve", "hazard": "caution", "path": [{"u": mi["u"] + sign * 1.2, "v": mi["v"] + 1.5, "d": 3.2}, {"u": mi["u"] + sign * 1.2, "v": mi["v"] - 1.0, "d": 2.4}], "radiusCm": 0.3, "uncertaintyCm": 0.4, "consequence": "electric-sensation"})
-        structures.append({"id": f"inferior-epigastric-{s}", "label": f"inferior epigastric artery ({s})", "kind": "artery", "hazard": "caution", "path": [{"u": mi["u"] - sign * 1.0, "v": mi["v"] + 2.0, "d": 3.0}, {"u": sign * 5.0, "v": 0.0, "d": 2.8}, {"u": sign * 4.0, "v": 8.0, "d": 2.5}], "radiusCm": 0.15, "uncertaintyCm": 0.5, "consequence": "haematoma"})
+        top, low = mi["v"] + 1.5, mi["v"] - CREASE_CM - 1.0  # from above the ligament to below the crease
+        structures.append({"id": f"femoral-artery-{s}", "label": f"femoral artery ({s})", "kind": "artery", "hazard": "critical", "path": [{"u": mi["u"], "v": top, "d": 3.0}, {"u": mi["u"], "v": low, "d": 2.2}], "radiusCm": 0.4, "uncertaintyCm": 0.4, "consequence": "bleeding"})
+        structures.append({"id": f"femoral-vein-{s}", "label": f"femoral vein ({s})", "kind": "vein", "hazard": "critical", "path": [{"u": mi["u"] - sign * 1.2, "v": top, "d": 3.2}, {"u": mi["u"] - sign * 1.2, "v": low, "d": 2.4}], "radiusCm": 0.5, "uncertaintyCm": 0.4, "consequence": "bleeding"})
+        structures.append({"id": f"femoral-nerve-{s}", "label": f"femoral nerve ({s})", "kind": "nerve", "hazard": "caution", "path": [{"u": mi["u"] + sign * 1.2, "v": top, "d": 3.2}, {"u": mi["u"] + sign * 1.2, "v": low, "d": 2.4}], "radiusCm": 0.3, "uncertaintyCm": 0.4, "consequence": "electric-sensation"})
+        structures.append({"id": f"inferior-epigastric-{s}", "label": f"inferior epigastric artery ({s})", "kind": "artery", "hazard": "caution", "path": [{"u": mi["u"] - sign * 0.5, "v": top, "d": 3.0}, {"u": sign * 5.0, "v": 0.0, "d": 2.8}, {"u": sign * 4.0, "v": 8.0, "d": 2.5}], "radiusCm": 0.15, "uncertaintyCm": 0.5, "consequence": "haematoma"})
     default = [{"tissue": "skin", "thicknessCm": 0.2}, {"tissue": "subcutaneous", "thicknessCm": 2.0}, {"tissue": "muscle", "thicknessCm": 1.5}, {"tissue": "organ", "thicknessCm": 5, "label": "peritoneal cavity and bowel", "hazard": "caution"}]
     write(region(
         "abdomen", "abdomen and groin",

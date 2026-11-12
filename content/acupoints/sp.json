@@ -639,7 +639,7 @@
       "localisation": {
         "method": "between",
         "a": "patella-base-medial",
-        "b": "sp12-site",
+        "b": "point:SP12",
         "fraction": 0.6667
       },
       "tolerance": {
@@ -695,7 +695,7 @@
       "region": "abdomen",
       "localisation": {
         "method": "landmark",
-        "landmark": "mid-inguinal-{side}",
+        "landmark": "inguinal-crease-{side}",
         "offset": {
           "lateral": {
             "cm": 1.0

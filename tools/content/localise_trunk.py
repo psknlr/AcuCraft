@@ -80,7 +80,7 @@ for n, pid in [(1, "ST26"), (2, "ST27"), (3, "ST28"), (4, "ST29")]:
 LOCALISE.update({
     "ST30": ("abdomen", landmark("pubic-symphysis", lateral=cun(2, LAT)), DOWN_TOL),
     "LR12": ("abdomen", landmark("pubic-symphysis", lateral=cun(2.5, LAT)), DOWN_TOL),
-    "SP12": ("abdomen", landmark("mid-inguinal-{side}", lateral=cm(1.0)), cm(0.8)),
+    "SP12": ("abdomen", landmark("inguinal-crease-{side}", lateral=cm(1.0)), cm(0.8)),
     "SP13": ("abdomen", below(4.3, 4), DOWN_TOL),
     "SP14": ("abdomen", below(1.3, 4), DOWN_TOL),
     "SP15": ("abdomen", at_umbilicus(4), UP_TOL),

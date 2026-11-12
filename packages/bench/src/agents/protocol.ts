@@ -229,10 +229,10 @@ export function protocolAgent(): Agent {
     const segs = new Set<string>();
     for (const p of plan) {
       if ("ashi" in p) continue;
-      const req = requirements(lib, p.point, p.side);
-      if (!req) continue;
-      for (const l of req.landmarks) lms.add(`${req.region}|${req.side}|${l}`);
-      for (const s of req.segments) segs.add(`${req.region}|${req.side}|${s}`);
+      for (const req of requirements(lib, p.point, p.side) ?? []) {
+        for (const l of req.landmarks) lms.add(`${req.region}|${req.side}|${l}`);
+        for (const s of req.segments) segs.add(`${req.region}|${req.side}|${s}`);
+      }
     }
     for (const key of lms) {
       const [region, side, landmark] = key.split("|");
@@ -256,10 +256,12 @@ export function protocolAgent(): Agent {
         kept.push(p);
         continue;
       }
-      const req = requirements(lib, p.point, p.side)!;
-      const landmarks = new Map(v.localisation.landmarks.filter((l) => l.region === req.region && l.side === req.side).map((l) => [l.landmark, { u: l.u, v: l.v }]));
-      const segments = new Map(v.localisation.measurements.filter((m) => m.region === req.region && m.side === req.side).map((m) => [m.what, m.cm]));
-      const at = constructPoint(lib, p.point, p.side, landmarks, segments);
+      const req = requirements(lib, p.point, p.side)![0]!;
+      const observed = (region: string, side: Side) => ({
+        landmarks: new Map(v.localisation.landmarks.filter((l) => l.region === region && l.side === side).map((l) => [l.landmark, { u: l.u, v: l.v }])),
+        segments: new Map(v.localisation.measurements.filter((m) => m.region === region && m.side === side).map((m) => [m.what, m.cm])),
+      });
+      const at = constructPoint(lib, p.point, p.side, observed);
       if (!at) continue;
       if (ex.some((e) => e.centre && e.region === req.region && (e.side === p.side || e.side === "midline") && Math.hypot(e.centre.u - at.u, e.centre.v - at.v) <= (e.r ?? 0) + 0.5)) continue;
       push({ type: "mark_point", target: p, region: req.region, side: req.side, at: { u: Math.round(at.u * 100) / 100, v: Math.round(at.v * 100) / 100 }, method: "proportional" });

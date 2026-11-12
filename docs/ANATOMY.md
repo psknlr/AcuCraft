@@ -84,9 +84,18 @@ Every entry is an unreviewed, AI-assisted paraphrase.
 
 `pointInstance(scenario, point, side, configuration)` constructs the hidden reference location of a point from its
 definition (`acucraft/acupoints@1`): `landmark` (+ offset), `between` two landmarks at a fraction, or `along` a line a
-distance in cun or cm, then offsets `lateral`/`medial`/`cranial`/`caudal`. Its tolerance is the definition's (cm or
-cun). The evaluator compares each needle's actual entry with the instance in the configuration the needle went in
-under.
+distance in cun or cm, then offsets `lateral`/`medial`/`cranial`/`caudal`. An anchor may also be another point,
+`point:<id>`, wherever that point is placed on this patient (LR11 is "2 B-cun distal to ST30": `point:ST30`, caudal
+2 B-cun). Its tolerance is the definition's (cm or cun). The evaluator compares each needle's actual entry with
+the instance in the configuration the needle went in under.
+
+**Seams.** Where two charts meet, a region declares a seam (`seams[]`): the other region, and pairs of landmarks that
+are the same skin point on both charts. For a patient and side, `seamMap(scenario, from, to, side, configuration)`
+fits the similarity (scale, rotation, translation, no reflection) that best carries the pairs' positions on `from`
+onto `to`, with both charts turned so that `u` points lateral, and reports each pair's residual. A `point:` anchor on
+a neighbouring chart is carried across it. The fit is made the way the seam is declared, and the other direction is
+its exact inverse. The reference library lists each region's seams (which landmarks are shared, not where), so an
+agent palpates the pairs on both charts and makes the same fit from its own observations.
 
 An agent never sees these instances (outside teaching mode). It palpates landmarks (`identify_landmark`, precise to
 about 2.5 mm), measures segments (`measure`, about 1.5 %), constructs the point from the public definition
@@ -150,14 +159,14 @@ another (ST3, GB19), the offset is in centimetres on the reference adult.
 
 `thigh`, `knee-leg`, `foot` and `sole` are bilateral (`tools/content/localise_lower_limb.py`). The thigh and the leg
 are unrolled round the limb from the anterior midline, `u` positive lateral and on round the back of the limb, so the
-posterior midline is reached round the lateral side (the popliteal fossa and the calf at large positive `u`); round the
-tibial side `medial` (−u) points posterior. The ankle and heel stay on `knee-leg` with the malleoli; `foot` covers the
-dorsum and the sides of the foot from the line of the second metatarsal, `sole` the plantar surface. Segments: pubic
-symphysis to the medial epicondyle 18 B-cun, greater trochanter to the popliteal crease 19, gluteal fold to the
+posterior midline is reached round the lateral side (the popliteal fossa and the calf at large positive `u`); round
+the tibial side `medial` (−u) points posterior. The ankle and heel stay on `knee-leg` with the malleoli; `foot` covers
+the dorsum and the sides of the foot from the line of the second metatarsal, `sole` the plantar surface. Segments:
+pubic symphysis to the medial epicondyle 18 B-cun, greater trochanter to the popliteal crease 19, gluteal fold to the
 popliteal crease 14, popliteal crease to the lateral malleolus 16, medial condyle of the tibia to the medial malleolus
-13, medial malleolus to the sole 3. Critical: the femoral and deep femoral arteries, the popliteal artery, the
-posterior tibial and dorsalis pedis arteries; cautions: the sciatic, tibial, common fibular and sural nerves, the
-saphenous veins, the ankle capsule and the plantar bundles.
+13, medial malleolus to the sole 3. The thigh meets the abdomen at a seam in the groin (§3, §8). Critical: the femoral
+and deep femoral arteries, the popliteal artery, the posterior tibial and dorsalis pedis arteries; cautions: the
+sciatic, tibial, common fibular and sural nerves, the saphenous veins, the ankle capsule and the plantar bundles.
 
 ## 8. The trunk from a reference body
 
@@ -205,10 +214,16 @@ meet nothing takes the median measured wall (chest 3.9 cm, abdomen 4.3 cm, upper
 peritoneal cavity under it — never a deeper safe margin than the body measured. Patients are scaled from this
 reference by height and BMI (§1).
 
-The trunk and limb charts meet but are not stitched together. In the groin, ST30 and LR12 lie on `abdomen` (from the
-pubic symphysis) while LR11 and LR10, measured down from ST30, lie on `thigh` from that chart's own `st30-site`
-landmark: the two charts place the level of ST30 independently, so the 2 and 3 B-cun below it are exact on the thigh
-but only approximately in line with ST30 as the abdomen places it.
+The groin is stitched: `thigh` declares a seam with `abdomen` on the upper border of the pubic symphysis, the
+anterior superior iliac spine and the femoral pulse at the inguinal crease (§3). On the abdomen the mid-inguinal point
+lies midway between the measured iliac spine and symphysis, where the femoral artery passes under the inguinal
+ligament, and the crease 2 cm below it; the thigh's schematic groin is placed to agree. ST30, LR12, SP12 and SP13
+lie on `abdomen`; LR11 and LR10 are measured down the thigh from ST30, and SP11 from SP12, wherever the abdomen places
+them for that patient. Tests check, for every patient and side, that the three pairs agree within 1 cm (about
+0.3 cm), that the femoral artery of the abdomen runs on into the thigh's, and that ST30 lands level with the thigh's
+pubic symphysis. The thigh's groin is about 22 % smaller than the abdomen's: the abdomen's arc lengths come from a
+heavier reference body (BMI 27.8) and its derived build narrows only weakly with BMI, while the thigh's are drawn for
+a slim adult. The fitted scale absorbs the difference; other charts meet without a seam.
 
 The left common carotid artery of the reference body lies about 1.1 cm below the skin (to its axis) at the level of
 the thyroid cartilage, shallower than imaging of living subjects reports under ST9. It is kept as measured: a

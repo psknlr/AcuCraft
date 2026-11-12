@@ -81,9 +81,9 @@ LOCALISE = {
     # 4 B-cun above the base, in the groove between sartorius and gracilis: about 8 cm round the medial side
     "LR9": ("thigh", landmark("patella-base-medial", cranial=cun(4, SYM), medial=cm(8.0)), cun(0.5, SYM)),
     # junction of the upper third and lower two thirds of the line from the medial end of the patellar base to SP12
-    "SP11": ("thigh", between("patella-base-medial", "sp12-site", 0.6667), cun(0.5, SYM)),
-    "LR11": ("thigh", landmark("st30-site", caudal=cun(2, SYM)), cun(0.4, SYM)),
-    "LR10": ("thigh", landmark("st30-site", caudal=cun(3, SYM)), cun(0.4, SYM)),
+    "SP11": ("thigh", between("patella-base-medial", "point:SP12", 0.6667), cun(0.5, SYM)),
+    "LR11": ("thigh", landmark("point:ST30", caudal=cun(2, SYM)), cun(0.4, SYM)),  # ST30 where the abdomen places it, across the seam
+    "LR10": ("thigh", landmark("point:ST30", caudal=cun(3, SYM)), cun(0.4, SYM)),
     # ---- thigh, lateral: gallbladder channel behind the iliotibial band, measured up from the popliteal crease ----
     "GB32": ("thigh", along("popliteal-crease-lateral", "greater-trochanter", 7, TRO), cun(0.5, TRO)),
     # the middle-finger-tip point; 9 B-cun above the popliteal crease, 2 B-cun above GB32

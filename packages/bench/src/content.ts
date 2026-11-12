@@ -191,7 +191,16 @@ function checkBundle(b: ContentBundle, issues: Issue[]): void {
     const lmOk = (id: string) => sides.every((side) => lms.has(id.replace("{side}", side)));
     const loc = p.localisation;
     const used = !loc ? [] : loc.method === "landmark" ? [loc.landmark] : loc.method === "between" ? [loc.a, loc.b] : [loc.from, loc.toward];
-    for (const id of used) if (!lmOk(id)) issues.push({ path: at, message: `region ${r.id} has no landmark ${id}`, severity: "error" });
+    for (const id of used) {
+      if (!id.startsWith("point:")) {
+        if (!lmOk(id)) issues.push({ path: at, message: `region ${r.id} has no landmark ${id}`, severity: "error" });
+        continue;
+      }
+      const other = b.acupoints.get(id.slice("point:".length));
+      if (!other?.region || !other.localisation) issues.push({ path: at, message: `anchor ${id} is not a localised point`, severity: "error" });
+      else if (other.region !== r.id && !meets(b, other.region, r.id)) issues.push({ path: at, message: `anchor ${id} lies on ${other.region}, which has no seam with ${r.id}`, severity: "error" });
+      else if (other.bilateral !== p.bilateral) issues.push({ path: at, message: `anchor ${id} must be ${p.bilateral ? "bilateral" : "on the midline"} like ${p.id}`, severity: "error" });
+    }
     const dists = [loc && loc.method === "along" ? loc.distance : undefined, loc?.offset?.lateral, loc?.offset?.medial, loc?.offset?.cranial, loc?.offset?.caudal, p.tolerance];
     for (const d of dists) if (d && "segment" in d && !segs.has(d.segment)) issues.push({ path: at, message: `region ${r.id} has no segment ${d.segment}`, severity: "error" });
     if (p.configuration && !r.configurations.some((c) => c.id === p.configuration)) issues.push({ path: at, message: `region ${r.id} has no configuration ${p.configuration}`, severity: "error" });
@@ -202,7 +211,31 @@ function checkBundle(b: ContentBundle, issues: Issue[]): void {
     for (const s of r.segments) for (const id of [s.from, s.to]) if (!lms.has(id)) issues.push({ path: `regions.${r.id}.segments.${s.id}`, message: `no landmark ${id}`, severity: "error" });
     for (const a of r.access) if (!cfgs.has(a.configuration)) issues.push({ path: `regions.${r.id}.access`, message: `no configuration ${a.configuration}`, severity: "error" });
     if (!cfgs.has(r.defaultConfiguration)) issues.push({ path: `regions.${r.id}.defaultConfiguration`, message: `no configuration ${r.defaultConfiguration}`, severity: "error" });
+    for (const seam of r.seams) {
+      const at = `regions.${r.id}.seams.${seam.region}`;
+      const there = b.regions.get(seam.region);
+      if (!there) {
+        issues.push({ path: at, message: `unknown region ${seam.region}`, severity: "error" });
+        continue;
+      }
+      if (there.seams.some((m) => m.region === r.id)) issues.push({ path: at, message: `${seam.region} also declares this seam: declare it once`, severity: "error" });
+      const theirs = new Set(there.landmarks.map((l) => l.id));
+      const has = (set: Set<string>, id: string) => ["left", "right"].every((side) => set.has(id.replace("{side}", side)));
+      for (const p of seam.pairs) {
+        if (!has(lms, p.here)) issues.push({ path: at, message: `no landmark ${p.here}`, severity: "error" });
+        if (!has(theirs, p.there)) issues.push({ path: at, message: `${seam.region} has no landmark ${p.there}`, severity: "error" });
+      }
+      for (const [here, cfg] of Object.entries(seam.configurations)) {
+        if (!cfgs.has(here)) issues.push({ path: at, message: `no configuration ${here}`, severity: "error" });
+        if (!there.configurations.some((c) => c.id === cfg)) issues.push({ path: at, message: `${seam.region} has no configuration ${cfg}`, severity: "error" });
+      }
+    }
   }
+}
+
+/** Do two regions share a seam (declared on either)? */
+function meets(b: ContentBundle, x: string, y: string): boolean {
+  return Boolean(b.regions.get(x)?.seams.some((m) => m.region === y) || b.regions.get(y)?.seams.some((m) => m.region === x));
 }
 
 export type ScenarioResult = { ok: true; scenario: Scenario; warnings: Issue[] } | { ok: false; issues: Issue[] };

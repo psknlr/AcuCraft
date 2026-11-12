@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { DistanceSchema, IdSchema, LocalizedTextSchema, ReviewSchema, SemverSchema, SeveritySchema, SourceRefSchema } from "./common.js";
+import { LANDMARK_REF } from "./anatomy.js";
 
 /**
  * Point-location standards and versioned acupoint definitions (proposal §5.1).
@@ -55,14 +56,21 @@ export const OffsetSchema = z
 export type Offset = z.infer<typeof OffsetSchema>;
 
 /**
+ * An anchor of a localisation: a landmark id of the point's region, which in a midline region may hold the `{side}`
+ * placeholder (`acromion-lateral-{side}`, read as the point's side); or `point:<id>`, another point where it is
+ * placed on this patient (on the same side) — on a neighbouring chart, carried across the seam between them.
+ */
+export const LandmarkRefSchema = z
+  .string()
+  .min(1)
+  .max(80)
+  .refine((s) => (s.startsWith("point:") ? /^point:[A-Za-z0-9][A-Za-z0-9._-]*$/.test(s) : LANDMARK_REF.test(s)), "a landmark id (optionally with one {side} placeholder) or point:<id>");
+
+/**
  * How a point is constructed on the patient from regional landmarks (proportional bone measurement, B-cun).
- * In a midline region a landmark id may hold `{side}` (`acromion-lateral-{side}`): it is read as the point's side.
  * Distances in cun are converted with the patient's own segment length (`cunScale`), never with a fixed number
  * of centimetres.
  */
-/** A landmark id, which in a midline region may hold the `{side}` placeholder. */
-export const LandmarkRefSchema = z.string().min(1).max(80).regex(/^[A-Za-z0-9][A-Za-z0-9._-]*(\{side\}[A-Za-z0-9._-]*)?$/, "a landmark id, optionally with one {side} placeholder");
-
 export const LocalisationSchema = z.discriminatedUnion("method", [
   /** At a landmark (a depression, a crease, a bony prominence), optionally offset. */
   z.object({ method: z.literal("landmark"), landmark: LandmarkRefSchema, offset: OffsetSchema.optional() }).strict(),

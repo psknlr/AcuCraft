@@ -1,4 +1,4 @@
-import type { ChartPoint, Distance, Offset, referenceLibrary } from "@acucraft/core";
+import { fitSeam, lateralSignOf, orientSeam, type ChartPoint, type Distance, type Offset, type referenceLibrary } from "@acucraft/core";
 
 type Library = ReturnType<typeof referenceLibrary>;
 type Side = "left" | "right" | "midline";
@@ -7,6 +7,10 @@ type Side = "left" | "right" | "midline";
  * Locate a standard point from what an agent has observed on the patient — palpated landmark positions and measured
  * segment lengths — using the public construction of the point (proportional bone measurement). This is what a
  * practitioner does with a tape and their fingers; it never reads the engine's hidden reference.
+ *
+ * A point measured from another point (`point:ST30`) is constructed from that point; when it lies on a neighbouring
+ * chart, the agent palpates the landmarks the two charts share at their seam and carries it across with the map
+ * those palpations give.
  */
 
 export interface Requirements {
@@ -16,43 +20,90 @@ export interface Requirements {
   segments: string[];
 }
 
-export function requirements(lib: Library, pointId: string, side: Side): Requirements | null {
-  const p = lib.points.find((x) => x.id === pointId);
-  if (!p?.region || !p.localisation) return null;
-  const region = lib.regions.find((r) => r.id === p.region);
-  if (!region) return null;
-  const s: Side = p.bilateral ? side : "midline";
-  const sided = (id: string) => id.replace("{side}", s);
-  const loc = p.localisation;
-  const landmarks = loc.method === "landmark" ? [sided(loc.landmark)] : loc.method === "between" ? [sided(loc.a), sided(loc.b)] : [sided(loc.from), sided(loc.toward)];
-  const dists: (Distance | undefined)[] = [loc.method === "along" ? loc.distance : undefined, loc.offset?.lateral, loc.offset?.medial, loc.offset?.cranial, loc.offset?.caudal];
-  const segments = [...new Set(dists.filter((d): d is { cun: number; segment: string } => !!d && "segment" in d).map((d) => d.segment))];
-  return { region: region.id, side: region.laterality === "midline" ? s : s, landmarks, segments };
+/** What to palpate and measure, chart by chart, to construct a point; the point's own chart first. */
+export function requirements(lib: Library, pointId: string, side: Side): Requirements[] | null {
+  const out = new Map<string, Requirements>();
+  const need = (region: string, s: Side): Requirements => {
+    const key = `${region}|${s}`;
+    let r = out.get(key);
+    if (!r) out.set(key, (r = { region, side: s, landmarks: [], segments: [] }));
+    return r;
+  };
+  const visit = (id: string, depth: number): boolean => {
+    const p = lib.points.find((x) => x.id === id);
+    if (!p?.region || !p.localisation || depth > 4) return false;
+    const region = lib.regions.find((r) => r.id === p.region);
+    if (!region) return false;
+    const s: Side = p.bilateral ? side : "midline";
+    const here = need(region.id, s);
+    const loc = p.localisation;
+    for (const ref of anchorsOf(loc)) {
+      if (!ref.startsWith("point:")) {
+        here.landmarks.push(ref.replace("{side}", s));
+        continue;
+      }
+      const other = lib.points.find((x) => x.id === ref.slice("point:".length));
+      if (!other?.region || !visit(other.id, depth + 1)) return false;
+      if (other.region === region.id) continue;
+      const from = lib.regions.find((r) => r.id === other.region);
+      const seam = from && orientSeam(from, region, s);
+      if (!seam) return false;
+      for (const pair of seam.pairs) {
+        need(from.id, s).landmarks.push(pair.from);
+        here.landmarks.push(pair.to);
+      }
+    }
+    for (const d of distancesOf(loc)) if (d && "segment" in d) here.segments.push(d.segment);
+    return true;
+  };
+  if (!visit(pointId, 0)) return null;
+  return [...out.values()].map((r) => ({ ...r, landmarks: [...new Set(r.landmarks)], segments: [...new Set(r.segments)] }));
 }
 
-export function constructPoint(lib: Library, pointId: string, side: Side, landmarks: ReadonlyMap<string, ChartPoint>, segmentCm: ReadonlyMap<string, number>): ChartPoint | null {
+/** Observations on one chart and side. */
+export interface Observed {
+  landmarks: ReadonlyMap<string, ChartPoint>;
+  segments: ReadonlyMap<string, number>;
+}
+
+/** Construct a point on its own chart from the observations (`observed(region, side)`). */
+export function constructPoint(lib: Library, pointId: string, side: Side, observed: (region: string, side: Side) => Observed, depth = 0): ChartPoint | null {
   const p = lib.points.find((x) => x.id === pointId);
-  if (!p?.region || !p.localisation) return null;
+  if (!p?.region || !p.localisation || depth > 4) return null;
   const region = lib.regions.find((r) => r.id === p.region)!;
   const s: Side = p.bilateral ? side : "midline";
-  const sided = (id: string) => id.replace("{side}", s);
-  const lm = (id: string) => landmarks.get(sided(id)) ?? null;
+  const obs = observed(region.id, s);
   const dist = (d: Distance): number | null => {
     if ("cm" in d) return d.cm;
     const seg = region.segments.find((x) => x.id === d.segment);
-    const cm = segmentCm.get(d.segment);
+    const cm = obs.segments.get(d.segment);
     return seg && cm !== undefined ? (d.cun * cm) / seg.cun : null;
+  };
+  const anchor = (ref: string): ChartPoint | null => {
+    if (!ref.startsWith("point:")) return obs.landmarks.get(ref.replace("{side}", s)) ?? null;
+    const other = lib.points.find((x) => x.id === ref.slice("point:".length));
+    const at = other && constructPoint(lib, other.id, side, observed, depth + 1);
+    if (!other?.region || !at) return null;
+    if (other.region === region.id) return at;
+    const from = lib.regions.find((r) => r.id === other.region)!;
+    const seam = orientSeam(from, region, s);
+    if (!seam) return null;
+    const there = observed(from.id, s);
+    const pairs = seam.pairs.map((pair) => ({ from: there.landmarks.get(pair.from), to: obs.landmarks.get(pair.to) }));
+    if (pairs.some((pair) => !pair.from || !pair.to)) return null;
+    const fit = fitSeam(pairs as { from: ChartPoint; to: ChartPoint }[], lateralSignOf(from.laterality, s), lateralSignOf(region.laterality, s), seam.reversed);
+    return fit ? fit.map(at) : null;
   };
   const loc = p.localisation;
   let base: ChartPoint | null = null;
-  if (loc.method === "landmark") base = lm(loc.landmark);
+  if (loc.method === "landmark") base = anchor(loc.landmark);
   else if (loc.method === "between") {
-    const a = lm(loc.a);
-    const b = lm(loc.b);
+    const a = anchor(loc.a);
+    const b = anchor(loc.b);
     if (a && b) base = { u: a.u + loc.fraction * (b.u - a.u), v: a.v + loc.fraction * (b.v - a.v) };
   } else {
-    const a = lm(loc.from);
-    const b = lm(loc.toward);
+    const a = anchor(loc.from);
+    const b = anchor(loc.toward);
     const d = dist(loc.distance);
     if (a && b && d !== null) {
       const len = Math.hypot(b.u - a.u, b.v - a.v) || 1;
@@ -62,11 +113,21 @@ export function constructPoint(lib: Library, pointId: string, side: Side, landma
   if (!base) return null;
   const o: Offset | undefined = loc.offset;
   if (!o) return base;
-  const sign = region.laterality === "bilateral" ? 1 : s === "right" ? -1 : 1;
+  const sign = lateralSignOf(region.laterality, s);
   const get = (d: Distance | undefined) => (d ? dist(d) : 0);
   const [lat, med, cra, cau] = [get(o.lateral), get(o.medial), get(o.cranial), get(o.caudal)];
   if (lat === null || med === null || cra === null || cau === null) return null;
   return { u: base.u + sign * (lat - med), v: base.v + cra - cau };
+}
+
+type Loc = NonNullable<Library["points"][number]["localisation"]>;
+
+function anchorsOf(loc: Loc): string[] {
+  return loc.method === "landmark" ? [loc.landmark] : loc.method === "between" ? [loc.a, loc.b] : [loc.from, loc.toward];
+}
+
+function distancesOf(loc: Loc): (Distance | undefined)[] {
+  return [loc.method === "along" ? loc.distance : undefined, loc.offset?.lateral, loc.offset?.medial, loc.offset?.cranial, loc.offset?.caudal];
 }
 
 /** Direction (azimuth) towards the midline on this chart and side. */
