@@ -148,7 +148,7 @@ LOCALISE = {
     "LI19": ("face", between("subnasale", "philtrum-lower", 1 / 3, lateral=cm(1.05)), cm(0.4)),
     "GV27": ("face", landmark("upper-lip-tubercle"), cm(0.3)),
     # 0.4 F-cun lateral to the angle of the mouth: about 0.8 cm
-    "ST4": ("face", landmark("mouth-angle-{side}", lateral=cm(0.8)), cm(0.4)),
+    "ST4": ("face", landmark("mouth-angle-{side}", lateral={"fcun": 0.4}), cm(0.4)),  # 0.4 F-cun: the patient's finger cun
     "CV24": ("face", landmark("mentolabial-sulcus"), cm(0.4)),
 
     # --- side of the head: in front of the ear (found with the mouth open), the cheek and the jaw ---------------------

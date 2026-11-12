@@ -19,6 +19,8 @@ export interface PatientRegion {
   landmark(id: string): ChartPoint | null;
   /** Length of one cun of this segment, for this patient (cm). */
   cunCm(segment: string): number | null;
+  /** The patient's finger cun (F-cun, cm). */
+  fingerCunCm: number;
   segmentCm(segment: string): number | null;
   structures: (Structure & { path: ChartPoint3[] })[];
   layersAt(at: ChartPoint): Layer[];
@@ -170,6 +172,7 @@ export function patientRegion(sc: Scenario, regionId: string, side: Side, config
       return seg && len !== null ? len / seg.cun : null;
     },
     segmentCm: (segId) => segmentIn(segId, configuration),
+    fingerCunCm: sc.field.patient.anatomy.fingerCunCm,
     structures,
     layersAt,
     inChart: (at) => at.u >= Math.min(u0, u1) * su - 1 && at.u <= Math.max(u0, u1) * su + 1 && at.v >= Math.min(v0, v1) * sv - 1 && at.v <= Math.max(v0, v1) * sv + 1,
@@ -178,6 +181,7 @@ export function patientRegion(sc: Scenario, regionId: string, side: Side, config
 
 export function distanceCm(frame: PatientRegion, d: Distance): number | null {
   if ("cm" in d) return d.cm;
+  if ("fcun" in d) return d.fcun * frame.fingerCunCm;
   const cun = frame.cunCm(d.segment);
   return cun === null ? null : d.cun * cun;
 }
@@ -504,6 +508,9 @@ export function segmentDistance(p: ChartPoint3, q: ChartPoint3, r: ChartPoint3, 
 }
 
 /** Where the tip of a needle inserted at `entry` ends after `depthCm` along the shaft. */
+/** The step (cm along the shaft) at which a needle path reads the tissue under it. */
+const PATH_STEP_CM = 0.05;
+
 export function tipOf(entry: ChartPoint, angleDeg: number, azimuthDeg: number, depthCm: number): ChartPoint3 {
   const theta = (angleDeg * Math.PI) / 180;
   const phi = (azimuthDeg * Math.PI) / 180;
@@ -512,45 +519,63 @@ export function tipOf(entry: ChartPoint, angleDeg: number, azimuthDeg: number, d
 }
 
 /**
- * Assess a virtual needle path against the patient's region. Layers are read at the entry (the region is
- * locally flat); structures are tubes. A pure function: the caller decides what to block or record.
+ * Assess a virtual needle path against the patient's region. Along the shaft, the tissue at each point is read from
+ * the zone above it (an oblique needle crosses into neighbouring zones); structures are tubes. A pure function: the
+ * caller decides what to block or record.
  */
 export function assessPath(frame: PatientRegion, entry: ChartPoint, angleDeg: number, azimuthDeg: number, requestedDepthCm: number, needle: { diameterMm: number; lengthMm: number }): PathAssessment {
-  const layers = frame.layersAt(entry);
   const cos = Math.cos((angleDeg * Math.PI) / 180);
   const maxShaft = (needle.lengthMm / 10) * 0.9; // a needle is never inserted to its hilt
   let depth = Math.min(requestedDepthCm, maxShaft);
   let stoppedBy: PathAssessment["stoppedBy"] = depth < requestedDepthCm ? "needle-length" : null;
-  // walk the layers to find bone and pleura along the vertical
-  let top = 0;
-  let boneTop: number | null = null;
-  let pleuraTop: number | null = null;
-  for (const l of layers) {
-    if (l.tissue === "bone" && boneTop === null) boneTop = top;
-    if (l.tissue === "pleura" && pleuraTop === null) pleuraTop = top;
-    top += l.thicknessCm;
-  }
-  if (boneTop !== null && cos > 0.05 && depth * cos > boneTop) {
-    depth = boneTop / cos;
-    stoppedBy = "bone";
+  // walk the shaft: the tissue at each point is that of the zone above it, so an oblique needle meets the layers of
+  // the zones it crosses, not only those under its entry (a perpendicular needle stays in one column)
+  const traversed: Layer["tissue"][] = [];
+  const reached = new Map<string, PathAssessment["layersReached"][number]>();
+  let pleuraPenetrated = false;
+  let tipTissue: Layer["tissue"] | "beyond" = "beyond";
+  const visit = (q: ChartPoint3, layers: readonly Layer[]) => {
+    let top = 0;
+    tipTissue = "beyond";
+    for (const l of layers) {
+      if (q.d > top) {
+        if (!traversed.includes(l.tissue)) traversed.push(l.tissue);
+        if (l.tissue === "pleura") pleuraPenetrated = true;
+        const label = l.label ?? l.tissue;
+        if (l.hazard && !reached.has(label)) reached.set(label, { tissue: l.tissue, label, hazard: l.hazard, depthCm: top });
+        if (q.d <= top + l.thicknessCm) tipTissue = l.tissue;
+      }
+      top += l.thicknessCm;
+    }
+  };
+  const boneTopOf = (layers: readonly Layer[]) => {
+    let top = 0;
+    for (const l of layers) {
+      if (l.tissue === "bone") return top;
+      top += l.thicknessCm;
+    }
+    return null;
+  };
+  const steps = Math.max(1, Math.ceil(depth / PATH_STEP_CM));
+  for (let i = 1; i <= steps; i++) {
+    const t = Math.min(depth, i * PATH_STEP_CM);
+    let q = tipOf(entry, angleDeg, azimuthDeg, t);
+    let layers = frame.layersAt(q);
+    const boneTop = boneTopOf(layers);
+    if (boneTop !== null && cos > 0.05 && q.d > boneTop) {
+      // bone stops the needle at its surface, found within this step
+      depth = Math.min(t, Math.max((i - 1) * PATH_STEP_CM, boneTop / cos));
+      stoppedBy = "bone";
+      q = tipOf(entry, angleDeg, azimuthDeg, depth);
+      layers = frame.layersAt(q);
+      visit({ ...q, d: Math.min(q.d, boneTopOf(layers) ?? q.d) }, layers);
+      tipTissue = "bone";
+      break;
+    }
+    visit(q, layers);
   }
   const vertical = depth * cos;
-  const traversed: Layer["tissue"][] = [];
-  let tipTissue: Layer["tissue"] | "beyond" = "beyond";
-  top = 0;
-  for (const l of layers) {
-    if (vertical > top) traversed.push(l.tissue);
-    if (vertical > top && vertical <= top + l.thicknessCm) tipTissue = l.tissue;
-    top += l.thicknessCm;
-  }
-  if (stoppedBy === "bone") tipTissue = "bone";
-  const pleuraPenetrated = pleuraTop !== null && vertical > pleuraTop;
-  const layersReached: PathAssessment["layersReached"] = [];
-  top = 0;
-  for (const l of layers) {
-    if (l.hazard && vertical > top) layersReached.push({ tissue: l.tissue, label: l.label ?? l.tissue, hazard: l.hazard, depthCm: top });
-    top += l.thicknessCm;
-  }
+  const layersReached = [...reached.values()];
   const p0: ChartPoint3 = { u: entry.u, v: entry.v, d: 0 };
   const p1 = tipOf(entry, angleDeg, azimuthDeg, depth);
   const needleRadius = needle.diameterMm / 20;

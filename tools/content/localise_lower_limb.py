@@ -65,7 +65,10 @@ POP = "seg.popliteal-lateral-malleolus"  # popliteal crease to the lateral malle
 LEG = "seg.knee-ankle-lateral"           # ST35 to the lateral malleolus: 16 B-cun (existing)
 TIB = "seg.sp9-medial-malleolus"         # SP9 to the medial malleolus: 13 B-cun (existing)
 MAL = "seg.medial-malleolus-sole"        # medial malleolus to the sole: 3 B-cun
-NAIL = dict(cranial=cm(0.15))            # 0.1 F-cun proximal to the nail corner (and 0.15 cm to the side)
+def fcun(x):
+    return {"fcun": x}
+
+NAIL = dict(cranial=fcun(0.07))          # 0.1 F-cun from the nail corner along the diagonal: 0.07 F-cun proximal (and to the side)
 
 LOCALISE = {
     # ---- thigh, anterior: the stomach channel on the line from the lateral end of the patellar base to the ASIS ----
@@ -156,11 +159,11 @@ LOCALISE = {
     "BL65": ("foot", landmark("mtp5-lateral", cranial=cm(1.2)), cm(0.5)),
     "BL66": ("foot", landmark("mtp5-lateral", caudal=cm(0.8)), cm(0.5)),
     # ---- toes: 0.1 F-cun proximal and to the side of the nail corner --------------------------------------------
-    "SP1": ("foot", landmark("great-toe-nail-medial-corner", medial=cm(0.15), **NAIL), cm(0.3)),
-    "LR1": ("foot", landmark("great-toe-nail-lateral-corner", lateral=cm(0.15), **NAIL), cm(0.3)),
-    "ST45": ("foot", landmark("toe2-nail-lateral-corner", lateral=cm(0.15), **NAIL), cm(0.3)),
-    "GB44": ("foot", landmark("toe4-nail-lateral-corner", lateral=cm(0.15), **NAIL), cm(0.3)),
-    "BL67": ("foot", landmark("toe5-nail-lateral-corner", lateral=cm(0.15), **NAIL), cm(0.3)),
+    "SP1": ("foot", landmark("great-toe-nail-medial-corner", medial=fcun(0.07), **NAIL), cm(0.3)),
+    "LR1": ("foot", landmark("great-toe-nail-lateral-corner", lateral=fcun(0.07), **NAIL), cm(0.3)),
+    "ST45": ("foot", landmark("toe2-nail-lateral-corner", lateral=fcun(0.07), **NAIL), cm(0.3)),
+    "GB44": ("foot", landmark("toe4-nail-lateral-corner", lateral=fcun(0.07), **NAIL), cm(0.3)),
+    "BL67": ("foot", landmark("toe5-nail-lateral-corner", lateral=fcun(0.07), **NAIL), cm(0.3)),
     # group point (5 sites): the tips of the toes; the first site (the great toe) is placed
     "EX-LE12": ("foot", landmark("great-toe-tip"), cm(0.3)),
 

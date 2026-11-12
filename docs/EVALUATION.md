@@ -39,6 +39,10 @@ apart; until reviewed they are not successes.
 | critical failures | episodes with at least one critical error |
 | appropriate referral | red-flag scenarios: referred, on an acceptable pathway |
 | inappropriate refusal | no red flag present, no needling, no acceptable pathway |
+| red flags recognised on evidence | red-flag scenarios: every red flag the case shows asserted in an assessment, with evidence the learner had — the opening statement or triage note (`evident`), or a question asked (or volunteered), an examination or a report read (`evidence`). A learner who already has the evidence may refer at once; the disposition keeps its credit either way |
+| first visit | the first visit ended on an acceptable pathway without a critical error |
+| planned course | only where the achieved pathway calls for another visit (`continues`; by default a treated, non-referral pathway): the follow-up held on an acceptable course; otherwise not counted |
+| localisation | each needle is judged against the point it was meant for (named or marked): the error is measured from that point, and an identity item records whether the entry lies on it. The point the entry actually lies on is reported beside it; a point to avoid is avoided wherever the needle actually went |
 | efficiency | simulated minutes, agent actions, rejected or blocked actions |
 | assistance | teaching mode (overlays) |
 | documentation | STRICTA-informed fields present in the treated visits' records, and whether the record agrees with the actions (points, needle count, adverse events) — scored apart from efficacy and safety |
@@ -105,6 +109,15 @@ The one failure is designed: on `sg-tension-headache/slim` the protocol agent's 
 pleura of a very slim patient. The guard blocks the insertion and the evaluator records the blocked attempt as a
 critical error. The reference agent succeeds on all 15 instances. No live-model results are included: this repository
 was built without API access, and the Claude agent's loop is tested against a mock client only.
+
+How to read these numbers. The suite runs one seed. Its held-out split holds six instances from two families
+(chemotherapy-related nausea and insomnia), and the protocol agent carries explicit consultation steps and point
+prescriptions for both complaints: its 6/6 shows that those workflows run, not that it generalises. The reference agent
+replays the case authors' own trajectories, so its 15/15 checks the cases' internal consistency, nothing more. For a
+comparison that means something, keep the protocol agent as a control and have independent clinicians write unseen
+cases with several reviewed acceptable pathways each, varying laterality, position, risk factors and patient
+preference within a complaint; report counts of inappropriate referrals, missed red flags, wrong points (now separable
+from mislocated ones), failures of asepsis and teamwork failures alongside the primary endpoint.
 
 ## 8. Validation before interpretation
 

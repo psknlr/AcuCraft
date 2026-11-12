@@ -267,7 +267,7 @@ export function protocolAgent(): Agent {
     }
     for (const key of segs) {
       const [region, side, segment] = key.split("|");
-      push({ type: "measure", region: region!, side: side as Side, segment: segment! });
+      push(segment === "finger-cun" ? { type: "measure", region: region!, side: side as Side, fingerCun: true } : { type: "measure", region: region!, side: side as Side, segment: segment! });
     }
     void v;
     stage = "mark";

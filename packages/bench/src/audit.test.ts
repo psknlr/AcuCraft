@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
-import { createEncounter, observeAs, patientRegion, pointInstance, regionAccess, step, type ActionRequestInput, type EncounterState, type Scenario } from "@acucraft/core";
+import { assessPath, createEncounter, observeAs, patientRegion, pointInstance, referenceLibrary, regionAccess, ruleSetInForce, step, tipOf, type ActionRequestInput, type EncounterState, type Scenario } from "@acucraft/core";
+import { requirements } from "./agents/localise.js";
 import { loadContentPack, requireScenario } from "./content.js";
 import { evaluateEncounter } from "./evaluate.js";
 
@@ -305,5 +306,75 @@ describe("audit: a group point is its sites, each a target of its own", () => {
     expect(mark({ point: "GV20", side: "midline", site: "anterior" }, "scalp", "midline").attempt.status).toBe("rejected");
     s = mark({ point: "EX-HN1", side: "midline", site: "left" }, "scalp", "midline").state;
     expect(Object.values(s.marks).at(-1)!.target).toEqual({ point: "EX-HN1", side: "midline", site: "left" });
+  });
+});
+
+describe("audit: an oblique needle meets the tissue of the zones it crosses", () => {
+  const knee = requireScenario(pack, "sg-knee-oa/base");
+  const chest = patientRegion(knee, "chest", "left", "supine");
+  const needle = { diameterMm: 0.25, lengthMm: 75 };
+  const tissueAt = (at: { u: number; v: number }, d: number) => {
+    let top = 0;
+    for (const l of chest.layersAt(at)) {
+      if (d <= top + l.thicknessCm) return l.tissue;
+      top += l.thicknessCm;
+    }
+    return "beyond";
+  };
+
+  it("angled laterally from the sternal edge, it passes beside the sternum into the intercostal space", () => {
+    const entry = { u: 2, v: 4 };
+    expect(assessPath(chest, entry, 0, 0, 2, needle).stoppedBy).toBe("bone"); // straight down: the sternum
+    const oblique = assessPath(chest, entry, 60, 90, 3, needle);
+    expect(oblique.stoppedBy).toBeNull();
+    // what lies under the tip is read there, not under the entry (where the sternum would have stopped it)
+    const tip = tipOf(entry, 60, 90, 3);
+    expect(tissueAt(entry, tip.d)).toBe("bone");
+    expect(oblique.tipTissue).toBe(tissueAt(tip, tip.d));
+  });
+
+  it("angled medially from the intercostal space, it stops on the sternum it reaches", () => {
+    const entry = { u: 4.6, v: 4 };
+    expect(assessPath(chest, entry, 0, 0, 1.5, needle).stoppedBy).toBeNull();
+    const oblique = assessPath(chest, entry, 60, 270, 3, needle);
+    expect(oblique.stoppedBy).toBe("bone");
+    expect(oblique.executedDepthCm).toBeLessThan(3);
+  });
+});
+
+describe("audit: finger-cun is the patient's own unit", () => {
+  const knee = requireScenario(pack, "sg-knee-oa/base");
+  const withFinger = (cm: number): Scenario => ({ ...knee, field: { ...knee.field, patient: { ...knee.field.patient, anatomy: { ...knee.field.patient.anatomy, fingerCunCm: cm } } } });
+  const cfg = regionAccess(knee.bundle.regions.get("hand-dorsum")!, "right", "supine-knee-flexed").configuration;
+
+  it("LI1 and LU11 (0.1 F-cun from the nail corner) move with the patient's finger", () => {
+    for (const id of ["LI1", "LU11"]) {
+      const def = knee.bundle.acupoints.get(id)!;
+      const a = pointInstance(withFinger(1.6), def, "right", cfg)!.position;
+      const b = pointInstance(withFinger(2.4), def, "right", cfg)!.position;
+      // 0.07 F-cun proximal and 0.07 F-cun to the side: 0.8 cm more finger cun moves it 0.056 cm each way
+      expect(Math.abs(b.v - a.v), id).toBeCloseTo(0.07 * 0.8, 6);
+      expect(Math.abs(b.u - a.u), id).toBeCloseTo(0.07 * 0.8, 6);
+    }
+  });
+
+  it("an agent constructing LI1 measures the patient's finger cun", () => {
+    const lib = referenceLibrary(knee);
+    expect(requirements(lib, "LI1", "right")![0]!.segments).toContain("finger-cun");
+  });
+});
+
+describe("audit: the rule set in force follows the encounter date", () => {
+  it("selects the 2027 treatment-methods advisory from 1 January 2027, which has no encoded provisions yet", () => {
+    const sets = [...pack.bundle.ruleSets.values()];
+    const series = "sg-tcmpb-acupuncture-treatment-methods";
+    expect(ruleSetInForce(sets, series, "2026-12-31")).toBeNull();
+    const in2027 = ruleSetInForce(sets, series, "2027-02-01")!;
+    expect(in2027.id).toBe("sg-tcmpb-acupuncture-treatment-methods-2027");
+    // version selection is demonstrable; its provisions are not, until they are encoded and reviewed
+    expect(in2027.encoding).toBe("not-encoded");
+    expect(in2027.rules).toEqual([]);
+    // the 2021 advisory stays in force alongside it
+    expect(ruleSetInForce(sets, "sg-tcmpb-acupuncture-advisory", "2027-02-01")!.rules.map((r) => r.id)).toContain("pregnancy-abdominal-lumbosacral");
   });
 });

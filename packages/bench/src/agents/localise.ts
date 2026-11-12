@@ -65,7 +65,10 @@ export function requirements(lib: Library, pointId: string, side: Side, site?: s
         here.landmarks.push(pair.to);
       }
     }
-    for (const d of distancesOf(loc)) if (d && "segment" in d) here.segments.push(d.segment);
+    for (const d of distancesOf(loc)) {
+      if (d && "segment" in d) here.segments.push(d.segment);
+      if (d && "fcun" in d) here.segments.push("finger-cun"); // measured with the finger method
+    }
     return true;
   };
   if (!visit(pointId, 0, site)) return null;
@@ -88,6 +91,10 @@ export function constructPoint(lib: Library, pointId: string, side: Side, observ
   const obs = observed(region.id, s);
   const dist = (d: Distance): number | null => {
     if ("cm" in d) return d.cm;
+    if ("fcun" in d) {
+      const f = obs.segments.get("finger-cun");
+      return f === undefined ? null : d.fcun * f;
+    }
     const seg = region.segments.find((x) => x.id === d.segment);
     const cm = obs.segments.get(d.segment);
     return seg && cm !== undefined ? (d.cun * cm) / seg.cun : null;

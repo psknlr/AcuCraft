@@ -54,8 +54,12 @@ ARM = "seg.arm"                  # end of the anterior axillary fold to the cubi
 FA = "seg.wrist-elbow"           # palmar wrist crease to cubital crease: 12 B-cun (forearm)
 FAD = "seg.forearm-dorsal"       # dorsal wrist crease to the prominence of the olecranon: 12 B-cun (forearm)
 
-# The finger cun (0.1 F-cun at the nail corners) is written in cm: about 2 mm on the reference adult.
-F01 = cm(0.2)
+def fcun(x):
+    return {"fcun": x}
+
+# 0.1 F-cun from the nail corner, proximal and to the side along the diagonal: 0.07 F-cun each way, in the patient's own
+# finger cun (it follows the patient's finger, not the reference adult's).
+F01 = fcun(0.07)
 
 LOCALISE = {
     # ---------------------------------------------------------------------------------------------------------

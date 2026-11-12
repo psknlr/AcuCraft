@@ -609,10 +609,10 @@
         "landmark": "nail-1-radial-corner",
         "offset": {
           "cranial": {
-            "cm": 0.2
+            "fcun": 0.07
           },
           "lateral": {
-            "cm": 0.2
+            "fcun": 0.07
           }
         }
       },
