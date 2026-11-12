@@ -143,7 +143,14 @@
         "$replace": [
           {
             "id": "fever-on-chemotherapy",
-            "present": true
+            "present": true,
+            "evidence": [
+              {
+                "clinical": {
+                  "read": "inv-fbc"
+                }
+              }
+            ]
           }
         ]
       },

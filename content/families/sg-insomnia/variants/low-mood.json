@@ -142,7 +142,14 @@
         "$replace": [
           {
             "id": "suicidal-ideation",
-            "present": true
+            "present": true,
+            "evidence": [
+              {
+                "clinical": {
+                  "asked": "hx-self-harm"
+                }
+              }
+            ]
           }
         ]
       },

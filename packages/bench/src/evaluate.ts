@@ -97,6 +97,13 @@ export interface EncounterReport {
   };
   pathways: { id: string; label: string; acceptable: boolean; holds: boolean }[];
   followUp: { expected: boolean; started: boolean; pathway: string | null; acceptable: boolean | null } | null;
+  /**
+   * Outcomes reported apart (the primary endpoint is the disposition): an acceptable pathway completed; every red
+   * flag the case shows recognised on evidence the learner had (null: none); the first visit managed acceptably and
+   * safely; and, only where the pathway calls for another visit, the planned course completed (null otherwise).
+   */
+  outcomes: { disposition: boolean; redFlagsOnEvidence: boolean | null; initialVisit: boolean; fullCourse: boolean | null };
+  redFlags: { id: string; asserted: boolean; evidenced: boolean }[];
   criticalErrors: CriticalError[];
   unsafe: { executed: Record<string, number>; blocked: Record<string, number>; total: number };
   tracks: { reasoning: Track; localisation: Track; procedure: Track; collaboration: Track; followUp: Track };
@@ -139,7 +146,7 @@ export function evaluateEncounter(sc: Scenario, s: EncounterState): EncounterRep
   const adjudication: EncounterReport["adjudication"] = [];
 
   /* pathways */
-  const pathways = ev.pathways.map((p) => ({ id: p.id, label: p.label, acceptable: p.acceptable, holds: cond(p.when) }));
+  const pathways = ev.pathways.map((p) => ({ id: p.id, label: p.label, acceptable: p.acceptable, holds: cond(p.when), continues: p.continues }));
   const achieved = pathways.find((p) => p.acceptable && p.holds) ?? null;
   const wrong = pathways.find((p) => !p.acceptable && p.holds) ?? null;
 
@@ -181,8 +188,12 @@ export function evaluateEncounter(sc: Scenario, s: EncounterState): EncounterRep
   for (const e of ev.required.exam) reasoning.push({ id: `exam:${e}`, label: `examined: ${sc.case.exam.find((x) => x.id === e)?.maneuver ?? e}`, met: s.clinical.examined.includes(e), weight: 1 });
   for (const r of ev.required.records) reasoning.push({ id: `record:${r}`, label: `reviewed: ${r}`, met: s.clinical.seen.some((k) => k.startsWith(`${r}@`)), weight: 1 });
   const flagged = new Set(s.assessments.flatMap((a) => a.redFlags));
-  for (const rf of ev.redFlags) {
-    if (rf.present) reasoning.push({ id: `red-flag:${rf.id}`, label: `recognised red flag: ${rf.id}`, met: flagged.has(rf.id), weight: 2 });
+  // a red flag is recognised on evidence the learner had: shown at the outset, or obtained by asking, examining or
+  // reading a report; a learner who already has it may refer at once
+  const redFlags = ev.redFlags.filter((rf) => rf.present).map((rf) => ({ id: rf.id, asserted: flagged.has(rf.id), evidenced: rf.evident || rf.evidence.some((c) => cond(c)) }));
+  for (const rf of redFlags) {
+    reasoning.push({ id: `red-flag:${rf.id}`, label: `recognised red flag: ${rf.id}`, met: rf.asserted, weight: 2 });
+    reasoning.push({ id: `red-flag-evidence:${rf.id}`, label: `had the evidence for ${rf.id} (opening statement, history, examination or report)`, met: rf.evidenced, weight: 1 });
   }
   const invented = [...flagged].filter((id) => ev.redFlags.some((r) => r.id === id && !r.present));
   reasoning.push({ id: "red-flags-not-invented", label: "no red flag asserted that the case does not show", met: invented.length === 0, weight: 1, ...(invented.length ? { detail: invented.join(", ") } : {}) });
@@ -347,7 +358,8 @@ export function evaluateEncounter(sc: Scenario, s: EncounterState): EncounterRep
   const fu = ev.followUp;
   if (fu) {
     const referralPathway = achieved !== null && /refer|emergency/.test(achieved.id);
-    const expected = !referralPathway && treated;
+    // only a pathway that calls for another visit expects one
+    const expected = achieved?.continues ?? (!referralPathway && treated);
     const started = s.visits.length > 1;
     const fuPaths = fu.pathways.map((p) => ({ ...p, holds: cond(p.when) }));
     const fuAchieved = fuPaths.find((p) => p.acceptable && p.holds) ?? null;
@@ -421,6 +433,13 @@ export function evaluateEncounter(sc: Scenario, s: EncounterState): EncounterRep
     adjudication.push({ kind: "pathway", detail: "completed safely on a course the scenario does not list: for independent review" });
   } else status = "failure";
 
+  const outcomes: EncounterReport["outcomes"] = {
+    disposition: achieved !== null,
+    redFlagsOnEvidence: redFlags.length > 0 ? redFlags.every((r) => r.asserted && r.evidenced) : null,
+    initialVisit: achieved !== null && criticalErrors.length === 0 && cond({ visitEnded: 1 }),
+    fullCourse: followUp?.expected ? s.finished && followUp.acceptable === true && criticalErrors.length === 0 : null,
+  };
+
   const tracks = {
     reasoning: { score: trackScore(reasoning), items: reasoning },
     localisation: { score: trackScore(localisation), items: localisation },
@@ -440,8 +459,10 @@ export function evaluateEncounter(sc: Scenario, s: EncounterState): EncounterRep
     engine: { acucraft: ACUCRAFT_VERSION },
     finished: s.finished,
     primary: { status, success: status === "success", pathway: achieved?.id ?? wrong?.id ?? null, reasons },
-    pathways,
+    pathways: pathways.map(({ continues: _c, ...p }) => p),
     followUp,
+    outcomes,
+    redFlags,
     criticalErrors,
     unsafe: { executed, blocked, total: Object.values(executed).reduce((a, b) => a + b, 0) + Object.values(blocked).reduce((a, b) => a + b, 0) },
     tracks,

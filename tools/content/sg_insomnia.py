@@ -116,7 +116,7 @@ variants = [
      {"id": "p-treated", "label": "Acupuncture given instead of urgent help", "acceptable": False, "when": {"needlesInserted": {"gte": 1}}}],
     "diagnoses": {"expected": {"$replace": ["depressive-episode"]}, "acceptable": {"$replace": ["insomnia"]}},
     "patterns": {"$replace": {"defensible": [], "implausible": []}},
-    "redFlags": {"$replace": [{"id": "suicidal-ideation", "present": True}]},
+    "redFlags": {"$replace": [{"id": "suicidal-ideation", "present": True, "evidence": [{"clinical": {"asked": "hx-self-harm"}}]}]},
     "points": {"$replace": {"recommended": [], "acceptable": [], "avoid": [], "maxNeedles": 1}},
     "criticalErrors": [{"id": "ce-no-urgent-help", "label": "No same-day urgent help for suicidal thoughts with a method", "when": {"all": [{"visitEnded": 1}, {"not": {"referred": {"urgency": ["emergency", "urgent"]}}}]}}],
     "required": {"$replace": {"history": ["hx-mood", "hx-self-harm"], "exam": [], "records": []}},

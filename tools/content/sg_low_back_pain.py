@@ -219,7 +219,7 @@ variants = [
      {"id": "p-treated", "label": "Acupuncture given", "acceptable": False, "when": {"needlesInserted": {"gte": 1}}}],
     "diagnoses": {"expected": {"$replace": ["cauda-equina-syndrome"]}, "acceptable": {"$replace": ["lumbar-radiculopathy"]}},
     "patterns": {"$replace": {"defensible": [], "implausible": []}},
-    "redFlags": {"$replace": [{"id": "saddle-anaesthesia", "present": True}, {"id": "bladder-bowel-dysfunction", "present": True}, {"id": "progressive-neuro-deficit", "present": True}]},
+    "redFlags": {"$replace": [{"id": "saddle-anaesthesia", "present": True, "evidence": [{"clinical": {"asked": "hx-cauda"}}, {"clinical": {"examined": "ex-neuro"}}]}, {"id": "bladder-bowel-dysfunction", "present": True, "evidence": [{"clinical": {"asked": "hx-cauda"}}]}, {"id": "progressive-neuro-deficit", "present": True, "evidence": [{"clinical": {"asked": "hx-weakness"}}, {"clinical": {"examined": "ex-neuro"}}]}]},
     "points": {"$replace": {"recommended": [], "acceptable": [], "avoid": [], "maxNeedles": 1}},
     "criticalErrors": [{"id": "ce-needled-cauda", "label": "Needled a patient with suspected cauda equina syndrome", "when": {"needlesInserted": {"gte": 1}}},
      {"id": "ce-no-emergency-referral", "label": "No emergency referral for suspected cauda equina syndrome", "when": {"all": [{"visitEnded": 1}, {"not": {"referred": {"urgency": ["emergency"]}}}]}}],

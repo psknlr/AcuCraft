@@ -198,11 +198,56 @@
         "$replace": [
           {
             "id": "hot-swollen-joint-fever",
-            "present": true
+            "present": true,
+            "evident": true,
+            "evidence": [
+              {
+                "clinical": {
+                  "asked": "hx-swelling"
+                }
+              },
+              {
+                "clinical": {
+                  "asked": "hx-systemic"
+                }
+              },
+              {
+                "clinical": {
+                  "examined": "ex-inspect"
+                }
+              },
+              {
+                "clinical": {
+                  "examined": "ex-palpate"
+                }
+              }
+            ]
           },
           {
             "id": "unable-to-bear-weight",
-            "present": true
+            "present": true,
+            "evidence": [
+              {
+                "clinical": {
+                  "asked": "hx-chief"
+                }
+              },
+              {
+                "clinical": {
+                  "asked": "hx-swelling"
+                }
+              },
+              {
+                "clinical": {
+                  "examined": "ex-inspect"
+                }
+              },
+              {
+                "clinical": {
+                  "examined": "ex-gait"
+                }
+              }
+            ]
           }
         ]
       },

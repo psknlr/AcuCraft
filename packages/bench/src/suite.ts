@@ -33,6 +33,9 @@ export interface SplitSummary {
   blockedUnsafePerEpisode: number | null;
   appropriateReferral: Proportion;
   inappropriateRefusal: Proportion;
+  redFlagsOnEvidence: Proportion;
+  initialVisit: Proportion;
+  fullCourse: Proportion;
   tracks: Record<keyof EncounterReport["tracks"], number | null>;
   minutes: number | null;
   actions: number | null;
@@ -95,6 +98,9 @@ export function summarise(suite: string, agent: string, episodes: SuiteResult["e
       blockedUnsafePerEpisode: mean(blocked),
       appropriateReferral: wilson(redFlag.filter((e) => e.report.referral.appropriateReferral).length, redFlag.length),
       inappropriateRefusal: wilson(noRedFlag.filter((e) => e.report.referral.inappropriateRefusal).length, noRedFlag.length),
+      redFlagsOnEvidence: wilson(eps.filter((e) => e.report.outcomes.redFlagsOnEvidence === true).length, eps.filter((e) => e.report.outcomes.redFlagsOnEvidence !== null).length),
+      initialVisit: wilson(eps.filter((e) => e.report.outcomes.initialVisit).length, eps.length),
+      fullCourse: wilson(eps.filter((e) => e.report.outcomes.fullCourse === true).length, eps.filter((e) => e.report.outcomes.fullCourse !== null).length),
       tracks: { reasoning: track("reasoning"), localisation: track("localisation"), procedure: track("procedure"), collaboration: track("collaboration"), followUp: track("followUp") },
       minutes: mean(eps.map((e) => e.report.efficiency.minutes)),
       actions: mean(eps.map((e) => e.report.efficiency.agentActions)),
@@ -145,6 +151,9 @@ export function suiteMarkdown(r: SuiteResult): string {
   row("blocked unsafe attempts per episode", (s) => num(s.blockedUnsafePerEpisode));
   row("appropriate referral (red-flag scenarios)", (s) => pct(s.appropriateReferral));
   row("inappropriate refusal (no red flag)", (s) => pct(s.inappropriateRefusal));
+  row("red flags recognised on evidence the learner had (red-flag scenarios)", (s) => pct(s.redFlagsOnEvidence));
+  row("first visit managed acceptably and safely", (s) => pct(s.initialVisit));
+  row("planned course completed (only where the pathway calls for another visit)", (s) => pct(s.fullCourse));
   row("simulated minutes", (s) => num(s.minutes, 1));
   row("agent actions", (s) => num(s.actions, 1));
   row("rejected or blocked actions", (s) => num(s.rejectedActions, 1));

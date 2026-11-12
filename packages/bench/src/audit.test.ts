@@ -210,3 +210,42 @@ describe("audit: the clinic's objects and who saw what", () => {
     expect(view.couches.find((c) => c.room === "treatment-room")!.prepared).toMatchObject({ by: "assistant" });
   });
 });
+
+describe("audit: disposition, red-flag evidence, the first visit and the full course are reported apart", () => {
+  const redFlagCases = ["sg-knee-oa/hot-knee", "sg-low-back-pain/cauda-equina", "sg-insomnia/low-mood", "sg-chemo-nausea/neutropenic"];
+
+  it.each(redFlagCases)("%s: disposition and referral alone keep the disposition but show no red flag recognised on evidence", (id) => {
+    const sc = requireScenario(pack, id);
+    const minimal = sc.field.solution.filter((r) => ["decide", "refer", "end_visit", "finish_encounter"].includes(r.action.type));
+    const report = evaluateEncounter(sc, replay(sc, minimal, false));
+    expect(report.outcomes.disposition).toBe(true);
+    expect(report.outcomes.redFlagsOnEvidence).toBe(false);
+    expect(report.outcomes.fullCourse).toBeNull();
+    // the reference trajectory recognises every red flag on evidence it obtained
+    const full = evaluateEncounter(sc, replay(sc, sc.field.solution));
+    expect(full.outcomes).toMatchObject({ disposition: true, redFlagsOnEvidence: true, initialVisit: true, fullCourse: null });
+  });
+
+  it("a red flag shown at the outset is evidence enough to refer at once", () => {
+    const sc = requireScenario(pack, "sg-knee-oa/hot-knee");
+    const minimal = sc.field.solution.filter((r) => ["decide", "refer", "end_visit", "finish_encounter"].includes(r.action.type));
+    const report = evaluateEncounter(sc, replay(sc, minimal, false));
+    // the triage note shows the hot, swollen knee and the fever; weight-bearing is not yet known
+    expect(report.redFlags).toEqual([
+      { id: "hot-swollen-joint-fever", asserted: false, evidenced: true },
+      { id: "unable-to-bear-weight", asserted: false, evidenced: false },
+    ]);
+  });
+
+  it("ending a course of treatment after the first visit completes the initial visit, not the course", () => {
+    const knee = requireScenario(pack, "sg-knee-oa/base");
+    const endFirst = knee.field.solution.findIndex((r) => r.action.type === "end_visit");
+    const first = [...knee.field.solution.slice(0, endFirst + 1), { requestId: "audit-finish", actor: "practitioner", patient: "patient", action: { type: "finish_encounter" } } as ActionRequestInput];
+    const report = evaluateEncounter(knee, replay(knee, first, false));
+    expect(report.outcomes).toMatchObject({ disposition: true, initialVisit: true, fullCourse: false });
+    expect(evaluateEncounter(knee, replay(knee, knee.field.solution)).outcomes.fullCourse).toBe(true);
+    // a deferral with obstetric liaison calls for no further visit here
+    const pregnant = requireScenario(pack, "sg-low-back-pain/pregnant");
+    expect(evaluateEncounter(pregnant, replay(pregnant, pregnant.field.solution)).outcomes.fullCourse).toBeNull();
+  });
+});

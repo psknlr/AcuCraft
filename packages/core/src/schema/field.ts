@@ -273,6 +273,11 @@ export const PathwaySchema = z
     /** An acceptable pathway completes the encounter; an unacceptable one names a recognisable wrong course. */
     acceptable: z.boolean(),
     when: FieldConditionSchema,
+    /**
+     * The pathway calls for another visit (a course of treatment): the encounter counts towards full-course
+     * completion. Default: an acceptable pathway on which the patient was needled, unless it is a referral.
+     */
+    continues: z.boolean().optional(),
     note: z.string().optional(),
   })
   .strict();
@@ -284,7 +289,11 @@ export const EvaluationSchema = z
     diagnoses: z.object({ expected: z.array(IdSchema).default([]), acceptable: z.array(IdSchema).default([]) }).strict().default({}),
     patterns: z.object({ defensible: z.array(IdSchema).default([]), implausible: z.array(IdSchema).default([]) }).strict().default({}),
     /** Red flags present in this scenario (to recognise) and absent ones that must not be invented. */
-    redFlags: z.array(z.object({ id: IdSchema, present: z.boolean() }).strict()).default([]),
+    /**
+     * Red flags the case shows (`present`) or does not. `evident`: the opening statement or triage note already shows
+     * it; `evidence`: any of these conditions (a question asked, an examination, a report read) gives the learner it.
+     */
+    redFlags: z.array(z.object({ id: IdSchema, present: z.boolean(), evident: z.boolean().default(false), evidence: z.array(FieldConditionSchema).default([]) }).strict()).default([]),
     points: z
       .object({
         recommended: z.array(PointKey).default([]),

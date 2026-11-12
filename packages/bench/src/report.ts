@@ -17,6 +17,8 @@ export function episodeMarkdown(r: EncounterReport): string {
   const unsafe = [...Object.entries(r.unsafe.executed).map(([k, n]) => `${k} ×${n} (executed)`), ...Object.entries(r.unsafe.blocked).map(([k, n]) => `${k} ×${n} (blocked)`)];
   if (unsafe.length) out.push("## Unsafe attempts", "", ...unsafe.map((u) => `- ${u}`), "");
   out.push("## Pathways", "", "| pathway | acceptable | holds |", "|---|---|---|", ...r.pathways.map((p) => `| ${p.label} (\`${p.id}\`) | ${p.acceptable ? "yes" : "no"} | ${p.holds ? "✓" : ""} |`), "");
+  const yn = (x: boolean | null) => (x === null ? "n/a" : x ? "yes" : "no");
+  out.push(`Outcomes: disposition ${yn(r.outcomes.disposition)}; red flags recognised on evidence ${yn(r.outcomes.redFlagsOnEvidence)}; first visit ${yn(r.outcomes.initialVisit)}; planned course ${yn(r.outcomes.fullCourse)}.`, "");
   if (r.followUp) out.push(`Follow-up: ${r.followUp.expected ? "expected" : "not expected"}, ${r.followUp.started ? "held" : "not held"}${r.followUp.pathway ? `, pathway \`${r.followUp.pathway}\`` : ""}.`, "");
   out.push("## Tracks", "");
   for (const [name, t] of Object.entries(r.tracks)) {
