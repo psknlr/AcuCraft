@@ -26,7 +26,7 @@ export function episodeMarkdown(r: EncounterReport): string {
   }
   if (r.points.length) {
     out.push("## Needles", "", "| needle | target | class | error (cm) | tolerance | depth | tip | contacts |", "|---|---|---|---|---|---|---|---|");
-    for (const p of r.points) out.push(`| ${p.needle} | ${p.target} | ${p.classification} | ${p.errorCm ?? "—"} | ${p.toleranceCm ?? "—"} | ${p.depthCm} | ${p.tipTissue} | ${p.contacts.join(", ") || "—"} |`);
+    for (const p of r.points) out.push(`| ${p.needle} | ${p.target}${p.entered !== p.target ? ` (entered ${p.entered})` : ""} | ${p.classification} | ${p.errorCm ?? "—"} | ${p.toleranceCm ?? "—"} | ${p.depthCm} | ${p.tipTissue} | ${p.contacts.join(", ") || "—"} |`);
     out.push("");
   }
   out.push("## Documentation (STRICTA-informed, scored apart)", "", `Completeness ${score(r.documentation.completeness)}; consistent with the actions: ${r.documentation.consistent === null ? "—" : r.documentation.consistent ? "yes" : "no"}.`, ...r.documentation.issues.map((i) => `- ${i}`), "");

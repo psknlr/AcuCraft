@@ -28,6 +28,8 @@ export const UNSAFE_CODES = [
   "non-sterile-needle",
   "insertion-on-avoided-site",
   "insertion-at-cautioned-point",
+  /** A needle in a region the rules in force avoid for one of this patient's risk factors (wherever in it, whatever named). */
+  "insertion-in-avoided-region",
   "unauthorised-act",
   "treatment-despite-red-flag",
   "continued-after-adverse-event",
@@ -173,6 +175,8 @@ export const PatientFieldSchema = z
     position: PositionSchema,
     /** Scenario risk factors, matched against point cautions (`pregnancy`, `anticoagulation`, `lymphoedema` …). */
     riskFactors: z.array(IdSchema).default([]),
+    /** Completed weeks of pregnancy at the first visit, when `pregnancy` is a risk factor. */
+    gestationWeeks: z.number().min(0).max(45).optional(),
     /** 0 calm … 1 very anxious. */
     anxiety: z.number().min(0).max(1).default(0.2),
     /** Positions the patient will not take (claustrophobia face down, late pregnancy …), and what they say. */

@@ -30,6 +30,7 @@ export const NOTICE = "Teaching-script measure for simulation research: not a va
 export const CRITICAL_UNSAFE: readonly UnsafeCode[] = [
   "insertion-without-consent",
   "insertion-after-consent-withdrawn",
+  "insertion-in-avoided-region",
   "needle-reuse",
   "non-sterile-needle",
   "critical-structure-contact",
@@ -53,7 +54,10 @@ export interface Track {
 
 export interface PointResult {
   needle: string;
+  /** The point aimed at: the one the operator named or marked, else the one the entry lies on. */
   target: string;
+  /** The point the entry lies on: the intended one if it does, else the nearest (`untargeted`: none within reach). */
+  entered: string;
   classification: "recommended" | "acceptable" | "avoid" | "unlisted" | "untargeted";
   side: string;
   errorCm: number | null;
@@ -208,7 +212,8 @@ export function evaluateEncounter(sc: Scenario, s: EncounterState): EncounterRep
   for (const n of needleList(s)) {
     const ins = n.insertion;
     if (!ins) continue;
-    const target = ins.target;
+    // localisation is judged against the point the operator meant; the tissue risk comes from the actual path
+    const target = ins.intended ?? ins.target;
     let errorCm: number | null = null;
     let tol: number | null = null;
     if (target && "point" in target) {
@@ -228,7 +233,10 @@ export function evaluateEncounter(sc: Scenario, s: EncounterState): EncounterRep
     points.push({
       needle: n.id,
       target: keyOf(target),
-      classification: classify(sc, target, ins.region, ins.side),
+      // the intended point when the entry lies on it (within twice its tolerance), else the point it lies on
+      entered: keyOf(ins.target),
+      // the choice is the operator's, but a point to avoid is avoided wherever the needle actually went
+      classification: classify(sc, ins.target, ins.region, ins.side) === "avoid" ? "avoid" : classify(sc, target, ins.region, ins.side),
       side: ins.side,
       errorCm: errorCm === null ? null : Math.round(errorCm * 100) / 100,
       toleranceCm: tol === null ? null : Math.round(tol * 100) / 100,
@@ -242,6 +250,7 @@ export function evaluateEncounter(sc: Scenario, s: EncounterState): EncounterRep
   const localisation: Item[] = [];
   for (const p of points) {
     localisation.push({ id: `accuracy:${p.needle}`, label: `${p.target} located within tolerance`, met: p.withinTolerance, weight: 1, ...(p.errorCm !== null ? { detail: `${p.errorCm} cm (tolerance ${p.toleranceCm} cm)` } : {}) });
+    if (p.target !== "untargeted") localisation.push({ id: `identity:${p.needle}`, label: `the needle meant for ${p.target} went into it`, met: p.entered === p.target, weight: 2, detail: p.entered === p.target ? p.target : `entered at ${p.entered}` });
     localisation.push({ id: `selection:${p.needle}`, label: `${p.target} is an appropriate point here`, met: p.classification === "recommended" || p.classification === "acceptable" ? true : p.classification === "avoid" || p.classification === "untargeted" ? false : null, weight: p.classification === "avoid" ? 3 : 1, detail: p.classification });
     if (p.classification === "unlisted") adjudication.push({ kind: "point", detail: `${p.target} (${p.needle}) is not in the scenario's lists` });
   }
@@ -272,7 +281,7 @@ export function evaluateEncounter(sc: Scenario, s: EncounterState): EncounterRep
     procedure.push({ id: "site-preparation", label: "needling sites prepared", met: !anyUnsafe("site-not-prepared"), weight: 1 });
     procedure.push({ id: "sterile-single-use", label: "sterile single-use needles only, never reused", met: !anyUnsafe("non-sterile-needle") && !anyUnsafe("needle-reuse"), weight: 3 });
     procedure.push({ id: "within-plan", label: "needled only consented, planned points", met: !anyUnsafe("insertion-outside-plan"), weight: 1 });
-    procedure.push({ id: "avoided-sites", label: "no needle at a site to avoid or a cautioned point", met: !anyUnsafe("insertion-on-avoided-site") && !anyUnsafe("insertion-at-cautioned-point"), weight: 2 });
+    procedure.push({ id: "avoided-sites", label: "no needle at a site to avoid or a cautioned point", met: !anyUnsafe("insertion-on-avoided-site") && !anyUnsafe("insertion-at-cautioned-point") && !anyUnsafe("insertion-in-avoided-region"), weight: 2 });
     procedure.push({ id: "safe-paths", label: "no needle path reached a critical structure or the pleura", met: !anyUnsafe("critical-structure-contact") && !anyUnsafe("pleura-penetration"), weight: 3 });
     const nerve = s.attempts.filter((a) => a.unsafe.includes("nerve-contact") && a.status === "executed");
     procedure.push({ id: "nerve", label: "no needle reached a nerve", met: nerve.length === 0, weight: 1 });

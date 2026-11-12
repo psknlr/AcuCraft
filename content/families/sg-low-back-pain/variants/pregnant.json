@@ -3,7 +3,7 @@
   "id": "pregnant",
   "title": "Twenty-four weeks pregnant",
   "kind": "risk",
-  "purpose": "Pregnancy as a risk factor and a position constraint: she is 24 weeks pregnant, so she should not lie prone and the points traditionally avoided in pregnancy (lumbosacral, LI4, SP6) are cautioned. Acceptable: gentle side-lying needling of the local tender point only, or deferral with liaison with her obstetric team.",
+  "purpose": "Pregnancy as a risk factor and a position constraint: she is 24 weeks pregnant, past the first trimester, so abdominal and lumbosacral needling is avoided (TCMPB advisory 2021, §4.1.4: a rule in force, judged by region, whatever point is named) and she should not lie prone; LI4 and SP6 are cautioned. Acceptable: deferral with liaison with her obstetric team, or declining with other options.",
   "case": {
     "history": [
       {
@@ -35,6 +35,19 @@
     ],
     "patient": {
       "weightKg": 67
+    },
+    "debrief": {
+      "title": "Low back pain at 24 weeks of pregnancy",
+      "conclusion": "Mechanical low back pain in the second trimester: no needling of the lower back or abdomen; defer, explain the options and liaise with her obstetric team.",
+      "keyReasoning": [
+        "Past the first trimester, abdominal and lumbosacral points are to be avoided (TCMPB advisory 2021, §4.1.4).",
+        "The rule is about the region: a tender Ashi point in the lumbar muscles is a lumbosacral point.",
+        "No prone positioning in mid-pregnancy; LI4 and SP6 are traditionally avoided."
+      ],
+      "teachingPoints": [
+        "Ask about pregnancy, and its stage, before choosing points.",
+        "Antenatal physiotherapy and her obstetric team are the main route for pregnancy-related back pain."
+      ]
     }
   },
   "field": {
@@ -42,6 +55,7 @@
       "riskFactors": [
         "pregnancy"
       ],
+      "gestationWeeks": 24,
       "ashi": [
         {
           "id": "ashi-right-l45",
@@ -68,42 +82,87 @@
           "$remove": true
         },
         {
-          "id": "p-treat-pregnancy",
-          "label": "Gentle, modified treatment side-lying, avoiding the points cautioned in pregnancy",
+          "id": "p-decline-signpost",
+          "$remove": true
+        },
+        {
+          "id": "p-defer-obstetric",
+          "label": "Defer needling and liaise with her obstetric team",
           "acceptable": true,
           "when": {
             "all": [
               {
                 "disposition": [
-                  "treat-modified",
-                  "treat"
+                  "defer",
+                  "refer",
+                  "decline"
                 ],
                 "visit": 1
               },
               {
                 "needlesInserted": {
-                  "gte": 1
+                  "lte": 0
                 }
               },
               {
-                "not": {
-                  "positioned": "prone"
-                }
-              },
-              {
-                "not": {
-                  "unsafe": "insertion-at-cautioned-point"
-                }
-              },
-              {
-                "not": {
-                  "unsafe": "insertion-without-consent"
+                "referred": {
+                  "to": [
+                    "obstetrics"
+                  ]
                 }
               },
               {
                 "visitEnded": 1
               }
             ]
+          }
+        },
+        {
+          "id": "p-decline-signpost-pregnancy",
+          "label": "Decline or defer without needling, with other options",
+          "acceptable": true,
+          "when": {
+            "all": [
+              {
+                "disposition": [
+                  "decline",
+                  "defer",
+                  "refer"
+                ],
+                "visit": 1
+              },
+              {
+                "needlesInserted": {
+                  "lte": 0
+                }
+              },
+              {
+                "any": [
+                  {
+                    "referred": {
+                      "to": [
+                        "gp",
+                        "physiotherapy"
+                      ]
+                    }
+                  },
+                  {
+                    "explained": "alternatives"
+                  }
+                ]
+              },
+              {
+                "visitEnded": 1
+              }
+            ]
+          }
+        },
+        {
+          "id": "p-avoided-region",
+          "label": "Needled the lumbosacral or abdominal region after the first trimester",
+          "acceptable": false,
+          "when": {
+            "unsafe": "insertion-in-avoided-region"
           }
         },
         {
@@ -137,11 +196,7 @@
       },
       "points": {
         "recommended": {
-          "$replace": [
-            {
-              "ashi": "ashi-right-l3"
-            }
-          ]
+          "$replace": []
         },
         "acceptable": {
           "$replace": []
@@ -178,8 +233,9 @@
             "severity": "critical"
           }
         ],
-        "maxNeedles": 3
-      }
+        "maxNeedles": 1
+      },
+      "followUp": null
     }
   }
 }

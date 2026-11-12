@@ -63,6 +63,11 @@ export interface NeedleState {
     configuration: string;
     patientPosition: Position;
     entry: ChartPoint;
+    /** The point the operator named or marked for this needle (null: none named). */
+    intended: PointRef | null;
+    /** The point the entry actually lies on, judged against this patient's anatomy (planned points first). */
+    nearest: PointRef | null;
+    /** What the rules treat the needle as: the intended point when the entry lies on it, otherwise the nearest. */
     target: PointRef | null;
     mark: string | null;
     /** The mark had moved with the skin (made in another position) when the needle went in. */

@@ -1205,7 +1205,8 @@ const HANDLERS: HandlerMap = {
     // actually lies on, judged against this patient's hidden anatomy, which the evaluator and the rules use
     const plan = currentPlan(s);
     const claimed = target;
-    target = claimed && claimHolds(sc, frame, claimed, region, side, entry) ? claimed : anatomicalTarget(sc, frame, region, side, entry, plan);
+    const nearest = anatomicalTarget(sc, frame, region, side, entry, plan);
+    target = claimed && claimHolds(sc, frame, claimed, region, side, entry) ? claimed : nearest;
     const rules = rulesInForce(sc, s, ctx.actor.id);
     // consent
     if (s.patient.consent.status === "withdrawn") {
@@ -1251,6 +1252,15 @@ const HANDLERS: HandlerMap = {
     if (cautionedAt(sc, frame, region, side, entry) || (target && "point" in target && sc.bundle.acupoints.get(target.point)?.cautions.some((cv) => sc.field.patient.riskFactors.includes(cv.when)))) {
       addUnsafe(ctx, "insertion-at-cautioned-point");
     }
+    for (const r of rulesOfKind(rules, "avoid-regions")) {
+      const { riskFactor, regions, fromGestationWeek } = r.rule.check;
+      const pt = sc.field.patient;
+      if (!regions.includes(region) || !pt.riskFactors.includes(riskFactor)) continue;
+      if (fromGestationWeek !== undefined && (pt.gestationWeeks ?? Infinity) < fromGestationWeek) continue;
+      ctx.out.violations.push(violation(r, `needle in the ${frame.region.title} (${riskFactor})`, "insertion-in-avoided-region"));
+      addUnsafe(ctx, "insertion-in-avoided-region");
+      if (r.rule.enforcement === "block") blockers.push({ by: r.ruleSet.id, kind: "rule", reason: `${r.rule.title}` });
+    }
     const path = doInsertCheckPath(ctx, n, frame, entry, a.angleDeg, a.azimuthDeg, a.depthCm, blockers);
     blockIf(ctx, blockers, `Insertion of ${n.id} stopped`);
     // execute
@@ -1267,6 +1277,8 @@ const HANDLERS: HandlerMap = {
       configuration: frame.configuration,
       patientPosition: s.patient.position,
       entry,
+      intended: claimed ?? null,
+      nearest,
       target,
       mark: markId,
       markStale,

@@ -257,7 +257,7 @@ export function referenceLibrary(sc: Scenario) {
     vocabulary: { diagnoses: sc.bundle.vocabulary.diagnoses, patterns: sc.bundle.vocabulary.patterns, redFlags: sc.bundle.vocabulary.redFlags },
     clinic: { rooms: sc.clinic.rooms, supplies: sc.clinic.supplies, referralTargets: sc.clinic.referralTargets },
     roles: sc.roles.roles.map((r) => ({ id: r.id, label: r.label, kind: r.kind, registration: r.registration, grants: r.grants, acceptsTasks: r.acceptsTasks })),
-    rules: [...sc.rules.entries()].map(([visit, sets]) => ({ visit, sets: sets.map((r) => ({ id: r.id, title: r.title, version: r.version, effectiveFrom: r.effectiveFrom, encoding: r.encoding, source: r.source, rules: r.rules.map((x) => ({ id: x.id, title: x.title, summary: x.summary, severity: x.severity, enforcement: x.enforcement })) })) })),
+    rules: [...sc.rules.entries()].map(([visit, sets]) => ({ visit, sets: sets.map((r) => ({ id: r.id, title: r.title, version: r.version, effectiveFrom: r.effectiveFrom, encoding: r.encoding, source: r.source, rules: r.rules.map((x) => ({ id: x.id, title: x.title, summary: x.summary, severity: x.severity, enforcement: x.enforcement, check: x.check })) })) })),
     evidence: sc.bundle.evidence.filter((e) => e.condition === sc.family.condition),
   };
 }

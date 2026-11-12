@@ -279,8 +279,8 @@
     "patient": "patient",
     "action": {
       "type": "decide",
-      "disposition": "treat-modified",
-      "rationale": "Pregnant: no prone positioning and none of the points traditionally avoided in pregnancy; gentle local needling side-lying only."
+      "disposition": "defer",
+      "rationale": "24 weeks pregnant with lumbar pain: abdominal and lumbosacral points are to be avoided after the first trimester (TCMPB advisory 2021, §4.1.4). No needling; antenatal physiotherapy and liaison with her obstetric team."
     }
   },
   {
@@ -288,25 +288,12 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "propose_plan",
-      "plan": {
-        "points": [
-          {
-            "ashi": "ashi-right-l3"
-          }
-        ],
-        "technique": {
-          "method": "manual-filiform",
-          "stimulation": "none",
-          "retentionMinutes": 15
-        },
-        "rationale": "Gentle local Ashi needling only, side-lying, avoiding the lumbosacral and distal points cautioned in pregnancy.",
-        "alternatives": [
-          "Antenatal physiotherapy and exercise",
-          "Support belt; advice from her obstetric team"
-        ],
-        "followUp": "Review in one week; tell her obstetric team."
-      }
+      "type": "explain",
+      "topics": [
+        "alternatives",
+        "evidence"
+      ],
+      "text": "Because you are past the first three months of pregnancy, I won't put needles in your lower back or abdomen: our guidance is to avoid those areas from now on. The evidence for acupuncture in back pain in pregnancy is limited anyway. What helps most is antenatal physiotherapy — exercises, a support belt and advice on posture and sleep. I'll write to your obstetric team so they know about the pain and can arrange that."
     }
   },
   {
@@ -314,232 +301,14 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "explain",
-      "topics": [
-        "procedure",
-        "benefits",
-        "risks",
-        "alternatives",
-        "evidence",
-        "right-to-stop"
-      ],
-      "text": "Because you are pregnant I'll only use one gentle needle in the tender spot while you lie on your side, for about fifteen minutes. The evidence for acupuncture in back pain is mixed, and limited in pregnancy. Risks are small: soreness, bruising, feeling faint. Other options are antenatal physiotherapy and a support belt. You can ask me to stop at any time."
+      "type": "refer",
+      "to": "obstetrics",
+      "urgency": "routine",
+      "reason": "Pregnancy-related low back pain at 24 weeks, no red flags. Acupuncture deferred: lumbosacral and abdominal needling is avoided after the first trimester. Please consider antenatal physiotherapy."
     }
   },
   {
     "requestId": "lp-034",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "seek_consent"
-    }
-  },
-  {
-    "requestId": "lp-035",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "position_patient",
-      "position": "side-lying-left"
-    }
-  },
-  {
-    "requestId": "lp-036",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "assign_task",
-      "to": "assistant",
-      "kind": "monitor-patient",
-      "params": {
-        "intervalMinutes": 5
-      },
-      "note": "Please stay with her while the needle is in and check every five minutes."
-    }
-  },
-  {
-    "requestId": "lp-037",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "mark_point",
-      "target": {
-        "ashi": "ashi-right-l3"
-      },
-      "region": "lumbar",
-      "side": "right",
-      "at": {
-        "u": -6.6,
-        "v": 3.7
-      },
-      "method": "palpation"
-    }
-  },
-  {
-    "requestId": "lp-038",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "move",
-      "to": "prep-area"
-    }
-  },
-  {
-    "requestId": "lp-039",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "hand_hygiene"
-    }
-  },
-  {
-    "requestId": "lp-040",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "fetch",
-      "item": "pack-a"
-    }
-  },
-  {
-    "requestId": "lp-041",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "move",
-      "to": "treatment-room"
-    }
-  },
-  {
-    "requestId": "lp-042",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "prepare_site",
-      "region": "lumbar",
-      "side": "right"
-    }
-  },
-  {
-    "requestId": "lp-043",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "open_pack",
-      "packId": "pack-a"
-    }
-  },
-  {
-    "requestId": "lp-044",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "pick_up",
-      "object": "pack-a.1"
-    }
-  },
-  {
-    "requestId": "lp-045",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "insert_needle",
-      "needleId": "pack-a.1",
-      "mark": "m1",
-      "angleDeg": 0,
-      "azimuthDeg": 0,
-      "depthCm": 1.0
-    }
-  },
-  {
-    "requestId": "lp-046",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "monitor"
-    }
-  },
-  {
-    "requestId": "lp-047",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "wait",
-      "minutes": 8
-    }
-  },
-  {
-    "requestId": "lp-048",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "monitor"
-    }
-  },
-  {
-    "requestId": "lp-049",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "wait",
-      "minutes": 7
-    }
-  },
-  {
-    "requestId": "lp-050",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "monitor"
-    }
-  },
-  {
-    "requestId": "lp-051",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "remove_all_needles"
-    }
-  },
-  {
-    "requestId": "lp-052",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "dispose",
-      "object": "pack-a"
-    }
-  },
-  {
-    "requestId": "lp-053",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "hand_hygiene"
-    }
-  },
-  {
-    "requestId": "lp-054",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "count_needles"
-    }
-  },
-  {
-    "requestId": "lp-055",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "explain",
-      "topics": [
-        "aftercare"
-      ],
-      "text": "Rest a little before you get up; tell your obstetric team you had acupuncture."
-    }
-  },
-  {
-    "requestId": "lp-056",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -548,30 +317,14 @@
         "presentingComplaint": "Low back pain in pregnancy (24 weeks).",
         "assessment": "Pregnancy-related low back pain; no red flags.",
         "pattern": "Qi and blood stagnation",
-        "rationale": "Gentle local Ashi needling only; pregnancy-cautioned points avoided; side-lying.",
-        "consent": "Verbal consent after explanation.",
-        "pointsUsed": [
-          {
-            "ashi": "ashi-right-l3"
-          }
-        ],
-        "needling": {
-          "needleType": "0.25 × 40 mm single-use sterile filiform",
-          "needleCount": 1,
-          "depth": "1.0 cm",
-          "responseSought": "none (gentle)",
-          "stimulation": "none",
-          "retentionMinutes": 15
-        },
-        "response": "Tolerated well.",
-        "adverseEvents": "None.",
-        "advice": "Antenatal physiotherapy.",
-        "followUp": "Review in one week."
+        "rationale": "No acupuncture: abdominal and lumbosacral points are avoided after the first trimester (TCMPB advisory 2021, §4.1.4).",
+        "advice": "Antenatal physiotherapy, support belt, posture and sleep advice.",
+        "followUp": "Letter to her obstetric team; return after their advice if she wishes."
       }
     }
   },
   {
-    "requestId": "lp-057",
+    "requestId": "lp-035",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -579,84 +332,7 @@
     }
   },
   {
-    "requestId": "lp-058",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "begin_follow_up"
-    }
-  },
-  {
-    "requestId": "lp-059",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "ask",
-      "itemId": "fu-progress"
-    }
-  },
-  {
-    "requestId": "lp-060",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "ask",
-      "itemId": "fu-new"
-    }
-  },
-  {
-    "requestId": "lp-061",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "move",
-      "to": "treatment-room",
-      "withPatient": true
-    }
-  },
-  {
-    "requestId": "lp-062",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "examine",
-      "findingId": "fu-ex-back"
-    }
-  },
-  {
-    "requestId": "lp-063",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "decide",
-      "disposition": "treat-modified",
-      "rationale": "Improving without red flags: continue the course with home exercises."
-    }
-  },
-  {
-    "requestId": "lp-064",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "document",
-      "record": {
-        "assessment": "Improving chronic non-specific low back pain.",
-        "response": "Pain 4/10 → 3/10.",
-        "adverseEvents": "None.",
-        "followUp": "Two more sessions, then review."
-      }
-    }
-  },
-  {
-    "requestId": "lp-065",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "end_visit"
-    }
-  },
-  {
-    "requestId": "lp-066",
+    "requestId": "lp-036",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
