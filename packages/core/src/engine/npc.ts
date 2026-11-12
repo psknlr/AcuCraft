@@ -83,7 +83,7 @@ function supportDefault(sc: Scenario, s: EncounterState, me: string): ActionInpu
       }
       case "count-needles": {
         if (self.location !== patientRoom) return { type: "move", to: patientRoom };
-        const counted = s.counts.some((c) => c.by === me && c.at >= since);
+        const counted = s.counts.some((c) => c.by === me && c.method === "observed" && c.at >= since);
         if (!counted) return { type: "count_needles" };
         const last = [...s.counts].reverse().find((c) => c.by === me)!;
         return report(task, last.reconciled ? `Count reconciled: ${last.opened} opened, ${last.disposed} in sharps, ${last.retained} retained.` : `Count NOT reconciled: ${last.unaccounted} unaccounted for.`);
@@ -105,10 +105,16 @@ function supportDefault(sc: Scenario, s: EncounterState, me: string): ActionInpu
         const text = Object.entries(done.vitals).map(([k, v]) => `${k} ${v}`).join(", ");
         return report(task, `Vitals: ${text}.`);
       }
-      case "chaperone":
+      case "chaperone": {
+        if (self.location !== patientRoom) return { type: "move", to: patientRoom };
+        return report(task, "I am in the room as chaperone.");
+      }
       case "prepare-couch": {
         if (self.location !== patientRoom) return { type: "move", to: patientRoom };
-        return report(task, task.kind === "chaperone" ? "I am in the room as chaperone." : "The couch is ready.");
+        const couch = s.couches[self.location];
+        if (!couch) return report(task, "There is no couch in this room.");
+        if (!couch.prepared || couch.prepared.by !== me || couch.prepared.at < since) return { type: "prepare_couch" };
+        return report(task, `The couch is ready: surface cleaned and fresh linen on (minute ${couch.prepared.at}).`);
       }
     }
   }

@@ -61,7 +61,9 @@ export interface AgentView {
   };
   team: { id: string; name: string; role: string; location: string }[];
   tasks: { id: string; kind: string; from: string; to: string; status: string; params: Record<string, unknown>; unmet: string[] }[];
-  counts: { minute: number; by: string; reconciled: boolean; unaccounted: number }[];
+  counts: { minute: number; by: string; reconciled: boolean; unaccounted: number; method: string; reportedBy: string | null }[];
+  /** The treatment couches: when each was last cleaned and made up, by whom, and what was done. */
+  couches: { room: string; prepared: { minute: number; by: string; done: string[] } | null }[];
   rules: { id: string; title: string; version: string; effectiveFrom: string; encoding: string; rules: { id: string; title: string; enforcement: string }[] }[];
   last: { requestId: string; type: string; status: string; message: string; observations: string[] } | null;
   teaching?: { references: { target: string; region: string; side: string; u: number; v: number; toleranceCm: number }[]; notes: string[] };
@@ -185,7 +187,8 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
     tasks: Object.values(s.tasks)
       .filter((tk) => tk.assignee === actorId || tk.assignedBy === actorId)
       .map((tk) => ({ id: tk.id, kind: tk.kind, from: tk.assignedBy, to: tk.assignee, status: tk.status, params: tk.params, unmet: tk.unmet })),
-    counts: s.counts.filter((c) => c.visit === visit.index).map((c) => ({ minute: c.at, by: c.by, reconciled: c.reconciled, unaccounted: c.unaccounted })),
+    counts: s.counts.filter((c) => c.visit === visit.index).map((c) => ({ minute: c.at, by: c.by, reconciled: c.reconciled, unaccounted: c.unaccounted, method: c.method, reportedBy: c.reportedBy })),
+    couches: Object.entries(s.couches).map(([room, c]) => ({ room, prepared: c.prepared ? { minute: c.prepared.at, by: c.prepared.by, done: c.prepared.done } : null })),
     rules: (sc.rules.get(visitIndex(s)) ?? []).map((r) => ({ id: r.id, title: r.title, version: r.version, effectiveFrom: r.effectiveFrom, encoding: r.encoding, rules: r.rules.map((x) => ({ id: x.id, title: x.title, enforcement: x.enforcement })) })),
     last: (() => {
       const a = [...s.attempts].reverse().find((x) => x.actor === actorId);

@@ -134,6 +134,8 @@ export const ActionSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("open_pack"), packId: IdSchema }).strict(),
   z.object({ type: z.literal("pick_up"), object: IdSchema }).strict(),
   z.object({ type: z.literal("prepare_site"), region: IdSchema, side: SideArgSchema }).strict(),
+  /** Clean the couch surface and put on fresh linen, in the room the actor is in. */
+  z.object({ type: z.literal("prepare_couch") }).strict(),
 
   /* procedure */
   z

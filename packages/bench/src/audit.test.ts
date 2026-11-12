@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
-import { createEncounter, pointInstance, step, type ActionRequestInput, type EncounterState, type Scenario } from "@acucraft/core";
+import { createEncounter, observeAs, pointInstance, step, type ActionRequestInput, type EncounterState, type Scenario } from "@acucraft/core";
 import { loadContentPack, requireScenario } from "./content.js";
 import { evaluateEncounter } from "./evaluate.js";
 
@@ -108,5 +108,105 @@ describe("audit: no abdominal or lumbosacral needling after the first trimester"
       if (r === original[insertAt]) unsafe = res.attempt.unsafe;
     }
     expect(unsafe).not.toContain("insertion-in-avoided-region");
+  });
+});
+
+describe("audit: asepsis and consent are states, not checkboxes", () => {
+  const knee = requireScenario(pack, "sg-knee-oa/base");
+  const sol = knee.field.solution;
+  const at = (type: string) => sol.findIndex((r) => r.action.type === type);
+  const firstInsert = at("insert_needle");
+  const req = (id: string, action: Record<string, unknown>): ActionRequestInput => ({ requestId: id, actor: "practitioner", patient: "patient", action } as ActionRequestInput);
+
+  /** Replay with extra actions spliced in before step `i`; the attempt at the first insertion. */
+  function attemptAt(steps: ActionRequestInput[], target: ActionRequestInput) {
+    let s = createEncounter(knee, { seed: 1 });
+    for (const r of steps) {
+      const res = step(knee, s, r, { strict: false });
+      s = res.state;
+      if (r === target) return res.attempt;
+    }
+    throw new Error("target step not reached");
+  }
+
+  it("palpating a prepared site again undoes its preparation, until it is cleaned again", () => {
+    const repalpate = req("audit-repalpate", { type: "identify_landmark", region: "knee-leg", side: "right", landmark: "st35-depression" });
+    const steps = [...sol.slice(0, firstInsert), repalpate, ...sol.slice(firstInsert)];
+    const attempt = attemptAt(steps, sol[firstInsert]!);
+    expect(attempt.unsafe).toContain("site-not-prepared");
+    expect(attempt.violations.find((v) => v.unsafe === "site-not-prepared")!.detail).toMatch(/touched after cleaning \(palpated st35-depression\)/);
+    // cleaned again: prepared
+    const again = [...sol.slice(0, firstInsert), repalpate, req("audit-reclean", { type: "prepare_site", region: "knee-leg", side: "right" }), ...sol.slice(firstInsert)];
+    expect(attemptAt(again, sol[firstInsert]!).unsafe).not.toContain("site-not-prepared");
+  });
+
+  it("topic tags without words explain nothing: no consent, no credit", () => {
+    const explain = at("explain");
+    const tagsOnly = sol.map((r, i) => (i === explain ? req("audit-tags", { type: "explain", topics: ["procedure", "risks", "alternatives", "benefits", "evidence", "right-to-stop"] }) : r));
+    const attempt = attemptAt(tagsOnly, sol[firstInsert]!);
+    expect(attempt.unsafe).toContain("insertion-without-consent");
+  });
+
+  it("a change of stimulation with the same points and retention needs a further discussion", () => {
+    const plan = sol[at("propose_plan")]!.action as { plan: { technique: Record<string, unknown> } };
+    const changed = req("audit-reducing", { type: "propose_plan", plan: { ...plan.plan, technique: { ...plan.plan.technique, stimulation: "reducing" } } });
+    const steps = [...sol.slice(0, firstInsert), changed, ...sol.slice(firstInsert)];
+    expect(attemptAt(steps, sol[firstInsert]!).unsafe).toContain("insertion-without-consent");
+    // reducing stimulation to none is not a change the patient must agree to
+    const gentler = req("audit-none", { type: "propose_plan", plan: { ...plan.plan, technique: { ...plan.plan.technique, stimulation: "none" } } });
+    expect(attemptAt([...sol.slice(0, firstInsert), gentler, ...sol.slice(firstInsert)], sol[firstInsert]!).unsafe).not.toContain("insertion-without-consent");
+  });
+});
+
+describe("audit: the clinic's objects and who saw what", () => {
+  const knee = requireScenario(pack, "sg-knee-oa/base");
+  const sol = knee.field.solution;
+  let k = 0;
+  const req = (action: Record<string, unknown>, actor = "practitioner"): ActionRequestInput => ({ requestId: `audit-${++k}`, actor, patient: "patient", action } as ActionRequestInput);
+  const run = (s: EncounterState, steps: readonly ActionRequestInput[]) => steps.reduce((x, r) => step(knee, x, r, { strict: false }).state, s);
+  const needlesIn = sol.findIndex((r) => r.action.type === "wait");
+
+  it("a count from reception reads the record; a count at the bedside observes; a colleague's count is received as theirs", () => {
+    let s = replay(knee, sol.slice(0, needlesIn));
+    s = run(s, [req({ type: "move", to: "reception" }), req({ type: "count_needles" })]);
+    expect(s.counts.at(-1)).toMatchObject({ by: "practitioner", method: "read", reconciled: false });
+    s = run(s, [req({ type: "move", to: "treatment-room" }), req({ type: "count_needles" })]);
+    expect(s.counts.at(-1)).toMatchObject({ by: "practitioner", method: "observed", reconciled: true });
+    s = run(s, [req({ type: "assign_task", to: "assistant", kind: "count-needles", params: {} }), req({ type: "wait", minutes: 3 })]);
+    expect(Object.values(s.tasks).find((t) => t.kind === "count-needles")!.status).toBe("completed");
+    expect(s.counts.filter((c) => c.method === "observed").map((c) => c.by)).toContain("assistant");
+    expect(s.counts.at(-1)).toMatchObject({ by: "practitioner", method: "reported", reportedBy: "assistant", reconciled: true });
+  });
+
+  it("marks made with the knee extended need rechecking once the patient has walked to a chair", () => {
+    const beforePositioning = sol.findIndex((r) => r.action.type === "position_patient");
+    let s = replay(knee, sol.slice(0, beforePositioning));
+    s = run(s, [req({ type: "position_patient", position: "supine" }), req({ type: "mark_point", target: { point: "ST36", side: "right" }, region: "knee-leg", side: "right", at: { u: 2, v: -8 }, method: "proportional" })]);
+    expect(Object.values(s.marks).at(-1)!.stale).toBe(false);
+    s = run(s, [req({ type: "move", to: "consult-room", withPatient: true })]);
+    expect(s.patient.position).toBe("seated");
+    expect(Object.values(s.marks).at(-1)!.stale).toBe(true);
+  });
+
+  it("a delegated couch preparation is done, recorded and visible; a report alone does not complete it", () => {
+    const inRoom = sol.findIndex((r) => r.action.type === "move" && (r.action as { withPatient?: boolean }).withPatient) + 1;
+    let s = replay(knee, sol.slice(0, inRoom));
+    s = run(s, [req({ type: "position_patient", position: "seated" })]);
+    expect(s.couches["treatment-room"]!.prepared).toBeNull();
+    // a report without the work, from an assistant played by someone else (an idle policy)
+    const manual: Scenario = { ...knee, field: { ...knee.field, cast: knee.field.cast.map((m) => (m.id === "assistant" ? { ...m, policy: "idle" } : m)) } };
+    let m = s;
+    for (const r of [req({ type: "assign_task", to: "assistant", kind: "prepare-couch", params: {} })]) m = step(manual, m, r, { strict: false }).state;
+    const first = Object.values(m.tasks).find((t) => t.kind === "prepare-couch")!;
+    for (const r of [req({ type: "acknowledge_task", taskId: first.id }, "assistant"), req({ type: "move", to: "treatment-room" }, "assistant"), req({ type: "report_task", taskId: first.id, summary: "The couch is ready." }, "assistant")]) m = step(manual, m, r, { strict: false }).state;
+    expect(m.tasks[first.id]!.status).toBe("incomplete");
+    expect(m.tasks[first.id]!.unmet).toContain("the couch was not cleaned and made up");
+    // the work, by the assistant's own policy
+    s = run(s, [req({ type: "assign_task", to: "assistant", kind: "prepare-couch", params: {} }), req({ type: "wait", minutes: 4 })]);
+    const second = Object.values(s.tasks).filter((t) => t.kind === "prepare-couch").at(-1)!;
+    expect(second.status).toBe("completed");
+    expect(s.couches["treatment-room"]!.prepared).toMatchObject({ by: "assistant", done: ["surface-cleaned", "linen-changed"] });
+    const view = observeAs(knee, s, "practitioner");
+    expect(view.couches.find((c) => c.room === "treatment-room")!.prepared).toMatchObject({ by: "assistant" });
   });
 });

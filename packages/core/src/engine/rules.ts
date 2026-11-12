@@ -30,6 +30,7 @@ export const ACTION_PERMISSIONS: Record<ActionType, Permission | null> = {
   open_pack: "open-pack",
   pick_up: "handle-equipment",
   prepare_site: "prepare-site",
+  prepare_couch: "handle-equipment",
   insert_needle: "insert-needle",
   adjust_needle: "manipulate-needle",
   monitor: "monitor",

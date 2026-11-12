@@ -14,7 +14,7 @@ import {
   type Result,
 } from "@clinicalcraft/core";
 import { ActionRequestSchema, type Action, type ActionRequest, type ActionRequestInput, type ActionType, type PointRef } from "../schema/actions.js";
-import { PositionSchema, type ChartPoint, type Side } from "../schema/common.js";
+import { PositionSchema, type ChartPoint, type Position, type Side } from "../schema/common.js";
 import type { UnsafeCode } from "../schema/field.js";
 import { ENCOUNTER_SCHEMA_ID, type AttemptRecord, type EncounterState, type Mode, type NeedleState, type Protection, type TaskState, type Violation } from "../schema/state.js";
 import { assessPath, patientRegion, pointInstance, regionAccess, type PathAssessment, type PatientRegion } from "./anatomy.js";
@@ -104,6 +104,7 @@ export function createEncounter(sc: Scenario, opts: EncounterOptions = {}): Enco
     landmarks: [],
     measurements: [],
     marks: {},
+    couches: Object.fromEntries(sc.clinic.rooms.filter((r) => r.fixtures.some((f) => f.kind === "couch")).map((r) => [r.id, { prepared: null }])),
     sitesPrepared: [],
     revealedConditions: [],
     revealedAshi: [],
@@ -339,6 +340,40 @@ function violation(r: RuleInForce, detail: string, unsafe: UnsafeCode | null): V
 
 const handsClean = (a: { hygieneSeq: number | null; soiledSeq: number | null }) => a.hygieneSeq !== null && (a.soiledSeq === null || a.hygieneSeq > a.soiledSeq);
 
+/** The patient takes a new position: skin marks made in another configuration of their region go stale. */
+function setPatientPosition(ctx: Ctx, position: Position): void {
+  const { s, sc } = ctx;
+  s.patient.position = position;
+  // skin marks made in another configuration of their region no longer lie over the points
+  let stale = 0;
+  for (const m of Object.values(s.marks)) {
+    if (m.visit !== visitIndex(s) || m.stale) continue;
+    const region = sc.bundle.regions.get(m.region)!;
+    const access = regionAccess(region, m.side, position);
+    if (access.configuration !== m.configuration) {
+      m.stale = true;
+      stale += 1;
+      const nearest = [...region.landmarks].sort((x, y) => Math.hypot(x.at.u - m.position.u, x.at.v - m.position.v) - Math.hypot(y.at.u - m.position.u, y.at.v - m.position.v))[0];
+      const from = nearest?.configurations[m.configuration] ?? { du: 0, dv: 0 };
+      const to = nearest?.configurations[access.configuration] ?? { du: 0, dv: 0 };
+      m.position = { u: m.position.u + (to.du - from.du), v: m.position.v + (to.dv - from.dv) };
+    }
+  }
+  if (stale > 0) observe(ctx, `${stale} skin mark(s) were made in another position and have moved with the skin: re-localise before needling.`);
+}
+
+/** Handling cleaned skin again undoes its preparation (the skin is touched after cleaning). */
+function touchSite(ctx: Ctx, region: string, side: Side, how: string): void {
+  const { s } = ctx;
+  let undone = false;
+  for (const p of s.sitesPrepared) {
+    if (p.visit !== visitIndex(s) || p.region !== region || p.side !== side || p.touched) continue;
+    p.touched = { at: now(s), by: ctx.actor.id, how };
+    undone = true;
+  }
+  if (undone) observe(ctx, `The cleaned skin (${side} ${region}) has been touched again: prepare it again before needling.`);
+}
+
 function soil(s: EncounterState, actor: { soiledSeq: number | null }): void {
   s.seq += 1;
   actor.soiledSeq = s.seq;
@@ -459,7 +494,7 @@ function checkClaim(ctx: Ctx, claim: Claim): boolean {
     case "consent-obtained":
       return consentCovers(s);
     case "site-prepared":
-      return s.sitesPrepared.some((p) => p.visit === v);
+      return s.sitesPrepared.some((p) => p.visit === v && p.touched === null);
     case "hands-clean":
       return handsClean(ctx.actor);
   }
@@ -513,7 +548,7 @@ export function taskUnmet(sc: Scenario, s: EncounterState, task: TaskState, find
       break;
     }
     case "count-needles":
-      if (!s.counts.some((c) => c.by === me && c.at >= since)) unmet.push("no count was made");
+      if (!s.counts.some((c) => c.by === me && c.method === "observed" && c.at >= since)) unmet.push("no count was made at the bedside");
       break;
     case "dispose-sharps":
       if (needleList(s).some((n) => n.location.kind === "tray")) unmet.push("opened needles are still on the tray");
@@ -527,6 +562,7 @@ export function taskUnmet(sc: Scenario, s: EncounterState, task: TaskState, find
     case "prepare-couch": {
       const room = sc.clinic.rooms.find((r) => r.id === s.actors[me]?.location);
       if (!room?.fixtures.some((f) => f.kind === "couch")) unmet.push("not at a treatment couch");
+      else if (!((s.couches[room.id]?.prepared?.by === me) && s.couches[room.id]!.prepared!.at >= since)) unmet.push("the couch was not cleaned and made up");
       break;
     }
   }
@@ -715,7 +751,7 @@ const HANDLERS: HandlerMap = {
     const toPatient = a.to === undefined || a.to === s.patient.id;
     if (toPatient && s.actors[ctx.actor.id]!.location === s.patient.location) {
       const topics = detectTopics(a.text);
-      if (topics.length > 0) s.explanations.push({ visit: visitIndex(s), at: now(s), by: ctx.actor.id, topics });
+      if (topics.length > 0) s.explanations.push({ visit: visitIndex(s), at: now(s), by: ctx.actor.id, topics, text: a.text, tagged: [] });
       if (questionCount(a.text) > 0 && roleOf(sc, ctx.actor.id)?.grants.some((g) => (typeof g === "string" ? g : g.permission) === "consult")) {
         if (HOW_ARE_YOU.test(a.text.toLowerCase())) presentState(ctx);
         else answerQuestion(ctx, undefined, a.text, 0.55);
@@ -875,9 +911,17 @@ const HANDLERS: HandlerMap = {
     s.plans.push({ version, at: now(s), by: ctx.actor.id, plan: a.plan });
     if (coveredBefore && before) {
       const old = new Set(before.plan.points.map((p) => refKey(p as PointRef)));
-      const within = a.plan.points.every((p) => old.has(refKey(p as PointRef))) && a.plan.technique.retentionMinutes <= before.plan.technique.retentionMinutes;
+      const t0 = before.plan.technique;
+      const t1 = a.plan.technique;
+      // a material change needs a further discussion: new points, a longer retention, another method, or another
+      // stimulation (reducing it to none is not a change the patient needs to agree to)
+      const within =
+        a.plan.points.every((p) => old.has(refKey(p as PointRef))) &&
+        t1.retentionMinutes <= t0.retentionMinutes &&
+        t1.method === t0.method &&
+        (t1.stimulation === t0.stimulation || t1.stimulation === "none");
       if (within) s.patient.consent.planVersion = version;
-      else observe(ctx, "The plan goes beyond what the patient agreed to: their consent covers the previous plan only.");
+      else observe(ctx, "The plan goes beyond what the patient agreed to (points, retention, method or stimulation): their consent covers the previous plan only. Explain the change and ask again.");
     }
     ctx.out.detail = `plan v${version}: ${a.plan.points.map((p) => refKey(p as PointRef)).join(", ") || "no points"}`;
     ctx.out.cost = 1;
@@ -885,9 +929,11 @@ const HANDLERS: HandlerMap = {
   explain(ctx, a) {
     const { s } = ctx;
     atPatient(ctx);
-    const topics = [...new Set([...a.topics, ...(a.text ? detectTopics(a.text) : [])])];
+    // the patient learns only what is said: topic tags index the words, they do not replace them
+    const topics = a.text ? [...new Set([...a.topics, ...detectTopics(a.text)])] : [];
     if (a.text) utter(s, ctx.actor.id, s.patient.id, a.text, "speech");
-    s.explanations.push({ visit: visitIndex(s), at: now(s), by: ctx.actor.id, topics });
+    else if (a.topics.length) observe(ctx, "Nothing was said to the patient: name the topics in words to explain them.");
+    s.explanations.push({ visit: visitIndex(s), at: now(s), by: ctx.actor.id, topics, text: a.text ?? null, tagged: [...a.topics] });
     ctx.out.detail = `explained: ${topics.join(", ") || "nothing specific"}`;
     ctx.out.cost = 1;
   },
@@ -958,23 +1004,7 @@ const HANDLERS: HandlerMap = {
       } else observe(ctx, "Repositioned in an emergency with needles still in place: remove them as soon as possible.");
     }
     const before = s.patient.position;
-    s.patient.position = a.position;
-    // skin marks made in another configuration of their region no longer lie over the points
-    let stale = 0;
-    for (const m of Object.values(s.marks)) {
-      if (m.visit !== visitIndex(s) || m.stale) continue;
-      const region = sc.bundle.regions.get(m.region)!;
-      const access = regionAccess(region, m.side, a.position);
-      if (access.configuration !== m.configuration) {
-        m.stale = true;
-        stale += 1;
-        const nearest = [...region.landmarks].sort((x, y) => Math.hypot(x.at.u - m.position.u, x.at.v - m.position.v) - Math.hypot(y.at.u - m.position.u, y.at.v - m.position.v))[0];
-        const from = nearest?.configurations[m.configuration] ?? { du: 0, dv: 0 };
-        const to = nearest?.configurations[access.configuration] ?? { du: 0, dv: 0 };
-        m.position = { u: m.position.u + (to.du - from.du), v: m.position.v + (to.dv - from.dv) };
-      }
-    }
-    if (stale > 0) observe(ctx, `${stale} skin mark(s) were made in another position and have moved with the skin: re-localise before needling.`);
+    setPatientPosition(ctx, a.position);
     ctx.out.detail = `${before} → ${a.position}`;
     ctx.out.cost = 1;
   },
@@ -991,6 +1021,7 @@ const HANDLERS: HandlerMap = {
     const r = PALPATION_ERROR_CM * Math.sqrt(rng());
     const p = { u: truth.u + r * Math.cos(angle), v: truth.v + r * Math.sin(angle) };
     s.landmarks.push({ visit: visitIndex(s), by: ctx.actor.id, at: now(s), region: a.region, side: a.side, landmark: a.landmark, position: p, configuration: frame.configuration });
+    touchSite(ctx, a.region, a.side, `palpated ${a.landmark}`);
     observe(ctx, `${lm.label} (${a.side} ${frame.region.title}, ${frame.configuration}): ${at2(p)}.`);
     ctx.out.target = `${a.region}:${a.side}:${a.landmark}`;
     ctx.out.cost = 0.5;
@@ -1009,6 +1040,7 @@ const HANDLERS: HandlerMap = {
       if (!seg) throw new Rejection("unknown-id", `The ${frame.region.title} has no segment ${a.segment}.`);
       const cm = frame.cunCm(seg.id)! * seg.cun * (1 + (createRng(seedFrom(s.seed, sc.id, a.region, a.side, seg.id))() - 0.5) * 2 * MEASUREMENT_ERROR);
       s.measurements.push({ visit: visitIndex(s), by: ctx.actor.id, at: now(s), region: a.region, side: a.side, what: seg.id, cm });
+      touchSite(ctx, a.region, a.side, `measured ${seg.id}`);
       observe(ctx, `${seg.label}: ${fmt(cm)} cm, which the standard divides into ${seg.cun} B-cun.`);
     }
     ctx.out.cost = 0.5;
@@ -1033,6 +1065,7 @@ const HANDLERS: HandlerMap = {
     const id = `m${Object.keys(s.marks).length + 1}`;
     s.marks[id] = { id, visit: visitIndex(s), by: ctx.actor.id, at: now(s), target: a.target, region: a.region, side: a.side, position: a.at, method: a.method, patientPosition: s.patient.position, configuration: frame.configuration, stale: false };
     observe(ctx, `Marked ${pointLabel(sc, a.target)} at ${at2(a.at)} (mark ${id}).`);
+    touchSite(ctx, a.region, a.side, `marked ${id}`);
     if (s.mode === "teaching" && "point" in a.target) {
       const ref = pointInstance(sc, sc.bundle.acupoints.get(a.target.point)!, a.side, frame.configuration);
       if (ref) observe(ctx, `Teaching: ${fmt(Math.hypot(ref.position.u - a.at.u, ref.position.v - a.at.v))} cm from the reference location (tolerance ${fmt(ref.toleranceCm)} cm).`);
@@ -1049,7 +1082,8 @@ const HANDLERS: HandlerMap = {
       if (s.patient.fainted) throw new Rejection("unsafe-position", "The patient is not well enough to walk.");
       if (retainedNeedles(s).length > 0) throw new Rejection("needles-retained", "The patient cannot walk with needles in place.");
       s.patient.location = a.to;
-      s.patient.position = "seated";
+      // the patient walks and sits down: marks made lying down move with the skin, as for any change of position
+      if (s.patient.position !== "seated") setPatientPosition(ctx, "seated");
     }
     ctx.actor.location = a.to;
     ctx.out.detail = `to ${a.to}${a.withPatient ? " with the patient" : ""}`;
@@ -1156,6 +1190,18 @@ const HANDLERS: HandlerMap = {
     ctx.out.target = pack.id;
     ctx.out.cost = 0.5;
   },
+  prepare_couch(ctx) {
+    const { s, sc } = ctx;
+    const room = sc.clinic.rooms.find((r) => r.id === ctx.actor.location)!;
+    const couch = s.couches[room.id];
+    if (!couch) throw new Rejection("no-couch", `There is no treatment couch in the ${room.label}.`);
+    if (s.patient.location === room.id && !["standing", "seated", "seated-forward"].includes(s.patient.position)) throw new Rejection("occupied", "The patient is lying on the couch.");
+    couch.prepared = { at: now(s), by: ctx.actor.id, done: ["surface-cleaned", "linen-changed"] };
+    soil(s, ctx.actor);
+    observe(ctx, `Couch in the ${room.label}: surface cleaned and fresh linen on.`);
+    ctx.out.target = `couch:${room.id}`;
+    ctx.out.cost = 2;
+  },
   prepare_site(ctx, a) {
     const { s } = ctx;
     atPatient(ctx);
@@ -1163,7 +1209,7 @@ const HANDLERS: HandlerMap = {
     const blockers: Protection[] = [];
     handHygieneRules(ctx, "prepare_site", blockers);
     blockIf(ctx, blockers, "Site not prepared");
-    s.sitesPrepared.push({ visit: visitIndex(s), region: a.region, side: a.side, at: now(s), by: ctx.actor.id });
+    s.sitesPrepared.push({ visit: visitIndex(s), region: a.region, side: a.side, at: now(s), by: ctx.actor.id, touched: null });
     ctx.out.target = `${a.region}:${a.side}`;
     ctx.out.cost = 0.5;
   },
@@ -1236,8 +1282,10 @@ const HANDLERS: HandlerMap = {
     }
     handHygieneRules(ctx, "insert_needle", blockers);
     for (const r of rulesOfKind(rules, "site-preparation-before-insertion")) {
-      if (s.sitesPrepared.some((p) => p.visit === visitIndex(s) && p.region === region && p.side === side)) continue;
-      ctx.out.violations.push(violation(r, `${region} (${side}) not prepared`, "site-not-prepared"));
+      const prepared = s.sitesPrepared.filter((p) => p.visit === visitIndex(s) && p.region === region && p.side === side);
+      if (prepared.some((p) => p.touched === null)) continue;
+      const touched = prepared.find((p) => p.touched);
+      ctx.out.violations.push(violation(r, touched ? `${region} (${side}) touched after cleaning (${touched.touched!.how}): not prepared` : `${region} (${side}) not prepared`, "site-not-prepared"));
       addUnsafe(ctx, "site-not-prepared");
       if (r.rule.enforcement === "block") blockers.push({ by: r.ruleSet.id, kind: "rule", reason: `${r.rule.title}: prepare the site first` });
     }
@@ -1421,7 +1469,16 @@ const HANDLERS: HandlerMap = {
     const onTray = by("tray");
     const disposed = by("sharps");
     const unaccounted = opened.length - retained - inHand - onTray - disposed - visibleFloor - reported;
-    s.counts.push({ visit: visitIndex(s), at: now(s), by: ctx.actor.id, opened: opened.length, retained, inHand, onTray, disposed, unaccounted, reconciled: unaccounted === 0 });
+    // a count is made where the needles are: at the bedside while any are in the patient, and at every tray holding some
+    const here = ctx.actor.location;
+    const present = (retained === 0 || s.patient.location === here) && Object.values(s.packs).every((p) => p.sealed || p.at === here || !p.needles.some((id) => s.needles[id]?.location.kind === "tray"));
+    s.counts.push({ visit: visitIndex(s), at: now(s), by: ctx.actor.id, opened: opened.length, retained, inHand, onTray, disposed, unaccounted, reconciled: present && unaccounted === 0, method: present ? "observed" : "read", reportedBy: null });
+    if (!present) {
+      observe(ctx, `You are not where the needles are: this is the record (${retained} in the patient, ${onTray} on the tray, ${disposed} in the sharps container), not a count. Count at the bedside, or ask a colleague who is there.`);
+      ctx.out.detail = "record read, not verified";
+      ctx.out.cost = 0.5;
+      return;
+    }
     observe(ctx, `Needle count: ${opened.length} opened — ${retained} in the patient, ${inHand} in hand, ${onTray} on the tray, ${visibleFloor > 0 ? `${visibleFloor} found on the ${foundAreas} (to dispose of), ` : ""}${reported > 0 ? `${reported} lost or broken and reported, ` : ""}${disposed} in the sharps container${unaccounted > 0 ? `; ${unaccounted} NOT ACCOUNTED FOR` : "; all accounted for"}.`);
     ctx.out.detail = unaccounted > 0 ? `${unaccounted} unaccounted` : "reconciled";
     ctx.out.cost = 0.5;
@@ -1621,6 +1678,9 @@ const HANDLERS: HandlerMap = {
     task.reportedAt = now(s);
     task.report = { summary: a.summary, findings: a.findings };
     utter(s, ctx.actor.id, task.assignedBy, a.summary, "speech");
+    // a colleague's count, made at the bedside, is received as theirs
+    const counted = task.kind === "count-needles" ? [...s.counts].reverse().find((c) => c.by === ctx.actor.id && c.method === "observed" && c.at >= (task.acknowledgedAt ?? task.assignedAt)) : undefined;
+    if (counted) s.counts.push({ ...counted, at: now(s), by: task.assignedBy, method: "reported", reportedBy: ctx.actor.id });
     ctx.out.target = task.id;
     ctx.out.detail = task.status === "completed" ? "reported: complete" : `reported, but: ${task.unmet.join("; ")}`;
   },
