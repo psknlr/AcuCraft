@@ -199,6 +199,8 @@ function applyOffset(frame: PatientRegion, p: ChartPoint, offset: Offset | undef
 
 export interface PointInstance {
   pointId: string;
+  /** The site of a group point, or null. */
+  site: string | null;
   side: Side;
   region: string;
   configuration: string;
@@ -210,9 +212,29 @@ export interface PointInstance {
   configurationMismatch: boolean;
 }
 
-/** Locate a standard point on this patient, in the region's current configuration (null: not modelled). */
-export function pointInstance(sc: Scenario, point: AcupointDefinition, side: Side, configuration: string): PointInstance | null {
-  return locate(sc, point, side, configuration, 0);
+/**
+ * The targets a point offers, each as a single-site definition: the point itself, or — for a group point with sites
+ * (Sishencong, Jiaji, Shixuan …) — each of its sites, on its own chart, with its own construction and tolerance.
+ * A point without a localisation offers none.
+ */
+export function pointTargets(point: AcupointDefinition): { site: string | null; label: string | null; def: AcupointDefinition }[] {
+  if (point.siteLocalisations) {
+    return point.siteLocalisations.map((x) => ({
+      site: x.id,
+      label: x.label,
+      def: { ...point, region: x.region ?? point.region, localisation: x.localisation, tolerance: x.tolerance ?? point.tolerance, configuration: x.configuration ?? point.configuration, siteLocalisations: undefined },
+    }));
+  }
+  return point.localisation && point.region ? [{ site: null, label: null, def: point }] : [];
+}
+
+/** Locate a standard point (one site of a group point) on this patient, in its region's current configuration (null:
+ * not modelled, or a group point without a site named). */
+export function pointInstance(sc: Scenario, point: AcupointDefinition, side: Side, configuration: string, site?: string | null): PointInstance | null {
+  const target = pointTargets(point).find((t) => t.site === (point.siteLocalisations ? (site ?? undefined) : null));
+  if (!target) return null;
+  const inst = locate(sc, target.def, side, configuration, 0);
+  return inst && { ...inst, site: target.site };
 }
 
 /** How many `point:` anchors may be followed from one point (a chain, never a cycle). */
@@ -229,7 +251,7 @@ function locate(sc: Scenario, point: AcupointDefinition, side: Side, configurati
   const anchor = (ref: string): ChartPoint | null => {
     if (!ref.startsWith("point:")) return frame.landmark(sided(ref));
     const other = sc.bundle.acupoints.get(ref.slice("point:".length));
-    if (!other?.region || depth >= MAX_ANCHOR_DEPTH) return null;
+    if (!other?.region || other.siteLocalisations || depth >= MAX_ANCHOR_DEPTH) return null;
     if (other.region === region) return locate(sc, other, side, configuration, depth + 1)?.position ?? null;
     const seam = seamMap(sc, other.region, region, side, configuration);
     const at = seam && locate(sc, other, side, seam.fromConfiguration, depth + 1);
@@ -262,6 +284,7 @@ function locate(sc: Scenario, point: AcupointDefinition, side: Side, configurati
   const tol = distanceCm(frame, point.tolerance) ?? 1;
   return {
     pointId: point.id,
+    site: null,
     side: effectiveSide,
     region: point.region,
     configuration,

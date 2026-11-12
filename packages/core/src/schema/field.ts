@@ -264,7 +264,7 @@ export type FieldEvent = z.infer<typeof FieldEventSchema>;
 /* Evaluation (hidden from the tested agent)                           */
 /* ------------------------------------------------------------------ */
 
-const PointKey = z.object({ point: IdSchema.optional(), ashi: IdSchema.optional(), side: SideSchema.optional() }).strict();
+const PointKey = z.object({ point: IdSchema.optional(), ashi: IdSchema.optional(), side: SideSchema.optional(), site: IdSchema.optional() }).strict();
 
 export const PathwaySchema = z
   .object({

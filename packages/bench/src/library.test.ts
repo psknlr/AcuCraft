@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createEncounter, observeAs, pointInstance, referenceLibrary, type Side } from "@acucraft/core";
+import { createEncounter, observeAs, pointInstance, pointTargets, referenceLibrary, type Side } from "@acucraft/core";
 import { loadContentPack, requireScenario, scenarioIds } from "./content.js";
 import { lookup } from "./agents/claude.js";
 
@@ -56,17 +56,20 @@ describe("acupoint library", () => {
     let checked = 0;
     for (const id of scenarioIds(pack)) {
       const sc = requireScenario(pack, id);
-      for (const def of sc.bundle.acupoints.values()) {
-        if (!def.localisation || !def.region) continue;
-        const r = sc.bundle.regions.get(def.region)!;
-        const sides: Side[] = def.bilateral ? ["left", "right"] : ["midline"];
-        for (const side of sides) {
-          for (const cfg of def.configuration ? [def.configuration] : r.configurations.map((c) => c.id)) {
-            const inst = pointInstance(sc, def, side, cfg);
-            expect(inst, `${id} ${def.id} ${side} ${cfg}`).not.toBeNull();
-            const { u, v } = inst!.position;
-            expect(u >= r.chart.uRange[0] && u <= r.chart.uRange[1] && v >= r.chart.vRange[0] && v <= r.chart.vRange[1], `${id} ${def.id} ${side} ${cfg} at ${u.toFixed(2)}, ${v.toFixed(2)}`).toBe(true);
-            checked++;
+      for (const point of sc.bundle.acupoints.values()) {
+        // every target: the point, or each site of a group point on its own chart
+        for (const { site, def } of pointTargets(point)) {
+          const r = sc.bundle.regions.get(def.region!)!;
+          const sides: Side[] = def.bilateral ? ["left", "right"] : ["midline"];
+          for (const side of sides) {
+            for (const cfg of def.configuration ? [def.configuration] : r.configurations.map((c) => c.id)) {
+              const inst = pointInstance(sc, point, side, cfg, site);
+              const what = `${id} ${def.id}${site ? `:${site}` : ""} ${side} ${cfg}`;
+              expect(inst, what).not.toBeNull();
+              const { u, v } = inst!.position;
+              expect(u >= r.chart.uRange[0] && u <= r.chart.uRange[1] && v >= r.chart.vRange[0] && v <= r.chart.vRange[1], `${what} at ${u.toFixed(2)}, ${v.toFixed(2)}`).toBe(true);
+              checked++;
+            }
           }
         }
       }

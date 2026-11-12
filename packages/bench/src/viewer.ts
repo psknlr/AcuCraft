@@ -84,7 +84,7 @@ function chart(sc: Scenario, s: EncounterState, report: EncounterReport, regionI
     if (!ins || ins.region !== regionId || ins.side !== side || ins.configuration !== configuration) continue;
     if (ins.target && "point" in ins.target) {
       const def = sc.bundle.acupoints.get(ins.target.point);
-      const inst = def ? pointInstance(sc, def, ins.target.side, configuration) : null;
+      const inst = def ? pointInstance(sc, def, ins.target.side, configuration, ins.target.site) : null;
       if (inst) parts.push(`<circle cx="${x(inst.position.u)}" cy="${y(inst.position.v)}" r="${(inst.toleranceCm * scale).toFixed(1)}" fill="var(--accent)" fill-opacity="0.12" stroke="var(--accent)"><title>${esc(ins.target.point)} reference (tolerance ${inst.toleranceCm.toFixed(2)} cm)</title></circle>`);
     }
     const res = report.points.find((p) => p.needle === n.id);

@@ -14,7 +14,8 @@ export const SideArgSchema = z.enum(["left", "right", "midline"]);
 
 /** A target on the patient: a standard point, or an Ashi (tender) location found on examination. */
 export const PointRefSchema = z.union([
-  z.object({ point: IdSchema, side: SideArgSchema }).strict(),
+  /** `site`: one site of a group point (Sishencong's `anterior`, Jiaji's `t5`, Shixuan's `index`). */
+  z.object({ point: IdSchema, side: SideArgSchema, site: IdSchema.optional() }).strict(),
   z.object({ ashi: IdSchema }).strict(),
 ]);
 export type PointRef = z.infer<typeof PointRefSchema>;
@@ -31,7 +32,8 @@ export const TaskKindSchema = z.enum(TASK_KINDS);
 export type TaskKind = z.infer<typeof TaskKindSchema>;
 
 export const PlanPointSchema = z.union([
-  z.object({ point: IdSchema, side: SideArgSchema }).strict(),
+  /** `site`: one site of a group point (Sishencong's `anterior`, Jiaji's `t5`, Shixuan's `index`). */
+  z.object({ point: IdSchema, side: SideArgSchema, site: IdSchema.optional() }).strict(),
   z.object({ ashi: IdSchema }).strict(),
 ]);
 

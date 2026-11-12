@@ -11,6 +11,7 @@ import {
   RuleSetSchema,
   StandardsFileSchema,
   VocabularySchema,
+  pointTargets,
   resolveScenario,
   type ContentBundle,
   type Scenario,
@@ -180,30 +181,38 @@ function checkBundle(b: ContentBundle, issues: Issue[]): void {
     for (const c of p.codes) if (!editions.has(c.edition)) issues.push({ path: at, message: `unknown edition ${c.edition}`, severity: "error" });
     if (!editions.has(p.location.edition)) issues.push({ path: at, message: `unknown edition ${p.location.edition}`, severity: "error" });
     if (!p.region) continue;
-    const r = b.regions.get(p.region);
-    if (!r) {
+    if (!b.regions.get(p.region)) {
       issues.push({ path: at, message: `unknown region ${p.region}`, severity: "error" });
       continue;
     }
-    const lms = new Set(r.landmarks.map((l) => l.id));
-    const segs = new Set(r.segments.map((s) => s.id));
-    const sides = r.laterality === "midline" && p.bilateral ? ["left", "right"] : ["x"];
-    const lmOk = (id: string) => sides.every((side) => lms.has(id.replace("{side}", side)));
-    const loc = p.localisation;
-    const used = !loc ? [] : loc.method === "landmark" ? [loc.landmark] : loc.method === "between" ? [loc.a, loc.b] : [loc.from, loc.toward];
-    for (const id of used) {
-      if (!id.startsWith("point:")) {
-        if (!lmOk(id)) issues.push({ path: at, message: `region ${r.id} has no landmark ${id}`, severity: "error" });
+    // each target: the point itself, or each site of a group point (on its own chart)
+    for (const { site, def } of pointTargets(p)) {
+      const where = site ? `${at}.${site}` : at;
+      const r = b.regions.get(def.region!);
+      if (!r) {
+        issues.push({ path: where, message: `unknown region ${def.region}`, severity: "error" });
         continue;
       }
-      const other = b.acupoints.get(id.slice("point:".length));
-      if (!other?.region || !other.localisation) issues.push({ path: at, message: `anchor ${id} is not a localised point`, severity: "error" });
-      else if (other.region !== r.id && !meets(b, other.region, r.id)) issues.push({ path: at, message: `anchor ${id} lies on ${other.region}, which has no seam with ${r.id}`, severity: "error" });
-      else if (other.bilateral !== p.bilateral) issues.push({ path: at, message: `anchor ${id} must be ${p.bilateral ? "bilateral" : "on the midline"} like ${p.id}`, severity: "error" });
+      const lms = new Set(r.landmarks.map((l) => l.id));
+      const segs = new Set(r.segments.map((s) => s.id));
+      const sides = r.laterality === "midline" && p.bilateral ? ["left", "right"] : ["x"];
+      const lmOk = (id: string) => sides.every((side) => lms.has(id.replace("{side}", side)));
+      const loc = def.localisation!;
+      const used = loc.method === "landmark" ? [loc.landmark] : loc.method === "between" ? [loc.a, loc.b] : [loc.from, loc.toward];
+      for (const id of used) {
+        if (!id.startsWith("point:")) {
+          if (!lmOk(id)) issues.push({ path: where, message: `region ${r.id} has no landmark ${id}`, severity: "error" });
+          continue;
+        }
+        const other = b.acupoints.get(id.slice("point:".length));
+        if (!other?.region || !other.localisation) issues.push({ path: where, message: `anchor ${id} is not a localised single point`, severity: "error" });
+        else if (other.region !== r.id && !meets(b, other.region, r.id)) issues.push({ path: where, message: `anchor ${id} lies on ${other.region}, which has no seam with ${r.id}`, severity: "error" });
+        else if (other.bilateral !== p.bilateral) issues.push({ path: where, message: `anchor ${id} must be ${p.bilateral ? "bilateral" : "on the midline"} like ${p.id}`, severity: "error" });
+      }
+      const dists = [loc.method === "along" ? loc.distance : undefined, loc.offset?.lateral, loc.offset?.medial, loc.offset?.cranial, loc.offset?.caudal, def.tolerance];
+      for (const d of dists) if (d && "segment" in d && !segs.has(d.segment)) issues.push({ path: where, message: `region ${r.id} has no segment ${d.segment}`, severity: "error" });
+      if (def.configuration && !r.configurations.some((c) => c.id === def.configuration)) issues.push({ path: where, message: `region ${r.id} has no configuration ${def.configuration}`, severity: "error" });
     }
-    const dists = [loc && loc.method === "along" ? loc.distance : undefined, loc?.offset?.lateral, loc?.offset?.medial, loc?.offset?.cranial, loc?.offset?.caudal, p.tolerance];
-    for (const d of dists) if (d && "segment" in d && !segs.has(d.segment)) issues.push({ path: at, message: `region ${r.id} has no segment ${d.segment}`, severity: "error" });
-    if (p.configuration && !r.configurations.some((c) => c.id === p.configuration)) issues.push({ path: at, message: `region ${r.id} has no configuration ${p.configuration}`, severity: "error" });
   }
   for (const r of b.regions.values()) {
     const lms = new Set(r.landmarks.map((l) => l.id));

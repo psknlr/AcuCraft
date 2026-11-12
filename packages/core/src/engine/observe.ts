@@ -1,7 +1,7 @@
 import { t } from "@clinicalcraft/core";
 import type { PointRef } from "../schema/actions.js";
 import type { EncounterState } from "../schema/state.js";
-import { pointInstance, regionAccess } from "./anatomy.js";
+import { pointInstance, pointTargets, regionAccess } from "./anatomy.js";
 import { consentCovers, currentPlan, currentVisit, fmt, needleList, now, parseRef, refKey, visitIndex } from "./queries.js";
 import { ACTION_PERMISSIONS } from "./rules.js";
 import { LOCALE } from "./runtime.js";
@@ -200,12 +200,13 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
     const refs: NonNullable<AgentView["teaching"]>["references"] = [];
     for (const p of plan?.plan.points ?? []) {
       if ("ashi" in p) continue;
-      const def = sc.bundle.acupoints.get(p.point);
-      if (!def?.region || !sc.bundle.regions.has(def.region)) continue;
+      const point = sc.bundle.acupoints.get(p.point);
+      const def = point && pointTargets(point).find((x) => x.site === (p.site ?? null))?.def;
+      if (!point || !def?.region || !sc.bundle.regions.has(def.region)) continue;
       const region = sc.bundle.regions.get(def.region)!;
       const access = regionAccess(region, p.side, s.patient.position);
-      const inst = pointInstance(sc, def, p.side, access.configuration);
-      if (inst) refs.push({ target: `${p.point}:${p.side}`, region: def.region, side: inst.side, u: round2(inst.position.u), v: round2(inst.position.v), toleranceCm: round2(inst.toleranceCm) });
+      const inst = pointInstance(sc, point, p.side, access.configuration, p.site);
+      if (inst) refs.push({ target: refKey(p as PointRef), region: def.region, side: inst.side, u: round2(inst.position.u), v: round2(inst.position.v), toleranceCm: round2(inst.toleranceCm) });
     }
     view.teaching = { references: refs, notes: ["Teaching mode: reference locations are shown; assessment mode shows none of them."] };
   }
@@ -249,6 +250,8 @@ export function referenceLibrary(sc: Scenario) {
     sites: p.sites ?? null,
     region: p.region && sc.bundle.regions.has(p.region) ? p.region : null,
     localisation: p.region && sc.bundle.regions.has(p.region) ? (p.localisation ?? null) : null,
+    // a group point's sites, each its own target (named as `site`), with its own chart and construction
+    siteLocalisations: p.region && p.siteLocalisations ? p.siteLocalisations.map((x) => ({ id: x.id, label: x.label, region: x.region ?? p.region!, localisation: x.localisation, tolerance: x.tolerance ?? p.tolerance })) : null,
     configuration: p.configuration ?? null,
     bilateral: p.bilateral,
     cautions: p.cautions.map((c) => ({ when: c.when, text: c.text, severity: c.severity })),

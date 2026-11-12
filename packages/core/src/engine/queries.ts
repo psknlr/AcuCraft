@@ -41,12 +41,12 @@ export function currentPlan(s: EncounterState): PlanVersion | null {
   return s.plans[s.plans.length - 1] ?? null;
 }
 
-export const refKey = (r: PointRef): string => ("ashi" in r ? `ashi:${r.ashi}` : `${r.point}:${r.side}`);
+export const refKey = (r: PointRef): string => ("ashi" in r ? `ashi:${r.ashi}` : `${r.point}:${r.side}${r.site ? `:${r.site}` : ""}`);
 
 /** The inverse of `refKey`. */
 export function parseRef(key: string): PointRef {
-  const [head, tail] = key.split(":") as [string, string | undefined];
-  return head === "ashi" ? { ashi: tail ?? "" } : ({ point: head, side: tail ?? "midline" } as PointRef);
+  const [head, tail, site] = key.split(":") as [string, string | undefined, string | undefined];
+  return head === "ashi" ? { ashi: tail ?? "" } : ({ point: head, side: tail ?? "midline", ...(site ? { site } : {}) } as PointRef);
 }
 
 export function planIncludes(plan: PlanVersion | null, r: PointRef): boolean {

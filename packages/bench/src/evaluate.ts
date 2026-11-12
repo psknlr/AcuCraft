@@ -7,6 +7,7 @@ import {
   needleList,
   pointInstance,
   positionAt,
+  refKey,
   retainedNeedles,
   unresolvedNeedles,
   type AttemptRecord,
@@ -123,15 +124,15 @@ const trackScore = (items: Item[]): number | null => {
   return w === 0 ? null : Math.round((scored.reduce((n, i) => n + (i.met ? i.weight : 0), 0) / w) * 1000) / 1000;
 };
 
-const keyOf = (r: PointRef | null): string => (!r ? "untargeted" : "ashi" in r ? `ashi:${r.ashi}` : `${r.point}:${r.side}`);
+const keyOf = (r: PointRef | null): string => (!r ? "untargeted" : refKey(r));
 
 function classify(sc: Scenario, target: PointRef | null, region: string, side: Side): PointResult["classification"] {
   const p = sc.field.evaluation.points;
   // a region to avoid (the lymphoedematous arm …) is avoided whatever point is named there
   if (p.avoid.some((a) => a.point === undefined && a.region === region && (a.side === undefined || a.side === side))) return "avoid";
   if (!target) return "untargeted";
-  const matches = (k: { point?: string; ashi?: string; side?: string }) =>
-    "ashi" in target ? k.ashi === target.ashi : k.point === target.point && (k.side === undefined || k.side === target.side);
+  const matches = (k: { point?: string; ashi?: string; side?: string; site?: string }) =>
+    "ashi" in target ? k.ashi === target.ashi : k.point === target.point && (k.side === undefined || k.side === target.side) && (k.site === undefined || k.site === target.site);
   if (p.avoid.some((a) => "point" in target && a.point === target.point && (a.side === undefined || a.side === target.side))) return "avoid";
   if (p.recommended.some(matches)) return "recommended";
   if (p.acceptable.some(matches)) return "acceptable";
@@ -229,7 +230,7 @@ export function evaluateEncounter(sc: Scenario, s: EncounterState): EncounterRep
     let tol: number | null = null;
     if (target && "point" in target) {
       const def = sc.bundle.acupoints.get(target.point);
-      const inst = def ? pointInstance(sc, def, target.side, ins.configuration) : null;
+      const inst = def ? pointInstance(sc, def, target.side, ins.configuration, target.site) : null;
       if (inst) {
         errorCm = Math.hypot(inst.position.u - ins.entry.u, inst.position.v - ins.entry.v);
         tol = inst.toleranceCm;

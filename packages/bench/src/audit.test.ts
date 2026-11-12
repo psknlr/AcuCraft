@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
-import { createEncounter, observeAs, pointInstance, step, type ActionRequestInput, type EncounterState, type Scenario } from "@acucraft/core";
+import { createEncounter, observeAs, patientRegion, pointInstance, regionAccess, step, type ActionRequestInput, type EncounterState, type Scenario } from "@acucraft/core";
 import { loadContentPack, requireScenario } from "./content.js";
 import { evaluateEncounter } from "./evaluate.js";
 
@@ -247,5 +247,63 @@ describe("audit: disposition, red-flag evidence, the first visit and the full co
     // a deferral with obstetric liaison calls for no further visit here
     const pregnant = requireScenario(pack, "sg-low-back-pain/pregnant");
     expect(evaluateEncounter(pregnant, replay(pregnant, pregnant.field.solution)).outcomes.fullCourse).toBeNull();
+  });
+});
+
+describe("audit: a group point is its sites, each a target of its own", () => {
+  /** A needle into `region` at `at`, meant for `target`, after the scenario's reference steps up to its first insertion. */
+  function needle(sc: Scenario, region: string, side: "left" | "right" | "midline", at: { u: number; v: number }, target: Record<string, unknown>) {
+    const sol = sc.field.solution;
+    const first = sol.findIndex((r) => r.action.type === "insert_needle");
+    const needleId = (sol[first]!.action as { needleId: string }).needleId;
+    const s = replay(sc, [...sol.slice(0, first), { requestId: "audit-group", actor: "practitioner", patient: "patient", action: { type: "insert_needle", needleId, region, side, at, target, depthCm: 0.2 } } as ActionRequestInput], false);
+    return evaluateEncounter(sc, s).points.find((p) => p.needle === needleId)!;
+  }
+  const knee = requireScenario(pack, "sg-knee-oa/base");
+  const cfgOf = (sc: Scenario, region: string, side: "left" | "right" | "midline") => regionAccess(sc.bundle.regions.get(region)!, side, "supine-knee-flexed").configuration;
+
+  it("Sishencong: four sites 1 B-cun round Baihui, and a needle at Baihui earns no Sishencong credit", () => {
+    const sishencong = knee.bundle.acupoints.get("EX-HN1")!;
+    const cfg = cfgOf(knee, "scalp", "midline");
+    expect(pointInstance(knee, sishencong, "midline", cfg)).toBeNull(); // no site, no target
+    const gv20 = pointInstance(knee, knee.bundle.acupoints.get("GV20")!, "midline", cfg)!.position;
+    const cun = patientRegion(knee, "scalp", "midline", cfg).cunCm("seg.hairlines")!;
+    const sites = ["anterior", "posterior", "left", "right"].map((site) => pointInstance(knee, sishencong, "midline", cfg, site)!.position);
+    for (const p of sites) expect(Math.hypot(p.u - gv20.u, p.v - gv20.v) / cun).toBeCloseTo(1, 1);
+    const atBaihui = needle(knee, "scalp", "midline", gv20, { point: "EX-HN1", side: "midline", site: "anterior" });
+    expect(atBaihui).toMatchObject({ target: "EX-HN1:midline:anterior", entered: "GV20:midline", withinTolerance: false });
+    // and at the site itself: credit for that site
+    expect(needle(knee, "scalp", "midline", sites[0]!, { point: "EX-HN1", side: "midline", site: "anterior" })).toMatchObject({ entered: "EX-HN1:midline:anterior", withinTolerance: true });
+  });
+
+  it("Shixuan: a hand and a digit; the index tip does not count for the middle finger", () => {
+    const shixuan = knee.bundle.acupoints.get("EX-UE11")!;
+    const cfg = cfgOf(knee, "hand-palm", "right");
+    const index = pointInstance(knee, shixuan, "right", cfg, "index")!.position;
+    expect(needle(knee, "hand-palm", "right", index, { point: "EX-UE11", side: "right", site: "middle" })).toMatchObject({ target: "EX-UE11:right:middle", entered: "EX-UE11:right:index", withinTolerance: false });
+    expect(needle(knee, "hand-palm", "right", index, { point: "EX-UE11", side: "right", site: "index" })).toMatchObject({ entered: "EX-UE11:right:index", withinTolerance: true });
+  });
+
+  it("Jiaji: a vertebral level and a side, scored level by level (L4 is not L3)", () => {
+    const lbp = requireScenario(pack, "sg-low-back-pain/base");
+    const jiaji = lbp.bundle.acupoints.get("EX-B2")!;
+    const cfg = regionAccess(lbp.bundle.regions.get("lumbar")!, "right", "prone").configuration;
+    const l4 = pointInstance(lbp, jiaji, "right", cfg, "l4")!.position;
+    const l3 = pointInstance(lbp, jiaji, "right", cfg, "l3")!.position;
+    expect(Math.hypot(l4.u - l3.u, l4.v - l3.v)).toBeGreaterThan(2);
+    expect(needle(lbp, "lumbar", "right", l4, { point: "EX-B2", side: "right", site: "l3" })).toMatchObject({ target: "EX-B2:right:l3", entered: "EX-B2:right:l4", withinTolerance: false });
+    // T1 to T12 lie on the upper back, L1 to L5 on the lumbar chart
+    expect(jiaji.siteLocalisations!.map((x) => x.region ?? jiaji.region)).toEqual([...Array(12).fill("upper-back"), ...Array(5).fill("lumbar")]);
+  });
+
+  it("naming a group point without a site, or a single point with one, is refused", () => {
+    const sol = knee.field.solution;
+    const first = sol.findIndex((r) => r.action.type === "insert_needle");
+    let s = replay(knee, sol.slice(0, first));
+    const mark = (target: Record<string, unknown>, region: string, side: string) => step(knee, s, { requestId: `audit-m-${region}`, actor: "practitioner", patient: "patient", action: { type: "mark_point", target, region, side, at: { u: 0, v: 0 }, method: "proportional" } } as ActionRequestInput);
+    expect(mark({ point: "EX-HN1", side: "midline" }, "scalp", "midline").attempt.status).toBe("rejected");
+    expect(mark({ point: "GV20", side: "midline", site: "anterior" }, "scalp", "midline").attempt.status).toBe("rejected");
+    s = mark({ point: "EX-HN1", side: "midline", site: "left" }, "scalp", "midline").state;
+    expect(Object.values(s.marks).at(-1)!.target).toEqual({ point: "EX-HN1", side: "midline", site: "left" });
   });
 });

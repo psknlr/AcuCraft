@@ -17,12 +17,9 @@ lateral midline of a limb chart +u runs on round the back of the limb, so there 
 anatomically medial side (on the dorsal forearm, towards the ulna) and 'medial' towards the radius; on the lateral
 elbow 'medial' (-u) is anterior. Each placement follows the point's paraphrased WHO (2008) location text.
 
-Group points (one code, several sites): the first, canonical site is placed and the rest are definitions only:
-  EX-UE2   the site on the ulnar side of the flexor carpi radialis tendon (between it and palmaris longus)
-  EX-UE7   the site between the second and third metacarpals
-  EX-UE9   the site in the web between the thumb and the index finger
-  EX-UE10  the index finger
-  EX-UE11  the thumb
+Group points (one code, several sites): Shixuan (EX-UE11), Sifeng (EX-UE10), Baxie (EX-UE9) and Yaotongdian (EX-UE7)
+are located site by site (SITES, at the end), each site its own target. Erbai (EX-UE2) is placed at its first,
+canonical site only: the site on the ulnar side of the flexor carpi radialis tendon.
 
 Every placement is an unreviewed, AI-assisted construction on a schematic model: check it against the standard
 before teaching use.
@@ -151,12 +148,8 @@ LOCALISE = {
     "SI2": ("hand-dorsum", landmark("mc5-mcp-ulnar", caudal=cm(0.8)), cm(0.5)),
     "TE3": ("hand-dorsum", landmark("cleft-4-5", cranial=cm(0.9)), cm(0.5)),
     "TE2": ("hand-dorsum", landmark("web-4-5", cranial=cm(0.3)), cm(0.5)),
-    # EX-UE7, canonical site: in the second intermetacarpal space, midway between the wrist crease and the knuckles
-    "EX-UE7": ("hand-dorsum", between("cleft-2-3", "wrist-dorsal-crease", 0.5, lateral=cm(0.5)), cm(0.6)),
     # about 0.5 B-cun (about 1 cm on the reference adult; the hand has no proportional segment) above the knuckles
     "EX-UE8": ("hand-dorsum", landmark("cleft-2-3", cranial=cm(1.0)), cm(0.5)),
-    # EX-UE9, canonical site: the web between the thumb and the index finger
-    "EX-UE9": ("hand-dorsum", landmark("web-margin", cranial=cm(0.3)), cm(0.5)),
     "EX-UE4": ("hand-dorsum", landmark("pip-3-dorsal"), cm(0.4)),
     "EX-UE5": ("hand-dorsum", landmark("ip-1-dorsal"), cm(0.4)),
     "EX-UE6": ("hand-dorsum", landmark("pip-5-dorsal"), cm(0.4)),
@@ -173,9 +166,28 @@ LOCALISE = {
     "LU10": ("hand-palm", between("mc1-base", "mc1-head", 0.5, lateral=cm(1.2)), cm(0.6)),
     "PC8": ("hand-palm", landmark("proximal-palmar-crease-2-3"), cm(0.5)),
     "HT8": ("hand-palm", landmark("distal-palmar-crease-4-5"), cm(0.5)),
-    # EX-UE10, canonical site: the index finger
-    "EX-UE10": ("hand-palm", landmark("pip-crease-2"), cm(0.4)),
-    # EX-UE11, canonical site: the thumb
-    "EX-UE11": ("hand-palm", landmark("tip-1"), cm(0.4)),
     "PC9": ("hand-palm", landmark("tip-3"), cm(0.4)),
+}
+
+
+# Group points located site by site (each its own target, per hand).
+FINGERS = [("thumb", 1), ("index", 2), ("middle", 3), ("ring", 4), ("little", 5)]
+SITES = {
+    # Shixuan: the tips of the fingers
+    "EX-UE11": ("hand-palm", [(name, f"tip of the {name} finger" if n > 1 else "tip of the thumb", None, landmark(f"tip-{n}"), cm(0.4)) for name, n in FINGERS]),
+    # Sifeng: the palmar crease of the proximal interphalangeal joint of the index to little fingers
+    "EX-UE10": ("hand-palm", [(name, f"proximal interphalangeal crease of the {name} finger", None, landmark(f"pip-crease-{n}"), cm(0.4)) for name, n in FINGERS[1:]]),
+    # Baxie: proximal to the margins of the four webs between the fingers (the middle-ring cleft midway between its
+    # neighbours: schematic)
+    "EX-UE9": ("hand-dorsum", [
+        ("web-1-2", "web between the thumb and the index finger", None, landmark("web-margin", cranial=cm(0.3)), cm(0.5)),
+        ("web-2-3", "web between the index and middle fingers", None, landmark("cleft-2-3", cranial=cm(0.3)), cm(0.5)),
+        ("web-3-4", "web between the middle and ring fingers", None, between("cleft-2-3", "cleft-4-5", 0.5, cranial=cm(0.3)), cm(0.5)),
+        ("web-4-5", "web between the ring and little fingers", None, landmark("cleft-4-5", cranial=cm(0.3)), cm(0.5)),
+    ]),
+    # Yaotongdian: midway between the wrist crease and the knuckles in the 2nd-3rd and 4th-5th intermetacarpal spaces
+    "EX-UE7": ("hand-dorsum", [
+        ("mc-2-3", "between the second and third metacarpals", None, between("cleft-2-3", "wrist-dorsal-crease", 0.5, lateral=cm(0.5)), cm(0.6)),
+        ("mc-4-5", "between the fourth and fifth metacarpals", None, between("cleft-4-5", "wrist-dorsal-crease", 0.5), cm(0.6)),
+    ]),
 }

@@ -15,9 +15,10 @@ import {
 } from "@clinicalcraft/core";
 import { ActionRequestSchema, type Action, type ActionRequest, type ActionRequestInput, type ActionType, type PointRef } from "../schema/actions.js";
 import { PositionSchema, type ChartPoint, type Position, type Side } from "../schema/common.js";
+import type { AcupointDefinition } from "../schema/knowledge.js";
 import type { UnsafeCode } from "../schema/field.js";
 import { ENCOUNTER_SCHEMA_ID, type AttemptRecord, type EncounterState, type Mode, type NeedleState, type Protection, type TaskState, type Violation } from "../schema/state.js";
-import { assessPath, patientRegion, pointInstance, regionAccess, type PathAssessment, type PatientRegion } from "./anatomy.js";
+import { assessPath, patientRegion, pointInstance, pointTargets, regionAccess, type PathAssessment, type PatientRegion } from "./anatomy.js";
 import { checkInvariants } from "./invariants.js";
 import { NPC_POLICIES } from "./npc.js";
 import {
@@ -329,7 +330,8 @@ function regionFrame(ctx: Ctx, regionId: string, side: Side): PatientRegion {
 const pointLabel = (sc: Scenario, r: PointRef): string => {
   if ("ashi" in r) return `Ashi point ${r.ashi}`;
   const p = sc.bundle.acupoints.get(r.point);
-  return `${r.point}${p ? ` ${p.names.pinyin}` : ""}${r.side !== "midline" ? ` (${r.side})` : ""}`;
+  const site = r.site ? p?.siteLocalisations?.find((x) => x.id === r.site)?.label ?? r.site : null;
+  return `${r.point}${p ? ` ${p.names.pinyin}` : ""}${site ? `, ${site}` : ""}${r.side !== "midline" ? ` (${r.side})` : ""}`;
 };
 
 const at2 = (p: ChartPoint) => `u=${fmt(p.u)} cm, v=${fmt(p.v)} cm`;
@@ -605,6 +607,17 @@ function enterPhase(sc: Scenario, s: EncounterState, phase: string, visit: numbe
   if (s.clinical.phase !== phase) clin(sc, s, { type: "set-phase", phase, by: "system" });
 }
 
+/** A group point with sites is planned, marked and needled site by site; a single point has no sites. Returns the
+ * named target (the site's own chart, construction and tolerance). */
+function requireSite(def: AcupointDefinition, ref: { site?: string | undefined }) {
+  const sites = def.siteLocalisations;
+  if (sites && !ref.site) throw new Rejection("invalid", `${def.id} is a group of ${sites.length} sites: name one (${sites.map((x) => x.id).join(", ")}).`);
+  if (!sites && ref.site) throw new Rejection("invalid", `${def.id} is a single point: it has no sites.`);
+  const target = pointTargets(def).find((t) => t.site === (ref.site ?? null));
+  if (sites && !target) throw new Rejection("unknown-id", `${def.id} has no site ${ref.site} (${sites.map((x) => x.id).join(", ")}).`);
+  return target ?? null;
+}
+
 /** Does the named target lie under the entry (within twice its tolerance, or twice an Ashi point's radius)? */
 function claimHolds(sc: Scenario, frame: PatientRegion, claimed: PointRef, region: string, side: Side, entry: ChartPoint): boolean {
   if ("ashi" in claimed) {
@@ -612,25 +625,28 @@ function claimHolds(sc: Scenario, frame: PatientRegion, claimed: PointRef, regio
     return !!a && a.region === region && a.side === side && Math.hypot(a.centre.u - entry.u, a.centre.v - entry.v) <= 2 * a.radiusCm;
   }
   const def = sc.bundle.acupoints.get(claimed.point);
-  if (!def || def.region !== region) return false;
+  const target = def && pointTargets(def).find((t) => t.site === (claimed.site ?? null));
+  if (!def || !target || target.def.region !== region) return false;
   if (def.bilateral && frame.region.laterality === "bilateral" && claimed.side !== side) return false;
-  const inst = pointInstance(sc, def, def.bilateral ? claimed.side : "midline", frame.configuration);
+  const inst = pointInstance(sc, def, def.bilateral ? claimed.side : "midline", frame.configuration, claimed.site);
   return !!inst && Math.hypot(inst.position.u - entry.u, inst.position.v - entry.v) <= 2 * inst.toleranceCm;
 }
 
 /** The point (or Ashi point) the entry lies on: planned points first, then any modelled point, within twice its tolerance. */
 function anatomicalTarget(sc: Scenario, frame: PatientRegion, region: string, side: Side, entry: ChartPoint, plan: ReturnType<typeof currentPlan>): PointRef | null {
   const found: { ref: PointRef; d: number; planned: boolean }[] = [];
-  for (const def of sc.bundle.acupoints.values()) {
-    if (def.region !== region || !def.localisation) continue;
-    const sides: Side[] = !def.bilateral ? ["midline"] : frame.region.laterality === "bilateral" ? [side] : ["left", "right"];
-    for (const ps of sides) {
-      if (def.bilateral && side === "midline" && frame.region.laterality === "bilateral") continue;
-      const inst = pointInstance(sc, def, ps, frame.configuration);
-      if (!inst) continue;
-      const d = Math.hypot(inst.position.u - entry.u, inst.position.v - entry.v) / inst.toleranceCm;
-      const ref: PointRef = { point: def.id, side: ps };
-      if (d <= 2) found.push({ ref, d, planned: planIncludes(plan, ref) });
+  for (const point of sc.bundle.acupoints.values()) {
+    for (const { site, def } of pointTargets(point)) {
+      if (def.region !== region) continue;
+      const sides: Side[] = !def.bilateral ? ["midline"] : frame.region.laterality === "bilateral" ? [side] : ["left", "right"];
+      for (const ps of sides) {
+        if (def.bilateral && side === "midline" && frame.region.laterality === "bilateral") continue;
+        const inst = pointInstance(sc, point, ps, frame.configuration, site);
+        if (!inst) continue;
+        const d = Math.hypot(inst.position.u - entry.u, inst.position.v - entry.v) / inst.toleranceCm;
+        const ref: PointRef = { point: point.id, side: ps, ...(site ? { site } : {}) };
+        if (d <= 2) found.push({ ref, d, planned: planIncludes(plan, ref) });
+      }
     }
   }
   for (const a of sc.field.patient.ashi) {
@@ -645,13 +661,15 @@ function anatomicalTarget(sc: Scenario, frame: PatientRegion, region: string, si
 
 /** Is the entry over a point cautioned for one of this patient's risk factors (within 1.5 times its tolerance)? */
 function cautionedAt(sc: Scenario, frame: PatientRegion, region: string, side: Side, entry: ChartPoint): boolean {
-  for (const def of sc.bundle.acupoints.values()) {
-    if (def.region !== region || !def.localisation) continue;
-    if (!def.cautions.some((c) => sc.field.patient.riskFactors.includes(c.when))) continue;
-    const sides: Side[] = !def.bilateral ? ["midline"] : frame.region.laterality === "bilateral" ? [side] : ["left", "right"];
-    for (const ps of sides) {
-      const inst = pointInstance(sc, def, ps, frame.configuration);
-      if (inst && Math.hypot(inst.position.u - entry.u, inst.position.v - entry.v) <= 1.5 * inst.toleranceCm) return true;
+  for (const point of sc.bundle.acupoints.values()) {
+    if (!point.cautions.some((c) => sc.field.patient.riskFactors.includes(c.when))) continue;
+    for (const { site, def } of pointTargets(point)) {
+      if (def.region !== region) continue;
+      const sides: Side[] = !def.bilateral ? ["midline"] : frame.region.laterality === "bilateral" ? [side] : ["left", "right"];
+      for (const ps of sides) {
+        const inst = pointInstance(sc, point, ps, frame.configuration, site);
+        if (inst && Math.hypot(inst.position.u - entry.u, inst.position.v - entry.v) <= 1.5 * inst.toleranceCm) return true;
+      }
     }
   }
   return false;
@@ -903,7 +921,8 @@ const HANDLERS: HandlerMap = {
       if (!def) throw new Rejection("unknown-id", `Unknown point ${p.point}.`);
       if (def.bilateral && p.side === "midline") throw new Rejection("invalid", `${p.point} is bilateral: plan it left or right.`);
       if (!def.bilateral && p.side !== "midline") throw new Rejection("invalid", `${p.point} is a midline point: its side is midline.`);
-      if (!def.region || !def.localisation || !sc.bundle.regions.has(def.region)) observe(ctx, `${p.point} has no localisation model: it cannot be needled here.`);
+      const target = requireSite(def, p);
+      if (!target || !sc.bundle.regions.has(target.def.region!)) observe(ctx, `${p.point} has no localisation model: it cannot be needled here.`);
     }
     const before = currentPlan(s);
     const coveredBefore = consentCovers(s);
@@ -1052,7 +1071,8 @@ const HANDLERS: HandlerMap = {
     if ("point" in a.target) {
       const def = sc.bundle.acupoints.get(a.target.point);
       if (!def) throw new Rejection("unknown-id", `Unknown point ${a.target.point}.`);
-      if (def.region !== a.region) throw new Rejection("wrong-region", `${def.id} is not in the ${frame.region.title}.`);
+      const target = requireSite(def, a.target);
+      if ((target?.def.region ?? def.region) !== a.region) throw new Rejection("wrong-region", `${pointLabel(sc, a.target)} is not in the ${frame.region.title}.`);
       const expected: Side = def.bilateral ? a.side : "midline";
       if (a.target.side !== expected) throw new Rejection("invalid", `${def.id} on this chart is ${expected === "midline" ? "a midline point" : `the ${expected} one`}.`);
       if (frame.region.laterality === "midline" && def.bilateral && a.side === "midline") throw new Rejection("invalid", `${def.id} is bilateral: mark it left or right.`);
@@ -1067,7 +1087,7 @@ const HANDLERS: HandlerMap = {
     observe(ctx, `Marked ${pointLabel(sc, a.target)} at ${at2(a.at)} (mark ${id}).`);
     touchSite(ctx, a.region, a.side, `marked ${id}`);
     if (s.mode === "teaching" && "point" in a.target) {
-      const ref = pointInstance(sc, sc.bundle.acupoints.get(a.target.point)!, a.side, frame.configuration);
+      const ref = pointInstance(sc, sc.bundle.acupoints.get(a.target.point)!, a.side, frame.configuration, a.target.site);
       if (ref) observe(ctx, `Teaching: ${fmt(Math.hypot(ref.position.u - a.at.u, ref.position.v - a.at.v))} cm from the reference location (tolerance ${fmt(ref.toleranceCm)} cm).`);
     }
     ctx.out.target = id;
@@ -1223,6 +1243,11 @@ const HANDLERS: HandlerMap = {
     let side: Side;
     let entry: ChartPoint;
     let target: PointRef | null = a.target ?? null;
+    if (target && "point" in target) {
+      const def = sc.bundle.acupoints.get(target.point);
+      if (!def) throw new Rejection("unknown-id", `Unknown point ${target.point}.`);
+      requireSite(def, target);
+    }
     let markId: string | null = null;
     let markStale = false;
     if (a.mark) {
