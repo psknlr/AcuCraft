@@ -10,7 +10,8 @@ adds what an acupuncture encounter needs on top of it.
 
 ```
  content/ (data)            standards · acupoints · regions · sg/ (roles, rule sets, clinic, vocabulary, evidence)
-                            world/ (the clinic's floor plan: a ClinicalCraft facility, room templates, a catalog)
+                            world/ (the clinic's floor plan: a ClinicalCraft facility, room templates, a catalog —
+                            and how it is drawn: a model for each equipment type, a skills room; docs/MODELS.md)
                             families/<id>/ case.json (ClinicalCraft) + field.json (AcuCraft) + variants/ + solutions/
         │
  @acucraft/core (pure)      schemas · scenario resolution (family + variant overlay) · patient-specific anatomy

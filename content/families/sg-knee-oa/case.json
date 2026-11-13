@@ -65,7 +65,15 @@
         "She is afraid she will need an operation, like her sister."
       ]
     },
-    "posture": "sitting"
+    "posture": "sitting",
+    "appearance": {
+      "skin": "#dab896",
+      "hair": "#8d8883",
+      "hairStyle": "curly",
+      "shirt": "#b3706e",
+      "pants": "#4a4a52",
+      "presentation": "feminine"
+    }
   },
   "phases": [
     {

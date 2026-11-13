@@ -1,0 +1,177 @@
+{
+  "type": "acu-needling-station-supine",
+  "note": "Written by tools/figure-fit.mts from the pinned ClinicalCraft's figure kit: do not edit. Metres, the type's frame.",
+  "manikin": {
+    "posture": "lying",
+    "cover": "towels",
+    "x": 0,
+    "y": 0.67,
+    "z": -0.05,
+    "rot": 0,
+    "appearance": {
+      "skin": "#dcb999",
+      "hair": "#2b2420",
+      "hairStyle": "short",
+      "build": "average",
+      "presentation": "neutral"
+    }
+  },
+  "surface": 0.67,
+  "head": {
+    "joint": [
+      0,
+      0.8176,
+      -0.665
+    ],
+    "lowest": [
+      0.7196,
+      -0.735
+    ]
+  },
+  "reach": {
+    "min": [
+      -0.319,
+      0.6576,
+      -0.845
+    ],
+    "max": [
+      0.319,
+      0.9553,
+      0.9254
+    ]
+  },
+  "sites": {
+    "PC6-left": {
+      "point": "PC6",
+      "side": "left",
+      "p": [
+        0.2755,
+        0.7415,
+        -0.0043
+      ],
+      "n": [
+        0.1279,
+        0.9132,
+        0.387
+      ],
+      "up": [
+        0.0569,
+        0.3828,
+        -0.9221
+      ],
+      "depthCm": 1,
+      "tiltDeg": 0,
+      "where": "2 cun above the wrist crease, between the two tendons"
+    },
+    "ST36-left": {
+      "point": "ST36",
+      "side": "left",
+      "p": [
+        0.1292,
+        0.8274,
+        0.4906
+      ],
+      "n": [
+        0.694,
+        0.7197,
+        0.0185
+      ],
+      "up": [
+        0.0128,
+        0.0133,
+        -0.9998
+      ],
+      "depthCm": 2,
+      "tiltDeg": 0,
+      "where": "3 cun below the outer eye of the knee, a finger's breadth outside the shin's crest"
+    },
+    "SP6-left": {
+      "point": "SP6",
+      "side": "left",
+      "p": [
+        0.0716,
+        0.8004,
+        0.725
+      ],
+      "n": [
+        -0.8252,
+        0.5548,
+        0.106
+      ],
+      "up": [
+        -0.088,
+        0.0591,
+        -0.9944
+      ],
+      "depthCm": 1.5,
+      "tiltDeg": 0,
+      "where": "3 cun above the tip of the inner ankle, behind the shin bone's inner border"
+    },
+    "PC6-right": {
+      "point": "PC6",
+      "side": "right",
+      "p": [
+        -0.2755,
+        0.7415,
+        -0.0043
+      ],
+      "n": [
+        -0.1279,
+        0.9132,
+        0.387
+      ],
+      "up": [
+        -0.0569,
+        0.3828,
+        -0.9221
+      ],
+      "depthCm": 1,
+      "tiltDeg": 0,
+      "where": "2 cun above the wrist crease, between the two tendons"
+    },
+    "ST36-right": {
+      "point": "ST36",
+      "side": "right",
+      "p": [
+        -0.1292,
+        0.8274,
+        0.4906
+      ],
+      "n": [
+        -0.694,
+        0.7197,
+        0.0185
+      ],
+      "up": [
+        -0.0128,
+        0.0133,
+        -0.9998
+      ],
+      "depthCm": 2,
+      "tiltDeg": 0,
+      "where": "3 cun below the outer eye of the knee, a finger's breadth outside the shin's crest"
+    },
+    "SP6-right": {
+      "point": "SP6",
+      "side": "right",
+      "p": [
+        -0.0716,
+        0.8004,
+        0.725
+      ],
+      "n": [
+        0.8252,
+        0.5548,
+        0.106
+      ],
+      "up": [
+        0.088,
+        0.0591,
+        -0.9944
+      ],
+      "depthCm": 1.5,
+      "tiltDeg": 0,
+      "where": "3 cun above the tip of the inner ankle, behind the shin bone's inner border"
+    }
+  }
+}

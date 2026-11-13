@@ -2,7 +2,25 @@
   "mcpServers": {
     "acucraft": {
       "command": "npm",
-      "args": ["run", "-s", "acu", "--", "mcp"]
+      "args": [
+        "run",
+        "-s",
+        "acu",
+        "--",
+        "mcp"
+      ]
+    },
+    "blender": {
+      "command": "uvx",
+      "args": [
+        "--python",
+        "3.11",
+        "blender-mcp==1.8.7"
+      ],
+      "env": {
+        "DISABLE_TELEMETRY": "true",
+        "UV_PYTHON_PREFERENCE": "only-managed"
+      }
     }
   }
 }

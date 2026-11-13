@@ -17,7 +17,7 @@ case = {
   "triageNote": "Walked in; asks whether acupuncture could help her back.", "tags": ["low back pain"],
   "persona": {"personality": "Busy, organised project manager; direct and a little impatient.", "speechStyle": "Clear Singapore English.", "healthLiteracy": "high", "affect": "calm",
    "openingLine": "Hi doctor — it's my lower back. It's been going on for months.", "fallbackUnknown": "I don't really know, sorry.", "concerns": ["She worries it is a slipped disc."]},
-  "posture": "sitting", "appearance": {"build": "average"}},
+  "posture": "sitting", "appearance": {"build": "average", "skin": "#c39a74", "hair": "#1e1917", "hairStyle": "ponytail", "shirt": "#3f8c86", "pants": "#2f3a4a", "presentation": "feminine"}},
  "phases": phases("Thursday 18:30 at the clinic, after work.", "One week later, same clinic."), "initialPhase": V1,
  "clock": {"mode": "simulated", "startTime": "18:30", "actionCosts": {"ask": 1, "examine": 2, "order": 0, "read": 1, "intervene": 1, "answer": 0}},
  "history": [

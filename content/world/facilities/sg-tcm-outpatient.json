@@ -94,10 +94,13 @@
       "floor": "floor",
       "walls": {
         "height": 3.2,
-        "base": "teal",
+        "base": "acu-dado",
         "body": "cream",
-        "top": "wood",
+        "top": "cream",
         "thickness": 0.35
+      },
+      "roof": {
+        "material": "acu-ceiling"
       },
       "openings": [
         {
@@ -210,10 +213,11 @@
         "w": 16,
         "d": 5
       },
-      "floor": "floor",
+      "floor": "acu-timber",
       "partitions": [
         {
           "side": "n",
+          "base": "acu-dado",
           "openings": [
             {
               "kind": "opening",
@@ -352,6 +356,7 @@
     {
       "id": "receptionist",
       "role": "receptionist",
+      "position": "receptionist",
       "name": {
         "zh-CN": "陈先生（前台）",
         "en": "Mr Tan (reception)"
@@ -360,6 +365,15 @@
       "x": -5.0,
       "z": 1.95,
       "rot": 0,
+      "appearance": {
+        "skin": "#dcb999",
+        "hair": "#2a2522",
+        "hairStyle": "short",
+        "shirt": "#e6dfcb",
+        "pants": "#354442",
+        "build": "average",
+        "presentation": "masculine"
+      },
       "greeting": {
         "zh-CN": "早上好。沿走廊左手第一间是诊室。",
         "en": "Good morning. The consultation room is the first door on the left along the corridor."

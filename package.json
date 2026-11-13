@@ -2,7 +2,7 @@
   "name": "acucraft",
   "version": "0.3.0",
   "private": true,
-  "description": "AcuCraft \u2014 an acupuncture simulation and evaluation environment built on the ClinicalCraft engine (Singapore edition)",
+  "description": "AcuCraft — an acupuncture simulation and evaluation environment built on the ClinicalCraft engine (Singapore edition)",
   "type": "module",
   "license": "MIT",
   "engines": {
@@ -30,10 +30,11 @@
   },
   "devDependencies": {
     "@types/node": "22.18.0",
+    "three": "0.180.0",
     "tsx": "4.20.6",
     "typescript": "5.9.3",
-    "vitest": "4.1.11",
-    "vite": "6.4.4"
+    "vite": "6.4.4",
+    "vitest": "4.1.11"
   },
   "overrides": {
     "vite": "6.4.4"

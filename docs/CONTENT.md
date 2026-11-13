@@ -14,9 +14,11 @@ content/
   sg/ruleset-*.json               acucraft/ruleset@1     versioned rule sets with effective dates
   sg/clinic.json                  acucraft/clinic@1      the simulated clinic: its facility, each room's home spot, the
                                                          placement every fixture stands on
-  world/facilities/*.json         clinicalcraft/facility@1          the clinic's floor plan, in ClinicalCraft's formats —
-  world/templates/*.json          clinicalcraft/room-template@1     written with sg/clinic.json by tools/content/clinic_world.py;
-  world/catalogs/*.json           clinicalcraft/equipment-catalog@1 docs/WORLD.md
+  world/facilities/*.json         clinicalcraft/facility@1          the clinic's floor plan and the skills room, in ClinicalCraft's
+  world/templates/*.json          clinicalcraft/room-template@1     formats — written with sg/clinic.json by
+  world/catalogs/*.json           clinicalcraft/equipment-catalog@1 tools/content/clinic_world.py; docs/WORLD.md
+  world/assets/models/*.glb       glTF                              a model for each equipment type, built by
+                                                                    tools/blender/build.py; docs/MODELS.md
   sg/vocabulary.json              acucraft/vocabulary@1  diagnoses, patterns, red flags (assessment ids); the signs, what
                                                          each pattern is recognised by, the needle sensations and deqi —
                                                          written by tools/content/vocabulary.py; docs/EVIDENCE.md

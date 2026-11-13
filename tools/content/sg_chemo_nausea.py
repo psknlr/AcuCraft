@@ -23,7 +23,7 @@ case = {
   "triageNote": "On adjuvant chemotherapy for breast cancer; asks about acupuncture for nausea.", "tags": ["nausea", "chemotherapy"],
   "persona": {"personality": "Gentle, tired, determined.", "speechStyle": "Soft-spoken Singapore English with some Malay.", "healthLiteracy": "medium", "affect": "calm",
    "openingLine": "Doctor, the chemo makes me so nauseous. My next cycle is next week.", "fallbackUnknown": "I'm not sure, doctor.", "concerns": ["She wants to be able to eat with her family."]},
-  "posture": "sitting", "appearance": {"build": "average"}},
+  "posture": "sitting", "appearance": {"build": "average", "skin": "#b98b68", "hair": "#2a2320", "hairStyle": "bob", "shirt": "#8d6ea0", "pants": "#3d4450", "presentation": "feminine"}},
  "phases": phases("Thursday 11:00 at the clinic, six days before her next chemotherapy cycle.", "One week later, three days after the cycle."), "initialPhase": V1,
  "clock": {"mode": "simulated", "startTime": "11:00", "actionCosts": {"ask": 1, "examine": 2, "order": 0, "read": 1, "intervene": 1, "answer": 0}},
  "history": [

@@ -17,7 +17,7 @@ case = {
   "triageNote": "Asks about acupuncture for her headaches.", "tags": ["headache"],
   "persona": {"personality": "Conscientious, tired, a little anxious.", "speechStyle": "Quiet Singapore English.", "healthLiteracy": "high", "affect": "calm",
    "openingLine": "Hello doctor. I keep getting these headaches.", "fallbackUnknown": "Hmm, I'm not sure.", "concerns": ["Her aunt had a brain tumour."]},
-  "posture": "sitting", "appearance": {"build": "average"}},
+  "posture": "sitting", "appearance": {"build": "average", "skin": "#e2c2a3", "hair": "#191514", "hairStyle": "long", "shirt": "#d98e73", "pants": "#55585f", "presentation": "feminine"}},
  "phases": phases("Friday 13:30 at the clinic.", "One week later, same clinic."), "initialPhase": V1,
  "clock": {"mode": "simulated", "startTime": "13:30", "actionCosts": {"ask": 1, "examine": 2, "order": 0, "read": 1, "intervene": 1, "answer": 0}},
  "history": [
