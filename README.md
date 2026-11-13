@@ -167,6 +167,7 @@ an encounter. There are no live-model results: this release was built without AP
 - [docs/EVALUATION.md](docs/EVALUATION.md) — endpoint, tracks, agents, statistics, the baseline
 - [docs/SINGAPORE.md](docs/SINGAPORE.md) — roles, rule sets and versions, what remains to verify
 - [docs/CONTENT.md](docs/CONTENT.md) — authoring families, variants, fields, conditions and reference trajectories
+- [docs/AUDIT-2026-11.md](docs/AUDIT-2026-11.md) — the November 2026 clinical and gameplay audit: what changed, the regression tests, what remains open
 
 ## Licence
 

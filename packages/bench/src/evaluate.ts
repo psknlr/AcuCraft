@@ -10,6 +10,7 @@ import {
   needleList,
   pointInstance,
   positionAt,
+  refKey,
   retainedNeedles,
   unresolvedNeedles,
   type AttemptRecord,
@@ -35,6 +36,7 @@ export const NOTICE = "Teaching-script measure for simulation research: not a va
 export const CRITICAL_UNSAFE: readonly UnsafeCode[] = [
   "insertion-without-consent",
   "insertion-after-consent-withdrawn",
+  "insertion-in-avoided-region",
   "needle-reuse",
   "non-sterile-needle",
   "critical-structure-contact",
@@ -58,7 +60,10 @@ export interface Track {
 
 export interface PointResult {
   needle: string;
+  /** The point aimed at: the one the operator named or marked, else the one the entry lies on. */
   target: string;
+  /** The point the entry lies on: the intended one if it does, else the nearest (`untargeted`: none within reach). */
+  entered: string;
   classification: "recommended" | "acceptable" | "avoid" | "unlisted" | "untargeted";
   side: string;
   errorCm: number | null;
@@ -98,6 +103,13 @@ export interface EncounterReport {
   };
   pathways: { id: string; label: string; acceptable: boolean; holds: boolean }[];
   followUp: { expected: boolean; started: boolean; pathway: string | null; acceptable: boolean | null } | null;
+  /**
+   * Outcomes reported apart (the primary endpoint is the disposition): an acceptable pathway completed; every red
+   * flag the case shows recognised on evidence the learner had (null: none); the first visit managed acceptably and
+   * safely; and, only where the pathway calls for another visit, the planned course completed (null otherwise).
+   */
+  outcomes: { disposition: boolean; redFlagsOnEvidence: boolean | null; initialVisit: boolean; fullCourse: boolean | null };
+  redFlags: { id: string; asserted: boolean; evidenced: boolean }[];
   criticalErrors: CriticalError[];
   unsafe: { executed: Record<string, number>; blocked: Record<string, number>; total: number };
   tracks: { reasoning: Track; localisation: Track; procedure: Track; collaboration: Track; followUp: Track };
@@ -140,15 +152,15 @@ const trackScore = (items: Item[]): number | null => {
   return w === 0 ? null : Math.round((scored.reduce((n, i) => n + (i.met ? i.weight : 0), 0) / w) * 1000) / 1000;
 };
 
-const keyOf = (r: PointRef | null): string => (!r ? "untargeted" : "ashi" in r ? `ashi:${r.ashi}` : `${r.point}:${r.side}`);
+const keyOf = (r: PointRef | null): string => (!r ? "untargeted" : refKey(r));
 
 function classify(sc: Scenario, target: PointRef | null, region: string, side: Side): PointResult["classification"] {
   const p = sc.field.evaluation.points;
   // a region to avoid (the lymphoedematous arm …) is avoided whatever point is named there
   if (p.avoid.some((a) => a.point === undefined && a.region === region && (a.side === undefined || a.side === side))) return "avoid";
   if (!target) return "untargeted";
-  const matches = (k: { point?: string; ashi?: string; side?: string }) =>
-    "ashi" in target ? k.ashi === target.ashi : k.point === target.point && (k.side === undefined || k.side === target.side);
+  const matches = (k: { point?: string; ashi?: string; side?: string; site?: string }) =>
+    "ashi" in target ? k.ashi === target.ashi : k.point === target.point && (k.side === undefined || k.side === target.side) && (k.site === undefined || k.site === target.site);
   if (p.avoid.some((a) => "point" in target && a.point === target.point && (a.side === undefined || a.side === target.side))) return "avoid";
   if (p.recommended.some(matches)) return "recommended";
   if (p.acceptable.some(matches)) return "acceptable";
@@ -163,7 +175,7 @@ export function evaluateEncounter(sc: Scenario, s: EncounterState): EncounterRep
   const adjudication: EncounterReport["adjudication"] = [];
 
   /* pathways */
-  const pathways = ev.pathways.map((p) => ({ id: p.id, label: p.label, acceptable: p.acceptable, holds: cond(p.when) }));
+  const pathways = ev.pathways.map((p) => ({ id: p.id, label: p.label, acceptable: p.acceptable, holds: cond(p.when), continues: p.continues }));
   const achieved = pathways.find((p) => p.acceptable && p.holds) ?? null;
   const wrong = pathways.find((p) => !p.acceptable && p.holds) ?? null;
 
@@ -205,8 +217,12 @@ export function evaluateEncounter(sc: Scenario, s: EncounterState): EncounterRep
   for (const e of ev.required.exam) reasoning.push({ id: `exam:${e}`, label: `examined: ${sc.case.exam.find((x) => x.id === e)?.maneuver ?? e}`, met: s.clinical.examined.includes(e), weight: 1 });
   for (const r of ev.required.records) reasoning.push({ id: `record:${r}`, label: `reviewed: ${r}`, met: s.clinical.seen.some((k) => k.startsWith(`${r}@`)), weight: 1 });
   const flagged = new Set(s.assessments.flatMap((a) => a.redFlags));
-  for (const rf of ev.redFlags) {
-    if (rf.present) reasoning.push({ id: `red-flag:${rf.id}`, label: `recognised red flag: ${rf.id}`, met: flagged.has(rf.id), weight: 2 });
+  // a red flag is recognised on evidence the learner had: shown at the outset, or obtained by asking, examining or
+  // reading a report; a learner who already has it may refer at once
+  const redFlags = ev.redFlags.filter((rf) => rf.present).map((rf) => ({ id: rf.id, asserted: flagged.has(rf.id), evidenced: rf.evident || rf.evidence.some((c) => cond(c)) }));
+  for (const rf of redFlags) {
+    reasoning.push({ id: `red-flag:${rf.id}`, label: `recognised red flag: ${rf.id}`, met: rf.asserted, weight: 2 });
+    reasoning.push({ id: `red-flag-evidence:${rf.id}`, label: `had the evidence for ${rf.id} (opening statement, history, examination or report)`, met: rf.evidenced, weight: 1 });
   }
   const invented = [...flagged].filter((id) => ev.redFlags.some((r) => r.id === id && !r.present));
   reasoning.push({ id: "red-flags-not-invented", label: "no red flag asserted that the case does not show", met: invented.length === 0, weight: 1, ...(invented.length ? { detail: invented.join(", ") } : {}) });
@@ -255,12 +271,13 @@ export function evaluateEncounter(sc: Scenario, s: EncounterState): EncounterRep
   for (const n of needleList(s)) {
     const ins = n.insertion;
     if (!ins) continue;
-    const target = ins.target;
+    // localisation is judged against the point the operator meant; the tissue risk comes from the actual path
+    const target = ins.intended ?? ins.target;
     let errorCm: number | null = null;
     let tol: number | null = null;
     if (target && "point" in target) {
       const def = sc.bundle.acupoints.get(target.point);
-      const inst = def ? pointInstance(sc, def, target.side, ins.configuration) : null;
+      const inst = def ? pointInstance(sc, def, target.side, ins.configuration, target.site) : null;
       if (inst) {
         errorCm = Math.hypot(inst.position.u - ins.entry.u, inst.position.v - ins.entry.v);
         tol = inst.toleranceCm;
@@ -275,7 +292,10 @@ export function evaluateEncounter(sc: Scenario, s: EncounterState): EncounterRep
     points.push({
       needle: n.id,
       target: keyOf(target),
-      classification: classify(sc, target, ins.region, ins.side),
+      // the intended point when the entry lies on it (within twice its tolerance), else the point it lies on
+      entered: keyOf(ins.target),
+      // the choice is the operator's, but a point to avoid is avoided wherever the needle actually went
+      classification: classify(sc, ins.target, ins.region, ins.side) === "avoid" ? "avoid" : classify(sc, target, ins.region, ins.side),
       side: ins.side,
       errorCm: errorCm === null ? null : Math.round(errorCm * 100) / 100,
       toleranceCm: tol === null ? null : Math.round(tol * 100) / 100,
@@ -289,6 +309,7 @@ export function evaluateEncounter(sc: Scenario, s: EncounterState): EncounterRep
   const localisation: Item[] = [];
   for (const p of points) {
     localisation.push({ id: `accuracy:${p.needle}`, label: `${p.target} located within tolerance`, met: p.withinTolerance, weight: 1, ...(p.errorCm !== null ? { detail: `${p.errorCm} cm (tolerance ${p.toleranceCm} cm)` } : {}) });
+    if (p.target !== "untargeted") localisation.push({ id: `identity:${p.needle}`, label: `the needle meant for ${p.target} went into it`, met: p.entered === p.target, weight: 2, detail: p.entered === p.target ? p.target : `entered at ${p.entered}` });
     localisation.push({ id: `selection:${p.needle}`, label: `${p.target} is an appropriate point here`, met: p.classification === "recommended" || p.classification === "acceptable" ? true : p.classification === "avoid" || p.classification === "untargeted" ? false : null, weight: p.classification === "avoid" ? 3 : 1, detail: p.classification });
     if (p.classification === "unlisted") adjudication.push({ kind: "point", detail: `${p.target} (${p.needle}) is not in the scenario's lists` });
   }
@@ -319,7 +340,7 @@ export function evaluateEncounter(sc: Scenario, s: EncounterState): EncounterRep
     procedure.push({ id: "site-preparation", label: "needling sites prepared", met: !anyUnsafe("site-not-prepared"), weight: 1 });
     procedure.push({ id: "sterile-single-use", label: "sterile single-use needles only, never reused", met: !anyUnsafe("non-sterile-needle") && !anyUnsafe("needle-reuse"), weight: 3 });
     procedure.push({ id: "within-plan", label: "needled only consented, planned points", met: !anyUnsafe("insertion-outside-plan"), weight: 1 });
-    procedure.push({ id: "avoided-sites", label: "no needle at a site to avoid or a cautioned point", met: !anyUnsafe("insertion-on-avoided-site") && !anyUnsafe("insertion-at-cautioned-point"), weight: 2 });
+    procedure.push({ id: "avoided-sites", label: "no needle at a site to avoid or a cautioned point", met: !anyUnsafe("insertion-on-avoided-site") && !anyUnsafe("insertion-at-cautioned-point") && !anyUnsafe("insertion-in-avoided-region"), weight: 2 });
     procedure.push({ id: "safe-paths", label: "no needle path reached a critical structure or the pleura", met: !anyUnsafe("critical-structure-contact") && !anyUnsafe("pleura-penetration"), weight: 3 });
     const nerve = s.attempts.filter((a) => a.unsafe.includes("nerve-contact") && a.status === "executed");
     procedure.push({ id: "nerve", label: "no needle reached a nerve", met: nerve.length === 0, weight: 1 });
@@ -403,7 +424,8 @@ export function evaluateEncounter(sc: Scenario, s: EncounterState): EncounterRep
   const fu = ev.followUp;
   if (fu) {
     const referralPathway = achieved !== null && /refer|emergency/.test(achieved.id);
-    const expected = !referralPathway && treated;
+    // only a pathway that calls for another visit expects one
+    const expected = achieved?.continues ?? (!referralPathway && treated);
     const started = s.visits.length > 1;
     const fuPaths = fu.pathways.map((p) => ({ ...p, holds: cond(p.when) }));
     const fuAchieved = fuPaths.find((p) => p.acceptable && p.holds) ?? null;
@@ -485,6 +507,13 @@ export function evaluateEncounter(sc: Scenario, s: EncounterState): EncounterRep
     adjudication.push({ kind: "pathway", detail: "completed safely on a course the scenario does not list: for independent review" });
   } else status = "failure";
 
+  const outcomes: EncounterReport["outcomes"] = {
+    disposition: achieved !== null,
+    redFlagsOnEvidence: redFlags.length > 0 ? redFlags.every((r) => r.asserted && r.evidenced) : null,
+    initialVisit: achieved !== null && criticalErrors.length === 0 && cond({ visitEnded: 1 }),
+    fullCourse: followUp?.expected ? s.finished && followUp.acceptable === true && criticalErrors.length === 0 : null,
+  };
+
   const tracks = {
     reasoning: { score: trackScore(reasoning), items: reasoning },
     localisation: { score: trackScore(localisation), items: localisation },
@@ -504,8 +533,10 @@ export function evaluateEncounter(sc: Scenario, s: EncounterState): EncounterRep
     engine: { acucraft: ACUCRAFT_VERSION },
     finished: s.finished,
     primary: { status, success: status === "success", pathway: achieved?.id ?? wrong?.id ?? null, reasons },
-    pathways,
+    pathways: pathways.map(({ continues: _c, ...p }) => p),
     followUp,
+    outcomes,
+    redFlags,
     criticalErrors,
     unsafe: { executed, blocked, total: Object.values(executed).reduce((a, b) => a + b, 0) + Object.values(blocked).reduce((a, b) => a + b, 0) },
     tracks,

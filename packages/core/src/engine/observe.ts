@@ -1,7 +1,7 @@
 import { t } from "@clinicalcraft/core";
 import type { PointRef } from "../schema/actions.js";
 import type { EncounterState } from "../schema/state.js";
-import { pointInstance, regionAccess } from "./anatomy.js";
+import { pointInstance, pointTargets, regionAccess } from "./anatomy.js";
 import { consentCovers, currentPlan, currentVisit, fellUnseen, fmt, needleList, now, parseRef, refKey, visitIndex } from "./queries.js";
 import { needleEvidence, recordEvidenceId } from "./evidence.js";
 import { ACTION_PERMISSIONS } from "./rules.js";
@@ -117,7 +117,9 @@ export interface AgentView {
   };
   team: { id: string; name: string; role: string; location: string }[];
   tasks: { id: string; kind: string; from: string; to: string; status: string; params: Record<string, unknown>; unmet: string[] }[];
-  counts: { minute: number; by: string; reconciled: boolean; unaccounted: number }[];
+  counts: { minute: number; by: string; reconciled: boolean; unaccounted: number; method: string; reportedBy: string | null }[];
+  /** The treatment couches: when each was last cleaned and made up, by whom, and what was done. */
+  couches: { room: string; prepared: { minute: number; by: string; done: string[] } | null }[];
   rules: { id: string; title: string; version: string; effectiveFrom: string; encoding: string; rules: { id: string; title: string; enforcement: string }[] }[];
   last: { requestId: string; type: string; status: string; message: string; observations: string[] } | null;
   teaching?: { references: { target: string; region: string; side: string; u: number; v: number; toleranceCm: number }[]; notes: string[] };
@@ -314,7 +316,8 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
     tasks: Object.values(s.tasks)
       .filter((tk) => tk.assignee === actorId || tk.assignedBy === actorId)
       .map((tk) => ({ id: tk.id, kind: tk.kind, from: tk.assignedBy, to: tk.assignee, status: tk.status, params: tk.params, unmet: tk.unmet })),
-    counts: s.counts.filter((c) => c.visit === visit.index).map((c) => ({ minute: c.at, by: c.by, reconciled: c.reconciled, unaccounted: c.unaccounted })),
+    counts: s.counts.filter((c) => c.visit === visit.index).map((c) => ({ minute: c.at, by: c.by, reconciled: c.reconciled, unaccounted: c.unaccounted, method: c.method, reportedBy: c.reportedBy })),
+    couches: Object.entries(s.couches).map(([room, c]) => ({ room, prepared: c.prepared ? { minute: c.prepared.at, by: c.prepared.by, done: c.prepared.done } : null })),
     rules: (sc.rules.get(visitIndex(s)) ?? []).map((r) => ({ id: r.id, title: r.title, version: r.version, effectiveFrom: r.effectiveFrom, encoding: r.encoding, rules: r.rules.map((x) => ({ id: x.id, title: x.title, enforcement: x.enforcement })) })),
     last: (() => {
       const a = [...s.attempts].reverse().find((x) => x.actor === actorId);
@@ -326,12 +329,13 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
     const refs: NonNullable<AgentView["teaching"]>["references"] = [];
     for (const p of plan?.plan.points ?? []) {
       if ("ashi" in p) continue;
-      const def = sc.bundle.acupoints.get(p.point);
-      if (!def?.region || !sc.bundle.regions.has(def.region)) continue;
+      const point = sc.bundle.acupoints.get(p.point);
+      const def = point && pointTargets(point).find((x) => x.site === (p.site ?? null))?.def;
+      if (!point || !def?.region || !sc.bundle.regions.has(def.region)) continue;
       const region = sc.bundle.regions.get(def.region)!;
       const access = regionAccess(region, p.side, s.patient.position);
-      const inst = pointInstance(sc, def, p.side, access.configuration);
-      if (inst) refs.push({ target: `${p.point}:${p.side}`, region: def.region, side: inst.side, u: round2(inst.position.u), v: round2(inst.position.v), toleranceCm: round2(inst.toleranceCm) });
+      const inst = pointInstance(sc, point, p.side, access.configuration, p.site);
+      if (inst) refs.push({ target: refKey(p as PointRef), region: def.region, side: inst.side, u: round2(inst.position.u), v: round2(inst.position.v), toleranceCm: round2(inst.toleranceCm) });
     }
     view.teaching = { references: refs, notes: ["Teaching mode: reference locations are shown; assessment mode shows none of them."] };
   }
@@ -375,6 +379,8 @@ export function referenceLibrary(sc: Scenario) {
     sites: p.sites ?? null,
     region: p.region && sc.bundle.regions.has(p.region) ? p.region : null,
     localisation: p.region && sc.bundle.regions.has(p.region) ? (p.localisation ?? null) : null,
+    // a group point's sites, each its own target (named as `site`), with its own chart and construction
+    siteLocalisations: p.region && p.siteLocalisations ? p.siteLocalisations.map((x) => ({ id: x.id, label: x.label, region: x.region ?? p.region!, localisation: x.localisation, tolerance: x.tolerance ?? p.tolerance })) : null,
     configuration: p.configuration ?? null,
     bilateral: p.bilateral,
     cautions: p.cautions.map((c) => ({ when: c.when, text: c.text, severity: c.severity })),
@@ -396,7 +402,7 @@ export function referenceLibrary(sc: Scenario) {
     },
     clinic: { rooms: sc.clinic.rooms, supplies: sc.clinic.supplies, referralTargets: sc.clinic.referralTargets, floorPlan: floorPlan(sc) },
     roles: sc.roles.roles.map((r) => ({ id: r.id, label: r.label, kind: r.kind, registration: r.registration, grants: r.grants, acceptsTasks: r.acceptsTasks })),
-    rules: [...sc.rules.entries()].map(([visit, sets]) => ({ visit, sets: sets.map((r) => ({ id: r.id, title: r.title, version: r.version, effectiveFrom: r.effectiveFrom, encoding: r.encoding, source: r.source, rules: r.rules.map((x) => ({ id: x.id, title: x.title, summary: x.summary, severity: x.severity, enforcement: x.enforcement })) })) })),
+    rules: [...sc.rules.entries()].map(([visit, sets]) => ({ visit, sets: sets.map((r) => ({ id: r.id, title: r.title, version: r.version, effectiveFrom: r.effectiveFrom, encoding: r.encoding, source: r.source, rules: r.rules.map((x) => ({ id: x.id, title: x.title, summary: x.summary, severity: x.severity, enforcement: x.enforcement, check: x.check })) })) })),
     evidence: sc.bundle.evidence.filter((e) => e.condition === sc.family.condition),
   };
 }

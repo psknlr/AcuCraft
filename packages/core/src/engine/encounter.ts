@@ -14,10 +14,11 @@ import {
   type Result,
 } from "@clinicalcraft/core";
 import { ActionRequestSchema, type Action, type ActionRequest, type ActionRequestInput, type ActionType, type PointRef } from "../schema/actions.js";
-import { PositionSchema, type ChartPoint, type Side } from "../schema/common.js";
+import { PositionSchema, type ChartPoint, type Position, type Side } from "../schema/common.js";
+import type { AcupointDefinition } from "../schema/knowledge.js";
 import type { UnsafeCode } from "../schema/field.js";
 import { ENCOUNTER_SCHEMA_ID, type AttemptRecord, type EncounterState, type Mode, type NeedleState, type Protection, type TaskState, type Violation } from "../schema/state.js";
-import { assessPath, patientRegion, pointInstance, regionAccess, type PathAssessment, type PatientRegion } from "./anatomy.js";
+import { assessPath, patientRegion, pointInstance, pointTargets, regionAccess, type PathAssessment, type PatientRegion } from "./anatomy.js";
 import { addEvidence, describeGrasp, describeSensation, DEQI_THRESHOLD, evidenceById, needleEvidence, needleResponse, patternSupport, recordEvidenceId, showsDeqi, STRONG_RESPONSE } from "./evidence.js";
 import { checkInvariants } from "./invariants.js";
 import { NPC_POLICIES } from "./npc.js";
@@ -112,6 +113,7 @@ export function createEncounter(sc: Scenario, opts: EncounterOptions = {}): Enco
     landmarks: [],
     measurements: [],
     marks: {},
+    couches: Object.fromEntries(sc.clinic.rooms.filter((r) => r.fixtures.some((f) => f.kind === "couch")).map((r) => [r.id, { prepared: null }])),
     sitesPrepared: [],
     revealedConditions: [],
     revealedAshi: [],
@@ -347,7 +349,8 @@ function regionFrame(ctx: Ctx, regionId: string, side: Side): PatientRegion {
 const pointLabel = (sc: Scenario, r: PointRef): string => {
   if ("ashi" in r) return `Ashi point ${r.ashi}`;
   const p = sc.bundle.acupoints.get(r.point);
-  return `${r.point}${p ? ` ${p.names.pinyin}` : ""}${r.side !== "midline" ? ` (${r.side})` : ""}`;
+  const site = r.site ? p?.siteLocalisations?.find((x) => x.id === r.site)?.label ?? r.site : null;
+  return `${r.point}${p ? ` ${p.names.pinyin}` : ""}${site ? `, ${site}` : ""}${r.side !== "midline" ? ` (${r.side})` : ""}`;
 };
 
 const at2 = (p: ChartPoint) => `u=${fmt(p.u)} cm, v=${fmt(p.v)} cm`;
@@ -357,6 +360,40 @@ function violation(r: RuleInForce, detail: string, unsafe: UnsafeCode | null): V
 }
 
 const handsClean = (a: { hygieneSeq: number | null; soiledSeq: number | null }) => a.hygieneSeq !== null && (a.soiledSeq === null || a.hygieneSeq > a.soiledSeq);
+
+/** The patient takes a new position: skin marks made in another configuration of their region go stale. */
+function setPatientPosition(ctx: Ctx, position: Position): void {
+  const { s, sc } = ctx;
+  s.patient.position = position;
+  // skin marks made in another configuration of their region no longer lie over the points
+  let stale = 0;
+  for (const m of Object.values(s.marks)) {
+    if (m.visit !== visitIndex(s) || m.stale) continue;
+    const region = sc.bundle.regions.get(m.region)!;
+    const access = regionAccess(region, m.side, position);
+    if (access.configuration !== m.configuration) {
+      m.stale = true;
+      stale += 1;
+      const nearest = [...region.landmarks].sort((x, y) => Math.hypot(x.at.u - m.position.u, x.at.v - m.position.v) - Math.hypot(y.at.u - m.position.u, y.at.v - m.position.v))[0];
+      const from = nearest?.configurations[m.configuration] ?? { du: 0, dv: 0 };
+      const to = nearest?.configurations[access.configuration] ?? { du: 0, dv: 0 };
+      m.position = { u: m.position.u + (to.du - from.du), v: m.position.v + (to.dv - from.dv) };
+    }
+  }
+  if (stale > 0) observe(ctx, `${stale} skin mark(s) were made in another position and have moved with the skin: re-localise before needling.`);
+}
+
+/** Handling cleaned skin again undoes its preparation (the skin is touched after cleaning). */
+function touchSite(ctx: Ctx, region: string, side: Side, how: string): void {
+  const { s } = ctx;
+  let undone = false;
+  for (const p of s.sitesPrepared) {
+    if (p.visit !== visitIndex(s) || p.region !== region || p.side !== side || p.touched) continue;
+    p.touched = { at: now(s), by: ctx.actor.id, how };
+    undone = true;
+  }
+  if (undone) observe(ctx, `The cleaned skin (${side} ${region}) has been touched again: prepare it again before needling.`);
+}
 
 function soil(s: EncounterState, actor: { soiledSeq: number | null }): void {
   s.seq += 1;
@@ -545,7 +582,7 @@ function checkClaim(ctx: Ctx, claim: Claim): boolean {
     case "consent-obtained":
       return consentCovers(s);
     case "site-prepared":
-      return s.sitesPrepared.some((p) => p.visit === v);
+      return s.sitesPrepared.some((p) => p.visit === v && p.touched === null);
     case "hands-clean":
       return handsClean(ctx.actor);
     case "deqi-obtained":
@@ -602,7 +639,7 @@ export function taskUnmet(sc: Scenario, s: EncounterState, task: TaskState, find
       break;
     }
     case "count-needles":
-      if (!s.counts.some((c) => c.by === me && c.at >= since)) unmet.push("no count was made");
+      if (!s.counts.some((c) => c.by === me && c.method === "observed" && c.at >= since)) unmet.push("no count was made at the bedside");
       break;
     case "dispose-sharps":
       if (needleList(s).some((n) => n.location.kind === "tray")) unmet.push("opened needles are still on the tray");
@@ -613,11 +650,10 @@ export function taskUnmet(sc: Scenario, s: EncounterState, task: TaskState, find
     case "chaperone":
       if (s.actors[me]?.location !== s.patient.location) unmet.push("not in the room with the patient");
       break;
-    case "prepare-couch": {
-      const room = sc.clinic.rooms.find((r) => r.id === s.actors[me]?.location);
-      if (!room?.fixtures.some((f) => f.kind === "couch")) unmet.push("not at a treatment couch");
+    case "prepare-couch":
+      // done when the assignee cleaned and made up a couch after taking the task, wherever they stand now
+      if (!Object.values(s.couches).some((c) => c.prepared?.by === me && c.prepared.at >= since)) unmet.push("the couch was not cleaned and made up");
       break;
-    }
   }
   return unmet;
 }
@@ -658,6 +694,17 @@ function enterPhase(sc: Scenario, s: EncounterState, phase: string, visit: numbe
   if (s.clinical.phase !== phase) clin(sc, s, { type: "set-phase", phase, by: "system" });
 }
 
+/** A group point with sites is planned, marked and needled site by site; a single point has no sites. Returns the
+ * named target (the site's own chart, construction and tolerance). */
+function requireSite(def: AcupointDefinition, ref: { site?: string | undefined }) {
+  const sites = def.siteLocalisations;
+  if (sites && !ref.site) throw new Rejection("invalid", `${def.id} is a group of ${sites.length} sites: name one (${sites.map((x) => x.id).join(", ")}).`);
+  if (!sites && ref.site) throw new Rejection("invalid", `${def.id} is a single point: it has no sites.`);
+  const target = pointTargets(def).find((t) => t.site === (ref.site ?? null));
+  if (sites && !target) throw new Rejection("unknown-id", `${def.id} has no site ${ref.site} (${sites.map((x) => x.id).join(", ")}).`);
+  return target ?? null;
+}
+
 /** Does the named target lie under the entry (within twice its tolerance, or twice an Ashi point's radius)? */
 function claimHolds(sc: Scenario, frame: PatientRegion, claimed: PointRef, region: string, side: Side, entry: ChartPoint): boolean {
   if ("ashi" in claimed) {
@@ -665,25 +712,28 @@ function claimHolds(sc: Scenario, frame: PatientRegion, claimed: PointRef, regio
     return !!a && a.region === region && a.side === side && Math.hypot(a.centre.u - entry.u, a.centre.v - entry.v) <= 2 * a.radiusCm;
   }
   const def = sc.bundle.acupoints.get(claimed.point);
-  if (!def || def.region !== region) return false;
+  const target = def && pointTargets(def).find((t) => t.site === (claimed.site ?? null));
+  if (!def || !target || target.def.region !== region) return false;
   if (def.bilateral && frame.region.laterality === "bilateral" && claimed.side !== side) return false;
-  const inst = pointInstance(sc, def, def.bilateral ? claimed.side : "midline", frame.configuration);
+  const inst = pointInstance(sc, def, def.bilateral ? claimed.side : "midline", frame.configuration, claimed.site);
   return !!inst && Math.hypot(inst.position.u - entry.u, inst.position.v - entry.v) <= 2 * inst.toleranceCm;
 }
 
 /** The point (or Ashi point) the entry lies on: planned points first, then any modelled point, within twice its tolerance. */
 function anatomicalTarget(sc: Scenario, frame: PatientRegion, region: string, side: Side, entry: ChartPoint, plan: ReturnType<typeof currentPlan>): PointRef | null {
   const found: { ref: PointRef; d: number; planned: boolean }[] = [];
-  for (const def of sc.bundle.acupoints.values()) {
-    if (def.region !== region || !def.localisation) continue;
-    const sides: Side[] = !def.bilateral ? ["midline"] : frame.region.laterality === "bilateral" ? [side] : ["left", "right"];
-    for (const ps of sides) {
-      if (def.bilateral && side === "midline" && frame.region.laterality === "bilateral") continue;
-      const inst = pointInstance(sc, def, ps, frame.configuration);
-      if (!inst) continue;
-      const d = Math.hypot(inst.position.u - entry.u, inst.position.v - entry.v) / inst.toleranceCm;
-      const ref: PointRef = { point: def.id, side: ps };
-      if (d <= 2) found.push({ ref, d, planned: planIncludes(plan, ref) });
+  for (const point of sc.bundle.acupoints.values()) {
+    for (const { site, def } of pointTargets(point)) {
+      if (def.region !== region) continue;
+      const sides: Side[] = !def.bilateral ? ["midline"] : frame.region.laterality === "bilateral" ? [side] : ["left", "right"];
+      for (const ps of sides) {
+        if (def.bilateral && side === "midline" && frame.region.laterality === "bilateral") continue;
+        const inst = pointInstance(sc, point, ps, frame.configuration, site);
+        if (!inst) continue;
+        const d = Math.hypot(inst.position.u - entry.u, inst.position.v - entry.v) / inst.toleranceCm;
+        const ref: PointRef = { point: point.id, side: ps, ...(site ? { site } : {}) };
+        if (d <= 2) found.push({ ref, d, planned: planIncludes(plan, ref) });
+      }
     }
   }
   for (const a of sc.field.patient.ashi) {
@@ -698,13 +748,15 @@ function anatomicalTarget(sc: Scenario, frame: PatientRegion, region: string, si
 
 /** Is the entry over a point cautioned for one of this patient's risk factors (within 1.5 times its tolerance)? */
 function cautionedAt(sc: Scenario, frame: PatientRegion, region: string, side: Side, entry: ChartPoint): boolean {
-  for (const def of sc.bundle.acupoints.values()) {
-    if (def.region !== region || !def.localisation) continue;
-    if (!def.cautions.some((c) => sc.field.patient.riskFactors.includes(c.when))) continue;
-    const sides: Side[] = !def.bilateral ? ["midline"] : frame.region.laterality === "bilateral" ? [side] : ["left", "right"];
-    for (const ps of sides) {
-      const inst = pointInstance(sc, def, ps, frame.configuration);
-      if (inst && Math.hypot(inst.position.u - entry.u, inst.position.v - entry.v) <= 1.5 * inst.toleranceCm) return true;
+  for (const point of sc.bundle.acupoints.values()) {
+    if (!point.cautions.some((c) => sc.field.patient.riskFactors.includes(c.when))) continue;
+    for (const { site, def } of pointTargets(point)) {
+      if (def.region !== region) continue;
+      const sides: Side[] = !def.bilateral ? ["midline"] : frame.region.laterality === "bilateral" ? [side] : ["left", "right"];
+      for (const ps of sides) {
+        const inst = pointInstance(sc, point, ps, frame.configuration, site);
+        if (inst && Math.hypot(inst.position.u - entry.u, inst.position.v - entry.v) <= 1.5 * inst.toleranceCm) return true;
+      }
     }
   }
   return false;
@@ -807,7 +859,7 @@ const HANDLERS: HandlerMap = {
     // speech is never refused; the patient hears, and answers, only from within earshot
     if (toPatient && patientTalk(sc, s, ctx.actor.id).ok) {
       const topics = detectTopics(a.text);
-      if (topics.length > 0) s.explanations.push({ visit: visitIndex(s), at: now(s), by: ctx.actor.id, topics });
+      if (topics.length > 0) s.explanations.push({ visit: visitIndex(s), at: now(s), by: ctx.actor.id, topics, text: a.text, tagged: [] });
       if (questionCount(a.text) > 0 && roleOf(sc, ctx.actor.id)?.grants.some((g) => (typeof g === "string" ? g : g.permission) === "consult")) freeQuestion(ctx, a.text, { minScore: 0.55, howAreYou: true });
     }
   },
@@ -996,7 +1048,8 @@ const HANDLERS: HandlerMap = {
       if (!def) throw new Rejection("unknown-id", `Unknown point ${p.point}.`);
       if (def.bilateral && p.side === "midline") throw new Rejection("invalid", `${p.point} is bilateral: plan it left or right.`);
       if (!def.bilateral && p.side !== "midline") throw new Rejection("invalid", `${p.point} is a midline point: its side is midline.`);
-      if (!def.region || !def.localisation || !sc.bundle.regions.has(def.region)) observe(ctx, `${p.point} has no localisation model: it cannot be needled here.`);
+      const target = requireSite(def, p);
+      if (!target || !sc.bundle.regions.has(target.def.region!)) observe(ctx, `${p.point} has no localisation model: it cannot be needled here.`);
     }
     const before = currentPlan(s);
     const coveredBefore = consentCovers(s);
@@ -1004,9 +1057,17 @@ const HANDLERS: HandlerMap = {
     s.plans.push({ version, at: now(s), by: ctx.actor.id, plan: a.plan });
     if (coveredBefore && before) {
       const old = new Set(before.plan.points.map((p) => refKey(p as PointRef)));
-      const within = a.plan.points.every((p) => old.has(refKey(p as PointRef))) && a.plan.technique.retentionMinutes <= before.plan.technique.retentionMinutes;
+      const t0 = before.plan.technique;
+      const t1 = a.plan.technique;
+      // a material change needs a further discussion: new points, a longer retention, another method, or another
+      // stimulation (reducing it to none is not a change the patient needs to agree to)
+      const within =
+        a.plan.points.every((p) => old.has(refKey(p as PointRef))) &&
+        t1.retentionMinutes <= t0.retentionMinutes &&
+        t1.method === t0.method &&
+        (t1.stimulation === t0.stimulation || t1.stimulation === "none");
       if (within) s.patient.consent.planVersion = version;
-      else observe(ctx, "The plan goes beyond what the patient agreed to: their consent covers the previous plan only.");
+      else observe(ctx, "The plan goes beyond what the patient agreed to (points, retention, method or stimulation): their consent covers the previous plan only. Explain the change and ask again.");
     }
     ctx.out.detail = `plan v${version}: ${a.plan.points.map((p) => refKey(p as PointRef)).join(", ") || "no points"}`;
     ctx.out.cost = 1;
@@ -1014,9 +1075,11 @@ const HANDLERS: HandlerMap = {
   explain(ctx, a) {
     const { s } = ctx;
     inEarshot(ctx);
-    const topics = [...new Set([...a.topics, ...(a.text ? detectTopics(a.text) : [])])];
+    // the patient learns only what is said: topic tags index the words, they do not replace them
+    const topics = a.text ? [...new Set([...a.topics, ...detectTopics(a.text)])] : [];
     if (a.text) utter(s, ctx.actor.id, s.patient.id, a.text, "speech");
-    s.explanations.push({ visit: visitIndex(s), at: now(s), by: ctx.actor.id, topics });
+    else if (a.topics.length) observe(ctx, "Nothing was said to the patient: name the topics in words to explain them.");
+    s.explanations.push({ visit: visitIndex(s), at: now(s), by: ctx.actor.id, topics, text: a.text ?? null, tagged: [...a.topics] });
     ctx.out.detail = `explained: ${topics.join(", ") || "nothing specific"}`;
     ctx.out.cost = 1;
   },
@@ -1092,27 +1155,11 @@ const HANDLERS: HandlerMap = {
     }
     const before = s.patient.position;
     const body = patientBody(sc, s);
-    s.patient.position = a.position;
     if (seat?.id !== s.patient.support) {
       placePatient(sc, s, s.patient.location, seat, seat ? undefined : (spotsNear(w, body.area, 0.6, body.centre)[0] ?? body.centre));
       if (seat) observe(ctx, `The patient is now on the ${seat.label}.`);
     }
-    // skin marks made in another configuration of their region no longer lie over the points
-    let stale = 0;
-    for (const m of Object.values(s.marks)) {
-      if (m.visit !== visitIndex(s) || m.stale) continue;
-      const region = sc.bundle.regions.get(m.region)!;
-      const access = regionAccess(region, m.side, a.position);
-      if (access.configuration !== m.configuration) {
-        m.stale = true;
-        stale += 1;
-        const nearest = [...region.landmarks].sort((x, y) => Math.hypot(x.at.u - m.position.u, x.at.v - m.position.v) - Math.hypot(y.at.u - m.position.u, y.at.v - m.position.v))[0];
-        const from = nearest?.configurations[m.configuration] ?? { du: 0, dv: 0 };
-        const to = nearest?.configurations[access.configuration] ?? { du: 0, dv: 0 };
-        m.position = { u: m.position.u + (to.du - from.du), v: m.position.v + (to.dv - from.dv) };
-      }
-    }
-    if (stale > 0) observe(ctx, `${stale} skin mark(s) were made in another position and have moved with the skin: re-localise before needling.`);
+    setPatientPosition(ctx, a.position);
     ctx.out.detail = `${before} → ${a.position}`;
     ctx.out.cost = 1;
   },
@@ -1129,6 +1176,7 @@ const HANDLERS: HandlerMap = {
     const r = PALPATION_ERROR_CM * Math.sqrt(rng());
     const p = { u: truth.u + r * Math.cos(angle), v: truth.v + r * Math.sin(angle) };
     s.landmarks.push({ visit: visitIndex(s), by: ctx.actor.id, at: now(s), region: a.region, side: a.side, landmark: a.landmark, position: p, configuration: frame.configuration });
+    touchSite(ctx, a.region, a.side, `palpated ${a.landmark}`);
     observe(ctx, `${lm.label} (${a.side} ${frame.region.title}, ${frame.configuration}): ${at2(p)}.`);
     ctx.out.target = `${a.region}:${a.side}:${a.landmark}`;
     ctx.out.cost = 0.5;
@@ -1147,6 +1195,7 @@ const HANDLERS: HandlerMap = {
       if (!seg) throw new Rejection("unknown-id", `The ${frame.region.title} has no segment ${a.segment}.`);
       const cm = frame.cunCm(seg.id)! * seg.cun * (1 + (createRng(seedFrom(s.seed, sc.id, a.region, a.side, seg.id))() - 0.5) * 2 * MEASUREMENT_ERROR);
       s.measurements.push({ visit: visitIndex(s), by: ctx.actor.id, at: now(s), region: a.region, side: a.side, what: seg.id, cm });
+      touchSite(ctx, a.region, a.side, `measured ${seg.id}`);
       observe(ctx, `${seg.label}: ${fmt(cm)} cm, which the standard divides into ${seg.cun} B-cun.`);
     }
     ctx.out.cost = 0.5;
@@ -1158,7 +1207,8 @@ const HANDLERS: HandlerMap = {
     if ("point" in a.target) {
       const def = sc.bundle.acupoints.get(a.target.point);
       if (!def) throw new Rejection("unknown-id", `Unknown point ${a.target.point}.`);
-      if (def.region !== a.region) throw new Rejection("wrong-region", `${def.id} is not in the ${frame.region.title}.`);
+      const target = requireSite(def, a.target);
+      if ((target?.def.region ?? def.region) !== a.region) throw new Rejection("wrong-region", `${pointLabel(sc, a.target)} is not in the ${frame.region.title}.`);
       const expected: Side = def.bilateral ? a.side : "midline";
       if (a.target.side !== expected) throw new Rejection("invalid", `${def.id} on this chart is ${expected === "midline" ? "a midline point" : `the ${expected} one`}.`);
       if (frame.region.laterality === "midline" && def.bilateral && a.side === "midline") throw new Rejection("invalid", `${def.id} is bilateral: mark it left or right.`);
@@ -1171,8 +1221,9 @@ const HANDLERS: HandlerMap = {
     const id = `m${Object.keys(s.marks).length + 1}`;
     s.marks[id] = { id, visit: visitIndex(s), by: ctx.actor.id, at: now(s), target: a.target, region: a.region, side: a.side, position: a.at, method: a.method, patientPosition: s.patient.position, configuration: frame.configuration, stale: false };
     observe(ctx, `Marked ${pointLabel(sc, a.target)} at ${at2(a.at)} (mark ${id}).`);
+    touchSite(ctx, a.region, a.side, `marked ${id}`);
     if (s.mode === "teaching" && "point" in a.target) {
-      const ref = pointInstance(sc, sc.bundle.acupoints.get(a.target.point)!, a.side, frame.configuration);
+      const ref = pointInstance(sc, sc.bundle.acupoints.get(a.target.point)!, a.side, frame.configuration, a.target.site);
       if (ref) observe(ctx, `Teaching: ${fmt(Math.hypot(ref.position.u - a.at.u, ref.position.v - a.at.v))} cm from the reference location (tolerance ${fmt(ref.toleranceCm)} cm).`);
     }
     ctx.out.target = id;
@@ -1197,10 +1248,12 @@ const HANDLERS: HandlerMap = {
       if (!plan.ok) throw new Rejection("no-route", `There is no way to the ${room.label}: ${plan.message}`);
       ctx.out.cost = walk(sc, s, ctx.actor.id, plan, { withPatient: true, attempt: index });
       placePatient(sc, s, room.id, seat, { x: plan.to.x, z: plan.to.z });
-      s.patient.position = seat ? "seated" : "standing";
       ctx.out.target = room.id;
       ctx.out.detail = `to ${room.id} with the patient (${fmt(plan.metres)} m)`;
       observe(ctx, `You walk ${t(sc.case.patient.displayName, LOCALE)} to the ${room.label} (${fmt(plan.metres)} m)${seat ? `; they sit on the ${seat.label}` : ""}.`);
+      // the patient walked and sat down: marks made lying down move with the skin, as for any change of position
+      const arrived: Position = seat ? "seated" : "standing";
+      if (s.patient.position !== arrived) setPatientPosition(ctx, arrived);
       return;
     }
     const target = walkTarget(sc, s, to);
@@ -1329,6 +1382,21 @@ const HANDLERS: HandlerMap = {
     ctx.out.target = pack.id;
     ctx.out.cost = 0.5;
   },
+  prepare_couch(ctx) {
+    const { s, sc } = ctx;
+    // a couch is made up from beside it: the one within reach
+    const at = atFixtureOfKind(sc, s, ctx.actor.id, "couch", "treatment couch");
+    if (!at.ok) throw new Rejection(at.hint ? at.code : "no-couch", at.message);
+    const room = sc.clinic.rooms.find((r) => r.id === at.fixture.room)!;
+    const couch = s.couches[room.id];
+    if (!couch) throw new Rejection("no-couch", `There is no treatment couch in the ${room.label}.`);
+    if (s.patient.location === room.id && !["standing", "seated", "seated-forward"].includes(s.patient.position)) throw new Rejection("occupied", "The patient is lying on the couch.");
+    couch.prepared = { at: now(s), by: ctx.actor.id, done: ["surface-cleaned", "linen-changed"] };
+    soil(s, ctx.actor);
+    observe(ctx, `Couch in the ${room.label}: surface cleaned and fresh linen on.`);
+    ctx.out.target = `couch:${room.id}`;
+    ctx.out.cost = 2;
+  },
   prepare_site(ctx, a) {
     const { s } = ctx;
     regionFrame(ctx, a.region, a.side);
@@ -1336,7 +1404,7 @@ const HANDLERS: HandlerMap = {
     const blockers: Protection[] = [];
     handHygieneRules(ctx, "prepare_site", blockers);
     blockIf(ctx, blockers, "Site not prepared");
-    s.sitesPrepared.push({ visit: visitIndex(s), region: a.region, side: a.side, at: now(s), by: ctx.actor.id });
+    s.sitesPrepared.push({ visit: visitIndex(s), region: a.region, side: a.side, at: now(s), by: ctx.actor.id, touched: null });
     ctx.out.target = `${a.region}:${a.side}`;
     ctx.out.cost = 0.5;
   },
@@ -1349,6 +1417,11 @@ const HANDLERS: HandlerMap = {
     let side: Side;
     let entry: ChartPoint;
     let target: PointRef | null = a.target ?? null;
+    if (target && "point" in target) {
+      const def = sc.bundle.acupoints.get(target.point);
+      if (!def) throw new Rejection("unknown-id", `Unknown point ${target.point}.`);
+      requireSite(def, target);
+    }
     let markId: string | null = null;
     let markStale = false;
     if (a.mark) {
@@ -1378,7 +1451,8 @@ const HANDLERS: HandlerMap = {
     // actually lies on, judged against this patient's hidden anatomy, which the evaluator and the rules use
     const plan = currentPlan(s);
     const claimed = target;
-    target = claimed && claimHolds(sc, frame, claimed, region, side, entry) ? claimed : anatomicalTarget(sc, frame, region, side, entry, plan);
+    const nearest = anatomicalTarget(sc, frame, region, side, entry, plan);
+    target = claimed && claimHolds(sc, frame, claimed, region, side, entry) ? claimed : nearest;
     const rules = rulesInForce(sc, s, ctx.actor.id);
     // consent
     if (s.patient.consent.status === "withdrawn") {
@@ -1408,8 +1482,10 @@ const HANDLERS: HandlerMap = {
     }
     handHygieneRules(ctx, "insert_needle", blockers);
     for (const r of rulesOfKind(rules, "site-preparation-before-insertion")) {
-      if (s.sitesPrepared.some((p) => p.visit === visitIndex(s) && p.region === region && p.side === side)) continue;
-      ctx.out.violations.push(violation(r, `${region} (${side}) not prepared`, "site-not-prepared"));
+      const prepared = s.sitesPrepared.filter((p) => p.visit === visitIndex(s) && p.region === region && p.side === side);
+      if (prepared.some((p) => p.touched === null)) continue;
+      const touched = prepared.find((p) => p.touched);
+      ctx.out.violations.push(violation(r, touched ? `${region} (${side}) touched after cleaning (${touched.touched!.how}): not prepared` : `${region} (${side}) not prepared`, "site-not-prepared"));
       addUnsafe(ctx, "site-not-prepared");
       if (r.rule.enforcement === "block") blockers.push({ by: r.ruleSet.id, kind: "rule", reason: `${r.rule.title}: prepare the site first` });
     }
@@ -1423,6 +1499,15 @@ const HANDLERS: HandlerMap = {
     // a cautioned point is cautioned wherever the needle went for it: judged by where the entry is, not by its name
     if (cautionedAt(sc, frame, region, side, entry) || (target && "point" in target && sc.bundle.acupoints.get(target.point)?.cautions.some((cv) => sc.field.patient.riskFactors.includes(cv.when)))) {
       addUnsafe(ctx, "insertion-at-cautioned-point");
+    }
+    for (const r of rulesOfKind(rules, "avoid-regions")) {
+      const { riskFactor, regions, fromGestationWeek } = r.rule.check;
+      const pt = sc.field.patient;
+      if (!regions.includes(region) || !pt.riskFactors.includes(riskFactor)) continue;
+      if (fromGestationWeek !== undefined && (pt.gestationWeeks ?? Infinity) < fromGestationWeek) continue;
+      ctx.out.violations.push(violation(r, `needle in the ${frame.region.title} (${riskFactor})`, "insertion-in-avoided-region"));
+      addUnsafe(ctx, "insertion-in-avoided-region");
+      if (r.rule.enforcement === "block") blockers.push({ by: r.ruleSet.id, kind: "rule", reason: `${r.rule.title}` });
     }
     const path = doInsertCheckPath(ctx, n, frame, entry, a.angleDeg, a.azimuthDeg, a.depthCm, blockers);
     blockIf(ctx, blockers, `Insertion of ${n.id} stopped`);
@@ -1440,6 +1525,8 @@ const HANDLERS: HandlerMap = {
       configuration: frame.configuration,
       patientPosition: s.patient.position,
       entry,
+      intended: claimed ?? null,
+      nearest,
       target,
       mark: markId,
       markStale,
@@ -1622,7 +1709,20 @@ const HANDLERS: HandlerMap = {
     const onTray = by("tray");
     const disposed = by("sharps");
     const unaccounted = opened.length - retained - inHand - onTray - disposed - visibleFloor - reported;
-    s.counts.push({ visit: visitIndex(s), at: now(s), by: ctx.actor.id, opened: opened.length, retained, inHand, onTray, disposed, unaccounted, reconciled: unaccounted === 0 });
+    // a count is made where the needles are: in the patient's room with them in sight while any are in place, and in
+    // the room of every tray holding some (a pack lies on a fixture: its room is the fixture's)
+    const w = clinicWorld(ctx.sc);
+    const here = ctx.actor.location;
+    const trayHere = (p: EncounterState["packs"][string]) => (w.fixtures.get(p.at)?.room ?? p.at) === here;
+    const withPatient = s.patient.location === here && patientSight(ctx.sc, s, ctx.actor.id).ok;
+    const present = (retained === 0 || withPatient) && Object.values(s.packs).every((p) => p.sealed || trayHere(p) || !p.needles.some((id) => s.needles[id]?.location.kind === "tray"));
+    s.counts.push({ visit: visitIndex(s), at: now(s), by: ctx.actor.id, opened: opened.length, retained, inHand, onTray, disposed, unaccounted, reconciled: present && unaccounted === 0, method: present ? "observed" : "read", reportedBy: null });
+    if (!present) {
+      observe(ctx, `You are not where the needles are: this is the record (${retained} in the patient, ${onTray} on the tray, ${disposed} in the sharps container), not a count. Count at the bedside, or ask a colleague who is there.`);
+      ctx.out.detail = "record read, not verified";
+      ctx.out.cost = 0.5;
+      return;
+    }
     observe(ctx, `Needle count: ${opened.length} opened — ${retained} in the patient, ${inHand} in hand, ${onTray} on the tray, ${visibleFloor > 0 ? `${visibleFloor} found on the ${foundAreas} (to dispose of), ` : ""}${reported > 0 ? `${reported} lost or broken and reported, ` : ""}${disposed} in the sharps container${unaccounted > 0 ? `; ${unaccounted} NOT ACCOUNTED FOR` : "; all accounted for"}.`);
     ctx.out.detail = unaccounted > 0 ? `${unaccounted} unaccounted` : "reconciled";
     ctx.out.cost = 0.5;
@@ -1850,6 +1950,9 @@ const HANDLERS: HandlerMap = {
     task.reportedAt = now(s);
     task.report = { summary: a.summary, findings: a.findings };
     utter(s, ctx.actor.id, task.assignedBy, a.summary, "speech");
+    // a colleague's count, made at the bedside, is received as theirs
+    const counted = task.kind === "count-needles" ? [...s.counts].reverse().find((c) => c.by === ctx.actor.id && c.method === "observed" && c.at >= (task.acknowledgedAt ?? task.assignedAt)) : undefined;
+    if (counted) s.counts.push({ ...counted, at: now(s), by: task.assignedBy, method: "reported", reportedBy: ctx.actor.id });
     ctx.out.target = task.id;
     ctx.out.detail = task.status === "completed" ? "reported: complete" : `reported, but: ${task.unmet.join("; ")}`;
   },

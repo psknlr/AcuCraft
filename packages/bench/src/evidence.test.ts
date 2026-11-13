@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
 import {
   assessmentSupport,
   caseSupport,
@@ -542,9 +543,14 @@ describe("deqi is linked to evidence", () => {
     expect(item(quiet, "deqi-evidence")).toMatchObject({ met: true });
     expect(item(quiet, "no-overstimulation")).toBeUndefined();
     expect(quiet.tracks.procedure.score).toBe(1);
-    // the pregnant patient's one needle: nothing looked for, and said so
+    // one gentle needle, nothing looked for, and said so: the pregnant patient's reference as it stood before the
+    // audit, on the same patient in her first trimester (at 24 weeks her lumbar region is not needled: audit.test.ts)
     const pregnant = requireScenario(pack, "sg-low-back-pain/pregnant");
-    const unsought = evaluateEncounter(pregnant, full(pregnant));
+    const early: Scenario = { ...pregnant, field: { ...pregnant.field, patient: { ...pregnant.field.patient, gestationWeeks: 10 } } };
+    const gentleNeedle = JSON.parse(readFileSync(new URL("./fixtures/audit-pregnant-original.json", import.meta.url), "utf8")) as ActionRequestInput[];
+    let firstTrimester = createEncounter(early, { seed: 1 });
+    for (const r of gentleNeedle) firstTrimester = step(early, firstTrimester, r, { strict: true }).state;
+    const unsought = evaluateEncounter(early, firstTrimester);
     expect(unsought.evidence.needles.map((x) => [x.claim?.response, x.verdict])).toEqual([["not-sought", "not-sought"]]);
     expect(unsought.tracks.procedure.score).toBe(1);
     // "deqi at every needle", written without regard to the evidence: overclaims, and a lower procedure score

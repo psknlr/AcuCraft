@@ -13,6 +13,17 @@ type Side = "left" | "right" | "midline";
  * those palpations give.
  */
 
+/** The construction of a point, or of one site of a group point (on the site's own chart). */
+function targetOf(lib: Library, pointId: string, site?: string | null) {
+  const p = lib.points.find((x) => x.id === pointId);
+  if (!p?.region) return null;
+  if (p.siteLocalisations) {
+    const x = p.siteLocalisations.find((y) => y.id === site);
+    return x ? { p, region: x.region, localisation: x.localisation } : null;
+  }
+  return p.localisation ? { p, region: p.region, localisation: p.localisation } : null;
+}
+
 export interface Requirements {
   region: string;
   side: Side;
@@ -21,7 +32,7 @@ export interface Requirements {
 }
 
 /** What to palpate and measure, chart by chart, to construct a point; the point's own chart first. */
-export function requirements(lib: Library, pointId: string, side: Side): Requirements[] | null {
+export function requirements(lib: Library, pointId: string, side: Side, site?: string | null): Requirements[] | null {
   const out = new Map<string, Requirements>();
   const need = (region: string, s: Side): Requirements => {
     const key = `${region}|${s}`;
@@ -29,14 +40,15 @@ export function requirements(lib: Library, pointId: string, side: Side): Require
     if (!r) out.set(key, (r = { region, side: s, landmarks: [], segments: [] }));
     return r;
   };
-  const visit = (id: string, depth: number): boolean => {
-    const p = lib.points.find((x) => x.id === id);
-    if (!p?.region || !p.localisation || depth > 4) return false;
-    const region = lib.regions.find((r) => r.id === p.region);
+  const visit = (id: string, depth: number, at?: string | null): boolean => {
+    const t = targetOf(lib, id, at);
+    if (!t || depth > 4) return false;
+    const p = t.p;
+    const region = lib.regions.find((r) => r.id === t.region);
     if (!region) return false;
     const s: Side = p.bilateral ? side : "midline";
     const here = need(region.id, s);
-    const loc = p.localisation;
+    const loc = t.localisation;
     for (const ref of anchorsOf(loc)) {
       if (!ref.startsWith("point:")) {
         here.landmarks.push(ref.replace("{side}", s));
@@ -53,10 +65,13 @@ export function requirements(lib: Library, pointId: string, side: Side): Require
         here.landmarks.push(pair.to);
       }
     }
-    for (const d of distancesOf(loc)) if (d && "segment" in d) here.segments.push(d.segment);
+    for (const d of distancesOf(loc)) {
+      if (d && "segment" in d) here.segments.push(d.segment);
+      if (d && "fcun" in d) here.segments.push("finger-cun"); // measured with the finger method
+    }
     return true;
   };
-  if (!visit(pointId, 0)) return null;
+  if (!visit(pointId, 0, site)) return null;
   return [...out.values()].map((r) => ({ ...r, landmarks: [...new Set(r.landmarks)], segments: [...new Set(r.segments)] }));
 }
 
@@ -67,14 +82,19 @@ export interface Observed {
 }
 
 /** Construct a point on its own chart from the observations (`observed(region, side)`). */
-export function constructPoint(lib: Library, pointId: string, side: Side, observed: (region: string, side: Side) => Observed, depth = 0): ChartPoint | null {
-  const p = lib.points.find((x) => x.id === pointId);
-  if (!p?.region || !p.localisation || depth > 4) return null;
-  const region = lib.regions.find((r) => r.id === p.region)!;
+export function constructPoint(lib: Library, pointId: string, side: Side, observed: (region: string, side: Side) => Observed, depth = 0, site?: string | null): ChartPoint | null {
+  const t = targetOf(lib, pointId, site);
+  if (!t || depth > 4) return null;
+  const p = t.p;
+  const region = lib.regions.find((r) => r.id === t.region)!;
   const s: Side = p.bilateral ? side : "midline";
   const obs = observed(region.id, s);
   const dist = (d: Distance): number | null => {
     if ("cm" in d) return d.cm;
+    if ("fcun" in d) {
+      const f = obs.segments.get("finger-cun");
+      return f === undefined ? null : d.fcun * f;
+    }
     const seg = region.segments.find((x) => x.id === d.segment);
     const cm = obs.segments.get(d.segment);
     return seg && cm !== undefined ? (d.cun * cm) / seg.cun : null;
@@ -94,7 +114,7 @@ export function constructPoint(lib: Library, pointId: string, side: Side, observ
     const fit = fitSeam(pairs as { from: ChartPoint; to: ChartPoint }[], lateralSignOf(from.laterality, s), lateralSignOf(region.laterality, s), seam.reversed);
     return fit ? fit.map(at) : null;
   };
-  const loc = p.localisation;
+  const loc = t.localisation;
   let base: ChartPoint | null = null;
   if (loc.method === "landmark") base = anchor(loc.landmark);
   else if (loc.method === "between") {

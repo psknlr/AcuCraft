@@ -21,6 +21,7 @@ import {
   modelledRegions,
   patientRegion,
   pointInstance,
+  pointTargets,
   referenceLibrary,
   regionAccess,
   replayLog,
@@ -276,7 +277,7 @@ async function main(): Promise<void> {
         for (const pr of problems) console.log(`    ${pr}`);
         if (values.verbose) for (const w of r.warnings) console.log(`    warning ${w.path}: ${w.message}`);
       }
-      console.log(`\n${p.families.size} families, ${scenarioIds(p).length} instances, ${p.bundle.acupoints.size} point definitions (${[...p.bundle.acupoints.values()].filter((x) => x.localisation).length} localised), ${p.bundle.regions.size} regions, ${p.bundle.ruleSets.length} rule sets.`);
+      console.log(`\n${p.families.size} families, ${scenarioIds(p).length} instances, ${p.bundle.acupoints.size} point definitions (${[...p.bundle.acupoints.values()].filter((x) => pointTargets(x).length > 0).length} localised; ${[...p.bundle.acupoints.values()].filter((x) => x.siteLocalisations).length} groups by site), ${p.bundle.regions.size} regions, ${p.bundle.ruleSets.length} rule sets.`);
       if (failed) {
         console.log(`${failed} instance(s) failed.`);
         process.exit(1);
@@ -306,7 +307,10 @@ async function main(): Promise<void> {
         const by = new Map<string, number>();
         for (const d of all) by.set(d.channel, (by.get(d.channel) ?? 0) + 1);
         console.log([...by].map(([c, k]) => `${c} ${k}`).join(" · "));
-        console.log(`${all.length} points, ${all.filter((d) => d.localisation).length} localised on the modelled regions (${[...p.bundle.regions.keys()].join(", ")}).`);
+        console.log(`${all.length} points, ${all.filter((d) => pointTargets(d).length > 0).length} localised on the modelled regions (${[...p.bundle.regions.keys()].join(", ")}).`);
+        const groups = all.filter((d) => d.sites);
+        console.log(`Group points: ${groups.length}, ${groups.filter((d) => d.siteLocalisations).length} located site by site (${groups.filter((d) => d.siteLocalisations).map((d) => `${d.id} ${d.siteLocalisations!.length}`).join(", ")}); the others at one canonical site.`);
+        console.log(`Review: ${all.filter((d) => d.provenance.review.status !== "unreviewed").length} of ${all.length} points reviewed by an expert; none is suitable for assessment until reviewed.`);
         return;
       }
       const one = all.find((d) => d.id.toUpperCase() === key.toUpperCase() || d.aliases.some((a) => a.toUpperCase() === key.toUpperCase()));
@@ -365,16 +369,17 @@ async function main(): Promise<void> {
       const sc = requireScenario(p, args[0] ?? "");
       const position = (args[1] ?? sc.field.patient.position) as Position;
       for (const spec of args.slice(2)) {
-        const [id, side] = spec.split(":");
+        const [id, side, site] = spec.split(":");
         const def = p.bundle.acupoints.get(id!);
-        if (!def?.region) {
-          console.log(`${spec}: no localisation`);
+        const target = def && pointTargets(def).find((t) => t.site === (site ?? null));
+        if (!def || !target?.def.region) {
+          console.log(`${spec}: no localisation${def?.siteLocalisations ? ` (a group: name a site, ${def.siteLocalisations.map((x) => x.id).join(", ")})` : ""}`);
           continue;
         }
-        const region = p.bundle.regions.get(def.region)!;
+        const region = p.bundle.regions.get(target.def.region)!;
         const s: Side = def.bilateral ? ((side ?? "right") as Side) : "midline";
         const access = regionAccess(region, s, position);
-        const inst = pointInstance(sc, def, s, access.configuration);
+        const inst = pointInstance(sc, def, s, access.configuration, site);
         console.log(inst ? `${spec}  u=${inst.position.u.toFixed(2)} v=${inst.position.v.toFixed(2)}  tolerance ${inst.toleranceCm.toFixed(2)} cm  (${inst.configuration}${access.accessible ? "" : ", not reachable in this position"})` : `${spec}: no instance`);
       }
       if (args.length <= 2) {

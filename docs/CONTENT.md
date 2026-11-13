@@ -58,8 +58,9 @@ A ClinicalCraft case (`docs/CASE_AUTHORING.md` in ClinicalCraft). AcuCraft conve
 
 - `clinic`, `roles`, `ruleSeries`, `visits` (index, phase, date, label), `cast` (who is under test; NPCs and their
   policy), `regions` modelled in the scenario.
-- `patient`: location, position, risk factors (matched against point cautions), anxiety, `needleSensitivity` (how
-  readily they feel a needle: scales the needle's response and what they tolerate), positions declined, anatomy
+- `patient`: location, position, risk factors (matched against point cautions and against `avoid-regions` rules),
+  `gestationWeeks` (with `pregnancy`), anxiety, `needleSensitivity` (how readily they feel a needle: scales the
+  needle's response and what they tolerate), positions declined, anatomy
   (finger cun; per region `both`/`left`/`right`: scale, subcutaneous and muscle scale, landmark and structure shifts),
   site conditions (circle or whole region, revealed by an exam finding), Ashi points (revealed by an exam finding),
   consent (required topics; agree, questions, decline texts).
@@ -68,9 +69,11 @@ A ClinicalCraft case (`docs/CASE_AUTHORING.md` in ClinicalCraft). AcuCraft conve
   (ClinicalCraft flags, field flags, speech, patient feedback, consent withdrawal, a needle dropping out or breaking,
   anxiety).
 - `evaluation`: pathways (acceptable or not), expected and acceptable diagnoses, defensible and implausible patterns,
-  `signs` (what each finding of the case shows, below), red flags present or absent, points recommended / acceptable /
-  to avoid, critical errors, required history, exam and records, monitoring limits, follow-up pathways, documentation
-  fields. Hidden from agents.
+  `signs` (what each finding of the case shows, below), red flags present or absent (each with `evident` — shown by
+  the opening statement or triage note — and `evidence`, the conditions that give the learner it), points recommended /
+  acceptable / to avoid (a group point's entries may name a `site`), critical errors, required history, exam and
+  records, monitoring limits, follow-up pathways, documentation fields. A pathway may say it `continues` (calls for
+  another visit); full-course completion is counted only then. Hidden from agents.
 
 ### What the findings show (`evaluation.signs`)
 

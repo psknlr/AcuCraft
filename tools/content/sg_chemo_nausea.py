@@ -176,7 +176,7 @@ variants = [
   field={"evaluation": {"diagnoses": {"acceptable": ["neutropenia"]}, "patterns": {"$replace": {"defensible": [], "implausible": []}}, "pathways": [{"id": "p-treat", "$remove": True},
      {"id": "p-defer", "label": "Defer and liaise with the oncology team", "acceptable": True, "when": {"all": [{"disposition": ["defer", "refer", "decline"], "visit": 1}, {"needlesInserted": {"lte": 0}}, {"referred": {"to": ["oncology"]}}, {"visitEnded": 1}]}},
      {"id": "p-treated-neutropenic", "label": "Needled despite neutropenia and thrombocytopenia", "acceptable": False, "when": {"needlesInserted": {"gte": 1}}}],
-    "redFlags": {"$replace": [{"id": "fever-on-chemotherapy", "present": True}]},
+    "redFlags": {"$replace": [{"id": "fever-on-chemotherapy", "present": True, "evidence": [{"clinical": {"read": "inv-fbc"}}]}]},
     "points": {"$replace": {"recommended": [], "acceptable": [], "avoid": [], "maxNeedles": 1}},
     "criticalErrors": [{"id": "ce-needled-neutropenic", "label": "Needled with neutrophils 0.6 and platelets 48", "when": {"needlesInserted": {"gte": 1}}}],
     "followUp": None}}),

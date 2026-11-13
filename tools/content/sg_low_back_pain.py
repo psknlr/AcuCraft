@@ -199,33 +199,18 @@ ce({"type": "document", "record": {"presentingComplaint": "Acute worsening of ba
 ce({"type": "end_visit"})
 ce({"type": "finish_encounter"})
 
-# pregnant: side-lying on her left, only the Ashi point (reachable on the upper, right side), gentle
+# pregnant (24 weeks): the Singapore advisory (2021, §4.1.4) says abdominal and lumbosacral points should be avoided after
+# the first trimester, and her pain is lumbar: no needling; defer, explain the options and liaise with her obstetric team
 pr = Trajectory("lp")
 consult(pr)
 pr({"type": "assess", "diagnoses": ["pregnancy-related-lbp"], "pattern": "qi-blood-stagnation", "patternEvidence": STAGNATION_EVIDENCE, "redFlags": [], "rationale": "Mechanical back pain in pregnancy (24 weeks); no red flags."})
-pr({"type": "decide", "disposition": "treat-modified", "rationale": "Pregnant: no prone positioning and none of the points traditionally avoided in pregnancy; gentle local needling side-lying only."})
-pts_pr = [{"ashi": "ashi-right-l3"}]
-pr({"type": "propose_plan", "plan": {"points": pts_pr, "technique": {"method": "manual-filiform", "stimulation": "none", "retentionMinutes": 15}, "rationale": "Gentle local Ashi needling only, side-lying, avoiding the lumbosacral and distal points cautioned in pregnancy.", "alternatives": ["Antenatal physiotherapy and exercise", "Support belt; advice from her obstetric team"], "followUp": "Review in one week; tell her obstetric team."}})
-pr({"type": "explain", "topics": ["procedure", "benefits", "risks", "alternatives", "evidence", "right-to-stop"], "text": "Because you are pregnant I'll only use one gentle needle in the tender spot while you lie on your side, for about fifteen minutes. The evidence for acupuncture in back pain is mixed, and limited in pregnancy. Risks are small: soreness, bruising, feeling faint. Other options are antenatal physiotherapy and a support belt. You can ask me to stop at any time."})
-pr({"type": "seek_consent"})
-pr({"type": "position_patient", "position": "side-lying-left"})
-pr({"type": "assign_task", "to": "assistant", "kind": "monitor-patient", "params": {"intervalMinutes": 5}, "note": "Please stay with her while the needle is in and check every five minutes."})
-pr.mark({"ashi": "ashi-right-l3"}, "lumbar", "right", -6.6, 3.7, method="palpation")
-pr.fetch_pack("pack-a")
-pr({"type": "prepare_site", "region": "lumbar", "side": "right"})
-pr({"type": "open_pack", "packId": "pack-a"})
-pr.needle("pack-a.1", "m1", 1.0)
-pr({"type": "monitor"})
-pr({"type": "wait", "minutes": 8})
-pr({"type": "monitor"})
-pr({"type": "wait", "minutes": 7})
-pr({"type": "monitor"})
-pr.close_needles("pack-a")
-pr({"type": "explain", "topics": ["aftercare"], "text": "Rest a little before you get up; tell your obstetric team you had acupuncture."})
-pr({"type": "document", "record": {"presentingComplaint": "Low back pain in pregnancy (24 weeks).", "assessment": "Pregnancy-related low back pain; no red flags.", "pattern": "Qi and blood stagnation", "rationale": "Gentle local Ashi needling only; pregnancy-cautioned points avoided; side-lying.", "consent": "Verbal consent after explanation.", "pointsUsed": pts_pr,
-    "needling": {"needleType": "0.25 × 40 mm single-use sterile filiform", "needleCount": 1, "depth": "1.0 cm", "responseSought": "none (gentle: the needle was not worked and no response was looked for)", "stimulation": "none", "retentionMinutes": 15}, "response": "Tolerated well.", "adverseEvents": "None.", "advice": "Antenatal physiotherapy.", "followUp": "Review in one week."}})
+pr({"type": "decide", "disposition": "defer", "rationale": "24 weeks pregnant with lumbar pain: abdominal and lumbosacral points are to be avoided after the first trimester (TCMPB advisory 2021, §4.1.4). No needling; antenatal physiotherapy and liaison with her obstetric team."})
+pr({"type": "explain", "topics": ["alternatives", "evidence"], "text": "Because you are past the first three months of pregnancy, I won't put needles in your lower back or abdomen: our guidance is to avoid those areas from now on. The evidence for acupuncture in back pain in pregnancy is limited anyway. What helps most is antenatal physiotherapy — exercises, a support belt and advice on posture and sleep. I'll write to your obstetric team so they know about the pain and can arrange that."})
+pr({"type": "refer", "to": "obstetrics", "urgency": "routine", "reason": "Pregnancy-related low back pain at 24 weeks, no red flags. Acupuncture deferred: lumbosacral and abdominal needling is avoided after the first trimester. Please consider antenatal physiotherapy."})
+pr({"type": "document", "record": {"presentingComplaint": "Low back pain in pregnancy (24 weeks).", "assessment": "Pregnancy-related low back pain; no red flags.", "pattern": "Qi and blood stagnation",
+    "rationale": "No acupuncture: abdominal and lumbosacral points are avoided after the first trimester (TCMPB advisory 2021, §4.1.4).", "advice": "Antenatal physiotherapy, support belt, posture and sleep advice.", "followUp": "Letter to her obstetric team; return after their advice if she wishes."}})
 pr({"type": "end_visit"})
-follow_up(pr, decision="treat-modified")
+pr({"type": "finish_encounter"})
 
 variants = [
  variant("base", "Base case", "base", "Chronic non-specific low back pain, not pregnant: consultation with red-flag and pregnancy screening, evidence comparison, prone needling of bilateral and midline points of the lower back (side-specific landmarks on a midline chart), delegated monitoring and follow-up."),
@@ -247,31 +232,36 @@ variants = [
     "diagnoses": {"expected": {"$replace": ["cauda-equina-syndrome"]}, "acceptable": {"$replace": ["lumbar-radiculopathy"]}},
     "patterns": {"$replace": {"defensible": [], "implausible": []}},
     "signs": {"hx-onset": []},
-    "redFlags": {"$replace": [{"id": "saddle-anaesthesia", "present": True}, {"id": "bladder-bowel-dysfunction", "present": True}, {"id": "progressive-neuro-deficit", "present": True}]},
+    "redFlags": {"$replace": [{"id": "saddle-anaesthesia", "present": True, "evidence": [{"clinical": {"asked": "hx-cauda"}}, {"clinical": {"examined": "ex-neuro"}}]}, {"id": "bladder-bowel-dysfunction", "present": True, "evidence": [{"clinical": {"asked": "hx-cauda"}}]}, {"id": "progressive-neuro-deficit", "present": True, "evidence": [{"clinical": {"asked": "hx-weakness"}}, {"clinical": {"examined": "ex-neuro"}}]}]},
     "points": {"$replace": {"recommended": [], "acceptable": [], "avoid": [], "maxNeedles": 1}},
     "criticalErrors": [{"id": "ce-needled-cauda", "label": "Needled a patient with suspected cauda equina syndrome", "when": {"needlesInserted": {"gte": 1}}},
      {"id": "ce-no-emergency-referral", "label": "No emergency referral for suspected cauda equina syndrome", "when": {"all": [{"visitEnded": 1}, {"not": {"referred": {"urgency": ["emergency"]}}}]}}],
     "required": {"$replace": {"history": ["hx-radiation", "hx-cauda"], "exam": ["ex-neuro"], "records": []}},
     "followUp": None}}),
- variant("pregnant", "Twenty-four weeks pregnant", "risk", "Pregnancy as a risk factor and a position constraint: she is 24 weeks pregnant, so she should not lie prone and the points traditionally avoided in pregnancy (lumbosacral, LI4, SP6) are cautioned. Acceptable: gentle side-lying needling of the local tender point only, or deferral with liaison with her obstetric team.",
+ variant("pregnant", "Twenty-four weeks pregnant", "risk", "Pregnancy as a risk factor and a position constraint: she is 24 weeks pregnant, past the first trimester, so abdominal and lumbosacral needling is avoided (TCMPB advisory 2021, §4.1.4: a rule in force, judged by region, whatever point is named) and she should not lie prone; LI4 and SP6 are cautioned. Acceptable: deferral with liaison with her obstetric team, or declining with other options.",
   case={"history": [{"id": "hx-pregnancy", "answer": "Yes — I'm 24 weeks pregnant. The baby is fine; my obstetrician is happy."},
      {"id": "hx-chief", "answer": "My lower back has ached since I got pregnant, worse this last month. A friend said acupuncture helped her."},
      {"id": "hx-onset", "answer": "It came on gradually in the pregnancy, worse in the last month. No injury."},
      {"id": "hx-meds", "answer": "Prenatal vitamins only. No blood thinners."}],
    "exam": [{"id": "ex-inspect-back", "finding": "Gravid abdomen consistent with about 24 weeks; increased lumbar lordosis; skin intact."},
      {"id": "ex-palpate-back", "finding": "No midline bony tenderness. Tight, tender right lumbar muscles, maximal at one point at the level of L3, about four finger-breadths lateral to the spine."}],
-   "patient": {"weightKg": 67}},
-  # her tender point is lateral at L3, clear of the lumbosacral points cautioned in pregnancy (BL23-BL25, BL52,
-  # EX-B6): needling it is not needling a cautioned point by another name
-  field={"patient": {"riskFactors": ["pregnancy"], "ashi": [{"id": "ashi-right-l45", "$remove": True}, {"id": "ashi-right-l3", "region": "lumbar", "side": "right", "centre": {"u": -6.6, "v": 3.7}, "radiusCm": 1.0, "revealedBy": "ex-palpate-back", "label": "maximal tenderness in the right lumbar muscles, lateral to the spine at L3"}]},
-   "evaluation": {"pathways": [{"id": "p-treat", "$remove": True},
-     {"id": "p-treat-pregnancy", "label": "Gentle, modified treatment side-lying, avoiding the points cautioned in pregnancy", "acceptable": True, "when": {"all": [{"disposition": ["treat-modified", "treat"], "visit": 1}, {"needlesInserted": {"gte": 1}}, {"not": {"positioned": "prone"}}, {"not": {"unsafe": "insertion-at-cautioned-point"}}, {"not": {"unsafe": "insertion-without-consent"}}, {"visitEnded": 1}]}},
+   "patient": {"weightKg": 67},
+   "debrief": {"title": "Low back pain at 24 weeks of pregnancy", "conclusion": "Mechanical low back pain in the second trimester: no needling of the lower back or abdomen; defer, explain the options and liaise with her obstetric team.", "keyReasoning": ["Past the first trimester, abdominal and lumbosacral points are to be avoided (TCMPB advisory 2021, §4.1.4).", "The rule is about the region: a tender Ashi point in the lumbar muscles is a lumbosacral point.", "No prone positioning in mid-pregnancy; LI4 and SP6 are traditionally avoided."], "teachingPoints": ["Ask about pregnancy, and its stage, before choosing points.", "Antenatal physiotherapy and her obstetric team are the main route for pregnancy-related back pain."]}},
+  # her tender point lies in the lumbar region: after the first trimester the region itself is avoided, so needling it
+  # under the name of an Ashi point (or at a bare chart position) is the same act as needling BL23 there
+  field={"patient": {"riskFactors": ["pregnancy"], "gestationWeeks": 24, "ashi": [{"id": "ashi-right-l45", "$remove": True}, {"id": "ashi-right-l3", "region": "lumbar", "side": "right", "centre": {"u": -6.6, "v": 3.7}, "radiusCm": 1.0, "revealedBy": "ex-palpate-back", "label": "maximal tenderness in the right lumbar muscles, lateral to the spine at L3"}]},
+   "evaluation": {"pathways": [{"id": "p-treat", "$remove": True}, {"id": "p-decline-signpost", "$remove": True},
+     {"id": "p-defer-obstetric", "label": "Defer needling and liaise with her obstetric team", "acceptable": True, "when": {"all": [{"disposition": ["defer", "refer", "decline"], "visit": 1}, {"needlesInserted": {"lte": 0}}, {"referred": {"to": ["obstetrics"]}}, {"visitEnded": 1}]}},
+     {"id": "p-decline-signpost-pregnancy", "label": "Decline or defer without needling, with other options", "acceptable": True, "when": {"all": [{"disposition": ["decline", "defer", "refer"], "visit": 1}, {"needlesInserted": {"lte": 0}}, {"any": [{"referred": {"to": ["gp", "physiotherapy"]}}, {"explained": "alternatives"}]}, {"visitEnded": 1}]}},
+     {"id": "p-avoided-region", "label": "Needled the lumbosacral or abdominal region after the first trimester", "acceptable": False, "when": {"unsafe": "insertion-in-avoided-region"}},
      {"id": "p-prone", "label": "Positioned prone in mid-pregnancy", "acceptable": False, "when": {"positioned": "prone"}},
      {"id": "p-cautioned", "label": "Needled points traditionally avoided in pregnancy", "acceptable": False, "when": {"unsafe": "insertion-at-cautioned-point"}}],
     "diagnoses": {"expected": {"$replace": ["pregnancy-related-lbp"]}, "acceptable": {"$replace": ["chronic-nonspecific-lbp"]}},
-    "points": {"recommended": {"$replace": [{"ashi": "ashi-right-l3"}]}, "acceptable": {"$replace": []},
-     "avoid": [{"point": "BL23", "reason": "lumbosacral point cautioned in pregnancy", "severity": "major"}, {"point": "BL25", "reason": "lumbosacral point cautioned in pregnancy", "severity": "major"}, {"point": "GV3", "reason": "lumbosacral point cautioned in pregnancy", "severity": "major"}, {"point": "GV4", "reason": "lumbosacral point cautioned in pregnancy", "severity": "major"}, {"point": "LI4", "reason": "traditionally avoided in pregnancy", "severity": "critical"}, {"point": "SP6", "reason": "traditionally avoided in pregnancy", "severity": "critical"}], "maxNeedles": 3}}}),
+    "points": {"recommended": {"$replace": []}, "acceptable": {"$replace": []},
+     "avoid": [{"point": "BL23", "reason": "lumbosacral point cautioned in pregnancy", "severity": "major"}, {"point": "BL25", "reason": "lumbosacral point cautioned in pregnancy", "severity": "major"}, {"point": "GV3", "reason": "lumbosacral point cautioned in pregnancy", "severity": "major"}, {"point": "GV4", "reason": "lumbosacral point cautioned in pregnancy", "severity": "major"}, {"point": "LI4", "reason": "traditionally avoided in pregnancy", "severity": "critical"}, {"point": "SP6", "reason": "traditionally avoided in pregnancy", "severity": "critical"}], "maxNeedles": 1},
+    "followUp": None}}),
 ]
+
 solutions = {"base": base, "cauda-equina": ce, "pregnant": pr}
 fam = family(FID, "Low back pain · 34-year-old woman", "A 34-year-old office worker with six months of low back pain asks about acupuncture.", "chronic-nonspecific-lbp", "dev", [v["id"] for v in variants])
 write_family(FID, fam, case, field, variants, solutions)

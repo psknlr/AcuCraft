@@ -301,6 +301,19 @@ export function protocolAgent(): Agent {
     return out;
   }
 
+  /** Regions an `avoid-regions` rule in force keeps needles out of, for this patient's known risk factors. */
+  function avoidedRegions(v: AgentView): Set<string> {
+    const out = new Set<string>();
+    const weeks = Number(/(\d+)\s*weeks pregnant/i.exec(v.record.history.map((h) => h.answer).join(" "))?.[1] ?? Infinity);
+    for (const set of lib.rules.find((r) => r.visit === 1)?.sets ?? []) {
+      for (const r of set.rules) {
+        if (r.check.kind !== "avoid-regions") continue;
+        if (r.check.riskFactor === "pregnancy" && pregnant && weeks >= (r.check.fromGestationWeek ?? 0)) for (const g of r.check.regions) out.add(g);
+      }
+    }
+    return out;
+  }
+
   function explainText(): string {
     const ev = lib.evidence.map((e) => `${e.publisher} (${e.version}) — ${e.statement}`).join(" ");
     return [
@@ -325,7 +338,21 @@ export function protocolAgent(): Agent {
       .filter((p) => !(pregnant && lib.points.find((x) => x.id === p.point)?.cautions.some((c) => c.when === "pregnancy")))
       .map((p) => ({ point: p.point, side: p.side }));
     for (const a of v.record.tenderPoints) pts.push({ ashi: a.id });
-    plan = pts;
+    // regions the rules in force keep needles out of for this patient (after the first trimester: the abdomen and the
+    // lumbosacral region), whatever point lies there
+    const avoided = avoidedRegions(v);
+    const regionOf = (p: PointRef) => ("ashi" in p ? v.record.tenderPoints.find((a) => a.id === p.ashi)?.region : lib.points.find((x) => x.id === p.point)?.region);
+    plan = pts.filter((p) => !avoided.has(regionOf(p) ?? ""));
+    if (plan.length === 0 && pregnant) {
+      push(
+        { type: "assess", diagnoses: protocol.diagnosis ? [protocol.diagnosis] : [], redFlags: [], rationale: "No red flags on screening; pregnant." },
+        { type: "decide", disposition: "defer", rationale: avoided.size ? `Pregnant: no needling of the ${[...avoided].join(", ")} under the rules in force.` : "Pregnant: no suitable points." },
+        { type: "explain", topics: ["alternatives", "evidence"], text: "Because you are pregnant I won't needle these areas: our guidance is to avoid them at this stage. Antenatal physiotherapy, a support belt and advice from your obstetric team are better options for now." },
+        { type: "refer", to: "obstetrics", urgency: "routine", reason: "Pregnancy-related symptoms; acupuncture deferred under the rules in force." },
+      );
+      stage = "document";
+      return;
+    }
     if (plan.length === 0) {
       push({ type: "decide", disposition: "defer", rationale: "No suitable points for this presentation." }, { type: "explain", topics: ["alternatives"], text: "I won't needle today; exercise, physiotherapy or your doctor are better options for now." }, { type: "refer", to: "gp", urgency: "routine", reason: "Review by her doctor." });
       stage = "document";
@@ -363,7 +390,7 @@ export function protocolAgent(): Agent {
     }
     for (const key of segs) {
       const [region, side, segment] = key.split("|");
-      acts.push({ type: "measure", region: region!, side: side as Side, segment: segment! });
+      acts.push(segment === "finger-cun" ? { type: "measure", region: region!, side: side as Side, fingerCun: true } : { type: "measure", region: region!, side: side as Side, segment: segment! });
     }
     push(...bySide(acts));
     void v;

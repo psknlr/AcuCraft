@@ -21,8 +21,8 @@ leg (reached round the lateral side) 'lateral' therefore means further round, to
 medial side 'medial' means further round, posterior to the tibia, and 'lateral' anterior. On the side of the foot,
 'lateral'/'medial' point towards the sole; 'cranial' is proximal on the foot and the sole.
 
-Group points (sites > 1): the first site of the group is placed (EX-LE1 lateral, EX-LE5 medial, EX-LE10 between the
-first and second toes, EX-LE12 the great toe); the other sites are not modelled as separate instances.
+Group points (sites > 1): Xiyan (EX-LE5) and Bafeng (EX-LE10) are located site by site (SITES, at the end), each site
+its own target; Kuangu (EX-LE1, the lateral site) and Qiduan (EX-LE12, the great toe) at their first site only.
 
 Every placement is an unreviewed, AI-assisted reading of the paraphrased standard location (WHO 2008; extra points
 WHO 1991): check it against the standard before teaching use.
@@ -65,7 +65,10 @@ POP = "seg.popliteal-lateral-malleolus"  # popliteal crease to the lateral malle
 LEG = "seg.knee-ankle-lateral"           # ST35 to the lateral malleolus: 16 B-cun (existing)
 TIB = "seg.sp9-medial-malleolus"         # SP9 to the medial malleolus: 13 B-cun (existing)
 MAL = "seg.medial-malleolus-sole"        # medial malleolus to the sole: 3 B-cun
-NAIL = dict(cranial=cm(0.15))            # 0.1 F-cun proximal to the nail corner (and 0.15 cm to the side)
+def fcun(x):
+    return {"fcun": x}
+
+NAIL = dict(cranial=fcun(0.07))          # 0.1 F-cun from the nail corner along the diagonal: 0.07 F-cun proximal (and to the side)
 
 LOCALISE = {
     # ---- thigh, anterior: the stomach channel on the line from the lateral end of the patellar base to the ASIS ----
@@ -95,7 +98,6 @@ LOCALISE = {
     # ---- knee ----------------------------------------------------------------------------------------------------
     "GB33": ("knee-leg", landmark("lateral-supracondylar-depression"), cm(0.7)),
     # group point (2 sites): the knee eyes; the first (medial) site is placed, the lateral one coincides with ST35
-    "EX-LE5": ("knee-leg", landmark("medial-knee-eye"), cm(0.6), "knee-flexed"),
     "BL39": ("knee-leg", landmark("popliteal-crease-lateral"), cm(0.6)),
     "BL38": ("knee-leg", landmark("popliteal-crease-lateral", cranial=cun(1, POP)), cun(0.3, POP)),
     "BL40": ("knee-leg", landmark("popliteal-crease-mid"), cm(0.7)),
@@ -146,7 +148,6 @@ LOCALISE = {
     "GB43": ("foot", landmark("web-4-5", cranial=cm(0.3)), cm(0.4)),
     # group point (4 sites): proximal to the four web margins; the first site (between the first and second toes,
     # where LR2 lies) is placed
-    "EX-LE10": ("foot", landmark("web-1-2", cranial=cm(0.3)), cm(0.4)),
     # ---- foot: medial border ('medial' is further round, towards the sole) -------------------------------------
     "SP2": ("foot", landmark("mtp1-medial", caudal=cm(0.9)), cm(0.5)),
     "SP3": ("foot", landmark("mtp1-medial", cranial=cm(1.2)), cm(0.5)),
@@ -158,15 +159,27 @@ LOCALISE = {
     "BL65": ("foot", landmark("mtp5-lateral", cranial=cm(1.2)), cm(0.5)),
     "BL66": ("foot", landmark("mtp5-lateral", caudal=cm(0.8)), cm(0.5)),
     # ---- toes: 0.1 F-cun proximal and to the side of the nail corner --------------------------------------------
-    "SP1": ("foot", landmark("great-toe-nail-medial-corner", medial=cm(0.15), **NAIL), cm(0.3)),
-    "LR1": ("foot", landmark("great-toe-nail-lateral-corner", lateral=cm(0.15), **NAIL), cm(0.3)),
-    "ST45": ("foot", landmark("toe2-nail-lateral-corner", lateral=cm(0.15), **NAIL), cm(0.3)),
-    "GB44": ("foot", landmark("toe4-nail-lateral-corner", lateral=cm(0.15), **NAIL), cm(0.3)),
-    "BL67": ("foot", landmark("toe5-nail-lateral-corner", lateral=cm(0.15), **NAIL), cm(0.3)),
+    "SP1": ("foot", landmark("great-toe-nail-medial-corner", medial=fcun(0.07), **NAIL), cm(0.3)),
+    "LR1": ("foot", landmark("great-toe-nail-lateral-corner", lateral=fcun(0.07), **NAIL), cm(0.3)),
+    "ST45": ("foot", landmark("toe2-nail-lateral-corner", lateral=fcun(0.07), **NAIL), cm(0.3)),
+    "GB44": ("foot", landmark("toe4-nail-lateral-corner", lateral=fcun(0.07), **NAIL), cm(0.3)),
+    "BL67": ("foot", landmark("toe5-nail-lateral-corner", lateral=fcun(0.07), **NAIL), cm(0.3)),
     # group point (5 sites): the tips of the toes; the first site (the great toe) is placed
     "EX-LE12": ("foot", landmark("great-toe-tip"), cm(0.3)),
 
     # ---- sole --------------------------------------------------------------------------------------------------
     "KI1": ("sole", landmark("sole-depression"), cm(0.6)),
     "EX-LE11": ("sole", landmark("toe2-dip-crease-plantar"), cm(0.3)),
+}
+
+
+# Group points located site by site (each its own target, per side).
+SITES = {
+    # Xiyan: the two knee eyes, either side of the patellar ligament, with the knee flexed (the lateral one is ST35)
+    "EX-LE5": ("knee-leg", [
+        ("medial", "medial knee eye", None, landmark("medial-knee-eye"), cm(0.6), "knee-flexed"),
+        ("lateral", "lateral knee eye", None, landmark("st35-depression"), cm(0.6), "knee-flexed"),
+    ]),
+    # Bafeng: proximal to the margins of the four webs between the toes
+    "EX-LE10": ("foot", [(f"web-{a}-{a + 1}", f"web between toes {a} and {a + 1}", None, landmark(f"web-{a}-{a + 1}", cranial=cm(0.3)), cm(0.4)) for a in range(1, 5)]),
 }

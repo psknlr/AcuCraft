@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { assessPath, createEncounter, derivedBuild, patientRegion, pointInstance, referenceLibrary, regionAccess, seamMap, step, type Side } from "@acucraft/core";
+import { assessPath, createEncounter, derivedBuild, patientRegion, pointInstance, pointTargets, referenceLibrary, regionAccess, seamMap, step, type Side } from "@acucraft/core";
 import { constructPoint, requirements } from "./agents/localise.js";
 import { loadContentPack, requireScenario, scenarioIds } from "./content.js";
 
@@ -48,16 +48,17 @@ describe("regional models", () => {
     let checked = 0;
     for (const id of scenarioIds(pack)) {
       const patient = requireScenario(pack, id);
-      for (const def of patient.bundle.acupoints.values()) {
-        if (!def.region || !def.localisation) continue;
-        const r = patient.bundle.regions.get(def.region)!;
-        for (const side of (def.bilateral ? ["left", "right"] : ["midline"]) as Side[]) {
-          const cfg = def.configuration ?? regionAccess(r, side, r.access[0]!.position).configuration;
-          const inst = pointInstance(patient, def, side, cfg);
-          if (!inst) continue;
-          const frame = patientRegion(patient, def.region, inst.side, cfg);
-          if (assessPath(frame, inst.position, 0, 0, 0.5, NEEDLE).critical) shallow.push(`${id} ${def.id} ${side}`);
-          checked++;
+      for (const point of patient.bundle.acupoints.values()) {
+        for (const { site, def } of pointTargets(point)) {
+          const r = patient.bundle.regions.get(def.region!)!;
+          for (const side of (def.bilateral ? ["left", "right"] : ["midline"]) as Side[]) {
+            const cfg = def.configuration ?? regionAccess(r, side, r.access[0]!.position).configuration;
+            const inst = pointInstance(patient, point, side, cfg, site);
+            if (!inst) continue;
+            const frame = patientRegion(patient, def.region!, inst.side, cfg);
+            if (assessPath(frame, inst.position, 0, 0, 0.5, NEEDLE).critical) shallow.push(`${id} ${def.id}${site ? `:${site}` : ""} ${side}`);
+            checked++;
+          }
         }
       }
     }

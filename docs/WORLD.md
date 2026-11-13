@@ -71,10 +71,14 @@ room's chair; they must be able to walk — not faint, no needles in — and be 
 | **at the patient's side** | 1.5 m to the couch or chair they are on, in sight | `examine`, `check_vitals`, `position_patient`, `search`, `remove_all_needles` (which then walks from needle to needle) |
 | **earshot** | 3 m, in sight | `ask`, `explain`, `seek_consent`, `check_sensation`; speech is never refused, but the patient hears and answers only from here |
 | **in view** | 8 m, in sight | `observe`, `monitor` |
-| **a fixture within its reach** | the equipment's own reach (1–1.5 m of its footprint), in sight | `hand_hygiene` (a sink or hand-rub dispenser), `fetch` (where the item is kept), `open_pack` (onto a trolley or worktop), `pick_up` (the tray's trolley; a fallen needle, by the couch it fell near), `dispose` (a sharps container), `review_result` (a records terminal — or with the patient, for the reports they brought) |
+| **a fixture within its reach** | the equipment's own reach (1–1.5 m of its footprint), in sight | `hand_hygiene` (a sink or hand-rub dispenser), `fetch` (where the item is kept), `open_pack` (onto a trolley or worktop), `pick_up` (the tray's trolley; a fallen needle, by the couch it fell near), `dispose` (a sharps container), `review_result` (a records terminal — or with the patient, for the reports they brought), `prepare_couch` (the couch being cleaned and made up) |
 | **another member of the team** | 1.5 m, in sight | `handover` |
 
 Walls and closed doors block sight: nobody monitors a patient through a wall.
+
+`count_needles` is never refused, but only a count made where the needles are reconciles them (`observed`): in the
+patient's room with the patient in sight while any needle is in place, and in the room of every tray that holds
+opened needles. From anywhere else it reads the record (`read`), which verifies nothing.
 
 A refusal for where the actor stands has the code `not-at-patient` or `not-in-reach` (`no-route` when there is no way
 there) and a message with the distance and the walk that fixes it, for instance — standing beside the right knee:

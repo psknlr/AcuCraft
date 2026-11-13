@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
 import {
   createEncounter,
   evaluateField,
@@ -48,8 +49,9 @@ describe("review regressions: localisation and safety", () => {
   it("a cautioned point is cautioned wherever the needle goes for it, whatever target is named", () => {
     const sc = requireScenario(pack, "sg-low-back-pain/pregnant");
     const bl23 = pointInstance(sc, sc.bundle.acupoints.get("BL23")!, "right", "side-lying")!;
-    const i = indexOf(sc, "insert_needle");
-    const steps: ActionRequestInput[] = [...sc.field.solution];
+    // the pregnant reference no longer needles: replay the audited trajectory that did (one side-lying Ashi needle)
+    const steps = JSON.parse(readFileSync(new URL("./fixtures/audit-pregnant-original.json", import.meta.url), "utf8")) as ActionRequestInput[];
+    const i = steps.findIndex((r) => r.action.type === "insert_needle");
     // a second needle at the patient's BL23, labelled as her (planned) Ashi point
     steps.splice(i + 1, 0, req({ type: "pick_up", object: "pack-a.2" }), req({ type: "insert_needle", needleId: "pack-a.2", region: "lumbar", side: "right", at: bl23.position, angleDeg: 0, azimuthDeg: 0, depthCm: 1, target: { ashi: "ashi-right-l3" } }));
     let attempt: EncounterState["attempts"][number] | undefined;
@@ -63,7 +65,8 @@ describe("review regressions: localisation and safety", () => {
     // shown back as what the operator named; evaluated as where it went
     expect(attempt!.executed!.detail).toMatch(/Ashi/);
     const report = evaluateEncounter(sc, s);
-    expect(report.points.find((p) => p.needle === "pack-a.2")).toMatchObject({ target: "BL23:right", classification: "avoid" });
+    // meant for the Ashi point, entered at BL23: avoided where it went
+    expect(report.points.find((p) => p.needle === "pack-a.2")).toMatchObject({ target: "ashi:ashi-right-l3", entered: "BL23:right", classification: "avoid" });
     expect(report.primary.status).toBe("failure");
   });
 

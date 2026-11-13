@@ -136,6 +136,11 @@ export interface NeedleState {
     configuration: string;
     patientPosition: Position;
     entry: ChartPoint;
+    /** The point the operator named or marked for this needle (null: none named). */
+    intended: PointRef | null;
+    /** The point the entry actually lies on, judged against this patient's anatomy (planned points first). */
+    nearest: PointRef | null;
+    /** What the rules treat the needle as: the intended point when the entry lies on it, otherwise the nearest. */
     target: PointRef | null;
     mark: string | null;
     /** The mark had moved with the skin (made in another position) when the needle went in. */
@@ -274,7 +279,13 @@ export interface CountRecord {
   onTray: number;
   disposed: number;
   unaccounted: number;
+  /** Only a count made where the needles are (`observed`), or a colleague's such count received (`reported`), reconciles. */
   reconciled: boolean;
+  /** `observed`: counted at the bedside and the tray; `read`: the record read from elsewhere (verifies nothing);
+   * `reported`: a colleague's observed count, received through a delegated task. */
+  method: "observed" | "read" | "reported";
+  /** For `reported`: who counted. */
+  reportedBy: string | null;
 }
 
 export interface VisitState {
@@ -315,7 +326,10 @@ export interface EncounterState {
   landmarks: { visit: number; by: string; at: number; region: string; side: Side; landmark: string; position: ChartPoint; configuration: string }[];
   measurements: { visit: number; by: string; at: number; region: string; side: Side; what: string; cm: number }[];
   marks: Record<string, MarkRecord>;
-  sitesPrepared: { visit: number; region: string; side: Side; at: number; by: string }[];
+  /** Each treatment couch, by room: when it was last cleaned and made up, by whom, and what was done. */
+  couches: Record<string, { prepared: { at: number; by: string; done: string[] } | null }>;
+  /** Skin cleaned before needling; `touched`: the cleaned skin was handled again afterwards (it needs cleaning again). */
+  sitesPrepared: { visit: number; region: string; side: Side; at: number; by: string; touched: { at: number; by: string; how: string } | null }[];
   revealedConditions: string[];
   revealedAshi: string[];
   /** `patternEvidence`: the evidence ids the pattern differentiation names (each was in `evidence` when it was made). */
@@ -324,7 +338,8 @@ export interface EncounterState {
   plans: PlanVersion[];
   planApproved: number | null;
   referrals: { at: number; by: string; to: string; urgency: string; reason: string }[];
-  explanations: { visit: number; at: number; by: string; topics: string[] }[];
+  /** What the patient was told (`text`), and the topics it covered; tags without words cover nothing (`tagged`). */
+  explanations: { visit: number; at: number; by: string; topics: string[]; text: string | null; tagged: string[] }[];
   packs: Record<string, PackState>;
   needles: Record<string, NeedleState>;
   items: Record<string, { id: string; holder: string | null; at: string | null }>;
