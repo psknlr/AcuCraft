@@ -67,8 +67,8 @@ MATERIALS = [
     M("acu-sharps", "#efc531", roughness=0.5),                                 # a sharps container
     M("acu-heat", "#3a2622", variance=0.02, roughness=0.85, emissive="#ff5a2a", emissiveIntensity=0.35),  # a heat lamp's plate
     M("acu-timber", "#c2a47c", "plank", 0.03, roughness=0.7, castShadow=False),  # a warm floor
-    M("acu-dado", "#a9c3b6", variance=0.025, roughness=0.8),                   # the painted lower course of a wall
-    M("acu-ceiling", "#eceee6", "tile", 0.02, roughness=0.9),                  # ceiling tiles
+    M("acu-dado", "#7da696", variance=0.025, roughness=0.8),                   # the painted lower course of a wall
+    M("acu-ceiling", "#dfe3d9", "tile", 0.02, roughness=0.9),                  # ceiling tiles
 ]
 
 # ---------------------------------------------------------------------------------------------------------

@@ -126,14 +126,14 @@
     },
     {
       "id": "acu-dado",
-      "color": "#a9c3b6",
+      "color": "#7da696",
       "pattern": "flat",
       "variance": 0.025,
       "roughness": 0.8
     },
     {
       "id": "acu-ceiling",
-      "color": "#eceee6",
+      "color": "#dfe3d9",
       "pattern": "tile",
       "variance": 0.02,
       "roughness": 0.9
