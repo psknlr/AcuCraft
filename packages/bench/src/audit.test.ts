@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { assessPath, createEncounter, observeAs, patientRegion, pointInstance, referenceLibrary, regionAccess, ruleSetInForce, step, tipOf, type ActionRequestInput, type EncounterState, type Scenario } from "@acucraft/core";
-import { requirements } from "./agents/localise.js";
+import { requirements } from "@acucraft/agent";
 import { loadContentPack, requireScenario } from "./content.js";
 import { evaluateEncounter } from "./evaluate.js";
 

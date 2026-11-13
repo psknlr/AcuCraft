@@ -87,10 +87,15 @@ Each track is a weighted mean of scored items; an item is `true`, `false`, or `n
 |---|---|
 | `reference` | replays the scenario's hidden reference trajectory — an oracle and a check on the scenario, never a fair agent |
 | `protocol` | a rule-based practitioner using only the view and the public library: a fixed screening list, keyword red flags, a standard prescription per complaint, honest localisation from palpated landmarks and measured segments, textbook depths that do not adapt to the build, delegated monitoring, needle accountability. It reads from its view what is within reach and walks first when something is not. Its pattern is picked by keyword and names the answers and findings the keywords were found in, with the tongue and the pulse; each needle is lifted and thrust once and the record states what was felt — never more than it observed |
-| `claude` | a live language-model practitioner (Messages API, client tools `act`, `lookup`, `view`; default model `claude-opus-5-5`, effort `high`, server-side refusal fallback on); the transcript is kept in the log so a replay never calls the model again. `lookup` has the floor plan, what each pattern is recognised by and what counts as deqi; each action's result says what is now within reach and lists the ids of the evidence obtained |
+| `claude` | a live language-model practitioner ([AGENT.md](AGENT.md)): the Messages API with one typed tool for each action its role may take and the read-only tools `lookup`, `view`, `construct_point` and `read_skill`; default model `claude-opus-5-5`, effort `high`, server-side refusal fallback and compaction on. Each action's result says what that action changed — new evidence with its id, where the practitioner now stands, a needle's state. The transcript and the token usage are kept in the log, so a replay never calls the model again |
+| `scripted-llm` | the same loop with the scenario's reference trajectory spoken as tool calls in place of a model. An oracle, like `reference`, and no measure of anything: it shows that the loop, the tools and the results carry a whole encounter (15/15, checked in CI) |
 
-Add an agent by implementing `Agent` (`packages/bench/src/agents/types.ts`): `next(view)` returns one action or
-`done`.
+Add an agent by implementing `Agent` (`packages/agent/src/types.ts`): `next(view)` returns one action or `done`.
+A model of another family is a provider for the same loop (`LLMProvider`, [AGENT.md](AGENT.md) §6).
+
+What a model was given belongs with its results: the model and its effort (in the agent's name), whether the skills
+were offered (`--no-skills` withholds them) and whether `construct_point` was (`--no-locate`). The skills were
+written by the authors of the scenarios; a run without them is the stricter reading.
 
 ## 6. Statistics and splits
 

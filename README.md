@@ -101,10 +101,37 @@ npm run bench -- --agent protocol
 ```
 
 Run it with a live model (needs Anthropic API credentials; default `claude-opus-5-5`, effort `high`, server-side refusal
-fallback on):
+fallback on). The model acts through one typed tool for each action, reads the clinic's skills when it needs them,
+and its transcript and token usage are kept in the log ([docs/AGENT.md](docs/AGENT.md)):
 
 ```bash
 npm run bench -- --agent claude --split dev
+```
+
+The same loop with no model and no network — the reference trajectory spoken as tool calls (15/15; CI runs it):
+
+```bash
+npm run bench -- --agent scripted-llm
+```
+
+Let an agent in another program play the practitioner over MCP, with the same tools (Claude Code shown):
+
+```bash
+claude mcp add acucraft -- npm run -s acu -- mcp
+```
+
+See what a model is given — its tools, its standing instructions, the skills:
+
+```bash
+npm run acu -- tools
+```
+
+```bash
+npm run acu -- prompt
+```
+
+```bash
+npm run acu -- skills
 ```
 
 ## What is in it
@@ -112,9 +139,11 @@ npm run bench -- --agent claude --split dev
 | | |
 |---|---|
 | `packages/core` — `@acucraft/core` | schemas; scenario resolution (family + variant overlays); patient-specific anatomy, proportional (B-cun) localisation and needle path assessment; the deterministic encounter engine over ClinicalCraft's clinical session; the clinic as a walkable world over ClinicalCraft's world layer (stances, planned walks, reach); the evidence ledger, pattern support and the needle's response; needle lifecycle and invariants; roles, versioned rules and the simulation guard; consent; delegation and NPC policies; field events; replay; the agent view |
-| `packages/bench` — `@acucraft/bench` | content loader; the independent evaluator (primary endpoint, five tracks, critical errors, unsafe attempts executed/blocked, the evidence links, adjudication, STRICTA-informed documentation); agents (reference oracle, rule-based protocol, Claude); runner; suites; statistics; reports; the HTML viewer |
-| `packages/cli` — `acucraft` | `validate`, `list`, `points`, `show`, `map` (the floor plan), `vocabulary` (signs, pattern criteria, deqi), `locate`, `run`, `play`, `replay`, `evaluate`, `view` (an HTML encounter viewer: the floor plan with every walk, charts with landmarks, structures, reference locations and entries, the evidence links and the timeline), `bench`, `export-clinicalcraft` |
-| `content/` | 3 standard editions, the full point library (409: the WHO 2008 standard's 361 meridian points and the WHO 1991 nomenclature's 48 extra points; 399 localised and needleable), 18 regional models covering the whole body (the trunk and front of the neck derived from the HuBMAP Visible Human Male reference body, CC BY 4.0, see THIRD_PARTY.md; the head and limbs schematic) and where each lies on the body, Singapore roles, 3 rule-set series, the clinic and its floor plan (a ClinicalCraft facility with three room templates and an equipment catalog), the vocabulary (diagnoses, 66 signs, 13 patterns with their criteria, needle sensations, deqi), guideline evidence, 5 families, the pilot suite |
+| `packages/agent` — `@acucraft/agent` | who plays the practitioner: the reference oracle and the rule-based protocol baseline; the runtime of a language-model practitioner — one typed tool per action generated from the engine's schemas, the read-only tools (`lookup`, `view`, `construct_point`, `read_skill`), standing instructions, skills as data, a provider for the Messages API and two offline ones, a loop that carries several calls a turn and stops a batch when the patient needs an answer; the session |
+| `packages/bench` — `@acucraft/bench` | content loader; the independent evaluator (primary endpoint, five tracks, critical errors, unsafe attempts executed/blocked, the evidence links, adjudication, STRICTA-informed documentation); runner; suites; statistics; reports; the HTML viewer |
+| `packages/mcp` — `@acucraft/mcp` | an MCP server over stdio: another program's agent plays the practitioner with the same tools, and is served nothing hidden until the encounter is over |
+| `packages/cli` — `acucraft` | `validate`, `list`, `points`, `show`, `map` (the floor plan), `vocabulary` (signs, pattern criteria, deqi), `locate`, `run`, `play`, `replay`, `evaluate`, `view` (an HTML encounter viewer: the floor plan with every walk, charts with landmarks, structures, reference locations and entries, the evidence links and the timeline), `bench`, `export-clinicalcraft`, `skills`, `tools`, `prompt`, `mcp` |
+| `content/` | 3 standard editions, the full point library (409: the WHO 2008 standard's 361 meridian points and the WHO 1991 nomenclature's 48 extra points; 399 localised and needleable), 18 regional models covering the whole body (the trunk and front of the neck derived from the HuBMAP Visible Human Male reference body, CC BY 4.0, see THIRD_PARTY.md; the head and limbs schematic) and where each lies on the body, Singapore roles, 3 rule-set series, the clinic and its floor plan (a ClinicalCraft facility with three room templates and an equipment catalog), the vocabulary (diagnoses, 66 signs, 13 patterns with their criteria, needle sensations, deqi), guideline evidence, 9 skills (how the clinic works, for an agent to read), 5 families, the pilot suite |
 | `tools/` | `bootstrap.sh` (the pinned engine), `check.sh` (what CI runs), `locate.ts`, `finish-solutions.ts` (replays the reference trajectories: drops idle walks, writes the needle responses from the evidence), `content/` (authoring scripts: families, the clinic's world, the vocabulary) |
 
 ### The case families
@@ -134,7 +163,7 @@ other variant of the family (both are tested).
 
 | proposal | implemented | not yet |
 |---|---|---|
-| §2 built on ClinicalCraft, content-pack structure | each scenario's consultation is a ClinicalCraft case run by `@clinicalcraft/core` (pinned); the clinic is a ClinicalCraft facility, and the encounter runs on `@clinicalcraft/world`'s collision, navigation and sight — people stand somewhere, walk planned paths and act within reach ([WORLD.md](docs/WORLD.md)); `.clinicalcraft/settings.json` and `export-clinicalcraft` for ClinicalCraft's front-ends | the encounter played inside ClinicalCraft's 3D renderer (the engine is headless: the world is used as geometry, not drawn); ClinicalCraft agent runtime and MCP |
+| §2 built on ClinicalCraft, content-pack structure | each scenario's consultation is a ClinicalCraft case run by `@clinicalcraft/core` (pinned); the clinic is a ClinicalCraft facility, and the encounter runs on `@clinicalcraft/world`'s collision, navigation and sight — people stand somewhere, walk planned paths and act within reach ([WORLD.md](docs/WORLD.md)); `.clinicalcraft/settings.json` and `export-clinicalcraft` for ClinicalCraft's front-ends; an agent runtime and an MCP server after ClinicalCraft's design ([AGENT.md](docs/AGENT.md)) | the encounter played inside ClinicalCraft's 3D renderer (the engine is headless: the world is used as geometry, not drawn) |
 | §3 Singapore roles, consent, records, rule versions with effective dates | role permissions incl. supervised learners; consent to plan versions, refusal, withdrawal; investigation access by role; rule series with versions in force by visit date ([SINGAPORE.md](docs/SINGAPORE.md)) | verification of the TCMPB texts; encoding of the 2027 advisory; Mandarin dialogue |
 | §4 the complete encounter | consultation (one or two questions at a time), assessment, decision, planning, preparation, procedure, observation, completion, follow-up; pattern differentiation and deqi linked to evidence — a ledger with stable ids, conclusions that name what they rest on, read from the field and never from the claim ([EVIDENCE.md](docs/EVIDENCE.md)) | expert review of the signs, the criteria of each pattern and the needle-response model |
 | §5 versioned definitions; definition / patient instance / actual entry; cun per patient; regional models; separate localisation and path assessment | yes ([ANATOMY.md](docs/ANATOMY.md)); WHO 2008 vs GB/T 12346-2021 recorded; the whole body modelled in 18 regions, the trunk imaging-derived (HuBMAP Visible Human Male) | expert review; imaging-derived limbs and head (open data with attribution-only licences lacks nerves and limb vessels); per-patient imaging |
@@ -156,7 +185,7 @@ guard blocks it and the blocked attempt counts as a critical error. The referenc
 The evidence links say more than the endpoint. The baseline's keyword differentiation rests on the findings it names
 in 9 of 11 encounters (in the knee family it never asks about the weather and settles on a pattern one tender point
 cannot carry); it records a response for all 47 needles and none as deqi without evidence of it; it walks about 69 m
-an encounter. There are no live-model results: this release was built without API access, and the Claude agent's loop is tested against a mock client.
+an encounter. There are no live-model results: this release was built without API access. The language-model loop is tested against scripted providers and a stand-in for the SDK client, and carries all 15 encounters offline with the reference trajectory in place of a model.
 
 ## Documentation
 
@@ -165,6 +194,7 @@ an encounter. There are no live-model results: this release was built without AP
 - [docs/EVIDENCE.md](docs/EVIDENCE.md) — the evidence ledger, pattern differentiation read from its findings, the needle's response and how a recorded deqi is checked
 - [docs/ANATOMY.md](docs/ANATOMY.md) — charts, configurations, patient-specific instances and cun, tissue, needle paths
 - [docs/EVALUATION.md](docs/EVALUATION.md) — endpoint, tracks, agents, statistics, the baseline
+- [docs/AGENT.md](docs/AGENT.md) — the practitioner's runtime: tools, the loop, what a model is told, skills, providers, sessions, MCP
 - [docs/SINGAPORE.md](docs/SINGAPORE.md) — roles, rule sets and versions, what remains to verify
 - [docs/CONTENT.md](docs/CONTENT.md) — authoring families, variants, fields, conditions and reference trajectories
 - [docs/AUDIT-2026-11.md](docs/AUDIT-2026-11.md) — the November 2026 clinical and gameplay audit: what changed, the regression tests, what remains open

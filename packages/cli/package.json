@@ -1,9 +1,16 @@
 {
   "name": "@acucraft/cli",
-  "version": "0.2.0",
-  "description": "acucraft command line: validate content, run and replay encounters, run the benchmark",
+  "version": "0.3.0",
+  "description": "acucraft command line: validate content, run, play and replay encounters, run the benchmark, serve the encounter over MCP",
   "type": "module",
   "license": "MIT",
-  "bin": { "acucraft": "./src/bin.ts" },
-  "dependencies": { "@acucraft/core": "0.2.0", "@acucraft/bench": "0.2.0" }
+  "bin": {
+    "acucraft": "./src/bin.ts"
+  },
+  "dependencies": {
+    "@acucraft/core": "0.3.0",
+    "@acucraft/agent": "0.3.0",
+    "@acucraft/bench": "0.3.0",
+    "@acucraft/mcp": "0.3.0"
+  }
 }

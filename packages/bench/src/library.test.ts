@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createEncounter, observeAs, pointInstance, pointTargets, referenceLibrary, type Side } from "@acucraft/core";
 import { loadContentPack, requireScenario, scenarioIds } from "./content.js";
-import { lookup } from "./agents/claude.js";
+import { lookup } from "@acucraft/agent";
 
 /** The acupoint library: complete against the standards it cites, and every localised point placeable. */
 

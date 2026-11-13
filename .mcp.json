@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "acucraft": {
+      "command": "npm",
+      "args": ["run", "-s", "acu", "--", "mcp"]
+    }
+  }
+}

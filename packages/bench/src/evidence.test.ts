@@ -23,7 +23,7 @@ import {
   type NeedleResponseClaim,
   type Scenario,
 } from "@acucraft/core";
-import { lookup } from "./agents/claude.js";
+import { lookup } from "@acucraft/agent";
 import { loadContentPack, requireScenario, scenarioIds } from "./content.js";
 import { evaluateEncounter } from "./evaluate.js";
 import { episodeMarkdown } from "./report.js";

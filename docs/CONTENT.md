@@ -26,6 +26,9 @@ content/
   families/<id>/field.json        acucraft/field@1       the acupuncture field and the hidden evaluation
   families/<id>/variants/*.json   acucraft/variant@1     overlays of case and field
   families/<id>/solutions/*.json                         a variant's reference trajectory (hidden)
+  skills/<id>.md                                         how a part of the work is done in this clinic: a header
+                                                         (id, title, when) and a short text an agent may read;
+                                                         public, the same for every scenario (docs/AGENT.md §5)
   bench/pilot-v1.json             acucraft/suite@1       the pilot benchmark suite
 ```
 

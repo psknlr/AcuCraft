@@ -3,7 +3,7 @@ import type { Mode } from "@acucraft/core";
 import { requireScenario, scenarioIds, type ContentPack } from "./content.js";
 import { runEpisode, type EpisodeResult, type RunOptions } from "./runner.js";
 import { clusterBootstrap, mean, wilson, type Proportion } from "./stats.js";
-import type { AgentFactory } from "./agents/types.js";
+import type { AgentFactory } from "@acucraft/agent";
 import { NOTICE, type EncounterReport } from "./evaluate.js";
 
 export const SUITE_SCHEMA_ID = "acucraft/suite@1" as const;

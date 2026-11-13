@@ -18,6 +18,8 @@ import {
   type Scenario,
   type ScenarioSource,
 } from "@acucraft/core";
+import type { Skill } from "@acucraft/agent";
+import { loadSkills } from "@acucraft/agent/node";
 import type { ZodTypeAny } from "zod";
 
 /**
@@ -46,6 +48,8 @@ export interface ContentPack {
   families: Map<string, FamilyEntry>;
   /** Other files by schema id (benchmark suites …). */
   extra: Map<string, { path: string; json: unknown }[]>;
+  /** The clinic's written skills (`skills/*.md`): public reference text an agent may read (docs/AGENT.md). */
+  skills: Skill[];
   issues: Issue[];
 }
 
@@ -236,7 +240,9 @@ export function loadContentPack(dir: string = DEFAULT_CONTENT_DIR): ContentPack 
   if (!bundle.vocabulary) issues.push({ path: "", message: "no acucraft/vocabulary@1 file", severity: "error" });
   if (bundle.standards.editions.length === 0) issues.push({ path: "", message: "no acucraft/standards@1 file", severity: "error" });
   checkBundle(bundle, issues);
-  return { dir, bundle, families, extra, issues };
+  const written = loadSkills(dir);
+  issues.push(...written.issues);
+  return { dir, bundle, families, extra, skills: written.skills, issues };
 }
 
 /** Cross-file checks of the knowledge base: point regions, landmarks and segments, editions. */

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { assessPath, createEncounter, derivedBuild, patientRegion, pointInstance, pointTargets, referenceLibrary, regionAccess, seamMap, step, type Side } from "@acucraft/core";
-import { constructPoint, requirements } from "./agents/localise.js";
+import { constructPoint, requirements } from "@acucraft/agent";
 import { loadContentPack, requireScenario, scenarioIds } from "./content.js";
 
 /** Every regional model is internally consistent, and its hazards are reachable only by going too deep. */

@@ -1,0 +1,15 @@
+{
+  "name": "@acucraft/mcp",
+  "version": "0.3.0",
+  "description": "AcuCraft MCP server: lets an external agent (Claude Code, Claude Desktop) play the practitioner through the same tools as the built-in agent",
+  "type": "module",
+  "license": "MIT",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@acucraft/core": "0.3.0",
+    "@acucraft/agent": "0.3.0",
+    "@acucraft/bench": "0.3.0"
+  }
+}
