@@ -179,6 +179,14 @@ export const EvidenceFileSchema = z
   .strict();
 export type EvidenceFile = z.infer<typeof EvidenceFileSchema>;
 
+/** What a fixture of the clinic is for: the engine's rules name kinds, never ids. */
+export const FIXTURE_KINDS = ["couch", "chair", "hand-hygiene", "sharps-container", "supplies", "trolley", "records-terminal", "screen"] as const;
+export type FixtureKind = (typeof FIXTURE_KINDS)[number];
+
+/** A point on the clinic floor, in metres, in the facility's frame (+x east, +z south). */
+export const FloorPointSchema = z.object({ x: z.number(), z: z.number() }).strict();
+export type FloorPoint = z.infer<typeof FloorPointSchema>;
+
 export const ClinicSchema = z
   .object({
     schema: z.literal(CLINIC_SCHEMA_ID),
@@ -187,6 +195,12 @@ export const ClinicSchema = z
     title: z.string(),
     jurisdiction: z.string().min(2),
     languages: z.object({ primary: z.string(), secondary: z.array(z.string()).default([]) }).strict(),
+    /**
+     * The clinic's floor plan: a ClinicalCraft facility (`clinicalcraft/facility@1`) of the content pack. Every room
+     * here is a room of that facility with the same id, and every fixture stands on one of its placements, so the
+     * engine plans walks, reach and lines of sight on the building ClinicalCraft's front-ends draw (docs/WORLD.md).
+     */
+    facility: IdSchema,
     rooms: z
       .array(
         z
@@ -194,14 +208,18 @@ export const ClinicSchema = z
             id: IdSchema,
             label: z.string(),
             kind: z.enum(["reception", "consult", "treatment", "preparation", "corridor"]),
+            /** Where a member of staff who is "in the room" stands: a free spot of the floor plan. */
+            home: FloorPointSchema,
             /** Fixtures in the room: couches, chairs, sinks, sharps containers, supply shelves, a records terminal. */
             fixtures: z
               .array(
                 z
                   .object({
                     id: IdSchema,
-                    kind: z.enum(["couch", "chair", "hand-hygiene", "sharps-container", "supplies", "records-terminal", "screen"]),
+                    kind: z.enum(FIXTURE_KINDS),
                     label: z.string(),
+                    /** The facility placement the fixture is (two fixtures may share one: the sharps box on the trolley). */
+                    placement: IdSchema,
                   })
                   .strict(),
               )

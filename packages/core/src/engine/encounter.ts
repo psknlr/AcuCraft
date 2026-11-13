@@ -55,7 +55,9 @@ import {
   utter,
   type Ctx,
 } from "./runtime.js";
-import { roleOf, type Scenario } from "./scenario.js";
+import { clinicWorld, roleOf, type Scenario } from "./scenario.js";
+import { atFixture, atFixtureOfKind, nearActor, patientBody, patientContact, patientSight, patientTalk, placeEveryone, placePatient, seatIn, siteOf, siteReach, walk, walkTarget, type MoveTarget, type Spatial } from "./space.js";
+import { ARM_REACH_M, CONTACT_RANGE_M, distanceToArea, fixtureReach, planWalk, seesArea, spotsNear } from "./world.js";
 import { detectClaims, detectCommitment, detectTopics, questionCount, type Claim } from "./text.js";
 import { clone } from "./util.js";
 
@@ -90,10 +92,12 @@ export function createEncounter(sc: Scenario, opts: EncounterOptions = {}): Enco
     clinical,
     clinicalEvents: [...started.events],
     visits: [{ index: 1, phase: visit1.phase, date: visit1.date, startedAt: 0, ended: false, endedAt: null }],
-    actors: Object.fromEntries(sc.field.cast.map((m) => [m.id, { id: m.id, role: m.role, location: m.location, hygieneSeq: null, soiledSeq: null, holding: [] }])),
+    actors: Object.fromEntries(sc.field.cast.map((m) => [m.id, { id: m.id, role: m.role, location: m.location, at: { x: 0, z: 0, yaw: 0 }, hygieneSeq: null, soiledSeq: null, holding: [] }])),
     patient: {
       id: sc.field.patient.id,
       location: sc.field.patient.location,
+      at: { x: 0, z: 0, yaw: 0 },
+      support: null,
       position: sc.field.patient.position,
       anxiety: sc.field.patient.anxiety,
       consent: { status: "none", planVersion: null, at: null, topics: [] },
@@ -127,10 +131,12 @@ export function createEncounter(sc: Scenario, opts: EncounterOptions = {}): Enco
     stopped: null,
     flags: [],
     events: {},
+    walks: [],
     attempts: [],
     finished: false,
     finishedAt: null,
   };
+  placeEveryone(sc, s);
   for (const p of sc.field.equipment.packs) {
     const ids = Array.from({ length: p.count }, (_, i) => `${p.id}.${i + 1}`);
     s.packs[p.id] = { id: p.id, at: p.at, holder: null, sealed: p.sealed, expired: p.expired, needles: ids, openedBy: null, openedAt: null };
@@ -308,12 +314,19 @@ export function speakerLabel(sc: Scenario, id: string): string {
 /* Shared checks                                                       */
 /* ------------------------------------------------------------------ */
 
-function atPatient(ctx: Ctx): void {
-  if (ctx.actor.location !== ctx.s.patient.location) {
-    const room = ctx.sc.clinic.rooms.find((r) => r.id === ctx.s.patient.location)?.label ?? ctx.s.patient.location;
-    throw new Rejection("not-at-patient", `You need to be with the patient (in the ${room}).`);
-  }
+/** Refuse an act the actor is not placed for: the message says how far away it is and which walk makes it possible. */
+function need(check: Spatial): void {
+  if (!check.ok) throw new Rejection(check.code, check.message);
 }
+
+/** Near enough to speak with the patient (3 m, in sight). */
+const inEarshot = (ctx: Ctx) => need(patientTalk(ctx.sc, ctx.s, ctx.actor.id));
+/** At the patient's side (1.5 m of the couch or chair they are on). */
+const atSide = (ctx: Ctx, purpose: string) => need(patientContact(ctx.sc, ctx.s, ctx.actor.id, purpose));
+/** Within an arm's reach of a body site, where the patient lies or sits now. */
+const atSite = (ctx: Ctx, region: string, side: Side) => need(siteReach(ctx.sc, ctx.s, ctx.actor.id, region, side));
+/** With the patient in view. */
+const inSight = (ctx: Ctx) => need(patientSight(ctx.sc, ctx.s, ctx.actor.id));
 
 function regionFrame(ctx: Ctx, regionId: string, side: Side): PatientRegion {
   const { sc, s } = ctx;
@@ -372,7 +385,7 @@ const HOW_ARE_YOU = /\b(how (does|do|is|are) (it|that|the \w+|you|your \w+)( \w+
 
 function presentState(ctx: Ctx): void {
   const { s } = ctx;
-  if (ctx.actor.location !== s.patient.location) throw new Rejection("not-at-patient", "The patient is not in this room.");
+  inEarshot(ctx);
   const recent = s.patient.feedback.filter((f) => f.abnormal && f.at >= now(s) - 3);
   const needleIds = new Set(retainedNeedles(s).map((n) => n.id));
   const ongoing = recent.filter((f) => !f.needleId || needleIds.has(f.needleId));
@@ -388,7 +401,7 @@ function presentState(ctx: Ctx): void {
 
 function answerQuestion(ctx: Ctx, itemId: string | undefined, text: string | undefined, minScore: number = MATCH_THRESHOLD): void {
   const { sc, s } = ctx;
-  if (s.actors[ctx.actor.id]!.location !== s.patient.location) throw new Rejection("not-at-patient", "The patient is not in this room.");
+  inEarshot(ctx);
   if (s.patient.fainted) {
     observe(ctx, "The patient is too faint to answer.");
     return;
@@ -713,7 +726,8 @@ const HANDLERS: HandlerMap = {
       ctx.out.steps.push(`claim ${claim}: ${supported ? "matches the state" : "not supported by the state"}`);
     }
     const toPatient = a.to === undefined || a.to === s.patient.id;
-    if (toPatient && s.actors[ctx.actor.id]!.location === s.patient.location) {
+    // speech is never refused; the patient hears, and answers, only from within earshot
+    if (toPatient && patientTalk(sc, s, ctx.actor.id).ok) {
       const topics = detectTopics(a.text);
       if (topics.length > 0) s.explanations.push({ visit: visitIndex(s), at: now(s), by: ctx.actor.id, topics });
       if (questionCount(a.text) > 0 && roleOf(sc, ctx.actor.id)?.grants.some((g) => (typeof g === "string" ? g : g.permission) === "consult")) {
@@ -728,7 +742,7 @@ const HANDLERS: HandlerMap = {
   },
   observe(ctx) {
     const { s, sc } = ctx;
-    if (ctx.actor.location !== s.patient.location) throw new Rejection("not-at-patient", "The patient is not in this room.");
+    inSight(ctx);
     const name = t(sc.case.patient.displayName, LOCALE);
     observe(ctx, `${name} is ${s.patient.position} in the ${sc.clinic.rooms.find((r) => r.id === s.patient.location)?.label ?? s.patient.location}.`);
     const build = sc.case.patient.appearance.build;
@@ -747,7 +761,7 @@ const HANDLERS: HandlerMap = {
   },
   examine(ctx, a) {
     const { s, sc } = ctx;
-    atPatient(ctx);
+    atSide(ctx, "examine them");
     let id = a.findingId;
     if (!id) {
       if (!a.text) throw new Rejection("invalid", "Examine by finding id or describe the manoeuvre.");
@@ -783,6 +797,8 @@ const HANDLERS: HandlerMap = {
       return;
     }
     const inv = sc.case.investigations.find((i) => i.id === id)!;
+    const terminal = atFixtureOfKind(sc, s, ctx.actor.id, "records-terminal", "records terminal");
+    if (!terminal.ok && !patientContact(sc, s, ctx.actor.id).ok) throw new Rejection(terminal.code, `Records are read at a records terminal, or with the patient (the reports they brought). ${terminal.message}`);
     const phase = s.clinical.phase;
     const ordered = s.clinical.orders.some((o) => o.investigationId === id);
     if (!ordered && inv.performedAt !== "records") {
@@ -827,7 +843,7 @@ const HANDLERS: HandlerMap = {
   },
   check_vitals(ctx) {
     const { s, sc } = ctx;
-    atPatient(ctx);
+    atSide(ctx, "take their vital signs");
     const snap = vitalsAt(sc.case, s.clinical);
     if (snap.baselineOnly) {
       observe(ctx, "No vital signs are modelled for this case.");
@@ -884,7 +900,7 @@ const HANDLERS: HandlerMap = {
   },
   explain(ctx, a) {
     const { s } = ctx;
-    atPatient(ctx);
+    inEarshot(ctx);
     const topics = [...new Set([...a.topics, ...(a.text ? detectTopics(a.text) : [])])];
     if (a.text) utter(s, ctx.actor.id, s.patient.id, a.text, "speech");
     s.explanations.push({ visit: visitIndex(s), at: now(s), by: ctx.actor.id, topics });
@@ -893,7 +909,7 @@ const HANDLERS: HandlerMap = {
   },
   seek_consent(ctx) {
     const { s, sc } = ctx;
-    atPatient(ctx);
+    inEarshot(ctx);
     const plan = currentPlan(s);
     if (!plan) throw new Rejection("no-plan", "There is no treatment plan to consent to: propose one first.");
     if (s.patient.fainted) {
@@ -936,7 +952,7 @@ const HANDLERS: HandlerMap = {
   },
   position_patient(ctx, a) {
     const { s, sc } = ctx;
-    atPatient(ctx);
+    atSide(ctx, "help them move");
     if (a.position === s.patient.position) {
       observe(ctx, `The patient is already ${a.position}.`);
       return;
@@ -947,8 +963,12 @@ const HANDLERS: HandlerMap = {
       ctx.out.target = a.position;
       return;
     }
-    const room = sc.clinic.rooms.find((r) => r.id === s.patient.location)!;
-    if (!["standing", "seated", "seated-forward"].includes(a.position) && !room.fixtures.some((f) => f.kind === "couch")) throw new Rejection("no-couch", `There is no treatment couch in the ${room.label}.`);
+    const w = clinicWorld(sc);
+    const room = w.rooms.get(s.patient.location);
+    // where they will be: lying, on the room's couch; sitting, where they already are (else the room's chair); standing, beside it
+    const current = s.patient.support ? (w.fixtures.get(s.patient.support) ?? null) : null;
+    const seat = LYING.includes(a.position) ? (current?.kind === "couch" ? current : seatIn(sc, s.patient.location, a.position)) : a.position === "standing" ? null : (current ?? seatIn(sc, s.patient.location, a.position));
+    if (LYING.includes(a.position) && !seat) throw new Rejection("no-couch", `There is no treatment couch in the ${room?.label ?? s.patient.location}.`);
     if (a.position === "standing" && (s.patient.fainted || retainedNeedles(s).length > 0)) throw new Rejection("unsafe-position", "The patient cannot stand up now.");
     const retained = retainedNeedles(s);
     if (retained.length > 0) {
@@ -958,7 +978,12 @@ const HANDLERS: HandlerMap = {
       } else observe(ctx, "Repositioned in an emergency with needles still in place: remove them as soon as possible.");
     }
     const before = s.patient.position;
+    const body = patientBody(sc, s);
     s.patient.position = a.position;
+    if (seat?.id !== s.patient.support) {
+      placePatient(sc, s, s.patient.location, seat, seat ? undefined : (spotsNear(w, body.area, 0.6, body.centre)[0] ?? body.centre));
+      if (seat) observe(ctx, `The patient is now on the ${seat.label}.`);
+    }
     // skin marks made in another configuration of their region no longer lie over the points
     let stale = 0;
     for (const m of Object.values(s.marks)) {
@@ -980,8 +1005,8 @@ const HANDLERS: HandlerMap = {
   },
   identify_landmark(ctx, a) {
     const { s, sc } = ctx;
-    atPatient(ctx);
     const frame = regionFrame(ctx, a.region, a.side);
+    atSite(ctx, a.region, a.side);
     const lm = frame.region.landmarks.find((l) => l.id === a.landmark);
     if (!lm) throw new Rejection("unknown-id", `The ${frame.region.title} has no landmark ${a.landmark}.`);
     // palpation is precise to a few millimetres, never exact: a seeded error per patient, landmark and position
@@ -997,8 +1022,8 @@ const HANDLERS: HandlerMap = {
   },
   measure(ctx, a) {
     const { s, sc } = ctx;
-    atPatient(ctx);
     const frame = regionFrame(ctx, a.region, a.side);
+    atSite(ctx, a.region, a.side);
     if (a.fingerCun) {
       const cm = sc.field.patient.anatomy.fingerCunCm;
       s.measurements.push({ visit: visitIndex(s), by: ctx.actor.id, at: now(s), region: a.region, side: a.side, what: "finger-cun", cm });
@@ -1015,8 +1040,8 @@ const HANDLERS: HandlerMap = {
   },
   mark_point(ctx, a) {
     const { s, sc } = ctx;
-    atPatient(ctx);
     const frame = regionFrame(ctx, a.region, a.side);
+    atSite(ctx, a.region, a.side);
     if ("point" in a.target) {
       const def = sc.bundle.acupoints.get(a.target.point);
       if (!def) throw new Rejection("unknown-id", `Unknown point ${a.target.point}.`);
@@ -1042,24 +1067,53 @@ const HANDLERS: HandlerMap = {
   },
   move(ctx, a) {
     const { s, sc } = ctx;
-    const room = sc.clinic.rooms.find((r) => r.id === a.to);
-    if (!room) throw new Rejection("unknown-id", `There is no room ${a.to}.`);
+    const w = clinicWorld(sc);
+    const to: MoveTarget = typeof a.to === "string" ? { room: a.to } : a.to;
+    const index = s.attempts.length - 1;
     if (a.withPatient) {
-      if (s.patient.location !== ctx.actor.location) throw new Rejection("not-at-patient", "The patient is not with you.");
+      // the patient walks at the actor's side to a room and takes its seat (the chair, else the couch)
+      if (!("room" in to)) throw new Rejection("invalid", "Walk the patient to a room (`to` a room id): once there they take a seat, and `position_patient` gets them onto the couch.");
+      const room = w.rooms.get(to.room);
+      if (!room) throw new Rejection("unknown-id", `There is no room ${to.room}.`);
+      need(patientTalk(sc, s, ctx.actor.id));
       if (s.patient.fainted) throw new Rejection("unsafe-position", "The patient is not well enough to walk.");
       if (retainedNeedles(s).length > 0) throw new Rejection("needles-retained", "The patient cannot walk with needles in place.");
-      s.patient.location = a.to;
-      s.patient.position = "seated";
+      const seat = seatIn(sc, room.id, "seated");
+      const dest = seat ? { area: seat.area, face: { x: (seat.area.minX + seat.area.maxX) / 2, z: (seat.area.minZ + seat.area.maxZ) / 2 } } : null;
+      const plan = dest ? planWalk(w, ctx.actor.at, { kind: "near", area: dest.area, within: ARM_REACH_M, face: dest.face, what: `the ${seat!.label}` }) : planWalk(w, ctx.actor.at, { kind: "room", id: room.id });
+      if (!plan.ok) throw new Rejection("no-route", `There is no way to the ${room.label}: ${plan.message}`);
+      ctx.out.cost = walk(sc, s, ctx.actor.id, plan, { withPatient: true, attempt: index });
+      placePatient(sc, s, room.id, seat, { x: plan.to.x, z: plan.to.z });
+      s.patient.position = seat ? "seated" : "standing";
+      ctx.out.target = room.id;
+      ctx.out.detail = `to ${room.id} with the patient (${fmt(plan.metres)} m)`;
+      observe(ctx, `You walk ${t(sc.case.patient.displayName, LOCALE)} to the ${room.label} (${fmt(plan.metres)} m)${seat ? `; they sit on the ${seat.label}` : ""}.`);
+      return;
     }
-    ctx.actor.location = a.to;
-    ctx.out.detail = `to ${a.to}${a.withPatient ? " with the patient" : ""}`;
-    ctx.out.cost = 0.5;
+    const target = walkTarget(sc, s, to);
+    if (!target.ok) throw new Rejection(target.code, target.message);
+    if ("region" in to) {
+      // a body site: the region must be one the patient's position lets you reach at all
+      const region = sc.bundle.regions.get(to.region)!;
+      if (region.laterality === "bilateral" && to.side === "midline") throw new Rejection("invalid", `The ${region.title} is bilateral: say left or right.`);
+      const access = regionAccess(region, to.side, s.patient.position);
+      if (!access.accessible) throw new Rejection("not-accessible", `${access.reason}: reposition the patient first.`);
+    }
+    const plan = planWalk(w, ctx.actor.at, target.target);
+    if (!plan.ok) throw new Rejection(plan.code === "unknown-target" ? "unknown-id" : "no-route", `You cannot get to ${target.label}: ${plan.message}`);
+    ctx.out.cost = walk(sc, s, ctx.actor.id, plan, { attempt: index });
+    const room = w.rooms.get(ctx.actor.location);
+    ctx.out.target = "room" in to ? to.room : "fixture" in to ? to.fixture : "person" in to ? to.person : "region" in to ? `${to.region}:${to.side}` : null;
+    ctx.out.detail = plan.metres > 0 ? `to ${target.label} (${fmt(plan.metres)} m)` : `already at ${target.label}`;
+    observe(ctx, plan.metres > 0 ? `You walk ${fmt(plan.metres)} m to ${target.label}${room ? ` (${room.label})` : ""}.` : `You are already at ${target.label}.`);
   },
   hand_hygiene(ctx) {
     const { s, sc } = ctx;
-    const room = sc.clinic.rooms.find((r) => r.id === ctx.actor.location)!;
-    if (!room.fixtures.some((f) => f.kind === "hand-hygiene")) throw new Rejection("no-facility", `There is no hand-hygiene station in the ${room.label}.`);
+    const station = atFixtureOfKind(sc, s, ctx.actor.id, "hand-hygiene", "hand-wash sink or hand-rub dispenser");
+    if (!station.ok) throw new Rejection(station.code, station.message);
     if (ctx.actor.holding.some((o) => s.needles[o])) throw new Rejection("hands-full", "Put the needles down (dispose of them or leave them on the tray) first.");
+    ctx.out.target = station.fixture.id;
+    ctx.out.detail = `at the ${station.fixture.label}`;
     s.seq += 1;
     ctx.actor.hygieneSeq = s.seq;
     ctx.out.cost = 0.5;
@@ -1077,8 +1131,7 @@ const HANDLERS: HandlerMap = {
       return;
     }
     if (holder) throw new Rejection("held", `${a.item} is with ${speakerLabel(sc, holder)}.`);
-    const room = sc.clinic.rooms.find((r) => r.fixtures.some((f) => f.id === at));
-    if (!room || room.id !== ctx.actor.location) throw new Rejection("not-here", `${a.item} is in the ${room?.label ?? at}.`);
+    need(atFixture(sc, s, ctx.actor.id, at ?? ""));
     if (pack) pack.holder = ctx.actor.id;
     else item!.holder = ctx.actor.id;
     ctx.actor.holding.push(a.item);
@@ -1094,13 +1147,17 @@ const HANDLERS: HandlerMap = {
       return;
     }
     const loc = n.location;
-    const inRoom = ctx.actor.location === s.patient.location;
     if (loc.kind === "tray") {
-      const pack = s.packs[loc.packId]!;
-      if (pack.at !== ctx.actor.location) throw new Rejection("not-here", `The tray with ${n.id} is not in this room.`);
+      // the tray is on the trolley or worktop the pack was opened at
+      need(atFixture(ctx.sc, s, ctx.actor.id, s.packs[loc.packId]!.at));
     } else if (loc.kind === "floor") {
       if (loc.hidden) throw new Rejection("not-found", `You cannot see ${n.id}.`);
-      if (!inRoom) throw new Rejection("not-here", `${n.id} is not in this room.`);
+      // it lies where it fell: by the couch or chair the patient was on
+      const w = clinicWorld(ctx.sc);
+      const by = loc.near ? w.fixtures.get(loc.near) : undefined;
+      const me = ctx.actor.at;
+      const reachable = by ? distanceToArea(me.x, me.z, by.area) <= CONTACT_RANGE_M + 1e-6 && seesArea(w, me, by.area) : ctx.actor.location === s.patient.location;
+      if (!reachable) throw new Rejection("not-in-reach", `${n.id} lies on the ${loc.area}${by ? ` by the ${by.label}` : ""}: go there to pick it up${by ? ` (move ${JSON.stringify({ to: { fixture: by.id } })})` : ""}.`);
     } else throw new Rejection("not-available", `${n.id} cannot be picked up (${loc.kind}).`);
     n.location = { kind: "hand", actor: ctx.actor.id };
     ctx.actor.holding.push(n.id);
@@ -1112,7 +1169,7 @@ const HANDLERS: HandlerMap = {
     if (!ctx.actor.holding.includes(a.object)) throw new Rejection("not-holding", `You are not holding ${a.object}.`);
     const to = s.actors[a.to];
     if (!to) throw new Rejection("unknown-id", `${a.to} cannot take it.`);
-    if (to.location !== ctx.actor.location) throw new Rejection("not-here", `${speakerLabel(sc, a.to)} is not in this room.`);
+    need(nearActor(sc, s, ctx.actor.id, a.to, speakerLabel(sc, a.to)));
     if (!checkPermission(sc, s, a.to, "handover").ok) throw new Rejection("not-authorised", `${speakerLabel(sc, a.to)} may not handle equipment.`);
     ctx.actor.holding = ctx.actor.holding.filter((o) => o !== a.object);
     to.holding.push(a.object);
@@ -1131,8 +1188,11 @@ const HANDLERS: HandlerMap = {
     const pack = s.packs[a.packId];
     if (!pack) throw new Rejection("unknown-id", `There is no pack ${a.packId}.`);
     if (!pack.sealed) throw new Rejection("already-open", `Pack ${a.packId} is already open.`);
-    const room = ctx.sc.clinic.rooms.find((r) => r.fixtures.some((f) => f.id === pack.at))?.id;
-    if (pack.holder !== ctx.actor.id && !(pack.holder === null && room === ctx.actor.location)) throw new Rejection("not-holding", `Fetch pack ${a.packId} first.`);
+    const onShelf = pack.holder === null && fixtureReach(clinicWorld(ctx.sc), ctx.actor.at, pack.at)?.ok === true;
+    if (pack.holder !== ctx.actor.id && !onShelf) throw new Rejection("not-holding", `Fetch pack ${a.packId} first.`);
+    // a pack is opened onto a clean surface: the needle trolley by the couch, or a worktop
+    const surface = atFixtureOfKind(ctx.sc, s, ctx.actor.id, "trolley", "needle trolley or worktop to open a pack onto");
+    if (!surface.ok) throw new Rejection(surface.code, surface.message);
     const blockers: Protection[] = [];
     handHygieneRules(ctx, "open_pack", blockers);
     blockIf(ctx, blockers, "Pack not opened");
@@ -1140,7 +1200,7 @@ const HANDLERS: HandlerMap = {
     pack.openedBy = ctx.actor.id;
     pack.openedAt = now(s);
     pack.holder = null;
-    pack.at = ctx.actor.location;
+    pack.at = surface.fixture.id;
     ctx.actor.holding = ctx.actor.holding.filter((o) => o !== a.packId);
     for (const id of pack.needles) {
       const n = s.needles[id]!;
@@ -1152,14 +1212,14 @@ const HANDLERS: HandlerMap = {
       pushNeedleEvent(s, id, ctx.actor.id, "pack-opened");
     }
     const spec = s.needles[pack.needles[0]!]!.spec;
-    observe(ctx, `Opened ${pack.id}: ${pack.needles.length} needle(s) ${spec.diameterMm} × ${spec.lengthMm} mm, ${spec.singleUse ? "single-use" : "reusable"}, ${spec.sterile ? "sterile" : "non-sterile"}${pack.expired ? " — past its expiry date" : ""}: ${pack.needles.join(", ")}.`);
+    observe(ctx, `Opened ${pack.id} onto the ${surface.fixture.label}: ${pack.needles.length} needle(s) ${spec.diameterMm} × ${spec.lengthMm} mm, ${spec.singleUse ? "single-use" : "reusable"}, ${spec.sterile ? "sterile" : "non-sterile"}${pack.expired ? " — past its expiry date" : ""}: ${pack.needles.join(", ")}.`);
     ctx.out.target = pack.id;
     ctx.out.cost = 0.5;
   },
   prepare_site(ctx, a) {
     const { s } = ctx;
-    atPatient(ctx);
     regionFrame(ctx, a.region, a.side);
+    atSite(ctx, a.region, a.side);
     const blockers: Protection[] = [];
     handHygieneRules(ctx, "prepare_site", blockers);
     blockIf(ctx, blockers, "Site not prepared");
@@ -1172,7 +1232,6 @@ const HANDLERS: HandlerMap = {
     const n = s.needles[a.needleId];
     if (!n) throw new Rejection("unknown-id", `There is no needle ${a.needleId}.`);
     if (n.location.kind !== "hand" || n.location.actor !== ctx.actor.id) throw new Rejection("not-holding", `You are not holding ${a.needleId}: pick it up from the tray first.`);
-    atPatient(ctx);
     let region: string;
     let side: Side;
     let entry: ChartPoint;
@@ -1196,6 +1255,7 @@ const HANDLERS: HandlerMap = {
     }
     const frame = regionFrame(ctx, region, side);
     if (!frame.inChart(entry)) throw new Rejection("off-chart", `${at2(entry)} is outside the ${frame.region.title} chart.`);
+    atSite(ctx, region, side);
     const blockers: Protection[] = [];
     if (s.patient.fainted) {
       addUnsafe(ctx, "continued-after-adverse-event");
@@ -1289,8 +1349,8 @@ const HANDLERS: HandlerMap = {
     const { s, sc } = ctx;
     const n = s.needles[a.needleId];
     if (!n || n.location.kind !== "patient") throw new Rejection("not-inserted", `${a.needleId} is not in the patient.`);
-    atPatient(ctx);
     const loc = n.location;
+    atSite(ctx, loc.region, loc.side);
     const blockers: Protection[] = [];
     if (s.patient.fainted) {
       addUnsafe(ctx, "continued-after-adverse-event");
@@ -1324,7 +1384,7 @@ const HANDLERS: HandlerMap = {
   },
   monitor(ctx) {
     const { s, sc } = ctx;
-    atPatient(ctx);
+    inSight(ctx);
     const mine = Object.values(s.tasks).find((tk) => tk.assignee === ctx.actor.id && tk.kind === "monitor-patient" && tk.status === "acknowledged");
     const last = Math.max(-Infinity, ...s.monitorLog.filter((m) => m.by === ctx.actor.id).map((m) => m.at));
     s.monitorLog.push({ visit: visitIndex(s), at: now(s), by: ctx.actor.id, taskId: mine?.id ?? null });
@@ -1352,23 +1412,34 @@ const HANDLERS: HandlerMap = {
     observe(ctx, `Treatment stopped: ${a.reason}. ${retainedNeedles(s).length} needle(s) still to remove.`);
   },
   remove_needle(ctx, a) {
-    atPatient(ctx);
+    const loc = ctx.s.needles[a.needleId]?.location;
+    if (loc?.kind === "patient") atSite(ctx, loc.region, loc.side);
     doRemove(ctx, a.needleId);
     ctx.out.target = `needle:${a.needleId}`;
     ctx.out.cost = 0.25;
   },
   remove_all_needles(ctx) {
-    const { s } = ctx;
-    atPatient(ctx);
+    const { s, sc } = ctx;
+    atSide(ctx, "take the needles out");
     const order = insertionOrder(s).filter((o) => o.needle.location.kind === "patient").map((o) => o.needle.id);
     if (order.length === 0) {
       observe(ctx, "No needles in place.");
       return;
     }
+    const w = clinicWorld(sc);
     for (const id of order) {
-      if (s.needles[id]!.location.kind !== "patient") continue; // it fell out or broke while the others came out
+      const loc = s.needles[id]!.location;
+      if (loc.kind !== "patient") continue; // it fell out or broke while the others came out
+      // the compound action walks round the couch as it goes: a needle on the far side is out of reach from here
+      let steps = 0;
+      if (!siteReach(sc, s, ctx.actor.id, loc.region, loc.side).ok) {
+        const site = siteOf(sc, s, loc.region, loc.side);
+        const plan = planWalk(w, ctx.actor.at, { kind: "near", area: site.area, within: ARM_REACH_M, face: site.point, what: `the ${site.label}` });
+        if (!plan.ok) throw new Rejection("no-route", `You cannot get to the ${site.label}: ${plan.message}`);
+        steps = walk(sc, s, ctx.actor.id, plan, { attempt: s.attempts.length - 1 });
+      }
       doRemove(ctx, id);
-      const r = spend(ctx, 0.25, { stopOnInterrupt: true });
+      const r = spend(ctx, 0.25 + steps, { stopOnInterrupt: true });
       if (r.interrupted.length > 0) {
         ctx.out.interrupted.push(...r.interrupted);
         if (retainedNeedles(s).length > 0) {
@@ -1382,10 +1453,11 @@ const HANDLERS: HandlerMap = {
   },
   apply_pressure(ctx, a) {
     const { s } = ctx;
-    atPatient(ctx);
     const n = s.needles[a.needleId];
     if (!n) throw new Rejection("unknown-id", `There is no needle ${a.needleId}.`);
     if (n.location.kind === "patient") throw new Rejection("not-withdrawn", `${n.id} is still in place.`);
+    if (n.insertion) atSite(ctx, n.insertion.region, n.insertion.side);
+    else atSide(ctx, "apply pressure");
     if (!n.bleeding) observe(ctx, `No bleeding at the site of ${n.id}.`);
     else {
       n.bleeding = false;
@@ -1416,9 +1488,10 @@ const HANDLERS: HandlerMap = {
   },
   dispose(ctx, a) {
     const { s, sc } = ctx;
-    const room = sc.clinic.rooms.find((r) => r.id === ctx.actor.location)!;
-    const container = room.fixtures.find((f) => f.kind === "sharps-container");
-    if (!container) throw new Rejection("no-sharps", `There is no sharps container in the ${room.label}.`);
+    const sharps = atFixtureOfKind(sc, s, ctx.actor.id, "sharps-container", "sharps container");
+    if (!sharps.ok) throw new Rejection(sharps.code, sharps.message);
+    const container = sharps.fixture;
+    const w = clinicWorld(sc);
     const targets: NeedleState[] = [];
     const n = s.needles[a.object];
     if (n) {
@@ -1427,7 +1500,7 @@ const HANDLERS: HandlerMap = {
     } else if (s.packs[a.object]) {
       for (const id of s.packs[a.object]!.needles) {
         const x = s.needles[id]!;
-        if ((x.location.kind === "tray" && s.packs[a.object]!.at === ctx.actor.location) || (x.location.kind === "hand" && x.location.actor === ctx.actor.id)) targets.push(x);
+        if ((x.location.kind === "tray" && fixtureReach(w, ctx.actor.at, s.packs[a.object]!.at)?.ok === true) || (x.location.kind === "hand" && x.location.actor === ctx.actor.id)) targets.push(x);
       }
       if (targets.length === 0) throw new Rejection("nothing-to-dispose", `Nothing from ${a.object} to dispose of here.`);
     } else throw new Rejection("unknown-id", `There is no ${a.object}.`);
@@ -1443,7 +1516,7 @@ const HANDLERS: HandlerMap = {
   },
   search(ctx, a) {
     const { s, sc } = ctx;
-    atPatient(ctx);
+    atSide(ctx, "search there");
     const found: string[] = [];
     for (const n of needleList(s)) {
       if (n.location.kind === "floor" && n.location.hidden && (n.location.area === a.area || (a.area === "floor" && n.location.area === "couch"))) {
@@ -1540,14 +1613,13 @@ const HANDLERS: HandlerMap = {
     if (!next) throw new Rejection("no-follow-up", "No follow-up visit is scheduled in this scenario.");
     s.visits.push({ index: next.index, phase: next.phase, date: next.date, startedAt: now(s), ended: false, endedAt: null });
     enterPhase(sc, s, next.phase, next.index);
-    s.patient.location = sc.field.patient.location;
     s.patient.position = sc.field.patient.position;
     s.patient.consent = { status: "none", planVersion: null, at: null, topics: [] };
     s.patient.fainted = false;
     s.patient.recoverySince = null;
+    placeEveryone(sc, s);
     for (const m of sc.field.cast) {
       const a = s.actors[m.id]!;
-      a.location = m.location;
       a.hygieneSeq = null;
       a.soiledSeq = null;
       a.holding = a.holding.filter((o) => s.needles[o] || s.packs[o]);

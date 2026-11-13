@@ -7,6 +7,8 @@ import type { Agent, AgentInit, AgentTurn } from "./types.js";
  * library. It screens with a fixed question list, recognises red flags by keyword, treats with a standard prescription
  * per complaint, localises every point from the landmarks it palpates and the segments it measures, needles at
  * textbook depths that do not adapt to the patient's build, delegates monitoring and accounts for every needle.
+ * It has a body in the clinic: before each act it reads from its view whether the sink, the shelf, the trolley, the
+ * patient or the body site is within reach, and walks there first if not — one side of the couch, then the other.
  *
  * It is deliberately ordinary: a reference for what knowledge applied without judgement achieves, so the benchmark
  * shows where adaptation (build, position, events) matters.
@@ -84,6 +86,88 @@ export function protocolAgent(): Agent {
   let pregnant = false;
   let redFlags: string[] = [];
   let endTries = 0;
+  /** Where each needle went in (to stand there again to adjust or remove it), and where each opened pack's tray is. */
+  const needleSite = new Map<string, { region: string; side: Side }>();
+  const trayAt = new Map<string, string>();
+  /** The act a walk was last made for: if it is still out of reach after that walk, it is tried as it is. */
+  let walkedFor: ActionInput | null = null;
+
+  /** The patient's left before their right, then the midline: one side of the couch at a time. */
+  const bySide = <T extends { side: string }>(items: T[]): T[] => {
+    const rank = (x: string) => (x === "left" ? 0 : x === "right" ? 1 : 2);
+    return items.map((item, i) => ({ item, i })).sort((a, b) => rank(a.item.side) - rank(b.item.side) || a.i - b.i).map((x) => x.item);
+  };
+
+  /** The walk an action needs first, read from the view: null when it can be done from here. */
+  function placement(v: AgentView, a: ActionInput): ActionInput | null {
+    const sp = v.space;
+    const to = (target: Extract<ActionInput, { type: "move" }>["to"]): ActionInput => ({ type: "move", to: target });
+    const patient = (ok: boolean) => (ok ? null : to({ person: "patient" }));
+    const site = (region: string, side: Side) => {
+      const key = `${region}:${side}`;
+      if (sp.patient.sites.inReach.includes(key)) return null;
+      return sp.patient.sites.outOfReach.some((x) => x.site === key) ? to({ region, side }) : patient(sp.patient.atSide);
+    };
+    // the fixture of a kind to use: one within reach, else the nearest in this room, else the nearest anywhere
+    const fixture = (kind: string) => {
+      const all = sp.fixtures.filter((f) => f.kind === kind);
+      if (all.some((f) => f.inReach) || all.length === 0) return null;
+      const here = all.filter((f) => f.room === sp.you.room);
+      const best = (here.length > 0 ? here : all).sort((x, y) => x.distance - y.distance)[0]!;
+      return to({ fixture: best.id });
+    };
+    const named = (id: string | undefined) => {
+      const f = sp.fixtures.find((x) => x.id === id);
+      return !f || f.inReach ? null : to({ fixture: f.id });
+    };
+    switch (a.type) {
+      case "ask":
+      case "explain":
+      case "seek_consent":
+        return patient(sp.patient.inEarshot);
+      case "observe":
+      case "monitor":
+        return patient(sp.patient.inSight);
+      case "examine":
+      case "check_vitals":
+      case "position_patient":
+      case "search":
+      case "remove_all_needles":
+        return patient(sp.patient.atSide);
+      case "identify_landmark":
+      case "measure":
+      case "mark_point":
+      case "prepare_site":
+        return site(a.region, a.side);
+      case "insert_needle": {
+        const m = v.localisation.marks.find((x) => x.id === a.mark);
+        return m ? site(m.region, m.side as Side) : null;
+      }
+      case "adjust_needle":
+      case "remove_needle":
+      case "apply_pressure": {
+        const at = needleSite.get(a.needleId);
+        return at ? site(at.region, at.side) : patient(sp.patient.atSide);
+      }
+      case "hand_hygiene":
+        return fixture("hand-hygiene");
+      case "review_result":
+        return sp.patient.atSide ? null : fixture("records-terminal");
+      case "fetch":
+        return named(lib.clinic.supplies.find((x) => x.id === a.item)?.at) ?? (v.equipment.packs.some((p) => p.id === a.item) ? fixture("supplies") : null);
+      case "open_pack": {
+        // onto the trolley in the patient's room
+        const trolley = sp.fixtures.find((f) => f.kind === "trolley" && f.room === sp.patient.room) ?? sp.fixtures.find((f) => f.kind === "trolley");
+        return named(trolley?.id);
+      }
+      case "pick_up":
+        return /\.\d+$/.test(a.object) && !/on the (floor|couch|clothing)/.test(v.equipment.needles.find((x) => x.id === a.object)?.where ?? "") ? named(trayAt.get(a.object.replace(/\.\d+$/, ""))) : patient(sp.patient.atSide);
+      case "dispose":
+        return fixture("sharps-container");
+      default:
+        return null;
+    }
+  }
 
   const text = (v: AgentView) => [v.patient.presenting, ...v.record.history.map((h) => h.answer), ...v.record.examination.map((e) => e.finding), ...v.record.results].join(" ");
   const push = (...a: ActionInput[]) => queue.push(...a);
@@ -234,14 +318,17 @@ export function protocolAgent(): Agent {
         for (const s of req.segments) segs.add(`${req.region}|${req.side}|${s}`);
       }
     }
+    // palpate and measure one side of the couch at a time
+    const acts: (ActionInput & { side: string })[] = [];
     for (const key of lms) {
       const [region, side, landmark] = key.split("|");
-      push({ type: "identify_landmark", region: region!, side: side as Side, landmark: landmark! });
+      acts.push({ type: "identify_landmark", region: region!, side: side as Side, landmark: landmark! });
     }
     for (const key of segs) {
       const [region, side, segment] = key.split("|");
-      push({ type: "measure", region: region!, side: side as Side, segment: segment! });
+      acts.push({ type: "measure", region: region!, side: side as Side, segment: segment! });
     }
+    push(...bySide(acts));
     void v;
     stage = "mark";
   }
@@ -249,10 +336,11 @@ export function protocolAgent(): Agent {
   function stageMark(v: AgentView): void {
     const ex = excluded(v);
     const kept: PointRef[] = [];
+    const marks: (ActionInput & { side: string })[] = [];
     for (const p of plan) {
       if ("ashi" in p) {
         const a = v.record.tenderPoints.find((x) => x.id === p.ashi)!;
-        push({ type: "mark_point", target: p, region: a.region, side: a.side as Side, at: a.centre, method: "palpation" });
+        marks.push({ type: "mark_point", target: p, region: a.region, side: a.side as Side, at: a.centre, method: "palpation" });
         kept.push(p);
         continue;
       }
@@ -264,9 +352,10 @@ export function protocolAgent(): Agent {
       const at = constructPoint(lib, p.point, p.side, observed);
       if (!at) continue;
       if (ex.some((e) => e.centre && e.region === req.region && (e.side === p.side || e.side === "midline") && Math.hypot(e.centre.u - at.u, e.centre.v - at.v) <= (e.r ?? 0) + 0.5)) continue;
-      push({ type: "mark_point", target: p, region: req.region, side: req.side, at: { u: Math.round(at.u * 100) / 100, v: Math.round(at.v * 100) / 100 }, method: "proportional" });
+      marks.push({ type: "mark_point", target: p, region: req.region, side: req.side, at: { u: Math.round(at.u * 100) / 100, v: Math.round(at.v * 100) / 100 }, method: "proportional" });
       kept.push(p);
     }
+    push(...bySide(marks));
     if (kept.length < plan.length) {
       plan = kept;
       queue.unshift(planAction(plan)); // narrower plan: consent carries over
@@ -284,28 +373,28 @@ export function protocolAgent(): Agent {
       packs.push(p.id);
       have += p.needles;
     }
-    push({ type: "move", to: "prep-area" }, { type: "hand_hygiene" }, ...packs.map((id) => ({ type: "fetch" as const, item: id })), { type: "move", to: v.patient.location });
+    push({ type: "hand_hygiene" }, ...packs.map((id) => ({ type: "fetch" as const, item: id })));
     const sites = new Set<string>();
     for (const m of v.localisation.marks) sites.add(`${m.region}|${m.side}`);
-    for (const s of sites) {
-      const [region, side] = s.split("|");
-      push({ type: "prepare_site", region: region!, side: side as Side });
-    }
+    push(...bySide([...sites].map((s) => ({ type: "prepare_site" as const, region: s.split("|")[0]!, side: s.split("|")[1] as Side }))));
     for (const id of packs) push({ type: "open_pack", packId: id });
     stage = "insert";
   }
 
   function stageInsert(v: AgentView): void {
     const free = v.equipment.needles.filter((x) => x.where.startsWith("on the tray") && !x.used).map((x) => x.id);
-    const marks = v.localisation.marks.filter((m) => !m.stale);
+    for (const p of v.equipment.packs) if (!p.sealed) trayAt.set(p.id, v.space.fixtures.find((f) => p.where.includes(`the ${f.label} (`))?.id ?? "");
+    const marks = bySide(v.localisation.marks.filter((m) => !m.stale)).filter((_, i) => free[i] !== undefined);
+    // the needles for these marks in hand first (at the trolley), then in, one side of the couch at a time
+    marks.forEach((_, i) => push({ type: "pick_up", object: free[i]! }));
     marks.forEach((m, i) => {
-      const id = free[i];
-      if (!id) return;
+      const id = free[i]!;
       const target: PointRef = m.target.startsWith("ashi:") ? { ashi: m.target.slice(5) } : { point: m.target.split(":")[0]!, side: m.target.split(":")[1] as Side };
       const spec = "ashi" in target ? { depth: 1.0 } : (DEPTH[target.point] ?? { depth: 1.0 });
       const az = spec.az === "medial" ? medialAzimuth(lib, m.region, m.side as Side) : spec.az === "lateral" ? (medialAzimuth(lib, m.region, m.side as Side) + 180) % 360 : (spec.az ?? 0);
-      push({ type: "pick_up", object: id }, { type: "insert_needle", needleId: id, mark: m.id, angleDeg: spec.angle ?? 0, azimuthDeg: az, depthCm: spec.depth });
+      push({ type: "insert_needle", needleId: id, mark: m.id, angleDeg: spec.angle ?? 0, azimuthDeg: az, depthCm: spec.depth });
       needled.push({ needle: id, target });
+      needleSite.set(id, { region: m.region, side: m.side as Side });
     });
     push({ type: "monitor" });
     stage = "retain";
@@ -440,7 +529,7 @@ export function protocolAgent(): Agent {
             anticoagulated = positive(text(v), /warfarin|apixaban|rivaroxaban|clopidogrel|blood thinner/);
             pregnant = positive(v.record.history.map((h) => h.answer).join(" "), /weeks pregnant|i'?m pregnant|\byes\b.*pregnant/);
             for (const q of ["x-ray report", "blood count", "INR", "letter", "notes"]) push({ type: "review_result", query: q });
-            push({ type: "move", to: "treatment-room", withPatient: true }, { type: "hand_hygiene" }, ...exams().map((e) => ({ type: "examine" as const, text: e })), { type: "observe" }, { type: "check_vitals" });
+            push({ type: "move", to: lib.clinic.rooms.find((r) => r.kind === "treatment")?.id ?? "treatment-room", withPatient: true }, { type: "hand_hygiene" }, ...exams().map((e) => ({ type: "examine" as const, text: e })), { type: "observe" }, { type: "check_vitals" });
             stage = "decide";
             break;
           case "decide":
@@ -530,6 +619,15 @@ export function protocolAgent(): Agent {
             return { done: true };
         }
       }
+      // a body in the clinic: walk to where the next act can be done (once: a walk that did not help is not repeated)
+      const head = queue[0]!;
+      const walkFirst = head.type !== "move" && walkedFor !== head ? placement(v, head) : null;
+      if (walkFirst) {
+        walkedFor = head;
+        lastIssued = walkFirst;
+        return { action: walkFirst };
+      }
+      walkedFor = null;
       lastIssued = queue.shift()!;
       return { action: lastIssued };
     },

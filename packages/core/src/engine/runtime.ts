@@ -212,7 +212,7 @@ function fire(sc: Scenario, s: EncounterState, ev: FieldEvent): void {
       const n = s.needles[pick.needle.id]!;
       const loc = n.location;
       if (fx.needle.becomes === "dropped-hidden") {
-        n.location = { kind: "floor", area: fx.needle.area, hidden: true };
+        n.location = { kind: "floor", area: fx.needle.area, hidden: true, ...(s.patient.support ? { near: s.patient.support } : {}) };
         n.contaminated = true;
         n.contamination.push("fell out of the patient");
         pushNeedleEvent(s, n.id, "system", "dropped", `fell out unseen (${fx.needle.area})`);

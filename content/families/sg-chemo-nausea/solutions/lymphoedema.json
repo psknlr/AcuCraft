@@ -140,7 +140,10 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "hand_hygiene"
+      "type": "move",
+      "to": {
+        "fixture": "treat-sink"
+      }
     }
   },
   {
@@ -148,8 +151,7 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "examine",
-      "findingId": "ex-general"
+      "type": "hand_hygiene"
     }
   },
   {
@@ -157,8 +159,10 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "examine",
-      "findingId": "ex-arms"
+      "type": "move",
+      "to": {
+        "person": "patient"
+      }
     }
   },
   {
@@ -167,7 +171,7 @@
     "patient": "patient",
     "action": {
       "type": "examine",
-      "findingId": "ex-legs"
+      "findingId": "ex-general"
     }
   },
   {
@@ -176,7 +180,7 @@
     "patient": "patient",
     "action": {
       "type": "examine",
-      "findingId": "ex-tongue"
+      "findingId": "ex-arms"
     }
   },
   {
@@ -185,7 +189,7 @@
     "patient": "patient",
     "action": {
       "type": "examine",
-      "findingId": "ex-pulse-tcm"
+      "findingId": "ex-legs"
     }
   },
   {
@@ -193,11 +197,29 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "check_vitals"
+      "type": "examine",
+      "findingId": "ex-tongue"
     }
   },
   {
     "requestId": "cl-023",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-pulse-tcm"
+    }
+  },
+  {
+    "requestId": "cl-024",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_vitals"
+    }
+  },
+  {
+    "requestId": "cl-025",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -211,7 +233,7 @@
     }
   },
   {
-    "requestId": "cl-024",
+    "requestId": "cl-026",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -221,7 +243,7 @@
     }
   },
   {
-    "requestId": "cl-025",
+    "requestId": "cl-027",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -257,7 +279,7 @@
     }
   },
   {
-    "requestId": "cl-026",
+    "requestId": "cl-028",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -273,7 +295,7 @@
     }
   },
   {
-    "requestId": "cl-027",
+    "requestId": "cl-029",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -281,7 +303,7 @@
     }
   },
   {
-    "requestId": "cl-028",
+    "requestId": "cl-030",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -290,7 +312,7 @@
     }
   },
   {
-    "requestId": "cl-029",
+    "requestId": "cl-031",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -304,7 +326,19 @@
     }
   },
   {
-    "requestId": "cl-030",
+    "requestId": "cl-032",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "region": "forearm",
+        "side": "right"
+      }
+    }
+  },
+  {
+    "requestId": "cl-033",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -315,7 +349,7 @@
     }
   },
   {
-    "requestId": "cl-031",
+    "requestId": "cl-034",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -326,7 +360,7 @@
     }
   },
   {
-    "requestId": "cl-032",
+    "requestId": "cl-035",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -345,7 +379,19 @@
     }
   },
   {
-    "requestId": "cl-033",
+    "requestId": "cl-036",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "region": "knee-leg",
+        "side": "right"
+      }
+    }
+  },
+  {
+    "requestId": "cl-037",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -356,7 +402,7 @@
     }
   },
   {
-    "requestId": "cl-034",
+    "requestId": "cl-038",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -367,7 +413,7 @@
     }
   },
   {
-    "requestId": "cl-035",
+    "requestId": "cl-039",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -378,7 +424,7 @@
     }
   },
   {
-    "requestId": "cl-036",
+    "requestId": "cl-040",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -397,7 +443,19 @@
     }
   },
   {
-    "requestId": "cl-037",
+    "requestId": "cl-041",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "region": "knee-leg",
+        "side": "left"
+      }
+    }
+  },
+  {
+    "requestId": "cl-042",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -408,7 +466,7 @@
     }
   },
   {
-    "requestId": "cl-038",
+    "requestId": "cl-043",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -419,7 +477,7 @@
     }
   },
   {
-    "requestId": "cl-039",
+    "requestId": "cl-044",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -430,7 +488,7 @@
     }
   },
   {
-    "requestId": "cl-040",
+    "requestId": "cl-045",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -449,16 +507,18 @@
     }
   },
   {
-    "requestId": "cl-041",
+    "requestId": "cl-046",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
       "type": "move",
-      "to": "prep-area"
+      "to": {
+        "fixture": "prep-sink"
+      }
     }
   },
   {
-    "requestId": "cl-042",
+    "requestId": "cl-047",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -466,7 +526,18 @@
     }
   },
   {
-    "requestId": "cl-043",
+    "requestId": "cl-048",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "fixture": "shelf"
+      }
+    }
+  },
+  {
+    "requestId": "cl-049",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -475,16 +546,19 @@
     }
   },
   {
-    "requestId": "cl-044",
+    "requestId": "cl-050",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
       "type": "move",
-      "to": "treatment-room"
+      "to": {
+        "region": "forearm",
+        "side": "right"
+      }
     }
   },
   {
-    "requestId": "cl-045",
+    "requestId": "cl-051",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -494,17 +568,19 @@
     }
   },
   {
-    "requestId": "cl-046",
+    "requestId": "cl-052",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "prepare_site",
-      "region": "knee-leg",
-      "side": "left"
+      "type": "move",
+      "to": {
+        "region": "knee-leg",
+        "side": "right"
+      }
     }
   },
   {
-    "requestId": "cl-047",
+    "requestId": "cl-053",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -514,7 +590,29 @@
     }
   },
   {
-    "requestId": "cl-048",
+    "requestId": "cl-054",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "region": "knee-leg",
+        "side": "left"
+      }
+    }
+  },
+  {
+    "requestId": "cl-055",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "prepare_site",
+      "region": "knee-leg",
+      "side": "left"
+    }
+  },
+  {
+    "requestId": "cl-056",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -523,7 +621,7 @@
     }
   },
   {
-    "requestId": "cl-049",
+    "requestId": "cl-057",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -532,7 +630,37 @@
     }
   },
   {
-    "requestId": "cl-050",
+    "requestId": "cl-058",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "pick_up",
+      "object": "pack-a.2"
+    }
+  },
+  {
+    "requestId": "cl-059",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "pick_up",
+      "object": "pack-a.3"
+    }
+  },
+  {
+    "requestId": "cl-060",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "region": "forearm",
+        "side": "right"
+      }
+    }
+  },
+  {
+    "requestId": "cl-061",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -545,16 +673,19 @@
     }
   },
   {
-    "requestId": "cl-051",
+    "requestId": "cl-062",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "pick_up",
-      "object": "pack-a.2"
+      "type": "move",
+      "to": {
+        "region": "knee-leg",
+        "side": "right"
+      }
     }
   },
   {
-    "requestId": "cl-052",
+    "requestId": "cl-063",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -567,16 +698,19 @@
     }
   },
   {
-    "requestId": "cl-053",
+    "requestId": "cl-064",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "pick_up",
-      "object": "pack-a.3"
+      "type": "move",
+      "to": {
+        "region": "knee-leg",
+        "side": "left"
+      }
     }
   },
   {
-    "requestId": "cl-054",
+    "requestId": "cl-065",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -589,7 +723,7 @@
     }
   },
   {
-    "requestId": "cl-055",
+    "requestId": "cl-066",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -597,7 +731,7 @@
     }
   },
   {
-    "requestId": "cl-056",
+    "requestId": "cl-067",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -606,7 +740,7 @@
     }
   },
   {
-    "requestId": "cl-057",
+    "requestId": "cl-068",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -614,7 +748,7 @@
     }
   },
   {
-    "requestId": "cl-058",
+    "requestId": "cl-069",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -623,7 +757,7 @@
     }
   },
   {
-    "requestId": "cl-059",
+    "requestId": "cl-070",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -631,7 +765,7 @@
     }
   },
   {
-    "requestId": "cl-060",
+    "requestId": "cl-071",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -639,7 +773,7 @@
     }
   },
   {
-    "requestId": "cl-061",
+    "requestId": "cl-072",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -648,7 +782,18 @@
     }
   },
   {
-    "requestId": "cl-062",
+    "requestId": "cl-073",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "fixture": "treat-sink"
+      }
+    }
+  },
+  {
+    "requestId": "cl-074",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -656,7 +801,7 @@
     }
   },
   {
-    "requestId": "cl-063",
+    "requestId": "cl-075",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -664,7 +809,18 @@
     }
   },
   {
-    "requestId": "cl-064",
+    "requestId": "cl-076",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "person": "patient"
+      }
+    }
+  },
+  {
+    "requestId": "cl-077",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -676,7 +832,7 @@
     }
   },
   {
-    "requestId": "cl-065",
+    "requestId": "cl-078",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -717,7 +873,7 @@
     }
   },
   {
-    "requestId": "cl-066",
+    "requestId": "cl-079",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -725,7 +881,7 @@
     }
   },
   {
-    "requestId": "cl-067",
+    "requestId": "cl-080",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -733,7 +889,7 @@
     }
   },
   {
-    "requestId": "cl-068",
+    "requestId": "cl-081",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -742,7 +898,7 @@
     }
   },
   {
-    "requestId": "cl-069",
+    "requestId": "cl-082",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -751,7 +907,7 @@
     }
   },
   {
-    "requestId": "cl-070",
+    "requestId": "cl-083",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -761,7 +917,7 @@
     }
   },
   {
-    "requestId": "cl-071",
+    "requestId": "cl-084",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -775,7 +931,7 @@
     }
   },
   {
-    "requestId": "cl-072",
+    "requestId": "cl-085",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -783,7 +939,7 @@
     }
   },
   {
-    "requestId": "cl-073",
+    "requestId": "cl-086",
     "actor": "practitioner",
     "patient": "patient",
     "action": {

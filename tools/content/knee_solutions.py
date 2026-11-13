@@ -5,14 +5,9 @@ for the variant's patient, rounded to 0.01 cm.
 """
 import json, os, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
+from lib import Trajectory as T, prune_moves
 FAM = os.path.join(HERE, "..", "..", "content", "families", "sg-knee-oa")
-
-class T:
-    def __init__(self, prefix):
-        self.steps = []; self.prefix = prefix
-    def __call__(self, action, actor="practitioner"):
-        self.steps.append({"requestId": f"{self.prefix}-{len(self.steps)+1:03d}", "actor": actor, "patient": "patient", "action": action})
-        return self
 
 def ask(t, *ids):
     for i in ids: t({"type": "ask", "itemId": i})
@@ -49,10 +44,7 @@ def treatment(t, points, marks, needles, plan_rationale, alternatives, burning=T
     lm(t, "st35-depression", "medial-knee-eye", "ankle-anterior-midpoint", "lateral-malleolus", "medial-condyle-inferior")
     t({"type": "measure", "region": "knee-leg", "side": "right", "segment": "seg.knee-ankle-lateral"})
     for (target, u, v, method) in marks: mark(t, target, u, v, method)
-    t({"type": "move", "to": "prep-area"})
-    t({"type": "hand_hygiene"})
-    t({"type": "fetch", "item": "pack-a"})
-    t({"type": "move", "to": "treatment-room"})
+    t.fetch_pack("pack-a")
     t({"type": "prepare_site", "region": "knee-leg", "side": "right"})
     t({"type": "open_pack", "packId": "pack-a"})
     for args in needles: needle(t, *args)
@@ -149,3 +141,4 @@ for name, t in [("base", base), ("anticoagulated", ac), ("hot-knee", hk)]:
     json.dump(t.steps, open(path, "w"), indent=2, ensure_ascii=False)
     open(path, "a").write("\n")
     print(name, len(t.steps))
+prune_moves("sg-knee-oa")

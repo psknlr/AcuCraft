@@ -13,10 +13,36 @@ export const ENCOUNTER_SCHEMA_ID = "acucraft/encounter@1" as const;
 
 export type Mode = "assessment" | "teaching";
 
+/** Where someone stands on the clinic floor (m, the facility's frame) and which way they face (radians; 0 looks north). */
+export interface Stance {
+  x: number;
+  z: number;
+  yaw: number;
+}
+
+/** A walk an actor made: for the record, the viewer and the evaluator's measure of distance covered. */
+export interface WalkRecord {
+  /** Index of the attempt that made it. */
+  attempt: number;
+  at: number;
+  actor: string;
+  from: { x: number; z: number };
+  to: { x: number; z: number };
+  /** The path walked, corner by corner (empty: a turn on the spot). */
+  path: { x: number; z: number }[];
+  metres: number;
+  minutes: number;
+  /** The patient walked alongside. */
+  withPatient: boolean;
+}
+
 export interface ActorState {
   id: string;
   role: string;
+  /** The room the actor stands in (`outside`: in none of the clinic's rooms). Always the room of `at`. */
   location: string;
+  /** Where the actor stands. Every change goes through a walk the world planned. */
+  at: Stance;
   /** Event sequence (`EncounterState.seq`) of the last hand hygiene / of the last soiling (needle removal, blood, sharps). */
   hygieneSeq: number | null;
   soiledSeq: number | null;
@@ -30,7 +56,8 @@ export type NeedleLocation =
   | { kind: "hand"; actor: string }
   | { kind: "patient"; region: string; side: Side; entry: ChartPoint; depthCm: number; angleDeg: number; azimuthDeg: number; target: PointRef | null; mark: string | null }
   | { kind: "sharps"; container: string }
-  | { kind: "floor"; area: string; hidden: boolean }
+  /** `near`: the couch or chair it fell by (where the patient was), if any. */
+  | { kind: "floor"; area: string; hidden: boolean; near?: string }
   | { kind: "broken-in-patient"; region: string; side: Side; entry: ChartPoint };
 
 export interface NeedleEvent {
@@ -225,6 +252,10 @@ export interface EncounterState {
   patient: {
     id: string;
     location: string;
+    /** Where the patient is: on `support` (a couch or chair fixture), or standing at this spot. */
+    at: Stance;
+    /** The fixture the patient sits or lies on (null: standing). */
+    support: string | null;
     position: Position;
     anxiety: number;
     consent: { status: ConsentStatus; planVersion: number | null; at: number | null; topics: string[] };
@@ -260,6 +291,8 @@ export interface EncounterState {
   flags: string[];
   /** Field events: when their condition first held, whether the seeded draw let them fire, when they fired. */
   events: Record<string, { armedAt: number; draw: boolean; firedAt: number | null }>;
+  /** Every walk made, in order. */
+  walks: WalkRecord[];
   attempts: AttemptRecord[];
   finished: boolean;
   finishedAt: number | null;

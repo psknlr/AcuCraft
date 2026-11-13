@@ -1,10 +1,11 @@
 import { checkCaseIntegrity, parseCase, type CaseDefinition, type Issue } from "@clinicalcraft/core";
-import type { Region } from "../schema/anatomy.js";
+import type { BodyMap, Region } from "../schema/anatomy.js";
 import { FamilySchema, FieldSchema, VariantSchema, type Family, type FieldCondition, type FieldDefinition, type Variant, type Vocabulary } from "../schema/field.js";
 import type { Clinic, EvidenceRecord, RolesFile, RuleSet } from "../schema/governance.js";
 import type { AcupointDefinition, StandardsFile } from "../schema/knowledge.js";
 import { ActionRequestSchema } from "../schema/actions.js";
 import { applyPatch } from "./util.js";
+import { clinicWorldResult, worldOf, type ClinicWorld, type WorldContent } from "./world.js";
 
 /** Everything a content pack provides besides its scenario families (loaded by the Node loader in @acucraft/bench). */
 export interface ContentBundle {
@@ -16,6 +17,10 @@ export interface ContentBundle {
   evidence: EvidenceRecord[];
   clinics: Map<string, Clinic>;
   vocabulary: Vocabulary;
+  /** The clinics' floor plans, in ClinicalCraft's formats: compiled facilities and the equipment catalogs they use. */
+  world: WorldContent;
+  /** Where each regional chart lies on the body (what can be reached from beside the couch). */
+  bodyMap: BodyMap | null;
 }
 
 /** One playable scenario instance: a family's case and field with one variant laid over them. */
@@ -104,7 +109,9 @@ export function resolveScenario(bundle: ContentBundle, source: ScenarioSource, v
     }
     rules.set(visit.index, inForce);
   }
-  if (clinic && roles) {
+  // the clinic's floor plan: its facility compiles, every room and fixture is on it, everything can be walked to
+  if (clinic) issues.push(...clinicWorldResult(clinic, bundle.world).issues);
+  if (clinic && roles && !issues.some((i) => i.severity === "error")) {
     const scenario: Scenario = { id: `${family.id}/${variant.id}`, family, variant, case: caseDef, field, bundle, clinic, roles, rules };
     issues.push(...checkField(scenario));
     const errors = issues.filter((i) => i.severity === "error");
@@ -256,6 +263,11 @@ export function walkCondition(cond: FieldCondition, visit: (leaf: FieldCondition
  */
 export function modelledRegions(sc: Scenario): string[] {
   return [...new Set([...sc.field.regions, ...sc.bundle.regions.keys()])];
+}
+
+/** The clinic of a scenario as a walkable world (built once per clinic). */
+export function clinicWorld(sc: Scenario): ClinicWorld {
+  return worldOf(sc.clinic, sc.bundle.world);
 }
 
 /** The role of a cast member (or `patient`). */

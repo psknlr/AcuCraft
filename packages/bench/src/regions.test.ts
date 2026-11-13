@@ -121,6 +121,11 @@ describe("the whole body in every encounter", () => {
     for (const r of sc.field.solution.slice(0, i)) s = step(sc, s, r, { strict: true }).state;
     // the clinic's needles are 40 mm (at most 3.6 cm goes in): enough to reach this patient's pleura under KI25
     const { entry } = at("KI25");
+    // the needle is in hand at the knee: the chest is further up the couch, out of arm's reach from there
+    const far = step(sc, s, { requestId: "far-ki25", actor: "practitioner", patient: "patient", action: { type: "insert_needle", needleId: "pack-a.1", region: "chest", side: "right", at: entry, depthCm: 1 } }, { strict: true });
+    expect(far.attempt).toMatchObject({ status: "rejected", code: "not-in-reach" });
+    expect(far.attempt.message).toMatch(/move \{"to":\{"region":"chest","side":"right"\}\}/);
+    s = step(sc, far.state, { requestId: "to-chest", actor: "practitioner", patient: "patient", action: { type: "move", to: { region: "chest", side: "right" } } }, { strict: true }).state;
     const r = step(sc, s, { requestId: "deep-ki25", actor: "practitioner", patient: "patient", action: { type: "insert_needle", needleId: "pack-a.1", region: "chest", side: "right", at: entry, depthCm: 3.5 } }, { strict: true });
     expect(r.attempt.status).toBe("blocked");
     expect(r.attempt.unsafe).toContain("pleura-penetration");

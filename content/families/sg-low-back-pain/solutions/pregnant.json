@@ -185,7 +185,10 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "hand_hygiene"
+      "type": "move",
+      "to": {
+        "fixture": "treat-sink"
+      }
     }
   },
   {
@@ -193,8 +196,7 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "examine",
-      "findingId": "ex-inspect-back"
+      "type": "hand_hygiene"
     }
   },
   {
@@ -202,8 +204,10 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "examine",
-      "findingId": "ex-palpate-back"
+      "type": "move",
+      "to": {
+        "person": "patient"
+      }
     }
   },
   {
@@ -212,7 +216,7 @@
     "patient": "patient",
     "action": {
       "type": "examine",
-      "findingId": "ex-rom-back"
+      "findingId": "ex-inspect-back"
     }
   },
   {
@@ -221,7 +225,7 @@
     "patient": "patient",
     "action": {
       "type": "examine",
-      "findingId": "ex-slr"
+      "findingId": "ex-palpate-back"
     }
   },
   {
@@ -230,7 +234,7 @@
     "patient": "patient",
     "action": {
       "type": "examine",
-      "findingId": "ex-neuro"
+      "findingId": "ex-rom-back"
     }
   },
   {
@@ -239,7 +243,7 @@
     "patient": "patient",
     "action": {
       "type": "examine",
-      "findingId": "ex-tongue"
+      "findingId": "ex-slr"
     }
   },
   {
@@ -248,7 +252,7 @@
     "patient": "patient",
     "action": {
       "type": "examine",
-      "findingId": "ex-pulse-tcm"
+      "findingId": "ex-neuro"
     }
   },
   {
@@ -256,11 +260,29 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "check_vitals"
+      "type": "examine",
+      "findingId": "ex-tongue"
     }
   },
   {
     "requestId": "lp-030",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-pulse-tcm"
+    }
+  },
+  {
+    "requestId": "lp-031",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_vitals"
+    }
+  },
+  {
+    "requestId": "lp-032",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -274,7 +296,7 @@
     }
   },
   {
-    "requestId": "lp-031",
+    "requestId": "lp-033",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -284,7 +306,7 @@
     }
   },
   {
-    "requestId": "lp-032",
+    "requestId": "lp-034",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -310,7 +332,7 @@
     }
   },
   {
-    "requestId": "lp-033",
+    "requestId": "lp-035",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -327,7 +349,7 @@
     }
   },
   {
-    "requestId": "lp-034",
+    "requestId": "lp-036",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -335,7 +357,7 @@
     }
   },
   {
-    "requestId": "lp-035",
+    "requestId": "lp-037",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -344,7 +366,7 @@
     }
   },
   {
-    "requestId": "lp-036",
+    "requestId": "lp-038",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -358,7 +380,19 @@
     }
   },
   {
-    "requestId": "lp-037",
+    "requestId": "lp-039",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "region": "lumbar",
+        "side": "right"
+      }
+    }
+  },
+  {
+    "requestId": "lp-040",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -376,16 +410,18 @@
     }
   },
   {
-    "requestId": "lp-038",
+    "requestId": "lp-041",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
       "type": "move",
-      "to": "prep-area"
+      "to": {
+        "fixture": "prep-sink"
+      }
     }
   },
   {
-    "requestId": "lp-039",
+    "requestId": "lp-042",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -393,7 +429,18 @@
     }
   },
   {
-    "requestId": "lp-040",
+    "requestId": "lp-043",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "fixture": "shelf"
+      }
+    }
+  },
+  {
+    "requestId": "lp-044",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -402,16 +449,19 @@
     }
   },
   {
-    "requestId": "lp-041",
+    "requestId": "lp-045",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
       "type": "move",
-      "to": "treatment-room"
+      "to": {
+        "region": "lumbar",
+        "side": "right"
+      }
     }
   },
   {
-    "requestId": "lp-042",
+    "requestId": "lp-046",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -421,7 +471,18 @@
     }
   },
   {
-    "requestId": "lp-043",
+    "requestId": "lp-047",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "fixture": "trolley-1"
+      }
+    }
+  },
+  {
+    "requestId": "lp-048",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -430,7 +491,7 @@
     }
   },
   {
-    "requestId": "lp-044",
+    "requestId": "lp-049",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -439,7 +500,7 @@
     }
   },
   {
-    "requestId": "lp-045",
+    "requestId": "lp-050",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -448,11 +509,11 @@
       "mark": "m1",
       "angleDeg": 0,
       "azimuthDeg": 0,
-      "depthCm": 1.0
+      "depthCm": 1
     }
   },
   {
-    "requestId": "lp-046",
+    "requestId": "lp-051",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -460,7 +521,7 @@
     }
   },
   {
-    "requestId": "lp-047",
+    "requestId": "lp-052",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -469,7 +530,7 @@
     }
   },
   {
-    "requestId": "lp-048",
+    "requestId": "lp-053",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -477,7 +538,7 @@
     }
   },
   {
-    "requestId": "lp-049",
+    "requestId": "lp-054",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -486,7 +547,7 @@
     }
   },
   {
-    "requestId": "lp-050",
+    "requestId": "lp-055",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -494,7 +555,7 @@
     }
   },
   {
-    "requestId": "lp-051",
+    "requestId": "lp-056",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -502,7 +563,7 @@
     }
   },
   {
-    "requestId": "lp-052",
+    "requestId": "lp-057",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -511,7 +572,18 @@
     }
   },
   {
-    "requestId": "lp-053",
+    "requestId": "lp-058",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "fixture": "treat-sink"
+      }
+    }
+  },
+  {
+    "requestId": "lp-059",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -519,7 +591,7 @@
     }
   },
   {
-    "requestId": "lp-054",
+    "requestId": "lp-060",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -527,7 +599,18 @@
     }
   },
   {
-    "requestId": "lp-055",
+    "requestId": "lp-061",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "person": "patient"
+      }
+    }
+  },
+  {
+    "requestId": "lp-062",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -539,7 +622,7 @@
     }
   },
   {
-    "requestId": "lp-056",
+    "requestId": "lp-063",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -571,7 +654,7 @@
     }
   },
   {
-    "requestId": "lp-057",
+    "requestId": "lp-064",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -579,7 +662,7 @@
     }
   },
   {
-    "requestId": "lp-058",
+    "requestId": "lp-065",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -587,7 +670,7 @@
     }
   },
   {
-    "requestId": "lp-059",
+    "requestId": "lp-066",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -596,7 +679,7 @@
     }
   },
   {
-    "requestId": "lp-060",
+    "requestId": "lp-067",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -605,7 +688,7 @@
     }
   },
   {
-    "requestId": "lp-061",
+    "requestId": "lp-068",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -615,7 +698,7 @@
     }
   },
   {
-    "requestId": "lp-062",
+    "requestId": "lp-069",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -624,7 +707,7 @@
     }
   },
   {
-    "requestId": "lp-063",
+    "requestId": "lp-070",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -634,7 +717,7 @@
     }
   },
   {
-    "requestId": "lp-064",
+    "requestId": "lp-071",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -648,7 +731,7 @@
     }
   },
   {
-    "requestId": "lp-065",
+    "requestId": "lp-072",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -656,7 +739,7 @@
     }
   },
   {
-    "requestId": "lp-066",
+    "requestId": "lp-073",
     "actor": "practitioner",
     "patient": "patient",
     "action": {

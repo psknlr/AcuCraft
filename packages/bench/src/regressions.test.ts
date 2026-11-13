@@ -25,8 +25,15 @@ const knee = requireScenario(pack, "sg-knee-oa/base");
 let n = 0;
 const req = (action: ActionInput, actor = "practitioner"): ActionRequestInput => ({ requestId: `r-${++n}`, actor, patient: "patient", action });
 
+/** Out of reach is never what these tests are about: a step refused for where the actor stands fails the test. */
+const SPATIAL = ["not-in-reach", "not-at-patient", "no-route"];
+
 function run(sc: Scenario, s: EncounterState, steps: readonly ActionRequestInput[], strict = true): EncounterState {
-  for (const r of steps) s = step(sc, s, r, { strict }).state;
+  for (const r of steps) {
+    const res = step(sc, s, r, { strict });
+    for (const a of res.attempts) if (SPATIAL.includes(a.code ?? "")) throw new Error(`${a.actor} ${a.request.action.type}: ${a.message}`);
+    s = res.state;
+  }
   return s;
 }
 

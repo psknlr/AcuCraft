@@ -1,9 +1,10 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
-import type { Issue } from "@clinicalcraft/core";
+import { checkCatalogs, checkFacility, checkRoomTemplate, compileFacility, parseCatalog, parseFacility, parseRoomTemplate, type FacilityDefinition, type Issue } from "@clinicalcraft/core";
 import {
   AcupointsFileSchema,
+  BodyMapSchema,
   ClinicSchema,
   EvidenceFileSchema,
   RegionSchema,
@@ -24,6 +25,11 @@ import type { ZodTypeAny } from "zod";
  */
 
 export const DEFAULT_CONTENT_DIR = fileURLToPath(new URL("../../../content", import.meta.url));
+/**
+ * The pinned ClinicalCraft engine's own content: the built-in equipment catalogs and room templates a clinic's
+ * facility may use (`tools/bootstrap.sh` fetches the engine; `tools/clinicalcraft.rev` pins it).
+ */
+export const ENGINE_CONTENT_DIR = fileURLToPath(new URL("../../../.deps/clinicalcraft/packages/content", import.meta.url));
 
 export interface FamilyEntry {
   id: string;
@@ -68,7 +74,39 @@ export function loadContentPack(dir: string = DEFAULT_CONTENT_DIR): ContentPack 
     evidence: [],
     clinics: new Map(),
     vocabulary: null as never,
+    world: { facilities: new Map(), catalogs: [], templates: [] },
+    bodyMap: null,
   };
+  // the engine's built-in catalogs and room templates first: a pack's facility builds on them
+  const facilities: { path: string; def: FacilityDefinition }[] = [];
+  const packCatalogs = new Set<string>();
+  const packTemplates = new Set<string>();
+  const world = (kind: "catalog" | "template" | "facility", path: string, json: unknown, own: boolean) => {
+    const r = kind === "catalog" ? parseCatalog(json) : kind === "template" ? parseRoomTemplate(json) : parseFacility(json);
+    if (!r.ok) {
+      for (const i of r.issues) issues.push({ ...i, path: `${relative(dir, path)}:${i.path}` });
+      return;
+    }
+    if (kind === "catalog") {
+      const v = r.value as ContentBundle["world"]["catalogs"][number];
+      if (bundle.world.catalogs.some((c) => c.id === v.id)) issues.push({ path: relative(dir, path), message: `duplicate equipment catalog ${v.id}`, severity: "error" });
+      bundle.world.catalogs.push(v);
+      if (own) packCatalogs.add(v.id);
+    } else if (kind === "template") {
+      const v = r.value as ContentBundle["world"]["templates"][number];
+      if (bundle.world.templates.some((t) => t.id === v.id)) issues.push({ path: relative(dir, path), message: `duplicate room template ${v.id}`, severity: "error" });
+      bundle.world.templates.push(v);
+      if (own) packTemplates.add(v.id);
+    } else facilities.push({ path, def: r.value as FacilityDefinition });
+  };
+  for (const sub of ["catalogs", "templates"] as const) {
+    const folder = join(ENGINE_CONTENT_DIR, sub);
+    if (!existsSync(folder)) {
+      issues.push({ path: sub, message: `the ClinicalCraft engine's ${sub} were not found in ${folder}: run \`npm run bootstrap\``, severity: "error" });
+      continue;
+    }
+    for (const name of readdirSync(folder).sort()) if (name.endsWith(".json")) world(sub === "catalogs" ? "catalog" : "template", join(folder, name), readJson(join(folder, name)), false);
+  }
   const families = new Map<string, FamilyEntry>();
   const extra = new Map<string, { path: string; json: unknown }[]>();
   const parse = <T>(schema: ZodTypeAny, path: string, json: unknown): T | null => {
@@ -154,6 +192,20 @@ export function loadContentPack(dir: string = DEFAULT_CONTENT_DIR): ContentPack 
         }
         break;
       }
+      case "acucraft/body-map@1": {
+        const v = parse<NonNullable<ContentBundle["bodyMap"]>>(BodyMapSchema, path, json);
+        if (v) bundle.bodyMap = v;
+        break;
+      }
+      case "clinicalcraft/equipment-catalog@1":
+        world("catalog", path, json, true);
+        break;
+      case "clinicalcraft/room-template@1":
+        world("template", path, json, true);
+        break;
+      case "clinicalcraft/facility@1":
+        world("facility", path, json, true);
+        break;
       case "acucraft/variant@1":
       case "acucraft/field@1":
       case undefined:
@@ -166,6 +218,20 @@ export function loadContentPack(dir: string = DEFAULT_CONTENT_DIR): ContentPack 
       }
     }
   }
+  // the pack's world content, checked the way ClinicalCraft checks it (`clinicalcraft facilities validate`)
+  const own = (i: Issue, where: string): Issue => ({ ...i, path: `${where}:${i.path}` });
+  for (const i of checkCatalogs(bundle.world.catalogs)) if ([...packCatalogs].some((id) => i.path.includes(id)) || i.severity === "error") issues.push(own(i, "catalogs"));
+  for (const t of bundle.world.templates) if (packTemplates.has(t.id)) for (const i of checkRoomTemplate(t, bundle.world.catalogs)) issues.push(own(i, `templates/${t.id}`));
+  for (const f of facilities) {
+    const compiled = compileFacility(f.def, bundle.world.templates);
+    for (const i of compiled.issues) issues.push(own(i, relative(dir, f.path)));
+    if (!compiled.ok) continue;
+    for (const i of checkFacility(compiled.facility, bundle.world.catalogs)) issues.push(own(i, relative(dir, f.path)));
+    if (bundle.world.facilities.has(compiled.facility.id)) issues.push({ path: relative(dir, f.path), message: `duplicate facility ${compiled.facility.id}`, severity: "error" });
+    bundle.world.facilities.set(compiled.facility.id, compiled.facility);
+  }
+  if (!bundle.bodyMap) issues.push({ path: "", message: "no acucraft/body-map@1 file", severity: "error" });
+  else for (const id of bundle.regions.keys()) if (!bundle.bodyMap.regions[id]) issues.push({ path: `body-map.regions.${id}`, message: `region ${id} has no place on the body map`, severity: "error" });
   if (!bundle.vocabulary) issues.push({ path: "", message: "no acucraft/vocabulary@1 file", severity: "error" });
   if (bundle.standards.editions.length === 0) issues.push({ path: "", message: "no acucraft/standards@1 file", severity: "error" });
   checkBundle(bundle, issues);

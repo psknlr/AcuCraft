@@ -5,7 +5,9 @@ import { pointInstance, regionAccess } from "./anatomy.js";
 import { consentCovers, currentPlan, currentVisit, fmt, needleList, now, parseRef, refKey, visitIndex } from "./queries.js";
 import { ACTION_PERMISSIONS } from "./rules.js";
 import { LOCALE } from "./runtime.js";
-import { modelledRegions, roleOf, type Scenario } from "./scenario.js";
+import { clinicWorld, modelledRegions, roleOf, type Scenario } from "./scenario.js";
+import { patientBody, patientContact, patientSight, patientTalk, siteOf } from "./space.js";
+import { ARM_REACH_M, areaCentre, compass, CONTACT_RANGE_M, distanceToArea, ESCORT_M_PER_MIN, fixtureReach, seesArea, SIGHT_RANGE_M, TALK_RANGE_M, WALK_M_PER_MIN } from "./world.js";
 import { hash53 } from "./util.js";
 import { speakerLabel } from "./encounter.js";
 
@@ -28,6 +30,35 @@ export interface AgentView {
   minute: number;
   finished: boolean;
   you: { id: string; name: string; role: string; roleLabel: string; location: string; holding: string[]; may: string[] };
+  /**
+   * Where you are in the clinic (metres on its floor plan: +x east, +z south) and what is within reach from there.
+   * An act out of reach is refused: `move` first. Distances are from where you stand to a fixture's footprint, to the
+   * couch or chair the patient is on, and to each body site as the patient lies now.
+   */
+  space: {
+    you: { x: number; z: number; facing: string; room: string };
+    fixtures: { id: string; kind: string; label: string; room: string; x: number; z: number; distance: number; inReach: boolean }[];
+    patient: {
+      room: string;
+      /** The fixture they sit or lie on (null: standing). */
+      on: string | null;
+      x: number;
+      z: number;
+      distance: number;
+      /** Near enough to speak with them; at their side (examination, vital signs, positioning); in view (observation). */
+      inEarshot: boolean;
+      atSide: boolean;
+      inSight: boolean;
+      /** Lying on a couch: which way the head points, and which side of the couch the patient's right is on. */
+      lying: { head: string; rightSide: string } | null;
+      /**
+       * Body sites (`region:side`) the patient's position gives access to: those within an arm's reach of where you
+       * stand now, and the others with their distance — `move { to: { region, side } }` brings one within reach.
+       */
+      sites: { inReach: string[]; outOfReach: { site: string; distance: number }[] };
+    };
+    team: { id: string; room: string; x: number; z: number; distance: number; inReach: boolean }[];
+  };
   patient: {
     name: string;
     age: number;
@@ -97,7 +128,7 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
       case "pack":
         return `sealed in ${l.packId}`;
       case "tray":
-        return `on the tray (${room(s.packs[l.packId]?.at ?? "")})`;
+        return `on the tray (${w.fixtures.get(s.packs[l.packId]?.at ?? "")?.label ?? "?"}, ${room(w.fixtures.get(s.packs[l.packId]?.at ?? "")?.room ?? "")})`;
       case "hand":
         return `in ${speakerLabel(sc, l.actor)}'s hand`;
       case "patient":
@@ -115,6 +146,55 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
       case "broken-in-patient":
         return "broken";
     }
+  };
+
+  const w = clinicWorld(sc);
+  const me = actor.at;
+  const body = patientBody(sc, s);
+  const inSight = patientSight(sc, s, actorId).ok;
+  const sites: AgentView["space"]["patient"]["sites"] = { inReach: [], outOfReach: [] };
+  // sites matter to someone at the couch: listed once the patient is in view
+  if (inSight) {
+    for (const r of reachable) {
+      for (const side of r.sides) {
+        const site = siteOf(sc, s, r.region, side as "left" | "right" | "midline");
+        const distance = distanceToArea(me.x, me.z, site.area);
+        if (distance <= ARM_REACH_M + 1e-6 && seesArea(w, me, site.area)) sites.inReach.push(`${r.region}:${side}`);
+        else sites.outOfReach.push({ site: `${r.region}:${side}`, distance: round2(distance) });
+      }
+    }
+  }
+  const head = body.lying && body.support ? siteOf(sc, s, "scalp", "midline").point : null;
+  const right = body.lying && body.support ? siteOf(sc, s, "hand-dorsum", "right").point : null;
+  const toward = (p: { x: number; z: number }, from: { x: number; z: number }) => compass(Math.atan2(-(p.x - from.x), -(p.z - from.z)));
+  const space: AgentView["space"] = {
+    you: { x: me.x, z: me.z, facing: compass(me.yaw), room: actor.location },
+    fixtures: [...w.fixtures.values()].map((f) => {
+      const r = fixtureReach(w, me, f.id)!;
+      const c = areaCentre(f.area);
+      return { id: f.id, kind: f.kind, label: f.label, room: f.room, x: round2(c.x), z: round2(c.z), distance: round2(r.distance), inReach: r.ok };
+    }),
+    patient: {
+      room: s.patient.location,
+      on: s.patient.support,
+      x: round2(body.centre.x),
+      z: round2(body.centre.z),
+      distance: round2(distanceToArea(me.x, me.z, body.area)),
+      inEarshot: patientTalk(sc, s, actorId).ok,
+      atSide: patientContact(sc, s, actorId).ok,
+      inSight,
+      lying: head && right && sc.bundle.regions.has("scalp") && sc.bundle.regions.has("hand-dorsum") && s.patient.position !== "side-lying-left" && s.patient.position !== "side-lying-right"
+        ? { head: toward(head, body.centre), rightSide: toward(right, body.centre) }
+        : head ? { head: toward(head, body.centre), rightSide: "uppermost" } : null,
+      sites,
+    },
+    team: sc.field.cast
+      .filter((m) => m.id !== actorId)
+      .map((m) => {
+        const other = s.actors[m.id]!;
+        const distance = Math.hypot(me.x - other.at.x, me.z - other.at.z);
+        return { id: m.id, room: other.location, x: other.at.x, z: other.at.z, distance: round2(distance), inReach: distance <= CONTACT_RANGE_M + 1e-6 && seesArea(w, me, { minX: other.at.x - 0.25, maxX: other.at.x + 0.25, minZ: other.at.z - 0.25, maxZ: other.at.z + 0.25 }) };
+      }),
   };
 
   const view: AgentView = {
@@ -138,6 +218,7 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
         .filter(([, p]) => p === null || role?.grants.some((g) => (typeof g === "string" ? g : g.permission) === p))
         .map(([type]) => type),
     },
+    space,
     patient: {
       name: t(sc.case.patient.displayName, LOCALE),
       age: sc.case.patient.age,
@@ -173,8 +254,9 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
     equipment: {
       packs: Object.values(s.packs).map((p) => {
         const spec = s.needles[p.needles[0]!]!.spec;
-        const visible = p.holder === actorId || sc.clinic.rooms.find((r) => r.fixtures.some((f) => f.id === p.at))?.id === actor.location || p.at === actor.location;
-        return { id: p.id, where: p.holder ? `with ${speakerLabel(sc, p.holder)}` : room(sc.clinic.rooms.find((r) => r.fixtures.some((f) => f.id === p.at))?.id ?? p.at), sealed: p.sealed, needles: p.needles.length, spec: `${spec.diameterMm} × ${spec.lengthMm} mm, ${spec.singleUse ? "single-use" : "reusable"}, ${spec.sterile ? "sterile" : "non-sterile"}`, expiredLabel: visible && p.expired };
+        const at = w.fixtures.get(p.at);
+        const visible = p.holder === actorId || at?.room === actor.location;
+        return { id: p.id, where: p.holder ? `with ${speakerLabel(sc, p.holder)}` : at ? `${p.sealed ? "on" : "opened onto"} the ${at.label} (${room(at.room)})` : p.at, sealed: p.sealed, needles: p.needles.length, spec: `${spec.diameterMm} × ${spec.lengthMm} mm, ${spec.singleUse ? "single-use" : "reusable"}, ${spec.sterile ? "sterile" : "non-sterile"}`, expiredLabel: visible && p.expired };
       }),
       needles: needleList(s)
         .filter((n) => n.location.kind !== "pack")
@@ -255,9 +337,39 @@ export function referenceLibrary(sc: Scenario) {
     points,
     regions,
     vocabulary: { diagnoses: sc.bundle.vocabulary.diagnoses, patterns: sc.bundle.vocabulary.patterns, redFlags: sc.bundle.vocabulary.redFlags },
-    clinic: { rooms: sc.clinic.rooms, supplies: sc.clinic.supplies, referralTargets: sc.clinic.referralTargets },
+    clinic: { rooms: sc.clinic.rooms, supplies: sc.clinic.supplies, referralTargets: sc.clinic.referralTargets, floorPlan: floorPlan(sc) },
     roles: sc.roles.roles.map((r) => ({ id: r.id, label: r.label, kind: r.kind, registration: r.registration, grants: r.grants, acceptsTasks: r.acceptsTasks })),
     rules: [...sc.rules.entries()].map(([visit, sets]) => ({ visit, sets: sets.map((r) => ({ id: r.id, title: r.title, version: r.version, effectiveFrom: r.effectiveFrom, encoding: r.encoding, source: r.source, rules: r.rules.map((x) => ({ id: x.id, title: x.title, summary: x.summary, severity: x.severity, enforcement: x.enforcement })) })) })),
     evidence: sc.bundle.evidence.filter((e) => e.condition === sc.family.condition),
+  };
+}
+
+/**
+ * The clinic's floor plan as a practitioner who works there knows it: rooms, doors and fixtures in metres, and how
+ * close one must be to do what. Public and the same for every scenario of the clinic.
+ */
+export function floorPlan(sc: Scenario) {
+  const w = clinicWorld(sc);
+  return {
+    facility: w.facility.id,
+    units: "metres; +x east, +z south; facing north looks towards -z",
+    bounds: w.facility.bounds,
+    rooms: [...w.rooms.values()].map((r) => ({
+      id: r.id,
+      label: r.label,
+      kind: r.kind,
+      rect: r.rect,
+      home: r.home,
+      doors: w.collision.doors.filter((d) => d.rooms.includes(r.id) || d.owner === r.id).map((d) => ({ x: d.centre.x, z: d.centre.z, width: d.width, to: d.rooms.find((x) => x !== r.id) ?? null })),
+    })),
+    fixtures: [...w.fixtures.values()].map((f) => ({ id: f.id, kind: f.kind, label: f.label, room: f.room, x: round2(areaCentre(f.area).x), z: round2(areaCentre(f.area).z), w: round2(f.area.maxX - f.area.minX), d: round2(f.area.maxZ - f.area.minZ), reach: f.reach })),
+    ranges: {
+      armReach: ARM_REACH_M,
+      contact: CONTACT_RANGE_M,
+      talk: TALK_RANGE_M,
+      sight: SIGHT_RANGE_M,
+      note: "Marking, preparing, needling and withdrawing need the body site within arm's reach; examining, vital signs and positioning need you at the patient's side (contact); speaking with the patient needs earshot (talk); observing needs them in view (sight). A fixture is used from within its reach of its footprint. Walls and closed doors block sight.",
+    },
+    walking: { metresPerMinute: WALK_M_PER_MIN, withPatient: ESCORT_M_PER_MIN, note: "A walk takes the time its path takes; the world plans the path round walls and furniture." },
   };
 }

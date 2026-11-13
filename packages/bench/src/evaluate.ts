@@ -98,7 +98,18 @@ export interface EncounterReport {
   tracks: { reasoning: Track; localisation: Track; procedure: Track; collaboration: Track; followUp: Track };
   points: PointResult[];
   referral: { redFlagsPresent: string[]; appropriateReferral: boolean | null; inappropriateRefusal: boolean };
-  efficiency: { minutes: number; agentActions: number; rejected: number; staleVersion: number; npcActions: number };
+  efficiency: {
+    minutes: number;
+    agentActions: number;
+    rejected: number;
+    staleVersion: number;
+    npcActions: number;
+    /** Walks the practitioner under test made, and the ground they covered (m). */
+    walks: number;
+    walkedMetres: number;
+    /** Acts refused for where the practitioner stood (out of reach, out of earshot or out of sight). */
+    outOfReach: number;
+  };
   assistance: { teachingMode: boolean };
   documentation: { completeness: number | null; fields: { field: string; present: boolean }[]; consistent: boolean | null; issues: string[] };
   claims: { total: number; unsupported: number };
@@ -444,6 +455,9 @@ export function evaluateEncounter(sc: Scenario, s: EncounterState): EncounterRep
       rejected: mine.filter((a: AttemptRecord) => a.status === "rejected" || a.status === "blocked").length,
       staleVersion: stale,
       npcActions: s.attempts.length - mine.length,
+      walks: s.walks.filter((w) => underTest.has(w.actor)).length,
+      walkedMetres: Math.round(s.walks.filter((w) => underTest.has(w.actor)).reduce((m, w) => m + w.metres, 0) * 10) / 10,
+      outOfReach: mine.filter((a) => a.code === "not-in-reach" || a.code === "not-at-patient").length,
     },
     assistance: { teachingMode: s.mode === "teaching" },
     documentation: { completeness: completeness === null ? null : Math.round(completeness * 1000) / 1000, fields, consistent, issues: docIssues },

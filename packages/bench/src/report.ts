@@ -8,7 +8,7 @@ export function episodeMarkdown(r: EncounterReport): string {
   const out: string[] = [`# ${r.scenario} — encounter report`, "", `> ${r.notice}`, ""];
   out.push(`**Primary endpoint: ${r.primary.status.toUpperCase()}**${r.primary.pathway ? ` — pathway \`${r.primary.pathway}\`` : ""}`);
   for (const reason of r.primary.reasons) out.push(`- ${reason}`);
-  out.push("", `Family \`${r.family}\` (${r.split}), variant \`${r.variant}\` (${r.variantKind}), seed ${r.seed}, ${r.mode} mode; ${r.finished ? "finished" : "not finished"} after ${r.efficiency.minutes} simulated minutes and ${r.efficiency.agentActions} actions (${r.efficiency.rejected} rejected or blocked; ${r.efficiency.npcActions} by the support team).`, "");
+  out.push("", `Family \`${r.family}\` (${r.split}), variant \`${r.variant}\` (${r.variantKind}), seed ${r.seed}, ${r.mode} mode; ${r.finished ? "finished" : "not finished"} after ${r.efficiency.minutes} simulated minutes and ${r.efficiency.agentActions} actions (${r.efficiency.rejected} rejected or blocked, ${r.efficiency.outOfReach} of them for where the practitioner stood; ${r.efficiency.npcActions} by the support team). The practitioner walked ${r.efficiency.walkedMetres} m in ${r.efficiency.walks} walks.`, "");
   if (r.criticalErrors.length) {
     out.push("## Critical errors", "");
     for (const c of r.criticalErrors) out.push(`- **${c.label}** (${c.source}${c.executed ? "" : ", attempted and blocked"}${c.at !== null ? `, minute ${c.at}` : ""})`);

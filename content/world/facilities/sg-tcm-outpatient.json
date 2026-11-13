@@ -1,0 +1,374 @@
+{
+  "schema": "clinicalcraft/facility@1",
+  "id": "sg-tcm-outpatient",
+  "name": {
+    "zh-CN": "模拟中医门诊（新加坡）",
+    "en": "Simulated outpatient TCM clinic, Singapore"
+  },
+  "description": {
+    "zh-CN": "单层模拟中医门诊：前台候诊区、走廊、诊室、针灸治疗室和准备间。仅作示意，并非真实机构。",
+    "en": "A simulated outpatient TCM clinic on one floor: reception and waiting area, a corridor, a consultation room, an acupuncture treatment room and a preparation area. Illustrative, not a real institution."
+  },
+  "bounds": {
+    "minX": -10,
+    "maxX": 10,
+    "minZ": -8,
+    "maxZ": 10
+  },
+  "spawn": {
+    "x": 0,
+    "z": 8.25,
+    "yaw": 0
+  },
+  "catalogs": [
+    "materials",
+    "core-furniture",
+    "core-clinical",
+    "acucraft-tcm"
+  ],
+  "terrain": {
+    "ground": "grass",
+    "paths": [
+      {
+        "x": 0,
+        "z": 8,
+        "w": 8,
+        "d": 4,
+        "material": "stone"
+      }
+    ],
+    "trees": [
+      {
+        "x": -8.5,
+        "z": 8.5,
+        "h": 4
+      },
+      {
+        "x": 8.5,
+        "z": 8.5,
+        "h": 5
+      },
+      {
+        "x": -9,
+        "z": -7,
+        "h": 5
+      },
+      {
+        "x": 9,
+        "z": -7,
+        "h": 4
+      }
+    ],
+    "flowers": {
+      "count": 40,
+      "seed": 7103,
+      "exclude": [
+        {
+          "x": 0,
+          "z": 0,
+          "w": 17,
+          "d": 13
+        },
+        {
+          "x": 0,
+          "z": 8,
+          "w": 8,
+          "d": 4
+        }
+      ]
+    }
+  },
+  "buildings": [
+    {
+      "id": "clinic",
+      "name": {
+        "zh-CN": "中医诊所",
+        "en": "TCM clinic"
+      },
+      "rect": {
+        "x": 0,
+        "z": 0,
+        "w": 16,
+        "d": 12
+      },
+      "floor": "floor",
+      "walls": {
+        "height": 3.2,
+        "base": "teal",
+        "body": "cream",
+        "top": "wood",
+        "thickness": 0.35
+      },
+      "openings": [
+        {
+          "side": "s",
+          "offset": 0,
+          "width": 2.4,
+          "height": 2.6,
+          "kind": "double-door"
+        },
+        {
+          "side": "s",
+          "offset": -5,
+          "width": 2.4,
+          "height": 1.4,
+          "kind": "window",
+          "sill": 1.0
+        },
+        {
+          "side": "s",
+          "offset": 5,
+          "width": 2.4,
+          "height": 1.4,
+          "kind": "window",
+          "sill": 1.0
+        },
+        {
+          "side": "n",
+          "offset": -6.4,
+          "width": 1.6,
+          "height": 1.2,
+          "kind": "window",
+          "sill": 1.3
+        },
+        {
+          "side": "n",
+          "offset": 1.0,
+          "width": 1.4,
+          "height": 1.0,
+          "kind": "window",
+          "sill": 1.6
+        },
+        {
+          "side": "w",
+          "offset": 3.5,
+          "width": 2.0,
+          "height": 1.4,
+          "kind": "window",
+          "sill": 1.0
+        },
+        {
+          "side": "e",
+          "offset": 3.5,
+          "width": 2.0,
+          "height": 1.4,
+          "kind": "window",
+          "sill": 1.0
+        }
+      ],
+      "sign": {
+        "text": {
+          "zh-CN": "中医诊所 · 针灸",
+          "en": "TCM Clinic · Acupuncture"
+        },
+        "side": "s"
+      }
+    }
+  ],
+  "rooms": [
+    {
+      "id": "corridor",
+      "name": {
+        "zh-CN": "走廊",
+        "en": "Corridor"
+      },
+      "kind": "corridor",
+      "building": "clinic",
+      "rect": {
+        "x": 0,
+        "z": 0,
+        "w": 16,
+        "d": 2
+      },
+      "floor": "lino",
+      "lights": [
+        {
+          "x": -5,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "z": 0
+        },
+        {
+          "x": 5,
+          "z": 0
+        }
+      ]
+    },
+    {
+      "id": "reception",
+      "name": {
+        "zh-CN": "前台与候诊区",
+        "en": "Reception and waiting area"
+      },
+      "kind": "reception",
+      "building": "clinic",
+      "rect": {
+        "x": 0,
+        "z": 3.5,
+        "w": 16,
+        "d": 5
+      },
+      "floor": "floor",
+      "partitions": [
+        {
+          "side": "n",
+          "openings": [
+            {
+              "kind": "opening",
+              "width": 6,
+              "height": 2.6,
+              "offset": 1
+            }
+          ]
+        }
+      ],
+      "sign": {
+        "text": {
+          "zh-CN": "前台",
+          "en": "Reception"
+        },
+        "side": "n"
+      },
+      "lights": [
+        {
+          "x": -4,
+          "z": 3.5
+        },
+        {
+          "x": 4,
+          "z": 3.5
+        }
+      ]
+    }
+  ],
+  "instances": [
+    {
+      "id": "consult-room",
+      "template": "acu-consult-room",
+      "x": -5,
+      "z": -3.5,
+      "building": "clinic"
+    },
+    {
+      "id": "treatment-room",
+      "template": "acu-treatment-room",
+      "x": 1,
+      "z": -3.5,
+      "building": "clinic"
+    },
+    {
+      "id": "prep-area",
+      "template": "acu-prep-room",
+      "x": 6,
+      "z": -3.5,
+      "building": "clinic"
+    }
+  ],
+  "placements": [
+    {
+      "id": "reception-desk",
+      "type": "reception-desk",
+      "x": -5.0,
+      "z": 3.1,
+      "label": {
+        "zh-CN": "前台",
+        "en": "Reception"
+      },
+      "room": "reception"
+    },
+    {
+      "id": "reception-records",
+      "type": "records-terminal",
+      "x": -7.2,
+      "z": 2.0,
+      "rot": 90,
+      "label": {
+        "zh-CN": "前台病历终端",
+        "en": "Reception records terminal"
+      },
+      "room": "reception"
+    },
+    {
+      "id": "waiting-chairs-1",
+      "type": "waiting-chairs",
+      "x": 4.2,
+      "z": 5.4,
+      "rot": 180,
+      "room": "reception"
+    },
+    {
+      "id": "waiting-chairs-2",
+      "type": "waiting-chairs",
+      "x": 6.6,
+      "z": 5.4,
+      "rot": 180,
+      "room": "reception"
+    },
+    {
+      "id": "waiting-chairs-3",
+      "type": "waiting-chairs",
+      "x": 7.4,
+      "z": 3.0,
+      "rot": 270,
+      "room": "reception"
+    },
+    {
+      "id": "water",
+      "type": "water-dispenser",
+      "x": 2.4,
+      "z": 5.5,
+      "rot": 180,
+      "room": "reception"
+    },
+    {
+      "id": "reception-plant",
+      "type": "potted-plant",
+      "x": -7.3,
+      "z": 5.3,
+      "room": "reception"
+    },
+    {
+      "id": "reception-hand-rub",
+      "type": "hand-sanitizer",
+      "x": 1.8,
+      "z": 1.65,
+      "label": {
+        "zh-CN": "免洗手消毒液",
+        "en": "Hand-rub dispenser"
+      },
+      "room": "reception"
+    },
+    {
+      "id": "reception-chart",
+      "type": "acu-meridian-chart",
+      "x": 6.0,
+      "z": 1.22,
+      "room": "reception"
+    }
+  ],
+  "staff": [
+    {
+      "id": "receptionist",
+      "role": "receptionist",
+      "name": {
+        "zh-CN": "陈先生（前台）",
+        "en": "Mr Tan (reception)"
+      },
+      "room": "reception",
+      "x": -5.0,
+      "z": 1.95,
+      "rot": 0,
+      "greeting": {
+        "zh-CN": "早上好。沿走廊左手第一间是诊室。",
+        "en": "Good morning. The consultation room is the first door on the left along the corridor."
+      }
+    }
+  ],
+  "signs": [],
+  "outdoorRegion": {
+    "zh-CN": "诊所门前",
+    "en": "Clinic forecourt"
+  }
+}

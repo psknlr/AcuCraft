@@ -167,7 +167,10 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "hand_hygiene"
+      "type": "move",
+      "to": {
+        "fixture": "treat-sink"
+      }
     }
   },
   {
@@ -175,8 +178,7 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "examine",
-      "findingId": "ex-inspect"
+      "type": "hand_hygiene"
     }
   },
   {
@@ -184,8 +186,10 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "examine",
-      "findingId": "ex-legs-skin"
+      "type": "move",
+      "to": {
+        "person": "patient"
+      }
     }
   },
   {
@@ -194,7 +198,7 @@
     "patient": "patient",
     "action": {
       "type": "examine",
-      "findingId": "ex-palpate"
+      "findingId": "ex-inspect"
     }
   },
   {
@@ -203,7 +207,7 @@
     "patient": "patient",
     "action": {
       "type": "examine",
-      "findingId": "ex-effusion"
+      "findingId": "ex-legs-skin"
     }
   },
   {
@@ -212,7 +216,7 @@
     "patient": "patient",
     "action": {
       "type": "examine",
-      "findingId": "ex-rom"
+      "findingId": "ex-palpate"
     }
   },
   {
@@ -221,7 +225,7 @@
     "patient": "patient",
     "action": {
       "type": "examine",
-      "findingId": "ex-tongue"
+      "findingId": "ex-effusion"
     }
   },
   {
@@ -230,7 +234,7 @@
     "patient": "patient",
     "action": {
       "type": "examine",
-      "findingId": "ex-pulse-tcm"
+      "findingId": "ex-rom"
     }
   },
   {
@@ -238,11 +242,29 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "check_vitals"
+      "type": "examine",
+      "findingId": "ex-tongue"
     }
   },
   {
     "requestId": "ka-028",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-pulse-tcm"
+    }
+  },
+  {
+    "requestId": "ka-029",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_vitals"
+    }
+  },
+  {
+    "requestId": "ka-030",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -256,7 +278,7 @@
     }
   },
   {
-    "requestId": "ka-029",
+    "requestId": "ka-031",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -266,7 +288,7 @@
     }
   },
   {
-    "requestId": "ka-030",
+    "requestId": "ka-032",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -305,7 +327,7 @@
     }
   },
   {
-    "requestId": "ka-031",
+    "requestId": "ka-033",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -322,7 +344,7 @@
     }
   },
   {
-    "requestId": "ka-032",
+    "requestId": "ka-034",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -330,7 +352,7 @@
     }
   },
   {
-    "requestId": "ka-033",
+    "requestId": "ka-035",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -339,7 +361,7 @@
     }
   },
   {
-    "requestId": "ka-034",
+    "requestId": "ka-036",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -353,36 +375,15 @@
     }
   },
   {
-    "requestId": "ka-035",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "identify_landmark",
-      "region": "knee-leg",
-      "side": "right",
-      "landmark": "st35-depression"
-    }
-  },
-  {
-    "requestId": "ka-036",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "identify_landmark",
-      "region": "knee-leg",
-      "side": "right",
-      "landmark": "medial-knee-eye"
-    }
-  },
-  {
     "requestId": "ka-037",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "identify_landmark",
-      "region": "knee-leg",
-      "side": "right",
-      "landmark": "ankle-anterior-midpoint"
+      "type": "move",
+      "to": {
+        "region": "knee-leg",
+        "side": "right"
+      }
     }
   },
   {
@@ -393,7 +394,7 @@
       "type": "identify_landmark",
       "region": "knee-leg",
       "side": "right",
-      "landmark": "lateral-malleolus"
+      "landmark": "st35-depression"
     }
   },
   {
@@ -404,11 +405,44 @@
       "type": "identify_landmark",
       "region": "knee-leg",
       "side": "right",
-      "landmark": "medial-condyle-inferior"
+      "landmark": "medial-knee-eye"
     }
   },
   {
     "requestId": "ka-040",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "knee-leg",
+      "side": "right",
+      "landmark": "ankle-anterior-midpoint"
+    }
+  },
+  {
+    "requestId": "ka-041",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "knee-leg",
+      "side": "right",
+      "landmark": "lateral-malleolus"
+    }
+  },
+  {
+    "requestId": "ka-042",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "knee-leg",
+      "side": "right",
+      "landmark": "medial-condyle-inferior"
+    }
+  },
+  {
+    "requestId": "ka-043",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -419,7 +453,7 @@
     }
   },
   {
-    "requestId": "ka-041",
+    "requestId": "ka-044",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -438,7 +472,7 @@
     }
   },
   {
-    "requestId": "ka-042",
+    "requestId": "ka-045",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -457,7 +491,7 @@
     }
   },
   {
-    "requestId": "ka-043",
+    "requestId": "ka-046",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -476,7 +510,7 @@
     }
   },
   {
-    "requestId": "ka-044",
+    "requestId": "ka-047",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -494,16 +528,18 @@
     }
   },
   {
-    "requestId": "ka-045",
+    "requestId": "ka-048",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
       "type": "move",
-      "to": "prep-area"
+      "to": {
+        "fixture": "prep-sink"
+      }
     }
   },
   {
-    "requestId": "ka-046",
+    "requestId": "ka-049",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -511,7 +547,18 @@
     }
   },
   {
-    "requestId": "ka-047",
+    "requestId": "ka-050",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "fixture": "shelf"
+      }
+    }
+  },
+  {
+    "requestId": "ka-051",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -520,16 +567,19 @@
     }
   },
   {
-    "requestId": "ka-048",
+    "requestId": "ka-052",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
       "type": "move",
-      "to": "treatment-room"
+      "to": {
+        "region": "knee-leg",
+        "side": "right"
+      }
     }
   },
   {
-    "requestId": "ka-049",
+    "requestId": "ka-053",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -539,7 +589,7 @@
     }
   },
   {
-    "requestId": "ka-050",
+    "requestId": "ka-054",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -548,7 +598,7 @@
     }
   },
   {
-    "requestId": "ka-051",
+    "requestId": "ka-055",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -557,7 +607,7 @@
     }
   },
   {
-    "requestId": "ka-052",
+    "requestId": "ka-056",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -570,7 +620,7 @@
     }
   },
   {
-    "requestId": "ka-053",
+    "requestId": "ka-057",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -579,7 +629,7 @@
     }
   },
   {
-    "requestId": "ka-054",
+    "requestId": "ka-058",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -592,7 +642,7 @@
     }
   },
   {
-    "requestId": "ka-055",
+    "requestId": "ka-059",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -601,7 +651,7 @@
     }
   },
   {
-    "requestId": "ka-056",
+    "requestId": "ka-060",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -614,7 +664,7 @@
     }
   },
   {
-    "requestId": "ka-057",
+    "requestId": "ka-061",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -623,7 +673,7 @@
     }
   },
   {
-    "requestId": "ka-058",
+    "requestId": "ka-062",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -636,7 +686,7 @@
     }
   },
   {
-    "requestId": "ka-059",
+    "requestId": "ka-063",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -646,7 +696,7 @@
     }
   },
   {
-    "requestId": "ka-060",
+    "requestId": "ka-064",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -654,7 +704,7 @@
     }
   },
   {
-    "requestId": "ka-061",
+    "requestId": "ka-065",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -663,7 +713,7 @@
     }
   },
   {
-    "requestId": "ka-062",
+    "requestId": "ka-066",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -671,7 +721,7 @@
     }
   },
   {
-    "requestId": "ka-063",
+    "requestId": "ka-067",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -680,7 +730,7 @@
     }
   },
   {
-    "requestId": "ka-064",
+    "requestId": "ka-068",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -689,7 +739,7 @@
     }
   },
   {
-    "requestId": "ka-065",
+    "requestId": "ka-069",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -699,7 +749,7 @@
     }
   },
   {
-    "requestId": "ka-066",
+    "requestId": "ka-070",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -708,7 +758,7 @@
     }
   },
   {
-    "requestId": "ka-067",
+    "requestId": "ka-071",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -716,7 +766,7 @@
     }
   },
   {
-    "requestId": "ka-068",
+    "requestId": "ka-072",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -724,7 +774,7 @@
     }
   },
   {
-    "requestId": "ka-069",
+    "requestId": "ka-073",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -733,7 +783,7 @@
     }
   },
   {
-    "requestId": "ka-070",
+    "requestId": "ka-074",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -742,7 +792,7 @@
     }
   },
   {
-    "requestId": "ka-071",
+    "requestId": "ka-075",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -751,7 +801,7 @@
     }
   },
   {
-    "requestId": "ka-072",
+    "requestId": "ka-076",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -760,7 +810,18 @@
     }
   },
   {
-    "requestId": "ka-073",
+    "requestId": "ka-077",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "fixture": "treat-sink"
+      }
+    }
+  },
+  {
+    "requestId": "ka-078",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -768,7 +829,7 @@
     }
   },
   {
-    "requestId": "ka-074",
+    "requestId": "ka-079",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -776,7 +837,18 @@
     }
   },
   {
-    "requestId": "ka-075",
+    "requestId": "ka-080",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "person": "patient"
+      }
+    }
+  },
+  {
+    "requestId": "ka-081",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -788,7 +860,7 @@
     }
   },
   {
-    "requestId": "ka-076",
+    "requestId": "ka-082",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -832,7 +904,7 @@
     }
   },
   {
-    "requestId": "ka-077",
+    "requestId": "ka-083",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -840,7 +912,7 @@
     }
   },
   {
-    "requestId": "ka-078",
+    "requestId": "ka-084",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -848,7 +920,7 @@
     }
   },
   {
-    "requestId": "ka-079",
+    "requestId": "ka-085",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -857,7 +929,7 @@
     }
   },
   {
-    "requestId": "ka-080",
+    "requestId": "ka-086",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -866,7 +938,7 @@
     }
   },
   {
-    "requestId": "ka-081",
+    "requestId": "ka-087",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -875,7 +947,7 @@
     }
   },
   {
-    "requestId": "ka-082",
+    "requestId": "ka-088",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -885,7 +957,7 @@
     }
   },
   {
-    "requestId": "ka-083",
+    "requestId": "ka-089",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -894,7 +966,7 @@
     }
   },
   {
-    "requestId": "ka-084",
+    "requestId": "ka-090",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -904,7 +976,7 @@
     }
   },
   {
-    "requestId": "ka-085",
+    "requestId": "ka-091",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -918,7 +990,7 @@
     }
   },
   {
-    "requestId": "ka-086",
+    "requestId": "ka-092",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -926,7 +998,7 @@
     }
   },
   {
-    "requestId": "ka-087",
+    "requestId": "ka-093",
     "actor": "practitioner",
     "patient": "patient",
     "action": {

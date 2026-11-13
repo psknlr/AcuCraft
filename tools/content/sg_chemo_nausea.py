@@ -113,17 +113,19 @@ def treat(t, pts, prefix_marks, explain=EXPLAIN):
     t({"type": "seek_consent"})
     t({"type": "position_patient", "position": "supine-knee-flexed"})
     t({"type": "assign_task", "to": "assistant", "kind": "monitor-patient", "params": {"intervalMinutes": 5}, "note": "Please check on Mdm Siti every five minutes while the needles are in."})
-    for (target, region, side, method) in prefix_marks:
+    # one side of the couch, then the other: the wrist, then the leg
+    marks = [m for side in ("right", "left") for m in prefix_marks if m[2] == side]
+    for (target, region, side, method) in marks:
         key = f"{target['point']}:{side}"
         if region == "forearm": t.landmarks("forearm", side, "pl-fcr-wrist", "cubital-crease-mid")
         else: t.landmarks("knee-leg", side, "st35-depression", "ankle-anterior-midpoint", "lateral-malleolus")
         t.mark(target, region, side, *C[key], method=method)
     t.fetch_pack("pack-a")
-    for region, side in sorted({(r, s) for (_, r, s, _) in prefix_marks}):
+    for (_, region, side, _) in marks:
         t({"type": "prepare_site", "region": region, "side": side})
     t({"type": "open_pack", "packId": "pack-a"})
     depth = {"PC6": 1.0, "ST36": 2.0}
-    for i, (target, region, side, _) in enumerate(prefix_marks):
+    for i, (target, region, side, _) in enumerate(marks):
         t.needle(f"pack-a.{i+1}", f"m{i+1}", depth[target["point"]])
     t({"type": "monitor"})
     t({"type": "wait", "minutes": 10})

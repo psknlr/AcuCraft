@@ -140,7 +140,10 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "hand_hygiene"
+      "type": "move",
+      "to": {
+        "fixture": "treat-sink"
+      }
     }
   },
   {
@@ -148,8 +151,7 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "examine",
-      "findingId": "ex-general"
+      "type": "hand_hygiene"
     }
   },
   {
@@ -157,8 +159,10 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "examine",
-      "findingId": "ex-arms"
+      "type": "move",
+      "to": {
+        "person": "patient"
+      }
     }
   },
   {
@@ -167,7 +171,7 @@
     "patient": "patient",
     "action": {
       "type": "examine",
-      "findingId": "ex-legs"
+      "findingId": "ex-general"
     }
   },
   {
@@ -176,7 +180,7 @@
     "patient": "patient",
     "action": {
       "type": "examine",
-      "findingId": "ex-tongue"
+      "findingId": "ex-arms"
     }
   },
   {
@@ -185,7 +189,7 @@
     "patient": "patient",
     "action": {
       "type": "examine",
-      "findingId": "ex-pulse-tcm"
+      "findingId": "ex-legs"
     }
   },
   {
@@ -193,11 +197,29 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "check_vitals"
+      "type": "examine",
+      "findingId": "ex-tongue"
     }
   },
   {
     "requestId": "cn-023",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-pulse-tcm"
+    }
+  },
+  {
+    "requestId": "cn-024",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_vitals"
+    }
+  },
+  {
+    "requestId": "cn-025",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -214,7 +236,7 @@
     }
   },
   {
-    "requestId": "cn-024",
+    "requestId": "cn-026",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -224,7 +246,7 @@
     }
   },
   {
-    "requestId": "cn-025",
+    "requestId": "cn-027",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -237,7 +259,7 @@
     }
   },
   {
-    "requestId": "cn-026",
+    "requestId": "cn-028",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -248,7 +270,7 @@
     }
   },
   {
-    "requestId": "cn-027",
+    "requestId": "cn-029",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -262,7 +284,7 @@
     }
   },
   {
-    "requestId": "cn-028",
+    "requestId": "cn-030",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -270,7 +292,7 @@
     }
   },
   {
-    "requestId": "cn-029",
+    "requestId": "cn-031",
     "actor": "practitioner",
     "patient": "patient",
     "action": {

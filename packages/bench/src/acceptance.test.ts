@@ -36,8 +36,18 @@ const req = (action: ActionInput, actor = "practitioner", expectedVersion?: numb
   ...(expectedVersion !== undefined ? { expectedVersion } : {}),
 });
 
+/** Out of reach is never what these tests are about: a step refused for where the actor stands fails the test. */
+const SPATIAL = ["not-in-reach", "not-at-patient", "no-route"];
+
+/** A walk: to a room, a fixture, a person or a body site. */
+const go = (to: Extract<ActionInput, { type: "move" }>["to"]): ActionRequestInput => req({ type: "move", to });
+
 function run(sc: Scenario, s: EncounterState, steps: readonly ActionRequestInput[]): EncounterState {
-  for (const r of steps) s = step(sc, s, r, { strict: true }).state;
+  for (const r of steps) {
+    const res = step(sc, s, r, { strict: true });
+    for (const a of res.attempts) if (SPATIAL.includes(a.code ?? "")) throw new Error(`${a.actor} ${a.request.action.type}: ${a.message}`);
+    s = res.state;
+  }
   return s;
 }
 
@@ -135,13 +145,14 @@ describe("§13 release acceptance", () => {
       f.events = [{ id: "ev-drop", when: { needlesRetained: { gte: 5 } }, afterMinutes: 3, effects: { needle: { select: "last-inserted", becomes: "dropped-hidden", area: "floor" } } }];
     });
     let s = run(sc, createEncounter(sc), prelude(sc, "wait"));
-    s = run(sc, s, [req({ type: "wait", minutes: 4 }), req({ type: "remove_all_needles" }), req({ type: "dispose", object: "pack-a" }), req({ type: "hand_hygiene" }), req({ type: "count_needles" })]);
+    s = run(sc, s, [req({ type: "wait", minutes: 4 }), req({ type: "remove_all_needles" }), req({ type: "dispose", object: "pack-a" }), go({ fixture: "treat-sink" }), req({ type: "hand_hygiene" }), req({ type: "count_needles" })]);
     expect(s.counts.at(-1)!.unaccounted).toBe(1);
     expect(s.counts.at(-1)!.reconciled).toBe(false);
     const blocked = step(sc, s, req({ type: "end_visit" }), { strict: true });
     expect(blocked.attempt.code).toBe("needles-unresolved");
     // search, find it, dispose of it, count again: the visit can end
-    s = run(sc, s, [req({ type: "search", area: "floor" }), req({ type: "pick_up", object: "pack-a.5" }), req({ type: "dispose", object: "pack-a.5" }), req({ type: "hand_hygiene" })]);
+    // back to the couch to look, the needle to the sharps box on the trolley, then the sink again
+    s = run(sc, s, [go({ person: "patient" }), req({ type: "search", area: "floor" }), req({ type: "pick_up", object: "pack-a.5" }), go({ fixture: "sharps-1" }), req({ type: "dispose", object: "pack-a.5" }), go({ fixture: "treat-sink" }), req({ type: "hand_hygiene" })]);
     const noCount = step(sc, s, req({ type: "end_visit" }), { strict: true });
     expect(noCount.attempt.status).toBe("blocked"); // the clinic protocol: a reconciled count after the last needle
     expect(noCount.attempt.protection?.kind).toBe("rule");

@@ -37,6 +37,8 @@ export interface SplitSummary {
   minutes: number | null;
   actions: number | null;
   rejectedActions: number | null;
+  walkedMetres: number | null;
+  outOfReach: number | null;
   documentation: number | null;
   assistance: { teachingMode: number };
 }
@@ -99,6 +101,8 @@ export function summarise(suite: string, agent: string, episodes: SuiteResult["e
       minutes: mean(eps.map((e) => e.report.efficiency.minutes)),
       actions: mean(eps.map((e) => e.report.efficiency.agentActions)),
       rejectedActions: mean(eps.map((e) => e.report.efficiency.rejected)),
+      walkedMetres: mean(eps.map((e) => e.report.efficiency.walkedMetres)),
+      outOfReach: mean(eps.map((e) => e.report.efficiency.outOfReach)),
       documentation: mean(eps.map((e) => e.report.documentation.completeness).filter((x): x is number => x !== null)),
       assistance: { teachingMode: eps.filter((e) => e.report.assistance.teachingMode).length },
     };
@@ -148,6 +152,8 @@ export function suiteMarkdown(r: SuiteResult): string {
   row("simulated minutes", (s) => num(s.minutes, 1));
   row("agent actions", (s) => num(s.actions, 1));
   row("rejected or blocked actions", (s) => num(s.rejectedActions, 1));
+  row("of which refused for where the practitioner stood", (s) => num(s.outOfReach, 1));
+  row("metres walked", (s) => num(s.walkedMetres, 1));
   row("documentation completeness (STRICTA-informed)", (s) => num(s.documentation));
   row("teaching-mode assistance (episodes)", (s) => String(s.assistance.teachingMode));
   lines.push("", "## Tracks (mean item score)", "", "| track | dev | held-out | all |", "|---|---|---|---|");

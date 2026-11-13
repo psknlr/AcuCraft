@@ -147,16 +147,16 @@ def prepare(t):
     t({"type": "seek_consent"})
     t({"type": "position_patient", "position": "supine-knee-flexed"})
     t({"type": "assign_task", "to": "assistant", "kind": "monitor-patient", "params": {"intervalMinutes": 5}, "note": "Please check on Mr Ong every five minutes while the needles are in."})
+    # one side of the couch, then the other: the wrist, then the leg
     for side in ("left", "right"):
         t.landmarks("forearm", side, "fcu-radial-wrist")
         t.mark({"point": "HT7", "side": side}, "forearm", side, *C[f"HT7:{side}"], method="landmark")
-    for side in ("left", "right"):
         t.landmarks("knee-leg", side, "medial-malleolus", "medial-condyle-inferior")
         t({"type": "measure", "region": "knee-leg", "side": side, "segment": "seg.sp9-medial-malleolus"})
         t.mark({"point": "SP6", "side": side}, "knee-leg", side, *C[f"SP6:{side}"])
     t.fetch_pack("pack-a")
-    for region in ("forearm", "knee-leg"):
-        for side in ("left", "right"): t({"type": "prepare_site", "region": region, "side": side})
+    for side in ("left", "right"):
+        for region in ("forearm", "knee-leg"): t({"type": "prepare_site", "region": region, "side": side})
     t({"type": "open_pack", "packId": "pack-a"})
 
 def doc(n, response, adverse="None."):
@@ -170,7 +170,7 @@ consult(base)
 base({"type": "assess", "diagnoses": ["insomnia"], "pattern": "heart-spleen-deficiency", "redFlags": [], "rationale": "Sleep-onset and early waking under stress; dreams, palpitations, poor appetite, fatigue; pale tongue with teeth marks, thin weak pulse. Mood reactive; no self-harm thoughts."})
 base({"type": "decide", "disposition": "treat", "rationale": "No red flags; acupuncture with sleep-hygiene advice."})
 prepare(base)
-for i, d in enumerate([0.5, 0.5, 1.5, 1.5]): base.needle(f"pack-a.{i+1}", f"m{i+1}", d)
+for i, (key, d) in enumerate([("HT7:left", 0.5), ("HT7:right", 0.5), ("SP6:left", 1.5), ("SP6:right", 1.5)]): base.needle(f"pack-a.{i+1}", base.mark_id(key), d)
 base({"type": "monitor"}); base({"type": "wait", "minutes": 10}); base({"type": "monitor"}); base({"type": "wait", "minutes": 9}); base({"type": "monitor"})
 base.close_needles("pack-a")
 base({"type": "explain", "topics": ["aftercare"], "text": "Go home and rest; don't drive if you feel drowsy."})
@@ -185,8 +185,8 @@ consult(wd)
 wd({"type": "assess", "diagnoses": ["insomnia"], "pattern": "heart-spleen-deficiency", "redFlags": [], "rationale": "Stress-related insomnia; no self-harm thoughts."})
 wd({"type": "decide", "disposition": "treat", "rationale": "He agrees to try, though wary of needles."})
 prepare(wd)
-wd.needle("pack-a.1", "m1", 0.5)
-wd.needle("pack-a.2", "m2", 0.5)
+wd.needle("pack-a.1", wd.mark_id("HT7:left"), 0.5)
+wd.needle("pack-a.2", wd.mark_id("HT7:right"), 0.5)
 wd({"type": "monitor"})  # he asks to stop
 wd({"type": "stop_treatment", "reason": "the patient withdrew consent"})
 wd({"type": "remove_all_needles"})

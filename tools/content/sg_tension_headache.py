@@ -115,43 +115,28 @@ def plan_and_consent(t, explain=EXPLAIN):
     t({"type": "explain", "topics": ["procedure", "benefits", "risks", "alternatives", "evidence", "right-to-stop"], "text": explain})
     t({"type": "seek_consent"})
 
-def localise(t, position, gb21_depth, gb21_angle=0):
-    t.landmarks("neck-shoulder", "left", "c7-spinous", "acromion-lateral-left", "gb20-depression-left")
-    t.landmarks("neck-shoulder", "right", "acromion-lateral-right", "gb20-depression-right")
-    t.mark({"point": "GB20", "side": "left"}, "neck-shoulder", "left", *C[f"{position}:GB20:left"], method="landmark")
-    t.mark({"point": "GB20", "side": "right"}, "neck-shoulder", "right", *C[f"{position}:GB20:right"], method="landmark")
-    t.mark({"point": "GB21", "side": "left"}, "neck-shoulder", "left", *C[f"{position}:GB21:left"])
-    t.mark({"point": "GB21", "side": "right"}, "neck-shoulder", "right", *C[f"{position}:GB21:right"])
-    t.landmarks("hand-dorsum", "left", "mc2-head", "mc2-base")
-    t.landmarks("hand-dorsum", "right", "mc2-head", "mc2-base")
-    t.mark({"point": "LI4", "side": "left"}, "hand-dorsum", "left", *C[f"{position}:LI4:left"])
-    t.mark({"point": "LI4", "side": "right"}, "hand-dorsum", "right", *C[f"{position}:LI4:right"])
-    t.fetch_pack("pack-a")
-    t({"type": "fetch", "item": "pack-b"}) if False else None
-
-def needles(t, gb21_depth, gb21_angle=0, upto=6):
-    # GB20 directed slightly medially and down (towards the tip of the nose), shallow; LI4 perpendicular
-    seq = [("pack-a.1", "m1", 1.6, 20, 270), ("pack-a.2", "m2", 1.6, 20, 90), ("pack-a.3", "m3", gb21_depth, gb21_angle, 90), ("pack-a.4", "m4", gb21_depth, gb21_angle, 270), ("pack-a.5", "m5", 1.5, 0, 0), ("pack-b.1", "m6", 1.5, 0, 0)]
-    for args in seq[:upto]: t.needle(*args)
+def needles(t, gb21_depth, gb21_angle=0, hands=True):
+    # GB20 directed slightly medially and down (towards the tip of the nose), shallow; LI4 perpendicular. The helper
+    # picks the batch up at the trolley and puts it in one side of the couch at a time
+    m = t.mark_id
+    seq = [("pack-a.1", m("GB20:left"), 1.6, 20, 270), ("pack-a.2", m("GB20:right"), 1.6, 20, 90), ("pack-a.3", m("GB21:left"), gb21_depth, gb21_angle, 90), ("pack-a.4", m("GB21:right"), gb21_depth, gb21_angle, 270)]
+    if hands: seq += [("pack-a.5", m("LI4:left"), 1.5, 0, 0), ("pack-b.1", m("LI4:right"), 1.5, 0, 0)]
+    for args in seq: t.needle(*args)
 
 def prepare(t):
-    t({"type": "move", "to": "prep-area"})
-    t({"type": "hand_hygiene"})
-    t({"type": "fetch", "item": "pack-a"})
-    t({"type": "fetch", "item": "pack-b"})
-    t({"type": "move", "to": "treatment-room"})
-    for region, side in [("neck-shoulder", "left"), ("neck-shoulder", "right"), ("hand-dorsum", "left"), ("hand-dorsum", "right")]:
+    t.fetch_pack("pack-a", "pack-b")
+    for region, side in [("neck-shoulder", "left"), ("hand-dorsum", "left"), ("neck-shoulder", "right"), ("hand-dorsum", "right")]:
         t({"type": "prepare_site", "region": region, "side": side})
     t({"type": "open_pack", "packId": "pack-a"})
     t({"type": "open_pack", "packId": "pack-b"})
 
 def mark_all(t, position):
-    t.landmarks("neck-shoulder", "left", "c7-spinous", "acromion-lateral-left", "gb20-depression-left")
-    t.landmarks("neck-shoulder", "right", "acromion-lateral-right", "gb20-depression-right")
-    for p in ["GB20", "GB21"]:
-        for side in ["left", "right"]:
-            t.mark({"point": p, "side": side}, "neck-shoulder", side, *C[f"{position}:{p}:{side}"], method="landmark" if p == "GB20" else "proportional")
+    # one side of the couch, then the other: the neck and shoulder, then the hand
     for side in ["left", "right"]:
+        if side == "left": t.landmarks("neck-shoulder", "left", "c7-spinous", "acromion-lateral-left", "gb20-depression-left")
+        else: t.landmarks("neck-shoulder", "right", "acromion-lateral-right", "gb20-depression-right")
+        for p in ["GB20", "GB21"]:
+            t.mark({"point": p, "side": side}, "neck-shoulder", side, *C[f"{position}:{p}:{side}"], method="landmark" if p == "GB20" else "proportional")
         t.landmarks("hand-dorsum", side, "mc2-head", "mc2-base")
         t.mark({"point": "LI4", "side": side}, "hand-dorsum", side, *C[f"{position}:LI4:{side}"], method="landmark")
 
@@ -234,7 +219,7 @@ fa({"type": "position_patient", "position": "seated-forward"})
 fa({"type": "assign_task", "to": "assistant", "kind": "monitor-patient", "params": {"intervalMinutes": 5}, "note": "She is sitting up and hasn't eaten: please stay with her and watch for faintness."})
 mark_all(fa, "seated-forward")
 prepare(fa)
-needles(fa, 1.8, 0, upto=4)
+needles(fa, 1.8, 0, hands=False)
 fa({"type": "monitor"})
 fa({"type": "wait", "minutes": 10})  # interrupted: she feels faint
 fa({"type": "stop_treatment", "reason": "vasovagal reaction"})

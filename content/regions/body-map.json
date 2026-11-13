@@ -1,0 +1,31 @@
+{
+  "schema": "acucraft/body-map@1",
+  "id": "adult-body",
+  "version": "0.1.0",
+  "review": {
+    "status": "unreviewed",
+    "reviewers": [],
+    "notes": "Schematic: where each regional chart lies on a lying adult, for what a practitioner standing beside the couch can reach. Axial fractions follow common anthropometric proportions of stature (shoulder about 0.18 of the height below the vertex, elbow 0.37, wrist 0.52, greater trochanter 0.47, knee 0.72, ankle 0.96); lateral distances are with the arms resting at the sides. Not measured on anyone: review before any teaching use."
+  },
+  "regions": {
+    "scalp": { "axial": 0.02, "lateral": 0.05 },
+    "face": { "axial": 0.08, "lateral": 0.05 },
+    "head-lateral": { "axial": 0.06, "lateral": 0.12 },
+    "neck-anterior": { "axial": 0.15, "lateral": 0.05 },
+    "neck-shoulder": { "axial": 0.16, "lateral": 0.12 },
+    "chest": { "axial": 0.25, "lateral": 0.12 },
+    "upper-back": { "axial": 0.25, "lateral": 0.04 },
+    "abdomen": { "axial": 0.4, "lateral": 0.05 },
+    "lumbar": { "axial": 0.4, "lateral": 0.04 },
+    "sacrum-buttock": { "axial": 0.47, "lateral": 0.12 },
+    "upper-arm": { "axial": 0.27, "lateral": 0.22 },
+    "forearm": { "axial": 0.44, "lateral": 0.26 },
+    "hand-dorsum": { "axial": 0.56, "lateral": 0.28 },
+    "hand-palm": { "axial": 0.56, "lateral": 0.28 },
+    "thigh": { "axial": 0.6, "lateral": 0.12 },
+    "knee-leg": { "axial": 0.78, "lateral": 0.12 },
+    "foot": { "axial": 0.97, "lateral": 0.12 },
+    "sole": { "axial": 0.99, "lateral": 0.12 }
+  },
+  "notes": "A lateral distance of 0.05 m or less leaves a site within reach from either side of a 0.7 m couch; 0.12 m or more puts the far side out of an arm's reach (0.85 m from where the practitioner stands), so they walk round or stand at the head end. Distances in between are avoided: they would make reach depend on the grid."
+}
