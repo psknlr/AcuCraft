@@ -5,7 +5,7 @@
 
 AcuCraft is an acupuncture content pack and field extension built on the
 [ClinicalCraft](https://github.com/psknlr/ClinicalCraft) engine, pinned to commit
-`7362f5e92940041383c1f1699f8dba3ea645a5f1` (`tools/clinicalcraft.rev`). ClinicalCraft runs the consultation; AcuCraft
+`b48995acb9bf5688292c68a19c7b1f586cf0689f` (`tools/clinicalcraft.rev`). ClinicalCraft runs the consultation; AcuCraft
 adds what an acupuncture encounter needs on top of it.
 
 ```
