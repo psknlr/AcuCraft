@@ -223,7 +223,7 @@ describe("§13 release acceptance", () => {
     for (const id of ["sg-knee-oa/base", "sg-knee-oa/anticoagulated", "sg-knee-oa/hot-knee"]) {
       const sc = requireScenario(pack, id);
       const s = run(sc, createEncounter(sc, { seed: 7 }), sc.field.solution);
-      const log = { schema: LOG_SCHEMA_ID, scenarioId: sc.id, scenarioVersion: sc.family.version, engine: { acucraft: "0.1.0", clinicalcraft: "4569808" }, seed: 7, mode: "assessment" as const, requests: s.attempts.filter((a) => a.actor === "practitioner").map((a) => a.request) };
+      const log = { schema: LOG_SCHEMA_ID, scenarioId: sc.id, scenarioVersion: sc.family.version, engine: { acucraft: "0.2.0", clinicalcraft: "4569808" }, seed: 7, mode: "assessment" as const, requests: s.attempts.filter((a) => a.actor === "practitioner").map((a) => a.request) };
       const again = replayLog(sc, log, { strict: true });
       expect(digest(again.state)).toBe(digest(s));
     }

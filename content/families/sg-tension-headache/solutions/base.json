@@ -1187,8 +1187,7 @@
               "response": "deqi",
               "evidence": [
                 "feel-1",
-                "sense-1",
-                "sense-2"
+                "sense-1"
               ]
             },
             {
@@ -1196,22 +1195,21 @@
               "response": "deqi",
               "evidence": [
                 "feel-3",
-                "sense-5",
-                "sense-6"
+                "sense-5"
               ]
             },
             {
               "needle": "pack-a.3",
-              "response": "deqi",
+              "response": "none",
               "evidence": [
-                "sense-3"
+                "sense-2"
               ]
             },
             {
               "needle": "pack-a.4",
               "response": "none",
               "evidence": [
-                "sense-7"
+                "sense-6"
               ]
             },
             {
@@ -1219,6 +1217,7 @@
               "response": "deqi",
               "evidence": [
                 "feel-2",
+                "sense-3",
                 "sense-4"
               ]
             },
@@ -1227,8 +1226,8 @@
               "response": "deqi",
               "evidence": [
                 "feel-4",
-                "sense-8",
-                "sense-9"
+                "sense-7",
+                "sense-8"
               ]
             }
           ]

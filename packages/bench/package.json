@@ -1,6 +1,6 @@
 {
   "name": "@acucraft/bench",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "AcuCraft benchmark: independent evaluator, reference and scripted agents, support NPCs, runner and family-clustered reports",
   "type": "module",
   "license": "MIT",
@@ -8,7 +8,7 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
-    "@acucraft/core": "0.1.0",
+    "@acucraft/core": "0.2.0",
     "@anthropic-ai/sdk": "^1.3.0"
   }
 }

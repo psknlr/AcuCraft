@@ -134,10 +134,27 @@ describe("Claude agent loop (mock client: no network)", () => {
     expect((agent.transcript!() as unknown[]).length).toBe(script.length);
     expect(e.log.meta?.transcript).toBeDefined();
     expect(e.report.primary.pathway).toBe("p-emergency-referral");
+    // what the model is told: the clinic is a place, conclusions name their evidence; the lookups that go with both
+    const system = (seen[0]!.system as { text: string }[])[0]!.text;
+    for (const phrase of ["You have a body in the clinic", "`move` first", "patternEvidence", "check_sensation", "needling.responses", "stronger stimulation is never the aim", "Never record a response you did not observe"]) expect(system).toContain(phrase);
+    const topics = ((seen[0]!.tools as { name: string; input_schema: { properties: { topic?: { enum: string[] } } } }[]).find((t) => t.name === "lookup")!.input_schema.properties.topic!.enum);
+    expect(topics).toEqual(expect.arrayContaining(["pattern", "deqi", "floorplan", "vocabulary"]));
+    // the vocabulary lookup gives the ids; the criteria are under "pattern"
+    const vocabulary = JSON.parse((seen[1]!.messages.at(-1)!.content as { content: string }[])[0]!.content) as { patterns: Record<string, unknown>[]; note: string };
+    expect(vocabulary.patterns[0]).not.toHaveProperty("criteria");
+    expect(vocabulary.note).toMatch(/lookup pattern/);
+    // each action's result says where the model stands and lists the ids of the evidence obtained so far
+    const afterAsk = JSON.parse((seen[2]!.messages.at(-1)!.content as { content: string }[])[0]!.content) as { space: { patient: { inEarshot: boolean; atSide: boolean }; fixturesInReach: string[] }; evidence: { history: string[]; needles: unknown[]; pattern: unknown } };
+    expect(afterAsk.space.patient).toMatchObject({ inEarshot: true, atSide: true });
+    expect(afterAsk.space.fixturesInReach.join(" ")).toMatch(/consult-chair/);
+    expect(afterAsk.evidence.history).toEqual(["hx-chief"]);
+    expect(afterAsk.evidence).toMatchObject({ needles: [], pattern: null });
   });
 
   it("the action catalogue lists every action type", () => {
     const text = actionCatalogue();
-    for (const t of ["ask", "insert_needle", "assign_task", "count_needles", "finish_encounter"]) expect(text).toMatch(new RegExp(`^- ${t}\\b`, "m"));
+    for (const t of ["ask", "move", "insert_needle", "check_sensation", "assign_task", "count_needles", "finish_encounter"]) expect(text).toMatch(new RegExp(`^- ${t}\\b`, "m"));
+    expect(text).toMatch(/^- assess \{.*patternEvidence\?: string\[\]/m);
+    expect(text).toMatch(/responses\?: \{ needle: string, response: "deqi"\|"none"\|"not-sought", evidence\?: string\[\] \}\[\]/);
   });
 });

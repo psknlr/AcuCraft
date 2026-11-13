@@ -1,6 +1,6 @@
 {
   "name": "acucraft",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "AcuCraft \u2014 an acupuncture simulation and evaluation environment built on the ClinicalCraft engine (Singapore edition)",
   "type": "module",

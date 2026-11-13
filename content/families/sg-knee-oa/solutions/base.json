@@ -993,9 +993,8 @@
           "responses": [
             {
               "needle": "pack-a.1",
-              "response": "deqi",
+              "response": "none",
               "evidence": [
-                "feel-1",
                 "sense-1"
               ]
             },

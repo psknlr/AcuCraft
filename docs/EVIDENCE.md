@@ -147,7 +147,7 @@ response = tissue at the tip × min(1, stimulation) × the patient's sensitivity
 | tissue at the tip | muscle 1.0 · fascia 0.9 · tendon, ligament, fat pad 0.7 · periosteum, bone 0.4 · joint space, subcutaneous 0.3 · skin 0.1 |
 | stimulation | the insertion 0.45; each lift-and-thrust +0.35; each rotation +0.3 — and beyond 1 it adds nothing to the response |
 | the patient's sensitivity | `patient.needleSensitivity` in the field (0.5–1.5, default 1) |
-| variation of the site | 0.8–1.2, seeded by the encounter seed and the site (deterministic; another seed, another site, another value) |
+| variation of the site | 0.8–1.2, fixed for this patient at this site (half a centimetre apart is another site). It is part of the patient, like their anatomy: the same in every encounter and every variant of the family, whatever the encounter's seed |
 
 **Qi has arrived when the response reaches 0.5.** What follows from the numbers is what a teacher would say:
 

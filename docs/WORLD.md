@@ -137,9 +137,26 @@ the walks that covered no ground (see [CONTENT.md](CONTENT.md)).
 
 `content/world/` is laid out as a ClinicalCraft content directory (`facilities/`, `templates/`, `catalogs/`), and
 `.clinicalcraft/settings.json` lists it under `contentDirs` beside the exported cases (`npm run export:clinicalcraft`).
-ClinicalCraft's tools therefore read the clinic as they read their own facilities — its floor-plan preview
-(`scripts/preview/render.mjs facility`), its 3D voxel world and its headless world runtime. AcuCraft itself uses only
-the static layer, as above: the encounter engine stays a pure function of the scenario, the state and the request.
+ClinicalCraft's tools read the clinic as they read their own facilities. Checked against the pinned revision, with a
+ClinicalCraft checkout whose `contentDirs` names this folder:
+
+- `clinicalcraft facilities list` shows `sg-tcm-outpatient` beside the engine's own facilities (5 rooms, 2 patient
+  slots, 31 pieces of equipment), and `clinicalcraft facilities validate` passes the facility, the catalog and the
+  three room templates with no error and no warning;
+- the floor-plan preview draws it — `node scripts/preview/render.mjs facility --facility
+  <AcuCraft>/content/world/facilities/sg-tcm-outpatient.json --catalogs <the engine's catalogs>,<AcuCraft>/content/world/catalogs/acucraft-tcm.json --out plan.png`:
+
+  ![The clinic drawn by ClinicalCraft's floor-plan preview](img/clinic-plan-clinicalcraft.png)
+
+- the 3D voxel world renders it and its autopilot walks it — from the corridor, through the door, to the side of the
+  couch. The web client bundles `packages/content` when it is built or served, so the three folders are copied (or
+  linked) there first; then `world-harness.html?facility=sg-tcm-outpatient`:
+
+  ![The treatment room in ClinicalCraft's 3D world: the couch, the needle trolley with its sharps box, the patient's chair, the screen](img/clinic-3d-treatment-room.png)
+
+AcuCraft itself uses only the static layer, as above: the encounter engine stays a pure function of the scenario, the
+state and the request, and an encounter is not yet played inside the 3D renderer — the renderer shows the building the
+engine reasons about.
 
 ## 9. Limits
 

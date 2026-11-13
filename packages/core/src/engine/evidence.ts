@@ -159,9 +159,11 @@ const round3 = (n: number) => Math.round(n * 1000) / 1000;
 
 /**
  * The tissue's response to a needle after a stimulus (`null`: the needle was only moved to another depth). Pure and
- * deterministic: tissue at the tip × stimulation (capped) × the patient's sensitivity × a seeded variation of the
- * site. A nerve or a tendon met by the shaft, or stimulation past what the patient tolerates, gives a sensation that
- * is not deqi.
+ * deterministic: tissue at the tip × stimulation (capped) × the patient's sensitivity × the variation of the site.
+ * That variation belongs to the patient, like their anatomy — the same in every encounter with them and in every
+ * variant of their family, whatever the encounter's seed (which is for what differs between encounters: measurement
+ * and chance). A nerve or a tendon met by the shaft, or stimulation past what the patient tolerates, gives a
+ * sensation that is not deqi.
  */
 export function needleResponse(sc: Scenario, s: EncounterState, n: NeedleState, path: PathAssessment, stimulus: Stimulus | null): NeedleResponse {
   const prev = n.response;
@@ -169,7 +171,7 @@ export function needleResponse(sc: Scenario, s: EncounterState, n: NeedleState, 
   const manipulations = (prev?.manipulations ?? 0) + (stimulus && stimulus !== "insertion" ? 1 : 0);
   const sensitivity = sc.field.patient.needleSensitivity;
   const site = n.insertion;
-  const rng = createRng(seedFrom(s.seed, sc.id, "needle-response", site?.region ?? "", site?.side ?? "", Math.round((site?.entry.u ?? 0) * 2), Math.round((site?.entry.v ?? 0) * 2)));
+  const rng = createRng(seedFrom(sc.family.id, "needle-response", site?.region ?? "", site?.side ?? "", Math.round((site?.entry.u ?? 0) * 2), Math.round((site?.entry.v ?? 0) * 2)));
   const variation = 0.8 + 0.4 * rng();
   const intensity = round3((TISSUE_RESPONSE[path.tipTissue] ?? 0) * Math.min(1, stimulation) * sensitivity * variation);
   const felt = stimulation * sensitivity * (s.patient.anxiety >= 0.6 ? 1.25 : 1);

@@ -116,7 +116,7 @@ The evidence links tell the two apart where the endpoint does not. The protocol 
 on the findings it names in 9 of the 11 encounters where it makes one: in both knee encounters it never asks about
 the weather, settles on *qi and blood stagnation* from one tender point, and names a tongue and a pulse that show
 none of it. Its record of the needles is honest — every needle's response on record, none recorded as deqi without
-evidence (0 of 28) — because it writes down only what it felt. The reference trajectories rest every differentiation
+evidence (0 of 27) — because it writes down only what it felt. The reference trajectories rest every differentiation
 on findings that show it and every recorded response on what was observed. No live-model results are included: this repository
 was built without API access, and the Claude agent's loop is tested against a mock client only.
 

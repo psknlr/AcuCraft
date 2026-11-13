@@ -16,6 +16,11 @@ Two things make the encounter more than a transcript:
   Nothing can be cited that was not obtained, and stronger stimulation is never rewarded
   ([docs/EVIDENCE.md](docs/EVIDENCE.md)).
 
+![The treatment room of the simulated clinic in ClinicalCraft's 3D world: the couch, the needle trolley, the patient's chair, the screen](docs/img/clinic-3d-treatment-room.png)
+
+*The clinic's facility rendered by ClinicalCraft's own 3D world. AcuCraft's engine is headless: it reasons about the
+same building — where one can stand, walk and reach — without drawing it.*
+
 > **Status: first implementation milestone of the design proposal.** The engine, the evaluator and a pilot content pack
 > (5 case families × 3 variants) are implemented and tested. **All clinical, anatomical and regulatory content is
 > AI-assisted and unreviewed**: the regional anatomy is schematic for the head and limbs and derived from one reference body for the trunk, the Singapore rule encodings have not been checked

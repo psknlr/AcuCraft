@@ -349,22 +349,43 @@ describe("deqi is linked to evidence", () => {
     expect(s.patient.feedback.at(-1)).toMatchObject({ kind: "deqi", abnormal: false, needleId: id });
   });
 
-  it("is deterministic: the same encounter gives the same responses, and the seed varies the site", () => {
+  it("is deterministic, and the patient's own: the same at every seed, different from site to site", () => {
     expect(digest(kneeNeedled())).toBe(digest(kneeNeedled()));
-    const responses = (seed: number) => {
-      let s = createEncounter(knee, { seed });
-      for (const r of knee.field.solution) {
+    const responses = (sc: Scenario, seed: number) => {
+      let s = createEncounter(sc, { seed });
+      for (const r of sc.field.solution) {
         if (r.action.type === "monitor") break;
-        s = step(knee, s, r).state;
+        s = step(sc, s, r).state;
       }
-      return Object.values(s.needles).filter((x) => x.response).map((x) => x.response!.intensity);
+      return Object.fromEntries(Object.values(s.needles).filter((x) => x.response).map((x) => [x.id, x.response!.intensity]));
     };
-    const a = responses(1);
-    const b = responses(7);
-    expect(a).toHaveLength(5);
-    expect(b).not.toEqual(a);
-    // the variation is of the site: within a fifth either way of what the tissue and the stimulus give
-    for (const x of [...a, ...b]) expect(x).toBeLessThanOrEqual(1.2);
+    const a = responses(knee, 1);
+    expect(Object.keys(a)).toHaveLength(5);
+    // how her tissue answers is part of the patient, like her anatomy: the encounter's seed does not change it
+    expect(responses(knee, 7)).toEqual(a);
+    // ST36 and SP9: both in muscle, both lifted and thrust once — and not the same
+    expect(a["pack-a.3"]).not.toBe(a["pack-a.4"]);
+    // within a fifth either way of what the tissue and the stimulus give
+    for (const x of Object.values(a)) expect(x).toBeLessThanOrEqual(1.2);
+    for (const id of ["pack-a.3", "pack-a.4"]) expect(a[id]! / 0.8).toBeGreaterThanOrEqual(0.8 - 1e-9);
+  });
+
+  it("leaves the reference trajectories true at any seed", () => {
+    // what a reference recorded of its needles names evidence by id: it must be the same evidence in every run
+    for (const id of scenarioIds(pack)) {
+      const sc = requireScenario(pack, id);
+      for (const seed of [2, 7]) {
+        let s = createEncounter(sc, { seed });
+        for (const r of sc.field.solution) {
+          const res = step(sc, s, r, { strict: true });
+          expect(["executed", "partial"], `${id} seed ${seed} ${r.requestId}: ${res.attempt.message}`).toContain(res.attempt.status);
+          s = res.state;
+        }
+        const report = evaluateEncounter(sc, s);
+        expect(report.primary.status, `${id} seed ${seed}`).toBe("success");
+        expect(report.evidence.needles.every((x) => x.verdict === "supported" || x.verdict === "not-sought"), `${id} seed ${seed}`).toBe(true);
+      }
+    }
   });
 
   it("takes a question that names a needle's point as a question about that needle", () => {
@@ -410,21 +431,24 @@ describe("deqi is linked to evidence", () => {
   it("compares what is recorded with what was observed and with what the tissue did", () => {
     const s = beforeType(knee, "document");
     const ev = (id: string) => needleEvidence(s, id).map((e) => e.id);
-    // ST35 gripped and felt; EX-LE4 not; ST36 and SP9 gripped; the Ashi needle asked about, nothing
+    // the knee eyes rotated and not held; ST36 and SP9 lifted, thrust and held; the Ashi needle asked about, nothing
     const recorded: NeedleResponseClaim[] = [
-      { needle: "pack-a.1", response: "deqi", evidence: ev("pack-a.1") }, // supported
+      { needle: "pack-a.3", response: "deqi", evidence: ev("pack-a.3") }, // supported
       { needle: "pack-a.2", response: "deqi", evidence: ev("pack-a.2") }, // overclaimed: its evidence shows none
-      { needle: "pack-a.3", response: "none", evidence: ev("pack-a.3") }, // contradicted: its own evidence shows deqi
-      { needle: "pack-a.4", response: "not-sought", evidence: [] }, // contradicted: it was worked, and held
+      { needle: "pack-a.4", response: "none", evidence: ev("pack-a.4") }, // contradicted: its own evidence shows deqi
+      { needle: "pack-a.1", response: "not-sought", evidence: [] }, // it was worked and not held: nothing to contradict
     ];
     const r = act(knee, s, { type: "document", record: { needling: { responses: recorded } } });
     expect(r.attempt.status).toBe("executed"); // recorded as claimed
     const verdicts = Object.fromEntries(needleAudit(knee, r.state).map((a) => [a.needle, a.verdict]));
-    expect(verdicts).toEqual({ "pack-a.1": "supported", "pack-a.2": "overclaimed", "pack-a.3": "contradicted", "pack-a.4": "contradicted", "pack-a.5": "unrecorded" });
-    // a later record replaces an earlier one, needle by needle
-    const fixed = act(knee, r.state, { type: "document", record: { needling: { responses: [{ needle: "pack-a.2", response: "none", evidence: [ev("pack-a.2").at(-1)!] }, { needle: "pack-a.5", response: "none", evidence: ev("pack-a.5") }] } } });
+    expect(verdicts).toEqual({ "pack-a.1": "not-sought", "pack-a.2": "overclaimed", "pack-a.3": "supported", "pack-a.4": "contradicted", "pack-a.5": "unrecorded" });
+    // a later record replaces an earlier one, needle by needle; "not sought" of a needle that was held is contradicted too
+    const fixed = act(knee, r.state, {
+      type: "document",
+      record: { needling: { responses: [{ needle: "pack-a.2", response: "none", evidence: [ev("pack-a.2").at(-1)!] }, { needle: "pack-a.5", response: "none", evidence: ev("pack-a.5") }, { needle: "pack-a.4", response: "not-sought", evidence: [] }] } },
+    });
     const again = Object.fromEntries(needleAudit(knee, fixed.state).map((a) => [a.needle, a.verdict]));
-    expect(again).toMatchObject({ "pack-a.2": "supported", "pack-a.5": "supported", "pack-a.3": "contradicted" });
+    expect(again).toEqual({ "pack-a.1": "not-sought", "pack-a.2": "supported", "pack-a.3": "supported", "pack-a.4": "contradicted", "pack-a.5": "supported" });
   });
 
   it("calls a negative record out of date when the needle was moved after the check", () => {
@@ -533,9 +557,10 @@ describe("deqi is linked to evidence", () => {
     for (const r of steps) s = step(knee, s, r, { strict: true }).state;
     const over = evaluateEncounter(knee, s);
     expect(over.primary.status).toBe("success");
-    expect(over.evidence.responses.overclaimed).toBe(2);
+    // the two knee eyes and the Ashi needle: asked about, nothing there, recorded as deqi all the same
+    expect(over.evidence.responses.overclaimed).toBe(3);
     expect(item(over, "deqi-evidence")).toMatchObject({ met: false });
-    expect(item(over, "deqi-evidence")!.detail).toMatch(/pack-a\.2 \(EX-LE4:right\), pack-a\.5 \(ashi:ashi-medial-joint-line\)/);
+    expect(item(over, "deqi-evidence")!.detail).toBe("pack-a.1 (ST35:right), pack-a.2 (EX-LE4:right), pack-a.5 (ashi:ashi-medial-joint-line)");
     expect(over.tracks.procedure.score!).toBeLessThan(good.tracks.procedure.score!);
     // nothing recorded of the needles at all
     const silent = knee.field.solution.map((r) => {

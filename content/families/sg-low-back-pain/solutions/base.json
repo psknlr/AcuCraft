@@ -1053,14 +1053,15 @@
               "response": "deqi",
               "evidence": [
                 "feel-3",
-                "sense-4"
+                "sense-4",
+                "sense-5"
               ]
             },
             {
               "needle": "pack-a.4",
               "response": "none",
               "evidence": [
-                "sense-5"
+                "sense-6"
               ]
             },
             {
@@ -1068,8 +1069,8 @@
               "response": "deqi",
               "evidence": [
                 "feel-5",
-                "sense-7",
-                "sense-8"
+                "sense-8",
+                "sense-9"
               ]
             }
           ]
