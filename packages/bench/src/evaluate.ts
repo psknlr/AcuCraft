@@ -1,9 +1,12 @@
 import { creditedHistory } from "@clinicalcraft/core";
 import {
   ACUCRAFT_VERSION,
+  assessmentSupport,
+  caseSupport,
   evaluateField,
   longestUnobservedGap,
   LYING,
+  needleAudit,
   needleList,
   pointInstance,
   positionAt,
@@ -11,6 +14,8 @@ import {
   unresolvedNeedles,
   type AttemptRecord,
   type EncounterState,
+  type NeedleAudit,
+  type PatternSupport,
   type PointRef,
   type Scenario,
   type Side,
@@ -23,7 +28,7 @@ import {
  * computed by, the agent under test. Scores trace to observable actions and to the scenario's reviewed criteria.
  */
 
-export const REPORT_SCHEMA_ID = "acucraft/report@1" as const;
+export const REPORT_SCHEMA_ID = "acucraft/report@2" as const;
 export const NOTICE = "Teaching-script measure for simulation research: not a validated competency score and not evidence of clinical effectiveness.";
 
 /** Unsafe acts that are critical behavioural errors wherever they occur, executed or blocked. */
@@ -113,6 +118,18 @@ export interface EncounterReport {
   assistance: { teachingMode: boolean };
   documentation: { completeness: number | null; fields: { field: string; present: boolean }[]; consistent: boolean | null; issues: string[] };
   claims: { total: number; unsupported: number };
+  /**
+   * The evidence links (docs/EVIDENCE.md): what the practitioner's two TCM conclusions rest on, read from the field.
+   * `pattern` — the latest pattern differentiation, the findings it names and the signs those show; `needles` — for
+   * every needle, what the tissue did, what was observed and what was recorded.
+   */
+  evidence: {
+    /** Items in the evidence ledger, by kind. */
+    ledger: Record<string, number>;
+    pattern: (PatternSupport & { minute: number }) | null;
+    needles: NeedleAudit[];
+    responses: { needles: number; recorded: number; deqiRecorded: number; overclaimed: number; contradicted: number; outOfDate: number; notSought: number; arrived: number };
+  };
   adjudication: { kind: "point" | "pattern" | "pathway" | "diagnosis"; detail: string }[];
   notice: string;
 }
@@ -205,6 +222,25 @@ export function evaluateEncounter(sc: Scenario, s: EncounterState): EncounterRep
     const met = last === undefined ? false : ev.patterns.defensible.includes(last) ? true : ev.patterns.implausible.includes(last) ? false : null;
     if (met === null && last) adjudication.push({ kind: "pattern", detail: `pattern differentiation outside the listed set: ${last}` });
     reasoning.push({ id: "pattern", label: "TCM pattern differentiation defensible", met, weight: 1, ...(last ? { detail: last } : {}) });
+  }
+  // the link, apart from the conclusion: what the differentiation names as its evidence, and what those findings show
+  const differentiated = [...s.assessments].reverse().find((a) => a.pattern !== null) ?? null;
+  const support = differentiated ? assessmentSupport(sc, s, differentiated) : null;
+  if (differentiated && support) {
+    const signs = (xs: { sign: string }[]) => xs.map((x) => x.sign).join(", ");
+    if (!support.hasCriteria) adjudication.push({ kind: "pattern", detail: `the vocabulary gives no criteria for ${support.pattern}: its evidence cannot be read` });
+    reasoning.push({
+      id: "pattern-evidence",
+      label: "the pattern differentiation rests on the findings it names",
+      met: support.hasCriteria ? support.supported : null,
+      weight: 2,
+      detail: `${support.pattern} on ${support.cited.join(", ")}: ${support.key.length} key sign(s)${support.key.length ? ` (${signs(support.key)})` : ""}, ${support.supporting.length} supporting${support.supporting.length ? ` (${signs(support.supporting)})` : ""}; needs ${support.thresholds.key} key and ${support.thresholds.total} in all${support.against.length ? `; against it: ${signs(support.against)}${support.contradicted ? " — contradicted" : ""}` : ""}${support.idle.length ? `; cited without showing it: ${support.idle.join(", ")}` : ""}`,
+    });
+    // the four examinations: where the case's tongue or pulse bears on the pattern, a differentiation draws on it
+    const offered = caseSupport(sc, support.pattern, sc.field.visits[0]!.phase).methods;
+    if (support.hasCriteria && (offered.includes("tongue") || offered.includes("pulse"))) {
+      reasoning.push({ id: "four-examinations", label: "the differentiation draws on the tongue or the pulse as well as the history", met: support.methods.length >= 2 && (support.methods.includes("tongue") || support.methods.includes("pulse")), weight: 1, detail: support.methods.join(", ") || "none" });
+    }
   }
   reasoning.push({ id: "disposition", label: "the disposition fits an acceptable pathway", met: achieved !== null, weight: 3, ...(achieved ? { detail: achieved.id } : wrong ? { detail: `unacceptable: ${wrong.id}` } : {}) });
   const treated = needleList(s).some((n) => n.used);
@@ -302,6 +338,24 @@ export function evaluateEncounter(sc: Scenario, s: EncounterState): EncounterRep
     const bleeding = needleList(s).filter((n) => n.bleeding);
     procedure.push({ id: "haemostasis", label: "pressure applied where a site bled", met: bleeding.length === 0, weight: 1 });
   }
+  // the needle's response: what is recorded of each needle against what was observed there and what the tissue did.
+  // Deqi is never required — a needle not worked, and said so, loses nothing; a response claimed without evidence does
+  const audit = needleAudit(sc, s);
+  if (audit.length > 0) {
+    const recorded = audit.filter((n) => n.claim !== null);
+    const list = (v: NeedleAudit["verdict"]) => audit.filter((n) => n.verdict === v).map((n) => `${n.needle} (${n.target})`).join(", ");
+    procedure.push({ id: "needle-responses-recorded", label: "the response at every needle is on record (deqi, none, or not sought)", met: recorded.length === audit.length, weight: 1, detail: `${recorded.length}/${audit.length}` });
+    if (recorded.length > 0) {
+      const over = audit.filter((n) => n.verdict === "overclaimed");
+      procedure.push({ id: "deqi-evidence", label: "no deqi recorded without evidence of it at that needle", met: over.length === 0, weight: 2, ...(over.length ? { detail: list("overclaimed") } : {}) });
+      const wrong = audit.filter((n) => n.verdict === "contradicted" || n.verdict === "out-of-date");
+      procedure.push({ id: "needle-responses-true", label: "what is recorded of each needle agrees with what was observed there", met: wrong.length === 0, weight: 1, ...(wrong.length ? { detail: wrong.map((n) => `${n.needle}: ${n.detail}`).join("; ") } : {}) });
+    }
+    if (audit.some((n) => n.field.manipulations > 0)) {
+      const strong = audit.filter((n) => n.field.overstimulated);
+      procedure.push({ id: "no-overstimulation", label: "no needle worked beyond what the patient tolerated", met: strong.length === 0, weight: 1, ...(strong.length ? { detail: strong.map((n) => `${n.needle} (${n.field.manipulations} times)`).join(", ") } : {}) });
+    }
+  }
   for (const e of sc.field.events) {
     const rec = s.events[e.id];
     if (!rec?.firedAt && rec?.firedAt !== 0) continue;
@@ -394,6 +448,14 @@ export function evaluateEncounter(sc: Scenario, s: EncounterState): EncounterRep
         consistent = false;
         docIssues.push(`visit ${v.index}: ${count} needles recorded, ${inserted} inserted`);
       }
+      const responses = s.documents.filter((d) => d.visit === v.index).map((d) => d.record.needling?.responses).reverse().find((r) => r !== undefined);
+      if (responses) {
+        const unrecorded = needleList(s).filter((n) => n.insertion?.visit === v.index && !responses.some((r) => r.needle === n.id)).map((n) => n.id);
+        if (unrecorded.length > 0) {
+          consistent = false;
+          docIssues.push(`visit ${v.index}: no response recorded for ${unrecorded.join(", ")}`);
+        }
+      }
       const abnormal = s.patient.feedback.some((f) => f.visit === v.index && f.abnormal);
       if (abnormal && !s.documents.some((d) => d.visit === v.index && d.record.adverseEvents)) {
         consistent = false;
@@ -462,6 +524,21 @@ export function evaluateEncounter(sc: Scenario, s: EncounterState): EncounterRep
     assistance: { teachingMode: s.mode === "teaching" },
     documentation: { completeness: completeness === null ? null : Math.round(completeness * 1000) / 1000, fields, consistent, issues: docIssues },
     claims: { total: myClaims.length, unsupported: myClaims.filter((c) => !c.supported).length },
+    evidence: {
+      ledger: s.evidence.reduce<Record<string, number>>((n, e) => ({ ...n, [e.kind]: (n[e.kind] ?? 0) + 1 }), {}),
+      pattern: differentiated && support ? { ...support, minute: Math.round(differentiated.at * 100) / 100 } : null,
+      needles: audit,
+      responses: {
+        needles: audit.length,
+        recorded: audit.filter((n) => n.claim !== null).length,
+        deqiRecorded: audit.filter((n) => n.claim?.response === "deqi").length,
+        overclaimed: audit.filter((n) => n.verdict === "overclaimed").length,
+        contradicted: audit.filter((n) => n.verdict === "contradicted").length,
+        outOfDate: audit.filter((n) => n.verdict === "out-of-date").length,
+        notSought: audit.filter((n) => n.verdict === "not-sought").length,
+        arrived: audit.filter((n) => n.field.arrived).length,
+      },
+    },
     adjudication,
     notice: NOTICE,
   };

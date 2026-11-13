@@ -236,6 +236,14 @@
         "tension-type-headache"
       ],
       "pattern": "liver-qi-stagnation",
+      "patternEvidence": [
+        "hx-character",
+        "hx-triggers",
+        "hx-tcm",
+        "hx-neck",
+        "ex-tongue",
+        "ex-pulse-tcm"
+      ],
       "redFlags": [],
       "rationale": "Bilateral pressing headache, no red flags, normal neurology; stress-related, irritable, wiry pulse."
     }
@@ -738,6 +746,25 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
+      "type": "adjust_needle",
+      "needleId": "pack-a.1",
+      "technique": "rotate"
+    }
+  },
+  {
+    "requestId": "hf-067",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_sensation",
+      "needleId": "pack-a.1"
+    }
+  },
+  {
+    "requestId": "hf-068",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
       "type": "insert_needle",
       "needleId": "pack-a.2",
       "mark": "m4",
@@ -747,7 +774,26 @@
     }
   },
   {
-    "requestId": "hf-067",
+    "requestId": "hf-069",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "adjust_needle",
+      "needleId": "pack-a.2",
+      "technique": "rotate"
+    }
+  },
+  {
+    "requestId": "hf-070",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_sensation",
+      "needleId": "pack-a.2"
+    }
+  },
+  {
+    "requestId": "hf-071",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -760,7 +806,7 @@
     }
   },
   {
-    "requestId": "hf-068",
+    "requestId": "hf-072",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -773,7 +819,7 @@
     }
   },
   {
-    "requestId": "hf-069",
+    "requestId": "hf-073",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -781,7 +827,7 @@
     }
   },
   {
-    "requestId": "hf-070",
+    "requestId": "hf-074",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -790,7 +836,7 @@
     }
   },
   {
-    "requestId": "hf-071",
+    "requestId": "hf-075",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -799,7 +845,7 @@
     }
   },
   {
-    "requestId": "hf-072",
+    "requestId": "hf-076",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -807,7 +853,7 @@
     }
   },
   {
-    "requestId": "hf-073",
+    "requestId": "hf-077",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -816,7 +862,7 @@
     }
   },
   {
-    "requestId": "hf-074",
+    "requestId": "hf-078",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -824,7 +870,7 @@
     }
   },
   {
-    "requestId": "hf-075",
+    "requestId": "hf-079",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -835,7 +881,7 @@
     }
   },
   {
-    "requestId": "hf-076",
+    "requestId": "hf-080",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -843,7 +889,7 @@
     }
   },
   {
-    "requestId": "hf-077",
+    "requestId": "hf-081",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -852,7 +898,7 @@
     }
   },
   {
-    "requestId": "hf-078",
+    "requestId": "hf-082",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -861,7 +907,7 @@
     }
   },
   {
-    "requestId": "hf-079",
+    "requestId": "hf-083",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -872,7 +918,7 @@
     }
   },
   {
-    "requestId": "hf-080",
+    "requestId": "hf-084",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -880,7 +926,7 @@
     }
   },
   {
-    "requestId": "hf-081",
+    "requestId": "hf-085",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -888,7 +934,7 @@
     }
   },
   {
-    "requestId": "hf-082",
+    "requestId": "hf-086",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -897,7 +943,7 @@
     }
   },
   {
-    "requestId": "hf-083",
+    "requestId": "hf-087",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -905,7 +951,7 @@
     }
   },
   {
-    "requestId": "hf-084",
+    "requestId": "hf-088",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -916,7 +962,7 @@
     }
   },
   {
-    "requestId": "hf-085",
+    "requestId": "hf-089",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -924,7 +970,7 @@
     }
   },
   {
-    "requestId": "hf-086",
+    "requestId": "hf-090",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -934,7 +980,7 @@
     }
   },
   {
-    "requestId": "hf-087",
+    "requestId": "hf-091",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -967,9 +1013,38 @@
           "needleType": "0.25 × 40 mm single-use sterile filiform",
           "needleCount": 4,
           "depth": "GB20 1.6 cm; GB21 1.8 cm",
-          "responseSought": "deqi",
+          "responseSought": "deqi at GB20 (rotation); GB21 not worked (the lung lies beneath)",
           "stimulation": "even",
-          "retentionMinutes": 3
+          "retentionMinutes": 3,
+          "responses": [
+            {
+              "needle": "pack-a.1",
+              "response": "deqi",
+              "evidence": [
+                "feel-1",
+                "sense-1",
+                "sense-2"
+              ]
+            },
+            {
+              "needle": "pack-a.2",
+              "response": "deqi",
+              "evidence": [
+                "feel-2",
+                "sense-3"
+              ]
+            },
+            {
+              "needle": "pack-a.3",
+              "response": "not-sought",
+              "evidence": []
+            },
+            {
+              "needle": "pack-a.4",
+              "response": "not-sought",
+              "evidence": []
+            }
+          ]
         },
         "response": "Vasovagal reaction after about 2 minutes: treatment stopped, needles removed, laid flat; recovered within minutes.",
         "adverseEvents": "Vasovagal reaction (pale, sweaty, bradycardic, hypotensive); recovered lying flat.",
@@ -979,7 +1054,7 @@
     }
   },
   {
-    "requestId": "hf-088",
+    "requestId": "hf-092",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -987,7 +1062,7 @@
     }
   },
   {
-    "requestId": "hf-089",
+    "requestId": "hf-093",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -995,7 +1070,7 @@
     }
   },
   {
-    "requestId": "hf-090",
+    "requestId": "hf-094",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -1004,7 +1079,7 @@
     }
   },
   {
-    "requestId": "hf-091",
+    "requestId": "hf-095",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -1013,7 +1088,7 @@
     }
   },
   {
-    "requestId": "hf-092",
+    "requestId": "hf-096",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -1023,7 +1098,7 @@
     }
   },
   {
-    "requestId": "hf-093",
+    "requestId": "hf-097",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -1037,7 +1112,7 @@
     }
   },
   {
-    "requestId": "hf-094",
+    "requestId": "hf-098",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -1045,7 +1120,7 @@
     }
   },
   {
-    "requestId": "hf-095",
+    "requestId": "hf-099",
     "actor": "practitioner",
     "patient": "patient",
     "action": {

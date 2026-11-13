@@ -4,6 +4,7 @@ import { FamilySchema, FieldSchema, VariantSchema, type Family, type FieldCondit
 import type { Clinic, EvidenceRecord, RolesFile, RuleSet } from "../schema/governance.js";
 import type { AcupointDefinition, StandardsFile } from "../schema/knowledge.js";
 import { ActionRequestSchema } from "../schema/actions.js";
+import { caseSupport, recordEvidenceId, RESERVED_EVIDENCE_ID } from "./evidence.js";
 import { applyPatch } from "./util.js";
 import { clinicWorldResult, worldOf, type ClinicWorld, type WorldContent } from "./world.js";
 
@@ -207,6 +208,38 @@ export function checkField(sc: Scenario): Issue[] {
     if (a.point && !bundle.acupoints.has(a.point)) issues.push(err(`field.evaluation.points.avoid.${i}`, `unknown point ${a.point}`));
     if (a.region && !bundle.regions.has(a.region)) issues.push(err(`field.evaluation.points.avoid.${i}`, `unknown region ${a.region}`));
   });
+  // evidence: a finding's id is its id in the ledger, so the ids of a case are distinct and none looks like a numbered one
+  const records = new Set(c.investigations.flatMap((i) => Object.keys(i.results).map((phase) => recordEvidenceId(i.id, phase))));
+  const seenIds = new Map<string, string>();
+  for (const [kind, ids] of [["history item", history], ["exam finding", exam], ["record", records]] as const) {
+    for (const id of ids) {
+      if (RESERVED_EVIDENCE_ID.test(id)) issues.push(err("case", `the ${kind} id ${id} looks like an evidence id the engine numbers itself (vitals-, obs-, sense-, feel-)`));
+      if (seenIds.has(id)) issues.push(err("case", `${id} is both a ${seenIds.get(id)} and a ${kind}: evidence ids must be distinct`));
+      seenIds.set(id, kind);
+    }
+  }
+  const signIds = new Set(vocab.signs.map((x) => x.id));
+  for (const [id, signs] of Object.entries(ev.signs)) {
+    if (!seenIds.has(id)) issues.push(err(`field.evaluation.signs.${id}`, `the case has no history item, exam finding or record ${id}`));
+    for (const sign of signs) if (!signIds.has(sign)) issues.push(err(`field.evaluation.signs.${id}`, `unknown sign ${sign}: use the vocabulary`));
+    if (new Set(signs).size !== signs.length) issues.push(err(`field.evaluation.signs.${id}`, "a sign is listed twice"));
+  }
+  // what the scenario calls defensible must be what its own findings can support, and what it calls implausible must not be
+  const firstPhase = field.visits[0]?.phase;
+  if (firstPhase !== undefined && phases.has(firstPhase)) {
+    for (const p of ev.patterns.defensible) {
+      if (!patterns.has(p)) continue;
+      const sup = caseSupport(sc, p, firstPhase);
+      if (!sup.hasCriteria) issues.push(warn("field.evaluation.patterns.defensible", `the vocabulary gives no criteria for ${p}: a differentiation of it cannot be linked to evidence`));
+      else if (!sup.sufficient) issues.push(err("field.evaluation.patterns.defensible", `${p} is listed as defensible, but the findings of this case show only ${sup.key.length} key and ${sup.supporting.length} supporting sign(s) of it (needs ${sup.thresholds.key} key and ${sup.thresholds.total} in all): map its findings in evaluation.signs, or remove it`));
+      else if (sup.contradicted) issues.push(err("field.evaluation.patterns.defensible", `${p} is listed as defensible, but the findings of this case speak against it (${sup.against.map((x) => x.sign).join(", ")})`));
+    }
+    for (const p of ev.patterns.implausible) {
+      if (!patterns.has(p)) continue;
+      const sup = caseSupport(sc, p, firstPhase);
+      if (sup.supported) issues.push(err("field.evaluation.patterns.implausible", `${p} is listed as implausible, but the findings of this case support it (${[...sup.key, ...sup.supporting].map((x) => x.sign).join(", ")})`));
+    }
+  }
   ev.required.history.forEach((h) => history.has(h) || issues.push(err("field.evaluation.required.history", `the case has no history item ${h}`)));
   ev.required.exam.forEach((h) => exam.has(h) || issues.push(err("field.evaluation.required.exam", `the case has no exam finding ${h}`)));
   ev.required.records.forEach((h) => investigations.has(h) || issues.push(err("field.evaluation.required.records", `the case has no investigation ${h}`)));

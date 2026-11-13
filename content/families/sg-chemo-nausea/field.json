@@ -215,6 +215,32 @@
         "damp-heat-bi"
       ]
     },
+    "signs": {
+      "hx-chief": [
+        "nausea-vomiting"
+      ],
+      "hx-nausea": [
+        "nausea-vomiting",
+        "poor-appetite"
+      ],
+      "hx-tcm": [
+        "fatigue",
+        "poor-appetite",
+        "loose-stools"
+      ],
+      "ex-general": [
+        "tired-appearance"
+      ],
+      "ex-tongue": [
+        "tongue-pale",
+        "tongue-swollen-toothmarked",
+        "coat-thin-white"
+      ],
+      "ex-pulse-tcm": [
+        "pulse-weak",
+        "pulse-slippery"
+      ]
+    },
     "redFlags": [
       {
         "id": "fever-on-chemotherapy",

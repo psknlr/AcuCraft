@@ -1,3 +1,3 @@
 {
-  "contentDirs": ["../out/clinicalcraft"]
+  "contentDirs": ["../content/world", "../out/clinicalcraft"]
 }

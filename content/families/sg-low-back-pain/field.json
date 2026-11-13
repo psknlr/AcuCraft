@@ -223,6 +223,46 @@
         "damp-heat-bi"
       ]
     },
+    "signs": {
+      "hx-chief": [
+        "chronic-course"
+      ],
+      "hx-onset": [
+        "emotional-strain",
+        "chronic-course"
+      ],
+      "hx-site": [
+        "pain-fixed"
+      ],
+      "hx-pattern": [
+        "pain-worse-inactivity",
+        "pain-better-warmth",
+        "stiffness"
+      ],
+      "hx-work": [
+        "emotional-strain"
+      ],
+      "hx-tcm": [
+        "pain-better-warmth",
+        "fatigue",
+        "weak-knees-back"
+      ],
+      "hx-general": [
+        "light-sleep"
+      ],
+      "ex-palpate-back": [
+        "tender-point",
+        "muscle-tension"
+      ],
+      "ex-tongue": [
+        "tongue-purple",
+        "coat-thin-white"
+      ],
+      "ex-pulse-tcm": [
+        "pulse-wiry",
+        "pulse-choppy"
+      ]
+    },
     "redFlags": [
       {
         "id": "saddle-anaesthesia",

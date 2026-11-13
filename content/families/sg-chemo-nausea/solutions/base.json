@@ -228,6 +228,12 @@
         "chemotherapy-nausea"
       ],
       "pattern": "stomach-qi-rebellion",
+      "patternEvidence": [
+        "hx-nausea",
+        "hx-tcm",
+        "ex-tongue",
+        "ex-pulse-tcm"
+      ],
       "redFlags": [],
       "rationale": "Delayed nausea after each cycle; tired, poor appetite, loose stools; pale swollen tongue."
     }
@@ -757,11 +763,30 @@
       "mark": "m1",
       "angleDeg": 0,
       "azimuthDeg": 0,
-      "depthCm": 1.0
+      "depthCm": 1
     }
   },
   {
     "requestId": "cb-069",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "adjust_needle",
+      "needleId": "pack-a.1",
+      "technique": "rotate"
+    }
+  },
+  {
+    "requestId": "cb-070",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_sensation",
+      "needleId": "pack-a.1"
+    }
+  },
+  {
+    "requestId": "cb-071",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -773,7 +798,7 @@
     }
   },
   {
-    "requestId": "cb-070",
+    "requestId": "cb-072",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -782,11 +807,30 @@
       "mark": "m2",
       "angleDeg": 0,
       "azimuthDeg": 0,
-      "depthCm": 2.0
+      "depthCm": 2
     }
   },
   {
-    "requestId": "cb-071",
+    "requestId": "cb-073",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "adjust_needle",
+      "needleId": "pack-a.2",
+      "technique": "rotate"
+    }
+  },
+  {
+    "requestId": "cb-074",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_sensation",
+      "needleId": "pack-a.2"
+    }
+  },
+  {
+    "requestId": "cb-075",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -798,7 +842,7 @@
     }
   },
   {
-    "requestId": "cb-072",
+    "requestId": "cb-076",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -807,11 +851,30 @@
       "mark": "m3",
       "angleDeg": 0,
       "azimuthDeg": 0,
-      "depthCm": 1.0
+      "depthCm": 1
     }
   },
   {
-    "requestId": "cb-073",
+    "requestId": "cb-077",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "adjust_needle",
+      "needleId": "pack-a.3",
+      "technique": "rotate"
+    }
+  },
+  {
+    "requestId": "cb-078",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_sensation",
+      "needleId": "pack-a.3"
+    }
+  },
+  {
+    "requestId": "cb-079",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -823,7 +886,7 @@
     }
   },
   {
-    "requestId": "cb-074",
+    "requestId": "cb-080",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -832,11 +895,30 @@
       "mark": "m4",
       "angleDeg": 0,
       "azimuthDeg": 0,
-      "depthCm": 2.0
+      "depthCm": 2
     }
   },
   {
-    "requestId": "cb-075",
+    "requestId": "cb-081",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "adjust_needle",
+      "needleId": "pack-a.4",
+      "technique": "rotate"
+    }
+  },
+  {
+    "requestId": "cb-082",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_sensation",
+      "needleId": "pack-a.4"
+    }
+  },
+  {
+    "requestId": "cb-083",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -844,7 +926,7 @@
     }
   },
   {
-    "requestId": "cb-076",
+    "requestId": "cb-084",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -853,7 +935,7 @@
     }
   },
   {
-    "requestId": "cb-077",
+    "requestId": "cb-085",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -861,7 +943,7 @@
     }
   },
   {
-    "requestId": "cb-078",
+    "requestId": "cb-086",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -870,7 +952,7 @@
     }
   },
   {
-    "requestId": "cb-079",
+    "requestId": "cb-087",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -878,7 +960,7 @@
     }
   },
   {
-    "requestId": "cb-080",
+    "requestId": "cb-088",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -886,7 +968,7 @@
     }
   },
   {
-    "requestId": "cb-081",
+    "requestId": "cb-089",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -895,7 +977,7 @@
     }
   },
   {
-    "requestId": "cb-082",
+    "requestId": "cb-090",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -906,7 +988,7 @@
     }
   },
   {
-    "requestId": "cb-083",
+    "requestId": "cb-091",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -914,7 +996,7 @@
     }
   },
   {
-    "requestId": "cb-084",
+    "requestId": "cb-092",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -922,7 +1004,7 @@
     }
   },
   {
-    "requestId": "cb-085",
+    "requestId": "cb-093",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -933,7 +1015,7 @@
     }
   },
   {
-    "requestId": "cb-086",
+    "requestId": "cb-094",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -945,7 +1027,7 @@
     }
   },
   {
-    "requestId": "cb-087",
+    "requestId": "cb-095",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -978,9 +1060,42 @@
           "needleType": "0.25 × 40 mm single-use sterile filiform",
           "needleCount": 4,
           "depth": "PC6 1.0 cm; ST36 2.0 cm",
-          "responseSought": "mild deqi",
+          "responseSought": "mild deqi (one gentle rotation at each needle)",
           "stimulation": "even",
-          "retentionMinutes": 20
+          "retentionMinutes": 20,
+          "responses": [
+            {
+              "needle": "pack-a.1",
+              "response": "deqi",
+              "evidence": [
+                "feel-1",
+                "sense-1"
+              ]
+            },
+            {
+              "needle": "pack-a.2",
+              "response": "deqi",
+              "evidence": [
+                "feel-2",
+                "sense-2"
+              ]
+            },
+            {
+              "needle": "pack-a.3",
+              "response": "none",
+              "evidence": [
+                "sense-3"
+              ]
+            },
+            {
+              "needle": "pack-a.4",
+              "response": "deqi",
+              "evidence": [
+                "feel-4",
+                "sense-4"
+              ]
+            }
+          ]
         },
         "response": "Tolerated.",
         "adverseEvents": "None.",
@@ -990,7 +1105,7 @@
     }
   },
   {
-    "requestId": "cb-088",
+    "requestId": "cb-096",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -998,7 +1113,7 @@
     }
   },
   {
-    "requestId": "cb-089",
+    "requestId": "cb-097",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -1006,7 +1121,7 @@
     }
   },
   {
-    "requestId": "cb-090",
+    "requestId": "cb-098",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -1015,7 +1130,7 @@
     }
   },
   {
-    "requestId": "cb-091",
+    "requestId": "cb-099",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -1024,7 +1139,7 @@
     }
   },
   {
-    "requestId": "cb-092",
+    "requestId": "cb-100",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -1034,7 +1149,7 @@
     }
   },
   {
-    "requestId": "cb-093",
+    "requestId": "cb-101",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -1048,7 +1163,7 @@
     }
   },
   {
-    "requestId": "cb-094",
+    "requestId": "cb-102",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -1056,7 +1171,7 @@
     }
   },
   {
-    "requestId": "cb-095",
+    "requestId": "cb-103",
     "actor": "practitioner",
     "patient": "patient",
     "action": {

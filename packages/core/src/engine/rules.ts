@@ -32,6 +32,7 @@ export const ACTION_PERMISSIONS: Record<ActionType, Permission | null> = {
   prepare_site: "prepare-site",
   insert_needle: "insert-needle",
   adjust_needle: "manipulate-needle",
+  check_sensation: "monitor",
   monitor: "monitor",
   wait: null,
   stop_treatment: "monitor",

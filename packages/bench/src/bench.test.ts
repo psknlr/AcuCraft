@@ -46,14 +46,22 @@ describe("baseline agents", () => {
 });
 
 describe("encounter viewer", () => {
-  it("draws a chart per needled region and side, and the timeline", async () => {
+  it("draws the floor plan with the walks, a chart per needled region and side, the evidence links and the timeline", async () => {
     const sc = requireScenario(pack, "sg-chemo-nausea/base");
     const e = await runEpisode(sc, referenceAgent(sc), { seed: 1 });
     const html = encounterHtml(sc, e.state, e.report);
-    expect(html.match(/<svg /g)?.length).toBe(4); // forearm and leg, left and right
+    expect(html.match(/<svg /g)?.length).toBe(5); // the floor plan; forearm and leg, left and right
     expect(html).toMatch(/<title>Encounter viewer<\/title>/);
     expect(html).toContain("prefers-color-scheme: dark");
     expect(html.match(/<tr class=/g)!.length).toBe(e.state.attempts.length);
+    // every walk is a line on the plan; the patient's is dashed
+    expect(html.match(/<polyline points="[^"]+" fill="none" stroke="var\(--(accent|warn)\)" stroke-width="1.5"/g)!.length).toBe(e.state.walks.length);
+    expect(html).toMatch(/stroke-dasharray="6 4"><title>practitioner: [\d.]+ m at minute [\d.]+, with the patient/);
+    // the evidence links: the pattern's named findings and their signs; every needle's field, evidence and record
+    expect(html).toMatch(/Pattern differentiation:<\/b> <code>stomach-qi-rebellion<\/code>[^<]*<span class="pill good">rests on its evidence/);
+    expect(html).toMatch(/<td>nausea-vomiting<\/td><td>key<\/td><td><code>hx-nausea<\/code>/);
+    expect(html.match(/<span class="pill good">supported<\/span>/g)!.length).toBe(4);
+    expect(html.match(/<td>(history|exam|record|vitals|observation|sensation|needle-feel)<\/td>/g)!.length).toBe(e.state.evidence.length);
   });
 });
 

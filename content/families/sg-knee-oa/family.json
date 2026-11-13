@@ -1,7 +1,7 @@
 {
   "schema": "acucraft/family@1",
   "id": "sg-knee-oa",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "title": "Knee pain · 63-year-old woman",
   "summary": "A 63-year-old woman asks whether acupuncture could help her knee pain.",
   "condition": "knee-osteoarthritis",

@@ -273,6 +273,13 @@
         "knee-osteoarthritis"
       ],
       "pattern": "wind-cold-damp-bi",
+      "patternEvidence": [
+        "hx-weather",
+        "hx-general-tcm",
+        "hx-pattern",
+        "ex-tongue",
+        "ex-pulse-tcm"
+      ],
       "redFlags": [],
       "rationale": "Osteoarthritis as before; on warfarin with INR 2.6 in range; varicose veins over the medial right knee and upper calf."
     }
@@ -624,12 +631,21 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
+      "type": "check_sensation",
+      "needleId": "pack-a.1"
+    }
+  },
+  {
+    "requestId": "ka-058",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
       "type": "pick_up",
       "object": "pack-a.2"
     }
   },
   {
-    "requestId": "ka-058",
+    "requestId": "ka-059",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -642,7 +658,16 @@
     }
   },
   {
-    "requestId": "ka-059",
+    "requestId": "ka-060",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_sensation",
+      "needleId": "pack-a.2"
+    }
+  },
+  {
+    "requestId": "ka-061",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -651,7 +676,7 @@
     }
   },
   {
-    "requestId": "ka-060",
+    "requestId": "ka-062",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -664,7 +689,16 @@
     }
   },
   {
-    "requestId": "ka-061",
+    "requestId": "ka-063",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_sensation",
+      "needleId": "pack-a.3"
+    }
+  },
+  {
+    "requestId": "ka-064",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -673,7 +707,7 @@
     }
   },
   {
-    "requestId": "ka-062",
+    "requestId": "ka-065",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -686,17 +720,16 @@
     }
   },
   {
-    "requestId": "ka-063",
+    "requestId": "ka-066",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "adjust_needle",
-      "needleId": "pack-a.3",
-      "technique": "lift-thrust"
+      "type": "check_sensation",
+      "needleId": "pack-a.4"
     }
   },
   {
-    "requestId": "ka-064",
+    "requestId": "ka-067",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -704,7 +737,7 @@
     }
   },
   {
-    "requestId": "ka-065",
+    "requestId": "ka-068",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -713,7 +746,7 @@
     }
   },
   {
-    "requestId": "ka-066",
+    "requestId": "ka-069",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -721,7 +754,7 @@
     }
   },
   {
-    "requestId": "ka-067",
+    "requestId": "ka-070",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -730,7 +763,7 @@
     }
   },
   {
-    "requestId": "ka-068",
+    "requestId": "ka-071",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -739,7 +772,7 @@
     }
   },
   {
-    "requestId": "ka-069",
+    "requestId": "ka-072",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -749,7 +782,7 @@
     }
   },
   {
-    "requestId": "ka-070",
+    "requestId": "ka-073",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -758,7 +791,7 @@
     }
   },
   {
-    "requestId": "ka-071",
+    "requestId": "ka-074",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -766,7 +799,7 @@
     }
   },
   {
-    "requestId": "ka-072",
+    "requestId": "ka-075",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -774,7 +807,7 @@
     }
   },
   {
-    "requestId": "ka-073",
+    "requestId": "ka-076",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -783,7 +816,7 @@
     }
   },
   {
-    "requestId": "ka-074",
+    "requestId": "ka-077",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -792,7 +825,7 @@
     }
   },
   {
-    "requestId": "ka-075",
+    "requestId": "ka-078",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -801,7 +834,7 @@
     }
   },
   {
-    "requestId": "ka-076",
+    "requestId": "ka-079",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -810,7 +843,7 @@
     }
   },
   {
-    "requestId": "ka-077",
+    "requestId": "ka-080",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -821,7 +854,7 @@
     }
   },
   {
-    "requestId": "ka-078",
+    "requestId": "ka-081",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -829,7 +862,7 @@
     }
   },
   {
-    "requestId": "ka-079",
+    "requestId": "ka-082",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -837,7 +870,7 @@
     }
   },
   {
-    "requestId": "ka-080",
+    "requestId": "ka-083",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -848,7 +881,7 @@
     }
   },
   {
-    "requestId": "ka-081",
+    "requestId": "ka-084",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -860,7 +893,7 @@
     }
   },
   {
-    "requestId": "ka-082",
+    "requestId": "ka-085",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -891,12 +924,42 @@
         "needling": {
           "needleType": "0.25 × 40 mm single-use sterile filiform",
           "needleCount": 4,
-          "depth": "0.8–2.0 cm",
-          "responseSought": "deqi at ST36",
+          "depth": "0.6–1.8 cm",
+          "responseSought": "none: no needle worked (anticoagulated); she was asked what she felt at each",
           "stimulation": "even",
-          "retentionMinutes": 20
+          "retentionMinutes": 20,
+          "responses": [
+            {
+              "needle": "pack-a.1",
+              "response": "none",
+              "evidence": [
+                "sense-1"
+              ]
+            },
+            {
+              "needle": "pack-a.2",
+              "response": "none",
+              "evidence": [
+                "sense-2"
+              ]
+            },
+            {
+              "needle": "pack-a.3",
+              "response": "none",
+              "evidence": [
+                "sense-3"
+              ]
+            },
+            {
+              "needle": "pack-a.4",
+              "response": "none",
+              "evidence": [
+                "sense-4"
+              ]
+            }
+          ]
         },
-        "response": "Tolerated; deqi at ST36.",
+        "response": "Tolerated.",
         "adverseEvents": "Burning at the Ashi needle: removed. Firm pressure after every removal (warfarin).",
         "advice": "Rest the knee today; continue exercises.",
         "followUp": "Review in one week."
@@ -904,7 +967,7 @@
     }
   },
   {
-    "requestId": "ka-083",
+    "requestId": "ka-086",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -912,7 +975,7 @@
     }
   },
   {
-    "requestId": "ka-084",
+    "requestId": "ka-087",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -920,7 +983,7 @@
     }
   },
   {
-    "requestId": "ka-085",
+    "requestId": "ka-088",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -929,7 +992,7 @@
     }
   },
   {
-    "requestId": "ka-086",
+    "requestId": "ka-089",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -938,7 +1001,7 @@
     }
   },
   {
-    "requestId": "ka-087",
+    "requestId": "ka-090",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -947,7 +1010,7 @@
     }
   },
   {
-    "requestId": "ka-088",
+    "requestId": "ka-091",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -957,7 +1020,7 @@
     }
   },
   {
-    "requestId": "ka-089",
+    "requestId": "ka-092",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -966,7 +1029,7 @@
     }
   },
   {
-    "requestId": "ka-090",
+    "requestId": "ka-093",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -976,7 +1039,7 @@
     }
   },
   {
-    "requestId": "ka-091",
+    "requestId": "ka-094",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -990,7 +1053,7 @@
     }
   },
   {
-    "requestId": "ka-092",
+    "requestId": "ka-095",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -998,7 +1061,7 @@
     }
   },
   {
-    "requestId": "ka-093",
+    "requestId": "ka-096",
     "actor": "practitioner",
     "patient": "patient",
     "action": {

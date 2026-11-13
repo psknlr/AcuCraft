@@ -219,6 +219,13 @@
         "insomnia"
       ],
       "pattern": "heart-spleen-deficiency",
+      "patternEvidence": [
+        "hx-sleep",
+        "hx-tcm",
+        "hx-onset",
+        "ex-tongue",
+        "ex-pulse-tcm"
+      ],
       "redFlags": [],
       "rationale": "Stress-related insomnia; no self-harm thoughts."
     }
@@ -703,6 +710,15 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
+      "type": "check_sensation",
+      "needleId": "pack-a.1"
+    }
+  },
+  {
+    "requestId": "iw-064",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
       "type": "move",
       "to": {
         "region": "forearm",
@@ -711,7 +727,7 @@
     }
   },
   {
-    "requestId": "iw-064",
+    "requestId": "iw-065",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -724,7 +740,7 @@
     }
   },
   {
-    "requestId": "iw-065",
+    "requestId": "iw-066",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -732,7 +748,7 @@
     }
   },
   {
-    "requestId": "iw-066",
+    "requestId": "iw-067",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -741,7 +757,7 @@
     }
   },
   {
-    "requestId": "iw-067",
+    "requestId": "iw-068",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -749,7 +765,7 @@
     }
   },
   {
-    "requestId": "iw-068",
+    "requestId": "iw-069",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -759,7 +775,7 @@
     }
   },
   {
-    "requestId": "iw-069",
+    "requestId": "iw-070",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -770,7 +786,7 @@
     }
   },
   {
-    "requestId": "iw-070",
+    "requestId": "iw-071",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -779,7 +795,7 @@
     }
   },
   {
-    "requestId": "iw-071",
+    "requestId": "iw-072",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -790,7 +806,7 @@
     }
   },
   {
-    "requestId": "iw-072",
+    "requestId": "iw-073",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -798,7 +814,7 @@
     }
   },
   {
-    "requestId": "iw-073",
+    "requestId": "iw-074",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -806,7 +822,7 @@
     }
   },
   {
-    "requestId": "iw-074",
+    "requestId": "iw-075",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -814,7 +830,7 @@
     }
   },
   {
-    "requestId": "iw-075",
+    "requestId": "iw-076",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -825,7 +841,7 @@
     }
   },
   {
-    "requestId": "iw-076",
+    "requestId": "iw-077",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -837,7 +853,7 @@
     }
   },
   {
-    "requestId": "iw-077",
+    "requestId": "iw-078",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -862,9 +878,23 @@
           "needleType": "0.25 × 40 mm single-use sterile filiform",
           "needleCount": 2,
           "depth": "HT7 0.5 cm",
-          "responseSought": "mild deqi",
+          "responseSought": "none: no needle worked",
           "stimulation": "none",
-          "retentionMinutes": 1
+          "retentionMinutes": 1,
+          "responses": [
+            {
+              "needle": "pack-a.1",
+              "response": "none",
+              "evidence": [
+                "sense-1"
+              ]
+            },
+            {
+              "needle": "pack-a.2",
+              "response": "not-sought",
+              "evidence": []
+            }
+          ]
         },
         "response": "He withdrew consent after the second needle: stopped, both needles removed at once.",
         "adverseEvents": "Anxiety; consent withdrawn. No physical harm.",
@@ -874,7 +904,7 @@
     }
   },
   {
-    "requestId": "iw-078",
+    "requestId": "iw-079",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -882,20 +912,11 @@
     }
   },
   {
-    "requestId": "iw-079",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "begin_follow_up"
-    }
-  },
-  {
     "requestId": "iw-080",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "ask",
-      "itemId": "fu-progress"
+      "type": "begin_follow_up"
     }
   },
   {
@@ -904,11 +925,20 @@
     "patient": "patient",
     "action": {
       "type": "ask",
-      "itemId": "fu-new"
+      "itemId": "fu-progress"
     }
   },
   {
     "requestId": "iw-082",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "fu-new"
+    }
+  },
+  {
+    "requestId": "iw-083",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -918,7 +948,7 @@
     }
   },
   {
-    "requestId": "iw-083",
+    "requestId": "iw-084",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -929,7 +959,7 @@
     }
   },
   {
-    "requestId": "iw-084",
+    "requestId": "iw-085",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -941,7 +971,7 @@
     }
   },
   {
-    "requestId": "iw-085",
+    "requestId": "iw-086",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -949,7 +979,7 @@
     }
   },
   {
-    "requestId": "iw-086",
+    "requestId": "iw-087",
     "actor": "practitioner",
     "patient": "patient",
     "action": {

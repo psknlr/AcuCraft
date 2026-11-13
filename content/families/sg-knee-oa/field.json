@@ -260,6 +260,47 @@
         "liver-yang-rising"
       ]
     },
+    "signs": {
+      "hx-chief": [
+        "chronic-course"
+      ],
+      "hx-onset": [
+        "chronic-course"
+      ],
+      "hx-site": [
+        "pain-fixed"
+      ],
+      "hx-pattern": [
+        "pain-worse-exertion",
+        "stiffness"
+      ],
+      "hx-mechanical": [
+        "weak-knees-back"
+      ],
+      "hx-weather": [
+        "pain-worse-cold-damp",
+        "pain-better-warmth",
+        "heaviness"
+      ],
+      "hx-general-tcm": [
+        "aversion-to-cold"
+      ],
+      "ex-inspect": [
+        "bony-enlargement"
+      ],
+      "ex-palpate": [
+        "tender-point"
+      ],
+      "ex-tongue": [
+        "tongue-pale",
+        "coat-white-greasy"
+      ],
+      "ex-pulse-tcm": [
+        "pulse-deep",
+        "pulse-slow",
+        "pulse-slippery"
+      ]
+    },
     "redFlags": [
       {
         "id": "hot-swollen-joint-fever",

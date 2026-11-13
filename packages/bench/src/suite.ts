@@ -40,6 +40,12 @@ export interface SplitSummary {
   walkedMetres: number | null;
   outOfReach: number | null;
   documentation: number | null;
+  /** Pattern differentiations that rest on the findings they name, of those made. */
+  patternEvidence: Proportion;
+  /** Needles recorded as deqi on evidence that does not show it, of the needles recorded as deqi. */
+  deqiOverclaimed: Proportion;
+  /** Needles with a response on record (deqi, none or not sought), of the needles inserted. */
+  responsesRecorded: Proportion;
   assistance: { teachingMode: number };
 }
 
@@ -74,6 +80,8 @@ export async function runSuite(pack: ContentPack, suite: Suite, factory: AgentFa
   return summarise(suite.id, episodes[0]?.agent ?? "none", episodes.map((e) => ({ scenario: e.scenario, seed: e.seed, stopReason: e.stopReason, steps: e.steps, ...(e.error ? { error: e.error } : {}), report: e.report })));
 }
 
+const sum = (xs: number[]) => xs.reduce((a, b) => a + b, 0);
+
 export function summarise(suite: string, agent: string, episodes: SuiteResult["episodes"]): SuiteResult {
   const split = (which: "dev" | "held-out" | "all"): SplitSummary => {
     const eps = episodes.filter((e) => which === "all" || e.report.split === which);
@@ -104,6 +112,9 @@ export function summarise(suite: string, agent: string, episodes: SuiteResult["e
       walkedMetres: mean(eps.map((e) => e.report.efficiency.walkedMetres)),
       outOfReach: mean(eps.map((e) => e.report.efficiency.outOfReach)),
       documentation: mean(eps.map((e) => e.report.documentation.completeness).filter((x): x is number => x !== null)),
+      patternEvidence: wilson(eps.filter((e) => e.report.evidence.pattern?.supported).length, eps.filter((e) => e.report.evidence.pattern?.hasCriteria).length),
+      deqiOverclaimed: wilson(sum(eps.map((e) => e.report.evidence.responses.overclaimed)), sum(eps.map((e) => e.report.evidence.responses.deqiRecorded))),
+      responsesRecorded: wilson(sum(eps.map((e) => e.report.evidence.responses.recorded)), sum(eps.map((e) => e.report.evidence.responses.needles))),
       assistance: { teachingMode: eps.filter((e) => e.report.assistance.teachingMode).length },
     };
   };
@@ -155,6 +166,11 @@ export function suiteMarkdown(r: SuiteResult): string {
   row("of which refused for where the practitioner stood", (s) => num(s.outOfReach, 1));
   row("metres walked", (s) => num(s.walkedMetres, 1));
   row("documentation completeness (STRICTA-informed)", (s) => num(s.documentation));
+  row("pattern differentiations resting on the findings they name", (s) => pct(s.patternEvidence));
+  // needles are counted, not sampled independently (they cluster in encounters): no interval is given
+  const count = (p: Proportion) => (p.n === 0 ? "—" : `${p.k}/${p.n}`);
+  row("needles with their response on record", (s) => count(s.responsesRecorded));
+  row("deqi recorded without evidence of it (of needles recorded as deqi)", (s) => count(s.deqiOverclaimed));
   row("teaching-mode assistance (episodes)", (s) => String(s.assistance.teachingMode));
   lines.push("", "## Tracks (mean item score)", "", "| track | dev | held-out | all |", "|---|---|---|---|");
   for (const t of ["reasoning", "localisation", "procedure", "collaboration", "followUp"] as const) row(t, (s) => num(s.tracks[t]));

@@ -1,7 +1,7 @@
 {
   "schema": "acucraft/family@1",
   "id": "sg-tension-headache",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "title": "Headaches · 29-year-old woman",
   "summary": "A 29-year-old accountant with frequent headaches asks whether acupuncture could help.",
   "condition": "tension-type-headache",

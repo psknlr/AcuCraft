@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { ConditionSchema, type Condition } from "@clinicalcraft/core";
 import { ActionRequestSchema, DispositionSchema, ExplanationTopicSchema, TaskKindSchema, type Disposition } from "./actions.js";
-import { ChartPointSchema, DateSchema, IdSchema, PositionSchema, ReviewSchema, SemverSchema, SeveritySchema, SideSchema, type Position } from "./common.js";
+import { ChartPointSchema, DateSchema, IdSchema, PositionSchema, ReviewSchema, SemverSchema, SeveritySchema, SideSchema, SourceRefSchema, type Position } from "./common.js";
 
 /**
  * The acupuncture field of a scenario — `acucraft/field@1`: everything about the encounter that a ClinicalCraft case
@@ -39,7 +39,7 @@ export const UNSAFE_CODES = [
 export const UnsafeCodeSchema = z.enum(UNSAFE_CODES);
 export type UnsafeCode = z.infer<typeof UnsafeCodeSchema>;
 
-export const FEEDBACK_KINDS = ["prick", "deqi", "dull-ache", "sharp-pain", "electric-sensation", "bruising", "bleeding", "faint", "nausea", "anxiety", "relief", "worse"] as const;
+export const FEEDBACK_KINDS = ["prick", "deqi", "dull-ache", "sharp-pain", "electric-sensation", "too-strong", "bruising", "bleeding", "faint", "nausea", "anxiety", "relief", "worse"] as const;
 export const FeedbackKindSchema = z.enum(FEEDBACK_KINDS);
 export type FeedbackKind = z.infer<typeof FeedbackKindSchema>;
 
@@ -175,6 +175,8 @@ export const PatientFieldSchema = z
     riskFactors: z.array(IdSchema).default([]),
     /** 0 calm … 1 very anxious. */
     anxiety: z.number().min(0).max(1).default(0.2),
+    /** How readily this patient feels a needle (1 = typical): scales the needle response and what they tolerate. */
+    needleSensitivity: z.number().min(0.5).max(1.5).default(1),
     /** Positions the patient will not take (claustrophobia face down, late pregnancy …), and what they say. */
     declinesPositions: z.array(PositionSchema).default([]),
     declinesPositionText: z.string().default("I'd rather not lie like that."),
@@ -279,6 +281,12 @@ export const EvaluationSchema = z
     pathways: z.array(PathwaySchema).min(1),
     diagnoses: z.object({ expected: z.array(IdSchema).default([]), acceptable: z.array(IdSchema).default([]) }).strict().default({}),
     patterns: z.object({ defensible: z.array(IdSchema).default([]), implausible: z.array(IdSchema).default([]) }).strict().default({}),
+    /**
+     * What each finding of this case shows, in the vocabulary's signs: evidence id (a history item, an examination
+     * finding, or `<investigation>.<phase>` for a record) → sign ids. It links a pattern differentiation to the
+     * evidence it cites (docs/EVIDENCE.md): a finding absent here shows no sign.
+     */
+    signs: z.record(IdSchema, z.array(IdSchema)).default({}),
     /** Red flags present in this scenario (to recognise) and absent ones that must not be invented. */
     redFlags: z.array(z.object({ id: IdSchema, present: z.boolean() }).strict()).default([]),
     points: z
@@ -409,6 +417,14 @@ export const VariantSchema = z
   .strict();
 export type Variant = z.infer<typeof VariantSchema>;
 
+/** How a sign is found: the four examinations, with the tongue and the pulse named apart. */
+export const SIGN_METHODS = ["inquiry", "inspection", "tongue", "pulse", "palpation", "listening"] as const;
+
+/** Qualities of what a patient feels at a needle (`deqi: true` — one of the sensations of deqi; false — not deqi). */
+export const NEEDLE_SENSATIONS = ["aching", "numbness", "heaviness", "distension", "warmth", "spreading", "sharp-pain", "burning", "electric"] as const;
+export const NeedleSensationSchema = z.enum(NEEDLE_SENSATIONS);
+export type NeedleSensation = z.infer<typeof NeedleSensationSchema>;
+
 export const VocabularySchema = z
   .object({
     schema: z.literal(VOCABULARY_SCHEMA_ID),
@@ -416,10 +432,62 @@ export const VocabularySchema = z
     version: SemverSchema,
     review: ReviewSchema,
     diagnoses: z.array(z.object({ id: IdSchema, label: z.string() }).strict()).min(1),
-    patterns: z.array(z.object({ id: IdSchema, label: z.string(), zh: z.string().optional() }).strict()).min(1),
+    /**
+     * Signs: what a finding of the consultation or the examination shows, in the terms pattern differentiation
+     * uses (worse in cold and damp, a pale tongue, a wiry pulse). Public knowledge: which finding of a case shows
+     * which sign is the scenario's own, hidden interpretation (`evaluation.signs`).
+     */
+    signs: z.array(z.object({ id: IdSchema, label: z.string(), zh: z.string().optional(), method: z.enum(SIGN_METHODS) }).strict()).default([]),
+    patterns: z
+      .array(
+        z
+          .object({
+            id: IdSchema,
+            label: z.string(),
+            zh: z.string().optional(),
+            /**
+             * What the pattern is recognised by, in the vocabulary's signs: `key` — its defining manifestations;
+             * `supporting` — what goes with it (tongue, pulse, general signs); `against` — what speaks against it.
+             * A pattern without criteria cannot be linked to evidence: it goes to review.
+             */
+            criteria: z.object({ key: z.array(IdSchema).default([]), supporting: z.array(IdSchema).default([]), against: z.array(IdSchema).default([]) }).strict().optional(),
+          })
+          .strict(),
+      )
+      .min(1),
+    /**
+     * When a differentiation rests on its evidence: the findings it cites show at least `key` of the pattern's key
+     * signs and `total` of its signs in all, and the findings obtained do not show `against` of the signs that speak
+     * against it. `sources`: where the criteria come from.
+     */
+    differentiation: z
+      .object({
+        key: z.number().int().min(0).default(1),
+        total: z.number().int().min(1).default(3),
+        /** A differentiation is contradicted when the findings obtained show this many signs that speak against the pattern. */
+        against: z.number().int().min(1).default(2),
+        note: z.string().optional(),
+        sources: z.array(SourceRefSchema).default([]),
+      })
+      .strict()
+      .default({}),
+    /** What a patient may feel at a needle, and which of it is deqi. */
+    sensations: z.array(z.object({ id: NeedleSensationSchema, label: z.string(), zh: z.string().optional(), deqi: z.boolean() }).strict()).default([]),
+    /** Deqi: what it is, what counts as evidence of it, and where that comes from. */
+    deqi: z.object({ definition: z.string(), evidence: z.string(), sources: z.array(SourceRefSchema).default([]) }).strict().optional(),
     redFlags: z.array(z.object({ id: IdSchema, label: z.string() }).strict()).min(1),
   })
-  .strict();
+  .strict()
+  .superRefine((v, ctx) => {
+    const signs = new Set(v.signs.map((x) => x.id));
+    v.patterns.forEach((p, i) => {
+      for (const kind of ["key", "supporting", "against"] as const) {
+        for (const id of p.criteria?.[kind] ?? []) if (!signs.has(id)) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["patterns", i, "criteria", kind], message: `unknown sign ${id}` });
+      }
+      const both = (p.criteria?.against ?? []).filter((id) => p.criteria!.key.includes(id) || p.criteria!.supporting.includes(id));
+      if (both.length > 0) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["patterns", i, "criteria", "against"], message: `${both.join(", ")} cannot count both for and against the pattern` });
+    });
+  });
 export type Vocabulary = z.infer<typeof VocabularySchema>;
 
 export { SeveritySchema };

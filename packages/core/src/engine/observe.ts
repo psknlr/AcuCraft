@@ -2,7 +2,8 @@ import { t } from "@clinicalcraft/core";
 import type { PointRef } from "../schema/actions.js";
 import type { EncounterState } from "../schema/state.js";
 import { pointInstance, regionAccess } from "./anatomy.js";
-import { consentCovers, currentPlan, currentVisit, fmt, needleList, now, parseRef, refKey, visitIndex } from "./queries.js";
+import { consentCovers, currentPlan, currentVisit, fellUnseen, fmt, needleList, now, parseRef, refKey, visitIndex } from "./queries.js";
+import { needleEvidence, recordEvidenceId } from "./evidence.js";
 import { ACTION_PERMISSIONS } from "./rules.js";
 import { LOCALE } from "./runtime.js";
 import { clinicWorld, modelledRegions, roleOf, type Scenario } from "./scenario.js";
@@ -17,7 +18,7 @@ import { speakerLabel } from "./encounter.js";
  * findings not yet examined and patient-specific geometry are not in it. Teaching mode adds anatomical overlays.
  */
 
-export const VIEW_SCHEMA_ID = "acucraft/view@1" as const;
+export const VIEW_SCHEMA_ID = "acucraft/view@2" as const;
 
 export interface AgentView {
   schema: typeof VIEW_SCHEMA_ID;
@@ -71,14 +72,38 @@ export interface AgentView {
     reachable: { region: string; sides: string[]; configuration: string }[];
   };
   conversation: { minute: number; speaker: string; to: string | null; text: string }[];
+  /**
+   * What has been obtained so far — the evidence of this encounter. Every item has an id: a pattern differentiation
+   * (`assess.patternEvidence`) names the ids it rests on, and only what is listed here can be named.
+   */
   record: {
-    history: { question: string; answer: string }[];
-    examination: { manoeuvre: string; finding: string }[];
-    results: string[];
-    vitals: { minute: number; vitals: Record<string, number | string> }[];
+    history: { id: string; question: string; answer: string }[];
+    examination: { id: string; manoeuvre: string; finding: string }[];
+    results: { id: string; text: string }[];
+    vitals: { id: string; minute: number; vitals: Record<string, number | string> }[];
+    /** What was seen of the patient (`observe`). */
+    observations: { id: string; minute: number; text: string }[];
     sites: string[];
     tenderPoints: { id: string; label: string; region: string; side: string; centre: { u: number; v: number }; radiusCm: number }[];
   };
+  /** The latest assessment on record, with the evidence its pattern differentiation names. */
+  assessment: { minute: number; diagnoses: string[]; pattern: string | null; patternEvidence: string[]; redFlags: string[] } | null;
+  /**
+   * The needles of this visit and the evidence of each one's response: what the patient said they feel there (asked
+   * with `check_sensation`, or said unasked) and what the operator felt on working it. A recorded response
+   * (`document`: needling.responses) names evidence of that needle; a needle with none has no response on record —
+   * not a normal one.
+   */
+  needling: {
+    needle: string;
+    target: string;
+    inPlace: boolean;
+    /** Times the needle has been worked (lift-thrust or rotation). */
+    manipulations: number;
+    evidence: { id: string; minute: number; from: "patient" | "operator"; text: string; qualities: string[]; grasp: boolean | null; unasked: boolean }[];
+    /** The response on record for it (`deqi`, `none`, `not-sought`), if any. */
+    recorded: string | null;
+  }[];
   localisation: {
     landmarks: { region: string; side: string; landmark: string; u: number; v: number; configuration: string }[];
     measurements: { region: string; side: string; what: string; cm: number }[];
@@ -114,12 +139,12 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
     return ok.length > 0 ? [{ region: regionId, sides: ok, configuration: regionAccess(region, ok[0]!, s.patient.position).configuration }] : [];
   });
 
-  const results: string[] = [];
+  const results: AgentView["record"]["results"] = [];
   for (const key of s.clinical.seen) {
     const [id, phase] = key.split("@");
     const inv = sc.case.investigations.find((i) => i.id === id);
     const r = inv?.results[phase ?? ""];
-    if (inv && r) results.push(`${t(inv.name, LOCALE)}${r.date ? ` (${t(r.date, LOCALE)})` : ""}: ${t(r.text, LOCALE)}`);
+    if (inv && r) results.push({ id: recordEvidenceId(inv.id, phase ?? ""), text: `${t(inv.name, LOCALE)}${r.date ? ` (${t(r.date, LOCALE)})` : ""}: ${t(r.text, LOCALE)}` });
   }
 
   const where = (n: (typeof s.needles)[string]): string => {
@@ -235,13 +260,35 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
       .slice(-30)
       .map((u) => ({ minute: Math.round(u.at * 100) / 100, speaker: speakerLabel(sc, u.speaker), to: u.to ? speakerLabel(sc, u.to) : null, text: u.text })),
     record: {
-      history: s.clinical.asked.map((id) => sc.case.history.find((h) => h.id === id)).filter((h) => h !== undefined).map((h) => ({ question: t(h.question, LOCALE), answer: t(h.answer, LOCALE) })),
-      examination: s.clinical.examined.map((id) => sc.case.exam.find((e) => e.id === id)).filter((e) => e !== undefined).map((e) => ({ manoeuvre: t(e.maneuver, LOCALE), finding: t(e.finding, LOCALE) })),
+      history: s.clinical.asked.map((id) => sc.case.history.find((h) => h.id === id)).filter((h) => h !== undefined).map((h) => ({ id: h.id, question: t(h.question, LOCALE), answer: t(h.answer, LOCALE) })),
+      examination: s.clinical.examined.map((id) => sc.case.exam.find((e) => e.id === id)).filter((e) => e !== undefined).map((e) => ({ id: e.id, manoeuvre: t(e.maneuver, LOCALE), finding: t(e.finding, LOCALE) })),
       results,
-      vitals: s.vitalsLog.slice(-3).map((v) => ({ minute: v.at, vitals: v.vitals })),
+      vitals: s.vitalsLog.slice(-3).map((v) => ({ id: v.id, minute: v.at, vitals: v.vitals })),
+      observations: s.evidence.filter((e) => e.kind === "observation").slice(-3).map((e) => ({ id: e.id, minute: round2(e.at), text: e.text })),
       sites: sc.field.patient.siteConditions.filter((c) => s.revealedConditions.includes(c.id)).map((c) => `${c.label} (${c.region}, ${c.side}${c.centre ? `, around u=${fmt(c.centre.u)}, v=${fmt(c.centre.v)}, radius ${fmt(c.radiusCm ?? 0)} cm` : ""})`),
       tenderPoints: sc.field.patient.ashi.filter((a) => s.revealedAshi.includes(a.id)).map((a) => ({ id: a.id, label: a.label, region: a.region, side: a.side, centre: a.centre, radiusCm: a.radiusCm })),
     },
+    assessment: (() => {
+      const a = s.assessments[s.assessments.length - 1];
+      return a ? { minute: round2(a.at), diagnoses: [...a.diagnoses], pattern: a.pattern, patternEvidence: [...a.patternEvidence], redFlags: [...a.redFlags] } : null;
+    })(),
+    needling: needleList(s)
+      .filter((n) => n.insertion?.visit === visit.index)
+      .map((n) => {
+        const placed = n.events.find((e) => e.what === "inserted")?.detail;
+        let recorded: string | null = null;
+        for (const d of s.documents) recorded = d.record.needling?.responses?.find((x) => x.needle === n.id)?.response ?? recorded;
+        return {
+          needle: n.id,
+          // the target the operator named, as elsewhere in the view: never the point the entry is judged to lie on
+          target: placed ? label(parseRef(placed)) : `${n.insertion!.region} ${n.insertion!.side}`,
+          // a needle that fell out unseen is still taken to be in place (as in `equipment`) until someone finds it
+          inPlace: n.location.kind === "patient" || fellUnseen(n),
+          manipulations: n.response?.manipulations ?? 0,
+          evidence: needleEvidence(s, n.id).map((e) => ({ id: e.id, minute: round2(e.at), from: e.kind === "needle-feel" ? ("operator" as const) : ("patient" as const), text: e.text, qualities: [...(e.needle?.qualities ?? [])], grasp: e.needle?.grasp ?? null, unasked: e.needle?.volunteered ?? false })),
+          recorded,
+        };
+      }),
     localisation: {
       landmarks: s.landmarks.filter((l) => l.visit === visit.index).map((l) => ({ region: l.region, side: l.side, landmark: l.landmark, u: round2(l.position.u), v: round2(l.position.v), configuration: l.configuration })),
       measurements: s.measurements.filter((m) => m.visit === visit.index).map((m) => ({ region: m.region, side: m.side, what: m.what, cm: round2(m.cm) })),
@@ -336,7 +383,17 @@ export function referenceLibrary(sc: Scenario) {
   return {
     points,
     regions,
-    vocabulary: { diagnoses: sc.bundle.vocabulary.diagnoses, patterns: sc.bundle.vocabulary.patterns, redFlags: sc.bundle.vocabulary.redFlags },
+    // the terms of assessment, with what links its two TCM conclusions to evidence: the signs each pattern is recognised
+    // by, and what counts as deqi and as evidence of it. Which finding of a case shows which sign is never here.
+    vocabulary: {
+      diagnoses: sc.bundle.vocabulary.diagnoses,
+      patterns: sc.bundle.vocabulary.patterns,
+      signs: sc.bundle.vocabulary.signs,
+      differentiation: sc.bundle.vocabulary.differentiation,
+      sensations: sc.bundle.vocabulary.sensations,
+      deqi: sc.bundle.vocabulary.deqi ?? null,
+      redFlags: sc.bundle.vocabulary.redFlags,
+    },
     clinic: { rooms: sc.clinic.rooms, supplies: sc.clinic.supplies, referralTargets: sc.clinic.referralTargets, floorPlan: floorPlan(sc) },
     roles: sc.roles.roles.map((r) => ({ id: r.id, label: r.label, kind: r.kind, registration: r.registration, grants: r.grants, acceptsTasks: r.acceptsTasks })),
     rules: [...sc.rules.entries()].map(([visit, sets]) => ({ visit, sets: sets.map((r) => ({ id: r.id, title: r.title, version: r.version, effectiveFrom: r.effectiveFrom, encoding: r.encoding, source: r.source, rules: r.rules.map((x) => ({ id: x.id, title: x.title, summary: x.summary, severity: x.severity, enforcement: x.enforcement })) })) })),

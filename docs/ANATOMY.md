@@ -126,7 +126,12 @@ less its radius and the needle's; contact is clearance ≤ 0, `near` within the 
 
 With the guard on (`block-critical`), a path that reaches a critical structure or the pleura is refused before the
 needle touches the skin — the needle stays unused and sterile in the hand — and the attempt is recorded as an unsafe,
-blocked act. Manipulation (`adjust_needle` with a technique) with the tip in muscle or fascia produces deqi.
+blocked act.
+
+How the tissue answers a needle — whether qi arrives — is read from the same path: the tissue the tip lies in, the
+stimulation the needle has had, a nerve or tendon the shaft meets. A tip still in the subcutaneous layer is not helped
+by working the needle harder. That model, and how a recorded response is tied to what was observed at the needle, is
+in [EVIDENCE.md](EVIDENCE.md) §3.
 
 ## 6. Head and face
 

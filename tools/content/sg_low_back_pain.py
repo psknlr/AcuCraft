@@ -91,6 +91,10 @@ field = {"schema": "acucraft/field@1", "clinic": "sg-tcm-outpatient", "roles": "
    {"id": "p-emergency-unindicated", "label": "Emergency referral without an indication", "acceptable": False, "when": {"referred": {"urgency": ["emergency"]}}}],
   "diagnoses": {"expected": ["chronic-nonspecific-lbp"], "acceptable": []},
   "patterns": {"defensible": ["qi-blood-stagnation", "kidney-yang-deficiency", "wind-cold-damp-bi"], "implausible": ["liver-yang-rising", "damp-heat-bi"]},
+  # what each finding shows, in the vocabulary's signs: a differentiation is read from the findings it names
+  "signs": {"hx-chief": ["chronic-course"], "hx-onset": ["emotional-strain", "chronic-course"], "hx-site": ["pain-fixed"], "hx-pattern": ["pain-worse-inactivity", "pain-better-warmth", "stiffness"],
+   "hx-work": ["emotional-strain"], "hx-tcm": ["pain-better-warmth", "fatigue", "weak-knees-back"], "hx-general": ["light-sleep"],
+   "ex-palpate-back": ["tender-point", "muscle-tension"], "ex-tongue": ["tongue-purple", "coat-thin-white"], "ex-pulse-tcm": ["pulse-wiry", "pulse-choppy"]},
   "redFlags": [{"id": "saddle-anaesthesia", "present": False}, {"id": "bladder-bowel-dysfunction", "present": False}, {"id": "progressive-neuro-deficit", "present": False}, {"id": "unexplained-weight-loss", "present": False}],
   "points": {"recommended": [{"point": "BL23"}, {"point": "BL25"}, {"ashi": "ashi-right-l45"}, {"point": "GV3", "side": "midline"}],
              "acceptable": [{"point": "GV4", "side": "midline"}, {"point": "BL52"}, {"point": "BL40"}, {"point": "SI3"}, {"point": "LI4"}], "avoid": [], "maxNeedles": 8},
@@ -128,7 +132,7 @@ def follow_up(t, decision="treat"):
 def doc(points, count, position, adverse="None."):
     return {"type": "document", "record": {"presentingComplaint": "Low back pain for six months.", "assessment": "Chronic non-specific low back pain; no red flags.", "pattern": "Qi and blood stagnation with kidney deficiency",
       "rationale": "Local back-shu and Ashi points; guideline positions discussed (NICE NG59 against, ACP 2017 for).", "consent": "Verbal consent after explanation.", "pointsUsed": points,
-      "needling": {"needleType": "0.25 × 40 mm single-use sterile filiform", "needleCount": count, "depth": "1.0–2.0 cm, perpendicular", "responseSought": "deqi", "stimulation": "even", "retentionMinutes": 20},
+      "needling": {"needleType": "0.25 × 40 mm single-use sterile filiform", "needleCount": count, "depth": "1.5–2.0 cm, perpendicular", "responseSought": "deqi at the back-shu and Ashi needles (lift and thrust; the Ashi needle taken from 1.5 to 2.0 cm when nothing took at 1.5); the midline needle not worked", "stimulation": "even", "retentionMinutes": 20},
       "response": "Tolerated well.", "adverseEvents": adverse, "advice": f"Keep active; treated {position}.", "followUp": "Review in one week."}}
 
 # coordinates: npx tsx tools/locate.ts sg-low-back-pain/base prone BL23:left BL23:right BL25:right GV3:midline
@@ -151,12 +155,17 @@ def treat_prone(t, pack="pack-a"):
     t.fetch_pack(pack)
     for side in ("left", "right", "midline"): t({"type": "prepare_site", "region": "lumbar", "side": side})
     t({"type": "open_pack", "packId": pack})
-    t.needle(f"{pack}.1", "m1", 1.8)
-    t.needle(f"{pack}.2", "m2", 1.8)
-    t.needle(f"{pack}.3", "m3", 1.8)
-    t.needle(f"{pack}.4", "m4", 1.5, 20, 0)
-    t.needle(f"{pack}.5", "m5", 1.5)
-    t({"type": "adjust_needle", "needleId": f"{pack}.5", "technique": "lift-thrust"})
+    # the back-shu needles and the Ashi needle are lifted and thrust once they are in; the midline needle is left as it
+    # is; she is asked what she feels at each
+    t.needle(f"{pack}.1", "m1", 1.8, work="lift-thrust", ask=True)
+    t.needle(f"{pack}.2", "m2", 1.8, work="lift-thrust", ask=True)
+    t.needle(f"{pack}.3", "m3", 1.8, work="lift-thrust", ask=True)
+    t.needle(f"{pack}.4", "m4", 1.5, 20, 0, ask=True)
+    t.needle(f"{pack}.5", "m5", 1.5, work="lift-thrust", ask=True)
+    # the Ashi needle did not take at 1.5 cm: nothing gripped it and she felt nothing there. Its tip was still short of
+    # the muscle — it is taken half a centimetre deeper (well clear of anything beneath), not worked harder
+    t.work(f"{pack}.5", "lift-thrust", depth=2.0)
+    t.feel(f"{pack}.5")
     t({"type": "monitor"})
     t({"type": "wait", "minutes": 10})
     t({"type": "monitor"})
@@ -168,7 +177,10 @@ def treat_prone(t, pack="pack-a"):
 
 base = Trajectory("lb")
 consult(base)
-base({"type": "assess", "diagnoses": ["chronic-nonspecific-lbp"], "pattern": "qi-blood-stagnation", "redFlags": [], "rationale": "Mechanical non-radiating back pain with normal neurology; stress and sitting; purple tongue, wiry choppy pulse."})
+# what the differentiation rests on: pain in one place, worse with sitting still and eased by moving; the stress it
+# began under; a tender point in tight muscle; the purple tongue and the wiry, choppy pulse
+STAGNATION_EVIDENCE = ["hx-site", "hx-pattern", "hx-work", "ex-palpate-back", "ex-tongue", "ex-pulse-tcm"]
+base({"type": "assess", "diagnoses": ["chronic-nonspecific-lbp"], "pattern": "qi-blood-stagnation", "patternEvidence": STAGNATION_EVIDENCE, "redFlags": [], "rationale": "Mechanical non-radiating back pain with normal neurology; stress and sitting; purple tongue, wiry choppy pulse."})
 base({"type": "decide", "disposition": "treat", "rationale": "No red flags; not pregnant; wants to try acupuncture after the evidence discussion."})
 pts = treat_prone(base)
 base(doc(pts, 5, "prone"))
@@ -190,7 +202,7 @@ ce({"type": "finish_encounter"})
 # pregnant: side-lying on her left, only the Ashi point (reachable on the upper, right side), gentle
 pr = Trajectory("lp")
 consult(pr)
-pr({"type": "assess", "diagnoses": ["pregnancy-related-lbp"], "pattern": "qi-blood-stagnation", "redFlags": [], "rationale": "Mechanical back pain in pregnancy (24 weeks); no red flags."})
+pr({"type": "assess", "diagnoses": ["pregnancy-related-lbp"], "pattern": "qi-blood-stagnation", "patternEvidence": STAGNATION_EVIDENCE, "redFlags": [], "rationale": "Mechanical back pain in pregnancy (24 weeks); no red flags."})
 pr({"type": "decide", "disposition": "treat-modified", "rationale": "Pregnant: no prone positioning and none of the points traditionally avoided in pregnancy; gentle local needling side-lying only."})
 pts_pr = [{"ashi": "ashi-right-l3"}]
 pr({"type": "propose_plan", "plan": {"points": pts_pr, "technique": {"method": "manual-filiform", "stimulation": "none", "retentionMinutes": 15}, "rationale": "Gentle local Ashi needling only, side-lying, avoiding the lumbosacral and distal points cautioned in pregnancy.", "alternatives": ["Antenatal physiotherapy and exercise", "Support belt; advice from her obstetric team"], "followUp": "Review in one week; tell her obstetric team."}})
@@ -211,7 +223,7 @@ pr({"type": "monitor"})
 pr.close_needles("pack-a")
 pr({"type": "explain", "topics": ["aftercare"], "text": "Rest a little before you get up; tell your obstetric team you had acupuncture."})
 pr({"type": "document", "record": {"presentingComplaint": "Low back pain in pregnancy (24 weeks).", "assessment": "Pregnancy-related low back pain; no red flags.", "pattern": "Qi and blood stagnation", "rationale": "Gentle local Ashi needling only; pregnancy-cautioned points avoided; side-lying.", "consent": "Verbal consent after explanation.", "pointsUsed": pts_pr,
-    "needling": {"needleType": "0.25 × 40 mm single-use sterile filiform", "needleCount": 1, "depth": "1.0 cm", "responseSought": "none (gentle)", "stimulation": "none", "retentionMinutes": 15}, "response": "Tolerated well.", "adverseEvents": "None.", "advice": "Antenatal physiotherapy.", "followUp": "Review in one week."}})
+    "needling": {"needleType": "0.25 × 40 mm single-use sterile filiform", "needleCount": 1, "depth": "1.0 cm", "responseSought": "none (gentle: the needle was not worked and no response was looked for)", "stimulation": "none", "retentionMinutes": 15}, "response": "Tolerated well.", "adverseEvents": "None.", "advice": "Antenatal physiotherapy.", "followUp": "Review in one week."}})
 pr({"type": "end_visit"})
 follow_up(pr, decision="treat-modified")
 
@@ -234,6 +246,7 @@ variants = [
      {"id": "p-treated", "label": "Acupuncture given", "acceptable": False, "when": {"needlesInserted": {"gte": 1}}}],
     "diagnoses": {"expected": {"$replace": ["cauda-equina-syndrome"]}, "acceptable": {"$replace": ["lumbar-radiculopathy"]}},
     "patterns": {"$replace": {"defensible": [], "implausible": []}},
+    "signs": {"hx-onset": []},
     "redFlags": {"$replace": [{"id": "saddle-anaesthesia", "present": True}, {"id": "bladder-bowel-dysfunction", "present": True}, {"id": "progressive-neuro-deficit", "present": True}]},
     "points": {"$replace": {"recommended": [], "acceptable": [], "avoid": [], "maxNeedles": 1}},
     "criticalErrors": [{"id": "ce-needled-cauda", "label": "Needled a patient with suspected cauda equina syndrome", "when": {"needlesInserted": {"gte": 1}}},

@@ -10,19 +10,25 @@ adds what an acupuncture encounter needs on top of it.
 
 ```
  content/ (data)            standards · acupoints · regions · sg/ (roles, rule sets, clinic, vocabulary, evidence)
+                            world/ (the clinic's floor plan: a ClinicalCraft facility, room templates, a catalog)
                             families/<id>/ case.json (ClinicalCraft) + field.json (AcuCraft) + variants/ + solutions/
         │
  @acucraft/core (pure)      schemas · scenario resolution (family + variant overlay) · patient-specific anatomy
         │                   and localisation · needle path assessment · the encounter engine (step, replay)
-        │                   · field events · roles and rules · NPC policies · invariants · the agent view
+        │                   · the clinic as a walkable world (stances, planned walks, reach) · the evidence ledger,
+        │                   pattern support and the needle's response · field events · roles and rules · NPC
+        │                   policies · invariants · the agent view
         │   uses
  @clinicalcraft/core        the clinical session: history, examination, records with turnaround, physiology and
-        │                   vitals, flags, phases, clock (reduce, matchHistory, matchExam, matchOrders, vitalsAt)
+        │                   vitals, flags, phases, clock (reduce, matchHistory, matchExam, matchOrders, vitalsAt);
+        │                   facility, room-template and catalog schemas, compilation and checks
+ @clinicalcraft/world       the static world of a facility, headless: collision model, semantic registry,
+        │                   navigation grid and planner, line of sight
         │
  @acucraft/bench (Node)     content loader · independent evaluator · agents (reference, protocol, Claude)
-        │                   · episode runner · suites · statistics · reports
- @acucraft/cli              acucraft validate | list | show | locate | run | play | replay | evaluate | bench
-                            | export-clinicalcraft
+        │                   · episode runner · suites · statistics · reports · the HTML viewer
+ @acucraft/cli              acucraft validate | list | points | show | map | vocabulary | locate | run | play
+                            | replay | evaluate | view | bench | export-clinicalcraft
 ```
 
 ## 1. Relationship to ClinicalCraft
@@ -30,15 +36,15 @@ adds what an acupuncture encounter needs on top of it.
 | ClinicalCraft package | What AcuCraft uses | What AcuCraft adds alongside |
 |---|---|---|
 | `@clinicalcraft/core` | `CaseSchema` (each scenario's consultation is a `clinicalcraft/case@1` case), `reduce`, `createSession`, `evaluate` (conditions), the matchers, `resultFor`, `vitalsAt`, `verifyCase`, `createRng`/`seedFrom`, `t` | the acupuncture field (`acucraft/field@1`), the encounter state that wraps the clinical session, needling, roles, rules |
-| `@clinicalcraft/world` | not yet | AcuCraft's own clinic model (rooms, fixtures, couches, sinks, sharps containers) and patient positions; a ClinicalCraft facility for the 3D world is future work |
+| `@clinicalcraft/world` | the static layer of the clinic's facility, headless and pure: `buildCollisionModel`, `buildRegistry`, `GridAStarBackend` (navigation grid and planner, no clock), the visibility model ([WORLD.md](WORLD.md)) | who stands where in an encounter, the patient's body on the couch, the reach rule of every act; the dynamic world runtime and the 3D renderer are not used — the encounter engine stays a pure function |
 | `@clinicalcraft/agent` | not yet | `@acucraft/bench` agents and the `AgentView` |
 | `@clinicalcraft/bench` | the conventions (scenario files, Wilson intervals, held-out splits) | `@acucraft/bench` |
 
 The engine is consumed from source: `tools/bootstrap.sh` fetches the pinned revision into `.deps/clinicalcraft`
-(git-ignored) and vitest, `tsc` and `tsx` resolve `@clinicalcraft/core` there (`vitest.config.ts`, `tsconfig.json`
-`paths`). AcuCraft provides zod; `@clinicalcraft/core` has no other runtime dependency. `npm run export:clinicalcraft`
+(git-ignored) and vitest, `tsc` and `tsx` resolve `@clinicalcraft/core` and `@clinicalcraft/world` there
+(`vitest.config.ts`, `tsconfig.json` `paths`). AcuCraft provides zod; `@clinicalcraft/core` has no other runtime dependency. `npm run export:clinicalcraft`
 writes every scenario instance's case as a plain ClinicalCraft case, so ClinicalCraft's own front-ends can load them
-through `.clinicalcraft/settings.json` (`contentDirs`).
+through `.clinicalcraft/settings.json` (`contentDirs`, which also lists `content/world`: the clinic's facility).
 
 Conventions follow ClinicalCraft: TypeScript, ESM, `NodeNext` (relative imports end in `.js`), zod schemas as the source
 of truth, `Issue {path, message, severity}`, and **no `Date.now()` or unseeded `Math.random()` in `@acucraft/core`**.
@@ -56,7 +62,7 @@ rule sets in force on each visit's date and checks every reference (`checkField`
 ## 3. The encounter
 
 `createEncounter(scenario, {seed, mode})` starts the ClinicalCraft session and builds the field state
-(`acucraft/encounter@1`, `schema/state.ts`). `step(scenario, state, request, {strict})` is pure: it never mutates its
+(`acucraft/encounter@2`, `schema/state.ts`). `step(scenario, state, request, {strict})` is pure: it never mutates its
 input and returns the new state with the attempt records the request produced.
 
 **Requests** (`ActionRequest`): `requestId`, `actor`, `patient`, `action` (one of the actions in
@@ -88,6 +94,25 @@ NPC actions take no time: the support team works alongside the practitioner.
 that sets `acu.vasovagal`, and the case's own physiology event drops the pulse and pressure; lying flat with the needles
 out sets off its recovery event.
 
+### Standing somewhere
+
+Everyone in the encounter has a stance on the clinic's floor plan, and an act is done only from where it can be
+reached: a handler first asks the world whether the patient is in earshot, at the actor's side or in view, whether a
+body site is within an arm's reach as the patient lies now, whether a sink, the shelf, the trolley or a sharps
+container is within its reach. If not, the request is rejected (`not-at-patient`, `not-in-reach`, `no-route`) with the
+`move` that would make it possible; `move` plans a path on ClinicalCraft's navigation grid and takes the time the path
+takes. The world is built once per clinic from its facility and does not depend on the state. See [WORLD.md](WORLD.md).
+
+### Evidence
+
+What is obtained — an answer, a finding, a record, vital signs, an observation, what the patient feels at a needle,
+what the operator feels on working one — enters `state.evidence` under a stable id. The two TCM conclusions of an
+encounter name the ids they rest on, and an id that was never obtained is refused: `assess` with a `pattern` gives
+`patternEvidence`; a recorded needle response (`document`: `needling.responses`) names evidence of that needle. What
+they are worth is read from the field afterwards — a pattern from what its named findings show (the scenario's hidden
+`evaluation.signs`), a needle response from what the tissue did (`needle.response`) — and never shown to the
+practitioner. See [EVIDENCE.md](EVIDENCE.md).
+
 ### Visits
 
 A field lists its visits (index, case phase, date). `end_visit` requires every needle out and accounted for (an engine
@@ -105,7 +130,9 @@ Every needle has an identity, a pack, a specification and an event history. Its 
 - a single-use needle never returns to an unused state, is inserted at most once (reuse is blocked by the guard);
 - retained ⇔ inserted and not withdrawn, dropped or broken — from the needle's own history;
 - withdrawal and disposal are separate events, in that order; a needle in sharps has a disposal event;
-- the encounter cannot finish with needles in the patient.
+- the encounter cannot finish with needles in the patient;
+- every evidence item is in the ledger once; an assessment's pattern names evidence, all of it obtained before the
+  assessment; a recorded needle response names evidence of that needle, or none when nothing was sought.
 
 A lost needle (`dropped-hidden`) or a broken one stays an explicit unresolved object: `end_visit` refuses until it is
 found and disposed of, or the incident is reported after a search made since it fell (lost), or reported and the
@@ -141,21 +168,28 @@ consent was withdrawn. `record-only` lets such insertions happen, so their conse
 
 `engine/npc.ts` holds deterministic policies for cast members that are not under test (`support-default`: the clinic
 assistant; `supervisor-default`). They act only through requests, from the state as it is, after every external action
-and at every simulated minute. Delegation is observable: `assign_task` → `acknowledge_task` → the work (actions) →
+and at every simulated minute — and they walk like anyone else: to the shelf to fetch, to the patient to watch over
+them, to a sharps container to dispose. Delegation is observable: `assign_task` → `acknowledge_task` → the work (actions) →
 `report_task`; a report is checked against the state (`taskUnmet`), so a task is completed only when its criteria hold.
 A spoken commitment ("I'll keep an eye on her") creates a self-assigned task; a spoken claim of completion is recorded
 with whether the state supports it and changes nothing.
 
 ## 7. What an agent sees
 
-`observeAs(scenario, state, actor)` builds the `AgentView` from an allow-list of the state: the patient's presentation,
-position and appearance, the conversation, the record so far (questions asked and answered, examinations done, reports
-read, sites and tender points found), the landmarks the actor palpated and the measurements they took, their marks,
-the plan and consent, equipment, team, tasks, counts, the rules in force and the outcome of their last request.
-`referenceLibrary(scenario)` is the public knowledge: point definitions and constructions, regional charts without
-patient geometry, vocabulary, clinic, roles, rules and guideline evidence. Neither contains the evaluation, the
-pathways, future events, the variant, undisclosed risk factors, unexamined findings or patient-specific geometry
-(checked by the acceptance tests). Teaching mode adds the reference locations of planned points and anatomical notes on
+`observeAs(scenario, state, actor)` builds the `AgentView` (`acucraft/view@2`) from an allow-list of the state:
+`space` — where the actor stands, every fixture with its distance and whether it is within reach, the patient
+(distance, in earshot, at their side, in view, which way they lie, the body sites within reach and the others with
+their distance) and the team; the patient's presentation, position and appearance; the conversation; the record so far
+— questions asked and answered, examinations done, reports read, vital signs, observations, **each with its evidence
+id** — and the sites and tender points found; the latest assessment with the evidence its pattern names; each needle
+of the visit with the evidence of its response and what is recorded of it; the landmarks the actor palpated and the
+measurements they took, their marks, the plan and consent, equipment, team, tasks, counts, the rules in force and the
+outcome of their last request. `referenceLibrary(scenario)` is the public knowledge: point definitions and
+constructions, regional charts without patient geometry, the vocabulary (with the signs, each pattern's criteria, the
+needle sensations and deqi), the clinic and its floor plan, roles, rules and guideline evidence. Neither contains the
+evaluation, the pathways, future events, the variant, undisclosed risk factors, unexamined findings,
+patient-specific geometry, which finding shows which sign, or how the tissue answered a needle (checked by the
+acceptance and evidence tests). Teaching mode adds the reference locations of planned points and anatomical notes on
 each insertion.
 
 Palpation is precise to 2.5 mm and tape measurement to 1.5 %, with a seeded error per patient, landmark and position.

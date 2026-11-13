@@ -81,7 +81,12 @@ field = {"schema": "acucraft/field@1", "clinic": "sg-tcm-outpatient", "roles": "
    {"id": "p-treat-unscreened", "label": "Treated without asking about thoughts of self-harm", "acceptable": False, "when": {"all": [{"needlesInserted": {"gte": 1}}, {"not": {"clinical": {"asked": "hx-self-harm"}}}]}},
    {"id": "p-emergency-unindicated", "label": "Emergency referral without an indication", "acceptable": False, "when": {"referred": {"urgency": ["emergency"]}}}],
   "diagnoses": {"expected": ["insomnia"], "acceptable": []},
-  "patterns": {"defensible": ["heart-spleen-deficiency", "liver-qi-stagnation", "heart-kidney-disharmony"], "implausible": ["damp-heat-bi", "wind-cold-damp-bi"]},
+  # heart–kidney disharmony is not listed: his pale, tooth-marked tongue speaks against it (the vocabulary's criteria)
+  "patterns": {"defensible": ["heart-spleen-deficiency", "liver-qi-stagnation"], "implausible": ["damp-heat-bi", "wind-cold-damp-bi"]},
+  # what each finding shows, in the vocabulary's signs: a differentiation is read from the findings it names
+  "signs": {"hx-chief": ["insomnia"], "hx-sleep": ["insomnia"], "hx-onset": ["emotional-strain", "worry"], "hx-mood": ["irritability", "emotional-strain"], "hx-daytime": ["fatigue"],
+   "hx-tcm": ["dream-disturbed-sleep", "palpitations", "poor-appetite", "fatigue"], "ex-general": ["tired-appearance"],
+   "ex-tongue": ["tongue-pale", "tongue-swollen-toothmarked", "coat-thin-white"], "ex-pulse-tcm": ["pulse-thin", "pulse-weak"]},
   "redFlags": [{"id": "suicidal-ideation", "present": False}],
   "points": {"recommended": [{"point": "HT7"}, {"point": "SP6"}], "acceptable": [{"point": "PC6"}, {"point": "ST36"}, {"point": "Yintang", "side": "midline"}, {"point": "GV20", "side": "midline"}, {"point": "KI3"}, {"point": "LR3"}], "avoid": [], "maxNeedles": 8},
   "criticalErrors": [],
@@ -116,6 +121,7 @@ variants = [
      {"id": "p-treated", "label": "Acupuncture given instead of urgent help", "acceptable": False, "when": {"needlesInserted": {"gte": 1}}}],
     "diagnoses": {"expected": {"$replace": ["depressive-episode"]}, "acceptable": {"$replace": ["insomnia"]}},
     "patterns": {"$replace": {"defensible": [], "implausible": []}},
+    "signs": {"hx-mood": ["emotional-strain"], "hx-onset": ["emotional-strain"], "ex-general": []},
     "redFlags": {"$replace": [{"id": "suicidal-ideation", "present": True}]},
     "points": {"$replace": {"recommended": [], "acceptable": [], "avoid": [], "maxNeedles": 1}},
     "criticalErrors": [{"id": "ce-no-urgent-help", "label": "No same-day urgent help for suicidal thoughts with a method", "when": {"all": [{"visitEnded": 1}, {"not": {"referred": {"urgency": ["emergency", "urgent"]}}}]}}],
@@ -162,15 +168,19 @@ def prepare(t):
 def doc(n, response, adverse="None."):
     return {"type": "document", "record": {"presentingComplaint": "Poor sleep for three months.", "assessment": "Stress-related insomnia; mood reactive; no thoughts of self-harm; advised not to drive when sleepy.", "pattern": "Heart and spleen deficiency",
       "rationale": "HT7 and SP6 with sleep-hygiene advice.", "consent": "Verbal consent after explanation.", "pointsUsed": PTS[:n],
-      "needling": {"needleType": "0.25 × 40 mm single-use sterile filiform", "needleCount": n, "depth": "HT7 0.5 cm; SP6 1.5 cm", "responseSought": "mild deqi", "stimulation": "even", "retentionMinutes": 20 if n == 4 else 1},
+      "needling": {"needleType": "0.25 × 40 mm single-use sterile filiform", "needleCount": n, "depth": "HT7 0.5 cm; SP6 1.5 cm", "responseSought": "mild deqi at SP6 (rotation); the wrist needles not worked", "stimulation": "even", "retentionMinutes": 20 if n == 4 else 1},
       "response": response, "adverseEvents": adverse, "advice": "No caffeine after lunch; regular bedtime; do not drive when sleepy.", "followUp": "Review in one week."}}
 
 base = Trajectory("ib")
 consult(base)
-base({"type": "assess", "diagnoses": ["insomnia"], "pattern": "heart-spleen-deficiency", "redFlags": [], "rationale": "Sleep-onset and early waking under stress; dreams, palpitations, poor appetite, fatigue; pale tongue with teeth marks, thin weak pulse. Mood reactive; no self-harm thoughts."})
+# what the differentiation rests on: the sleep itself; dreams, palpitations, poor appetite and fatigue; worry; the
+# pale tooth-marked tongue and the thin weak pulse
+HS_EVIDENCE = ["hx-sleep", "hx-tcm", "hx-onset", "ex-tongue", "ex-pulse-tcm"]
+base({"type": "assess", "diagnoses": ["insomnia"], "pattern": "heart-spleen-deficiency", "patternEvidence": HS_EVIDENCE, "redFlags": [], "rationale": "Sleep-onset and early waking under stress; dreams, palpitations, poor appetite, fatigue; pale tongue with teeth marks, thin weak pulse. Mood reactive; no self-harm thoughts."})
 base({"type": "decide", "disposition": "treat", "rationale": "No red flags; acupuncture with sleep-hygiene advice."})
 prepare(base)
-for i, (key, d) in enumerate([("HT7:left", 0.5), ("HT7:right", 0.5), ("SP6:left", 1.5), ("SP6:right", 1.5)]): base.needle(f"pack-a.{i+1}", base.mark_id(key), d)
+# the shallow wrist needles are left as they are; the leg needles are rotated; he is asked what he feels at each
+for i, (key, d, work) in enumerate([("HT7:left", 0.5, None), ("HT7:right", 0.5, None), ("SP6:left", 1.5, "rotate"), ("SP6:right", 1.5, "rotate")]): base.needle(f"pack-a.{i+1}", base.mark_id(key), d, work=work, ask=True)
 base({"type": "monitor"}); base({"type": "wait", "minutes": 10}); base({"type": "monitor"}); base({"type": "wait", "minutes": 9}); base({"type": "monitor"})
 base.close_needles("pack-a")
 base({"type": "explain", "topics": ["aftercare"], "text": "Go home and rest; don't drive if you feel drowsy."})
@@ -182,10 +192,10 @@ base({"type": "end_visit"}); base({"type": "finish_encounter"})
 
 wd = Trajectory("iw")
 consult(wd)
-wd({"type": "assess", "diagnoses": ["insomnia"], "pattern": "heart-spleen-deficiency", "redFlags": [], "rationale": "Stress-related insomnia; no self-harm thoughts."})
+wd({"type": "assess", "diagnoses": ["insomnia"], "pattern": "heart-spleen-deficiency", "patternEvidence": HS_EVIDENCE, "redFlags": [], "rationale": "Stress-related insomnia; no self-harm thoughts."})
 wd({"type": "decide", "disposition": "treat", "rationale": "He agrees to try, though wary of needles."})
 prepare(wd)
-wd.needle("pack-a.1", wd.mark_id("HT7:left"), 0.5)
+wd.needle("pack-a.1", wd.mark_id("HT7:left"), 0.5, ask=True)
 wd.needle("pack-a.2", wd.mark_id("HT7:right"), 0.5)
 wd({"type": "monitor"})  # he asks to stop
 wd({"type": "stop_treatment", "reason": "the patient withdrew consent"})
@@ -197,7 +207,7 @@ wd({"type": "count_needles"})
 wd({"type": "monitor"})
 wd({"type": "explain", "topics": ["alternatives"], "text": "Without needles, the most useful things are no kopi after lunch, a regular bedtime and wind-down routine, and talking to your doctor about therapy for insomnia. Please don't drive when you feel sleepy."})
 wd({"type": "document", "record": {"presentingComplaint": "Poor sleep for three months.", "assessment": "Stress-related insomnia.", "pattern": "Heart and spleen deficiency", "rationale": "HT7 and SP6 planned.", "consent": "Verbal consent given, then withdrawn after two needles.", "pointsUsed": PTS[:2],
-    "needling": {"needleType": "0.25 × 40 mm single-use sterile filiform", "needleCount": 2, "depth": "HT7 0.5 cm", "responseSought": "mild deqi", "stimulation": "none", "retentionMinutes": 1},
+    "needling": {"needleType": "0.25 × 40 mm single-use sterile filiform", "needleCount": 2, "depth": "HT7 0.5 cm", "responseSought": "none: no needle worked", "stimulation": "none", "retentionMinutes": 1},
     "response": "He withdrew consent after the second needle: stopped, both needles removed at once.", "adverseEvents": "Anxiety; consent withdrawn. No physical harm.", "advice": "Sleep hygiene; GP review; do not drive when sleepy.", "followUp": "Review in one week without needles."}})
 wd({"type": "end_visit"})
 wd({"type": "begin_follow_up"}); wd.ask("fu-progress", "fu-new")

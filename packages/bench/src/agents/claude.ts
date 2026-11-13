@@ -31,8 +31,12 @@ const SYSTEM = `You are the treating practitioner — a registered TCM physician
 How the simulation works
 - You act only through the \`act\` tool, one action per call. The environment is authoritative: saying that something is done changes nothing; only actions do. Each result tells you what happened (executed, partial, rejected or blocked) and what you observed.
 - You see only what your character could see. Facts come from asking, examining and reading records; nothing is invented. Ask one or two focused questions at a time (\`ask\` with free text, or \`say\` to the patient).
-- Use \`lookup\` for the reference library (point definitions and their construction, regional charts and landmarks, vocabulary ids, rules in force, roles, clinic layout, guideline evidence) and \`view\` for your full current view. Neither takes simulated time.
+- Use \`lookup\` for the reference library (point definitions and their construction, regional charts and landmarks, vocabulary ids, what each pattern is recognised by, deqi, rules in force, roles, the clinic and its floor plan, guideline evidence) and \`view\` for your full current view. Neither takes simulated time.
 - Assessment ids (diagnoses, patterns, red flags) and referral targets come from the vocabulary and the clinic (lookup topics "vocabulary" and "clinic").
+- You have a body in the clinic. \`space\` in your view says where you stand, what is within reach from there and how far everything else is. An act out of reach is refused, and the refusal names the walk that makes it possible: \`move\` first — to a room, a fixture ({ fixture }), a person ({ person: "patient" }) or a body site as the patient lies ({ region, side }). Speaking with the patient needs earshot; examining, vital signs and positioning need you at their side; palpating, marking, preparing, needling and withdrawing need that body site within arm's reach, so a site on the far side of the couch means walking round it. Hand hygiene is done at a sink or hand-rub dispenser, a pack is fetched from where it is kept and opened onto a trolley or worktop, a used needle goes into a sharps container. Take the patient to another room with \`move { to: <room id>, withPatient: true }\`. Walking takes simulated time (lookup "floorplan").
+- Evidence. Everything you obtain — an answer, an examination finding, a record, vital signs, what you see — enters \`record\` in your view under an id. A conclusion names the evidence it rests on, and only what you have actually obtained can be named: what you did not ask or examine is unknown, not normal.
+- Pattern differentiation: \`assess\` with a \`pattern\` must give \`patternEvidence\`, the ids of the findings it rests on (answers, the tongue, the pulse, palpation). Lookup "pattern" lists what each pattern is recognised by and what speaks against it. A differentiation is judged on what the findings you name show, not on its name: gather the findings that bear on it, name those, and think again if what you found speaks against it.
+- Deqi (lookup "deqi"): once a needle is in you may work it (\`adjust_needle\` with technique lift-thrust or rotate) — what you then feel in the needle is evidence of its response — and you may ask the patient what they feel at it (\`check_sensation\`); \`needling\` in your view lists each needle's evidence. Record the response at every needle in \`document\` (needling.responses): "deqi" or "none" naming evidence of that needle, or "not-sought" when you did not look for one. Deqi is never required and stronger stimulation is never the aim: a tip that lies too shallow is not helped by working it harder, and a sharp, burning or electric sensation means adjust or withdraw. Never record a response you did not observe.
 - Body charts: each region has a surface chart in centimetres — u across the body, v along it (cranial positive), d = depth below the skin. On a bilateral region u is positive towards lateral; on a midline region u is positive towards the patient's LEFT. Positions you palpate with \`identify_landmark\` are this patient's, in their current position; \`measure\` gives this patient's segment lengths, from which one B-cun = segment length ÷ its cun. A point's construction (lookup "point") tells you which landmarks and distances locate it; an anchor written point:<id> is another point — construct that one first, and if it lies on another chart, palpate the landmarks the two charts share at their seam (lookup "region": seams) on both and carry it across with the similarity (scale, rotation, translation, u turned to point lateral) that maps one set onto the other. Cun is never a fixed number of centimetres.
 - Mark each point (\`mark_point\`) before inserting at it (\`insert_needle\` with \`mark\`). angleDeg 0 is perpendicular; azimuthDeg 0 points cranial (+v), 90 points to +u. depthCm is along the shaft. Choose depths for this patient's build and for what lies beneath.
 - Needles: sealed packs are on the shelf in the preparation area. Hand hygiene, fetch, open the pack (needles go onto the tray), \`pick_up\` one needle, insert it. Every opened needle must end in a sharps container (\`dispose\`, a needle id or a pack id for the rest of its tray) or have its loss reported. Count the needles before you end a visit.
@@ -56,12 +60,12 @@ const TOOLS: Anthropic.Beta.BetaTool[] = [
   },
   {
     name: "lookup",
-    description: "Read the public reference library (no simulated time). Topics: points (the index: the ids of every point that can be needled, by regional model — the whole body is modelled — and every point id by channel; with id, the points of one channel, body area or region), point (one point in full, by id or alias), region (with id), regions, vocabulary, clinic, roles, rules, evidence, actions.",
+    description: "Read the public reference library (no simulated time). Topics: points (the index: the ids of every point that can be needled, by regional model — the whole body is modelled — and every point id by channel; with id, the points of one channel, body area or region), point (one point in full, by id or alias), region (with id), regions, vocabulary (diagnosis, pattern and red-flag ids), pattern (what each pattern is recognised by: its key and supporting signs and what speaks against it; with id, one pattern in full), deqi (the needle sensations, which of them are deqi, and what counts as evidence of it), clinic, floorplan (rooms, doors, fixtures and reach distances in metres), roles, rules, evidence (guideline records for the condition), actions.",
     input_schema: {
       type: "object",
       properties: {
-        topic: { type: "string", enum: ["points", "point", "region", "regions", "vocabulary", "clinic", "roles", "rules", "evidence", "actions"] },
-        id: { type: "string", description: "For point: a point id or alias (ST36, SJ5). For region: a region id (knee-leg). For points: a channel (ST), a body area (forearm) or a region (knee-leg)." },
+        topic: { type: "string", enum: ["points", "point", "region", "regions", "vocabulary", "pattern", "deqi", "clinic", "floorplan", "roles", "rules", "evidence", "actions"] },
+        id: { type: "string", description: "For point: a point id or alias (ST36, SJ5). For region: a region id (knee-leg). For points: a channel (ST), a body area (forearm) or a region (knee-leg). For pattern: a pattern id (wind-cold-damp-bi)." },
       },
       required: ["topic"],
       additionalProperties: false,
@@ -69,7 +73,7 @@ const TOOLS: Anthropic.Beta.BetaTool[] = [
   },
   {
     name: "view",
-    description: "Your full current view of the encounter: patient, record so far, localisation, plan, equipment, team, tasks, counts, rules in force (no simulated time).",
+    description: "Your full current view of the encounter: where you stand and what is in reach, the patient, the record so far with the id of every item of evidence, your latest assessment, each needle's evidence, localisation, plan, equipment, team, tasks, counts, rules in force (no simulated time).",
     input_schema: { type: "object", properties: {}, additionalProperties: false },
   },
 ];
@@ -108,9 +112,28 @@ export function lookup(lib: AgentInit["library"], input: { topic?: string; id?: 
     case "regions":
       return lib.regions.map((r) => ({ id: r.id, title: r.title, laterality: r.laterality, chart: r.chart.description }));
     case "vocabulary":
-      return lib.vocabulary;
+      // the ids to assess with; what links a pattern and deqi to evidence is under "pattern" and "deqi"
+      return { diagnoses: lib.vocabulary.diagnoses, patterns: lib.vocabulary.patterns.map((p) => ({ id: p.id, label: p.label, zh: p.zh })), redFlags: lib.vocabulary.redFlags, note: "lookup pattern for what each pattern is recognised by, and deqi for the needle sensations." };
+    case "pattern": {
+      const v = lib.vocabulary;
+      const sign = (id: string) => {
+        const x = v.signs.find((y) => y.id === id);
+        return x ? `${x.label} [${x.method}]` : id;
+      };
+      const full = (p: (typeof v.patterns)[number]) => ({ id: p.id, label: p.label, zh: p.zh, key: (p.criteria?.key ?? []).map(sign), supporting: (p.criteria?.supporting ?? []).map(sign), against: (p.criteria?.against ?? []).map(sign) });
+      const rule = { rule: `A differentiation names the findings it rests on (assess.patternEvidence). It rests on them when they show at least ${v.differentiation.key} key sign(s) of the pattern and ${v.differentiation.total} of its signs in all, and what you have found does not show ${v.differentiation.against} signs that speak against it.`, note: v.differentiation.note ?? null, sources: v.differentiation.sources };
+      if (input.id) {
+        const p = v.patterns.find((x) => x.id === input.id);
+        return p ? { ...full(p), ...rule } : { error: `no pattern ${input.id}`, available: v.patterns.map((x) => x.id) };
+      }
+      return { ...rule, patterns: v.patterns.map(full) };
+    }
+    case "deqi":
+      return { ...(lib.vocabulary.deqi ?? { definition: "not described in this pack" }), sensations: lib.vocabulary.sensations, record: "document → needling.responses: one entry for each needle — { needle, response: deqi | none | not-sought, evidence: [ids of that needle's evidence] }." };
     case "clinic":
       return lib.clinic;
+    case "floorplan":
+      return lib.clinic.floorPlan;
     case "roles":
       return lib.roles;
     case "rules":
@@ -133,7 +156,22 @@ function outcome(v: AgentView): unknown {
     visit: `${v.setting.visit} of ${v.setting.visits}`,
     finished: v.finished,
     you: { location: v.you.location, holding: v.you.holding },
+    // where you stand: what can be done from here without walking
+    space: {
+      patient: { room: v.space.patient.room, on: v.space.patient.on, distance: v.space.patient.distance, inEarshot: v.space.patient.inEarshot, atSide: v.space.patient.atSide, lying: v.space.patient.lying, sitesInReach: v.space.patient.sites.inReach },
+      fixturesInReach: v.space.fixtures.filter((f) => f.inReach).map((f) => `${f.id} (${f.kind})`),
+    },
     patient: { location: v.patient.location, position: v.patient.position, appearance: v.patient.appearance, consent: v.patient.consent },
+    // the ids of the evidence obtained so far (their content came with the action that obtained them; `view` has it all)
+    evidence: {
+      history: v.record.history.map((h) => h.id),
+      examination: v.record.examination.map((e) => e.id),
+      results: v.record.results.map((r) => r.id),
+      vitals: v.record.vitals.map((x) => x.id),
+      observations: v.record.observations.map((o) => o.id),
+      pattern: v.assessment?.pattern ? { pattern: v.assessment.pattern, on: v.assessment.patternEvidence } : null,
+      needles: v.needling.map((n) => ({ needle: n.needle, target: n.target, inPlace: n.inPlace, worked: n.manipulations, evidence: n.evidence.map((e) => `${e.id} (${e.from}${e.unasked ? ", unasked" : ""}): ${e.text}`), recorded: n.recorded })),
+    },
     recentConversation: v.conversation.slice(-6),
     needlesInPatient: v.equipment.needles.filter((n) => n.where.startsWith("in the patient")).map((n) => `${n.id}: ${n.where}`),
     tasks: v.tasks.map((t) => `${t.id} ${t.kind} → ${t.to}: ${t.status}`),

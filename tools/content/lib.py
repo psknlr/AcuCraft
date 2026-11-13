@@ -52,7 +52,7 @@ def cast(practitioner_location="consult-room"):
 RULES = ["sg-tcmpb-acupuncture-advisory", "acucraft-sg-clinic-protocol", "sg-tcmpb-acupuncture-treatment-methods"]
 
 def family(fid, title, summary, condition, split, variants):
-    return {"schema": "acucraft/family@1", "id": fid, "version": "0.1.0", "title": title, "summary": summary, "condition": condition, "split": split,
+    return {"schema": "acucraft/family@1", "id": fid, "version": "0.2.0", "title": title, "summary": summary, "condition": condition, "split": split,
             "provenance": {"kind": "synthetic", "authors": ["AcuCraft content team"], "review": {"status": "unreviewed", "reviewers": [], "notes": "Clinical, anatomical and regulatory content to be reviewed by TCM, anatomy and Singapore practice experts."}},
             "case": "case.json", "field": "field.json", "variants": [{"id": v} for v in variants]}
 
@@ -78,7 +78,7 @@ NEAR_TROLLEY = {"knee-leg", "foot", "sole"}
 LYING = {"supine", "supine-knee-flexed", "prone", "side-lying-left", "side-lying-right"}
 
 # what each action needs of where the practitioner stands (docs/WORLD.md)
-TALK = {"ask", "explain", "seek_consent"}
+TALK = {"ask", "explain", "seek_consent", "check_sensation"}
 CONTACT = {"examine", "check_vitals", "position_patient", "search", "remove_all_needles"}
 SITE = {"identify_landmark", "measure", "mark_point", "prepare_site"}
 NEEDLE_SITE = {"adjust_needle", "remove_needle", "apply_pressure"}
@@ -92,10 +92,17 @@ class Trajectory:
     on to mark and needle it, to the shelf for a pack, to the trolley for a needle. Needles asked for one after
     another are picked up together at the trolley and put in side by side, left then right, to save walking round
     the couch.
+
+    Evidence (docs/EVIDENCE.md): an `assess` with a pattern names the findings it rests on (`patternEvidence`, ids of
+    what was asked and examined before it). A needle's response is looked for where the script says so — `work` (the
+    needle is lifted and thrust, or rotated: what the operator feels is evidence) and `ask` (the patient is asked what
+    they feel there) — and tools/finish-solutions.ts writes each treatment record's `needling.responses` from the
+    evidence the replayed trajectory obtained: deqi where it shows it, none where it does not, not-sought where
+    nothing was looked for.
     """
     def __init__(self, prefix):
         self._steps, self.prefix = [], prefix
-        self._pending = []          # needles waiting to be picked up and inserted: (needle, mark, depth, angle, azimuth)
+        self._pending = []          # needles waiting to be picked up and inserted: (needle, mark, depth, angle, azimuth, work, ask)
         self._start_visit()
         self.marks = {}             # mark id → (region, side)
         self.mark_ids = {}          # "ST36:right" / "ashi:<id>" → mark id
@@ -198,9 +205,26 @@ class Trajectory:
         self({"type": "mark_point", "target": target, "region": region, "side": side, "at": {"u": u, "v": v}, "method": method})
     def mark_id(self, key):
         return self.mark_ids[key]
-    def needle(self, nid, mark, depth, angle=0, azimuth=0):
-        """Queue a needle: the batch is picked up at the trolley and inserted site by site (see `_flush`)."""
-        self._pending.append((nid, mark, depth, angle, azimuth))
+    def marks_target(self, mark_id):
+        """The target a mark was made for ("GB21:left", "ashi:<id>")."""
+        return next(k for k, v in self.mark_ids.items() if v == mark_id)
+    def needle(self, nid, mark, depth, angle=0, azimuth=0, work=None, ask=False):
+        """Queue a needle: the batch is picked up at the trolley and inserted site by site (see `_flush`).
+
+        `work` ("lift-thrust" or "rotate"): the needle is worked once it is in; `ask`: the patient is then asked what
+        they feel at it. Both are done there and then, before the next needle."""
+        self._pending.append((nid, mark, depth, angle, azimuth, work, ask))
+    def _seek(self, n):
+        if n[5]: self._emit({"type": "adjust_needle", "needleId": n[0], "technique": n[5]})
+        if n[6]: self._emit({"type": "check_sensation", "needleId": n[0]})
+    def work(self, nid, technique="lift-thrust", depth=None):
+        """Work a needle that is in place (and, with `depth`, take it to another depth first)."""
+        a = {"type": "adjust_needle", "needleId": nid, "technique": technique}
+        if depth is not None: a["depthCm"] = depth
+        self(a)
+    def feel(self, *nids):
+        """Ask the patient what they feel at each of these needles."""
+        for n in nids: self({"type": "check_sensation", "needleId": n})
     def _flush(self):
         batch, self._pending = self._pending, []
         if not batch: return
@@ -213,6 +237,7 @@ class Trajectory:
                 self._emit({"type": "pick_up", "object": n[0]})
                 self._emit(insert(n))
                 self.needles_at[n[0]] = self.marks[n[1]]
+                self._seek(n)
             return
         # pick the batch up at the trolley, then put the needles in site by site: one side of the couch, then the other
         self.at_fixture(TROLLEY)
@@ -229,6 +254,7 @@ class Trajectory:
             self.at_site(*self.marks[n[1]])
             self._emit(insert(n))
             self.needles_at[n[0]] = self.marks[n[1]]
+            self._seek(n)
     def fetch_pack(self, *packs):
         """Clean hands and the sealed packs from the shelf in the preparation area."""
         self.at_fixture(SINKS["prep-area"])
@@ -249,10 +275,11 @@ def write_family(fid, fam, case, field, variants, solutions):
     for v in variants: dump(os.path.join(d, "variants", f"{v['id']}.json"), v)
     for name, t in solutions.items(): dump(os.path.join(d, "solutions", f"{name}.json"), t.steps)
     print(fid, {k: len(t.steps) for k, t in solutions.items()})
-    if solutions: prune_moves(fid)
+    if solutions: finish(fid)
 
-def prune_moves(fid):
-    """Drop the walks that cover no ground (the helper cannot see the floor plan): tools/prune-moves.ts replays each
-    trajectory on the engine and rewrites the solution files."""
+def finish(fid):
+    """Finish the reference trajectories on the engine: tools/finish-solutions.ts replays each one, drops the walks
+    that cover no ground (the helper cannot see the floor plan), writes each treatment record's needle responses from
+    the evidence the trajectory obtained, and rewrites the solution files."""
     import subprocess
-    subprocess.run(["npx", "tsx", "tools/prune-moves.ts", fid], check=True, cwd=ROOT)
+    subprocess.run(["npx", "tsx", "tools/finish-solutions.ts", fid], check=True, cwd=ROOT)

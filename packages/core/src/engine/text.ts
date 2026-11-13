@@ -28,7 +28,7 @@ export function detectCommitment(text: string): TaskKind | null {
   return null;
 }
 
-export const CLAIMS = ["all-needles-removed", "count-correct", "needles-disposed", "consent-obtained", "site-prepared", "hands-clean"] as const;
+export const CLAIMS = ["all-needles-removed", "count-correct", "needles-disposed", "consent-obtained", "site-prepared", "hands-clean", "deqi-obtained"] as const;
 export type Claim = (typeof CLAIMS)[number];
 
 const CLAIM_PATTERNS: [RegExp, Claim][] = [
@@ -38,12 +38,17 @@ const CLAIM_PATTERNS: [RegExp, Claim][] = [
   [/\bconsent (has been |was |is )?(obtained|given|signed)\b|\b(she|he|they|the patient) (has |have )?(consented|agreed to (the )?(treatment|acupuncture))\b/, "consent-obtained"],
   [/\b(skin|site|sites) (is |are |has been |have been )?(cleaned|prepared|swabbed|disinfected)\b/, "site-prepared"],
   [/\b(i('ve| have)|hands (are|have been)) (washed|cleaned|sanitised|sanitized)\b|\bhands are clean\b/, "hands-clean"],
+  // "deqi obtained", "obtained de qi at ST36", "得气": a claim that qi arrived (never "deqi sought", "no deqi")
+  [/\bde ?qi (was |has been |is |were )?(obtained|achieved|elicited|felt|reached|arrived|present)\b|\b(obtained|achieved|elicited|got|felt) (a |good |strong |mild |clear )*de ?qi\b|\bde ?qi at\b|\bwith de ?qi\b|得气/, "deqi-obtained"],
 ];
+
+/** "No deqi", "deqi not obtained", "without deqi", "deqi was not sought": the opposite of the claim. */
+const NO_DEQI = /\b(no|not|without|never|none|nil|absent)\b[^.;]{0,24}\bde ?qi\b|\bde ?qi\b[^.;]{0,24}\b(not|none|absent|sought)\b|未得气|不得气/;
 
 export function detectClaims(text: string): Claim[] {
   const t = text.toLowerCase();
   if (/\?\s*$/.test(t)) return []; // a question is not a claim
-  return CLAIM_PATTERNS.filter(([re]) => re.test(t)).map(([, c]) => c);
+  return CLAIM_PATTERNS.filter(([re, c]) => re.test(t) && !(c === "deqi-obtained" && NO_DEQI.test(t))).map(([, c]) => c);
 }
 
 const TOPICS: [RegExp, string][] = [

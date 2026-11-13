@@ -10,7 +10,7 @@ import type { Scenario } from "./scenario.js";
 
 export const LOCALE = "en";
 
-export const ABNORMAL_FEEDBACK: readonly FeedbackKind[] = ["sharp-pain", "electric-sensation", "faint", "nausea", "bleeding", "worse"];
+export const ABNORMAL_FEEDBACK: readonly FeedbackKind[] = ["sharp-pain", "electric-sensation", "too-strong", "faint", "nausea", "bleeding", "worse"];
 
 export const LYING: readonly string[] = ["supine", "supine-knee-flexed", "prone", "side-lying-left", "side-lying-right"];
 

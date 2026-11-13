@@ -229,6 +229,12 @@
         "neutropenia"
       ],
       "pattern": "spleen-stomach-deficiency",
+      "patternEvidence": [
+        "hx-tcm",
+        "ex-general",
+        "ex-tongue",
+        "ex-pulse-tcm"
+      ],
       "redFlags": [
         "fever-on-chemotherapy"
       ],

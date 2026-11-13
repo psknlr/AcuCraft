@@ -1,7 +1,7 @@
 import type { DomainEvent, SessionState } from "@clinicalcraft/core";
 import type { Action, ActionRequest, ActionType, DocumentRecord, PlanBody, PointRef, TaskKind } from "./actions.js";
 import type { ChartPoint, Position, Side } from "./common.js";
-import type { ConsentStatus, FeedbackKind, NeedleSpec, UnsafeCode } from "./field.js";
+import type { ConsentStatus, FeedbackKind, NeedleSensation, NeedleSpec, UnsafeCode } from "./field.js";
 
 /**
  * Encounter state — `acucraft/encounter@1`: the authoritative simulation state human learners and AI agents share.
@@ -9,7 +9,7 @@ import type { ConsentStatus, FeedbackKind, NeedleSpec, UnsafeCode } from "./fiel
  * goes through `step`; `version` counts committed requests.
  */
 
-export const ENCOUNTER_SCHEMA_ID = "acucraft/encounter@1" as const;
+export const ENCOUNTER_SCHEMA_ID = "acucraft/encounter@2" as const;
 
 export type Mode = "assessment" | "teaching";
 
@@ -34,6 +34,52 @@ export interface WalkRecord {
   minutes: number;
   /** The patient walked alongside. */
   withPatient: boolean;
+}
+
+/**
+ * What an evidence item is: an answer the patient gave, an examination finding, a record read, a set of vital signs,
+ * what was seen of the patient, what the patient said they feel at a needle, what the operator felt on manipulating one.
+ */
+export type EvidenceKind = "history" | "exam" | "record" | "vitals" | "observation" | "sensation" | "needle-feel";
+
+/**
+ * One piece of evidence obtained in the encounter (docs/EVIDENCE.md). Its id is stable — a history item's or an
+ * examination finding's own id, `<investigation>.<phase>` for a record, `vitals-1`, `obs-1`, `sense-1`, `feel-1` … for
+ * the rest — and a conclusion (a pattern differentiation, a recorded needle response) names the ids it rests on.
+ * An item holds what was seen or heard, never what it means.
+ */
+export interface EvidenceItem {
+  id: string;
+  kind: EvidenceKind;
+  /** The case item, the investigation or the needle it is about. */
+  ref: string | null;
+  visit: number;
+  at: number;
+  /** Who obtained it. */
+  by: string;
+  text: string;
+  /** Needle evidence: the needle, the qualities the patient named, the grip the operator felt (null: none sought). */
+  needle?: { id: string; qualities: NeedleSensation[]; grasp: boolean | null; volunteered: boolean };
+}
+
+/**
+ * How the tissue answers a needle — the field's own truth, never shown (docs/EVIDENCE.md). The patient's reports and
+ * the operator's feel are read from it; a recorded response is compared with it afterwards.
+ */
+export interface NeedleResponse {
+  /** Stimulation given: the insertion, then each manipulation. */
+  stimulation: number;
+  manipulations: number;
+  /** How strongly the tissue answers at this depth, for this patient (deqi from `DEQI_THRESHOLD`). */
+  intensity: number;
+  deqi: boolean;
+  /** When deqi first arrived (null: it has not). */
+  arrivedAt: number | null;
+  qualities: NeedleSensation[];
+  /** A sensation that is not deqi and wants the needle adjusted or out (a nerve, a tendon, too strong). */
+  noxious: NeedleSensation | null;
+  /** Stimulated beyond what the patient tolerates. */
+  overstimulated: boolean;
 }
 
 export interface ActorState {
@@ -106,6 +152,8 @@ export interface NeedleState {
   /** Incident response recorded for a lost or broken needle. */
   resolution: string | null;
   bleeding: boolean;
+  /** The tissue's response while the needle is, or was, in place (null: never inserted). */
+  response: NeedleResponse | null;
   events: NeedleEvent[];
 }
 
@@ -270,7 +318,8 @@ export interface EncounterState {
   sitesPrepared: { visit: number; region: string; side: Side; at: number; by: string }[];
   revealedConditions: string[];
   revealedAshi: string[];
-  assessments: { at: number; by: string; diagnoses: string[]; pattern: string | null; redFlags: string[]; rationale: string }[];
+  /** `patternEvidence`: the evidence ids the pattern differentiation names (each was in `evidence` when it was made). */
+  assessments: { at: number; by: string; visit: number; diagnoses: string[]; pattern: string | null; patternEvidence: string[]; redFlags: string[]; rationale: string }[];
   decisions: { at: number; by: string; disposition: string; rationale: string; visit: number }[];
   plans: PlanVersion[];
   planApproved: number | null;
@@ -283,7 +332,8 @@ export interface EncounterState {
   tasks: Record<string, TaskState>;
   utterances: Utterance[];
   monitorLog: { visit: number; at: number; by: string; taskId: string | null }[];
-  vitalsLog: { visit: number; at: number; by: string; vitals: Record<string, number | string> }[];
+  /** `id`: the reading's id in the evidence ledger. */
+  vitalsLog: { id: string; visit: number; at: number; by: string; vitals: Record<string, number | string> }[];
   documents: { visit: number; at: number; by: string; record: DocumentRecord }[];
   incidents: { visit: number; at: number; by: string; kind: string; needleId: string | null; description: string }[];
   claims: { at: number; by: string; text: string; claim: string; supported: boolean }[];
@@ -293,6 +343,8 @@ export interface EncounterState {
   events: Record<string, { armedAt: number; draw: boolean; firedAt: number | null }>;
   /** Every walk made, in order. */
   walks: WalkRecord[];
+  /** The evidence ledger: everything obtained, in order, each item once. */
+  evidence: EvidenceItem[];
   attempts: AttemptRecord[];
   finished: boolean;
   finishedAt: number | null;

@@ -1,7 +1,7 @@
 {
   "schema": "acucraft/family@1",
   "id": "sg-chemo-nausea",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "title": "Nausea during chemotherapy · 52-year-old woman",
   "summary": "A 52-year-old woman having chemotherapy asks whether acupuncture could help her nausea.",
   "condition": "chemotherapy-nausea",

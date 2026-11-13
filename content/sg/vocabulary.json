@@ -1,11 +1,11 @@
 {
   "schema": "acucraft/vocabulary@1",
   "id": "sg-tcm",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "review": {
     "status": "unreviewed",
     "reviewers": [],
-    "notes": "Terminology for structured assessment. Mandarin pattern names are given for reference and need review by a bilingual TCM educator."
+    "notes": "Terminology for structured assessment. Mandarin names, the signs and each pattern's criteria are AI-assisted paraphrases of general textbook teaching and need review by a bilingual TCM educator; a pattern's criteria are a teaching simplification, not a validated diagnostic rule."
   },
   "diagnoses": [
     {
@@ -85,73 +85,861 @@
       "label": "Insomnia"
     }
   ],
+  "signs": [
+    {
+      "id": "pain-worse-cold-damp",
+      "label": "Pain worse in cold or damp weather",
+      "zh": "遇寒湿加重",
+      "method": "inquiry"
+    },
+    {
+      "id": "pain-better-warmth",
+      "label": "Pain eased by warmth",
+      "zh": "得温痛减",
+      "method": "inquiry"
+    },
+    {
+      "id": "heaviness",
+      "label": "Heaviness of the limb or the body",
+      "zh": "重着",
+      "method": "inquiry"
+    },
+    {
+      "id": "pain-fixed",
+      "label": "Pain fixed in one place",
+      "zh": "痛处固定",
+      "method": "inquiry"
+    },
+    {
+      "id": "pain-stabbing",
+      "label": "Stabbing or boring pain",
+      "zh": "刺痛",
+      "method": "inquiry"
+    },
+    {
+      "id": "pain-worse-night",
+      "label": "Pain worse at night",
+      "zh": "夜间痛甚",
+      "method": "inquiry"
+    },
+    {
+      "id": "pain-distending-pressing",
+      "label": "Distending or pressing pain, like a tight band",
+      "zh": "胀痛",
+      "method": "inquiry"
+    },
+    {
+      "id": "pain-worse-inactivity",
+      "label": "Worse with staying still, eased by moving about",
+      "zh": "久坐加重、活动后减轻",
+      "method": "inquiry"
+    },
+    {
+      "id": "pain-worse-exertion",
+      "label": "A dull ache brought on by use and eased by rest",
+      "zh": "劳则加重、休息后减轻",
+      "method": "inquiry"
+    },
+    {
+      "id": "chronic-course",
+      "label": "A long, lingering course",
+      "zh": "病程日久",
+      "method": "inquiry"
+    },
+    {
+      "id": "recent-onset",
+      "label": "Recent onset after exposure to wind or cold",
+      "zh": "新感风寒",
+      "method": "inquiry"
+    },
+    {
+      "id": "stiffness",
+      "label": "Stiffness, worse after rest",
+      "zh": "僵硬、屈伸不利",
+      "method": "inquiry"
+    },
+    {
+      "id": "joint-hot-red-swollen",
+      "label": "A hot, red, swollen joint",
+      "zh": "关节红肿热痛",
+      "method": "inspection"
+    },
+    {
+      "id": "weak-knees-back",
+      "label": "Weak or sore lower back and knees",
+      "zh": "腰膝酸软",
+      "method": "inquiry"
+    },
+    {
+      "id": "aversion-to-cold",
+      "label": "Feels the cold (aversion to cold)",
+      "zh": "畏寒",
+      "method": "inquiry"
+    },
+    {
+      "id": "cold-limbs",
+      "label": "Cold limbs",
+      "zh": "肢冷",
+      "method": "inquiry"
+    },
+    {
+      "id": "fever",
+      "label": "Fever or feeling feverish",
+      "zh": "发热",
+      "method": "inquiry"
+    },
+    {
+      "id": "thirst",
+      "label": "Thirst",
+      "zh": "口渴",
+      "method": "inquiry"
+    },
+    {
+      "id": "fatigue",
+      "label": "Tiredness, easily fatigued",
+      "zh": "神疲乏力",
+      "method": "inquiry"
+    },
+    {
+      "id": "poor-appetite",
+      "label": "Poor appetite",
+      "zh": "纳呆",
+      "method": "inquiry"
+    },
+    {
+      "id": "loose-stools",
+      "label": "Loose stools",
+      "zh": "便溏",
+      "method": "inquiry"
+    },
+    {
+      "id": "nausea-vomiting",
+      "label": "Nausea or vomiting",
+      "zh": "恶心呕吐",
+      "method": "inquiry"
+    },
+    {
+      "id": "belching",
+      "label": "Belching or hiccup",
+      "zh": "嗳气呃逆",
+      "method": "inquiry"
+    },
+    {
+      "id": "chest-epigastric-fullness",
+      "label": "Fullness of the chest or epigastrium",
+      "zh": "胸脘痞闷",
+      "method": "inquiry"
+    },
+    {
+      "id": "phlegm",
+      "label": "Copious phlegm",
+      "zh": "痰多",
+      "method": "inquiry"
+    },
+    {
+      "id": "emotional-strain",
+      "label": "Brought on or made worse by stress and emotional strain",
+      "zh": "情志不遂",
+      "method": "inquiry"
+    },
+    {
+      "id": "irritability",
+      "label": "Irritability",
+      "zh": "急躁易怒",
+      "method": "inquiry"
+    },
+    {
+      "id": "sighing",
+      "label": "Frequent sighing",
+      "zh": "善太息",
+      "method": "inquiry"
+    },
+    {
+      "id": "worry",
+      "label": "Worry and overthinking",
+      "zh": "思虑过度",
+      "method": "inquiry"
+    },
+    {
+      "id": "dizziness",
+      "label": "Dizziness",
+      "zh": "头晕",
+      "method": "inquiry"
+    },
+    {
+      "id": "tinnitus",
+      "label": "Tinnitus",
+      "zh": "耳鸣",
+      "method": "inquiry"
+    },
+    {
+      "id": "insomnia",
+      "label": "Difficulty falling or staying asleep",
+      "zh": "不寐",
+      "method": "inquiry"
+    },
+    {
+      "id": "light-sleep",
+      "label": "Light, easily disturbed sleep",
+      "zh": "眠浅易醒",
+      "method": "inquiry"
+    },
+    {
+      "id": "dream-disturbed-sleep",
+      "label": "Dream-disturbed sleep",
+      "zh": "多梦",
+      "method": "inquiry"
+    },
+    {
+      "id": "palpitations",
+      "label": "Palpitations",
+      "zh": "心悸",
+      "method": "inquiry"
+    },
+    {
+      "id": "poor-memory",
+      "label": "Poor memory",
+      "zh": "健忘",
+      "method": "inquiry"
+    },
+    {
+      "id": "night-sweats",
+      "label": "Night sweats",
+      "zh": "盗汗",
+      "method": "inquiry"
+    },
+    {
+      "id": "five-palm-heat",
+      "label": "Heat in the palms, soles and chest",
+      "zh": "五心烦热",
+      "method": "inquiry"
+    },
+    {
+      "id": "dry-mouth",
+      "label": "Dry mouth and throat, worse at night",
+      "zh": "口干咽燥",
+      "method": "inquiry"
+    },
+    {
+      "id": "frequent-pale-urination",
+      "label": "Frequent, pale urination",
+      "zh": "小便清长",
+      "method": "inquiry"
+    },
+    {
+      "id": "chills",
+      "label": "Chills",
+      "zh": "恶寒",
+      "method": "inquiry"
+    },
+    {
+      "id": "occipital-stiff-neck",
+      "label": "Occipital headache with a stiff neck",
+      "zh": "头项强痛",
+      "method": "inquiry"
+    },
+    {
+      "id": "red-face-eyes",
+      "label": "Red face or eyes",
+      "zh": "面红目赤",
+      "method": "inspection"
+    },
+    {
+      "id": "tired-appearance",
+      "label": "Looks tired",
+      "zh": "神疲",
+      "method": "inspection"
+    },
+    {
+      "id": "bony-enlargement",
+      "label": "Bony enlargement or deformity of a joint",
+      "zh": "关节变形",
+      "method": "inspection"
+    },
+    {
+      "id": "tender-point",
+      "label": "Tenderness maximal at one fixed point",
+      "zh": "压痛固定",
+      "method": "palpation"
+    },
+    {
+      "id": "muscle-tension",
+      "label": "Tight, tender muscles",
+      "zh": "筋肉拘急",
+      "method": "palpation"
+    },
+    {
+      "id": "tongue-pale",
+      "label": "Pale tongue",
+      "zh": "舌淡",
+      "method": "tongue"
+    },
+    {
+      "id": "tongue-red",
+      "label": "Red tongue",
+      "zh": "舌红",
+      "method": "tongue"
+    },
+    {
+      "id": "tongue-red-edges",
+      "label": "Red edges of the tongue",
+      "zh": "舌边红",
+      "method": "tongue"
+    },
+    {
+      "id": "tongue-purple",
+      "label": "Purple tongue or purple spots",
+      "zh": "舌紫暗或有瘀斑",
+      "method": "tongue"
+    },
+    {
+      "id": "tongue-swollen-toothmarked",
+      "label": "Swollen tongue with teeth marks",
+      "zh": "舌胖有齿痕",
+      "method": "tongue"
+    },
+    {
+      "id": "coat-thin-white",
+      "label": "Thin white coat",
+      "zh": "苔薄白",
+      "method": "tongue"
+    },
+    {
+      "id": "coat-white-greasy",
+      "label": "White greasy coat",
+      "zh": "苔白腻",
+      "method": "tongue"
+    },
+    {
+      "id": "coat-yellow-greasy",
+      "label": "Yellow greasy coat",
+      "zh": "苔黄腻",
+      "method": "tongue"
+    },
+    {
+      "id": "coat-scanty",
+      "label": "Little or no coat",
+      "zh": "少苔",
+      "method": "tongue"
+    },
+    {
+      "id": "pulse-deep",
+      "label": "Deep pulse",
+      "zh": "脉沉",
+      "method": "pulse"
+    },
+    {
+      "id": "pulse-slow",
+      "label": "Slow pulse",
+      "zh": "脉迟",
+      "method": "pulse"
+    },
+    {
+      "id": "pulse-rapid",
+      "label": "Rapid pulse",
+      "zh": "脉数",
+      "method": "pulse"
+    },
+    {
+      "id": "pulse-slippery",
+      "label": "Slippery pulse",
+      "zh": "脉滑",
+      "method": "pulse"
+    },
+    {
+      "id": "pulse-wiry",
+      "label": "Wiry pulse",
+      "zh": "脉弦",
+      "method": "pulse"
+    },
+    {
+      "id": "pulse-choppy",
+      "label": "Choppy pulse",
+      "zh": "脉涩",
+      "method": "pulse"
+    },
+    {
+      "id": "pulse-weak",
+      "label": "Weak pulse",
+      "zh": "脉弱",
+      "method": "pulse"
+    },
+    {
+      "id": "pulse-thin",
+      "label": "Thin pulse",
+      "zh": "脉细",
+      "method": "pulse"
+    },
+    {
+      "id": "pulse-floating",
+      "label": "Floating pulse",
+      "zh": "脉浮",
+      "method": "pulse"
+    },
+    {
+      "id": "pulse-tight",
+      "label": "Tight pulse",
+      "zh": "脉紧",
+      "method": "pulse"
+    }
+  ],
   "patterns": [
     {
       "id": "wind-cold-damp-bi",
       "label": "Wind-cold-damp painful obstruction (Bi)",
-      "zh": "风寒湿痹"
+      "zh": "风寒湿痹",
+      "criteria": {
+        "key": [
+          "pain-worse-cold-damp",
+          "pain-better-warmth",
+          "heaviness"
+        ],
+        "supporting": [
+          "aversion-to-cold",
+          "stiffness",
+          "tongue-pale",
+          "coat-thin-white",
+          "coat-white-greasy",
+          "pulse-deep",
+          "pulse-slow",
+          "pulse-slippery",
+          "pulse-wiry",
+          "pulse-tight"
+        ],
+        "against": [
+          "joint-hot-red-swollen",
+          "fever",
+          "thirst",
+          "tongue-red",
+          "coat-yellow-greasy",
+          "pulse-rapid"
+        ]
+      }
     },
     {
       "id": "damp-heat-bi",
       "label": "Damp-heat painful obstruction (Bi)",
-      "zh": "湿热痹"
+      "zh": "湿热痹",
+      "criteria": {
+        "key": [
+          "joint-hot-red-swollen",
+          "fever"
+        ],
+        "supporting": [
+          "thirst",
+          "heaviness",
+          "tongue-red",
+          "coat-yellow-greasy",
+          "pulse-rapid",
+          "pulse-slippery"
+        ],
+        "against": [
+          "pain-better-warmth",
+          "pain-worse-cold-damp",
+          "aversion-to-cold",
+          "tongue-pale",
+          "pulse-slow"
+        ]
+      }
     },
     {
       "id": "qi-blood-stagnation",
       "label": "Qi and blood stagnation",
-      "zh": "气滞血瘀"
+      "zh": "气滞血瘀",
+      "criteria": {
+        "key": [
+          "pain-fixed",
+          "pain-stabbing",
+          "pain-worse-night",
+          "tender-point"
+        ],
+        "supporting": [
+          "chronic-course",
+          "pain-worse-inactivity",
+          "muscle-tension",
+          "emotional-strain",
+          "tongue-purple",
+          "pulse-wiry",
+          "pulse-choppy"
+        ],
+        "against": []
+      }
     },
     {
       "id": "liver-kidney-deficiency",
       "label": "Liver and kidney deficiency",
-      "zh": "肝肾亏虚"
+      "zh": "肝肾亏虚",
+      "criteria": {
+        "key": [
+          "weak-knees-back",
+          "pain-worse-exertion",
+          "chronic-course"
+        ],
+        "supporting": [
+          "bony-enlargement",
+          "stiffness",
+          "dizziness",
+          "tinnitus",
+          "fatigue",
+          "tongue-pale",
+          "coat-scanty",
+          "pulse-deep",
+          "pulse-thin",
+          "pulse-weak"
+        ],
+        "against": [
+          "joint-hot-red-swollen",
+          "fever"
+        ]
+      }
     },
     {
       "id": "kidney-yang-deficiency",
       "label": "Kidney yang deficiency",
-      "zh": "肾阳虚"
+      "zh": "肾阳虚",
+      "criteria": {
+        "key": [
+          "weak-knees-back",
+          "aversion-to-cold",
+          "cold-limbs"
+        ],
+        "supporting": [
+          "fatigue",
+          "pain-better-warmth",
+          "frequent-pale-urination",
+          "tongue-pale",
+          "tongue-swollen-toothmarked",
+          "pulse-deep",
+          "pulse-weak",
+          "pulse-slow"
+        ],
+        "against": [
+          "tongue-red",
+          "pulse-rapid",
+          "night-sweats",
+          "five-palm-heat"
+        ]
+      }
     },
     {
       "id": "liver-yang-rising",
       "label": "Ascendant liver yang",
-      "zh": "肝阳上亢"
+      "zh": "肝阳上亢",
+      "criteria": {
+        "key": [
+          "irritability",
+          "dizziness",
+          "red-face-eyes"
+        ],
+        "supporting": [
+          "pain-distending-pressing",
+          "tinnitus",
+          "light-sleep",
+          "insomnia",
+          "emotional-strain",
+          "tongue-red",
+          "tongue-red-edges",
+          "pulse-wiry",
+          "pulse-rapid"
+        ],
+        "against": [
+          "aversion-to-cold",
+          "tongue-pale",
+          "pulse-slow",
+          "pulse-weak"
+        ]
+      }
     },
     {
       "id": "liver-qi-stagnation",
       "label": "Liver qi stagnation",
-      "zh": "肝气郁结"
+      "zh": "肝气郁结",
+      "criteria": {
+        "key": [
+          "emotional-strain",
+          "irritability",
+          "pain-distending-pressing",
+          "sighing"
+        ],
+        "supporting": [
+          "muscle-tension",
+          "light-sleep",
+          "chest-epigastric-fullness",
+          "coat-thin-white",
+          "pulse-wiry"
+        ],
+        "against": []
+      }
     },
     {
       "id": "wind-cold-invasion",
       "label": "External wind-cold",
-      "zh": "风寒外袭"
+      "zh": "风寒外袭",
+      "criteria": {
+        "key": [
+          "recent-onset",
+          "chills",
+          "occipital-stiff-neck"
+        ],
+        "supporting": [
+          "aversion-to-cold",
+          "coat-thin-white",
+          "pulse-floating",
+          "pulse-tight"
+        ],
+        "against": [
+          "chronic-course",
+          "tongue-red",
+          "coat-yellow-greasy"
+        ]
+      }
     },
     {
       "id": "spleen-stomach-deficiency",
       "label": "Spleen and stomach deficiency",
-      "zh": "脾胃虚弱"
+      "zh": "脾胃虚弱",
+      "criteria": {
+        "key": [
+          "poor-appetite",
+          "fatigue",
+          "loose-stools"
+        ],
+        "supporting": [
+          "nausea-vomiting",
+          "tired-appearance",
+          "tongue-pale",
+          "tongue-swollen-toothmarked",
+          "coat-thin-white",
+          "pulse-weak"
+        ],
+        "against": [
+          "coat-yellow-greasy",
+          "tongue-red",
+          "pulse-rapid"
+        ]
+      }
     },
     {
       "id": "stomach-qi-rebellion",
       "label": "Rebellious stomach qi",
-      "zh": "胃气上逆"
+      "zh": "胃气上逆",
+      "criteria": {
+        "key": [
+          "nausea-vomiting",
+          "belching"
+        ],
+        "supporting": [
+          "poor-appetite",
+          "chest-epigastric-fullness",
+          "pulse-slippery",
+          "coat-thin-white",
+          "coat-white-greasy"
+        ],
+        "against": []
+      }
     },
     {
       "id": "phlegm-damp",
       "label": "Phlegm-damp",
-      "zh": "痰湿"
+      "zh": "痰湿",
+      "criteria": {
+        "key": [
+          "heaviness",
+          "chest-epigastric-fullness",
+          "phlegm"
+        ],
+        "supporting": [
+          "nausea-vomiting",
+          "dizziness",
+          "tongue-swollen-toothmarked",
+          "coat-white-greasy",
+          "pulse-slippery"
+        ],
+        "against": [
+          "tongue-red",
+          "coat-scanty",
+          "pulse-thin"
+        ]
+      }
     },
     {
       "id": "heart-spleen-deficiency",
       "label": "Heart and spleen deficiency",
-      "zh": "心脾两虚"
+      "zh": "心脾两虚",
+      "criteria": {
+        "key": [
+          "insomnia",
+          "dream-disturbed-sleep",
+          "palpitations",
+          "poor-appetite",
+          "fatigue"
+        ],
+        "supporting": [
+          "worry",
+          "poor-memory",
+          "loose-stools",
+          "tired-appearance",
+          "tongue-pale",
+          "tongue-swollen-toothmarked",
+          "coat-thin-white",
+          "pulse-thin",
+          "pulse-weak"
+        ],
+        "against": [
+          "tongue-red",
+          "pulse-rapid",
+          "night-sweats",
+          "five-palm-heat"
+        ]
+      }
     },
     {
       "id": "heart-kidney-disharmony",
       "label": "Disharmony of heart and kidney",
-      "zh": "心肾不交"
+      "zh": "心肾不交",
+      "criteria": {
+        "key": [
+          "insomnia",
+          "palpitations",
+          "night-sweats",
+          "five-palm-heat"
+        ],
+        "supporting": [
+          "dream-disturbed-sleep",
+          "dizziness",
+          "tinnitus",
+          "poor-memory",
+          "weak-knees-back",
+          "dry-mouth",
+          "tongue-red",
+          "coat-scanty",
+          "pulse-thin",
+          "pulse-rapid"
+        ],
+        "against": [
+          "tongue-pale",
+          "tongue-swollen-toothmarked",
+          "aversion-to-cold"
+        ]
+      }
     }
   ],
+  "differentiation": {
+    "key": 1,
+    "total": 3,
+    "against": 2,
+    "note": "A pattern differentiation names the findings it rests on. It rests on its evidence when those findings show at least one of the pattern's key signs and three of its signs in all (key or supporting), and the findings obtained do not show two signs that speak against it. A biomedical diagnosis never implies one pattern, and one sign never makes one.",
+    "sources": [
+      {
+        "title": "WHO international standard terminologies on traditional Chinese medicine",
+        "publisher": "World Health Organization",
+        "publishedAt": "2022",
+        "verified": false,
+        "url": "https://www.who.int/publications/i/item/9789240042322",
+        "note": "The publication (ISBN 9789240042322) was confirmed to exist; its entries for these patterns, their manifestations and deqi were not read while this pack was written. The criteria here are a paraphrase of general textbook teaching, not the standard's text."
+      },
+      {
+        "title": "ICD-11, Supplementary Chapter Traditional Medicine Conditions – Module I",
+        "publisher": "World Health Organization",
+        "publishedAt": "2019 (in effect 2022)",
+        "verified": false,
+        "note": "Cited as the classification that names traditional medicine patterns; not consulted for the criteria, which it does not define."
+      },
+      {
+        "title": "GB/T 16751.2-2021 Clinic terminology of traditional Chinese medical diagnosis and treatment — Part 2: Syndromes/patterns",
+        "publisher": "Standardization Administration of China",
+        "publishedAt": "2021",
+        "verified": false,
+        "note": "Recalled, not retrieved: confirm the title, the edition and each pattern's wording before use."
+      }
+    ]
+  },
+  "sensations": [
+    {
+      "id": "aching",
+      "label": "Soreness or a dull ache",
+      "zh": "酸",
+      "deqi": true
+    },
+    {
+      "id": "numbness",
+      "label": "Numbness or tingling",
+      "zh": "麻",
+      "deqi": true
+    },
+    {
+      "id": "heaviness",
+      "label": "Heaviness",
+      "zh": "重",
+      "deqi": true
+    },
+    {
+      "id": "distension",
+      "label": "Distension or fullness",
+      "zh": "胀",
+      "deqi": true
+    },
+    {
+      "id": "warmth",
+      "label": "Warmth",
+      "zh": "热",
+      "deqi": true
+    },
+    {
+      "id": "spreading",
+      "label": "A sensation spreading from the needle",
+      "zh": "感传",
+      "deqi": true
+    },
+    {
+      "id": "sharp-pain",
+      "label": "Sharp pain",
+      "zh": "锐痛",
+      "deqi": false
+    },
+    {
+      "id": "burning",
+      "label": "Burning",
+      "zh": "灼痛",
+      "deqi": false
+    },
+    {
+      "id": "electric",
+      "label": "An electric, shooting sensation",
+      "zh": "触电感",
+      "deqi": false
+    }
+  ],
+  "deqi": {
+    "definition": "Deqi (得气, the arrival of qi): the response to a needle at an effective depth. The patient feels soreness, numbness, heaviness or distension at the needle, sometimes spreading from it; the practitioner feels the needle become heavy and tight in the tissue, as if gripped. Sharp, burning or electric sensations are not deqi: they are reasons to adjust or withdraw the needle.",
+    "evidence": "A recorded deqi response rests on what was observed at that needle: what the patient said they felt when asked, or the grip the practitioner felt on manipulating it. Inserting or manipulating a needle is not evidence that deqi arrived, a response is recorded needle by needle, and stronger stimulation is never the aim.",
+    "sources": [
+      {
+        "title": "Revised STandards for Reporting Interventions in Clinical Trials of Acupuncture (STRICTA): extending the CONSORT statement",
+        "publisher": "MacPherson H, Altman DG, Hammerschlag R, et al. PLoS Medicine 7(6): e1000261",
+        "publishedAt": "2010",
+        "verified": true,
+        "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC2882429",
+        "locator": "Item 2d: Response sought (e.g. de qi or muscle twitch response)",
+        "note": "The item's wording was checked against the published checklist while this pack was written. STRICTA is a reporting standard: it asks that the response sought be reported, not that deqi be obtained."
+      },
+      {
+        "title": "Acupuncture de qi, from qualitative history to quantitative measurement",
+        "publisher": "Kong J, Gollub R, Huang T, et al. Journal of Alternative and Complementary Medicine 13(10): 1059-1070",
+        "publishedAt": "2007",
+        "verified": false,
+        "note": "The paper and its sensation scale (the MGH Acupuncture Sensation Scale) were confirmed to exist; the descriptors here follow later reviews of the scale, which also report that sharp pain is not commonly regarded as deqi. The full text was not read: check it before use."
+      },
+      {
+        "title": "WHO international standard terminologies on traditional Chinese medicine",
+        "publisher": "World Health Organization",
+        "publishedAt": "2022",
+        "verified": false,
+        "url": "https://www.who.int/publications/i/item/9789240042322",
+        "note": "The publication (ISBN 9789240042322) was confirmed to exist; its entries for these patterns, their manifestations and deqi were not read while this pack was written. The criteria here are a paraphrase of general textbook teaching, not the standard's text."
+      }
+    ]
+  },
   "redFlags": [
     {
       "id": "hot-swollen-joint-fever",

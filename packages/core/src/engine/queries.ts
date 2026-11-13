@@ -15,6 +15,12 @@ export const needleList = (s: EncounterState): NeedleState[] => Object.values(s.
 
 export const retainedNeedles = (s: EncounterState): NeedleState[] => needleList(s).filter((n) => n.location.kind === "patient");
 
+/** A needle that fell out of the patient unseen: until someone finds it, everyone takes it to be where it was placed. */
+export const fellUnseen = (n: NeedleState): boolean => n.location.kind === "floor" && n.location.hidden && n.insertion !== null;
+
+/** Needles the team takes to be in the patient: those that are, and any that fell out unseen. */
+export const apparentlyRetained = (s: EncounterState): NeedleState[] => needleList(s).filter((n) => n.location.kind === "patient" || fellUnseen(n));
+
 /** Needles taken out of their sealed pack (opened onto a tray): each must end disposed or with a recorded response. */
 export const openedNeedles = (s: EncounterState): NeedleState[] => needleList(s).filter((n) => n.location.kind !== "pack");
 

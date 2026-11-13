@@ -66,6 +66,15 @@ export const PlanSchema = z
   .strict();
 export type PlanBody = z.infer<typeof PlanSchema>;
 
+/**
+ * What a needle did, as the practitioner records it: `deqi` — qi arrived at it; `none` — it was sought or checked and
+ * did not; `not-sought` — no response was looked for. `deqi` and `none` are conclusions: they name the evidence of
+ * that needle they rest on (what the patient said they felt there, what the operator felt on manipulating it).
+ */
+export const NEEDLE_RESPONSES = ["deqi", "none", "not-sought"] as const;
+export const NeedleResponseSchema = z.object({ needle: IdSchema, response: z.enum(NEEDLE_RESPONSES), evidence: z.array(IdSchema).max(12).default([]) }).strict();
+export type NeedleResponseClaim = z.infer<typeof NeedleResponseSchema>;
+
 export const DocumentRecordSchema = z
   .object({
     presentingComplaint: z.string().max(4000).optional(),
@@ -82,6 +91,8 @@ export const DocumentRecordSchema = z
         needleCount: z.number().int().min(0).optional(),
         depth: z.string().max(500).optional(),
         responseSought: z.string().max(500).optional(),
+        /** The response at each needle, with the evidence it rests on (docs/EVIDENCE.md). */
+        responses: z.array(NeedleResponseSchema).max(40).optional(),
         stimulation: z.string().max(500).optional(),
         retentionMinutes: z.number().min(0).optional(),
       })
@@ -114,6 +125,12 @@ export const ActionSchema = z.discriminatedUnion("type", [
       type: z.literal("assess"),
       diagnoses: z.array(IdSchema).max(6).default([]),
       pattern: IdSchema.optional(),
+      /**
+       * The findings the pattern differentiation rests on: ids of evidence obtained in this encounter (answers,
+       * examination findings, records — `record` in the view). A pattern without them is refused, and so is an id
+       * that was never obtained.
+       */
+      patternEvidence: z.array(IdSchema).max(24).default([]),
       redFlags: z.array(IdSchema).max(10).default([]),
       rationale: Text.optional(),
     })
@@ -172,6 +189,8 @@ export const ActionSchema = z.discriminatedUnion("type", [
     })
     .strict(),
   z.object({ type: z.literal("adjust_needle"), needleId: IdSchema, depthCm: z.number().positive().max(10).optional(), technique: z.enum(["none", "lift-thrust", "rotate"]).default("none") }).strict(),
+  /** Ask the patient what they feel at one needle: their answer is evidence of that needle's response. */
+  z.object({ type: z.literal("check_sensation"), needleId: IdSchema }).strict(),
   z.object({ type: z.literal("monitor") }).strict(),
   z.object({ type: z.literal("wait"), minutes: z.number().int().min(1).max(60) }).strict(),
   z.object({ type: z.literal("stop_treatment"), reason: Text }).strict(),

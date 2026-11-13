@@ -219,6 +219,13 @@
         "insomnia"
       ],
       "pattern": "heart-spleen-deficiency",
+      "patternEvidence": [
+        "hx-sleep",
+        "hx-tcm",
+        "hx-onset",
+        "ex-tongue",
+        "ex-pulse-tcm"
+      ],
       "redFlags": [],
       "rationale": "Sleep-onset and early waking under stress; dreams, palpitations, poor appetite, fatigue; pale tongue with teeth marks, thin weak pulse. Mood reactive; no self-harm thoughts."
     }
@@ -721,6 +728,15 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
+      "type": "check_sensation",
+      "needleId": "pack-a.1"
+    }
+  },
+  {
+    "requestId": "ib-066",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
       "type": "move",
       "to": {
         "region": "knee-leg",
@@ -729,7 +745,7 @@
     }
   },
   {
-    "requestId": "ib-066",
+    "requestId": "ib-067",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -742,7 +758,26 @@
     }
   },
   {
-    "requestId": "ib-067",
+    "requestId": "ib-068",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "adjust_needle",
+      "needleId": "pack-a.3",
+      "technique": "rotate"
+    }
+  },
+  {
+    "requestId": "ib-069",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_sensation",
+      "needleId": "pack-a.3"
+    }
+  },
+  {
+    "requestId": "ib-070",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -754,7 +789,7 @@
     }
   },
   {
-    "requestId": "ib-068",
+    "requestId": "ib-071",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -767,7 +802,16 @@
     }
   },
   {
-    "requestId": "ib-069",
+    "requestId": "ib-072",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_sensation",
+      "needleId": "pack-a.2"
+    }
+  },
+  {
+    "requestId": "ib-073",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -779,7 +823,7 @@
     }
   },
   {
-    "requestId": "ib-070",
+    "requestId": "ib-074",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -792,7 +836,26 @@
     }
   },
   {
-    "requestId": "ib-071",
+    "requestId": "ib-075",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "adjust_needle",
+      "needleId": "pack-a.4",
+      "technique": "rotate"
+    }
+  },
+  {
+    "requestId": "ib-076",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_sensation",
+      "needleId": "pack-a.4"
+    }
+  },
+  {
+    "requestId": "ib-077",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -800,7 +863,7 @@
     }
   },
   {
-    "requestId": "ib-072",
+    "requestId": "ib-078",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -809,7 +872,7 @@
     }
   },
   {
-    "requestId": "ib-073",
+    "requestId": "ib-079",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -817,7 +880,7 @@
     }
   },
   {
-    "requestId": "ib-074",
+    "requestId": "ib-080",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -826,7 +889,7 @@
     }
   },
   {
-    "requestId": "ib-075",
+    "requestId": "ib-081",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -834,7 +897,7 @@
     }
   },
   {
-    "requestId": "ib-076",
+    "requestId": "ib-082",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -842,7 +905,7 @@
     }
   },
   {
-    "requestId": "ib-077",
+    "requestId": "ib-083",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -851,7 +914,7 @@
     }
   },
   {
-    "requestId": "ib-078",
+    "requestId": "ib-084",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -862,7 +925,7 @@
     }
   },
   {
-    "requestId": "ib-079",
+    "requestId": "ib-085",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -870,7 +933,7 @@
     }
   },
   {
-    "requestId": "ib-080",
+    "requestId": "ib-086",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -878,7 +941,7 @@
     }
   },
   {
-    "requestId": "ib-081",
+    "requestId": "ib-087",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -889,7 +952,7 @@
     }
   },
   {
-    "requestId": "ib-082",
+    "requestId": "ib-088",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -901,7 +964,7 @@
     }
   },
   {
-    "requestId": "ib-083",
+    "requestId": "ib-089",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -934,72 +997,46 @@
           "needleType": "0.25 × 40 mm single-use sterile filiform",
           "needleCount": 4,
           "depth": "HT7 0.5 cm; SP6 1.5 cm",
-          "responseSought": "mild deqi",
+          "responseSought": "mild deqi at SP6 (rotation); the wrist needles not worked",
           "stimulation": "even",
-          "retentionMinutes": 20
+          "retentionMinutes": 20,
+          "responses": [
+            {
+              "needle": "pack-a.1",
+              "response": "none",
+              "evidence": [
+                "sense-1"
+              ]
+            },
+            {
+              "needle": "pack-a.2",
+              "response": "none",
+              "evidence": [
+                "sense-3"
+              ]
+            },
+            {
+              "needle": "pack-a.3",
+              "response": "deqi",
+              "evidence": [
+                "feel-1",
+                "sense-2"
+              ]
+            },
+            {
+              "needle": "pack-a.4",
+              "response": "deqi",
+              "evidence": [
+                "feel-2",
+                "sense-4"
+              ]
+            }
+          ]
         },
         "response": "Tolerated; relaxed.",
         "adverseEvents": "None.",
         "advice": "No caffeine after lunch; regular bedtime; do not drive when sleepy.",
         "followUp": "Review in one week."
-      }
-    }
-  },
-  {
-    "requestId": "ib-084",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "end_visit"
-    }
-  },
-  {
-    "requestId": "ib-085",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "begin_follow_up"
-    }
-  },
-  {
-    "requestId": "ib-086",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "ask",
-      "itemId": "fu-progress"
-    }
-  },
-  {
-    "requestId": "ib-087",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "ask",
-      "itemId": "fu-new"
-    }
-  },
-  {
-    "requestId": "ib-088",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "decide",
-      "disposition": "treat",
-      "rationale": "Improving: continue weekly with sleep hygiene."
-    }
-  },
-  {
-    "requestId": "ib-089",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "document",
-      "record": {
-        "assessment": "Insomnia improving; mood okay.",
-        "response": "Falls asleep within 30 minutes on some nights.",
-        "adverseEvents": "None.",
-        "followUp": "Weekly for three more sessions."
       }
     }
   },
@@ -1013,6 +1050,64 @@
   },
   {
     "requestId": "ib-091",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "begin_follow_up"
+    }
+  },
+  {
+    "requestId": "ib-092",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "fu-progress"
+    }
+  },
+  {
+    "requestId": "ib-093",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "fu-new"
+    }
+  },
+  {
+    "requestId": "ib-094",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "decide",
+      "disposition": "treat",
+      "rationale": "Improving: continue weekly with sleep hygiene."
+    }
+  },
+  {
+    "requestId": "ib-095",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "document",
+      "record": {
+        "assessment": "Insomnia improving; mood okay.",
+        "response": "Falls asleep within 30 minutes on some nights.",
+        "adverseEvents": "None.",
+        "followUp": "Weekly for three more sessions."
+      }
+    }
+  },
+  {
+    "requestId": "ib-096",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "end_visit"
+    }
+  },
+  {
+    "requestId": "ib-097",
     "actor": "practitioner",
     "patient": "patient",
     "action": {

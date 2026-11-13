@@ -232,6 +232,38 @@
         "damp-heat-bi"
       ]
     },
+    "signs": {
+      "hx-chief": [
+        "chronic-course"
+      ],
+      "hx-character": [
+        "pain-distending-pressing"
+      ],
+      "hx-frequency": [
+        "chronic-course"
+      ],
+      "hx-triggers": [
+        "emotional-strain"
+      ],
+      "hx-neck": [
+        "muscle-tension"
+      ],
+      "hx-tcm": [
+        "irritability",
+        "light-sleep"
+      ],
+      "ex-neck": [
+        "muscle-tension",
+        "tender-point"
+      ],
+      "ex-tongue": [
+        "tongue-red-edges",
+        "coat-thin-white"
+      ],
+      "ex-pulse-tcm": [
+        "pulse-wiry"
+      ]
+    },
     "redFlags": [
       {
         "id": "thunderclap-headache",

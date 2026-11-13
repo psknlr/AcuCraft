@@ -236,6 +236,14 @@
         "tension-type-headache"
       ],
       "pattern": "liver-qi-stagnation",
+      "patternEvidence": [
+        "hx-character",
+        "hx-triggers",
+        "hx-tcm",
+        "hx-neck",
+        "ex-tongue",
+        "ex-pulse-tcm"
+      ],
       "redFlags": [],
       "rationale": "Bilateral pressing headache, no red flags, normal neurology; stress-related, irritable, wiry pulse."
     }
@@ -820,6 +828,25 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
+      "type": "adjust_needle",
+      "needleId": "pack-a.1",
+      "technique": "rotate"
+    }
+  },
+  {
+    "requestId": "hs-074",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_sensation",
+      "needleId": "pack-a.1"
+    }
+  },
+  {
+    "requestId": "hs-075",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
       "type": "insert_needle",
       "needleId": "pack-a.3",
       "mark": "m2",
@@ -829,7 +856,16 @@
     }
   },
   {
-    "requestId": "hs-074",
+    "requestId": "hs-076",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_sensation",
+      "needleId": "pack-a.3"
+    }
+  },
+  {
+    "requestId": "hs-077",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -841,7 +877,7 @@
     }
   },
   {
-    "requestId": "hs-075",
+    "requestId": "hs-078",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -854,7 +890,26 @@
     }
   },
   {
-    "requestId": "hs-076",
+    "requestId": "hs-079",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "adjust_needle",
+      "needleId": "pack-a.5",
+      "technique": "lift-thrust"
+    }
+  },
+  {
+    "requestId": "hs-080",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_sensation",
+      "needleId": "pack-a.5"
+    }
+  },
+  {
+    "requestId": "hs-081",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -866,7 +921,7 @@
     }
   },
   {
-    "requestId": "hs-077",
+    "requestId": "hs-082",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -879,7 +934,26 @@
     }
   },
   {
-    "requestId": "hs-078",
+    "requestId": "hs-083",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "adjust_needle",
+      "needleId": "pack-a.2",
+      "technique": "rotate"
+    }
+  },
+  {
+    "requestId": "hs-084",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_sensation",
+      "needleId": "pack-a.2"
+    }
+  },
+  {
+    "requestId": "hs-085",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -892,7 +966,16 @@
     }
   },
   {
-    "requestId": "hs-079",
+    "requestId": "hs-086",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_sensation",
+      "needleId": "pack-a.4"
+    }
+  },
+  {
+    "requestId": "hs-087",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -904,7 +987,7 @@
     }
   },
   {
-    "requestId": "hs-080",
+    "requestId": "hs-088",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -917,7 +1000,26 @@
     }
   },
   {
-    "requestId": "hs-081",
+    "requestId": "hs-089",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "adjust_needle",
+      "needleId": "pack-b.1",
+      "technique": "lift-thrust"
+    }
+  },
+  {
+    "requestId": "hs-090",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_sensation",
+      "needleId": "pack-b.1"
+    }
+  },
+  {
+    "requestId": "hs-091",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -925,7 +1027,7 @@
     }
   },
   {
-    "requestId": "hs-082",
+    "requestId": "hs-092",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -934,7 +1036,7 @@
     }
   },
   {
-    "requestId": "hs-083",
+    "requestId": "hs-093",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -942,7 +1044,7 @@
     }
   },
   {
-    "requestId": "hs-084",
+    "requestId": "hs-094",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -951,7 +1053,7 @@
     }
   },
   {
-    "requestId": "hs-085",
+    "requestId": "hs-095",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -959,7 +1061,7 @@
     }
   },
   {
-    "requestId": "hs-086",
+    "requestId": "hs-096",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -967,7 +1069,7 @@
     }
   },
   {
-    "requestId": "hs-087",
+    "requestId": "hs-097",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -976,7 +1078,7 @@
     }
   },
   {
-    "requestId": "hs-088",
+    "requestId": "hs-098",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -985,7 +1087,7 @@
     }
   },
   {
-    "requestId": "hs-089",
+    "requestId": "hs-099",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -996,7 +1098,7 @@
     }
   },
   {
-    "requestId": "hs-090",
+    "requestId": "hs-100",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -1004,7 +1106,7 @@
     }
   },
   {
-    "requestId": "hs-091",
+    "requestId": "hs-101",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -1012,7 +1114,7 @@
     }
   },
   {
-    "requestId": "hs-092",
+    "requestId": "hs-102",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -1023,7 +1125,7 @@
     }
   },
   {
-    "requestId": "hs-093",
+    "requestId": "hs-103",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -1035,7 +1137,7 @@
     }
   },
   {
-    "requestId": "hs-094",
+    "requestId": "hs-104",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -1076,9 +1178,58 @@
           "needleType": "0.25 × 40 mm single-use sterile filiform",
           "needleCount": 6,
           "depth": "GB20 1.6 cm; GB21 oblique 45°, 1.2 cm (slim build: pleura close); LI4 1.5 cm",
-          "responseSought": "deqi",
+          "responseSought": "deqi at GB20 (rotation) and LI4 (lift and thrust); GB21 not worked (the lung lies beneath)",
           "stimulation": "even",
-          "retentionMinutes": 20
+          "retentionMinutes": 20,
+          "responses": [
+            {
+              "needle": "pack-a.1",
+              "response": "deqi",
+              "evidence": [
+                "feel-1",
+                "sense-1",
+                "sense-2"
+              ]
+            },
+            {
+              "needle": "pack-a.2",
+              "response": "deqi",
+              "evidence": [
+                "feel-3",
+                "sense-5"
+              ]
+            },
+            {
+              "needle": "pack-a.3",
+              "response": "deqi",
+              "evidence": [
+                "sense-3"
+              ]
+            },
+            {
+              "needle": "pack-a.4",
+              "response": "deqi",
+              "evidence": [
+                "sense-6"
+              ]
+            },
+            {
+              "needle": "pack-a.5",
+              "response": "deqi",
+              "evidence": [
+                "feel-2",
+                "sense-4"
+              ]
+            },
+            {
+              "needle": "pack-b.1",
+              "response": "deqi",
+              "evidence": [
+                "feel-4",
+                "sense-7"
+              ]
+            }
+          ]
         },
         "response": "Tolerated.",
         "adverseEvents": "None.",
@@ -1088,7 +1239,7 @@
     }
   },
   {
-    "requestId": "hs-095",
+    "requestId": "hs-105",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -1096,7 +1247,7 @@
     }
   },
   {
-    "requestId": "hs-096",
+    "requestId": "hs-106",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -1104,7 +1255,7 @@
     }
   },
   {
-    "requestId": "hs-097",
+    "requestId": "hs-107",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -1113,7 +1264,7 @@
     }
   },
   {
-    "requestId": "hs-098",
+    "requestId": "hs-108",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -1122,7 +1273,7 @@
     }
   },
   {
-    "requestId": "hs-099",
+    "requestId": "hs-109",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -1132,7 +1283,7 @@
     }
   },
   {
-    "requestId": "hs-100",
+    "requestId": "hs-110",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -1141,7 +1292,7 @@
     }
   },
   {
-    "requestId": "hs-101",
+    "requestId": "hs-111",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -1151,7 +1302,7 @@
     }
   },
   {
-    "requestId": "hs-102",
+    "requestId": "hs-112",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -1165,7 +1316,7 @@
     }
   },
   {
-    "requestId": "hs-103",
+    "requestId": "hs-113",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -1173,7 +1324,7 @@
     }
   },
   {
-    "requestId": "hs-104",
+    "requestId": "hs-114",
     "actor": "practitioner",
     "patient": "patient",
     "action": {

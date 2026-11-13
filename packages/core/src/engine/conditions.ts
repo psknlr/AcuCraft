@@ -5,7 +5,7 @@ import { consentCovers, insertedNeedles, now, positionAt, retainedNeedles, unres
 import type { Scenario } from "./scenario.js";
 
 /** Actions that count as attending to the patient after an event. */
-const RESPONSES: ReadonlySet<string> = new Set(["monitor", "observe", "check_vitals", "stop_treatment", "remove_needle", "remove_all_needles", "adjust_needle", "position_patient", "apply_pressure"]);
+const RESPONSES: ReadonlySet<string> = new Set(["monitor", "observe", "check_vitals", "check_sensation", "stop_treatment", "remove_needle", "remove_all_needles", "adjust_needle", "position_patient", "apply_pressure"]);
 
 const inRange = (n: number, r: { gte?: number; lte?: number }) => (r.gte === undefined || n >= r.gte) && (r.lte === undefined || n <= r.lte);
 

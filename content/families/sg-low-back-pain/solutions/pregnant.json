@@ -291,6 +291,14 @@
         "pregnancy-related-lbp"
       ],
       "pattern": "qi-blood-stagnation",
+      "patternEvidence": [
+        "hx-site",
+        "hx-pattern",
+        "hx-work",
+        "ex-palpate-back",
+        "ex-tongue",
+        "ex-pulse-tcm"
+      ],
       "redFlags": [],
       "rationale": "Mechanical back pain in pregnancy (24 weeks); no red flags."
     }
@@ -642,9 +650,16 @@
           "needleType": "0.25 × 40 mm single-use sterile filiform",
           "needleCount": 1,
           "depth": "1.0 cm",
-          "responseSought": "none (gentle)",
+          "responseSought": "none (gentle: the needle was not worked and no response was looked for)",
           "stimulation": "none",
-          "retentionMinutes": 15
+          "retentionMinutes": 15,
+          "responses": [
+            {
+              "needle": "pack-a.1",
+              "response": "not-sought",
+              "evidence": []
+            }
+          ]
         },
         "response": "Tolerated well.",
         "adverseEvents": "None.",
