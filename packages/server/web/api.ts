@@ -1,6 +1,6 @@
 import type { AgentView } from "@acucraft/core";
 import type { EncounterReport } from "@acucraft/bench";
-import type { EncounterSnapshot, EncounterSummary, TimelineEntry } from "../src/hub.js";
+import type { EncounterSnapshot, EncounterSummary, StageInfo, TimelineEntry } from "../src/hub.js";
 import type { RunnerSnapshot, TranscriptItem } from "../src/runner.js";
 
 /**
@@ -8,7 +8,7 @@ import type { RunnerSnapshot, TranscriptItem } from "../src/runner.js";
  * request says who is acting (the name the operator gave, and this tab), so the timeline can say who did what.
  */
 
-export type { AgentView, EncounterReport, EncounterSnapshot, EncounterSummary, RunnerSnapshot, TimelineEntry, TranscriptItem };
+export type { AgentView, EncounterReport, EncounterSnapshot, EncounterSummary, RunnerSnapshot, StageInfo, TimelineEntry, TranscriptItem };
 
 export interface Info {
   name: string;
@@ -18,6 +18,8 @@ export interface Info {
   auth: { token: boolean };
   mcp: string;
   languageModel: { claude: boolean };
+  /** The 3D view of an encounter: whether the server has it (it needs the pinned engine's figure kit). */
+  stage: { available: boolean; missing: string | null };
 }
 
 export interface ToolInfo {
@@ -108,6 +110,7 @@ export const api = {
   importLog: (log: unknown) => request<{ id: string; summary: EncounterSummary }>("POST", "/api/encounters/import", { log, by: by() }),
   snapshot: (id: string) => request<EncounterSnapshot>("GET", enc(id)),
   tools: (id: string) => request<{ tools: ToolInfo[] }>("GET", `${enc(id)}/tools`),
+  stage: (id: string) => request<StageInfo>("GET", `${enc(id)}/stage`),
   act: (id: string, tool: string, input: Record<string, unknown>) => request<ActAnswer>("POST", `${enc(id)}/act`, { tool, input, by: by() }),
   close: (id: string, abandon: boolean) => request<{ report: EncounterReport }>("POST", `${enc(id)}/close`, { abandon, by: by() }),
   remove: (id: string) => request<{ removed: string }>("DELETE", enc(id)),

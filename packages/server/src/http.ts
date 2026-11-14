@@ -1,13 +1,14 @@
 import { randomBytes } from "node:crypto";
-import { existsSync, readFileSync, statSync } from "node:fs";
+import { createReadStream, existsSync, readFileSync, statSync } from "node:fs";
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 import type { AddressInfo } from "node:net";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import ts from "typescript";
 import { ACUCRAFT_VERSION } from "@acucraft/core";
 import { CLINICALCRAFT_REV } from "@acucraft/bench";
 import { McpServer, SUPPORTED_PROTOCOL_VERSIONS, type EncounterStore } from "@acucraft/mcp";
+import { StageBundle } from "./bundle.js";
 import { operator, type HubEvent, type HubResult, type RecordHub } from "./hub.js";
 import { DEBRIEF_CSP, hostnameOf, isLoopbackHost, originOf, securityHeaders, tokenCookie, tokenSource } from "./security.js";
 
@@ -32,6 +33,11 @@ export interface ServeOptions {
   token?: string | null;
   /** The browser app's directory (default: this package's `web/`). */
   appDir?: string;
+  /**
+   * The ClinicalCraft checkout whose figure kit the 3D view draws people with (default: the repository's pinned
+   * `.deps/clinicalcraft`); null: no 3D view.
+   */
+  engineDir?: string | null;
   /** One line per request (method, path, status — never a query string). */
   log?: (line: string) => void;
 }
@@ -142,7 +148,10 @@ export async function serve(options: ServeOptions): Promise<RunningServer> {
   const loopback = isLoopbackHost(host);
   const token = options.token ?? null;
   if (!loopback && !token) throw new Error(`listening on ${host} (not a loopback address) needs an access token (--token-file)`);
-  const app = new App(options.appDir ?? fileURLToPath(new URL("../web/", import.meta.url)));
+  const appDir = options.appDir ?? fileURLToPath(new URL("../web/", import.meta.url));
+  const app = new App(appDir);
+  const stage = new StageBundle({ entry: join(appDir, "stage", "index.ts"), engineDir: options.engineDir === undefined ? resolve(fileURLToPath(new URL("../../../.deps/clinicalcraft", import.meta.url))) : options.engineDir });
+  const modelsDir = join(hub.contentDir, "world", "assets", "models");
   const log = options.log ?? (() => {});
   const store: EncounterStore = hub.mcpStore();
   const mcp = new Map<string, McpConnection>();
@@ -154,7 +163,7 @@ export async function serve(options: ServeOptions): Promise<RunningServer> {
   async function api(req: IncomingMessage, res: ServerResponse, url: URL, path: string): Promise<void> {
     const method = req.method ?? "GET";
     if (path === "/api/info" && method === "GET") {
-      return json(res, 200, { name: "AcuCraft workspace", version: ACUCRAFT_VERSION, clinicalcraft: CLINICALCRAFT_REV, families: hub.families(), auth: { token: token !== null }, mcp: "/mcp", languageModel: { claude: Boolean(process.env.ANTHROPIC_API_KEY) } });
+      return json(res, 200, { name: "AcuCraft workspace", version: ACUCRAFT_VERSION, clinicalcraft: CLINICALCRAFT_REV, families: hub.families(), auth: { token: token !== null }, mcp: "/mcp", languageModel: { claude: Boolean(process.env.ANTHROPIC_API_KEY) }, stage: { available: stage.available, missing: stage.missing } });
     }
     if (path === "/api/stream" && method === "GET") return stream(req, res, url.searchParams.get("encounter"));
     if (path === "/api/encounters") {
@@ -180,6 +189,8 @@ export async function serve(options: ServeOptions): Promise<RunningServer> {
         return send(res, hub.remove(id));
       case "GET tools":
         return json(res, 200, { tools: hub.tools(id) });
+      case "GET stage":
+        return json(res, 200, hub.stage(id));
       case "POST act": {
         const body = record(await readBody(req, MAX_BODY));
         return send(res, hub.act(id, body.tool, body.input, byOf(body)));
@@ -288,6 +299,38 @@ export async function serve(options: ServeOptions): Promise<RunningServer> {
     json(res, 200, answer, { "mcp-session-id": id! });
   }
 
+  /** The 3D view, bundled (gzipped when the browser takes it; 304 when it has it already). */
+  async function stageRoute(req: IncomingMessage, res: ServerResponse): Promise<void> {
+    if (!stage.available) return json(res, 404, { error: `no 3D view: ${stage.missing}` });
+    const built = await stage.get();
+    const headers = { ...securityHeaders(), "content-type": "text/javascript; charset=utf-8", "cache-control": "no-cache", etag: built.etag, vary: "accept-encoding" };
+    if (req.headers["if-none-match"] === built.etag) {
+      res.writeHead(304, headers);
+      res.end();
+      return;
+    }
+    const gzip = /\bgzip\b/.test(String(req.headers["accept-encoding"] ?? ""));
+    res.writeHead(200, { ...headers, ...(gzip ? { "content-encoding": "gzip" } : {}), "content-length": String(gzip ? built.gz.length : built.js.length) });
+    res.end(gzip ? built.gz : built.js);
+  }
+
+  /** A model of the clinic's equipment (`<content>/world/assets/models/<name>.glb`). */
+  function modelRoute(req: IncomingMessage, res: ServerResponse, path: string): void {
+    const m = /^\/app\/models\/([a-z0-9][a-z0-9-]{0,63})\.glb$/.exec(path);
+    const file = m ? join(modelsDir, `${m[1]}.glb`) : null;
+    if (!file || !existsSync(file)) return json(res, 404, { error: "no such model" });
+    const st = statSync(file);
+    const etag = `"${st.size.toString(36)}-${Math.round(st.mtimeMs).toString(36)}"`;
+    const headers = { ...securityHeaders(), "content-type": "model/gltf-binary", "cache-control": "no-cache", etag };
+    if (req.headers["if-none-match"] === etag) {
+      res.writeHead(304, headers);
+      res.end();
+      return;
+    }
+    res.writeHead(200, { ...headers, "content-length": String(st.size) });
+    createReadStream(file).pipe(res);
+  }
+
   const server = createServer((req, res) => {
     const url = new URL(req.url ?? "/", "http://workspace.invalid");
     const path = url.pathname;
@@ -304,6 +347,8 @@ export async function serve(options: ServeOptions): Promise<RunningServer> {
         res.end();
         return;
       }
+      if (req.method === "GET" && path === "/app/stage.js") return stageRoute(req, res);
+      if (req.method === "GET" && path.startsWith("/app/models/")) return modelRoute(req, res, path);
       if (req.method === "GET" && app.serve(res, path)) return;
       if (path.startsWith("/api/")) {
         if (token) {

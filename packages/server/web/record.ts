@@ -222,6 +222,12 @@ function localisation(ctx: RecordContext): HTMLElement {
   );
 }
 
+/** A needle's row, findable by the needle (the 3D view points at it when the needle is picked there). */
+const withNeedle = (needle: string, tr: HTMLElement) => {
+  tr.dataset.needle = needle;
+  return tr;
+};
+
 function needling(ctx: RecordContext): HTMLElement {
   const v = ctx.view;
   const responseTone = (r: string | null): Tone => (r === "deqi" ? "ok" : r === "none" ? "warn" : r ? "muted" : "muted");
@@ -235,7 +241,7 @@ function needling(ctx: RecordContext): HTMLElement {
         ? table(
             ["needle", "target", "", "worked", "evidence of its response", "recorded"],
             v.needling.map((n) =>
-              row(
+              withNeedle(n.needle, row(
                 ctx,
                 `nd:${n.needle}:${n.inPlace}:${n.manipulations}:${n.evidence.length}:${n.recorded}`,
                 h("code", null, n.needle),
@@ -244,7 +250,7 @@ function needling(ctx: RecordContext): HTMLElement {
                 `${n.manipulations}×`,
                 n.evidence.length ? h("ul", { class: "plain" }, n.evidence.map((e) => h("li", null, h("code", null, e.id), ` ${e.from}${e.unasked ? " (unasked)" : ""}: ${e.text}`))) : "—",
                 n.recorded ? pill(n.recorded, responseTone(n.recorded)) : "—",
-              ),
+              )),
             ),
           )
         : empty("No needle inserted in this visit."),
@@ -372,12 +378,21 @@ export function renderRecord(ctx: RecordContext): HTMLElement {
 }
 
 /** The patient at a glance: who, where, how they look, and the state of the encounter. */
+/** A person's initials in a circle of a colour of their own; its ring says how they are (comfortable, anxious, faint). */
+export function avatar(name: string, tone: Tone = "muted", size: "big" | "small" = "big"): HTMLElement {
+  const words = name.split(/\s+/).filter((w) => w && !/^(mdm|mrs?|ms|dr|mx|miss|madam)\.?$/i.test(w));
+  const initials = ((words[0]?.[0] ?? "?") + (words.length > 1 ? (words[words.length - 1]?.[0] ?? "") : "")).toUpperCase();
+  let hash = 0;
+  for (const ch of name) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
+  return h("span", { class: ["avatar", size, `ring-${tone}`, `hue-${hash % 8}`], "aria-hidden": "true" }, initials);
+}
+
 export function banner(view: AgentView, extra: Child[]): HTMLElement {
   const p = view.patient;
   return h(
     "header",
     { class: "banner card" },
-    h("div", { class: "who" }, h("h2", null, p.name), h("p", null, `${p.age} · ${p.sex} · ${p.presenting}`), h("p", { class: "muted" }, `${view.title} — ${view.setting.clinic}`)),
+    h("div", { class: "who-row" }, avatar(p.name, appearanceTone(p.appearance)), h("div", { class: "who" }, h("h2", null, p.name), h("p", null, `${p.age} · ${p.sex} · ${p.presenting}`), h("p", { class: "muted" }, `${view.title} — ${view.setting.clinic}`))),
     h(
       "div",
       { class: "chips" },

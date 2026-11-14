@@ -94,6 +94,14 @@ export type HubEvent =
   | { type: "closed"; id: string; summary: EncounterSummary; report: EncounterReport }
   | { type: "removed"; id: string };
 
+/** What the 3D view draws of the people of an encounter beyond its view (`RecordHub.stage`). */
+export interface StageInfo {
+  /** The clinic's equipment models by type: the set of the 3D view is built from these. */
+  models: Record<string, { file: string; offset: [number, number, number]; scale: number }>;
+  patient: { appearance: Record<string, unknown>; heightCm: number | null; seed: string };
+  practitioner: { appearance: Record<string, unknown>; seed: string };
+}
+
 /** What an API call answers: an HTTP status and a body. */
 export interface HubResult<T = unknown> {
   status: number;
@@ -238,6 +246,56 @@ export class RecordHub {
     const live = this.records.get(id);
     if (!live) return null;
     return { summary: this.summaryOf(live), view: this.viewOf(live), timeline: [...live.timeline], agent: live.runner?.snapshot() ?? null, report: this.reportOf(live) };
+  }
+
+  /** The directory of the content pack the records are of (its 3D models are served from `world/assets/models`). */
+  get contentDir(): string {
+    return this.pack.dir;
+  }
+
+  /**
+   * What the 3D view of an encounter draws that its view does not say: how the patient looks and how tall they
+   * are — what anyone in the room sees of them (their case's `appearance` and `heightCm`; a variant may change
+   * them, never its name) — and the look of the practitioner. Everything else the view draws (where the patient
+   * is and how they lie, the marks, the needles) comes from the record's view and timeline.
+   */
+  stage(id: string): StageInfo | null {
+    const live = this.records.get(id);
+    if (!live) return null;
+    const p = live.session.scenario.case.patient as { heightCm?: number; sex?: string; appearance?: Record<string, unknown> };
+    const presentation = p.sex === "female" ? "feminine" : p.sex === "male" ? "masculine" : "neutral";
+    return {
+      models: this.models(),
+      patient: { appearance: { presentation, ...(p.appearance ?? {}) }, heightCm: typeof p.heightCm === "number" ? p.heightCm : null, seed: `patient:${live.session.scenario.id}` },
+      practitioner: { appearance: { skin: "#d9b48f", hair: "#24201d", hairStyle: "short", shirt: "#dfe7ea", pants: "#2f3a45", build: "average", presentation: "neutral" }, seed: `practitioner:${live.id}` },
+    };
+  }
+
+  private modelRefs: Record<string, { file: string; offset: [number, number, number]; scale: number }> | null = null;
+
+  /** The clinic's equipment models by type (its catalogs under `world/catalogs`): the file, its offset and scale. */
+  private models(): Record<string, { file: string; offset: [number, number, number]; scale: number }> {
+    if (this.modelRefs) return this.modelRefs;
+    const out: Record<string, { file: string; offset: [number, number, number]; scale: number }> = {};
+    const dir = join(this.pack.dir, "world", "catalogs");
+    if (existsSync(dir)) {
+      for (const name of readdirSync(dir).sort()) {
+        if (!name.endsWith(".json")) continue;
+        try {
+          const catalog = JSON.parse(readFileSync(join(dir, name), "utf8")) as { equipment?: { id: string; model?: { uri?: string; offset?: number[]; scale?: number } }[] };
+          for (const e of catalog.equipment ?? []) {
+            const uri = e.model?.uri;
+            if (!uri || !/^models\/[a-z0-9-]+\.glb$/.test(uri)) continue;
+            const o = e.model?.offset ?? [0, 0, 0];
+            out[e.id] = { file: uri, offset: [Number(o[0] ?? 0), Number(o[1] ?? 0), Number(o[2] ?? 0)], scale: Number(e.model?.scale ?? 1) };
+          }
+        } catch {
+          /* not a catalog */
+        }
+      }
+    }
+    this.modelRefs = out;
+    return out;
   }
 
   /** The tools of the encounter's practitioner, with their stage, description and input schema. */

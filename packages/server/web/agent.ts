@@ -1,5 +1,6 @@
 import { api, ApiError, type Info, type RunnerSnapshot, type TranscriptItem } from "./api.js";
 import { copy, h, replace, toast } from "./dom.js";
+import { icon } from "./icons.js";
 import { pill } from "./record.js";
 import { clock } from "./text.js";
 
@@ -39,10 +40,10 @@ export function agentPanel(ctx: AgentPanelContext): { el: HTMLElement; update(ag
       toast(e instanceof ApiError ? e.message : String(e), "bad");
     }
   };
-  const start = h("button", { type: "button", class: "primary", on: { click: () => void send("start") } }, "Start");
-  const pause = h("button", { type: "button", on: { click: () => void send("pause") } }, "Pause");
-  const resume = h("button", { type: "button", on: { click: () => void send("resume") } }, "Resume");
-  const stop = h("button", { type: "button", on: { click: () => void send("stop") } }, "Stop");
+  const start = h("button", { type: "button", class: "primary", on: { click: () => void send("start") } }, icon("play", 14), "Start");
+  const pause = h("button", { type: "button", on: { click: () => void send("pause") } }, icon("pause", 14), "Pause");
+  const resume = h("button", { type: "button", on: { click: () => void send("resume") } }, icon("play", 14), "Resume");
+  const stop = h("button", { type: "button", on: { click: () => void send("stop") } }, icon("stop", 14), "Stop");
   const claudeOnly = h("span", { class: "claude-only row wrap" }, model, effort);
   provider.addEventListener("change", () => claudeOnly.classList.toggle("hidden", provider.value !== "claude"));
   claudeOnly.classList.toggle("hidden", provider.value !== "claude");
@@ -85,6 +86,7 @@ export function agentPanel(ctx: AgentPanelContext): { el: HTMLElement; update(ag
 
   function update(agent: RunnerSnapshot | null): void {
     const active = !!agent && ["thinking", "awaiting-approval", "paused"].includes(agent.state);
+    el.classList.toggle("thinking", agent?.state === "thinking");
     start.disabled = closed || active;
     pause.disabled = !active || agent!.state === "paused";
     resume.disabled = !active || agent!.state !== "paused";

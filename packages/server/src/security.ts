@@ -101,8 +101,9 @@ export const APP_CSP = [
   "form-action 'self'",
   "script-src 'self'",
   "style-src 'self'",
-  "img-src 'self' data:",
-  "connect-src 'self'",
+  // (a model's embedded textures are read through blob: addresses the page makes itself — fetched, then drawn)
+  "img-src 'self' data: blob:",
+  "connect-src 'self' blob:",
 ].join("; ");
 
 /** The debrief page (`encounterHtml`): a self-contained page with its own inline styles and no script at all. */

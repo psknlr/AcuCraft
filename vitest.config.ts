@@ -16,6 +16,8 @@ export default defineConfig({
     alias: [
       { find: /^@clinicalcraft\/core$/, replacement: engine },
       { find: /^@clinicalcraft\/world$/, replacement: world },
+      // the 3D world's own modules (the figure kit the workspace's 3D view draws people with)
+      { find: /^@clinicalcraft\/web\/(.*)\.js$/, replacement: `${here("./.deps/clinicalcraft/packages/web/src/")}$1.ts` },
       { find: /^@acucraft\/core$/, replacement: here("./packages/core/src/index.ts") },
       { find: /^@acucraft\/agent$/, replacement: here("./packages/agent/src/index.ts") },
       { find: /^@acucraft\/agent\/node$/, replacement: here("./packages/agent/src/node/index.ts") },

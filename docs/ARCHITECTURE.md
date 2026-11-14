@@ -33,8 +33,13 @@ adds what an acupuncture encounter needs on top of it.
  @acucraft/bench (Node)     content loader (with the skills) · independent evaluator · episode runner · suites
         │                   · statistics · reports · the HTML viewer
  @acucraft/mcp              encounters served to an MCP client: another program's agent as the practitioner
+ @acucraft/server (Node)    the browser workspace: live records an operator, the server's language model and MCP
+                            clients work on together (record hub, HTTP API, event stream, MCP over HTTP, the
+                            language-model runner, the browser app and its 3D view — drawn with ClinicalCraft's
+                            figure kit from packages/web of the pinned checkout; docs/WEB.md)
  @acucraft/cli              acucraft validate | list | points | show | map | vocabulary | locate | run | play
                             | replay | evaluate | view | bench | export-clinicalcraft | skills | tools | prompt | mcp
+                            | serve
 ```
 
 ## 1. Relationship to ClinicalCraft
@@ -189,7 +194,9 @@ their distance) and the team; the patient's presentation, position and appearanc
 — questions asked and answered, examinations done, reports read, vital signs, observations, **each with its evidence
 id** — and the sites and tender points found; the latest assessment with the evidence its pattern names; each needle
 of the visit with the evidence of its response and what is recorded of it; the landmarks the actor palpated and the
-measurements they took, their marks, the plan and consent, equipment, team, tasks, counts, the rules in force and the
+measurements they took, their marks, the plan (its latest version in full) and consent, what has been written —
+`documentation`: the visits, the decisions with their rationale, consent and what was explained, referrals, the
+clinical notes in full, incidents, a stopped treatment — equipment, team, tasks, counts, the rules in force and the
 outcome of their last request. `referenceLibrary(scenario)` is the public knowledge: point definitions and
 constructions, regional charts without patient geometry, the vocabulary (with the signs, each pattern's criteria, the
 needle sensations and deqi), the clinic and its floor plan, roles, rules and guideline evidence. Neither contains the
@@ -201,7 +208,8 @@ each insertion.
 Palpation is precise to 2.5 mm and tape measurement to 1.5 %, with a seeded error per patient, landmark and position.
 
 How a language model is given this view and the action interface — one typed tool per action, what each result
-tells it, the skills it can read, and the same tools over MCP — is in [AGENT.md](AGENT.md).
+tells it, the skills it can read, and the same tools over MCP — is in [AGENT.md](AGENT.md). The browser workspace
+draws the patient's record from this same view, and nothing else of the state ([WEB.md](WEB.md)).
 
 ## 8. Replay
 

@@ -1,6 +1,7 @@
 import { api, ApiError, type AgentView, type ToolInfo } from "./api.js";
 import { h, replace, toast } from "./dom.js";
 import { formFor } from "./form.js";
+import { icon, type IconName } from "./icons.js";
 import { pill } from "./record.js";
 import { statusTone, suggestions, type LibraryLite } from "./text.js";
 
@@ -43,7 +44,7 @@ export function noteDraft(view: AgentView): Record<string, unknown> {
   };
 }
 
-export function composer(ctx: ComposerContext): { el: HTMLElement; open(tool: string, prefill?: Record<string, unknown>): void; setClosed(closed: boolean): void } {
+export function composer(ctx: ComposerContext): { el: HTMLElement; open(tool: string, prefill?: Record<string, unknown>): void; setClosed(closed: boolean): void; focusAsk(): void } {
   const result = h("div", { class: "result", "aria-live": "polite" });
   let busy = false;
   let closed = false;
@@ -80,8 +81,10 @@ export function composer(ctx: ComposerContext): { el: HTMLElement; open(tool: st
     }
   };
 
-  const quick = (tool: string, field: string, placeholder: string, label: string) => {
+  const quickInputs: HTMLInputElement[] = [];
+  const quick = (tool: string, field: string, placeholder: string, label: string, glyph: IconName) => {
     const input = h("input", { type: "text", placeholder, "aria-label": placeholder, autocomplete: "off" });
+    quickInputs.push(input);
     return h(
       "form",
       {
@@ -96,11 +99,12 @@ export function composer(ctx: ComposerContext): { el: HTMLElement; open(tool: st
         },
       },
       input,
-      h("button", { type: "submit" }, label),
+      h("button", { type: "submit" }, icon(glyph), label),
     );
   };
   const minutes = h("input", { type: "number", min: 1, max: 60, value: 5, class: "narrow", "aria-label": "minutes to wait" });
-  const button = (label: string, tool: string, input: () => Record<string, unknown> = () => ({})) => h("button", { type: "button", class: "small", on: { click: () => void run(tool, input()) } }, label);
+  const GLYPH: Record<string, IconName> = { observe: "observe", check_vitals: "vitals", monitor: "monitor", hand_hygiene: "hygiene", count_needles: "count", wait: "wait" };
+  const button = (label: string, tool: string, input: () => Record<string, unknown> = () => ({})) => h("button", { type: "button", class: "small", on: { click: () => void run(tool, input()) } }, GLYPH[tool] ? icon(GLYPH[tool]!, 14) : null, label);
 
   // every tool, by the stage of an encounter it belongs to
   const groups = new Map<string, ToolInfo[]>();
@@ -147,9 +151,9 @@ export function composer(ctx: ComposerContext): { el: HTMLElement; open(tool: st
     { class: "card act", "aria-label": "act as the practitioner" },
     h("h3", null, "Act as the practitioner"),
     h("p", { class: "muted small" }, "Everything you do here is checked by the engine, recorded under your name and shown to everyone watching."),
-    quick("ask", "text", "Ask the patient… (one or two things at a time)", "Ask"),
-    quick("say", "text", "Say to the patient…", "Say"),
-    quick("examine", "text", "Examine… (e.g. inspect the tongue)", "Examine"),
+    quick("ask", "text", "Ask the patient… (one or two things at a time)", "Ask", "ask"),
+    quick("say", "text", "Say to the patient…", "Say", "say"),
+    quick("examine", "text", "Examine… (e.g. inspect the tongue)", "Examine", "examine"),
     h(
       "div",
       { class: "row wrap" },
@@ -160,7 +164,7 @@ export function composer(ctx: ComposerContext): { el: HTMLElement; open(tool: st
       button("Count needles", "count_needles"),
       h("span", { class: "wait" }, button("Wait", "wait", () => ({ minutes: Number(minutes.value) || 5 })), minutes, " min"),
     ),
-    h("div", { class: "row" }, h("button", { type: "button", class: "note-button", on: { click: () => choose("document", noteDraft(ctx.view())) } }, "Write the clinical note…")),
+    h("div", { class: "row" }, h("button", { type: "button", class: "note-button", on: { click: () => choose("document", noteDraft(ctx.view())) } }, icon("note"), "Write the clinical note…")),
     h("label", { class: "block" }, "All actions", select),
     description,
     formHost,
@@ -168,10 +172,17 @@ export function composer(ctx: ComposerContext): { el: HTMLElement; open(tool: st
   );
   return {
     el,
-    open: choose,
+    open(tool: string, prefill?: Record<string, unknown>) {
+      choose(tool, prefill);
+      el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      window.setTimeout(() => (formHost.querySelector("input, select, textarea") as HTMLElement | null)?.focus(), 250);
+    },
     setClosed(value: boolean) {
       closed = value;
       el.classList.toggle("closed", value);
+    },
+    focusAsk() {
+      quickInputs[0]?.focus();
     },
   };
 }
