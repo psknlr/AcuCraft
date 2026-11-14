@@ -1,13 +1,15 @@
 import type { ActionInput } from "../schema/actions.js";
 import type { EncounterState, TaskState } from "../schema/state.js";
 import { now, retainedNeedles } from "./queries.js";
-import type { Scenario } from "./scenario.js";
+import { clinicWorld, type Scenario } from "./scenario.js";
+import { atFixture, atFixtureOfKind, nearActor, patientContact, patientSight } from "./space.js";
 
 /**
  * Scripted policies for non-tested cast members (proposal §7.1). They act only through the action interface, from
  * the state as it is, and are deterministic, so a replay regenerates their acts exactly. They take no simulated
  * time: they work alongside the practitioner. Delegation is observable: assignment → acknowledgement → execution →
- * report.
+ * report. They have bodies like everyone else: an act out of reach is refused, so a policy walks first — to the
+ * shelf, to the patient's side, to whoever asked — and its walks are on the record.
  */
 
 export type NpcPolicy = (sc: Scenario, s: EncounterState, actorId: string) => ActionInput | null;
@@ -23,6 +25,9 @@ function supportDefault(sc: Scenario, s: EncounterState, me: string): ActionInpu
   const pending = myTasks(s, me, "assigned")[0];
   if (pending) return { type: "acknowledge_task", taskId: pending.id };
   const patientRoom = s.patient.location;
+  const patient = s.patient.id;
+  const w = clinicWorld(sc);
+  const toRoom = (room: string): ActionInput | null => (w.rooms.has(room) ? { type: "move", to: { room } } : null);
   const report = (task: TaskState, summary: string, findings?: string[]): ActionInput => ({ type: "report_task", taskId: task.id, summary, ...(findings ? { findings } : {}) });
   for (const task of myTasks(s, me, "acknowledged")) {
     const since = task.acknowledgedAt ?? task.assignedAt;
@@ -33,7 +38,7 @@ function supportDefault(sc: Scenario, s: EncounterState, me: string): ActionInpu
         // the patient may refuse: then the honest report says so, and the task stays unmet
         const declined = s.attempts.some((a) => a.actor === me && a.at >= since && a.request.action.type === "position_patient" && a.executed?.detail.startsWith("the patient declined"));
         if (declined) return report(task, `The patient declined to be ${position}.`);
-        if (self.location !== patientRoom) return { type: "move", to: patientRoom };
+        if (!patientContact(sc, s, me).ok) return { type: "move", to: { person: patient } };
         return { type: "position_patient", position: position as never };
       }
       case "fetch": {
@@ -47,13 +52,11 @@ function supportDefault(sc: Scenario, s: EncounterState, me: string): ActionInpu
           if (pack && !pack.sealed) return report(task, `${item} has already been opened: its needles are on the tray.`);
           if (holder) return report(task, `${item} is already with ${holder}.`);
           const at = pack ? pack.at : thing!.at;
-          const room = at ? sc.clinic.rooms.find((r) => r.fixtures.some((f) => f.id === at))?.id : undefined;
-          if (!room) return report(task, `I cannot find ${item}.`);
-          if (room !== self.location) return { type: "move", to: room };
+          if (!at || !w.fixtures.has(at)) return report(task, `I cannot find ${item}.`);
+          if (!atFixture(sc, s, me, at).ok) return { type: "move", to: { fixture: at } };
           return { type: "fetch", item };
         }
-        const assigner = s.actors[task.assignedBy];
-        if (assigner && assigner.location !== self.location) return { type: "move", to: assigner.location };
+        if (s.actors[task.assignedBy] && !nearActor(sc, s, me, task.assignedBy, task.assignedBy).ok) return { type: "move", to: { person: task.assignedBy } };
         return { type: "handover", object: item, to: task.assignedBy };
       }
       case "monitor-patient": {
@@ -64,7 +67,8 @@ function supportDefault(sc: Scenario, s: EncounterState, me: string): ActionInpu
         const unreported = abnormal.filter((f) => f.at > lastAlert);
         const retained = retainedNeedles(s).length;
         const watching = retained > 0 || s.patient.fainted || unreported.length > 0;
-        if (watching && self.location !== patientRoom) return { type: "move", to: patientRoom };
+        // watching means seeing: from the room's usual spot if it has the patient in view, else from their side
+        if (watching && !patientSight(sc, s, me).ok) return self.location !== patientRoom ? (toRoom(patientRoom) ?? { type: "move", to: { person: patient } }) : { type: "move", to: { person: patient } };
         // something abnormal I have not looked at yet: look now, then pass it on at once
         if (unreported.length > 0 && myLast < unreported[unreported.length - 1]!.at) return { type: "monitor" };
         if (unreported.length > 0) {
@@ -82,33 +86,57 @@ function supportDefault(sc: Scenario, s: EncounterState, me: string): ActionInpu
         continue;
       }
       case "count-needles": {
-        if (self.location !== patientRoom) return { type: "move", to: patientRoom };
-        const counted = s.counts.some((c) => c.by === me && c.at >= since);
-        if (!counted) return { type: "count_needles" };
-        const last = [...s.counts].reverse().find((c) => c.by === me)!;
+        if (self.location !== patientRoom && toRoom(patientRoom)) return toRoom(patientRoom);
+        // a count is made where the needles are: with the patient in sight while any are in place
+        if (retainedNeedles(s).length > 0 && !patientSight(sc, s, me).ok) return { type: "move", to: { person: patient } };
+        const mine = s.counts.filter((c) => c.by === me && c.at >= since);
+        if (mine.length === 0) return { type: "count_needles" };
+        const last = mine[mine.length - 1]!;
+        // opened needles on a tray in another room: what I have is the record, and the report says so
+        if (last.method !== "observed") return report(task, `I could not count every needle from the bedside: some are on a tray in another room. The record reads ${last.opened} opened, ${last.disposed} in sharps, ${last.retained} retained.`);
         return report(task, last.reconciled ? `Count reconciled: ${last.opened} opened, ${last.disposed} in sharps, ${last.retained} retained.` : `Count NOT reconciled: ${last.unaccounted} unaccounted for.`);
       }
       case "dispose-sharps": {
+        const sharps = atFixtureOfKind(sc, s, me, "sharps-container", "sharps container");
+        // needles already in my hand go into a sharps container first
+        const inHand = self.holding.find((o) => s.needles[o]);
+        if (inHand) {
+          if (sharps.ok) return { type: "dispose", object: inHand };
+          return sharps.hint ? { type: "move", to: sharps.hint } : report(task, "There is no sharps container in this clinic: I am still holding the needles.");
+        }
         const onTray = (p: EncounterState["packs"][string]) => !p.sealed && p.needles.some((id) => s.needles[id]?.location.kind === "tray");
-        const packs = Object.values(s.packs).filter(onTray).sort((a, b) => Number(b.at === self.location) - Number(a.at === self.location) || (a.id < b.id ? -1 : 1));
+        const here = (p: EncounterState["packs"][string]) => Number(w.fixtures.get(p.at)?.room === self.location);
+        const packs = Object.values(s.packs).filter(onTray).sort((a, b) => here(b) - here(a) || (a.id < b.id ? -1 : 1));
         const pack = packs[0];
         if (!pack) return report(task, "Opened, unused needles on the tray are in the sharps container.");
-        if (pack.at !== self.location) return { type: "move", to: pack.at };
-        const room = sc.clinic.rooms.find((r) => r.id === self.location);
-        if (!room?.fixtures.some((f) => f.kind === "sharps-container")) return report(task, `There is no sharps container in the ${room?.label ?? self.location}: the needles from ${pack.id} are still on the tray.`);
-        return { type: "dispose", object: pack.id };
+        if (!w.fixtures.has(pack.at)) return report(task, `I cannot find the tray of ${pack.id}.`);
+        if (!atFixture(sc, s, me, pack.at).ok) return { type: "move", to: { fixture: pack.at } };
+        // at the tray: straight into the sharps box when one is within reach, else carried to one, needle by needle
+        if (sharps.ok) return { type: "dispose", object: pack.id };
+        return { type: "pick_up", object: pack.needles.find((id) => s.needles[id]?.location.kind === "tray")! };
       }
       case "record-vitals": {
-        if (self.location !== patientRoom) return { type: "move", to: patientRoom };
+        if (!patientContact(sc, s, me).ok) return { type: "move", to: { person: patient } };
         const done = s.vitalsLog.find((v) => v.by === me && v.at >= since);
         if (!done) return { type: "check_vitals" };
         const text = Object.entries(done.vitals).map(([k, v]) => `${k} ${v}`).join(", ");
         return report(task, `Vitals: ${text}.`);
       }
-      case "chaperone":
-      case "prepare-couch": {
+      case "chaperone": {
         if (self.location !== patientRoom) return { type: "move", to: patientRoom };
-        return report(task, task.kind === "chaperone" ? "I am in the room as chaperone." : "The couch is ready.");
+        return report(task, "I am in the room as chaperone.");
+      }
+      case "prepare-couch": {
+        // the couch of the room the patient is in, else the clinic's (made ready before they are brought to it)
+        const couches = [...w.fixtures.values()].filter((f) => f.kind === "couch").sort((a, b) => (a.id < b.id ? -1 : 1));
+        const fixture = couches.find((f) => f.room === patientRoom) ?? couches[0];
+        const couch = fixture ? s.couches[fixture.room] : undefined;
+        if (!couch || !fixture) return report(task, "There is no treatment couch in this clinic.");
+        if (!couch.prepared || couch.prepared.by !== me || couch.prepared.at < since) {
+          if (!atFixture(sc, s, me, fixture.id).ok) return { type: "move", to: { fixture: fixture.id } };
+          return { type: "prepare_couch" };
+        }
+        return report(task, `The couch is ready: surface cleaned and fresh linen on (minute ${couch.prepared.at}).`);
       }
     }
   }
@@ -116,13 +144,13 @@ function supportDefault(sc: Scenario, s: EncounterState, me: string): ActionInpu
 }
 
 /** A supervisor who approves the current plan once it exists and stays with the learner. */
-function supervisorDefault(_sc: Scenario, s: EncounterState, me: string): ActionInput | null {
+function supervisorDefault(sc: Scenario, s: EncounterState, me: string): ActionInput | null {
   const self = s.actors[me];
   if (!self) return null;
   const plan = s.plans[s.plans.length - 1];
   if (plan && s.planApproved !== plan.version) return { type: "approve_plan" };
   const learner = Object.values(s.actors).find((a) => a.id !== me && a.role.includes("learner"));
-  if (learner && learner.location !== self.location) return { type: "move", to: learner.location };
+  if (learner && learner.location !== self.location && clinicWorld(sc).rooms.has(learner.location)) return { type: "move", to: { room: learner.location } };
   return null;
 }
 

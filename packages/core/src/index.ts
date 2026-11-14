@@ -5,4 +5,4 @@
  */
 export * from "./schema/index.js";
 export * from "./engine/index.js";
-export const ACUCRAFT_VERSION = "0.1.0";
+export const ACUCRAFT_VERSION = "0.3.0";

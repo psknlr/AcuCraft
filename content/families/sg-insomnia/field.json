@@ -232,12 +232,48 @@
     "patterns": {
       "defensible": [
         "heart-spleen-deficiency",
-        "liver-qi-stagnation",
-        "heart-kidney-disharmony"
+        "liver-qi-stagnation"
       ],
       "implausible": [
         "damp-heat-bi",
         "wind-cold-damp-bi"
+      ]
+    },
+    "signs": {
+      "hx-chief": [
+        "insomnia"
+      ],
+      "hx-sleep": [
+        "insomnia"
+      ],
+      "hx-onset": [
+        "emotional-strain",
+        "worry"
+      ],
+      "hx-mood": [
+        "irritability",
+        "emotional-strain"
+      ],
+      "hx-daytime": [
+        "fatigue"
+      ],
+      "hx-tcm": [
+        "dream-disturbed-sleep",
+        "palpitations",
+        "poor-appetite",
+        "fatigue"
+      ],
+      "ex-general": [
+        "tired-appearance"
+      ],
+      "ex-tongue": [
+        "tongue-pale",
+        "tongue-swollen-toothmarked",
+        "coat-thin-white"
+      ],
+      "ex-pulse-tcm": [
+        "pulse-thin",
+        "pulse-weak"
       ]
     },
     "redFlags": [

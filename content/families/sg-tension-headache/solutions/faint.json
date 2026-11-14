@@ -140,7 +140,10 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "hand_hygiene"
+      "type": "move",
+      "to": {
+        "fixture": "treat-sink"
+      }
     }
   },
   {
@@ -148,8 +151,7 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "examine",
-      "findingId": "ex-neuro"
+      "type": "hand_hygiene"
     }
   },
   {
@@ -157,8 +159,10 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "examine",
-      "findingId": "ex-fundi"
+      "type": "move",
+      "to": {
+        "person": "patient"
+      }
     }
   },
   {
@@ -167,7 +171,7 @@
     "patient": "patient",
     "action": {
       "type": "examine",
-      "findingId": "ex-neck"
+      "findingId": "ex-neuro"
     }
   },
   {
@@ -176,7 +180,7 @@
     "patient": "patient",
     "action": {
       "type": "examine",
-      "findingId": "ex-tongue"
+      "findingId": "ex-fundi"
     }
   },
   {
@@ -185,7 +189,7 @@
     "patient": "patient",
     "action": {
       "type": "examine",
-      "findingId": "ex-pulse-tcm"
+      "findingId": "ex-neck"
     }
   },
   {
@@ -193,7 +197,8 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "observe"
+      "type": "examine",
+      "findingId": "ex-tongue"
     }
   },
   {
@@ -201,11 +206,28 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "check_vitals"
+      "type": "examine",
+      "findingId": "ex-pulse-tcm"
     }
   },
   {
     "requestId": "hf-024",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "observe"
+    }
+  },
+  {
+    "requestId": "hf-025",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_vitals"
+    }
+  },
+  {
+    "requestId": "hf-026",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -214,12 +236,20 @@
         "tension-type-headache"
       ],
       "pattern": "liver-qi-stagnation",
+      "patternEvidence": [
+        "hx-character",
+        "hx-triggers",
+        "hx-tcm",
+        "hx-neck",
+        "ex-tongue",
+        "ex-pulse-tcm"
+      ],
       "redFlags": [],
       "rationale": "Bilateral pressing headache, no red flags, normal neurology; stress-related, irritable, wiry pulse."
     }
   },
   {
-    "requestId": "hf-025",
+    "requestId": "hf-027",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -229,7 +259,7 @@
     }
   },
   {
-    "requestId": "hf-026",
+    "requestId": "hf-028",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -276,7 +306,7 @@
     }
   },
   {
-    "requestId": "hf-027",
+    "requestId": "hf-029",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -293,7 +323,7 @@
     }
   },
   {
-    "requestId": "hf-028",
+    "requestId": "hf-030",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -301,7 +331,7 @@
     }
   },
   {
-    "requestId": "hf-029",
+    "requestId": "hf-031",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -310,7 +340,7 @@
     }
   },
   {
-    "requestId": "hf-030",
+    "requestId": "hf-032",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -319,7 +349,7 @@
     }
   },
   {
-    "requestId": "hf-031",
+    "requestId": "hf-033",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -333,7 +363,7 @@
     }
   },
   {
-    "requestId": "hf-032",
+    "requestId": "hf-034",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -344,7 +374,7 @@
     }
   },
   {
-    "requestId": "hf-033",
+    "requestId": "hf-035",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -355,7 +385,7 @@
     }
   },
   {
-    "requestId": "hf-034",
+    "requestId": "hf-036",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -363,28 +393,6 @@
       "region": "neck-shoulder",
       "side": "left",
       "landmark": "gb20-depression-left"
-    }
-  },
-  {
-    "requestId": "hf-035",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "identify_landmark",
-      "region": "neck-shoulder",
-      "side": "right",
-      "landmark": "acromion-lateral-right"
-    }
-  },
-  {
-    "requestId": "hf-036",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "identify_landmark",
-      "region": "neck-shoulder",
-      "side": "right",
-      "landmark": "gb20-depression-right"
     }
   },
   {
@@ -413,25 +421,6 @@
     "action": {
       "type": "mark_point",
       "target": {
-        "point": "GB20",
-        "side": "right"
-      },
-      "region": "neck-shoulder",
-      "side": "right",
-      "at": {
-        "u": -4.7,
-        "v": 13.3
-      },
-      "method": "landmark"
-    }
-  },
-  {
-    "requestId": "hf-039",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "mark_point",
-      "target": {
         "point": "GB21",
         "side": "left"
       },
@@ -445,7 +434,89 @@
     }
   },
   {
+    "requestId": "hf-039",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "hand-dorsum",
+      "side": "left",
+      "landmark": "mc2-head"
+    }
+  },
+  {
     "requestId": "hf-040",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "hand-dorsum",
+      "side": "left",
+      "landmark": "mc2-base"
+    }
+  },
+  {
+    "requestId": "hf-041",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "mark_point",
+      "target": {
+        "point": "LI4",
+        "side": "left"
+      },
+      "region": "hand-dorsum",
+      "side": "left",
+      "at": {
+        "u": 2.79,
+        "v": 3.09
+      },
+      "method": "landmark"
+    }
+  },
+  {
+    "requestId": "hf-042",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "neck-shoulder",
+      "side": "right",
+      "landmark": "acromion-lateral-right"
+    }
+  },
+  {
+    "requestId": "hf-043",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "neck-shoulder",
+      "side": "right",
+      "landmark": "gb20-depression-right"
+    }
+  },
+  {
+    "requestId": "hf-044",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "mark_point",
+      "target": {
+        "point": "GB20",
+        "side": "right"
+      },
+      "region": "neck-shoulder",
+      "side": "right",
+      "at": {
+        "u": -4.7,
+        "v": 13.3
+      },
+      "method": "landmark"
+    }
+  },
+  {
+    "requestId": "hf-045",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -464,70 +535,29 @@
     }
   },
   {
-    "requestId": "hf-041",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "identify_landmark",
-      "region": "hand-dorsum",
-      "side": "left",
-      "landmark": "mc2-head"
-    }
-  },
-  {
-    "requestId": "hf-042",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "identify_landmark",
-      "region": "hand-dorsum",
-      "side": "left",
-      "landmark": "mc2-base"
-    }
-  },
-  {
-    "requestId": "hf-043",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "mark_point",
-      "target": {
-        "point": "LI4",
-        "side": "left"
-      },
-      "region": "hand-dorsum",
-      "side": "left",
-      "at": {
-        "u": 2.79,
-        "v": 3.09
-      },
-      "method": "landmark"
-    }
-  },
-  {
-    "requestId": "hf-044",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "identify_landmark",
-      "region": "hand-dorsum",
-      "side": "right",
-      "landmark": "mc2-head"
-    }
-  },
-  {
-    "requestId": "hf-045",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "identify_landmark",
-      "region": "hand-dorsum",
-      "side": "right",
-      "landmark": "mc2-base"
-    }
-  },
-  {
     "requestId": "hf-046",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "hand-dorsum",
+      "side": "right",
+      "landmark": "mc2-head"
+    }
+  },
+  {
+    "requestId": "hf-047",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "hand-dorsum",
+      "side": "right",
+      "landmark": "mc2-base"
+    }
+  },
+  {
+    "requestId": "hf-048",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -546,29 +576,14 @@
     }
   },
   {
-    "requestId": "hf-047",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "move",
-      "to": "prep-area"
-    }
-  },
-  {
-    "requestId": "hf-048",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "hand_hygiene"
-    }
-  },
-  {
     "requestId": "hf-049",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "fetch",
-      "item": "pack-a"
+      "type": "move",
+      "to": {
+        "fixture": "prep-sink"
+      }
     }
   },
   {
@@ -576,8 +591,7 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "fetch",
-      "item": "pack-b"
+      "type": "hand_hygiene"
     }
   },
   {
@@ -586,7 +600,9 @@
     "patient": "patient",
     "action": {
       "type": "move",
-      "to": "treatment-room"
+      "to": {
+        "fixture": "shelf"
+      }
     }
   },
   {
@@ -594,9 +610,8 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "prepare_site",
-      "region": "neck-shoulder",
-      "side": "left"
+      "type": "fetch",
+      "item": "pack-a"
     }
   },
   {
@@ -604,9 +619,8 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "prepare_site",
-      "region": "neck-shoulder",
-      "side": "right"
+      "type": "fetch",
+      "item": "pack-b"
     }
   },
   {
@@ -614,9 +628,10 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "prepare_site",
-      "region": "hand-dorsum",
-      "side": "left"
+      "type": "move",
+      "to": {
+        "person": "patient"
+      }
     }
   },
   {
@@ -625,12 +640,42 @@
     "patient": "patient",
     "action": {
       "type": "prepare_site",
+      "region": "neck-shoulder",
+      "side": "left"
+    }
+  },
+  {
+    "requestId": "hf-056",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "prepare_site",
+      "region": "hand-dorsum",
+      "side": "left"
+    }
+  },
+  {
+    "requestId": "hf-057",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "prepare_site",
+      "region": "neck-shoulder",
+      "side": "right"
+    }
+  },
+  {
+    "requestId": "hf-058",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "prepare_site",
       "region": "hand-dorsum",
       "side": "right"
     }
   },
   {
-    "requestId": "hf-056",
+    "requestId": "hf-059",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -639,7 +684,7 @@
     }
   },
   {
-    "requestId": "hf-057",
+    "requestId": "hf-060",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -648,7 +693,7 @@
     }
   },
   {
-    "requestId": "hf-058",
+    "requestId": "hf-061",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -657,20 +702,7 @@
     }
   },
   {
-    "requestId": "hf-059",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "insert_needle",
-      "needleId": "pack-a.1",
-      "mark": "m1",
-      "angleDeg": 20,
-      "azimuthDeg": 270,
-      "depthCm": 1.6
-    }
-  },
-  {
-    "requestId": "hf-060",
+    "requestId": "hf-062",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -679,38 +711,12 @@
     }
   },
   {
-    "requestId": "hf-061",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "insert_needle",
-      "needleId": "pack-a.2",
-      "mark": "m2",
-      "angleDeg": 20,
-      "azimuthDeg": 90,
-      "depthCm": 1.6
-    }
-  },
-  {
-    "requestId": "hf-062",
+    "requestId": "hf-063",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
       "type": "pick_up",
       "object": "pack-a.3"
-    }
-  },
-  {
-    "requestId": "hf-063",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "insert_needle",
-      "needleId": "pack-a.3",
-      "mark": "m3",
-      "angleDeg": 0,
-      "azimuthDeg": 90,
-      "depthCm": 1.8
     }
   },
   {
@@ -728,11 +734,11 @@
     "patient": "patient",
     "action": {
       "type": "insert_needle",
-      "needleId": "pack-a.4",
-      "mark": "m4",
-      "angleDeg": 0,
+      "needleId": "pack-a.1",
+      "mark": "m1",
+      "angleDeg": 20,
       "azimuthDeg": 270,
-      "depthCm": 1.8
+      "depthCm": 1.6
     }
   },
   {
@@ -740,11 +746,88 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "monitor"
+      "type": "adjust_needle",
+      "needleId": "pack-a.1",
+      "technique": "rotate"
     }
   },
   {
     "requestId": "hf-067",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_sensation",
+      "needleId": "pack-a.1"
+    }
+  },
+  {
+    "requestId": "hf-068",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "insert_needle",
+      "needleId": "pack-a.2",
+      "mark": "m4",
+      "angleDeg": 20,
+      "azimuthDeg": 90,
+      "depthCm": 1.6
+    }
+  },
+  {
+    "requestId": "hf-069",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "adjust_needle",
+      "needleId": "pack-a.2",
+      "technique": "rotate"
+    }
+  },
+  {
+    "requestId": "hf-070",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_sensation",
+      "needleId": "pack-a.2"
+    }
+  },
+  {
+    "requestId": "hf-071",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "insert_needle",
+      "needleId": "pack-a.3",
+      "mark": "m2",
+      "angleDeg": 0,
+      "azimuthDeg": 90,
+      "depthCm": 1.8
+    }
+  },
+  {
+    "requestId": "hf-072",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "insert_needle",
+      "needleId": "pack-a.4",
+      "mark": "m5",
+      "angleDeg": 0,
+      "azimuthDeg": 270,
+      "depthCm": 1.8
+    }
+  },
+  {
+    "requestId": "hf-073",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "monitor"
+    }
+  },
+  {
+    "requestId": "hf-074",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -753,7 +836,7 @@
     }
   },
   {
-    "requestId": "hf-068",
+    "requestId": "hf-075",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -762,7 +845,7 @@
     }
   },
   {
-    "requestId": "hf-069",
+    "requestId": "hf-076",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -770,71 +853,12 @@
     }
   },
   {
-    "requestId": "hf-070",
+    "requestId": "hf-077",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
       "type": "position_patient",
       "position": "supine"
-    }
-  },
-  {
-    "requestId": "hf-071",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "monitor"
-    }
-  },
-  {
-    "requestId": "hf-072",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "check_vitals"
-    }
-  },
-  {
-    "requestId": "hf-073",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "dispose",
-      "object": "pack-a"
-    }
-  },
-  {
-    "requestId": "hf-074",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "dispose",
-      "object": "pack-b"
-    }
-  },
-  {
-    "requestId": "hf-075",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "hand_hygiene"
-    }
-  },
-  {
-    "requestId": "hf-076",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "count_needles"
-    }
-  },
-  {
-    "requestId": "hf-077",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "wait",
-      "minutes": 3
     }
   },
   {
@@ -850,11 +874,103 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "check_vitals"
+      "type": "move",
+      "to": {
+        "person": "patient"
+      }
     }
   },
   {
     "requestId": "hf-080",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_vitals"
+    }
+  },
+  {
+    "requestId": "hf-081",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "dispose",
+      "object": "pack-a"
+    }
+  },
+  {
+    "requestId": "hf-082",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "dispose",
+      "object": "pack-b"
+    }
+  },
+  {
+    "requestId": "hf-083",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "fixture": "treat-sink"
+      }
+    }
+  },
+  {
+    "requestId": "hf-084",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "hand_hygiene"
+    }
+  },
+  {
+    "requestId": "hf-085",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "count_needles"
+    }
+  },
+  {
+    "requestId": "hf-086",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "wait",
+      "minutes": 3
+    }
+  },
+  {
+    "requestId": "hf-087",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "monitor"
+    }
+  },
+  {
+    "requestId": "hf-088",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "person": "patient"
+      }
+    }
+  },
+  {
+    "requestId": "hf-089",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_vitals"
+    }
+  },
+  {
+    "requestId": "hf-090",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -864,7 +980,7 @@
     }
   },
   {
-    "requestId": "hf-081",
+    "requestId": "hf-091",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -897,9 +1013,38 @@
           "needleType": "0.25 × 40 mm single-use sterile filiform",
           "needleCount": 4,
           "depth": "GB20 1.6 cm; GB21 1.8 cm",
-          "responseSought": "deqi",
+          "responseSought": "deqi at GB20 (rotation); GB21 not worked (the lung lies beneath)",
           "stimulation": "even",
-          "retentionMinutes": 3
+          "retentionMinutes": 3,
+          "responses": [
+            {
+              "needle": "pack-a.1",
+              "response": "deqi",
+              "evidence": [
+                "feel-1",
+                "sense-1",
+                "sense-2"
+              ]
+            },
+            {
+              "needle": "pack-a.2",
+              "response": "deqi",
+              "evidence": [
+                "feel-2",
+                "sense-3"
+              ]
+            },
+            {
+              "needle": "pack-a.3",
+              "response": "not-sought",
+              "evidence": []
+            },
+            {
+              "needle": "pack-a.4",
+              "response": "not-sought",
+              "evidence": []
+            }
+          ]
         },
         "response": "Vasovagal reaction after about 2 minutes: treatment stopped, needles removed, laid flat; recovered within minutes.",
         "adverseEvents": "Vasovagal reaction (pale, sweaty, bradycardic, hypotensive); recovered lying flat.",
@@ -909,7 +1054,7 @@
     }
   },
   {
-    "requestId": "hf-082",
+    "requestId": "hf-092",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -917,7 +1062,7 @@
     }
   },
   {
-    "requestId": "hf-083",
+    "requestId": "hf-093",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -925,7 +1070,7 @@
     }
   },
   {
-    "requestId": "hf-084",
+    "requestId": "hf-094",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -934,7 +1079,7 @@
     }
   },
   {
-    "requestId": "hf-085",
+    "requestId": "hf-095",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -943,7 +1088,7 @@
     }
   },
   {
-    "requestId": "hf-086",
+    "requestId": "hf-096",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -953,7 +1098,7 @@
     }
   },
   {
-    "requestId": "hf-087",
+    "requestId": "hf-097",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -967,7 +1112,7 @@
     }
   },
   {
-    "requestId": "hf-088",
+    "requestId": "hf-098",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -975,7 +1120,7 @@
     }
   },
   {
-    "requestId": "hf-089",
+    "requestId": "hf-099",
     "actor": "practitioner",
     "patient": "patient",
     "action": {

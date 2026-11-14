@@ -1,0 +1,155 @@
+{
+  "type": "acu-needling-station-prone",
+  "note": "Written by tools/figure-fit.mts from the pinned ClinicalCraft's figure kit: do not edit. Metres, the type's frame.",
+  "manikin": {
+    "posture": "prone",
+    "cover": "towels",
+    "x": 0,
+    "y": 0.67,
+    "z": -0.15,
+    "rot": 0,
+    "appearance": {
+      "skin": "#dcb999",
+      "hair": "#2b2420",
+      "hairStyle": "bun",
+      "build": "average",
+      "presentation": "neutral"
+    }
+  },
+  "surface": 0.67,
+  "head": {
+    "joint": [
+      0,
+      0.7767,
+      -0.765
+    ],
+    "lowest": [
+      0.6585,
+      -0.8
+    ]
+  },
+  "reach": {
+    "min": [
+      -0.312,
+      0.6576,
+      -0.9401
+    ],
+    "max": [
+      0.312,
+      0.9236,
+      0.9193
+    ]
+  },
+  "sites": {
+    "BL23-left": {
+      "point": "BL23",
+      "side": "left",
+      "p": [
+        -0.0375,
+        0.8688,
+        -0.302
+      ],
+      "n": [
+        -0.1129,
+        0.9935,
+        0.0153
+      ],
+      "up": [
+        -0.0017,
+        0.0152,
+        -0.9999
+      ],
+      "depthCm": 1.8,
+      "tiltDeg": 0,
+      "where": "1.5 cun beside the lower border of the second lumbar spinous process"
+    },
+    "BL23-right": {
+      "point": "BL23",
+      "side": "right",
+      "p": [
+        0.0375,
+        0.8688,
+        -0.302
+      ],
+      "n": [
+        0.1129,
+        0.9935,
+        0.0154
+      ],
+      "up": [
+        0.0017,
+        0.0153,
+        -0.9999
+      ],
+      "depthCm": 1.8,
+      "tiltDeg": 0,
+      "where": "1.5 cun beside the lower border of the second lumbar spinous process"
+    },
+    "BL25-left": {
+      "point": "BL25",
+      "side": "left",
+      "p": [
+        -0.0375,
+        0.8736,
+        -0.23
+      ],
+      "n": [
+        -0.1113,
+        0.9818,
+        -0.1536
+      ],
+      "up": [
+        0.0173,
+        -0.1526,
+        -0.9881
+      ],
+      "depthCm": 1.8,
+      "tiltDeg": 0,
+      "where": "1.5 cun beside the lower border of the fourth lumbar spinous process"
+    },
+    "BL25-right": {
+      "point": "BL25",
+      "side": "right",
+      "p": [
+        0.0375,
+        0.8736,
+        -0.23
+      ],
+      "n": [
+        0.1113,
+        0.9818,
+        -0.1536
+      ],
+      "up": [
+        -0.0173,
+        -0.1527,
+        -0.9881
+      ],
+      "depthCm": 1.8,
+      "tiltDeg": 0,
+      "where": "1.5 cun beside the lower border of the fourth lumbar spinous process"
+    },
+    "GV3": {
+      "point": "GV3",
+      "side": "midline",
+      "p": [
+        0,
+        0.8755,
+        -0.23
+      ],
+      "n": [
+        0,
+        0.9885,
+        -0.151
+      ],
+      "up": [
+        0,
+        -0.151,
+        -0.9885
+      ],
+      "depthCm": 1.5,
+      "tiltDeg": 20,
+      "where": "on the midline below the fourth lumbar spinous process"
+    }
+  }
+}

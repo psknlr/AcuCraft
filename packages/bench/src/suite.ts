@@ -3,7 +3,7 @@ import type { Mode } from "@acucraft/core";
 import { requireScenario, scenarioIds, type ContentPack } from "./content.js";
 import { runEpisode, type EpisodeResult, type RunOptions } from "./runner.js";
 import { clusterBootstrap, mean, wilson, type Proportion } from "./stats.js";
-import type { AgentFactory } from "./agents/types.js";
+import type { AgentFactory } from "@acucraft/agent";
 import { NOTICE, type EncounterReport } from "./evaluate.js";
 
 export const SUITE_SCHEMA_ID = "acucraft/suite@1" as const;
@@ -33,11 +33,22 @@ export interface SplitSummary {
   blockedUnsafePerEpisode: number | null;
   appropriateReferral: Proportion;
   inappropriateRefusal: Proportion;
+  redFlagsOnEvidence: Proportion;
+  initialVisit: Proportion;
+  fullCourse: Proportion;
   tracks: Record<keyof EncounterReport["tracks"], number | null>;
   minutes: number | null;
   actions: number | null;
   rejectedActions: number | null;
+  walkedMetres: number | null;
+  outOfReach: number | null;
   documentation: number | null;
+  /** Pattern differentiations that rest on the findings they name, of those made. */
+  patternEvidence: Proportion;
+  /** Needles recorded as deqi on evidence that does not show it, of the needles recorded as deqi. */
+  deqiOverclaimed: Proportion;
+  /** Needles with a response on record (deqi, none or not sought), of the needles inserted. */
+  responsesRecorded: Proportion;
   assistance: { teachingMode: number };
 }
 
@@ -72,6 +83,8 @@ export async function runSuite(pack: ContentPack, suite: Suite, factory: AgentFa
   return summarise(suite.id, episodes[0]?.agent ?? "none", episodes.map((e) => ({ scenario: e.scenario, seed: e.seed, stopReason: e.stopReason, steps: e.steps, ...(e.error ? { error: e.error } : {}), report: e.report })));
 }
 
+const sum = (xs: number[]) => xs.reduce((a, b) => a + b, 0);
+
 export function summarise(suite: string, agent: string, episodes: SuiteResult["episodes"]): SuiteResult {
   const split = (which: "dev" | "held-out" | "all"): SplitSummary => {
     const eps = episodes.filter((e) => which === "all" || e.report.split === which);
@@ -95,11 +108,19 @@ export function summarise(suite: string, agent: string, episodes: SuiteResult["e
       blockedUnsafePerEpisode: mean(blocked),
       appropriateReferral: wilson(redFlag.filter((e) => e.report.referral.appropriateReferral).length, redFlag.length),
       inappropriateRefusal: wilson(noRedFlag.filter((e) => e.report.referral.inappropriateRefusal).length, noRedFlag.length),
+      redFlagsOnEvidence: wilson(eps.filter((e) => e.report.outcomes.redFlagsOnEvidence === true).length, eps.filter((e) => e.report.outcomes.redFlagsOnEvidence !== null).length),
+      initialVisit: wilson(eps.filter((e) => e.report.outcomes.initialVisit).length, eps.length),
+      fullCourse: wilson(eps.filter((e) => e.report.outcomes.fullCourse === true).length, eps.filter((e) => e.report.outcomes.fullCourse !== null).length),
       tracks: { reasoning: track("reasoning"), localisation: track("localisation"), procedure: track("procedure"), collaboration: track("collaboration"), followUp: track("followUp") },
       minutes: mean(eps.map((e) => e.report.efficiency.minutes)),
       actions: mean(eps.map((e) => e.report.efficiency.agentActions)),
       rejectedActions: mean(eps.map((e) => e.report.efficiency.rejected)),
+      walkedMetres: mean(eps.map((e) => e.report.efficiency.walkedMetres)),
+      outOfReach: mean(eps.map((e) => e.report.efficiency.outOfReach)),
       documentation: mean(eps.map((e) => e.report.documentation.completeness).filter((x): x is number => x !== null)),
+      patternEvidence: wilson(eps.filter((e) => e.report.evidence.pattern?.supported).length, eps.filter((e) => e.report.evidence.pattern?.hasCriteria).length),
+      deqiOverclaimed: wilson(sum(eps.map((e) => e.report.evidence.responses.overclaimed)), sum(eps.map((e) => e.report.evidence.responses.deqiRecorded))),
+      responsesRecorded: wilson(sum(eps.map((e) => e.report.evidence.responses.recorded)), sum(eps.map((e) => e.report.evidence.responses.needles))),
       assistance: { teachingMode: eps.filter((e) => e.report.assistance.teachingMode).length },
     };
   };
@@ -145,10 +166,20 @@ export function suiteMarkdown(r: SuiteResult): string {
   row("blocked unsafe attempts per episode", (s) => num(s.blockedUnsafePerEpisode));
   row("appropriate referral (red-flag scenarios)", (s) => pct(s.appropriateReferral));
   row("inappropriate refusal (no red flag)", (s) => pct(s.inappropriateRefusal));
+  row("red flags recognised on evidence the learner had (red-flag scenarios)", (s) => pct(s.redFlagsOnEvidence));
+  row("first visit managed acceptably and safely", (s) => pct(s.initialVisit));
+  row("planned course completed (only where the pathway calls for another visit)", (s) => pct(s.fullCourse));
   row("simulated minutes", (s) => num(s.minutes, 1));
   row("agent actions", (s) => num(s.actions, 1));
   row("rejected or blocked actions", (s) => num(s.rejectedActions, 1));
+  row("of which refused for where the practitioner stood", (s) => num(s.outOfReach, 1));
+  row("metres walked", (s) => num(s.walkedMetres, 1));
   row("documentation completeness (STRICTA-informed)", (s) => num(s.documentation));
+  row("pattern differentiations resting on the findings they name", (s) => pct(s.patternEvidence));
+  // needles are counted, not sampled independently (they cluster in encounters): no interval is given
+  const count = (p: Proportion) => (p.n === 0 ? "—" : `${p.k}/${p.n}`);
+  row("needles with their response on record", (s) => count(s.responsesRecorded));
+  row("deqi recorded without evidence of it (of needles recorded as deqi)", (s) => count(s.deqiOverclaimed));
   row("teaching-mode assistance (episodes)", (s) => String(s.assistance.teachingMode));
   lines.push("", "## Tracks (mean item score)", "", "| track | dev | held-out | all |", "|---|---|---|---|");
   for (const t of ["reasoning", "localisation", "procedure", "collaboration", "followUp"] as const) row(t, (s) => num(s.tracks[t]));

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { assessPath, createEncounter, derivedBuild, patientRegion, pointInstance, referenceLibrary, regionAccess, seamMap, step, type Side } from "@acucraft/core";
-import { constructPoint, requirements } from "./agents/localise.js";
+import { assessPath, createEncounter, derivedBuild, patientRegion, pointInstance, pointTargets, referenceLibrary, regionAccess, seamMap, step, type Side } from "@acucraft/core";
+import { constructPoint, requirements } from "@acucraft/agent";
 import { loadContentPack, requireScenario, scenarioIds } from "./content.js";
 
 /** Every regional model is internally consistent, and its hazards are reachable only by going too deep. */
@@ -48,16 +48,17 @@ describe("regional models", () => {
     let checked = 0;
     for (const id of scenarioIds(pack)) {
       const patient = requireScenario(pack, id);
-      for (const def of patient.bundle.acupoints.values()) {
-        if (!def.region || !def.localisation) continue;
-        const r = patient.bundle.regions.get(def.region)!;
-        for (const side of (def.bilateral ? ["left", "right"] : ["midline"]) as Side[]) {
-          const cfg = def.configuration ?? regionAccess(r, side, r.access[0]!.position).configuration;
-          const inst = pointInstance(patient, def, side, cfg);
-          if (!inst) continue;
-          const frame = patientRegion(patient, def.region, inst.side, cfg);
-          if (assessPath(frame, inst.position, 0, 0, 0.5, NEEDLE).critical) shallow.push(`${id} ${def.id} ${side}`);
-          checked++;
+      for (const point of patient.bundle.acupoints.values()) {
+        for (const { site, def } of pointTargets(point)) {
+          const r = patient.bundle.regions.get(def.region!)!;
+          for (const side of (def.bilateral ? ["left", "right"] : ["midline"]) as Side[]) {
+            const cfg = def.configuration ?? regionAccess(r, side, r.access[0]!.position).configuration;
+            const inst = pointInstance(patient, point, side, cfg, site);
+            if (!inst) continue;
+            const frame = patientRegion(patient, def.region!, inst.side, cfg);
+            if (assessPath(frame, inst.position, 0, 0, 0.5, NEEDLE).critical) shallow.push(`${id} ${def.id}${site ? `:${site}` : ""} ${side}`);
+            checked++;
+          }
         }
       }
     }
@@ -121,6 +122,11 @@ describe("the whole body in every encounter", () => {
     for (const r of sc.field.solution.slice(0, i)) s = step(sc, s, r, { strict: true }).state;
     // the clinic's needles are 40 mm (at most 3.6 cm goes in): enough to reach this patient's pleura under KI25
     const { entry } = at("KI25");
+    // the needle is in hand at the knee: the chest is further up the couch, out of arm's reach from there
+    const far = step(sc, s, { requestId: "far-ki25", actor: "practitioner", patient: "patient", action: { type: "insert_needle", needleId: "pack-a.1", region: "chest", side: "right", at: entry, depthCm: 1 } }, { strict: true });
+    expect(far.attempt).toMatchObject({ status: "rejected", code: "not-in-reach" });
+    expect(far.attempt.message).toMatch(/move \{"to":\{"region":"chest","side":"right"\}\}/);
+    s = step(sc, far.state, { requestId: "to-chest", actor: "practitioner", patient: "patient", action: { type: "move", to: { region: "chest", side: "right" } } }, { strict: true }).state;
     const r = step(sc, s, { requestId: "deep-ki25", actor: "practitioner", patient: "patient", action: { type: "insert_needle", needleId: "pack-a.1", region: "chest", side: "right", at: entry, depthCm: 3.5 } }, { strict: true });
     expect(r.attempt.status).toBe("blocked");
     expect(r.attempt.unsafe).toContain("pleura-penetration");

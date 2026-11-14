@@ -167,7 +167,10 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "hand_hygiene"
+      "type": "move",
+      "to": {
+        "fixture": "treat-sink"
+      }
     }
   },
   {
@@ -175,8 +178,7 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "examine",
-      "findingId": "ex-inspect"
+      "type": "hand_hygiene"
     }
   },
   {
@@ -184,8 +186,10 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "examine",
-      "findingId": "ex-legs-skin"
+      "type": "move",
+      "to": {
+        "person": "patient"
+      }
     }
   },
   {
@@ -194,7 +198,7 @@
     "patient": "patient",
     "action": {
       "type": "examine",
-      "findingId": "ex-palpate"
+      "findingId": "ex-inspect"
     }
   },
   {
@@ -203,7 +207,7 @@
     "patient": "patient",
     "action": {
       "type": "examine",
-      "findingId": "ex-effusion"
+      "findingId": "ex-legs-skin"
     }
   },
   {
@@ -212,7 +216,7 @@
     "patient": "patient",
     "action": {
       "type": "examine",
-      "findingId": "ex-rom"
+      "findingId": "ex-palpate"
     }
   },
   {
@@ -221,7 +225,7 @@
     "patient": "patient",
     "action": {
       "type": "examine",
-      "findingId": "ex-tongue"
+      "findingId": "ex-effusion"
     }
   },
   {
@@ -230,7 +234,7 @@
     "patient": "patient",
     "action": {
       "type": "examine",
-      "findingId": "ex-pulse-tcm"
+      "findingId": "ex-rom"
     }
   },
   {
@@ -238,11 +242,29 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "check_vitals"
+      "type": "examine",
+      "findingId": "ex-tongue"
     }
   },
   {
     "requestId": "ka-028",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-pulse-tcm"
+    }
+  },
+  {
+    "requestId": "ka-029",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_vitals"
+    }
+  },
+  {
+    "requestId": "ka-030",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -251,12 +273,19 @@
         "knee-osteoarthritis"
       ],
       "pattern": "wind-cold-damp-bi",
+      "patternEvidence": [
+        "hx-weather",
+        "hx-general-tcm",
+        "hx-pattern",
+        "ex-tongue",
+        "ex-pulse-tcm"
+      ],
       "redFlags": [],
       "rationale": "Osteoarthritis as before; on warfarin with INR 2.6 in range; varicose veins over the medial right knee and upper calf."
     }
   },
   {
-    "requestId": "ka-029",
+    "requestId": "ka-031",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -266,7 +295,7 @@
     }
   },
   {
-    "requestId": "ka-030",
+    "requestId": "ka-032",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -305,7 +334,7 @@
     }
   },
   {
-    "requestId": "ka-031",
+    "requestId": "ka-033",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -322,7 +351,7 @@
     }
   },
   {
-    "requestId": "ka-032",
+    "requestId": "ka-034",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -330,7 +359,7 @@
     }
   },
   {
-    "requestId": "ka-033",
+    "requestId": "ka-035",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -339,7 +368,7 @@
     }
   },
   {
-    "requestId": "ka-034",
+    "requestId": "ka-036",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -353,36 +382,15 @@
     }
   },
   {
-    "requestId": "ka-035",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "identify_landmark",
-      "region": "knee-leg",
-      "side": "right",
-      "landmark": "st35-depression"
-    }
-  },
-  {
-    "requestId": "ka-036",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "identify_landmark",
-      "region": "knee-leg",
-      "side": "right",
-      "landmark": "medial-knee-eye"
-    }
-  },
-  {
     "requestId": "ka-037",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "identify_landmark",
-      "region": "knee-leg",
-      "side": "right",
-      "landmark": "ankle-anterior-midpoint"
+      "type": "move",
+      "to": {
+        "region": "knee-leg",
+        "side": "right"
+      }
     }
   },
   {
@@ -393,7 +401,7 @@
       "type": "identify_landmark",
       "region": "knee-leg",
       "side": "right",
-      "landmark": "lateral-malleolus"
+      "landmark": "st35-depression"
     }
   },
   {
@@ -404,11 +412,44 @@
       "type": "identify_landmark",
       "region": "knee-leg",
       "side": "right",
-      "landmark": "medial-condyle-inferior"
+      "landmark": "medial-knee-eye"
     }
   },
   {
     "requestId": "ka-040",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "knee-leg",
+      "side": "right",
+      "landmark": "ankle-anterior-midpoint"
+    }
+  },
+  {
+    "requestId": "ka-041",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "knee-leg",
+      "side": "right",
+      "landmark": "lateral-malleolus"
+    }
+  },
+  {
+    "requestId": "ka-042",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "knee-leg",
+      "side": "right",
+      "landmark": "medial-condyle-inferior"
+    }
+  },
+  {
+    "requestId": "ka-043",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -419,7 +460,7 @@
     }
   },
   {
-    "requestId": "ka-041",
+    "requestId": "ka-044",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -438,7 +479,7 @@
     }
   },
   {
-    "requestId": "ka-042",
+    "requestId": "ka-045",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -457,7 +498,7 @@
     }
   },
   {
-    "requestId": "ka-043",
+    "requestId": "ka-046",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -476,7 +517,7 @@
     }
   },
   {
-    "requestId": "ka-044",
+    "requestId": "ka-047",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -494,16 +535,18 @@
     }
   },
   {
-    "requestId": "ka-045",
+    "requestId": "ka-048",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
       "type": "move",
-      "to": "prep-area"
+      "to": {
+        "fixture": "prep-sink"
+      }
     }
   },
   {
-    "requestId": "ka-046",
+    "requestId": "ka-049",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -511,7 +554,18 @@
     }
   },
   {
-    "requestId": "ka-047",
+    "requestId": "ka-050",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "fixture": "shelf"
+      }
+    }
+  },
+  {
+    "requestId": "ka-051",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -520,16 +574,19 @@
     }
   },
   {
-    "requestId": "ka-048",
+    "requestId": "ka-052",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
       "type": "move",
-      "to": "treatment-room"
+      "to": {
+        "region": "knee-leg",
+        "side": "right"
+      }
     }
   },
   {
-    "requestId": "ka-049",
+    "requestId": "ka-053",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -539,7 +596,7 @@
     }
   },
   {
-    "requestId": "ka-050",
+    "requestId": "ka-054",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -548,7 +605,7 @@
     }
   },
   {
-    "requestId": "ka-051",
+    "requestId": "ka-055",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -557,7 +614,7 @@
     }
   },
   {
-    "requestId": "ka-052",
+    "requestId": "ka-056",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -570,7 +627,16 @@
     }
   },
   {
-    "requestId": "ka-053",
+    "requestId": "ka-057",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_sensation",
+      "needleId": "pack-a.1"
+    }
+  },
+  {
+    "requestId": "ka-058",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -579,7 +645,7 @@
     }
   },
   {
-    "requestId": "ka-054",
+    "requestId": "ka-059",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -592,7 +658,16 @@
     }
   },
   {
-    "requestId": "ka-055",
+    "requestId": "ka-060",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_sensation",
+      "needleId": "pack-a.2"
+    }
+  },
+  {
+    "requestId": "ka-061",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -601,7 +676,7 @@
     }
   },
   {
-    "requestId": "ka-056",
+    "requestId": "ka-062",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -614,7 +689,16 @@
     }
   },
   {
-    "requestId": "ka-057",
+    "requestId": "ka-063",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_sensation",
+      "needleId": "pack-a.3"
+    }
+  },
+  {
+    "requestId": "ka-064",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -623,7 +707,7 @@
     }
   },
   {
-    "requestId": "ka-058",
+    "requestId": "ka-065",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -636,75 +720,12 @@
     }
   },
   {
-    "requestId": "ka-059",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "adjust_needle",
-      "needleId": "pack-a.3",
-      "technique": "lift-thrust"
-    }
-  },
-  {
-    "requestId": "ka-060",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "monitor"
-    }
-  },
-  {
-    "requestId": "ka-061",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "wait",
-      "minutes": 10
-    }
-  },
-  {
-    "requestId": "ka-062",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "monitor"
-    }
-  },
-  {
-    "requestId": "ka-063",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "remove_needle",
-      "needleId": "pack-a.4"
-    }
-  },
-  {
-    "requestId": "ka-064",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "dispose",
-      "object": "pack-a.4"
-    }
-  },
-  {
-    "requestId": "ka-065",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "say",
-      "to": "patient",
-      "text": "I've taken out the needle that was burning. How does the knee feel now?"
-    }
-  },
-  {
     "requestId": "ka-066",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "wait",
-      "minutes": 8
+      "type": "check_sensation",
+      "needleId": "pack-a.4"
     }
   },
   {
@@ -720,11 +741,73 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "remove_all_needles"
+      "type": "wait",
+      "minutes": 10
     }
   },
   {
     "requestId": "ka-069",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "monitor"
+    }
+  },
+  {
+    "requestId": "ka-070",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "remove_needle",
+      "needleId": "pack-a.4"
+    }
+  },
+  {
+    "requestId": "ka-071",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "dispose",
+      "object": "pack-a.4"
+    }
+  },
+  {
+    "requestId": "ka-072",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "say",
+      "to": "patient",
+      "text": "I've taken out the needle that was burning. How does the knee feel now?"
+    }
+  },
+  {
+    "requestId": "ka-073",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "wait",
+      "minutes": 8
+    }
+  },
+  {
+    "requestId": "ka-074",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "monitor"
+    }
+  },
+  {
+    "requestId": "ka-075",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "remove_all_needles"
+    }
+  },
+  {
+    "requestId": "ka-076",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -733,7 +816,7 @@
     }
   },
   {
-    "requestId": "ka-070",
+    "requestId": "ka-077",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -742,7 +825,7 @@
     }
   },
   {
-    "requestId": "ka-071",
+    "requestId": "ka-078",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -751,7 +834,7 @@
     }
   },
   {
-    "requestId": "ka-072",
+    "requestId": "ka-079",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -760,7 +843,18 @@
     }
   },
   {
-    "requestId": "ka-073",
+    "requestId": "ka-080",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "fixture": "treat-sink"
+      }
+    }
+  },
+  {
+    "requestId": "ka-081",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -768,7 +862,7 @@
     }
   },
   {
-    "requestId": "ka-074",
+    "requestId": "ka-082",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -776,7 +870,18 @@
     }
   },
   {
-    "requestId": "ka-075",
+    "requestId": "ka-083",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "person": "patient"
+      }
+    }
+  },
+  {
+    "requestId": "ka-084",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -788,7 +893,7 @@
     }
   },
   {
-    "requestId": "ka-076",
+    "requestId": "ka-085",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -819,101 +924,45 @@
         "needling": {
           "needleType": "0.25 × 40 mm single-use sterile filiform",
           "needleCount": 4,
-          "depth": "0.8–2.0 cm",
-          "responseSought": "deqi at ST36",
+          "depth": "0.6–1.8 cm",
+          "responseSought": "none: no needle worked (anticoagulated); she was asked what she felt at each",
           "stimulation": "even",
-          "retentionMinutes": 20
+          "retentionMinutes": 20,
+          "responses": [
+            {
+              "needle": "pack-a.1",
+              "response": "none",
+              "evidence": [
+                "sense-1"
+              ]
+            },
+            {
+              "needle": "pack-a.2",
+              "response": "none",
+              "evidence": [
+                "sense-2"
+              ]
+            },
+            {
+              "needle": "pack-a.3",
+              "response": "none",
+              "evidence": [
+                "sense-3"
+              ]
+            },
+            {
+              "needle": "pack-a.4",
+              "response": "none",
+              "evidence": [
+                "sense-4"
+              ]
+            }
+          ]
         },
-        "response": "Tolerated; deqi at ST36.",
+        "response": "Tolerated.",
         "adverseEvents": "Burning at the Ashi needle: removed. Firm pressure after every removal (warfarin).",
         "advice": "Rest the knee today; continue exercises.",
         "followUp": "Review in one week."
-      }
-    }
-  },
-  {
-    "requestId": "ka-077",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "end_visit"
-    }
-  },
-  {
-    "requestId": "ka-078",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "begin_follow_up"
-    }
-  },
-  {
-    "requestId": "ka-079",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "ask",
-      "itemId": "fu-progress"
-    }
-  },
-  {
-    "requestId": "ka-080",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "ask",
-      "itemId": "fu-new"
-    }
-  },
-  {
-    "requestId": "ka-081",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "ask",
-      "itemId": "fu-exercises"
-    }
-  },
-  {
-    "requestId": "ka-082",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "move",
-      "to": "treatment-room",
-      "withPatient": true
-    }
-  },
-  {
-    "requestId": "ka-083",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "examine",
-      "findingId": "fu-ex-knee"
-    }
-  },
-  {
-    "requestId": "ka-084",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "decide",
-      "disposition": "treat-modified",
-      "rationale": "Improving with minor bruising only: continue the course and the exercises; review after three more sessions."
-    }
-  },
-  {
-    "requestId": "ka-085",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "document",
-      "record": {
-        "assessment": "Improving knee osteoarthritis; small bruise resolved.",
-        "response": "Pain 7/10 → 5/10 on stairs.",
-        "adverseEvents": "Minor bruising after the first session.",
-        "followUp": "Continue the course; review after three sessions."
       }
     }
   },
@@ -927,6 +976,92 @@
   },
   {
     "requestId": "ka-087",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "begin_follow_up"
+    }
+  },
+  {
+    "requestId": "ka-088",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "fu-progress"
+    }
+  },
+  {
+    "requestId": "ka-089",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "fu-new"
+    }
+  },
+  {
+    "requestId": "ka-090",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "ask",
+      "itemId": "fu-exercises"
+    }
+  },
+  {
+    "requestId": "ka-091",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": "treatment-room",
+      "withPatient": true
+    }
+  },
+  {
+    "requestId": "ka-092",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "fu-ex-knee"
+    }
+  },
+  {
+    "requestId": "ka-093",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "decide",
+      "disposition": "treat-modified",
+      "rationale": "Improving with minor bruising only: continue the course and the exercises; review after three more sessions."
+    }
+  },
+  {
+    "requestId": "ka-094",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "document",
+      "record": {
+        "assessment": "Improving knee osteoarthritis; small bruise resolved.",
+        "response": "Pain 7/10 → 5/10 on stairs.",
+        "adverseEvents": "Minor bruising after the first session.",
+        "followUp": "Continue the course; review after three sessions."
+      }
+    }
+  },
+  {
+    "requestId": "ka-095",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "end_visit"
+    }
+  },
+  {
+    "requestId": "ka-096",
     "actor": "practitioner",
     "patient": "patient",
     "action": {

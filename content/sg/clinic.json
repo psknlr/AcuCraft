@@ -1,7 +1,7 @@
 {
   "schema": "acucraft/clinic@1",
   "id": "sg-tcm-outpatient",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "title": "Simulated outpatient TCM clinic, Singapore",
   "jurisdiction": "SG",
   "languages": {
@@ -10,38 +10,67 @@
       "zh-CN"
     ]
   },
+  "facility": "sg-tcm-outpatient",
   "rooms": [
     {
       "id": "reception",
       "label": "reception",
       "kind": "reception",
+      "home": {
+        "x": -5.75,
+        "z": 1.75
+      },
       "fixtures": [
         {
           "id": "desk",
           "kind": "records-terminal",
-          "label": "reception desk and records"
+          "label": "reception desk and records",
+          "placement": "reception-records"
+        },
+        {
+          "id": "reception-hand-rub",
+          "kind": "hand-hygiene",
+          "label": "hand rub dispenser",
+          "placement": "reception-hand-rub"
         }
       ]
+    },
+    {
+      "id": "corridor",
+      "label": "corridor",
+      "kind": "corridor",
+      "home": {
+        "x": 0.25,
+        "z": -0.25
+      },
+      "fixtures": []
     },
     {
       "id": "consult-room",
       "label": "consultation room",
       "kind": "consult",
+      "home": {
+        "x": -6.25,
+        "z": -4.25
+      },
       "fixtures": [
         {
           "id": "consult-chair",
           "kind": "chair",
-          "label": "patient chair"
+          "label": "patient chair",
+          "placement": "consult-room.patient-chair"
         },
         {
           "id": "consult-terminal",
           "kind": "records-terminal",
-          "label": "records terminal"
+          "label": "records terminal",
+          "placement": "consult-room.records"
         },
         {
           "id": "consult-sink",
           "kind": "hand-hygiene",
-          "label": "hand rub dispenser"
+          "label": "hand rub dispenser",
+          "placement": "consult-room.hand-rub"
         }
       ]
     },
@@ -49,31 +78,46 @@
       "id": "treatment-room",
       "label": "treatment room",
       "kind": "treatment",
+      "home": {
+        "x": 2.75,
+        "z": -2.75
+      },
       "fixtures": [
         {
           "id": "couch-1",
           "kind": "couch",
-          "label": "treatment couch"
+          "label": "treatment couch",
+          "placement": "treatment-room.couch"
         },
         {
           "id": "treat-chair",
           "kind": "chair",
-          "label": "treatment chair"
+          "label": "treatment chair",
+          "placement": "treatment-room.patient-chair"
         },
         {
           "id": "treat-sink",
           "kind": "hand-hygiene",
-          "label": "hand-wash sink and hand rub"
+          "label": "hand-wash sink and hand rub",
+          "placement": "treatment-room.sink"
+        },
+        {
+          "id": "trolley-1",
+          "kind": "trolley",
+          "label": "needle trolley",
+          "placement": "treatment-room.trolley"
         },
         {
           "id": "sharps-1",
           "kind": "sharps-container",
-          "label": "sharps container"
+          "label": "sharps box on the needle trolley",
+          "placement": "treatment-room.trolley"
         },
         {
           "id": "screen-1",
           "kind": "screen",
-          "label": "privacy screen"
+          "label": "privacy curtain",
+          "placement": "treatment-room.curtain"
         }
       ]
     },
@@ -81,21 +125,34 @@
       "id": "prep-area",
       "label": "preparation area",
       "kind": "preparation",
+      "home": {
+        "x": 6.25,
+        "z": -4.25
+      },
       "fixtures": [
         {
           "id": "shelf",
           "kind": "supplies",
-          "label": "supply shelf"
+          "label": "supply shelf",
+          "placement": "prep-area.shelf"
         },
         {
           "id": "prep-sink",
           "kind": "hand-hygiene",
-          "label": "hand-wash sink"
+          "label": "hand-wash sink",
+          "placement": "prep-area.sink"
         },
         {
           "id": "sharps-prep",
           "kind": "sharps-container",
-          "label": "sharps container"
+          "label": "sharps container",
+          "placement": "prep-area.sharps"
+        },
+        {
+          "id": "worktop",
+          "kind": "trolley",
+          "label": "worktop",
+          "placement": "prep-area.worktop"
         }
       ]
     }
@@ -164,5 +221,5 @@
       "kind": "tcm"
     }
   ],
-  "notes": "A simulated clinic: rooms, fixtures and referral targets are illustrative, not a real institution."
+  "notes": "A simulated clinic: rooms, fixtures and referral targets are illustrative, not a real institution. Its floor plan is the ClinicalCraft facility of the same id (content/world)."
 }

@@ -1,0 +1,179 @@
+{
+  "schema": "clinicalcraft/room-template@1",
+  "id": "acu-treatment-room",
+  "name": {
+    "zh-CN": "针灸治疗室",
+    "en": "Acupuncture treatment room"
+  },
+  "description": {
+    "zh-CN": "针灸治疗室：可绕行的治疗床，床尾带锐器盒的针具治疗车，座椅、洗手池和隔帘。",
+    "en": "An acupuncture treatment room: a couch that can be walked round, the needle trolley with its sharps box at the foot of the couch, a chair, a hand-wash sink and a privacy curtain."
+  },
+  "kind": "consult",
+  "size": {
+    "w": 6,
+    "d": 5
+  },
+  "floor": "lino",
+  "partitions": [
+    {
+      "side": "n",
+      "base": "acu-dado"
+    },
+    {
+      "side": "w",
+      "base": "acu-dado"
+    },
+    {
+      "side": "e",
+      "base": "acu-dado"
+    },
+    {
+      "side": "s",
+      "base": "acu-dado",
+      "openings": [
+        {
+          "kind": "door",
+          "width": 1.3,
+          "height": 2.4,
+          "offset": 2.25
+        }
+      ]
+    }
+  ],
+  "sign": {
+    "text": {
+      "zh-CN": "治疗室",
+      "en": "Treatment"
+    },
+    "side": "n"
+  },
+  "lights": [
+    {
+      "x": 0,
+      "z": -0.6
+    },
+    {
+      "x": 2,
+      "z": 1.2
+    }
+  ],
+  "placements": [
+    {
+      "id": "couch",
+      "type": "acu-treatment-couch",
+      "x": 0.0,
+      "z": -0.4,
+      "label": {
+        "zh-CN": "治疗床",
+        "en": "Treatment couch"
+      }
+    },
+    {
+      "id": "trolley",
+      "type": "acu-needle-trolley",
+      "x": 0.0,
+      "z": 0.825,
+      "label": {
+        "zh-CN": "针具治疗车与锐器盒",
+        "en": "Needle trolley and sharps box"
+      }
+    },
+    {
+      "id": "patient-chair",
+      "type": "acu-patient-chair",
+      "x": -2.25,
+      "z": 0.75,
+      "rot": 90,
+      "label": {
+        "zh-CN": "治疗椅",
+        "en": "Treatment chair"
+      }
+    },
+    {
+      "id": "sink",
+      "type": "sink",
+      "x": 2.2,
+      "z": -2.05,
+      "label": {
+        "zh-CN": "洗手池",
+        "en": "Hand-wash sink"
+      }
+    },
+    {
+      "id": "curtain",
+      "type": "privacy-curtain",
+      "x": 1.5,
+      "z": 1.6,
+      "label": {
+        "zh-CN": "隔帘",
+        "en": "Privacy curtain"
+      }
+    },
+    {
+      "id": "chart",
+      "type": "acu-meridian-chart",
+      "x": -1.6,
+      "z": -2.3
+    },
+    {
+      "id": "model",
+      "type": "acu-meridian-model",
+      "x": -2.5,
+      "z": -2.0
+    },
+    {
+      "id": "clock",
+      "type": "wall-clock",
+      "x": 2.77,
+      "z": 0.2,
+      "rot": 270
+    }
+  ],
+  "patientSlots": [
+    {
+      "id": "slot",
+      "x": 0.0,
+      "z": -0.4,
+      "rot": 0,
+      "posture": "lying",
+      "bed": "couch",
+      "accepts": [
+        "outpatient"
+      ]
+    }
+  ],
+  "staff": [
+    {
+      "id": "assistant",
+      "role": "nurse",
+      "position": "ward-nurse",
+      "name": {
+        "zh-CN": "努尔·艾莎女士（诊所助理）",
+        "en": "Ms Nur Aisyah (clinic assistant)"
+      },
+      "x": 1.75,
+      "z": 0.75,
+      "rot": 270,
+      "appearance": {
+        "skin": "#b98a66",
+        "hair": "#1f1a17",
+        "hairStyle": "bun",
+        "shirt": "#5f9f92",
+        "pants": "#3f4a4c",
+        "build": "average",
+        "presentation": "feminine"
+      },
+      "greeting": {
+        "zh-CN": "治疗床已备好。需要我陪着患者就说一声。",
+        "en": "The couch is ready. Tell me if you want me to stay with the patient."
+      }
+    }
+  ],
+  "capabilities": [],
+  "tags": [
+    "outpatient",
+    "tcm",
+    "acupuncture"
+  ]
+}

@@ -140,7 +140,10 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "hand_hygiene"
+      "type": "move",
+      "to": {
+        "fixture": "treat-sink"
+      }
     }
   },
   {
@@ -148,8 +151,7 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "examine",
-      "findingId": "ex-general"
+      "type": "hand_hygiene"
     }
   },
   {
@@ -157,8 +159,10 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "examine",
-      "findingId": "ex-skin"
+      "type": "move",
+      "to": {
+        "person": "patient"
+      }
     }
   },
   {
@@ -167,7 +171,7 @@
     "patient": "patient",
     "action": {
       "type": "examine",
-      "findingId": "ex-tongue"
+      "findingId": "ex-general"
     }
   },
   {
@@ -176,7 +180,7 @@
     "patient": "patient",
     "action": {
       "type": "examine",
-      "findingId": "ex-pulse-tcm"
+      "findingId": "ex-skin"
     }
   },
   {
@@ -184,11 +188,29 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "check_vitals"
+      "type": "examine",
+      "findingId": "ex-tongue"
     }
   },
   {
     "requestId": "ib-022",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-pulse-tcm"
+    }
+  },
+  {
+    "requestId": "ib-023",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_vitals"
+    }
+  },
+  {
+    "requestId": "ib-024",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -197,12 +219,19 @@
         "insomnia"
       ],
       "pattern": "heart-spleen-deficiency",
+      "patternEvidence": [
+        "hx-sleep",
+        "hx-tcm",
+        "hx-onset",
+        "ex-tongue",
+        "ex-pulse-tcm"
+      ],
       "redFlags": [],
       "rationale": "Sleep-onset and early waking under stress; dreams, palpitations, poor appetite, fatigue; pale tongue with teeth marks, thin weak pulse. Mood reactive; no self-harm thoughts."
     }
   },
   {
-    "requestId": "ib-023",
+    "requestId": "ib-025",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -212,7 +241,7 @@
     }
   },
   {
-    "requestId": "ib-024",
+    "requestId": "ib-026",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -251,7 +280,7 @@
     }
   },
   {
-    "requestId": "ib-025",
+    "requestId": "ib-027",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -267,7 +296,7 @@
     }
   },
   {
-    "requestId": "ib-026",
+    "requestId": "ib-028",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -275,7 +304,7 @@
     }
   },
   {
-    "requestId": "ib-027",
+    "requestId": "ib-029",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -284,7 +313,7 @@
     }
   },
   {
-    "requestId": "ib-028",
+    "requestId": "ib-030",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -298,44 +327,15 @@
     }
   },
   {
-    "requestId": "ib-029",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "identify_landmark",
-      "region": "forearm",
-      "side": "left",
-      "landmark": "fcu-radial-wrist"
-    }
-  },
-  {
-    "requestId": "ib-030",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "mark_point",
-      "target": {
-        "point": "HT7",
-        "side": "left"
-      },
-      "region": "forearm",
-      "side": "left",
-      "at": {
-        "u": -3.09,
-        "v": 0.0
-      },
-      "method": "landmark"
-    }
-  },
-  {
     "requestId": "ib-031",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "identify_landmark",
-      "region": "forearm",
-      "side": "right",
-      "landmark": "fcu-radial-wrist"
+      "type": "move",
+      "to": {
+        "region": "forearm",
+        "side": "left"
+      }
     }
   },
   {
@@ -343,22 +343,45 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
+      "type": "identify_landmark",
+      "region": "forearm",
+      "side": "left",
+      "landmark": "fcu-radial-wrist"
+    }
+  },
+  {
+    "requestId": "ib-033",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
       "type": "mark_point",
       "target": {
         "point": "HT7",
-        "side": "right"
+        "side": "left"
       },
       "region": "forearm",
-      "side": "right",
+      "side": "left",
       "at": {
         "u": -3.09,
-        "v": 0.0
+        "v": 0
       },
       "method": "landmark"
     }
   },
   {
-    "requestId": "ib-033",
+    "requestId": "ib-034",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "region": "knee-leg",
+        "side": "left"
+      }
+    }
+  },
+  {
+    "requestId": "ib-035",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -369,7 +392,7 @@
     }
   },
   {
-    "requestId": "ib-034",
+    "requestId": "ib-036",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -380,7 +403,7 @@
     }
   },
   {
-    "requestId": "ib-035",
+    "requestId": "ib-037",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -391,7 +414,7 @@
     }
   },
   {
-    "requestId": "ib-036",
+    "requestId": "ib-038",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -410,7 +433,61 @@
     }
   },
   {
-    "requestId": "ib-037",
+    "requestId": "ib-039",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "region": "forearm",
+        "side": "right"
+      }
+    }
+  },
+  {
+    "requestId": "ib-040",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "forearm",
+      "side": "right",
+      "landmark": "fcu-radial-wrist"
+    }
+  },
+  {
+    "requestId": "ib-041",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "mark_point",
+      "target": {
+        "point": "HT7",
+        "side": "right"
+      },
+      "region": "forearm",
+      "side": "right",
+      "at": {
+        "u": -3.09,
+        "v": 0
+      },
+      "method": "landmark"
+    }
+  },
+  {
+    "requestId": "ib-042",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "region": "knee-leg",
+        "side": "right"
+      }
+    }
+  },
+  {
+    "requestId": "ib-043",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -421,7 +498,7 @@
     }
   },
   {
-    "requestId": "ib-038",
+    "requestId": "ib-044",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -432,7 +509,7 @@
     }
   },
   {
-    "requestId": "ib-039",
+    "requestId": "ib-045",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -443,7 +520,7 @@
     }
   },
   {
-    "requestId": "ib-040",
+    "requestId": "ib-046",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -462,16 +539,18 @@
     }
   },
   {
-    "requestId": "ib-041",
+    "requestId": "ib-047",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
       "type": "move",
-      "to": "prep-area"
+      "to": {
+        "fixture": "prep-sink"
+      }
     }
   },
   {
-    "requestId": "ib-042",
+    "requestId": "ib-048",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -479,7 +558,18 @@
     }
   },
   {
-    "requestId": "ib-043",
+    "requestId": "ib-049",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "fixture": "shelf"
+      }
+    }
+  },
+  {
+    "requestId": "ib-050",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -488,16 +578,19 @@
     }
   },
   {
-    "requestId": "ib-044",
+    "requestId": "ib-051",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
       "type": "move",
-      "to": "treatment-room"
+      "to": {
+        "region": "forearm",
+        "side": "left"
+      }
     }
   },
   {
-    "requestId": "ib-045",
+    "requestId": "ib-052",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -507,17 +600,7 @@
     }
   },
   {
-    "requestId": "ib-046",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "prepare_site",
-      "region": "forearm",
-      "side": "right"
-    }
-  },
-  {
-    "requestId": "ib-047",
+    "requestId": "ib-053",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -527,7 +610,41 @@
     }
   },
   {
-    "requestId": "ib-048",
+    "requestId": "ib-054",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "region": "forearm",
+        "side": "right"
+      }
+    }
+  },
+  {
+    "requestId": "ib-055",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "prepare_site",
+      "region": "forearm",
+      "side": "right"
+    }
+  },
+  {
+    "requestId": "ib-056",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "region": "knee-leg",
+        "side": "right"
+      }
+    }
+  },
+  {
+    "requestId": "ib-057",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -537,7 +654,7 @@
     }
   },
   {
-    "requestId": "ib-049",
+    "requestId": "ib-058",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -546,7 +663,7 @@
     }
   },
   {
-    "requestId": "ib-050",
+    "requestId": "ib-059",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -555,7 +672,46 @@
     }
   },
   {
-    "requestId": "ib-051",
+    "requestId": "ib-060",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "pick_up",
+      "object": "pack-a.2"
+    }
+  },
+  {
+    "requestId": "ib-061",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "pick_up",
+      "object": "pack-a.3"
+    }
+  },
+  {
+    "requestId": "ib-062",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "pick_up",
+      "object": "pack-a.4"
+    }
+  },
+  {
+    "requestId": "ib-063",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "region": "forearm",
+        "side": "left"
+      }
+    }
+  },
+  {
+    "requestId": "ib-064",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -568,60 +724,106 @@
     }
   },
   {
-    "requestId": "ib-052",
+    "requestId": "ib-065",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "pick_up",
-      "object": "pack-a.2"
+      "type": "check_sensation",
+      "needleId": "pack-a.1"
     }
   },
   {
-    "requestId": "ib-053",
+    "requestId": "ib-066",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "insert_needle",
-      "needleId": "pack-a.2",
-      "mark": "m2",
-      "angleDeg": 0,
-      "azimuthDeg": 0,
-      "depthCm": 0.5
+      "type": "move",
+      "to": {
+        "region": "knee-leg",
+        "side": "left"
+      }
     }
   },
   {
-    "requestId": "ib-054",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "pick_up",
-      "object": "pack-a.3"
-    }
-  },
-  {
-    "requestId": "ib-055",
+    "requestId": "ib-067",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
       "type": "insert_needle",
       "needleId": "pack-a.3",
-      "mark": "m3",
+      "mark": "m2",
       "angleDeg": 0,
       "azimuthDeg": 0,
       "depthCm": 1.5
     }
   },
   {
-    "requestId": "ib-056",
+    "requestId": "ib-068",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "pick_up",
-      "object": "pack-a.4"
+      "type": "adjust_needle",
+      "needleId": "pack-a.3",
+      "technique": "rotate"
     }
   },
   {
-    "requestId": "ib-057",
+    "requestId": "ib-069",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_sensation",
+      "needleId": "pack-a.3"
+    }
+  },
+  {
+    "requestId": "ib-070",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "region": "forearm",
+        "side": "right"
+      }
+    }
+  },
+  {
+    "requestId": "ib-071",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "insert_needle",
+      "needleId": "pack-a.2",
+      "mark": "m3",
+      "angleDeg": 0,
+      "azimuthDeg": 0,
+      "depthCm": 0.5
+    }
+  },
+  {
+    "requestId": "ib-072",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_sensation",
+      "needleId": "pack-a.2"
+    }
+  },
+  {
+    "requestId": "ib-073",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "region": "knee-leg",
+        "side": "right"
+      }
+    }
+  },
+  {
+    "requestId": "ib-074",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -634,7 +836,26 @@
     }
   },
   {
-    "requestId": "ib-058",
+    "requestId": "ib-075",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "adjust_needle",
+      "needleId": "pack-a.4",
+      "technique": "rotate"
+    }
+  },
+  {
+    "requestId": "ib-076",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_sensation",
+      "needleId": "pack-a.4"
+    }
+  },
+  {
+    "requestId": "ib-077",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -642,7 +863,7 @@
     }
   },
   {
-    "requestId": "ib-059",
+    "requestId": "ib-078",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -651,7 +872,7 @@
     }
   },
   {
-    "requestId": "ib-060",
+    "requestId": "ib-079",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -659,7 +880,7 @@
     }
   },
   {
-    "requestId": "ib-061",
+    "requestId": "ib-080",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -668,7 +889,7 @@
     }
   },
   {
-    "requestId": "ib-062",
+    "requestId": "ib-081",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -676,7 +897,7 @@
     }
   },
   {
-    "requestId": "ib-063",
+    "requestId": "ib-082",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -684,7 +905,7 @@
     }
   },
   {
-    "requestId": "ib-064",
+    "requestId": "ib-083",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -693,7 +914,18 @@
     }
   },
   {
-    "requestId": "ib-065",
+    "requestId": "ib-084",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "fixture": "treat-sink"
+      }
+    }
+  },
+  {
+    "requestId": "ib-085",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -701,7 +933,7 @@
     }
   },
   {
-    "requestId": "ib-066",
+    "requestId": "ib-086",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -709,7 +941,18 @@
     }
   },
   {
-    "requestId": "ib-067",
+    "requestId": "ib-087",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "person": "patient"
+      }
+    }
+  },
+  {
+    "requestId": "ib-088",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -721,7 +964,7 @@
     }
   },
   {
-    "requestId": "ib-068",
+    "requestId": "ib-089",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -754,9 +997,41 @@
           "needleType": "0.25 × 40 mm single-use sterile filiform",
           "needleCount": 4,
           "depth": "HT7 0.5 cm; SP6 1.5 cm",
-          "responseSought": "mild deqi",
+          "responseSought": "mild deqi at SP6 (rotation); the wrist needles not worked",
           "stimulation": "even",
-          "retentionMinutes": 20
+          "retentionMinutes": 20,
+          "responses": [
+            {
+              "needle": "pack-a.1",
+              "response": "none",
+              "evidence": [
+                "sense-1"
+              ]
+            },
+            {
+              "needle": "pack-a.2",
+              "response": "none",
+              "evidence": [
+                "sense-3"
+              ]
+            },
+            {
+              "needle": "pack-a.3",
+              "response": "deqi",
+              "evidence": [
+                "feel-1",
+                "sense-2"
+              ]
+            },
+            {
+              "needle": "pack-a.4",
+              "response": "deqi",
+              "evidence": [
+                "feel-2",
+                "sense-4"
+              ]
+            }
+          ]
         },
         "response": "Tolerated; relaxed.",
         "adverseEvents": "None.",
@@ -766,7 +1041,7 @@
     }
   },
   {
-    "requestId": "ib-069",
+    "requestId": "ib-090",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -774,7 +1049,7 @@
     }
   },
   {
-    "requestId": "ib-070",
+    "requestId": "ib-091",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -782,7 +1057,7 @@
     }
   },
   {
-    "requestId": "ib-071",
+    "requestId": "ib-092",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -791,7 +1066,7 @@
     }
   },
   {
-    "requestId": "ib-072",
+    "requestId": "ib-093",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -800,7 +1075,7 @@
     }
   },
   {
-    "requestId": "ib-073",
+    "requestId": "ib-094",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -810,7 +1085,7 @@
     }
   },
   {
-    "requestId": "ib-074",
+    "requestId": "ib-095",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -824,7 +1099,7 @@
     }
   },
   {
-    "requestId": "ib-075",
+    "requestId": "ib-096",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -832,7 +1107,7 @@
     }
   },
   {
-    "requestId": "ib-076",
+    "requestId": "ib-097",
     "actor": "practitioner",
     "patient": "patient",
     "action": {

@@ -7,6 +7,11 @@ import type { Agent, AgentInit, AgentTurn } from "./types.js";
  * library. It screens with a fixed question list, recognises red flags by keyword, treats with a standard prescription
  * per complaint, localises every point from the landmarks it palpates and the segments it measures, needles at
  * textbook depths that do not adapt to the patient's build, delegates monitoring and accounts for every needle.
+ * Its conclusions name their evidence: the pattern it picks by keyword cites the answers and findings the keywords were
+ * found in, with the tongue and the pulse; each needle is lifted and thrust once, and the record says deqi where the
+ * needle was gripped or the patient spoke of it, none where it was not — never more than it observed.
+ * It has a body in the clinic: before each act it reads from its view whether the sink, the shelf, the trolley, the
+ * patient or the body site is within reach, and walks there first if not — one side of the couch, then the other.
  *
  * It is deliberately ordinary: a reference for what knowledge applied without judgement achieves, so the benchmark
  * shows where adaptation (build, position, events) matters.
@@ -44,6 +49,18 @@ const DEPTH: Record<string, { depth: number; angle?: number; az?: "medial" | "la
   PC6: { depth: 1.0 },
   HT7: { depth: 0.5 },
   LU7: { depth: 0.8, angle: 75, az: 0 },
+};
+
+/** What the agent reads each pattern from: words in the answers and findings (the evidence it then cites). */
+const PATTERN_WORDS: Record<string, RegExp> = {
+  "wind-cold-damp-bi": /\b(cold|damp|rain\w*|heavy|air-con\w*|warm\w*|stiff\w*)\b/,
+  "qi-blood-stagnation": /\b(one point|fixed|stabbing|tender\w*|tight\w*|sitting|stress\w*)\b/,
+  "kidney-yang-deficiency": /\b(tired|weak|cold|sore)\b/,
+  "liver-qi-stagnation": /\b(irritable|stress\w*|tight\w*|band|pressure|sigh\w*)\b/,
+  "liver-yang-rising": /\b(dizz\w*|irritable|red face|flushed)\b/,
+  "spleen-stomach-deficiency": /\b(appetite|tired|loose)\b/,
+  "stomach-qi-rebellion": /\b(nause\w*|vomit\w*|belch\w*)\b/,
+  "heart-spleen-deficiency": /\b(sleep|dreams?|palpitations?|heart races|appetite|tired|worry)\b/,
 };
 
 const NEGATOR = /\b(no|not|never|nothing|without|denies|none)\b|n't\b/;
@@ -84,8 +101,94 @@ export function protocolAgent(): Agent {
   let pregnant = false;
   let redFlags: string[] = [];
   let endTries = 0;
+  /** Where each needle went in (to stand there again to adjust or remove it), and where each opened pack's tray is. */
+  const needleSite = new Map<string, { region: string; side: Side }>();
+  const trayAt = new Map<string, string>();
+  /** The act a walk was last made for: if it is still out of reach after that walk, it is tried as it is. */
+  let walkedFor: ActionInput | null = null;
+  /** The needle responses written into the record: what the evidence of each needle showed. */
+  let responses: { needle: string; response: "deqi" | "none" | "not-sought"; evidence: string[] }[] = [];
 
-  const text = (v: AgentView) => [v.patient.presenting, ...v.record.history.map((h) => h.answer), ...v.record.examination.map((e) => e.finding), ...v.record.results].join(" ");
+  /** The patient's left before their right, then the midline: one side of the couch at a time. */
+  const bySide = <T extends { side: string }>(items: T[]): T[] => {
+    const rank = (x: string) => (x === "left" ? 0 : x === "right" ? 1 : 2);
+    return items.map((item, i) => ({ item, i })).sort((a, b) => rank(a.item.side) - rank(b.item.side) || a.i - b.i).map((x) => x.item);
+  };
+
+  /** The walk an action needs first, read from the view: null when it can be done from here. */
+  function placement(v: AgentView, a: ActionInput): ActionInput | null {
+    const sp = v.space;
+    const to = (target: Extract<ActionInput, { type: "move" }>["to"]): ActionInput => ({ type: "move", to: target });
+    const patient = (ok: boolean) => (ok ? null : to({ person: "patient" }));
+    const site = (region: string, side: Side) => {
+      const key = `${region}:${side}`;
+      if (sp.patient.sites.inReach.includes(key)) return null;
+      return sp.patient.sites.outOfReach.some((x) => x.site === key) ? to({ region, side }) : patient(sp.patient.atSide);
+    };
+    // the fixture of a kind to use: one within reach, else the nearest in this room, else the nearest anywhere
+    const fixture = (kind: string) => {
+      const all = sp.fixtures.filter((f) => f.kind === kind);
+      if (all.some((f) => f.inReach) || all.length === 0) return null;
+      const here = all.filter((f) => f.room === sp.you.room);
+      const best = (here.length > 0 ? here : all).sort((x, y) => x.distance - y.distance)[0]!;
+      return to({ fixture: best.id });
+    };
+    const named = (id: string | undefined) => {
+      const f = sp.fixtures.find((x) => x.id === id);
+      return !f || f.inReach ? null : to({ fixture: f.id });
+    };
+    switch (a.type) {
+      case "ask":
+      case "explain":
+      case "seek_consent":
+        return patient(sp.patient.inEarshot);
+      case "observe":
+      case "monitor":
+        return patient(sp.patient.inSight);
+      case "examine":
+      case "check_vitals":
+      case "position_patient":
+      case "search":
+      case "remove_all_needles":
+        return patient(sp.patient.atSide);
+      case "identify_landmark":
+      case "measure":
+      case "mark_point":
+      case "prepare_site":
+        return site(a.region, a.side);
+      case "insert_needle": {
+        const m = v.localisation.marks.find((x) => x.id === a.mark);
+        return m ? site(m.region, m.side as Side) : null;
+      }
+      case "check_sensation":
+        return patient(sp.patient.inEarshot);
+      case "adjust_needle":
+      case "remove_needle":
+      case "apply_pressure": {
+        const at = needleSite.get(a.needleId);
+        return at ? site(at.region, at.side) : patient(sp.patient.atSide);
+      }
+      case "hand_hygiene":
+        return fixture("hand-hygiene");
+      case "review_result":
+        return sp.patient.atSide ? null : fixture("records-terminal");
+      case "fetch":
+        return named(lib.clinic.supplies.find((x) => x.id === a.item)?.at) ?? (v.equipment.packs.some((p) => p.id === a.item) ? fixture("supplies") : null);
+      case "open_pack": {
+        // onto the trolley in the patient's room
+        const trolley = sp.fixtures.find((f) => f.kind === "trolley" && f.room === sp.patient.room) ?? sp.fixtures.find((f) => f.kind === "trolley");
+        return named(trolley?.id);
+      }
+      case "pick_up":
+        return /\.\d+$/.test(a.object) && !/on the (floor|couch|clothing)/.test(v.equipment.needles.find((x) => x.id === a.object)?.where ?? "") ? named(trayAt.get(a.object.replace(/\.\d+$/, ""))) : patient(sp.patient.atSide);
+      case "dispose":
+        return fixture("sharps-container");
+      default:
+        return null;
+    }
+  }
+
+  const text = (v: AgentView) => [v.patient.presenting, ...v.record.history.map((h) => h.answer), ...v.record.examination.map((e) => e.finding), ...v.record.results.map((r) => r.text)].join(" ");
   const push = (...a: ActionInput[]) => queue.push(...a);
 
   function detect(v: AgentView): void {
@@ -113,15 +216,15 @@ export function protocolAgent(): Agent {
   function exams(): string[] {
     switch (complaint) {
       case "knee":
-        return ["Inspect both knees", "Palpate the right knee", "Check for an effusion", "Examine the skin of the legs, including for varicose veins", "Inspect the tongue"];
+        return ["Inspect both knees", "Palpate the right knee", "Check for an effusion", "Examine the skin of the legs, including for varicose veins", "Inspect the tongue", "Feel the radial pulses (pulse diagnosis)"];
       case "back":
-        return ["Inspect the back and posture", "Palpate the lumbar spine and paraspinal muscles", "Straight leg raise", "Examine leg power, reflexes and sensation, including the saddle area", "Inspect the tongue"];
+        return ["Inspect the back and posture", "Palpate the lumbar spine and paraspinal muscles", "Straight leg raise", "Examine leg power, reflexes and sensation, including the saddle area", "Inspect the tongue", "Feel the radial pulses (pulse diagnosis)"];
       case "headache":
-        return ["Brief neurological examination", "Palpate the neck and shoulders", "Inspect the tongue"];
+        return ["Brief neurological examination", "Palpate the neck and shoulders", "Inspect the tongue", "Feel the radial pulses (pulse diagnosis)"];
       case "nausea":
-        return ["Examine both arms and hands, including for swelling", "Examine the legs", "Inspect the tongue"];
+        return ["Examine both arms and hands, including for swelling", "Examine the legs", "Inspect the tongue", "Feel the radial pulses (pulse diagnosis)"];
       case "sleep":
-        return ["General inspection", "Examine the skin of the arms and legs", "Inspect the tongue"];
+        return ["General inspection", "Examine the skin of the arms and legs", "Inspect the tongue", "Feel the radial pulses (pulse diagnosis)"];
       default:
         return ["General inspection"];
     }
@@ -172,6 +275,21 @@ export function protocolAgent(): Agent {
     return undefined;
   }
 
+  /**
+   * The findings a pattern is cited on: the answers and examination findings its words were found in (unnegated),
+   * with the tongue and the pulse when they were examined. Ids come from the record in the view: what was obtained.
+   */
+  function patternEvidence(v: AgentView, id: string): string[] {
+    const words = PATTERN_WORDS[id];
+    const out: string[] = [];
+    if (words) {
+      for (const h of v.record.history) if (positive(h.answer, words)) out.push(h.id);
+      for (const e of v.record.examination) if (positive(e.finding, words)) out.push(e.id);
+    }
+    for (const e of v.record.examination) if (/tongue|puls/i.test(e.manoeuvre) && !out.includes(e.id)) out.push(e.id);
+    return out.slice(0, 12);
+  }
+
   /** Whole-region site exclusions found on examination ("lymphoedema of the left arm (forearm, left)"). */
   function excluded(v: AgentView): { region: string; side: string; centre?: ChartPoint; r?: number }[] {
     const out: { region: string; side: string; centre?: ChartPoint; r?: number }[] = [];
@@ -179,6 +297,19 @@ export function protocolAgent(): Agent {
       const m = site.match(/\(([a-z-]+), (left|right|midline)(?:, around u=(-?[\d.]+), v=(-?[\d.]+), radius ([\d.]+) cm)?\)/);
       if (!m) continue;
       out.push({ region: m[1]!, side: m[2]!, ...(m[3] ? { centre: { u: Number(m[3]), v: Number(m[4]) }, r: Number(m[5]) } : {}) });
+    }
+    return out;
+  }
+
+  /** Regions an `avoid-regions` rule in force keeps needles out of, for this patient's known risk factors. */
+  function avoidedRegions(v: AgentView): Set<string> {
+    const out = new Set<string>();
+    const weeks = Number(/(\d+)\s*weeks pregnant/i.exec(v.record.history.map((h) => h.answer).join(" "))?.[1] ?? Infinity);
+    for (const set of lib.rules.find((r) => r.visit === 1)?.sets ?? []) {
+      for (const r of set.rules) {
+        if (r.check.kind !== "avoid-regions") continue;
+        if (r.check.riskFactor === "pregnancy" && pregnant && weeks >= (r.check.fromGestationWeek ?? 0)) for (const g of r.check.regions) out.add(g);
+      }
     }
     return out;
   }
@@ -207,14 +338,31 @@ export function protocolAgent(): Agent {
       .filter((p) => !(pregnant && lib.points.find((x) => x.id === p.point)?.cautions.some((c) => c.when === "pregnancy")))
       .map((p) => ({ point: p.point, side: p.side }));
     for (const a of v.record.tenderPoints) pts.push({ ashi: a.id });
-    plan = pts;
+    // regions the rules in force keep needles out of for this patient (after the first trimester: the abdomen and the
+    // lumbosacral region), whatever point lies there
+    const avoided = avoidedRegions(v);
+    const regionOf = (p: PointRef) => ("ashi" in p ? v.record.tenderPoints.find((a) => a.id === p.ashi)?.region : lib.points.find((x) => x.id === p.point)?.region);
+    plan = pts.filter((p) => !avoided.has(regionOf(p) ?? ""));
+    if (plan.length === 0 && pregnant) {
+      push(
+        { type: "assess", diagnoses: protocol.diagnosis ? [protocol.diagnosis] : [], redFlags: [], rationale: "No red flags on screening; pregnant." },
+        { type: "decide", disposition: "defer", rationale: avoided.size ? `Pregnant: no needling of the ${[...avoided].join(", ")} under the rules in force.` : "Pregnant: no suitable points." },
+        { type: "explain", topics: ["alternatives", "evidence"], text: "Because you are pregnant I won't needle these areas: our guidance is to avoid them at this stage. Antenatal physiotherapy, a support belt and advice from your obstetric team are better options for now." },
+        { type: "refer", to: "obstetrics", urgency: "routine", reason: "Pregnancy-related symptoms; acupuncture deferred under the rules in force." },
+      );
+      stage = "document";
+      return;
+    }
     if (plan.length === 0) {
       push({ type: "decide", disposition: "defer", rationale: "No suitable points for this presentation." }, { type: "explain", topics: ["alternatives"], text: "I won't needle today; exercise, physiotherapy or your doctor are better options for now." }, { type: "refer", to: "gp", urgency: "routine", reason: "Review by her doctor." });
       stage = "document";
       return;
     }
+    // a pattern is recorded only with the findings it rests on: with none to cite, none is asserted
+    const differentiated = pattern(v);
+    const cited = differentiated ? patternEvidence(v, differentiated) : [];
     push(
-      { type: "assess", diagnoses: protocol.diagnosis ? [protocol.diagnosis] : [], ...(pattern(v) ? { pattern: pattern(v)! } : {}), redFlags: [], rationale: "No red flags on screening." },
+      { type: "assess", diagnoses: protocol.diagnosis ? [protocol.diagnosis] : [], ...(differentiated && cited.length > 0 ? { pattern: differentiated, patternEvidence: cited } : {}), redFlags: [], rationale: "No red flags on screening." },
       { type: "decide", disposition: anticoagulated || pregnant || ex.length > 0 ? "treat-modified" : "treat", rationale: "No red flags; standard protocol." },
       planAction(plan),
       { type: "explain", topics: ["procedure", "benefits", "risks", "alternatives", "evidence", "right-to-stop"], text: explainText() },
@@ -234,14 +382,17 @@ export function protocolAgent(): Agent {
         for (const s of req.segments) segs.add(`${req.region}|${req.side}|${s}`);
       }
     }
+    // palpate and measure one side of the couch at a time
+    const acts: (ActionInput & { side: string })[] = [];
     for (const key of lms) {
       const [region, side, landmark] = key.split("|");
-      push({ type: "identify_landmark", region: region!, side: side as Side, landmark: landmark! });
+      acts.push({ type: "identify_landmark", region: region!, side: side as Side, landmark: landmark! });
     }
     for (const key of segs) {
       const [region, side, segment] = key.split("|");
-      push({ type: "measure", region: region!, side: side as Side, segment: segment! });
+      acts.push(segment === "finger-cun" ? { type: "measure", region: region!, side: side as Side, fingerCun: true } : { type: "measure", region: region!, side: side as Side, segment: segment! });
     }
+    push(...bySide(acts));
     void v;
     stage = "mark";
   }
@@ -249,10 +400,11 @@ export function protocolAgent(): Agent {
   function stageMark(v: AgentView): void {
     const ex = excluded(v);
     const kept: PointRef[] = [];
+    const marks: (ActionInput & { side: string })[] = [];
     for (const p of plan) {
       if ("ashi" in p) {
         const a = v.record.tenderPoints.find((x) => x.id === p.ashi)!;
-        push({ type: "mark_point", target: p, region: a.region, side: a.side as Side, at: a.centre, method: "palpation" });
+        marks.push({ type: "mark_point", target: p, region: a.region, side: a.side as Side, at: a.centre, method: "palpation" });
         kept.push(p);
         continue;
       }
@@ -264,9 +416,10 @@ export function protocolAgent(): Agent {
       const at = constructPoint(lib, p.point, p.side, observed);
       if (!at) continue;
       if (ex.some((e) => e.centre && e.region === req.region && (e.side === p.side || e.side === "midline") && Math.hypot(e.centre.u - at.u, e.centre.v - at.v) <= (e.r ?? 0) + 0.5)) continue;
-      push({ type: "mark_point", target: p, region: req.region, side: req.side, at: { u: Math.round(at.u * 100) / 100, v: Math.round(at.v * 100) / 100 }, method: "proportional" });
+      marks.push({ type: "mark_point", target: p, region: req.region, side: req.side, at: { u: Math.round(at.u * 100) / 100, v: Math.round(at.v * 100) / 100 }, method: "proportional" });
       kept.push(p);
     }
+    push(...bySide(marks));
     if (kept.length < plan.length) {
       plan = kept;
       queue.unshift(planAction(plan)); // narrower plan: consent carries over
@@ -284,31 +437,53 @@ export function protocolAgent(): Agent {
       packs.push(p.id);
       have += p.needles;
     }
-    push({ type: "move", to: "prep-area" }, { type: "hand_hygiene" }, ...packs.map((id) => ({ type: "fetch" as const, item: id })), { type: "move", to: v.patient.location });
+    push({ type: "hand_hygiene" }, ...packs.map((id) => ({ type: "fetch" as const, item: id })));
     const sites = new Set<string>();
     for (const m of v.localisation.marks) sites.add(`${m.region}|${m.side}`);
-    for (const s of sites) {
-      const [region, side] = s.split("|");
-      push({ type: "prepare_site", region: region!, side: side as Side });
-    }
+    push(...bySide([...sites].map((s) => ({ type: "prepare_site" as const, region: s.split("|")[0]!, side: s.split("|")[1] as Side }))));
     for (const id of packs) push({ type: "open_pack", packId: id });
     stage = "insert";
   }
 
   function stageInsert(v: AgentView): void {
     const free = v.equipment.needles.filter((x) => x.where.startsWith("on the tray") && !x.used).map((x) => x.id);
-    const marks = v.localisation.marks.filter((m) => !m.stale);
+    for (const p of v.equipment.packs) if (!p.sealed) trayAt.set(p.id, v.space.fixtures.find((f) => p.where.includes(`the ${f.label} (`))?.id ?? "");
+    const marks = bySide(v.localisation.marks.filter((m) => !m.stale)).filter((_, i) => free[i] !== undefined);
+    // the needles for these marks in hand first (at the trolley), then in, one side of the couch at a time
+    marks.forEach((_, i) => push({ type: "pick_up", object: free[i]! }));
     marks.forEach((m, i) => {
-      const id = free[i];
-      if (!id) return;
+      const id = free[i]!;
       const target: PointRef = m.target.startsWith("ashi:") ? { ashi: m.target.slice(5) } : { point: m.target.split(":")[0]!, side: m.target.split(":")[1] as Side };
       const spec = "ashi" in target ? { depth: 1.0 } : (DEPTH[target.point] ?? { depth: 1.0 });
       const az = spec.az === "medial" ? medialAzimuth(lib, m.region, m.side as Side) : spec.az === "lateral" ? (medialAzimuth(lib, m.region, m.side as Side) + 180) % 360 : (spec.az ?? 0);
-      push({ type: "pick_up", object: id }, { type: "insert_needle", needleId: id, mark: m.id, angleDeg: spec.angle ?? 0, azimuthDeg: az, depthCm: spec.depth });
+      push({ type: "insert_needle", needleId: id, mark: m.id, angleDeg: spec.angle ?? 0, azimuthDeg: az, depthCm: spec.depth });
       needled.push({ needle: id, target });
+      needleSite.set(id, { region: m.region, side: m.side as Side });
     });
     push({ type: "monitor" });
+    stage = "seek";
+  }
+
+  /**
+   * The needle's response: each needle that went in is lifted and thrust once — what the operator then feels is the
+   * evidence the record will cite. Not for a patient on anticoagulants or in pregnancy: there nothing is sought.
+   */
+  function stageSeek(v: AgentView): void {
     stage = "retain";
+    if (anticoagulated || pregnant) return;
+    const inPlace = v.needling.filter((n) => n.inPlace && n.manipulations === 0).map((n) => ({ id: n.needle, side: needleSite.get(n.needle)?.side ?? "midline" }));
+    push(...bySide(inPlace).map((n) => ({ type: "adjust_needle" as const, needleId: n.id, technique: "lift-thrust" as const })));
+    if (inPlace.length > 0) push({ type: "monitor" });
+  }
+
+  /** What the evidence of each needle of this visit shows, as the record will state it. */
+  function readResponses(v: AgentView): void {
+    const deqi = new Set(lib.vocabulary.sensations.filter((x) => x.deqi).map((x) => x.id as string));
+    for (const n of v.needling) {
+      const shows = n.evidence.filter((e) => e.grasp === true || (e.qualities.length > 0 && e.qualities.every((q) => deqi.has(q))));
+      const entry = shows.length > 0 ? { needle: n.needle, response: "deqi" as const, evidence: shows.map((e) => e.id) } : n.evidence.length > 0 ? { needle: n.needle, response: "none" as const, evidence: [n.evidence[n.evidence.length - 1]!.id] } : { needle: n.needle, response: "not-sought" as const, evidence: [] };
+      responses = [...responses.filter((r) => r.needle !== n.needle), entry];
+    }
   }
 
   function newPatientLines(v: AgentView): string[] {
@@ -365,6 +540,9 @@ export function protocolAgent(): Agent {
 
   function stageDocument(v: AgentView): void {
     const pts = needled.map((n) => n.target);
+    readResponses(v);
+    const recorded = responses.filter((r) => needled.some((n) => n.needle === r.needle));
+    const arrived = recorded.filter((r) => r.response === "deqi").length;
     if (pts.length > 0 || plan.length > 0) {
       push({ type: "explain", topics: ["aftercare"], text: "Afterwards rest for the day; a little soreness or a small bruise can happen." });
       push({
@@ -375,8 +553,8 @@ export function protocolAgent(): Agent {
           rationale: `Standard ${complaint} protocol.`,
           consent: "Verbal consent after explanation.",
           pointsUsed: pts,
-          needling: { needleType: "single-use sterile filiform", needleCount: pts.length, depth: "textbook depths", responseSought: "deqi", stimulation: "even", retentionMinutes: retention },
-          response: fainted ? "Treatment stopped early." : "Tolerated.",
+          needling: { needleType: "single-use sterile filiform", needleCount: pts.length, depth: "textbook depths", responseSought: anticoagulated || pregnant ? "none: no needle worked" : "deqi (one lift and thrust at each needle)", ...(recorded.length > 0 ? { responses: recorded } : {}), stimulation: "even", retentionMinutes: retention },
+          response: `${fainted ? "Treatment stopped early." : "Tolerated."}${arrived > 0 ? ` Deqi at ${arrived} of ${recorded.length} needles.` : ""}`,
           adverseEvents: adverse.join(" ") || "None.",
           followUp: "Review in one week.",
         },
@@ -402,7 +580,7 @@ export function protocolAgent(): Agent {
       }
       // the patient's state comes first, whatever the stage
       const lines = newPatientLines(v);
-      if (["insert", "retain"].includes(stage) || (stage === "plan" && needled.length > 0)) {
+      if (["insert", "seek", "retain"].includes(stage) || (stage === "plan" && needled.length > 0)) {
         if (!withdrawn && (v.patient.consent === "withdrawn" || lines.some((l) => /\bstop\b.*\b(take them out|don't want)|take (them|the needles) out|don'?t want any more/i.test(l)))) {
           // the patient withdraws consent: stop at once, every needle out, no more needling
           withdrawn = true;
@@ -418,7 +596,7 @@ export function protocolAgent(): Agent {
           discomfortHandled = true;
         }
       }
-      if (stage === "insert" || stage === "retain") handleBlocked(v);
+      if (stage === "insert" || stage === "seek" || stage === "retain") handleBlocked(v);
       if (v.last?.type === "position_patient" && /declined/.test(v.last.message) && !declined) {
         declined = true;
         queue.unshift({ type: "position_patient", position: complaint === "headache" ? "seated-forward" : "side-lying-left" });
@@ -440,7 +618,7 @@ export function protocolAgent(): Agent {
             anticoagulated = positive(text(v), /warfarin|apixaban|rivaroxaban|clopidogrel|blood thinner/);
             pregnant = positive(v.record.history.map((h) => h.answer).join(" "), /weeks pregnant|i'?m pregnant|\byes\b.*pregnant/);
             for (const q of ["x-ray report", "blood count", "INR", "letter", "notes"]) push({ type: "review_result", query: q });
-            push({ type: "move", to: "treatment-room", withPatient: true }, { type: "hand_hygiene" }, ...exams().map((e) => ({ type: "examine" as const, text: e })), { type: "observe" }, { type: "check_vitals" });
+            push({ type: "move", to: lib.clinic.rooms.find((r) => r.kind === "treatment")?.id ?? "treatment-room", withPatient: true }, { type: "hand_hygiene" }, ...exams().map((e) => ({ type: "examine" as const, text: e })), { type: "observe" }, { type: "check_vitals" });
             stage = "decide";
             break;
           case "decide":
@@ -491,6 +669,9 @@ export function protocolAgent(): Agent {
           case "insert":
             stageInsert(v);
             break;
+          case "seek":
+            stageSeek(v);
+            break;
           case "retain":
             if (retainedFor >= retention) {
               stage = "close";
@@ -530,6 +711,15 @@ export function protocolAgent(): Agent {
             return { done: true };
         }
       }
+      // a body in the clinic: walk to where the next act can be done (once: a walk that did not help is not repeated)
+      const head = queue[0]!;
+      const walkFirst = head.type !== "move" && walkedFor !== head ? placement(v, head) : null;
+      if (walkFirst) {
+        walkedFor = head;
+        lastIssued = walkFirst;
+        return { action: walkFirst };
+      }
+      walkedFor = null;
       lastIssued = queue.shift()!;
       return { action: lastIssued };
     },

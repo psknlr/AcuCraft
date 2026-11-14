@@ -16,6 +16,7 @@ import { ChartPoint3Schema, ChartPointSchema, IdSchema, PositionSchema, ReviewSc
  */
 
 export const REGION_SCHEMA_ID = "acucraft/region@1" as const;
+export const BODY_MAP_SCHEMA_ID = "acucraft/body-map@1" as const;
 
 /** A landmark id, optionally with one `{side}` placeholder (read as the side in a midline region). */
 export const LANDMARK_REF = /^[A-Za-z0-9][A-Za-z0-9._-]*(\{side\}[A-Za-z0-9._-]*)?$/;
@@ -170,3 +171,22 @@ export const RegionSchema = z
   })
   .strict();
 export type Region = z.infer<typeof RegionSchema>;
+
+/**
+ * Where each regional chart lies on the body (`acucraft/body-map@1`): what a practitioner standing beside the couch
+ * can reach. `axial` is the fraction of the patient's height from the vertex (0) to the soles (1) at which the region
+ * is centred; `lateral` the distance (m) of its left or right site from the body's midline with the patient lying
+ * (a midline site is on the midline). The engine places a site on the couch from the patient's height and position;
+ * a point further than an arm's reach from where the practitioner stands cannot be palpated, marked or needled.
+ */
+export const BodyMapSchema = z
+  .object({
+    schema: z.literal(BODY_MAP_SCHEMA_ID),
+    id: IdSchema,
+    version: SemverSchema,
+    review: ReviewSchema,
+    regions: z.record(IdSchema, z.object({ axial: z.number().min(0).max(1), lateral: z.number().min(0).max(0.6) }).strict()),
+    notes: z.string().optional(),
+  })
+  .strict();
+export type BodyMap = z.infer<typeof BodyMapSchema>;

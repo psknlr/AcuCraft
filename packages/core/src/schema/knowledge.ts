@@ -115,6 +115,15 @@ export const AcupointDefinitionSchema = z
     area: BodyAreaSchema.optional(),
     /** A group of points under one code (Baxie, Jiaji, Shixuan …): the number of sites, per side for bilateral points. */
     sites: z.number().int().min(2).optional(),
+    /**
+     * The sites of a group point, each its own target (named as `site` in a point reference): Sishencong's four round
+     * Baihui, Jiaji's seventeen levels, Shixuan's five fingertips. A group point with sites is located only through
+     * them — never at their centre — and a site may lie on another chart than the group's `region`.
+     */
+    siteLocalisations: z
+      .array(z.object({ id: IdSchema, label: z.string(), region: IdSchema.optional(), localisation: LocalisationSchema, tolerance: DistanceSchema.optional(), configuration: IdSchema.optional() }).strict())
+      .min(2)
+      .optional(),
     /** The reviewed regional model this point is localised in; absent = definition only (no procedural chain yet). */
     region: IdSchema.optional(),
     localisation: LocalisationSchema.optional(),
@@ -132,6 +141,12 @@ export const AcupointDefinitionSchema = z
   .strict()
   .superRefine((p, ctx) => {
     if (p.localisation && !p.region) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["region"], message: "a point with a localisation needs its region" });
+    if (p.siteLocalisations) {
+      if (p.localisation) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["localisation"], message: "a group point with sites is located through its sites only" });
+      if (!p.region) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["region"], message: "a group point with sites needs its region" });
+      if (p.sites !== undefined && p.sites !== p.siteLocalisations.length) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["siteLocalisations"], message: `${p.sites} sites, ${p.siteLocalisations.length} located` });
+      if (new Set(p.siteLocalisations.map((x) => x.id)).size !== p.siteLocalisations.length) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["siteLocalisations"], message: "site ids repeat" });
+    }
   });
 export type AcupointDefinition = z.infer<typeof AcupointDefinitionSchema>;
 

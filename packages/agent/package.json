@@ -1,0 +1,16 @@
+{
+  "name": "@acucraft/agent",
+  "version": "0.3.0",
+  "description": "AcuCraft agents: the practitioner runtime (typed tools over the action interface, model providers, the agent loop, skills) and the reference and rule-based baselines",
+  "type": "module",
+  "license": "MIT",
+  "exports": {
+    ".": "./src/index.ts",
+    "./node": "./src/node/index.ts"
+  },
+  "dependencies": {
+    "@acucraft/core": "0.3.0",
+    "@anthropic-ai/sdk": "^1.3.0",
+    "zod": "3.25.76"
+  }
+}

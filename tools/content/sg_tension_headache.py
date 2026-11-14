@@ -17,7 +17,7 @@ case = {
   "triageNote": "Asks about acupuncture for her headaches.", "tags": ["headache"],
   "persona": {"personality": "Conscientious, tired, a little anxious.", "speechStyle": "Quiet Singapore English.", "healthLiteracy": "high", "affect": "calm",
    "openingLine": "Hello doctor. I keep getting these headaches.", "fallbackUnknown": "Hmm, I'm not sure.", "concerns": ["Her aunt had a brain tumour."]},
-  "posture": "sitting", "appearance": {"build": "average"}},
+  "posture": "sitting", "appearance": {"build": "average", "skin": "#e2c2a3", "hair": "#191514", "hairStyle": "long", "shirt": "#d98e73", "pants": "#55585f", "presentation": "feminine"}},
  "phases": phases("Friday 13:30 at the clinic.", "One week later, same clinic."), "initialPhase": V1,
  "clock": {"mode": "simulated", "startTime": "13:30", "actionCosts": {"ask": 1, "examine": 2, "order": 0, "read": 1, "intervene": 1, "answer": 0}},
  "history": [
@@ -81,6 +81,9 @@ field = {"schema": "acucraft/field@1", "clinic": "sg-tcm-outpatient", "roles": "
    {"id": "p-emergency-unindicated", "label": "Emergency referral without an indication", "acceptable": False, "when": {"referred": {"urgency": ["emergency"]}}}],
   "diagnoses": {"expected": ["tension-type-headache"], "acceptable": ["cervicogenic-headache"]},
   "patterns": {"defensible": ["liver-qi-stagnation", "liver-yang-rising", "qi-blood-stagnation"], "implausible": ["kidney-yang-deficiency", "damp-heat-bi"]},
+  # what each finding shows, in the vocabulary's signs: a differentiation is read from the findings it names
+  "signs": {"hx-chief": ["chronic-course"], "hx-character": ["pain-distending-pressing"], "hx-frequency": ["chronic-course"], "hx-triggers": ["emotional-strain"], "hx-neck": ["muscle-tension"],
+   "hx-tcm": ["irritability", "light-sleep"], "ex-neck": ["muscle-tension", "tender-point"], "ex-tongue": ["tongue-red-edges", "coat-thin-white"], "ex-pulse-tcm": ["pulse-wiry"]},
   "redFlags": [{"id": "thunderclap-headache", "present": False}, {"id": "headache-neuro-signs", "present": False}, {"id": "new-headache-over-50", "present": False}],
   "points": {"recommended": [{"point": "GB20"}, {"point": "GB21"}, {"point": "LI4"}], "acceptable": [{"point": "GV20", "side": "midline"}, {"point": "EX-HN5"}, {"point": "Yintang", "side": "midline"}, {"point": "LR3"}, {"point": "SI3"}, {"point": "GV14", "side": "midline"}], "avoid": [], "maxNeedles": 10},
   "criticalErrors": [],
@@ -105,7 +108,9 @@ def consult(t):
     t.examine("ex-neuro", "ex-fundi", "ex-neck", "ex-tongue", "ex-pulse-tcm")
     t({"type": "observe"})
     t({"type": "check_vitals"})
-    t({"type": "assess", "diagnoses": ["tension-type-headache"], "pattern": "liver-qi-stagnation", "redFlags": [], "rationale": "Bilateral pressing headache, no red flags, normal neurology; stress-related, irritable, wiry pulse."})
+    # what the differentiation rests on: a pressing band of pain; stress as the trigger; irritability and light sleep;
+    # tight shoulders; the thin white coat and the wiry pulse
+    t({"type": "assess", "diagnoses": ["tension-type-headache"], "pattern": "liver-qi-stagnation", "patternEvidence": ["hx-character", "hx-triggers", "hx-tcm", "hx-neck", "ex-tongue", "ex-pulse-tcm"], "redFlags": [], "rationale": "Bilateral pressing headache, no red flags, normal neurology; stress-related, irritable, wiry pulse."})
     t({"type": "decide", "disposition": "treat", "rationale": "No red flags; NICE CG150 supports considering a course; review analgesic use with her doctor."})
 
 PTS = [{"point": "GB20", "side": "left"}, {"point": "GB20", "side": "right"}, {"point": "GB21", "side": "left"}, {"point": "GB21", "side": "right"}, {"point": "LI4", "side": "left"}, {"point": "LI4", "side": "right"}]
@@ -115,50 +120,37 @@ def plan_and_consent(t, explain=EXPLAIN):
     t({"type": "explain", "topics": ["procedure", "benefits", "risks", "alternatives", "evidence", "right-to-stop"], "text": explain})
     t({"type": "seek_consent"})
 
-def localise(t, position, gb21_depth, gb21_angle=0):
-    t.landmarks("neck-shoulder", "left", "c7-spinous", "acromion-lateral-left", "gb20-depression-left")
-    t.landmarks("neck-shoulder", "right", "acromion-lateral-right", "gb20-depression-right")
-    t.mark({"point": "GB20", "side": "left"}, "neck-shoulder", "left", *C[f"{position}:GB20:left"], method="landmark")
-    t.mark({"point": "GB20", "side": "right"}, "neck-shoulder", "right", *C[f"{position}:GB20:right"], method="landmark")
-    t.mark({"point": "GB21", "side": "left"}, "neck-shoulder", "left", *C[f"{position}:GB21:left"])
-    t.mark({"point": "GB21", "side": "right"}, "neck-shoulder", "right", *C[f"{position}:GB21:right"])
-    t.landmarks("hand-dorsum", "left", "mc2-head", "mc2-base")
-    t.landmarks("hand-dorsum", "right", "mc2-head", "mc2-base")
-    t.mark({"point": "LI4", "side": "left"}, "hand-dorsum", "left", *C[f"{position}:LI4:left"])
-    t.mark({"point": "LI4", "side": "right"}, "hand-dorsum", "right", *C[f"{position}:LI4:right"])
-    t.fetch_pack("pack-a")
-    t({"type": "fetch", "item": "pack-b"}) if False else None
-
-def needles(t, gb21_depth, gb21_angle=0, upto=6):
-    # GB20 directed slightly medially and down (towards the tip of the nose), shallow; LI4 perpendicular
-    seq = [("pack-a.1", "m1", 1.6, 20, 270), ("pack-a.2", "m2", 1.6, 20, 90), ("pack-a.3", "m3", gb21_depth, gb21_angle, 90), ("pack-a.4", "m4", gb21_depth, gb21_angle, 270), ("pack-a.5", "m5", 1.5, 0, 0), ("pack-b.1", "m6", 1.5, 0, 0)]
-    for args in seq[:upto]: t.needle(*args)
+def needles(t, gb21_depth, gb21_angle=0, hands=True, ask_gb21=True):
+    # GB20 directed slightly medially and down (towards the tip of the nose), shallow; LI4 perpendicular. The helper
+    # picks the batch up at the trolley and puts it in one side of the couch at a time
+    m = t.mark_id
+    # The response: GB20 is rotated, LI4 lifted and thrust; GB21 is not worked — the apex of the lung lies beneath it,
+    # and a needle there is not driven for a sensation. She is asked what she feels at each
+    seq = [("pack-a.1", m("GB20:left"), 1.6, 20, 270, "rotate"), ("pack-a.2", m("GB20:right"), 1.6, 20, 90, "rotate"), ("pack-a.3", m("GB21:left"), gb21_depth, gb21_angle, 90, None), ("pack-a.4", m("GB21:right"), gb21_depth, gb21_angle, 270, None)]
+    if hands: seq += [("pack-a.5", m("LI4:left"), 1.5, 0, 0, "lift-thrust"), ("pack-b.1", m("LI4:right"), 1.5, 0, 0, "lift-thrust")]
+    for args in seq: t.needle(*args[:5], work=args[5], ask=ask_gb21 or "GB21" not in t.marks_target(args[1]))
 
 def prepare(t):
-    t({"type": "move", "to": "prep-area"})
-    t({"type": "hand_hygiene"})
-    t({"type": "fetch", "item": "pack-a"})
-    t({"type": "fetch", "item": "pack-b"})
-    t({"type": "move", "to": "treatment-room"})
-    for region, side in [("neck-shoulder", "left"), ("neck-shoulder", "right"), ("hand-dorsum", "left"), ("hand-dorsum", "right")]:
+    t.fetch_pack("pack-a", "pack-b")
+    for region, side in [("neck-shoulder", "left"), ("hand-dorsum", "left"), ("neck-shoulder", "right"), ("hand-dorsum", "right")]:
         t({"type": "prepare_site", "region": region, "side": side})
     t({"type": "open_pack", "packId": "pack-a"})
     t({"type": "open_pack", "packId": "pack-b"})
 
 def mark_all(t, position):
-    t.landmarks("neck-shoulder", "left", "c7-spinous", "acromion-lateral-left", "gb20-depression-left")
-    t.landmarks("neck-shoulder", "right", "acromion-lateral-right", "gb20-depression-right")
-    for p in ["GB20", "GB21"]:
-        for side in ["left", "right"]:
-            t.mark({"point": p, "side": side}, "neck-shoulder", side, *C[f"{position}:{p}:{side}"], method="landmark" if p == "GB20" else "proportional")
+    # one side of the couch, then the other: the neck and shoulder, then the hand
     for side in ["left", "right"]:
+        if side == "left": t.landmarks("neck-shoulder", "left", "c7-spinous", "acromion-lateral-left", "gb20-depression-left")
+        else: t.landmarks("neck-shoulder", "right", "acromion-lateral-right", "gb20-depression-right")
+        for p in ["GB20", "GB21"]:
+            t.mark({"point": p, "side": side}, "neck-shoulder", side, *C[f"{position}:{p}:{side}"], method="landmark" if p == "GB20" else "proportional")
         t.landmarks("hand-dorsum", side, "mc2-head", "mc2-base")
         t.mark({"point": "LI4", "side": side}, "hand-dorsum", side, *C[f"{position}:LI4:{side}"], method="landmark")
 
 def doc(count, depth_note, adverse="None."):
     return {"type": "document", "record": {"presentingComplaint": "Headaches most days for four months.", "assessment": "Chronic tension-type headache; no red flags; analgesic use about 10 days a month.", "pattern": "Liver qi stagnation",
      "rationale": "Local GB20/GB21 and distal LI4; NICE CG150 supports considering a course.", "consent": "Verbal consent after explanation.", "pointsUsed": PTS[:count] if count <= 6 else PTS,
-     "needling": {"needleType": "0.25 × 40 mm single-use sterile filiform", "needleCount": count, "depth": depth_note, "responseSought": "deqi", "stimulation": "even", "retentionMinutes": 20},
+     "needling": {"needleType": "0.25 × 40 mm single-use sterile filiform", "needleCount": count, "depth": depth_note, "responseSought": "deqi at GB20 (rotation) and LI4 (lift and thrust); GB21 not worked (the lung lies beneath)", "stimulation": "even", "retentionMinutes": 20},
      "response": "Tolerated.", "adverseEvents": adverse, "advice": "Screen breaks, sleep, exercise; medication review with her doctor.", "followUp": "Weekly; review after four sessions."}}
 
 def follow_up(t):
@@ -234,7 +226,9 @@ fa({"type": "position_patient", "position": "seated-forward"})
 fa({"type": "assign_task", "to": "assistant", "kind": "monitor-patient", "params": {"intervalMinutes": 5}, "note": "She is sitting up and hasn't eaten: please stay with her and watch for faintness."})
 mark_all(fa, "seated-forward")
 prepare(fa)
-needles(fa, 1.8, 0, upto=4)
+# sitting up and unfed, she is watched from the moment the needles are in: the shoulder needles are not asked about
+# before the first look at her (their response stays unrecorded: not sought)
+needles(fa, 1.8, 0, hands=False, ask_gb21=False)
 fa({"type": "monitor"})
 fa({"type": "wait", "minutes": 10})  # interrupted: she feels faint
 fa({"type": "stop_treatment", "reason": "vasovagal reaction"})
@@ -251,7 +245,7 @@ fa({"type": "monitor"})
 fa({"type": "check_vitals"})
 fa({"type": "say", "to": "patient", "text": "You fainted a little — that's a known reaction, especially sitting up on an empty stomach. Stay lying down for a while and have something sweet to drink. We'll stop for today."})
 fa({"type": "document", "record": {"presentingComplaint": "Headaches most days for four months.", "assessment": "Chronic tension-type headache; vasovagal reaction during treatment.", "pattern": "Liver qi stagnation", "rationale": "GB20/GB21 seated-forward (declined prone).", "consent": "Verbal consent after explanation.", "pointsUsed": PTS[:4],
-    "needling": {"needleType": "0.25 × 40 mm single-use sterile filiform", "needleCount": 4, "depth": "GB20 1.6 cm; GB21 1.8 cm", "responseSought": "deqi", "stimulation": "even", "retentionMinutes": 3},
+    "needling": {"needleType": "0.25 × 40 mm single-use sterile filiform", "needleCount": 4, "depth": "GB20 1.6 cm; GB21 1.8 cm", "responseSought": "deqi at GB20 (rotation); GB21 not worked (the lung lies beneath)", "stimulation": "even", "retentionMinutes": 3},
     "response": "Vasovagal reaction after about 2 minutes: treatment stopped, needles removed, laid flat; recovered within minutes.", "adverseEvents": "Vasovagal reaction (pale, sweaty, bradycardic, hypotensive); recovered lying flat.", "advice": "Eat before treatment; next time treat lying down.", "followUp": "Next session lying on her side, after a meal."}})
 fa({"type": "end_visit"})
 fa({"type": "begin_follow_up"})

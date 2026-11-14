@@ -55,8 +55,11 @@ export type Position = z.infer<typeof PositionSchema>;
 
 /** A distance on the body: in proportional (B-cun) units of a named segment, or in centimetres. */
 export const DistanceSchema = z.union([
+  /** Proportional bone cun of a region's segment (B-cun). */
   z.object({ cun: z.number().min(0), segment: IdSchema }).strict(),
   z.object({ cm: z.number().min(0) }).strict(),
+  /** Finger cun (F-cun): the patient's own middle-finger cun (`patient.anatomy.fingerCunCm`), as `measure` reports it. */
+  z.object({ fcun: z.number().min(0) }).strict(),
 ]);
 export type Distance = z.infer<typeof DistanceSchema>;
 

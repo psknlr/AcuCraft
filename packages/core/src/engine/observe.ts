@@ -1,11 +1,14 @@
 import { t } from "@clinicalcraft/core";
 import type { PointRef } from "../schema/actions.js";
 import type { EncounterState } from "../schema/state.js";
-import { pointInstance, regionAccess } from "./anatomy.js";
-import { consentCovers, currentPlan, currentVisit, fmt, needleList, now, parseRef, refKey, visitIndex } from "./queries.js";
+import { pointInstance, pointTargets, regionAccess } from "./anatomy.js";
+import { consentCovers, currentPlan, currentVisit, fellUnseen, fmt, needleList, now, parseRef, refKey, visitIndex } from "./queries.js";
+import { needleEvidence, recordEvidenceId } from "./evidence.js";
 import { ACTION_PERMISSIONS } from "./rules.js";
 import { LOCALE } from "./runtime.js";
-import { modelledRegions, roleOf, type Scenario } from "./scenario.js";
+import { clinicWorld, modelledRegions, roleOf, type Scenario } from "./scenario.js";
+import { patientBody, patientContact, patientSight, patientTalk, siteOf } from "./space.js";
+import { ARM_REACH_M, areaCentre, compass, CONTACT_RANGE_M, distanceToArea, ESCORT_M_PER_MIN, fixtureReach, seesArea, SIGHT_RANGE_M, TALK_RANGE_M, WALK_M_PER_MIN } from "./world.js";
 import { hash53 } from "./util.js";
 import { speakerLabel } from "./encounter.js";
 
@@ -15,7 +18,7 @@ import { speakerLabel } from "./encounter.js";
  * findings not yet examined and patient-specific geometry are not in it. Teaching mode adds anatomical overlays.
  */
 
-export const VIEW_SCHEMA_ID = "acucraft/view@1" as const;
+export const VIEW_SCHEMA_ID = "acucraft/view@2" as const;
 
 export interface AgentView {
   schema: typeof VIEW_SCHEMA_ID;
@@ -28,6 +31,35 @@ export interface AgentView {
   minute: number;
   finished: boolean;
   you: { id: string; name: string; role: string; roleLabel: string; location: string; holding: string[]; may: string[] };
+  /**
+   * Where you are in the clinic (metres on its floor plan: +x east, +z south) and what is within reach from there.
+   * An act out of reach is refused: `move` first. Distances are from where you stand to a fixture's footprint, to the
+   * couch or chair the patient is on, and to each body site as the patient lies now.
+   */
+  space: {
+    you: { x: number; z: number; facing: string; room: string };
+    fixtures: { id: string; kind: string; label: string; room: string; x: number; z: number; distance: number; inReach: boolean }[];
+    patient: {
+      room: string;
+      /** The fixture they sit or lie on (null: standing). */
+      on: string | null;
+      x: number;
+      z: number;
+      distance: number;
+      /** Near enough to speak with them; at their side (examination, vital signs, positioning); in view (observation). */
+      inEarshot: boolean;
+      atSide: boolean;
+      inSight: boolean;
+      /** Lying on a couch: which way the head points, and which side of the couch the patient's right is on. */
+      lying: { head: string; rightSide: string } | null;
+      /**
+       * Body sites (`region:side`) the patient's position gives access to: those within an arm's reach of where you
+       * stand now, and the others with their distance — `move { to: { region, side } }` brings one within reach.
+       */
+      sites: { inReach: string[]; outOfReach: { site: string; distance: number }[] };
+    };
+    team: { id: string; room: string; x: number; z: number; distance: number; inReach: boolean }[];
+  };
   patient: {
     name: string;
     age: number;
@@ -40,14 +72,38 @@ export interface AgentView {
     reachable: { region: string; sides: string[]; configuration: string }[];
   };
   conversation: { minute: number; speaker: string; to: string | null; text: string }[];
+  /**
+   * What has been obtained so far — the evidence of this encounter. Every item has an id: a pattern differentiation
+   * (`assess.patternEvidence`) names the ids it rests on, and only what is listed here can be named.
+   */
   record: {
-    history: { question: string; answer: string }[];
-    examination: { manoeuvre: string; finding: string }[];
-    results: string[];
-    vitals: { minute: number; vitals: Record<string, number | string> }[];
+    history: { id: string; question: string; answer: string }[];
+    examination: { id: string; manoeuvre: string; finding: string }[];
+    results: { id: string; text: string }[];
+    vitals: { id: string; minute: number; vitals: Record<string, number | string> }[];
+    /** What was seen of the patient (`observe`). */
+    observations: { id: string; minute: number; text: string }[];
     sites: string[];
     tenderPoints: { id: string; label: string; region: string; side: string; centre: { u: number; v: number }; radiusCm: number }[];
   };
+  /** The latest assessment on record, with the evidence its pattern differentiation names. */
+  assessment: { minute: number; diagnoses: string[]; pattern: string | null; patternEvidence: string[]; redFlags: string[] } | null;
+  /**
+   * The needles of this visit and the evidence of each one's response: what the patient said they feel there (asked
+   * with `check_sensation`, or said unasked) and what the operator felt on working it. A recorded response
+   * (`document`: needling.responses) names evidence of that needle; a needle with none has no response on record —
+   * not a normal one.
+   */
+  needling: {
+    needle: string;
+    target: string;
+    inPlace: boolean;
+    /** Times the needle has been worked (lift-thrust or rotation). */
+    manipulations: number;
+    evidence: { id: string; minute: number; from: "patient" | "operator"; text: string; qualities: string[]; grasp: boolean | null; unasked: boolean }[];
+    /** The response on record for it (`deqi`, `none`, `not-sought`), if any. */
+    recorded: string | null;
+  }[];
   localisation: {
     landmarks: { region: string; side: string; landmark: string; u: number; v: number; configuration: string }[];
     measurements: { region: string; side: string; what: string; cm: number }[];
@@ -61,7 +117,9 @@ export interface AgentView {
   };
   team: { id: string; name: string; role: string; location: string }[];
   tasks: { id: string; kind: string; from: string; to: string; status: string; params: Record<string, unknown>; unmet: string[] }[];
-  counts: { minute: number; by: string; reconciled: boolean; unaccounted: number }[];
+  counts: { minute: number; by: string; reconciled: boolean; unaccounted: number; method: string; reportedBy: string | null }[];
+  /** The treatment couches: when each was last cleaned and made up, by whom, and what was done. */
+  couches: { room: string; prepared: { minute: number; by: string; done: string[] } | null }[];
   rules: { id: string; title: string; version: string; effectiveFrom: string; encoding: string; rules: { id: string; title: string; enforcement: string }[] }[];
   last: { requestId: string; type: string; status: string; message: string; observations: string[] } | null;
   teaching?: { references: { target: string; region: string; side: string; u: number; v: number; toleranceCm: number }[]; notes: string[] };
@@ -83,12 +141,12 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
     return ok.length > 0 ? [{ region: regionId, sides: ok, configuration: regionAccess(region, ok[0]!, s.patient.position).configuration }] : [];
   });
 
-  const results: string[] = [];
+  const results: AgentView["record"]["results"] = [];
   for (const key of s.clinical.seen) {
     const [id, phase] = key.split("@");
     const inv = sc.case.investigations.find((i) => i.id === id);
     const r = inv?.results[phase ?? ""];
-    if (inv && r) results.push(`${t(inv.name, LOCALE)}${r.date ? ` (${t(r.date, LOCALE)})` : ""}: ${t(r.text, LOCALE)}`);
+    if (inv && r) results.push({ id: recordEvidenceId(inv.id, phase ?? ""), text: `${t(inv.name, LOCALE)}${r.date ? ` (${t(r.date, LOCALE)})` : ""}: ${t(r.text, LOCALE)}` });
   }
 
   const where = (n: (typeof s.needles)[string]): string => {
@@ -97,7 +155,7 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
       case "pack":
         return `sealed in ${l.packId}`;
       case "tray":
-        return `on the tray (${room(s.packs[l.packId]?.at ?? "")})`;
+        return `on the tray (${w.fixtures.get(s.packs[l.packId]?.at ?? "")?.label ?? "?"}, ${room(w.fixtures.get(s.packs[l.packId]?.at ?? "")?.room ?? "")})`;
       case "hand":
         return `in ${speakerLabel(sc, l.actor)}'s hand`;
       case "patient":
@@ -115,6 +173,55 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
       case "broken-in-patient":
         return "broken";
     }
+  };
+
+  const w = clinicWorld(sc);
+  const me = actor.at;
+  const body = patientBody(sc, s);
+  const inSight = patientSight(sc, s, actorId).ok;
+  const sites: AgentView["space"]["patient"]["sites"] = { inReach: [], outOfReach: [] };
+  // sites matter to someone at the couch: listed once the patient is in view
+  if (inSight) {
+    for (const r of reachable) {
+      for (const side of r.sides) {
+        const site = siteOf(sc, s, r.region, side as "left" | "right" | "midline");
+        const distance = distanceToArea(me.x, me.z, site.area);
+        if (distance <= ARM_REACH_M + 1e-6 && seesArea(w, me, site.area)) sites.inReach.push(`${r.region}:${side}`);
+        else sites.outOfReach.push({ site: `${r.region}:${side}`, distance: round2(distance) });
+      }
+    }
+  }
+  const head = body.lying && body.support ? siteOf(sc, s, "scalp", "midline").point : null;
+  const right = body.lying && body.support ? siteOf(sc, s, "hand-dorsum", "right").point : null;
+  const toward = (p: { x: number; z: number }, from: { x: number; z: number }) => compass(Math.atan2(-(p.x - from.x), -(p.z - from.z)));
+  const space: AgentView["space"] = {
+    you: { x: me.x, z: me.z, facing: compass(me.yaw), room: actor.location },
+    fixtures: [...w.fixtures.values()].map((f) => {
+      const r = fixtureReach(w, me, f.id)!;
+      const c = areaCentre(f.area);
+      return { id: f.id, kind: f.kind, label: f.label, room: f.room, x: round2(c.x), z: round2(c.z), distance: round2(r.distance), inReach: r.ok };
+    }),
+    patient: {
+      room: s.patient.location,
+      on: s.patient.support,
+      x: round2(body.centre.x),
+      z: round2(body.centre.z),
+      distance: round2(distanceToArea(me.x, me.z, body.area)),
+      inEarshot: patientTalk(sc, s, actorId).ok,
+      atSide: patientContact(sc, s, actorId).ok,
+      inSight,
+      lying: head && right && sc.bundle.regions.has("scalp") && sc.bundle.regions.has("hand-dorsum") && s.patient.position !== "side-lying-left" && s.patient.position !== "side-lying-right"
+        ? { head: toward(head, body.centre), rightSide: toward(right, body.centre) }
+        : head ? { head: toward(head, body.centre), rightSide: "uppermost" } : null,
+      sites,
+    },
+    team: sc.field.cast
+      .filter((m) => m.id !== actorId)
+      .map((m) => {
+        const other = s.actors[m.id]!;
+        const distance = Math.hypot(me.x - other.at.x, me.z - other.at.z);
+        return { id: m.id, room: other.location, x: other.at.x, z: other.at.z, distance: round2(distance), inReach: distance <= CONTACT_RANGE_M + 1e-6 && seesArea(w, me, { minX: other.at.x - 0.25, maxX: other.at.x + 0.25, minZ: other.at.z - 0.25, maxZ: other.at.z + 0.25 }) };
+      }),
   };
 
   const view: AgentView = {
@@ -138,6 +245,7 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
         .filter(([, p]) => p === null || role?.grants.some((g) => (typeof g === "string" ? g : g.permission) === p))
         .map(([type]) => type),
     },
+    space,
     patient: {
       name: t(sc.case.patient.displayName, LOCALE),
       age: sc.case.patient.age,
@@ -154,13 +262,35 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
       .slice(-30)
       .map((u) => ({ minute: Math.round(u.at * 100) / 100, speaker: speakerLabel(sc, u.speaker), to: u.to ? speakerLabel(sc, u.to) : null, text: u.text })),
     record: {
-      history: s.clinical.asked.map((id) => sc.case.history.find((h) => h.id === id)).filter((h) => h !== undefined).map((h) => ({ question: t(h.question, LOCALE), answer: t(h.answer, LOCALE) })),
-      examination: s.clinical.examined.map((id) => sc.case.exam.find((e) => e.id === id)).filter((e) => e !== undefined).map((e) => ({ manoeuvre: t(e.maneuver, LOCALE), finding: t(e.finding, LOCALE) })),
+      history: s.clinical.asked.map((id) => sc.case.history.find((h) => h.id === id)).filter((h) => h !== undefined).map((h) => ({ id: h.id, question: t(h.question, LOCALE), answer: t(h.answer, LOCALE) })),
+      examination: s.clinical.examined.map((id) => sc.case.exam.find((e) => e.id === id)).filter((e) => e !== undefined).map((e) => ({ id: e.id, manoeuvre: t(e.maneuver, LOCALE), finding: t(e.finding, LOCALE) })),
       results,
-      vitals: s.vitalsLog.slice(-3).map((v) => ({ minute: v.at, vitals: v.vitals })),
+      vitals: s.vitalsLog.slice(-3).map((v) => ({ id: v.id, minute: v.at, vitals: v.vitals })),
+      observations: s.evidence.filter((e) => e.kind === "observation").slice(-3).map((e) => ({ id: e.id, minute: round2(e.at), text: e.text })),
       sites: sc.field.patient.siteConditions.filter((c) => s.revealedConditions.includes(c.id)).map((c) => `${c.label} (${c.region}, ${c.side}${c.centre ? `, around u=${fmt(c.centre.u)}, v=${fmt(c.centre.v)}, radius ${fmt(c.radiusCm ?? 0)} cm` : ""})`),
       tenderPoints: sc.field.patient.ashi.filter((a) => s.revealedAshi.includes(a.id)).map((a) => ({ id: a.id, label: a.label, region: a.region, side: a.side, centre: a.centre, radiusCm: a.radiusCm })),
     },
+    assessment: (() => {
+      const a = s.assessments[s.assessments.length - 1];
+      return a ? { minute: round2(a.at), diagnoses: [...a.diagnoses], pattern: a.pattern, patternEvidence: [...a.patternEvidence], redFlags: [...a.redFlags] } : null;
+    })(),
+    needling: needleList(s)
+      .filter((n) => n.insertion?.visit === visit.index)
+      .map((n) => {
+        const placed = n.events.find((e) => e.what === "inserted")?.detail;
+        let recorded: string | null = null;
+        for (const d of s.documents) recorded = d.record.needling?.responses?.find((x) => x.needle === n.id)?.response ?? recorded;
+        return {
+          needle: n.id,
+          // the target the operator named, as elsewhere in the view: never the point the entry is judged to lie on
+          target: placed ? label(parseRef(placed)) : `${n.insertion!.region} ${n.insertion!.side}`,
+          // a needle that fell out unseen is still taken to be in place (as in `equipment`) until someone finds it
+          inPlace: n.location.kind === "patient" || fellUnseen(n),
+          manipulations: n.response?.manipulations ?? 0,
+          evidence: needleEvidence(s, n.id).map((e) => ({ id: e.id, minute: round2(e.at), from: e.kind === "needle-feel" ? ("operator" as const) : ("patient" as const), text: e.text, qualities: [...(e.needle?.qualities ?? [])], grasp: e.needle?.grasp ?? null, unasked: e.needle?.volunteered ?? false })),
+          recorded,
+        };
+      }),
     localisation: {
       landmarks: s.landmarks.filter((l) => l.visit === visit.index).map((l) => ({ region: l.region, side: l.side, landmark: l.landmark, u: round2(l.position.u), v: round2(l.position.v), configuration: l.configuration })),
       measurements: s.measurements.filter((m) => m.visit === visit.index).map((m) => ({ region: m.region, side: m.side, what: m.what, cm: round2(m.cm) })),
@@ -173,8 +303,9 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
     equipment: {
       packs: Object.values(s.packs).map((p) => {
         const spec = s.needles[p.needles[0]!]!.spec;
-        const visible = p.holder === actorId || sc.clinic.rooms.find((r) => r.fixtures.some((f) => f.id === p.at))?.id === actor.location || p.at === actor.location;
-        return { id: p.id, where: p.holder ? `with ${speakerLabel(sc, p.holder)}` : room(sc.clinic.rooms.find((r) => r.fixtures.some((f) => f.id === p.at))?.id ?? p.at), sealed: p.sealed, needles: p.needles.length, spec: `${spec.diameterMm} × ${spec.lengthMm} mm, ${spec.singleUse ? "single-use" : "reusable"}, ${spec.sterile ? "sterile" : "non-sterile"}`, expiredLabel: visible && p.expired };
+        const at = w.fixtures.get(p.at);
+        const visible = p.holder === actorId || at?.room === actor.location;
+        return { id: p.id, where: p.holder ? `with ${speakerLabel(sc, p.holder)}` : at ? `${p.sealed ? "on" : "opened onto"} the ${at.label} (${room(at.room)})` : p.at, sealed: p.sealed, needles: p.needles.length, spec: `${spec.diameterMm} × ${spec.lengthMm} mm, ${spec.singleUse ? "single-use" : "reusable"}, ${spec.sterile ? "sterile" : "non-sterile"}`, expiredLabel: visible && p.expired };
       }),
       needles: needleList(s)
         .filter((n) => n.location.kind !== "pack")
@@ -185,7 +316,8 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
     tasks: Object.values(s.tasks)
       .filter((tk) => tk.assignee === actorId || tk.assignedBy === actorId)
       .map((tk) => ({ id: tk.id, kind: tk.kind, from: tk.assignedBy, to: tk.assignee, status: tk.status, params: tk.params, unmet: tk.unmet })),
-    counts: s.counts.filter((c) => c.visit === visit.index).map((c) => ({ minute: c.at, by: c.by, reconciled: c.reconciled, unaccounted: c.unaccounted })),
+    counts: s.counts.filter((c) => c.visit === visit.index).map((c) => ({ minute: c.at, by: c.by, reconciled: c.reconciled, unaccounted: c.unaccounted, method: c.method, reportedBy: c.reportedBy })),
+    couches: Object.entries(s.couches).map(([room, c]) => ({ room, prepared: c.prepared ? { minute: c.prepared.at, by: c.prepared.by, done: c.prepared.done } : null })),
     rules: (sc.rules.get(visitIndex(s)) ?? []).map((r) => ({ id: r.id, title: r.title, version: r.version, effectiveFrom: r.effectiveFrom, encoding: r.encoding, rules: r.rules.map((x) => ({ id: x.id, title: x.title, enforcement: x.enforcement })) })),
     last: (() => {
       const a = [...s.attempts].reverse().find((x) => x.actor === actorId);
@@ -197,12 +329,13 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
     const refs: NonNullable<AgentView["teaching"]>["references"] = [];
     for (const p of plan?.plan.points ?? []) {
       if ("ashi" in p) continue;
-      const def = sc.bundle.acupoints.get(p.point);
-      if (!def?.region || !sc.bundle.regions.has(def.region)) continue;
+      const point = sc.bundle.acupoints.get(p.point);
+      const def = point && pointTargets(point).find((x) => x.site === (p.site ?? null))?.def;
+      if (!point || !def?.region || !sc.bundle.regions.has(def.region)) continue;
       const region = sc.bundle.regions.get(def.region)!;
       const access = regionAccess(region, p.side, s.patient.position);
-      const inst = pointInstance(sc, def, p.side, access.configuration);
-      if (inst) refs.push({ target: `${p.point}:${p.side}`, region: def.region, side: inst.side, u: round2(inst.position.u), v: round2(inst.position.v), toleranceCm: round2(inst.toleranceCm) });
+      const inst = pointInstance(sc, point, p.side, access.configuration, p.site);
+      if (inst) refs.push({ target: refKey(p as PointRef), region: def.region, side: inst.side, u: round2(inst.position.u), v: round2(inst.position.v), toleranceCm: round2(inst.toleranceCm) });
     }
     view.teaching = { references: refs, notes: ["Teaching mode: reference locations are shown; assessment mode shows none of them."] };
   }
@@ -246,6 +379,8 @@ export function referenceLibrary(sc: Scenario) {
     sites: p.sites ?? null,
     region: p.region && sc.bundle.regions.has(p.region) ? p.region : null,
     localisation: p.region && sc.bundle.regions.has(p.region) ? (p.localisation ?? null) : null,
+    // a group point's sites, each its own target (named as `site`), with its own chart and construction
+    siteLocalisations: p.region && p.siteLocalisations ? p.siteLocalisations.map((x) => ({ id: x.id, label: x.label, region: x.region ?? p.region!, localisation: x.localisation, tolerance: x.tolerance ?? p.tolerance })) : null,
     configuration: p.configuration ?? null,
     bilateral: p.bilateral,
     cautions: p.cautions.map((c) => ({ when: c.when, text: c.text, severity: c.severity })),
@@ -254,10 +389,50 @@ export function referenceLibrary(sc: Scenario) {
   return {
     points,
     regions,
-    vocabulary: { diagnoses: sc.bundle.vocabulary.diagnoses, patterns: sc.bundle.vocabulary.patterns, redFlags: sc.bundle.vocabulary.redFlags },
-    clinic: { rooms: sc.clinic.rooms, supplies: sc.clinic.supplies, referralTargets: sc.clinic.referralTargets },
+    // the terms of assessment, with what links its two TCM conclusions to evidence: the signs each pattern is recognised
+    // by, and what counts as deqi and as evidence of it. Which finding of a case shows which sign is never here.
+    vocabulary: {
+      diagnoses: sc.bundle.vocabulary.diagnoses,
+      patterns: sc.bundle.vocabulary.patterns,
+      signs: sc.bundle.vocabulary.signs,
+      differentiation: sc.bundle.vocabulary.differentiation,
+      sensations: sc.bundle.vocabulary.sensations,
+      deqi: sc.bundle.vocabulary.deqi ?? null,
+      redFlags: sc.bundle.vocabulary.redFlags,
+    },
+    clinic: { rooms: sc.clinic.rooms, supplies: sc.clinic.supplies, referralTargets: sc.clinic.referralTargets, floorPlan: floorPlan(sc) },
     roles: sc.roles.roles.map((r) => ({ id: r.id, label: r.label, kind: r.kind, registration: r.registration, grants: r.grants, acceptsTasks: r.acceptsTasks })),
-    rules: [...sc.rules.entries()].map(([visit, sets]) => ({ visit, sets: sets.map((r) => ({ id: r.id, title: r.title, version: r.version, effectiveFrom: r.effectiveFrom, encoding: r.encoding, source: r.source, rules: r.rules.map((x) => ({ id: x.id, title: x.title, summary: x.summary, severity: x.severity, enforcement: x.enforcement })) })) })),
+    rules: [...sc.rules.entries()].map(([visit, sets]) => ({ visit, sets: sets.map((r) => ({ id: r.id, title: r.title, version: r.version, effectiveFrom: r.effectiveFrom, encoding: r.encoding, source: r.source, rules: r.rules.map((x) => ({ id: x.id, title: x.title, summary: x.summary, severity: x.severity, enforcement: x.enforcement, check: x.check })) })) })),
     evidence: sc.bundle.evidence.filter((e) => e.condition === sc.family.condition),
+  };
+}
+
+/**
+ * The clinic's floor plan as a practitioner who works there knows it: rooms, doors and fixtures in metres, and how
+ * close one must be to do what. Public and the same for every scenario of the clinic.
+ */
+export function floorPlan(sc: Scenario) {
+  const w = clinicWorld(sc);
+  return {
+    facility: w.facility.id,
+    units: "metres; +x east, +z south; facing north looks towards -z",
+    bounds: w.facility.bounds,
+    rooms: [...w.rooms.values()].map((r) => ({
+      id: r.id,
+      label: r.label,
+      kind: r.kind,
+      rect: r.rect,
+      home: r.home,
+      doors: w.collision.doors.filter((d) => d.rooms.includes(r.id) || d.owner === r.id).map((d) => ({ x: d.centre.x, z: d.centre.z, width: d.width, to: d.rooms.find((x) => x !== r.id) ?? null })),
+    })),
+    fixtures: [...w.fixtures.values()].map((f) => ({ id: f.id, kind: f.kind, label: f.label, room: f.room, x: round2(areaCentre(f.area).x), z: round2(areaCentre(f.area).z), w: round2(f.area.maxX - f.area.minX), d: round2(f.area.maxZ - f.area.minZ), reach: f.reach })),
+    ranges: {
+      armReach: ARM_REACH_M,
+      contact: CONTACT_RANGE_M,
+      talk: TALK_RANGE_M,
+      sight: SIGHT_RANGE_M,
+      note: "Marking, preparing, needling and withdrawing need the body site within arm's reach; examining, vital signs and positioning need you at the patient's side (contact); speaking with the patient needs earshot (talk); observing needs them in view (sight). A fixture is used from within its reach of its footprint. Walls and closed doors block sight.",
+    },
+    walking: { metresPerMinute: WALK_M_PER_MIN, withPatient: ESCORT_M_PER_MIN, note: "A walk takes the time its path takes; the world plans the path round walls and furniture." },
   };
 }

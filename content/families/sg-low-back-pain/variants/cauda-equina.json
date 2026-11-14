@@ -166,19 +166,53 @@
           "implausible": []
         }
       },
+      "signs": {
+        "hx-onset": []
+      },
       "redFlags": {
         "$replace": [
           {
             "id": "saddle-anaesthesia",
-            "present": true
+            "present": true,
+            "evidence": [
+              {
+                "clinical": {
+                  "asked": "hx-cauda"
+                }
+              },
+              {
+                "clinical": {
+                  "examined": "ex-neuro"
+                }
+              }
+            ]
           },
           {
             "id": "bladder-bowel-dysfunction",
-            "present": true
+            "present": true,
+            "evidence": [
+              {
+                "clinical": {
+                  "asked": "hx-cauda"
+                }
+              }
+            ]
           },
           {
             "id": "progressive-neuro-deficit",
-            "present": true
+            "present": true,
+            "evidence": [
+              {
+                "clinical": {
+                  "asked": "hx-weakness"
+                }
+              },
+              {
+                "clinical": {
+                  "examined": "ex-neuro"
+                }
+              }
+            ]
           }
         ]
       },

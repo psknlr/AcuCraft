@@ -1,0 +1,3901 @@
+{
+  "schema": "clinicalcraft/equipment-catalog@1",
+  "id": "acucraft-tcm",
+  "name": {
+    "zh-CN": "AcuCraft 中医诊所设备",
+    "en": "AcuCraft TCM clinic equipment"
+  },
+  "materials": [
+    {
+      "id": "acu-jade",
+      "color": "#7fae9b",
+      "pattern": "flat",
+      "variance": 0.03,
+      "roughness": 0.55
+    },
+    {
+      "id": "acu-beech",
+      "color": "#c9a877",
+      "pattern": "plank",
+      "variance": 0.05,
+      "roughness": 0.6
+    },
+    {
+      "id": "acu-rosewood",
+      "color": "#5c3526",
+      "pattern": "plank",
+      "variance": 0.06,
+      "roughness": 0.5
+    },
+    {
+      "id": "acu-walnut",
+      "color": "#7b5237",
+      "pattern": "plank",
+      "variance": 0.05,
+      "roughness": 0.55
+    },
+    {
+      "id": "acu-brass",
+      "color": "#c7a558",
+      "pattern": "flat",
+      "variance": 0.03,
+      "roughness": 0.35,
+      "metalness": 0.9
+    },
+    {
+      "id": "acu-bronze",
+      "color": "#a26f3b",
+      "pattern": "flat",
+      "variance": 0.05,
+      "roughness": 0.42,
+      "metalness": 0.85
+    },
+    {
+      "id": "acu-copper",
+      "color": "#b9733f",
+      "pattern": "flat",
+      "variance": 0.03,
+      "roughness": 0.4,
+      "metalness": 0.9
+    },
+    {
+      "id": "acu-vermilion",
+      "color": "#b53a2b",
+      "pattern": "flat",
+      "variance": 0.03,
+      "roughness": 0.7
+    },
+    {
+      "id": "acu-ink",
+      "color": "#2a2826",
+      "pattern": "flat",
+      "variance": 0.02,
+      "roughness": 0.8
+    },
+    {
+      "id": "acu-linen",
+      "color": "#efe9d8",
+      "pattern": "flat",
+      "variance": 0.03,
+      "roughness": 0.9
+    },
+    {
+      "id": "acu-silk",
+      "color": "#c9b88a",
+      "pattern": "flat",
+      "variance": 0.03,
+      "roughness": 0.65
+    },
+    {
+      "id": "acu-terry",
+      "color": "#f3f1ea",
+      "pattern": "flat",
+      "variance": 0.04,
+      "roughness": 0.95
+    },
+    {
+      "id": "acu-marker",
+      "color": "#5a3c8e",
+      "pattern": "flat",
+      "variance": 0.02,
+      "roughness": 0.7
+    },
+    {
+      "id": "acu-sharps",
+      "color": "#efc531",
+      "pattern": "flat",
+      "variance": 0.03,
+      "roughness": 0.5
+    },
+    {
+      "id": "acu-heat",
+      "color": "#3a2622",
+      "pattern": "flat",
+      "variance": 0.02,
+      "roughness": 0.85,
+      "emissive": "#ff5a2a",
+      "emissiveIntensity": 0.35
+    },
+    {
+      "id": "acu-timber",
+      "color": "#c2a47c",
+      "pattern": "plank",
+      "variance": 0.03,
+      "roughness": 0.7,
+      "castShadow": false
+    },
+    {
+      "id": "acu-dado",
+      "color": "#7da696",
+      "pattern": "flat",
+      "variance": 0.025,
+      "roughness": 0.8
+    },
+    {
+      "id": "acu-ceiling",
+      "color": "#dfe3d9",
+      "pattern": "tile",
+      "variance": 0.02,
+      "roughness": 0.9
+    }
+  ],
+  "equipment": [
+    {
+      "id": "acu-treatment-couch",
+      "name": {
+        "zh-CN": "针灸治疗床",
+        "en": "Acupuncture couch"
+      },
+      "category": "furniture",
+      "description": {
+        "zh-CN": "榉木架软垫针灸治疗床，宽 0.7 米，头段带呼吸孔，铺一次性床单，下层搁放毛巾：两侧均可操作。",
+        "en": "A padded treatment couch 0.7 m wide on a beech frame, with a breathing hole in its head section, a paper cover and a shelf of towels: narrow enough to work from either side."
+      },
+      "usage": {
+        "zh-CN": "患者头朝呼吸孔一端，仰卧、俯卧或侧卧。站在所针刺的一侧操作：对侧的穴位够不着。",
+        "en": "The patient lies supine, prone or on one side with the head at the end with the breathing hole. Stand at the side you are needling: a point on the far side of the body is out of arm's reach."
+      },
+      "capabilities": [],
+      "footprint": {
+        "w": 0.7,
+        "d": 1.9,
+        "h": 0.75
+      },
+      "solid": true,
+      "parts": [
+        {
+          "m": "acu-beech",
+          "p": [
+            0.29,
+            0.28,
+            0.8
+          ],
+          "s": [
+            0.06,
+            0.52,
+            0.06
+          ]
+        },
+        {
+          "m": "rubber",
+          "p": [
+            0.29,
+            0.01,
+            0.8
+          ],
+          "s": [
+            0.05,
+            0.02,
+            0.05
+          ]
+        },
+        {
+          "m": "acu-beech",
+          "p": [
+            0.29,
+            0.28,
+            -0.8
+          ],
+          "s": [
+            0.06,
+            0.52,
+            0.06
+          ]
+        },
+        {
+          "m": "rubber",
+          "p": [
+            0.29,
+            0.01,
+            -0.8
+          ],
+          "s": [
+            0.05,
+            0.02,
+            0.05
+          ]
+        },
+        {
+          "m": "acu-beech",
+          "p": [
+            -0.29,
+            0.28,
+            0.8
+          ],
+          "s": [
+            0.06,
+            0.52,
+            0.06
+          ]
+        },
+        {
+          "m": "rubber",
+          "p": [
+            -0.29,
+            0.01,
+            0.8
+          ],
+          "s": [
+            0.05,
+            0.02,
+            0.05
+          ]
+        },
+        {
+          "m": "acu-beech",
+          "p": [
+            -0.29,
+            0.28,
+            -0.8
+          ],
+          "s": [
+            0.06,
+            0.52,
+            0.06
+          ]
+        },
+        {
+          "m": "rubber",
+          "p": [
+            -0.29,
+            0.01,
+            -0.8
+          ],
+          "s": [
+            0.05,
+            0.02,
+            0.05
+          ]
+        },
+        {
+          "m": "acu-beech",
+          "p": [
+            0.29,
+            0.535,
+            0
+          ],
+          "s": [
+            0.03,
+            0.09,
+            1.54
+          ]
+        },
+        {
+          "m": "acu-beech",
+          "p": [
+            -0.29,
+            0.535,
+            0
+          ],
+          "s": [
+            0.03,
+            0.09,
+            1.54
+          ]
+        },
+        {
+          "m": "acu-beech",
+          "p": [
+            0,
+            0.535,
+            0.8
+          ],
+          "s": [
+            0.52,
+            0.09,
+            0.03
+          ]
+        },
+        {
+          "m": "acu-beech",
+          "p": [
+            0,
+            0.535,
+            -0.8
+          ],
+          "s": [
+            0.52,
+            0.09,
+            0.03
+          ]
+        },
+        {
+          "m": "acu-beech",
+          "p": [
+            0,
+            0.2,
+            0
+          ],
+          "s": [
+            0.56,
+            0.02,
+            1.56
+          ]
+        },
+        {
+          "m": "acu-terry",
+          "p": [
+            0,
+            0.27,
+            0.42
+          ],
+          "s": [
+            0.34,
+            0.12,
+            0.3
+          ]
+        },
+        {
+          "m": "acu-jade",
+          "p": [
+            0,
+            0.625,
+            0.175
+          ],
+          "s": [
+            0.7,
+            0.09,
+            1.55
+          ],
+          "name": "mattress"
+        },
+        {
+          "m": "acu-jade",
+          "p": [
+            0.2125,
+            0.625,
+            -0.78
+          ],
+          "s": [
+            0.275,
+            0.09,
+            0.34
+          ]
+        },
+        {
+          "m": "acu-jade",
+          "p": [
+            -0.2125,
+            0.625,
+            -0.78
+          ],
+          "s": [
+            0.275,
+            0.09,
+            0.34
+          ]
+        },
+        {
+          "m": "acu-jade",
+          "p": [
+            0,
+            0.625,
+            -0.9
+          ],
+          "s": [
+            0.15,
+            0.09,
+            0.1
+          ]
+        },
+        {
+          "m": "acu-jade",
+          "p": [
+            0,
+            0.625,
+            -0.645
+          ],
+          "s": [
+            0.15,
+            0.09,
+            0.07
+          ]
+        },
+        {
+          "m": "coal",
+          "p": [
+            0,
+            0.6,
+            -0.765
+          ],
+          "s": [
+            0.15,
+            0.04,
+            0.17
+          ]
+        },
+        {
+          "m": "paper",
+          "p": [
+            0,
+            0.6715,
+            0.19
+          ],
+          "s": [
+            0.56,
+            0.003,
+            1.5
+          ]
+        },
+        {
+          "m": "acu-linen",
+          "p": [
+            0,
+            0.7,
+            -0.59
+          ],
+          "s": [
+            0.4,
+            0.055,
+            0.22
+          ]
+        }
+      ],
+      "interaction": {
+        "kind": "bed",
+        "prompt": {
+          "zh-CN": "E · 针灸治疗床",
+          "en": "E · Acupuncture couch"
+        }
+      },
+      "screen": "none",
+      "tags": [
+        "bed",
+        "patient-support",
+        "acupuncture",
+        "tcm"
+      ],
+      "model": {
+        "uri": "models/acu-treatment-couch.glb",
+        "sha256": "02b7c1017edffb12cf3a856a28e2b02d36ea16ac11088b1ba58617cd033832b9",
+        "scale": 1,
+        "offset": [
+          0.0,
+          0.0,
+          0.0024
+        ],
+        "license": "MIT",
+        "attribution": {
+          "zh-CN": "AcuCraft 贡献者，在 Blender 中按该设备类型的占位与体素部件程序化建模（tools/blender）",
+          "en": "AcuCraft contributors, modelled procedurally in Blender from the type's footprint and voxel parts (tools/blender)"
+        },
+        "source": {
+          "name": "AcuCraft tools/blender",
+          "url": "https://github.com/psknlr/AcuCraft",
+          "version": "Blender 5.0.1",
+          "changes": "modelled procedurally from the type's footprint and voxel parts"
+        },
+        "use": "cleared"
+      }
+    },
+    {
+      "id": "acu-patient-chair",
+      "name": {
+        "zh-CN": "患者座椅",
+        "en": "Patient's chair"
+      },
+      "category": "furniture",
+      "description": {
+        "zh-CN": "带扶手的榉木软垫靠背椅：问诊时患者就座，无法卧位时亦可坐位针刺。",
+        "en": "An upright beech chair with armrests and a padded seat: where the patient sits for the consultation, or for needling when lying down is not possible."
+      },
+      "usage": {
+        "zh-CN": "在椅旁与就座的患者交谈、查体。坐位针刺比卧位更容易晕针。",
+        "en": "Speak with and examine the seated patient from beside the chair. A patient treated sitting is more likely to faint than one lying down."
+      },
+      "capabilities": [],
+      "footprint": {
+        "w": 0.5,
+        "d": 0.5,
+        "h": 0.9
+      },
+      "solid": true,
+      "parts": [
+        {
+          "m": "acu-beech",
+          "p": [
+            0.205,
+            0.215,
+            0.175
+          ],
+          "s": [
+            0.05,
+            0.43,
+            0.05
+          ]
+        },
+        {
+          "m": "acu-beech",
+          "p": [
+            -0.205,
+            0.215,
+            0.175
+          ],
+          "s": [
+            0.05,
+            0.43,
+            0.05
+          ]
+        },
+        {
+          "m": "acu-beech",
+          "p": [
+            0.205,
+            0.44,
+            -0.215
+          ],
+          "s": [
+            0.05,
+            0.88,
+            0.05
+          ]
+        },
+        {
+          "m": "acu-beech",
+          "p": [
+            -0.205,
+            0.44,
+            -0.215
+          ],
+          "s": [
+            0.05,
+            0.88,
+            0.05
+          ]
+        },
+        {
+          "m": "acu-jade",
+          "p": [
+            0,
+            0.465,
+            0.02
+          ],
+          "s": [
+            0.48,
+            0.07,
+            0.44
+          ],
+          "name": "seat"
+        },
+        {
+          "m": "acu-jade",
+          "p": [
+            0,
+            0.73,
+            -0.2175
+          ],
+          "s": [
+            0.36,
+            0.26,
+            0.035
+          ]
+        },
+        {
+          "m": "acu-beech",
+          "p": [
+            0,
+            0.22,
+            -0.215
+          ],
+          "s": [
+            0.36,
+            0.04,
+            0.03
+          ]
+        },
+        {
+          "m": "acu-beech",
+          "p": [
+            0.225,
+            0.62,
+            0.0
+          ],
+          "s": [
+            0.04,
+            0.03,
+            0.4
+          ]
+        },
+        {
+          "m": "acu-beech",
+          "p": [
+            -0.225,
+            0.62,
+            0.0
+          ],
+          "s": [
+            0.04,
+            0.03,
+            0.4
+          ]
+        }
+      ],
+      "interaction": {
+        "kind": "bed",
+        "prompt": {
+          "zh-CN": "E · 患者座椅",
+          "en": "E · Patient's chair"
+        }
+      },
+      "screen": "none",
+      "tags": [
+        "seating",
+        "patient-support",
+        "tcm"
+      ],
+      "model": {
+        "uri": "models/acu-patient-chair.glb",
+        "sha256": "f87f09fc27c199ea63c7f60bb213c040349dac4c11ff4d69c9d063800274f538",
+        "scale": 1,
+        "offset": [
+          0.0,
+          0.0,
+          -0.0045
+        ],
+        "license": "MIT",
+        "attribution": {
+          "zh-CN": "AcuCraft 贡献者，在 Blender 中按该设备类型的占位与体素部件程序化建模（tools/blender）",
+          "en": "AcuCraft contributors, modelled procedurally in Blender from the type's footprint and voxel parts (tools/blender)"
+        },
+        "source": {
+          "name": "AcuCraft tools/blender",
+          "url": "https://github.com/psknlr/AcuCraft",
+          "version": "Blender 5.0.1",
+          "changes": "modelled procedurally from the type's footprint and voxel parts"
+        },
+        "use": "cleared"
+      }
+    },
+    {
+      "id": "acu-needle-trolley",
+      "name": {
+        "zh-CN": "针具治疗车",
+        "en": "Needle trolley"
+      },
+      "category": "therapy",
+      "description": {
+        "zh-CN": "治疗床尾的不锈钢治疗车：放置已开封针具的托盘、未开封的针具、棉球罐、镊子筒、手消毒液，以及随用随弃的锐器盒。",
+        "en": "A stainless treatment trolley at the foot of the couch: the tray for an opened pack of needles, sealed packs, a jar of cotton balls, forceps, hand rub, and a sharps box at the point of use."
+      },
+      "usage": {
+        "zh-CN": "在托盘上开封针具，逐根取用；起出的针和已开封未用的针一律投入锐器盒。",
+        "en": "Open a sealed pack onto its tray, take one needle at a time, and drop every withdrawn or unused opened needle into its sharps box."
+      },
+      "capabilities": [],
+      "footprint": {
+        "w": 0.6,
+        "d": 0.45,
+        "h": 1.1
+      },
+      "solid": true,
+      "parts": [
+        {
+          "m": "chrome",
+          "p": [
+            0.27,
+            0.47,
+            0.195
+          ],
+          "s": [
+            0.03,
+            0.82,
+            0.03
+          ]
+        },
+        {
+          "m": "rubber",
+          "p": [
+            0.27,
+            0.03,
+            0.195
+          ],
+          "s": [
+            0.06,
+            0.06,
+            0.06
+          ]
+        },
+        {
+          "m": "chrome",
+          "p": [
+            0.27,
+            0.47,
+            -0.195
+          ],
+          "s": [
+            0.03,
+            0.82,
+            0.03
+          ]
+        },
+        {
+          "m": "rubber",
+          "p": [
+            0.27,
+            0.03,
+            -0.195
+          ],
+          "s": [
+            0.06,
+            0.06,
+            0.06
+          ]
+        },
+        {
+          "m": "chrome",
+          "p": [
+            -0.27,
+            0.47,
+            0.195
+          ],
+          "s": [
+            0.03,
+            0.82,
+            0.03
+          ]
+        },
+        {
+          "m": "rubber",
+          "p": [
+            -0.27,
+            0.03,
+            0.195
+          ],
+          "s": [
+            0.06,
+            0.06,
+            0.06
+          ]
+        },
+        {
+          "m": "chrome",
+          "p": [
+            -0.27,
+            0.47,
+            -0.195
+          ],
+          "s": [
+            0.03,
+            0.82,
+            0.03
+          ]
+        },
+        {
+          "m": "rubber",
+          "p": [
+            -0.27,
+            0.03,
+            -0.195
+          ],
+          "s": [
+            0.06,
+            0.06,
+            0.06
+          ]
+        },
+        {
+          "m": "steel",
+          "p": [
+            0,
+            0.3,
+            0
+          ],
+          "s": [
+            0.56,
+            0.03,
+            0.41
+          ]
+        },
+        {
+          "m": "steel",
+          "p": [
+            0,
+            0.88,
+            0
+          ],
+          "s": [
+            0.58,
+            0.03,
+            0.43
+          ]
+        },
+        {
+          "m": "chrome",
+          "p": [
+            0,
+            0.92,
+            0.2075
+          ],
+          "s": [
+            0.58,
+            0.05,
+            0.015
+          ]
+        },
+        {
+          "m": "chrome",
+          "p": [
+            0,
+            0.92,
+            -0.2075
+          ],
+          "s": [
+            0.58,
+            0.05,
+            0.015
+          ]
+        },
+        {
+          "m": "chrome",
+          "p": [
+            -0.02,
+            0.905,
+            -0.08
+          ],
+          "s": [
+            0.2,
+            0.02,
+            0.13
+          ]
+        },
+        {
+          "m": "blue",
+          "p": [
+            -0.2,
+            0.915,
+            0.08
+          ],
+          "s": [
+            0.1,
+            0.04,
+            0.14
+          ]
+        },
+        {
+          "m": "white",
+          "p": [
+            -0.08,
+            0.915,
+            0.08
+          ],
+          "s": [
+            0.1,
+            0.04,
+            0.14
+          ]
+        },
+        {
+          "m": "paper",
+          "p": [
+            0.05,
+            0.905,
+            0.1
+          ],
+          "s": [
+            0.12,
+            0.02,
+            0.1
+          ]
+        },
+        {
+          "m": "acu-sharps",
+          "p": [
+            0.2,
+            0.975,
+            -0.09
+          ],
+          "s": [
+            0.15,
+            0.16,
+            0.16
+          ]
+        },
+        {
+          "m": "biohazard",
+          "p": [
+            0.2,
+            1.065,
+            -0.09
+          ],
+          "s": [
+            0.16,
+            0.02,
+            0.17
+          ]
+        },
+        {
+          "m": "black",
+          "p": [
+            0.2,
+            1.0775,
+            -0.08
+          ],
+          "s": [
+            0.07,
+            0.005,
+            0.05
+          ]
+        },
+        {
+          "m": "white",
+          "p": [
+            0.2,
+            0.935,
+            0.12
+          ],
+          "s": [
+            0.07,
+            0.08,
+            0.07
+          ]
+        },
+        {
+          "m": "mint",
+          "p": [
+            -0.12,
+            0.345,
+            0.02
+          ],
+          "s": [
+            0.2,
+            0.06,
+            0.14
+          ]
+        },
+        {
+          "m": "white",
+          "p": [
+            0.14,
+            0.355,
+            -0.03
+          ],
+          "s": [
+            0.16,
+            0.08,
+            0.2
+          ]
+        }
+      ],
+      "interaction": {
+        "kind": "storage",
+        "prompt": {
+          "zh-CN": "E · 针具治疗车",
+          "en": "E · Needle trolley"
+        }
+      },
+      "screen": "none",
+      "tags": [
+        "trolley",
+        "sharps",
+        "acupuncture",
+        "tcm"
+      ],
+      "model": {
+        "uri": "models/acu-needle-trolley.glb",
+        "sha256": "fbce94f05f391432cc29646171df09d5e647b26725d929192113b3f9756da05a",
+        "scale": 1,
+        "offset": [
+          -0.0262,
+          0.0,
+          0.0
+        ],
+        "license": "MIT",
+        "attribution": {
+          "zh-CN": "AcuCraft 贡献者，在 Blender 中按该设备类型的占位与体素部件程序化建模（tools/blender）",
+          "en": "AcuCraft contributors, modelled procedurally in Blender from the type's footprint and voxel parts (tools/blender)"
+        },
+        "source": {
+          "name": "AcuCraft tools/blender",
+          "url": "https://github.com/psknlr/AcuCraft",
+          "version": "Blender 5.0.1",
+          "changes": "modelled procedurally from the type's footprint and voxel parts"
+        },
+        "use": "cleared"
+      }
+    },
+    {
+      "id": "acu-supply-shelf",
+      "name": {
+        "zh-CN": "针具耗材架",
+        "en": "Needle and supply shelf"
+      },
+      "category": "storage",
+      "description": {
+        "zh-CN": "开放式耗材架：一次性无菌针灸针（未开封）、酒精棉片、棉球、手套和敷贴。",
+        "en": "Open shelving for sealed packs of single-use sterile needles, alcohol swabs, cotton balls, gloves and plasters."
+      },
+      "usage": {
+        "zh-CN": "手卫生后在此取未开封的针具；开封前核对包装上的有效期。",
+        "en": "Fetch sealed packs here, with clean hands; check the expiry date on the label before opening one."
+      },
+      "capabilities": [],
+      "footprint": {
+        "w": 1.2,
+        "d": 0.45,
+        "h": 1.9
+      },
+      "solid": true,
+      "parts": [
+        {
+          "m": "white",
+          "p": [
+            0,
+            0.95,
+            -0.21
+          ],
+          "s": [
+            1.2,
+            1.9,
+            0.03
+          ]
+        },
+        {
+          "m": "white",
+          "p": [
+            0.585,
+            0.95,
+            0
+          ],
+          "s": [
+            0.03,
+            1.9,
+            0.45
+          ]
+        },
+        {
+          "m": "white",
+          "p": [
+            -0.585,
+            0.95,
+            0
+          ],
+          "s": [
+            0.03,
+            1.9,
+            0.45
+          ]
+        },
+        {
+          "m": "white",
+          "p": [
+            0,
+            0.1,
+            0.005
+          ],
+          "s": [
+            1.14,
+            0.03,
+            0.42
+          ]
+        },
+        {
+          "m": "white",
+          "p": [
+            0,
+            0.55,
+            0.005
+          ],
+          "s": [
+            1.14,
+            0.03,
+            0.42
+          ]
+        },
+        {
+          "m": "white",
+          "p": [
+            0,
+            1.0,
+            0.005
+          ],
+          "s": [
+            1.14,
+            0.03,
+            0.42
+          ]
+        },
+        {
+          "m": "white",
+          "p": [
+            0,
+            1.45,
+            0.005
+          ],
+          "s": [
+            1.14,
+            0.03,
+            0.42
+          ]
+        },
+        {
+          "m": "white",
+          "p": [
+            0,
+            1.885,
+            0.005
+          ],
+          "s": [
+            1.14,
+            0.03,
+            0.42
+          ]
+        },
+        {
+          "m": "blue",
+          "p": [
+            -0.4,
+            0.635,
+            0.04
+          ],
+          "s": [
+            0.16,
+            0.14,
+            0.2
+          ]
+        },
+        {
+          "m": "white",
+          "p": [
+            -0.2,
+            0.635,
+            0.04
+          ],
+          "s": [
+            0.16,
+            0.14,
+            0.2
+          ]
+        },
+        {
+          "m": "blue",
+          "p": [
+            0.0,
+            0.635,
+            0.04
+          ],
+          "s": [
+            0.16,
+            0.14,
+            0.2
+          ]
+        },
+        {
+          "m": "paper",
+          "p": [
+            0.2,
+            0.635,
+            0.04
+          ],
+          "s": [
+            0.16,
+            0.14,
+            0.2
+          ]
+        },
+        {
+          "m": "mint",
+          "p": [
+            0.4,
+            0.635,
+            0.04
+          ],
+          "s": [
+            0.16,
+            0.14,
+            0.2
+          ]
+        },
+        {
+          "m": "white",
+          "p": [
+            -0.36,
+            1.085,
+            0.04
+          ],
+          "s": [
+            0.2,
+            0.14,
+            0.22
+          ]
+        },
+        {
+          "m": "blue",
+          "p": [
+            -0.12,
+            1.085,
+            0.04
+          ],
+          "s": [
+            0.2,
+            0.14,
+            0.22
+          ]
+        },
+        {
+          "m": "white",
+          "p": [
+            0.12,
+            1.085,
+            0.04
+          ],
+          "s": [
+            0.2,
+            0.14,
+            0.22
+          ]
+        },
+        {
+          "m": "mint",
+          "p": [
+            0.36,
+            1.085,
+            0.04
+          ],
+          "s": [
+            0.2,
+            0.14,
+            0.22
+          ]
+        },
+        {
+          "m": "glass",
+          "p": [
+            -0.3,
+            1.54,
+            0.05
+          ],
+          "s": [
+            0.12,
+            0.15,
+            0.12
+          ]
+        },
+        {
+          "m": "glass",
+          "p": [
+            0.0,
+            1.54,
+            0.05
+          ],
+          "s": [
+            0.12,
+            0.15,
+            0.12
+          ]
+        },
+        {
+          "m": "white",
+          "p": [
+            0.3,
+            1.54,
+            0.05
+          ],
+          "s": [
+            0.12,
+            0.15,
+            0.12
+          ]
+        },
+        {
+          "m": "beige",
+          "p": [
+            0.05,
+            0.19,
+            0.03
+          ],
+          "s": [
+            0.5,
+            0.15,
+            0.3
+          ]
+        }
+      ],
+      "interaction": {
+        "kind": "storage",
+        "prompt": {
+          "zh-CN": "E · 耗材架",
+          "en": "E · Supply shelf"
+        }
+      },
+      "screen": "none",
+      "tags": [
+        "storage",
+        "supplies",
+        "acupuncture",
+        "tcm"
+      ],
+      "model": {
+        "uri": "models/acu-supply-shelf.glb",
+        "sha256": "43ab38e0873b2b5e4d1315052cfcd7c3a5a5eeeb2e82a3c6cdda8504a106fe9f",
+        "scale": 1,
+        "offset": [
+          0.0,
+          0.0,
+          -0.002
+        ],
+        "license": "MIT",
+        "attribution": {
+          "zh-CN": "AcuCraft 贡献者，在 Blender 中按该设备类型的占位与体素部件程序化建模（tools/blender）",
+          "en": "AcuCraft contributors, modelled procedurally in Blender from the type's footprint and voxel parts (tools/blender)"
+        },
+        "source": {
+          "name": "AcuCraft tools/blender",
+          "url": "https://github.com/psknlr/AcuCraft",
+          "version": "Blender 5.0.1",
+          "changes": "modelled procedurally from the type's footprint and voxel parts"
+        },
+        "use": "cleared"
+      }
+    },
+    {
+      "id": "acu-herb-cabinet",
+      "name": {
+        "zh-CN": "中药百子柜",
+        "en": "Herbal medicine cabinet"
+      },
+      "category": "storage",
+      "description": {
+        "zh-CN": "传统红木中药饮片柜（百子柜），抽屉分格存放饮片，柜顶放药罐。",
+        "en": "A traditional rosewood cabinet of small labelled drawers for dried herbs, with storage jars on top."
+      },
+      "capabilities": [],
+      "footprint": {
+        "w": 1.6,
+        "d": 0.45,
+        "h": 1.9
+      },
+      "solid": true,
+      "parts": [
+        {
+          "m": "acu-rosewood",
+          "p": [
+            0,
+            0.87,
+            -0.015
+          ],
+          "s": [
+            1.6,
+            1.74,
+            0.42
+          ]
+        },
+        {
+          "m": "acu-rosewood",
+          "p": [
+            0,
+            0.04,
+            0
+          ],
+          "s": [
+            1.6,
+            0.08,
+            0.45
+          ]
+        },
+        {
+          "m": "acu-walnut",
+          "p": [
+            -0.63,
+            0.3,
+            0.205
+          ],
+          "s": [
+            0.19,
+            0.2,
+            0.02
+          ]
+        },
+        {
+          "m": "acu-walnut",
+          "p": [
+            -0.42,
+            0.3,
+            0.205
+          ],
+          "s": [
+            0.19,
+            0.2,
+            0.02
+          ]
+        },
+        {
+          "m": "acu-walnut",
+          "p": [
+            -0.21,
+            0.3,
+            0.205
+          ],
+          "s": [
+            0.19,
+            0.2,
+            0.02
+          ]
+        },
+        {
+          "m": "acu-walnut",
+          "p": [
+            0.0,
+            0.3,
+            0.205
+          ],
+          "s": [
+            0.19,
+            0.2,
+            0.02
+          ]
+        },
+        {
+          "m": "acu-walnut",
+          "p": [
+            0.21,
+            0.3,
+            0.205
+          ],
+          "s": [
+            0.19,
+            0.2,
+            0.02
+          ]
+        },
+        {
+          "m": "acu-walnut",
+          "p": [
+            0.42,
+            0.3,
+            0.205
+          ],
+          "s": [
+            0.19,
+            0.2,
+            0.02
+          ]
+        },
+        {
+          "m": "acu-walnut",
+          "p": [
+            0.63,
+            0.3,
+            0.205
+          ],
+          "s": [
+            0.19,
+            0.2,
+            0.02
+          ]
+        },
+        {
+          "m": "acu-brass",
+          "p": [
+            0,
+            0.3,
+            0.2185
+          ],
+          "s": [
+            1.3,
+            0.02,
+            0.012
+          ]
+        },
+        {
+          "m": "acu-walnut",
+          "p": [
+            -0.63,
+            0.54,
+            0.205
+          ],
+          "s": [
+            0.19,
+            0.2,
+            0.02
+          ]
+        },
+        {
+          "m": "acu-walnut",
+          "p": [
+            -0.42,
+            0.54,
+            0.205
+          ],
+          "s": [
+            0.19,
+            0.2,
+            0.02
+          ]
+        },
+        {
+          "m": "acu-walnut",
+          "p": [
+            -0.21,
+            0.54,
+            0.205
+          ],
+          "s": [
+            0.19,
+            0.2,
+            0.02
+          ]
+        },
+        {
+          "m": "acu-walnut",
+          "p": [
+            0.0,
+            0.54,
+            0.205
+          ],
+          "s": [
+            0.19,
+            0.2,
+            0.02
+          ]
+        },
+        {
+          "m": "acu-walnut",
+          "p": [
+            0.21,
+            0.54,
+            0.205
+          ],
+          "s": [
+            0.19,
+            0.2,
+            0.02
+          ]
+        },
+        {
+          "m": "acu-walnut",
+          "p": [
+            0.42,
+            0.54,
+            0.205
+          ],
+          "s": [
+            0.19,
+            0.2,
+            0.02
+          ]
+        },
+        {
+          "m": "acu-walnut",
+          "p": [
+            0.63,
+            0.54,
+            0.205
+          ],
+          "s": [
+            0.19,
+            0.2,
+            0.02
+          ]
+        },
+        {
+          "m": "acu-brass",
+          "p": [
+            0,
+            0.54,
+            0.2185
+          ],
+          "s": [
+            1.3,
+            0.02,
+            0.012
+          ]
+        },
+        {
+          "m": "acu-walnut",
+          "p": [
+            -0.63,
+            0.78,
+            0.205
+          ],
+          "s": [
+            0.19,
+            0.2,
+            0.02
+          ]
+        },
+        {
+          "m": "acu-walnut",
+          "p": [
+            -0.42,
+            0.78,
+            0.205
+          ],
+          "s": [
+            0.19,
+            0.2,
+            0.02
+          ]
+        },
+        {
+          "m": "acu-walnut",
+          "p": [
+            -0.21,
+            0.78,
+            0.205
+          ],
+          "s": [
+            0.19,
+            0.2,
+            0.02
+          ]
+        },
+        {
+          "m": "acu-walnut",
+          "p": [
+            0.0,
+            0.78,
+            0.205
+          ],
+          "s": [
+            0.19,
+            0.2,
+            0.02
+          ]
+        },
+        {
+          "m": "acu-walnut",
+          "p": [
+            0.21,
+            0.78,
+            0.205
+          ],
+          "s": [
+            0.19,
+            0.2,
+            0.02
+          ]
+        },
+        {
+          "m": "acu-walnut",
+          "p": [
+            0.42,
+            0.78,
+            0.205
+          ],
+          "s": [
+            0.19,
+            0.2,
+            0.02
+          ]
+        },
+        {
+          "m": "acu-walnut",
+          "p": [
+            0.63,
+            0.78,
+            0.205
+          ],
+          "s": [
+            0.19,
+            0.2,
+            0.02
+          ]
+        },
+        {
+          "m": "acu-brass",
+          "p": [
+            0,
+            0.78,
+            0.2185
+          ],
+          "s": [
+            1.3,
+            0.02,
+            0.012
+          ]
+        },
+        {
+          "m": "acu-walnut",
+          "p": [
+            -0.63,
+            1.02,
+            0.205
+          ],
+          "s": [
+            0.19,
+            0.2,
+            0.02
+          ]
+        },
+        {
+          "m": "acu-walnut",
+          "p": [
+            -0.42,
+            1.02,
+            0.205
+          ],
+          "s": [
+            0.19,
+            0.2,
+            0.02
+          ]
+        },
+        {
+          "m": "acu-walnut",
+          "p": [
+            -0.21,
+            1.02,
+            0.205
+          ],
+          "s": [
+            0.19,
+            0.2,
+            0.02
+          ]
+        },
+        {
+          "m": "acu-walnut",
+          "p": [
+            0.0,
+            1.02,
+            0.205
+          ],
+          "s": [
+            0.19,
+            0.2,
+            0.02
+          ]
+        },
+        {
+          "m": "acu-walnut",
+          "p": [
+            0.21,
+            1.02,
+            0.205
+          ],
+          "s": [
+            0.19,
+            0.2,
+            0.02
+          ]
+        },
+        {
+          "m": "acu-walnut",
+          "p": [
+            0.42,
+            1.02,
+            0.205
+          ],
+          "s": [
+            0.19,
+            0.2,
+            0.02
+          ]
+        },
+        {
+          "m": "acu-walnut",
+          "p": [
+            0.63,
+            1.02,
+            0.205
+          ],
+          "s": [
+            0.19,
+            0.2,
+            0.02
+          ]
+        },
+        {
+          "m": "acu-brass",
+          "p": [
+            0,
+            1.02,
+            0.2185
+          ],
+          "s": [
+            1.3,
+            0.02,
+            0.012
+          ]
+        },
+        {
+          "m": "acu-walnut",
+          "p": [
+            -0.63,
+            1.26,
+            0.205
+          ],
+          "s": [
+            0.19,
+            0.2,
+            0.02
+          ]
+        },
+        {
+          "m": "acu-walnut",
+          "p": [
+            -0.42,
+            1.26,
+            0.205
+          ],
+          "s": [
+            0.19,
+            0.2,
+            0.02
+          ]
+        },
+        {
+          "m": "acu-walnut",
+          "p": [
+            -0.21,
+            1.26,
+            0.205
+          ],
+          "s": [
+            0.19,
+            0.2,
+            0.02
+          ]
+        },
+        {
+          "m": "acu-walnut",
+          "p": [
+            0.0,
+            1.26,
+            0.205
+          ],
+          "s": [
+            0.19,
+            0.2,
+            0.02
+          ]
+        },
+        {
+          "m": "acu-walnut",
+          "p": [
+            0.21,
+            1.26,
+            0.205
+          ],
+          "s": [
+            0.19,
+            0.2,
+            0.02
+          ]
+        },
+        {
+          "m": "acu-walnut",
+          "p": [
+            0.42,
+            1.26,
+            0.205
+          ],
+          "s": [
+            0.19,
+            0.2,
+            0.02
+          ]
+        },
+        {
+          "m": "acu-walnut",
+          "p": [
+            0.63,
+            1.26,
+            0.205
+          ],
+          "s": [
+            0.19,
+            0.2,
+            0.02
+          ]
+        },
+        {
+          "m": "acu-brass",
+          "p": [
+            0,
+            1.26,
+            0.2185
+          ],
+          "s": [
+            1.3,
+            0.02,
+            0.012
+          ]
+        },
+        {
+          "m": "acu-walnut",
+          "p": [
+            -0.63,
+            1.5,
+            0.205
+          ],
+          "s": [
+            0.19,
+            0.2,
+            0.02
+          ]
+        },
+        {
+          "m": "acu-walnut",
+          "p": [
+            -0.42,
+            1.5,
+            0.205
+          ],
+          "s": [
+            0.19,
+            0.2,
+            0.02
+          ]
+        },
+        {
+          "m": "acu-walnut",
+          "p": [
+            -0.21,
+            1.5,
+            0.205
+          ],
+          "s": [
+            0.19,
+            0.2,
+            0.02
+          ]
+        },
+        {
+          "m": "acu-walnut",
+          "p": [
+            0.0,
+            1.5,
+            0.205
+          ],
+          "s": [
+            0.19,
+            0.2,
+            0.02
+          ]
+        },
+        {
+          "m": "acu-walnut",
+          "p": [
+            0.21,
+            1.5,
+            0.205
+          ],
+          "s": [
+            0.19,
+            0.2,
+            0.02
+          ]
+        },
+        {
+          "m": "acu-walnut",
+          "p": [
+            0.42,
+            1.5,
+            0.205
+          ],
+          "s": [
+            0.19,
+            0.2,
+            0.02
+          ]
+        },
+        {
+          "m": "acu-walnut",
+          "p": [
+            0.63,
+            1.5,
+            0.205
+          ],
+          "s": [
+            0.19,
+            0.2,
+            0.02
+          ]
+        },
+        {
+          "m": "acu-brass",
+          "p": [
+            0,
+            1.5,
+            0.2185
+          ],
+          "s": [
+            1.3,
+            0.02,
+            0.012
+          ]
+        },
+        {
+          "m": "white",
+          "p": [
+            -0.5,
+            1.82,
+            0
+          ],
+          "s": [
+            0.16,
+            0.16,
+            0.16
+          ]
+        },
+        {
+          "m": "blue",
+          "p": [
+            0.0,
+            1.81,
+            0
+          ],
+          "s": [
+            0.14,
+            0.14,
+            0.14
+          ]
+        },
+        {
+          "m": "white",
+          "p": [
+            0.5,
+            1.82,
+            0
+          ],
+          "s": [
+            0.16,
+            0.16,
+            0.16
+          ]
+        }
+      ],
+      "interaction": {
+        "kind": "storage",
+        "prompt": {
+          "zh-CN": "E · 百子柜",
+          "en": "E · Herb cabinet"
+        }
+      },
+      "screen": "none",
+      "tags": [
+        "storage",
+        "tcm",
+        "decor"
+      ],
+      "model": {
+        "uri": "models/acu-herb-cabinet.glb",
+        "sha256": "a7a3efaf87d3ef5d5d8a044a98540beb28e8a0267c0a61786fd999a3a96ab2d3",
+        "scale": 1,
+        "license": "MIT",
+        "attribution": {
+          "zh-CN": "AcuCraft 贡献者，在 Blender 中按该设备类型的占位与体素部件程序化建模（tools/blender）",
+          "en": "AcuCraft contributors, modelled procedurally in Blender from the type's footprint and voxel parts (tools/blender)"
+        },
+        "source": {
+          "name": "AcuCraft tools/blender",
+          "url": "https://github.com/psknlr/AcuCraft",
+          "version": "Blender 5.0.1",
+          "changes": "modelled procedurally from the type's footprint and voxel parts"
+        },
+        "use": "cleared"
+      }
+    },
+    {
+      "id": "acu-meridian-chart",
+      "name": {
+        "zh-CN": "经络腧穴挂图",
+        "en": "Meridian and acupoint chart"
+      },
+      "category": "teaching",
+      "description": {
+        "zh-CN": "经络与腧穴挂轴，绘有人体正面与背面。示意图，不能据此定位腧穴。",
+        "en": "A hanging scroll of the channels and their points, the body drawn from the front and from the back. A schematic drawing: it does not locate a point."
+      },
+      "capabilities": [],
+      "footprint": {
+        "w": 0.9,
+        "d": 0.05,
+        "h": 2.05
+      },
+      "solid": false,
+      "parts": [
+        {
+          "m": "acu-rosewood",
+          "p": [
+            0,
+            2.0,
+            -0.02
+          ],
+          "s": [
+            0.86,
+            0.04,
+            0.03
+          ]
+        },
+        {
+          "m": "acu-rosewood",
+          "p": [
+            0,
+            0.86,
+            -0.02
+          ],
+          "s": [
+            0.86,
+            0.04,
+            0.03
+          ]
+        },
+        {
+          "m": "acu-silk",
+          "p": [
+            0,
+            1.43,
+            -0.028
+          ],
+          "s": [
+            0.82,
+            1.12,
+            0.008
+          ]
+        },
+        {
+          "m": "acu-linen",
+          "p": [
+            0,
+            1.43,
+            -0.023
+          ],
+          "s": [
+            0.72,
+            1.0,
+            0.006
+          ]
+        },
+        {
+          "m": "skin",
+          "p": [
+            -0.18,
+            1.83,
+            -0.016
+          ],
+          "s": [
+            0.07,
+            0.09,
+            0.004
+          ]
+        },
+        {
+          "m": "skin",
+          "p": [
+            -0.18,
+            1.6,
+            -0.016
+          ],
+          "s": [
+            0.15,
+            0.32,
+            0.004
+          ]
+        },
+        {
+          "m": "skin",
+          "p": [
+            -0.215,
+            1.22,
+            -0.016
+          ],
+          "s": [
+            0.06,
+            0.44,
+            0.004
+          ]
+        },
+        {
+          "m": "skin",
+          "p": [
+            -0.145,
+            1.22,
+            -0.016
+          ],
+          "s": [
+            0.06,
+            0.44,
+            0.004
+          ]
+        },
+        {
+          "m": "skin",
+          "p": [
+            0.18,
+            1.83,
+            -0.016
+          ],
+          "s": [
+            0.07,
+            0.09,
+            0.004
+          ]
+        },
+        {
+          "m": "skin",
+          "p": [
+            0.18,
+            1.6,
+            -0.016
+          ],
+          "s": [
+            0.15,
+            0.32,
+            0.004
+          ]
+        },
+        {
+          "m": "skin",
+          "p": [
+            0.145,
+            1.22,
+            -0.016
+          ],
+          "s": [
+            0.06,
+            0.44,
+            0.004
+          ]
+        },
+        {
+          "m": "skin",
+          "p": [
+            0.215,
+            1.22,
+            -0.016
+          ],
+          "s": [
+            0.06,
+            0.44,
+            0.004
+          ]
+        },
+        {
+          "m": "acu-vermilion",
+          "p": [
+            -0.18,
+            1.56,
+            -0.012
+          ],
+          "s": [
+            0.006,
+            0.36,
+            0.003
+          ]
+        },
+        {
+          "m": "blue",
+          "p": [
+            0.18,
+            1.56,
+            -0.012
+          ],
+          "s": [
+            0.006,
+            0.36,
+            0.003
+          ]
+        }
+      ],
+      "interaction": {
+        "kind": "none"
+      },
+      "screen": "none",
+      "tags": [
+        "wall",
+        "tcm",
+        "teaching",
+        "decor"
+      ],
+      "model": {
+        "uri": "models/acu-meridian-chart.glb",
+        "sha256": "8823e0b4d50a25421d88352e3954fdccdca296f8c4863b6a47d810b25ba921ae",
+        "scale": 1,
+        "offset": [
+          0.0,
+          0.837,
+          -0.014
+        ],
+        "license": "MIT",
+        "attribution": {
+          "zh-CN": "AcuCraft 贡献者，在 Blender 中按该设备类型的占位与体素部件程序化建模（tools/blender）",
+          "en": "AcuCraft contributors, modelled procedurally in Blender from the type's footprint and voxel parts (tools/blender)"
+        },
+        "source": {
+          "name": "AcuCraft tools/blender",
+          "url": "https://github.com/psknlr/AcuCraft",
+          "version": "Blender 5.0.1",
+          "changes": "modelled procedurally from the type's footprint and voxel parts"
+        },
+        "use": "cleared"
+      }
+    },
+    {
+      "id": "acu-meridian-model",
+      "name": {
+        "zh-CN": "针灸铜人模型",
+        "en": "Acupuncture model figure"
+      },
+      "category": "teaching",
+      "description": {
+        "zh-CN": "标有经络与腧穴的铜人模型，置于红木座上。教学陈设，不能据此定位腧穴。",
+        "en": "A bronze figure marked with the channels and their points, on a rosewood pedestal. A teaching ornament: it does not locate a point."
+      },
+      "capabilities": [],
+      "footprint": {
+        "w": 0.4,
+        "d": 0.4,
+        "h": 1.5
+      },
+      "solid": true,
+      "parts": [
+        {
+          "m": "acu-rosewood",
+          "p": [
+            0,
+            0.25,
+            0
+          ],
+          "s": [
+            0.36,
+            0.5,
+            0.36
+          ]
+        },
+        {
+          "m": "acu-brass",
+          "p": [
+            0,
+            0.51,
+            0
+          ],
+          "s": [
+            0.3,
+            0.02,
+            0.3
+          ]
+        },
+        {
+          "m": "acu-bronze",
+          "p": [
+            0.05,
+            0.75,
+            0
+          ],
+          "s": [
+            0.07,
+            0.46,
+            0.08
+          ]
+        },
+        {
+          "m": "acu-bronze",
+          "p": [
+            -0.05,
+            0.75,
+            0
+          ],
+          "s": [
+            0.07,
+            0.46,
+            0.08
+          ]
+        },
+        {
+          "m": "acu-bronze",
+          "p": [
+            0,
+            1.13,
+            0
+          ],
+          "s": [
+            0.2,
+            0.32,
+            0.12
+          ]
+        },
+        {
+          "m": "acu-bronze",
+          "p": [
+            0.14,
+            1.1,
+            0
+          ],
+          "s": [
+            0.05,
+            0.36,
+            0.06
+          ]
+        },
+        {
+          "m": "acu-bronze",
+          "p": [
+            -0.14,
+            1.1,
+            0
+          ],
+          "s": [
+            0.05,
+            0.36,
+            0.06
+          ]
+        },
+        {
+          "m": "acu-bronze",
+          "p": [
+            0,
+            1.37,
+            0
+          ],
+          "s": [
+            0.11,
+            0.14,
+            0.12
+          ]
+        },
+        {
+          "m": "acu-vermilion",
+          "p": [
+            0.04,
+            1.2,
+            0.065
+          ],
+          "s": [
+            0.02,
+            0.02,
+            0.01
+          ]
+        },
+        {
+          "m": "acu-vermilion",
+          "p": [
+            -0.04,
+            1.2,
+            0.065
+          ],
+          "s": [
+            0.02,
+            0.02,
+            0.01
+          ]
+        },
+        {
+          "m": "acu-vermilion",
+          "p": [
+            0.0,
+            1.05,
+            0.065
+          ],
+          "s": [
+            0.02,
+            0.02,
+            0.01
+          ]
+        },
+        {
+          "m": "acu-vermilion",
+          "p": [
+            0.05,
+            0.85,
+            0.045
+          ],
+          "s": [
+            0.02,
+            0.02,
+            0.01
+          ]
+        },
+        {
+          "m": "acu-vermilion",
+          "p": [
+            -0.05,
+            0.85,
+            0.045
+          ],
+          "s": [
+            0.02,
+            0.02,
+            0.01
+          ]
+        },
+        {
+          "m": "acu-vermilion",
+          "p": [
+            0.05,
+            0.65,
+            0.045
+          ],
+          "s": [
+            0.02,
+            0.02,
+            0.01
+          ]
+        },
+        {
+          "m": "acu-vermilion",
+          "p": [
+            -0.05,
+            0.65,
+            0.045
+          ],
+          "s": [
+            0.02,
+            0.02,
+            0.01
+          ]
+        }
+      ],
+      "interaction": {
+        "kind": "none"
+      },
+      "screen": "none",
+      "tags": [
+        "tcm",
+        "teaching",
+        "decor"
+      ],
+      "model": {
+        "uri": "models/acu-meridian-model.glb",
+        "sha256": "3252e3032b0dfa3072088c7a53607240c76c11f81a767599f17204ca8600cb02",
+        "scale": 1,
+        "license": "MIT",
+        "attribution": {
+          "zh-CN": "AcuCraft 贡献者，在 Blender 中按该设备类型的占位与体素部件程序化建模（tools/blender）",
+          "en": "AcuCraft contributors, modelled procedurally in Blender from the type's footprint and voxel parts (tools/blender)"
+        },
+        "source": {
+          "name": "AcuCraft tools/blender",
+          "url": "https://github.com/psknlr/AcuCraft",
+          "version": "Blender 5.0.1",
+          "changes": "modelled procedurally from the type's footprint and voxel parts"
+        },
+        "use": "cleared"
+      }
+    },
+    {
+      "id": "acu-pulse-cushion",
+      "name": {
+        "zh-CN": "脉枕",
+        "en": "Pulse cushion"
+      },
+      "category": "decor",
+      "description": {
+        "zh-CN": "诊脉时垫在患者腕下的小枕。",
+        "en": "A small firm cushion the patient's wrist rests on while the pulse is taken."
+      },
+      "capabilities": [],
+      "footprint": {
+        "w": 0.22,
+        "d": 0.12,
+        "h": 0.07
+      },
+      "solid": false,
+      "parts": [
+        {
+          "m": "acu-vermilion",
+          "p": [
+            0,
+            0.032,
+            0
+          ],
+          "s": [
+            0.2,
+            0.06,
+            0.11
+          ]
+        },
+        {
+          "m": "acu-brass",
+          "p": [
+            0,
+            0.032,
+            0
+          ],
+          "s": [
+            0.012,
+            0.064,
+            0.114
+          ]
+        }
+      ],
+      "interaction": {
+        "kind": "none"
+      },
+      "screen": "none",
+      "tags": [
+        "tcm",
+        "desk",
+        "decor"
+      ],
+      "model": {
+        "uri": "models/acu-pulse-cushion.glb",
+        "sha256": "69a9b42c17ec64b92b49252f967682657901adda74ae1d782beede5018e1854c",
+        "scale": 1,
+        "offset": [
+          0.0,
+          0.002,
+          0.0
+        ],
+        "license": "MIT",
+        "attribution": {
+          "zh-CN": "AcuCraft 贡献者，在 Blender 中按该设备类型的占位与体素部件程序化建模（tools/blender）",
+          "en": "AcuCraft contributors, modelled procedurally in Blender from the type's footprint and voxel parts (tools/blender)"
+        },
+        "source": {
+          "name": "AcuCraft tools/blender",
+          "url": "https://github.com/psknlr/AcuCraft",
+          "version": "Blender 5.0.1",
+          "changes": "modelled procedurally from the type's footprint and voxel parts"
+        },
+        "use": "cleared"
+      }
+    },
+    {
+      "id": "acu-heat-lamp",
+      "name": {
+        "zh-CN": "特定电磁波治疗灯（TDP）",
+        "en": "Heat lamp (TDP)"
+      },
+      "category": "therapy",
+      "description": {
+        "zh-CN": "带轮支架的远红外治疗灯，许多治疗床旁都有。在这里只是陈设：本版本的接诊不使用它，也不模拟其热效应。",
+        "en": "An infrared heat lamp on a wheeled stand, as stands beside many treatment couches. It is furniture here: no encounter of this release uses it, and nothing is simulated of its heat."
+      },
+      "capabilities": [],
+      "footprint": {
+        "w": 0.55,
+        "d": 0.75,
+        "h": 1.3
+      },
+      "solid": true,
+      "parts": [
+        {
+          "m": "coal",
+          "p": [
+            0,
+            0.05,
+            -0.1
+          ],
+          "s": [
+            0.5,
+            0.04,
+            0.5
+          ]
+        },
+        {
+          "m": "chrome",
+          "p": [
+            0,
+            0.62,
+            -0.2
+          ],
+          "s": [
+            0.04,
+            1.1,
+            0.04
+          ]
+        },
+        {
+          "m": "white",
+          "p": [
+            0,
+            0.86,
+            -0.17
+          ],
+          "s": [
+            0.12,
+            0.16,
+            0.08
+          ]
+        },
+        {
+          "m": "chrome",
+          "p": [
+            0,
+            1.2,
+            0.04
+          ],
+          "s": [
+            0.03,
+            0.03,
+            0.5
+          ]
+        },
+        {
+          "m": "white",
+          "p": [
+            0,
+            1.17,
+            0.29
+          ],
+          "s": [
+            0.19,
+            0.07,
+            0.19
+          ]
+        },
+        {
+          "m": "acu-heat",
+          "p": [
+            0,
+            1.13,
+            0.29
+          ],
+          "s": [
+            0.15,
+            0.012,
+            0.15
+          ]
+        },
+        {
+          "m": "rubber",
+          "p": [
+            0.23,
+            0.02,
+            0.1
+          ],
+          "s": [
+            0.05,
+            0.04,
+            0.05
+          ]
+        },
+        {
+          "m": "rubber",
+          "p": [
+            -0.23,
+            0.02,
+            0.1
+          ],
+          "s": [
+            0.05,
+            0.04,
+            0.05
+          ]
+        },
+        {
+          "m": "rubber",
+          "p": [
+            0.14,
+            0.02,
+            -0.33
+          ],
+          "s": [
+            0.05,
+            0.04,
+            0.05
+          ]
+        },
+        {
+          "m": "rubber",
+          "p": [
+            -0.14,
+            0.02,
+            -0.33
+          ],
+          "s": [
+            0.05,
+            0.04,
+            0.05
+          ]
+        },
+        {
+          "m": "rubber",
+          "p": [
+            0,
+            0.02,
+            0.14
+          ],
+          "s": [
+            0.05,
+            0.04,
+            0.05
+          ]
+        }
+      ],
+      "interaction": {
+        "kind": "none"
+      },
+      "screen": "none",
+      "tags": [
+        "tcm",
+        "lamp",
+        "decor"
+      ],
+      "model": {
+        "uri": "models/acu-heat-lamp.glb",
+        "sha256": "b5eec0b4220c042ed345bfda9f601e5fd16c53dbfb6edafd1d32cf004dbc7c14",
+        "scale": 1,
+        "offset": [
+          0.0,
+          0.0,
+          0.0274
+        ],
+        "license": "MIT",
+        "attribution": {
+          "zh-CN": "AcuCraft 贡献者，在 Blender 中按该设备类型的占位与体素部件程序化建模（tools/blender）",
+          "en": "AcuCraft contributors, modelled procedurally in Blender from the type's footprint and voxel parts (tools/blender)"
+        },
+        "source": {
+          "name": "AcuCraft tools/blender",
+          "url": "https://github.com/psknlr/AcuCraft",
+          "version": "Blender 5.0.1",
+          "changes": "modelled procedurally from the type's footprint and voxel parts"
+        },
+        "use": "cleared"
+      }
+    },
+    {
+      "id": "acu-needling-station-prone",
+      "name": {
+        "zh-CN": "针刺练习台：腰部",
+        "en": "Needling practice station: the lower back"
+      },
+      "category": "teaching",
+      "description": {
+        "zh-CN": "治疗床上俯卧着一具全身模拟人，腰臀部盖一条毛巾，面部置于呼吸孔，双臂置于躯干两侧。练习内容取自本内容包腰痛病例族所用的腰部腧穴——双侧肾俞（BL23）、双侧大肠俞（BL25）和腰阳关（GV3）——按步骤进行：定位并标记腧穴，手卫生并消毒皮肤，进针，留针期间观察模拟人，起针、清点并投入锐器盒。模拟人皮肤上的标记和针随步骤变化。各部位按比例置于模拟人自身的身体上：仅为示意，未经审核，不能作为在人体上定位腧穴的依据。",
+        "en": "A treatment couch with a full-body patient simulator lying face down under a towel, the face over the breathing hole, the arms beside the trunk. The drill uses the lumbar points of this pack's low-back-pain family — BL23 and BL25 on both sides and GV3 — step by step: the points located and marked, hands clean and the skin prepared, the needles in, the simulator watched while they are retained, the needles out, counted and in the sharps box. What stands on its skin follows the step. The sites are placed by proportion on the simulator's own body: a schematic, unreviewed, and no guide to locating a point on a person."
+      },
+      "usage": {
+        "zh-CN": "站在所针刺的一侧，按顺序完成各步骤。练习的是流程和安全要点——一穴一针、起针后逐一清点——不是针下手感，也不是在人体上的腧穴定位。",
+        "en": "Work through the steps in order at the station, from the side you are needling. It rehearses the sequence and its safety points — one needle to a site, every needle counted out — not the feel of tissue, and not the location of a point on a person."
+      },
+      "capabilities": [],
+      "footprint": {
+        "w": 0.7,
+        "d": 1.9,
+        "h": 0.95
+      },
+      "solid": true,
+      "parts": [
+        {
+          "m": "acu-beech",
+          "p": [
+            0.29,
+            0.28,
+            0.8
+          ],
+          "s": [
+            0.06,
+            0.52,
+            0.06
+          ]
+        },
+        {
+          "m": "rubber",
+          "p": [
+            0.29,
+            0.01,
+            0.8
+          ],
+          "s": [
+            0.05,
+            0.02,
+            0.05
+          ]
+        },
+        {
+          "m": "acu-beech",
+          "p": [
+            0.29,
+            0.28,
+            -0.8
+          ],
+          "s": [
+            0.06,
+            0.52,
+            0.06
+          ]
+        },
+        {
+          "m": "rubber",
+          "p": [
+            0.29,
+            0.01,
+            -0.8
+          ],
+          "s": [
+            0.05,
+            0.02,
+            0.05
+          ]
+        },
+        {
+          "m": "acu-beech",
+          "p": [
+            -0.29,
+            0.28,
+            0.8
+          ],
+          "s": [
+            0.06,
+            0.52,
+            0.06
+          ]
+        },
+        {
+          "m": "rubber",
+          "p": [
+            -0.29,
+            0.01,
+            0.8
+          ],
+          "s": [
+            0.05,
+            0.02,
+            0.05
+          ]
+        },
+        {
+          "m": "acu-beech",
+          "p": [
+            -0.29,
+            0.28,
+            -0.8
+          ],
+          "s": [
+            0.06,
+            0.52,
+            0.06
+          ]
+        },
+        {
+          "m": "rubber",
+          "p": [
+            -0.29,
+            0.01,
+            -0.8
+          ],
+          "s": [
+            0.05,
+            0.02,
+            0.05
+          ]
+        },
+        {
+          "m": "acu-beech",
+          "p": [
+            0.29,
+            0.535,
+            0
+          ],
+          "s": [
+            0.03,
+            0.09,
+            1.54
+          ]
+        },
+        {
+          "m": "acu-beech",
+          "p": [
+            -0.29,
+            0.535,
+            0
+          ],
+          "s": [
+            0.03,
+            0.09,
+            1.54
+          ]
+        },
+        {
+          "m": "acu-beech",
+          "p": [
+            0,
+            0.535,
+            0.8
+          ],
+          "s": [
+            0.52,
+            0.09,
+            0.03
+          ]
+        },
+        {
+          "m": "acu-beech",
+          "p": [
+            0,
+            0.535,
+            -0.8
+          ],
+          "s": [
+            0.52,
+            0.09,
+            0.03
+          ]
+        },
+        {
+          "m": "acu-beech",
+          "p": [
+            0,
+            0.2,
+            0
+          ],
+          "s": [
+            0.56,
+            0.02,
+            1.56
+          ]
+        },
+        {
+          "m": "acu-terry",
+          "p": [
+            0,
+            0.27,
+            0.42
+          ],
+          "s": [
+            0.34,
+            0.12,
+            0.3
+          ]
+        },
+        {
+          "m": "acu-jade",
+          "p": [
+            0,
+            0.625,
+            0.175
+          ],
+          "s": [
+            0.7,
+            0.09,
+            1.55
+          ],
+          "name": "mattress"
+        },
+        {
+          "m": "acu-jade",
+          "p": [
+            0.2125,
+            0.625,
+            -0.78
+          ],
+          "s": [
+            0.275,
+            0.09,
+            0.34
+          ]
+        },
+        {
+          "m": "acu-jade",
+          "p": [
+            -0.2125,
+            0.625,
+            -0.78
+          ],
+          "s": [
+            0.275,
+            0.09,
+            0.34
+          ]
+        },
+        {
+          "m": "acu-jade",
+          "p": [
+            0,
+            0.625,
+            -0.9
+          ],
+          "s": [
+            0.15,
+            0.09,
+            0.1
+          ]
+        },
+        {
+          "m": "acu-jade",
+          "p": [
+            0,
+            0.625,
+            -0.645
+          ],
+          "s": [
+            0.15,
+            0.09,
+            0.07
+          ]
+        },
+        {
+          "m": "coal",
+          "p": [
+            0,
+            0.6,
+            -0.765
+          ],
+          "s": [
+            0.15,
+            0.04,
+            0.17
+          ]
+        },
+        {
+          "m": "paper",
+          "p": [
+            0,
+            0.6715,
+            0.19
+          ],
+          "s": [
+            0.56,
+            0.003,
+            1.5
+          ]
+        }
+      ],
+      "interaction": {
+        "kind": "device",
+        "prompt": {
+          "zh-CN": "E · 针刺练习",
+          "en": "E · Needling practice"
+        }
+      },
+      "screen": "none",
+      "tags": [
+        "simulation",
+        "acupuncture",
+        "tcm",
+        "trainer",
+        "teaching"
+      ],
+      "interactionPoints": [
+        {
+          "x": 0.75,
+          "z": 0.25
+        },
+        {
+          "x": -0.75,
+          "z": 0.25
+        }
+      ],
+      "manikin": {
+        "posture": "prone",
+        "cover": "towels",
+        "breathing": "both",
+        "x": 0,
+        "z": -0.15,
+        "y": 0.67,
+        "rot": 0,
+        "appearance": {
+          "skin": "#dcb999",
+          "hair": "#2b2420",
+          "build": "average",
+          "presentation": "neutral",
+          "hairStyle": "bun"
+        }
+      },
+      "behavior": {
+        "initial": "ready",
+        "states": {
+          "ready": {
+            "name": {
+              "zh-CN": "待练习：模拟人已就位并遮盖",
+              "en": "ready: the simulator lies covered"
+            },
+            "look": {
+              "layers": []
+            }
+          },
+          "located": {
+            "name": {
+              "zh-CN": "腧穴已定位并标记",
+              "en": "points located and marked"
+            },
+            "look": {
+              "layers": [
+                "marks"
+              ]
+            }
+          },
+          "prepared": {
+            "name": {
+              "zh-CN": "已手卫生、开封针具并消毒皮肤",
+              "en": "hands clean, pack opened, skin prepared"
+            },
+            "look": {
+              "layers": [
+                "marks"
+              ]
+            }
+          },
+          "needled": {
+            "name": {
+              "zh-CN": "已进针",
+              "en": "needles in"
+            },
+            "look": {
+              "layers": [
+                "marks",
+                "needles"
+              ]
+            }
+          },
+          "retained": {
+            "name": {
+              "zh-CN": "留针：已观察并询问针感",
+              "en": "needles retained: the simulator watched, the response asked about"
+            },
+            "look": {
+              "layers": [
+                "marks",
+                "needles",
+                "timer"
+              ]
+            }
+          },
+          "removed": {
+            "name": {
+              "zh-CN": "已起针、清点并投入锐器盒",
+              "en": "needles out, counted and in the sharps box"
+            },
+            "look": {
+              "layers": [
+                "marks"
+              ]
+            }
+          }
+        },
+        "operations": {
+          "locate_points": {
+            "name": {
+              "zh-CN": "按体表标志和骨度分寸逐一定位腧穴并做标记",
+              "en": "Locate each point from its landmarks and proportional measurement, and mark it"
+            },
+            "from": [
+              "ready"
+            ],
+            "to": "located",
+            "durationSeconds": 120,
+            "roles": [
+              "clinician",
+              "attending"
+            ]
+          },
+          "prepare": {
+            "name": {
+              "zh-CN": "手卫生，在托盘上开封针具，逐一消毒标记处皮肤",
+              "en": "Clean your hands, open a sealed pack onto the tray, and prepare the skin at each mark"
+            },
+            "from": [
+              "located"
+            ],
+            "to": "prepared",
+            "durationSeconds": 90,
+            "roles": [
+              "clinician",
+              "attending"
+            ]
+          },
+          "insert_needles": {
+            "name": {
+              "zh-CN": "在每个已消毒的部位各进一针，按计划的深度和方向",
+              "en": "Insert a needle at each prepared site, one needle to a site, to the planned depth and direction"
+            },
+            "from": [
+              "prepared"
+            ],
+            "to": "needled",
+            "durationSeconds": 120,
+            "roles": [
+              "clinician",
+              "attending"
+            ]
+          },
+          "check_response": {
+            "name": {
+              "zh-CN": "观察模拟人，逐针询问针感；设定留针计时",
+              "en": "Watch the simulator and ask about the sensation at each needle; set the timer for the retention"
+            },
+            "from": [
+              "needled"
+            ],
+            "to": "retained",
+            "durationSeconds": 60,
+            "roles": [
+              "clinician",
+              "attending"
+            ]
+          },
+          "remove_needles": {
+            "name": {
+              "zh-CN": "逐一起针并按压针孔，清点针数，投入锐器盒",
+              "en": "Withdraw every needle, press each site, count the needles and drop them into the sharps box"
+            },
+            "from": [
+              "needled",
+              "retained"
+            ],
+            "to": "removed",
+            "durationSeconds": 90,
+            "roles": [
+              "clinician",
+              "attending"
+            ]
+          },
+          "reset": {
+            "name": {
+              "zh-CN": "擦去标记，为下一位学员盖好模拟人",
+              "en": "Wipe the marks off and cover the simulator for the next learner"
+            },
+            "from": [
+              "located",
+              "prepared",
+              "removed"
+            ],
+            "to": "ready",
+            "durationSeconds": 30,
+            "roles": [
+              "clinician",
+              "attending",
+              "nurse"
+            ]
+          }
+        }
+      },
+      "model": {
+        "uri": "models/acu-needling-station-prone.glb",
+        "sha256": "f1ba891da565edc2b127c13074aa75c3ad9394a5211ef2b2b30b2cad99c0165f",
+        "scale": 1,
+        "offset": [
+          0.0,
+          0.0,
+          0.0024
+        ],
+        "license": "MIT",
+        "attribution": {
+          "zh-CN": "AcuCraft 贡献者，在 Blender 中按该设备类型的占位与体素部件程序化建模（tools/blender）",
+          "en": "AcuCraft contributors, modelled procedurally in Blender from the type's footprint and voxel parts (tools/blender)"
+        },
+        "source": {
+          "name": "AcuCraft tools/blender",
+          "url": "https://github.com/psknlr/AcuCraft",
+          "version": "Blender 5.0.1",
+          "changes": "modelled procedurally from the type's footprint and voxel parts"
+        },
+        "use": "cleared"
+      }
+    },
+    {
+      "id": "acu-needling-station-supine",
+      "name": {
+        "zh-CN": "针刺练习台：四肢",
+        "en": "Needling practice station: the limbs"
+      },
+      "category": "teaching",
+      "description": {
+        "zh-CN": "治疗床上仰卧着一具全身模拟人，盖两条毛巾，头枕小枕，双臂置于躯干两侧、掌心向上。练习内容取自本内容包恶心与失眠病例族所用的四肢腧穴——双侧内关（PC6）、足三里（ST36）和三阴交（SP6）——按步骤进行：定位并标记腧穴，手卫生并消毒皮肤，进针，留针期间观察模拟人，起针、清点并投入锐器盒。模拟人皮肤上的标记和针随步骤变化。各部位按比例置于模拟人自身的身体上：仅为示意，未经审核，不能作为在人体上定位腧穴的依据。",
+        "en": "A treatment couch with a full-body patient simulator lying on its back under towels, the head on a pillow, the arms beside the trunk with the palms up. The drill uses limb points of this pack's nausea and insomnia families — PC6, ST36 and SP6 on both sides — step by step: the points located and marked, hands clean and the skin prepared, the needles in, the simulator watched while they are retained, the needles out, counted and in the sharps box. What stands on its skin follows the step. The sites are placed by proportion on the simulator's own body: a schematic, unreviewed, and no guide to locating a point on a person."
+      },
+      "usage": {
+        "zh-CN": "站在所针刺的一侧，按顺序完成各步骤。练习的是流程和安全要点——一穴一针、起针后逐一清点——不是针下手感，也不是在人体上的腧穴定位。",
+        "en": "Work through the steps in order at the station, from the side you are needling. It rehearses the sequence and its safety points — one needle to a site, every needle counted out — not the feel of tissue, and not the location of a point on a person."
+      },
+      "capabilities": [],
+      "footprint": {
+        "w": 0.7,
+        "d": 1.9,
+        "h": 0.95
+      },
+      "solid": true,
+      "parts": [
+        {
+          "m": "acu-beech",
+          "p": [
+            0.29,
+            0.28,
+            0.8
+          ],
+          "s": [
+            0.06,
+            0.52,
+            0.06
+          ]
+        },
+        {
+          "m": "rubber",
+          "p": [
+            0.29,
+            0.01,
+            0.8
+          ],
+          "s": [
+            0.05,
+            0.02,
+            0.05
+          ]
+        },
+        {
+          "m": "acu-beech",
+          "p": [
+            0.29,
+            0.28,
+            -0.8
+          ],
+          "s": [
+            0.06,
+            0.52,
+            0.06
+          ]
+        },
+        {
+          "m": "rubber",
+          "p": [
+            0.29,
+            0.01,
+            -0.8
+          ],
+          "s": [
+            0.05,
+            0.02,
+            0.05
+          ]
+        },
+        {
+          "m": "acu-beech",
+          "p": [
+            -0.29,
+            0.28,
+            0.8
+          ],
+          "s": [
+            0.06,
+            0.52,
+            0.06
+          ]
+        },
+        {
+          "m": "rubber",
+          "p": [
+            -0.29,
+            0.01,
+            0.8
+          ],
+          "s": [
+            0.05,
+            0.02,
+            0.05
+          ]
+        },
+        {
+          "m": "acu-beech",
+          "p": [
+            -0.29,
+            0.28,
+            -0.8
+          ],
+          "s": [
+            0.06,
+            0.52,
+            0.06
+          ]
+        },
+        {
+          "m": "rubber",
+          "p": [
+            -0.29,
+            0.01,
+            -0.8
+          ],
+          "s": [
+            0.05,
+            0.02,
+            0.05
+          ]
+        },
+        {
+          "m": "acu-beech",
+          "p": [
+            0.29,
+            0.535,
+            0
+          ],
+          "s": [
+            0.03,
+            0.09,
+            1.54
+          ]
+        },
+        {
+          "m": "acu-beech",
+          "p": [
+            -0.29,
+            0.535,
+            0
+          ],
+          "s": [
+            0.03,
+            0.09,
+            1.54
+          ]
+        },
+        {
+          "m": "acu-beech",
+          "p": [
+            0,
+            0.535,
+            0.8
+          ],
+          "s": [
+            0.52,
+            0.09,
+            0.03
+          ]
+        },
+        {
+          "m": "acu-beech",
+          "p": [
+            0,
+            0.535,
+            -0.8
+          ],
+          "s": [
+            0.52,
+            0.09,
+            0.03
+          ]
+        },
+        {
+          "m": "acu-beech",
+          "p": [
+            0,
+            0.2,
+            0
+          ],
+          "s": [
+            0.56,
+            0.02,
+            1.56
+          ]
+        },
+        {
+          "m": "acu-terry",
+          "p": [
+            0,
+            0.27,
+            0.42
+          ],
+          "s": [
+            0.34,
+            0.12,
+            0.3
+          ]
+        },
+        {
+          "m": "acu-jade",
+          "p": [
+            0,
+            0.625,
+            0.175
+          ],
+          "s": [
+            0.7,
+            0.09,
+            1.55
+          ],
+          "name": "mattress"
+        },
+        {
+          "m": "acu-jade",
+          "p": [
+            0.2125,
+            0.625,
+            -0.78
+          ],
+          "s": [
+            0.275,
+            0.09,
+            0.34
+          ]
+        },
+        {
+          "m": "acu-jade",
+          "p": [
+            -0.2125,
+            0.625,
+            -0.78
+          ],
+          "s": [
+            0.275,
+            0.09,
+            0.34
+          ]
+        },
+        {
+          "m": "acu-jade",
+          "p": [
+            0,
+            0.625,
+            -0.9
+          ],
+          "s": [
+            0.15,
+            0.09,
+            0.1
+          ]
+        },
+        {
+          "m": "acu-jade",
+          "p": [
+            0,
+            0.625,
+            -0.645
+          ],
+          "s": [
+            0.15,
+            0.09,
+            0.07
+          ]
+        },
+        {
+          "m": "coal",
+          "p": [
+            0,
+            0.6,
+            -0.765
+          ],
+          "s": [
+            0.15,
+            0.04,
+            0.17
+          ]
+        },
+        {
+          "m": "paper",
+          "p": [
+            0,
+            0.6715,
+            0.19
+          ],
+          "s": [
+            0.56,
+            0.003,
+            1.5
+          ]
+        }
+      ],
+      "interaction": {
+        "kind": "device",
+        "prompt": {
+          "zh-CN": "E · 针刺练习",
+          "en": "E · Needling practice"
+        }
+      },
+      "screen": "none",
+      "tags": [
+        "simulation",
+        "acupuncture",
+        "tcm",
+        "trainer",
+        "teaching"
+      ],
+      "interactionPoints": [
+        {
+          "x": 0.75,
+          "z": 0.25
+        },
+        {
+          "x": -0.75,
+          "z": 0.25
+        }
+      ],
+      "manikin": {
+        "posture": "lying",
+        "cover": "towels",
+        "breathing": "both",
+        "x": 0,
+        "z": -0.05,
+        "y": 0.67,
+        "rot": 0,
+        "appearance": {
+          "skin": "#dcb999",
+          "hair": "#2b2420",
+          "build": "average",
+          "presentation": "neutral",
+          "hairStyle": "short"
+        }
+      },
+      "behavior": {
+        "initial": "ready",
+        "states": {
+          "ready": {
+            "name": {
+              "zh-CN": "待练习：模拟人已就位并遮盖",
+              "en": "ready: the simulator lies covered"
+            },
+            "look": {
+              "layers": []
+            }
+          },
+          "located": {
+            "name": {
+              "zh-CN": "腧穴已定位并标记",
+              "en": "points located and marked"
+            },
+            "look": {
+              "layers": [
+                "marks"
+              ]
+            }
+          },
+          "prepared": {
+            "name": {
+              "zh-CN": "已手卫生、开封针具并消毒皮肤",
+              "en": "hands clean, pack opened, skin prepared"
+            },
+            "look": {
+              "layers": [
+                "marks"
+              ]
+            }
+          },
+          "needled": {
+            "name": {
+              "zh-CN": "已进针",
+              "en": "needles in"
+            },
+            "look": {
+              "layers": [
+                "marks",
+                "needles"
+              ]
+            }
+          },
+          "retained": {
+            "name": {
+              "zh-CN": "留针：已观察并询问针感",
+              "en": "needles retained: the simulator watched, the response asked about"
+            },
+            "look": {
+              "layers": [
+                "marks",
+                "needles",
+                "timer"
+              ]
+            }
+          },
+          "removed": {
+            "name": {
+              "zh-CN": "已起针、清点并投入锐器盒",
+              "en": "needles out, counted and in the sharps box"
+            },
+            "look": {
+              "layers": [
+                "marks"
+              ]
+            }
+          }
+        },
+        "operations": {
+          "locate_points": {
+            "name": {
+              "zh-CN": "按体表标志和骨度分寸逐一定位腧穴并做标记",
+              "en": "Locate each point from its landmarks and proportional measurement, and mark it"
+            },
+            "from": [
+              "ready"
+            ],
+            "to": "located",
+            "durationSeconds": 120,
+            "roles": [
+              "clinician",
+              "attending"
+            ]
+          },
+          "prepare": {
+            "name": {
+              "zh-CN": "手卫生，在托盘上开封针具，逐一消毒标记处皮肤",
+              "en": "Clean your hands, open a sealed pack onto the tray, and prepare the skin at each mark"
+            },
+            "from": [
+              "located"
+            ],
+            "to": "prepared",
+            "durationSeconds": 90,
+            "roles": [
+              "clinician",
+              "attending"
+            ]
+          },
+          "insert_needles": {
+            "name": {
+              "zh-CN": "在每个已消毒的部位各进一针，按计划的深度和方向",
+              "en": "Insert a needle at each prepared site, one needle to a site, to the planned depth and direction"
+            },
+            "from": [
+              "prepared"
+            ],
+            "to": "needled",
+            "durationSeconds": 120,
+            "roles": [
+              "clinician",
+              "attending"
+            ]
+          },
+          "check_response": {
+            "name": {
+              "zh-CN": "观察模拟人，逐针询问针感；设定留针计时",
+              "en": "Watch the simulator and ask about the sensation at each needle; set the timer for the retention"
+            },
+            "from": [
+              "needled"
+            ],
+            "to": "retained",
+            "durationSeconds": 60,
+            "roles": [
+              "clinician",
+              "attending"
+            ]
+          },
+          "remove_needles": {
+            "name": {
+              "zh-CN": "逐一起针并按压针孔，清点针数，投入锐器盒",
+              "en": "Withdraw every needle, press each site, count the needles and drop them into the sharps box"
+            },
+            "from": [
+              "needled",
+              "retained"
+            ],
+            "to": "removed",
+            "durationSeconds": 90,
+            "roles": [
+              "clinician",
+              "attending"
+            ]
+          },
+          "reset": {
+            "name": {
+              "zh-CN": "擦去标记，为下一位学员盖好模拟人",
+              "en": "Wipe the marks off and cover the simulator for the next learner"
+            },
+            "from": [
+              "located",
+              "prepared",
+              "removed"
+            ],
+            "to": "ready",
+            "durationSeconds": 30,
+            "roles": [
+              "clinician",
+              "attending",
+              "nurse"
+            ]
+          }
+        }
+      },
+      "model": {
+        "uri": "models/acu-needling-station-supine.glb",
+        "sha256": "331eee3d9c8a8588adea564c2524e51df3aeb58b7ad0efe569d74f026f55e2f7",
+        "scale": 1,
+        "offset": [
+          0.0,
+          0.0,
+          0.0024
+        ],
+        "license": "MIT",
+        "attribution": {
+          "zh-CN": "AcuCraft 贡献者，在 Blender 中按该设备类型的占位与体素部件程序化建模（tools/blender）",
+          "en": "AcuCraft contributors, modelled procedurally in Blender from the type's footprint and voxel parts (tools/blender)"
+        },
+        "source": {
+          "name": "AcuCraft tools/blender",
+          "url": "https://github.com/psknlr/AcuCraft",
+          "version": "Blender 5.0.1",
+          "changes": "modelled procedurally from the type's footprint and voxel parts"
+        },
+        "use": "cleared"
+      }
+    }
+  ]
+}

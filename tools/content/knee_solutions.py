@@ -5,14 +5,9 @@ for the variant's patient, rounded to 0.01 cm.
 """
 import json, os, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
+from lib import Trajectory as T, finish
 FAM = os.path.join(HERE, "..", "..", "content", "families", "sg-knee-oa")
-
-class T:
-    def __init__(self, prefix):
-        self.steps = []; self.prefix = prefix
-    def __call__(self, action, actor="practitioner"):
-        self.steps.append({"requestId": f"{self.prefix}-{len(self.steps)+1:03d}", "actor": actor, "patient": "patient", "action": action})
-        return self
 
 def ask(t, *ids):
     for i in ids: t({"type": "ask", "itemId": i})
@@ -22,9 +17,12 @@ def lm(t, *ids, side="right", region="knee-leg"):
     for i in ids: t({"type": "identify_landmark", "region": region, "side": side, "landmark": i})
 def mark(t, target, u, v, method, side="right", region="knee-leg"):
     t({"type": "mark_point", "target": target, "region": region, "side": side, "at": {"u": u, "v": v}, "method": method})
-def needle(t, nid, mark_id, depth, angle=0, az=0):
+def needle(t, nid, mark_id, depth, angle=0, az=0, work=None, ask=True):
+    """One needle: in, worked if the response is sought there (`work`), and the patient asked what she feels at it."""
     t({"type": "pick_up", "object": nid})
     t({"type": "insert_needle", "needleId": nid, "mark": mark_id, "angleDeg": angle, "azimuthDeg": az, "depthCm": depth})
+    if work: t.work(nid, work)
+    if ask: t.feel(nid)
 
 EXPLAIN = ("I'd suggest a course of acupuncture: five fine, single-use sterile needles around your right knee and leg, left in for about twenty minutes. "
   "It may ease the pain; the evidence is mixed — the UK NICE guideline advises against acupuncture for osteoarthritis, while the American College of Rheumatology guideline conditionally recommends it. "
@@ -49,14 +47,10 @@ def treatment(t, points, marks, needles, plan_rationale, alternatives, burning=T
     lm(t, "st35-depression", "medial-knee-eye", "ankle-anterior-midpoint", "lateral-malleolus", "medial-condyle-inferior")
     t({"type": "measure", "region": "knee-leg", "side": "right", "segment": "seg.knee-ankle-lateral"})
     for (target, u, v, method) in marks: mark(t, target, u, v, method)
-    t({"type": "move", "to": "prep-area"})
-    t({"type": "hand_hygiene"})
-    t({"type": "fetch", "item": "pack-a"})
-    t({"type": "move", "to": "treatment-room"})
+    t.fetch_pack("pack-a")
     t({"type": "prepare_site", "region": "knee-leg", "side": "right"})
     t({"type": "open_pack", "packId": "pack-a"})
-    for args in needles: needle(t, *args)
-    t({"type": "adjust_needle", "needleId": "pack-a.3", "technique": "lift-thrust"})
+    for args in needles: needle(t, *args[:5], **(args[5] if len(args) > 5 else {}))
     t({"type": "monitor"})
     used = [n[0] for n in needles]
     if burning:
@@ -78,7 +72,7 @@ def treatment(t, points, marks, needles, plan_rationale, alternatives, burning=T
     t({"type": "count_needles"})
     t({"type": "explain", "topics": ["aftercare"], "text": "Afterwards rest the knee for the day; a little soreness or a small bruise can happen. Keep up the exercises and call us if anything worries you."})
 
-def record(points, count, adverse, pattern="Wind-cold-damp Bi (cold-damp predominant)"):
+def record(points, count, adverse, pattern="Wind-cold-damp Bi (cold-damp predominant)", depth="0.8–2.0 cm", sought="deqi at ST36 and SP9 (lift and thrust), at the knee eyes (rotation); the Ashi needle not worked", response="Tolerated; deqi at ST36."):
     return {"type": "document", "record": {
         "presentingComplaint": "Right knee pain for eight months.",
         "assessment": "Mild medial compartment osteoarthritis of the right knee (X-ray March 2025); no red flags.",
@@ -86,8 +80,8 @@ def record(points, count, adverse, pattern="Wind-cold-damp Bi (cold-damp predomi
         "rationale": "Local and distal points for knee Bi; guideline positions discussed (NICE NG226 against, ACR/AF 2019 conditional for).",
         "consent": "Verbal consent after explanation of procedure, risks, alternatives and the evidence.",
         "pointsUsed": points,
-        "needling": {"needleType": "0.25 × 40 mm single-use sterile filiform", "needleCount": count, "depth": "0.8–2.0 cm", "responseSought": "deqi at ST36", "stimulation": "even", "retentionMinutes": 20},
-        "response": "Tolerated; deqi at ST36.",
+        "needling": {"needleType": "0.25 × 40 mm single-use sterile filiform", "needleCount": count, "depth": depth, "responseSought": sought, "stimulation": "even", "retentionMinutes": 20},
+        "response": response,
         "adverseEvents": adverse,
         "advice": "Rest the knee today; continue exercises.",
         "followUp": "Review in one week."}}
@@ -107,11 +101,15 @@ ALTS = ["Exercise therapy and weight management (first line)", "Physiotherapy", 
 # ---- base -----------------------------------------------------------------------------------------------
 base = T("kb")
 consult(base)
-base({"type": "assess", "diagnoses": ["knee-osteoarthritis"], "pattern": "wind-cold-damp-bi", "redFlags": [], "rationale": "Gradual mechanical medial knee pain, short morning stiffness, joint-line tenderness, X-ray changes; worse with cold and damp, heaviness, pale tongue with a white greasy coat."})
+# the differentiation names the findings it rests on: worse in cold and damp, eased by warmth, heavy (the weather
+# question); feels the cold; morning stiffness; a pale tongue with a white greasy coat; a deep, slow, slippery pulse
+BI_EVIDENCE = ["hx-weather", "hx-general-tcm", "hx-pattern", "ex-tongue", "ex-pulse-tcm"]
+base({"type": "assess", "diagnoses": ["knee-osteoarthritis"], "pattern": "wind-cold-damp-bi", "patternEvidence": BI_EVIDENCE, "redFlags": [], "rationale": "Gradual mechanical medial knee pain, short morning stiffness, joint-line tenderness, X-ray changes; worse with cold and damp, heaviness, pale tongue with a white greasy coat."})
 base({"type": "decide", "disposition": "treat", "rationale": "No red flags; she wants to try acupuncture after hearing the evidence and alternatives."})
 pts = [{"point": "ST35", "side": "right"}, {"point": "EX-LE4", "side": "right"}, {"point": "ST36", "side": "right"}, {"point": "SP9", "side": "right"}, {"ashi": "ashi-medial-joint-line"}]
 marks = [({"point": "ST35", "side": "right"}, 2.24, -1.42, "landmark"), ({"point": "EX-LE4", "side": "right"}, -2.24, -1.42, "landmark"), ({"point": "ST36", "side": "right"}, 2.01, -8.01, "proportional"), ({"point": "SP9", "side": "right"}, -6.62, -5.97, "landmark"), ({"ashi": "ashi-medial-joint-line"}, -4.6, -0.8, "palpation")]
-needles = [("pack-a.1", "m1", 1.5, 30, 270), ("pack-a.2", "m2", 1.5, 30, 90), ("pack-a.3", "m3", 2.0), ("pack-a.4", "m4", 1.8), ("pack-a.5", "m5", 0.8)]
+# the knee eyes are rotated, ST36 and SP9 lifted and thrust; the shallow Ashi needle at the joint line is left as it is
+needles = [("pack-a.1", "m1", 1.5, 30, 270, {"work": "rotate"}), ("pack-a.2", "m2", 1.5, 30, 90, {"work": "rotate"}), ("pack-a.3", "m3", 2.0, 0, 0, {"work": "lift-thrust"}), ("pack-a.4", "m4", 1.8, 0, 0, {"work": "lift-thrust"}), ("pack-a.5", "m5", 0.8)]
 treatment(base, pts, marks, needles, "Local knee points (the knee eyes, SP9, the Ashi point) with ST36 for cold-damp Bi.", ALTS)
 base(record(pts, 5, "Burning at the Ashi needle after 6 minutes: needle removed, settled."))
 base({"type": "end_visit"})
@@ -120,13 +118,14 @@ follow_up(base)
 # ---- anticoagulated -------------------------------------------------------------------------------------
 ac = T("ka")
 consult(ac, records=("inv-xray", "inv-inr"))
-ac({"type": "assess", "diagnoses": ["knee-osteoarthritis"], "pattern": "wind-cold-damp-bi", "redFlags": [], "rationale": "Osteoarthritis as before; on warfarin with INR 2.6 in range; varicose veins over the medial right knee and upper calf."})
+ac({"type": "assess", "diagnoses": ["knee-osteoarthritis"], "pattern": "wind-cold-damp-bi", "patternEvidence": BI_EVIDENCE, "redFlags": [], "rationale": "Osteoarthritis as before; on warfarin with INR 2.6 in range; varicose veins over the medial right knee and upper calf."})
 ac({"type": "decide", "disposition": "treat-modified", "rationale": "INR in range and no bleeding history beyond easy bruising: fewer points, none over the varicosities, firm pressure after removal."})
 pts_ac = [{"point": "ST35", "side": "right"}, {"point": "EX-LE4", "side": "right"}, {"point": "ST36", "side": "right"}, {"ashi": "ashi-medial-joint-line"}]
 marks_ac = [({"point": "ST35", "side": "right"}, 2.24, -1.42, "landmark"), ({"point": "EX-LE4", "side": "right"}, -2.24, -1.42, "landmark"), ({"point": "ST36", "side": "right"}, 2.01, -8.01, "proportional"), ({"ashi": "ashi-medial-joint-line"}, -4.6, -0.8, "palpation")]
+# anticoagulated: no needle is worked — she is asked what she feels at each, and that is recorded as it is
 needles_ac = [("pack-a.1", "m1", 1.2, 30, 270), ("pack-a.2", "m2", 1.2, 30, 90), ("pack-a.3", "m3", 1.8), ("pack-a.4", "m4", 0.6)]
 treatment(ac, pts_ac, marks_ac, needles_ac, "Fewer, shallower points away from the varicose veins because she is anticoagulated.", ALTS, burning=True, pressure=("pack-a.1", "pack-a.2", "pack-a.3"))
-ac(record(pts_ac, 4, "Burning at the Ashi needle: removed. Firm pressure after every removal (warfarin)."))
+ac(record(pts_ac, 4, "Burning at the Ashi needle: removed. Firm pressure after every removal (warfarin).", depth="0.6–1.8 cm", sought="none: no needle worked (anticoagulated); she was asked what she felt at each", response="Tolerated."))
 ac({"type": "end_visit"})
 follow_up(ac, decision="treat-modified")
 
@@ -149,3 +148,4 @@ for name, t in [("base", base), ("anticoagulated", ac), ("hot-knee", hk)]:
     json.dump(t.steps, open(path, "w"), indent=2, ensure_ascii=False)
     open(path, "a").write("\n")
     print(name, len(t.steps))
+finish("sg-knee-oa")

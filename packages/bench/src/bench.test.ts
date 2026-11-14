@@ -1,12 +1,8 @@
 import { describe, expect, it } from "vitest";
-import type Anthropic from "@anthropic-ai/sdk";
 import { replayLog, digest } from "@acucraft/core";
 import { loadContentPack, requireScenario, scenarioIds } from "./content.js";
 import { runEpisode } from "./runner.js";
-import { protocolAgent } from "./agents/protocol.js";
-import { referenceAgent } from "./agents/reference.js";
-import { claudeAgent } from "./agents/claude.js";
-import { actionCatalogue } from "./agents/catalogue.js";
+import { protocolAgent, referenceAgent } from "@acucraft/agent";
 import { clusterBootstrap, wilson } from "./stats.js";
 import { runSuite, SuiteSchema, suiteMarkdown } from "./suite.js";
 import { encounterHtml } from "./viewer.js";
@@ -46,14 +42,22 @@ describe("baseline agents", () => {
 });
 
 describe("encounter viewer", () => {
-  it("draws a chart per needled region and side, and the timeline", async () => {
+  it("draws the floor plan with the walks, a chart per needled region and side, the evidence links and the timeline", async () => {
     const sc = requireScenario(pack, "sg-chemo-nausea/base");
     const e = await runEpisode(sc, referenceAgent(sc), { seed: 1 });
     const html = encounterHtml(sc, e.state, e.report);
-    expect(html.match(/<svg /g)?.length).toBe(4); // forearm and leg, left and right
+    expect(html.match(/<svg /g)?.length).toBe(5); // the floor plan; forearm and leg, left and right
     expect(html).toMatch(/<title>Encounter viewer<\/title>/);
     expect(html).toContain("prefers-color-scheme: dark");
     expect(html.match(/<tr class=/g)!.length).toBe(e.state.attempts.length);
+    // every walk is a line on the plan; the patient's is dashed
+    expect(html.match(/<polyline points="[^"]+" fill="none" stroke="var\(--(accent|warn)\)" stroke-width="1.5"/g)!.length).toBe(e.state.walks.length);
+    expect(html).toMatch(/stroke-dasharray="6 4"><title>practitioner: [\d.]+ m at minute [\d.]+, with the patient/);
+    // the evidence links: the pattern's named findings and their signs; every needle's field, evidence and record
+    expect(html).toMatch(/Pattern differentiation:<\/b> <code>stomach-qi-rebellion<\/code>[^<]*<span class="pill good">rests on its evidence/);
+    expect(html).toMatch(/<td>nausea-vomiting<\/td><td>key<\/td><td><code>hx-nausea<\/code>/);
+    expect(html.match(/<span class="pill good">supported<\/span>/g)!.length).toBe(4);
+    expect(html.match(/<td>(history|exam|record|vitals|observation|sensation|needle-feel)<\/td>/g)!.length).toBe(e.state.evidence.length);
   });
 });
 
@@ -76,60 +80,5 @@ describe("statistics", () => {
     expect(a.families).toBe(3);
     expect(a.ci![0]).toBeLessThan(a.p!);
     expect(a.ci![1]).toBeGreaterThan(a.p!);
-  });
-});
-
-describe("Claude agent loop (mock client: no network)", () => {
-  it("uses lookup and view without simulated time, acts once per step, pairs every tool result, and records outputs", async () => {
-    const sc = requireScenario(pack, "sg-knee-oa/hot-knee");
-    const script: Anthropic.Beta.BetaContentBlock[][] = [
-      [{ type: "tool_use", id: "u1", name: "lookup", input: { topic: "vocabulary" }, caller: { type: "direct" } } as never],
-      [{ type: "tool_use", id: "u2", name: "act", input: { action: { type: "ask", text: "What brings you in today?" } }, caller: { type: "direct" } } as never],
-      [{ type: "text", text: "Let me think.", citations: null } as never],
-      [{ type: "tool_use", id: "u3", name: "view", input: {}, caller: { type: "direct" } } as never],
-      [{ type: "tool_use", id: "u4", name: "act", input: { action: { type: "refer", to: "emergency", urgency: "emergency", reason: "hot swollen knee with fever" } }, caller: { type: "direct" } } as never],
-      [{ type: "tool_use", id: "u5", name: "act", input: { action: { type: "end_visit" } }, caller: { type: "direct" } } as never],
-      [{ type: "tool_use", id: "u6", name: "act", input: { action: { type: "finish_encounter" } }, caller: { type: "direct" } } as never],
-    ];
-    const seen: Anthropic.Beta.MessageCreateParams[] = [];
-    let i = 0;
-    const client = {
-      beta: {
-        messages: {
-          create: async (params: Anthropic.Beta.MessageCreateParams) => {
-            seen.push(JSON.parse(JSON.stringify(params)));
-            const content = script[i++]!;
-            return { id: `m${i}`, type: "message", role: "assistant", model: params.model, content, stop_reason: content[0]!.type === "tool_use" ? "tool_use" : "end_turn", stop_details: null, usage: { input_tokens: 1, output_tokens: 1 } };
-          },
-        },
-      },
-    } as unknown as Anthropic;
-    const agent = claudeAgent({ client });
-    const e = await runEpisode(sc, agent, { seed: 1 });
-    expect(e.stopReason).toBe("finished");
-    expect(e.log.requests.map((r) => r.action.type)).toEqual(["ask", "refer", "end_visit", "finish_encounter"]);
-    // defaults: current model, adaptive thinking (omitted), explicit effort, refusal fallback, no forced tool choice
-    expect(seen[0]!.model).toBe("claude-opus-5-5");
-    expect(seen[0]!.thinking).toBeUndefined();
-    expect(seen[0]!.output_config?.effort).toBe("high");
-    expect(seen[0]!.tool_choice).toEqual({ type: "auto", disable_parallel_tool_use: true });
-    expect((seen[0] as { fallbacks?: unknown }).fallbacks).toBe("default");
-    // every tool_use is answered by a tool_result in the next request, and history is only appended to
-    for (let k = 1; k < seen.length; k++) {
-      const prev = seen[k - 1]!.messages;
-      expect(seen[k]!.messages.slice(0, prev.length)).toEqual(prev);
-      const assistant = seen[k]!.messages[prev.length]!;
-      const reply = seen[k]!.messages[prev.length + 1]!;
-      const use = (assistant.content as { type: string; id?: string }[]).find((b) => b.type === "tool_use");
-      if (use) expect((reply.content as { type: string; tool_use_id?: string }[])[0]!.tool_use_id).toBe(use.id);
-    }
-    expect((agent.transcript!() as unknown[]).length).toBe(script.length);
-    expect(e.log.meta?.transcript).toBeDefined();
-    expect(e.report.primary.pathway).toBe("p-emergency-referral");
-  });
-
-  it("the action catalogue lists every action type", () => {
-    const text = actionCatalogue();
-    for (const t of ["ask", "insert_needle", "assign_task", "count_needles", "finish_encounter"]) expect(text).toMatch(new RegExp(`^- ${t}\\b`, "m"));
   });
 });

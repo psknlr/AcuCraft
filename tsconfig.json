@@ -17,8 +17,12 @@
     "baseUrl": ".",
     "paths": {
       "@clinicalcraft/core": ["./.deps/clinicalcraft/packages/core/src/index.ts"],
+      "@clinicalcraft/world": ["./.deps/clinicalcraft/packages/world/src/index.ts"],
       "@acucraft/core": ["./packages/core/src/index.ts"],
-      "@acucraft/bench": ["./packages/bench/src/index.ts"]
+      "@acucraft/agent": ["./packages/agent/src/index.ts"],
+      "@acucraft/agent/node": ["./packages/agent/src/node/index.ts"],
+      "@acucraft/bench": ["./packages/bench/src/index.ts"],
+      "@acucraft/mcp": ["./packages/mcp/src/index.ts"]
     }
   },
   "include": ["packages/*/src", "tools/*.ts", "vitest.config.ts"]

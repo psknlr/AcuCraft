@@ -14,7 +14,8 @@ export const SideArgSchema = z.enum(["left", "right", "midline"]);
 
 /** A target on the patient: a standard point, or an Ashi (tender) location found on examination. */
 export const PointRefSchema = z.union([
-  z.object({ point: IdSchema, side: SideArgSchema }).strict(),
+  /** `site`: one site of a group point (Sishencong's `anterior`, Jiaji's `t5`, Shixuan's `index`). */
+  z.object({ point: IdSchema, side: SideArgSchema, site: IdSchema.optional() }).strict(),
   z.object({ ashi: IdSchema }).strict(),
 ]);
 export type PointRef = z.infer<typeof PointRefSchema>;
@@ -30,8 +31,23 @@ export const TASK_KINDS = ["monitor-patient", "position-patient", "fetch", "coun
 export const TaskKindSchema = z.enum(TASK_KINDS);
 export type TaskKind = z.infer<typeof TaskKindSchema>;
 
+/**
+ * Where to walk (docs/WORLD.md): a room (its home spot); a fixture (to where it can be used); a person — a member of
+ * the team or the patient — (to their side); a body site of the patient as they lie or sit (to where it is within an
+ * arm's reach: a site on the far side of the couch means walking round it); or a point of the floor plan.
+ */
+export const MoveTargetSchema = z.union([
+  z.object({ room: IdSchema }).strict(),
+  z.object({ fixture: IdSchema }).strict(),
+  z.object({ person: IdSchema }).strict(),
+  z.object({ region: IdSchema, side: SideArgSchema }).strict(),
+  z.object({ x: z.number(), z: z.number() }).strict(),
+]);
+export type MoveTargetInput = z.infer<typeof MoveTargetSchema>;
+
 export const PlanPointSchema = z.union([
-  z.object({ point: IdSchema, side: SideArgSchema }).strict(),
+  /** `site`: one site of a group point (Sishencong's `anterior`, Jiaji's `t5`, Shixuan's `index`). */
+  z.object({ point: IdSchema, side: SideArgSchema, site: IdSchema.optional() }).strict(),
   z.object({ ashi: IdSchema }).strict(),
 ]);
 
@@ -52,6 +68,15 @@ export const PlanSchema = z
   .strict();
 export type PlanBody = z.infer<typeof PlanSchema>;
 
+/**
+ * What a needle did, as the practitioner records it: `deqi` — qi arrived at it; `none` — it was sought or checked and
+ * did not; `not-sought` — no response was looked for. `deqi` and `none` are conclusions: they name the evidence of
+ * that needle they rest on (what the patient said they felt there, what the operator felt on manipulating it).
+ */
+export const NEEDLE_RESPONSES = ["deqi", "none", "not-sought"] as const;
+export const NeedleResponseSchema = z.object({ needle: IdSchema, response: z.enum(NEEDLE_RESPONSES), evidence: z.array(IdSchema).max(12).default([]) }).strict();
+export type NeedleResponseClaim = z.infer<typeof NeedleResponseSchema>;
+
 export const DocumentRecordSchema = z
   .object({
     presentingComplaint: z.string().max(4000).optional(),
@@ -68,6 +93,8 @@ export const DocumentRecordSchema = z
         needleCount: z.number().int().min(0).optional(),
         depth: z.string().max(500).optional(),
         responseSought: z.string().max(500).optional(),
+        /** The response at each needle, with the evidence it rests on (docs/EVIDENCE.md). */
+        responses: z.array(NeedleResponseSchema).max(40).optional(),
         stimulation: z.string().max(500).optional(),
         retentionMinutes: z.number().min(0).optional(),
       })
@@ -100,6 +127,12 @@ export const ActionSchema = z.discriminatedUnion("type", [
       type: z.literal("assess"),
       diagnoses: z.array(IdSchema).max(6).default([]),
       pattern: IdSchema.optional(),
+      /**
+       * The findings the pattern differentiation rests on: ids of evidence obtained in this encounter (answers,
+       * examination findings, records — `record` in the view). A pattern without them is refused, and so is an id
+       * that was never obtained.
+       */
+      patternEvidence: z.array(IdSchema).max(24).default([]),
       redFlags: z.array(IdSchema).max(10).default([]),
       rationale: Text.optional(),
     })
@@ -126,14 +159,20 @@ export const ActionSchema = z.discriminatedUnion("type", [
     .strict(),
 
   /* preparation */
-  /** Walk to a room; `withPatient` escorts the patient (who must be able to walk). */
-  z.object({ type: z.literal("move"), to: IdSchema, withPatient: z.boolean().default(false) }).strict(),
+  /**
+   * Walk: `to` is a room id, or a target (`{ fixture }`, `{ person }`, `{ region, side }`, `{ room }`, `{ x, z }`). The
+   * world plans the path and the walk takes the time it takes. `withPatient` (to a room) walks the patient there at
+   * their pace and seats them; they must be able to walk.
+   */
+  z.object({ type: z.literal("move"), to: z.union([IdSchema, MoveTargetSchema]), withPatient: z.boolean().default(false) }).strict(),
   z.object({ type: z.literal("hand_hygiene") }).strict(),
   z.object({ type: z.literal("fetch"), item: IdSchema }).strict(),
   z.object({ type: z.literal("handover"), object: IdSchema, to: IdSchema }).strict(),
   z.object({ type: z.literal("open_pack"), packId: IdSchema }).strict(),
   z.object({ type: z.literal("pick_up"), object: IdSchema }).strict(),
   z.object({ type: z.literal("prepare_site"), region: IdSchema, side: SideArgSchema }).strict(),
+  /** Clean the couch surface and put on fresh linen, in the room the actor is in. */
+  z.object({ type: z.literal("prepare_couch") }).strict(),
 
   /* procedure */
   z
@@ -154,6 +193,8 @@ export const ActionSchema = z.discriminatedUnion("type", [
     })
     .strict(),
   z.object({ type: z.literal("adjust_needle"), needleId: IdSchema, depthCm: z.number().positive().max(10).optional(), technique: z.enum(["none", "lift-thrust", "rotate"]).default("none") }).strict(),
+  /** Ask the patient what they feel at one needle: their answer is evidence of that needle's response. */
+  z.object({ type: z.literal("check_sensation"), needleId: IdSchema }).strict(),
   z.object({ type: z.literal("monitor") }).strict(),
   z.object({ type: z.literal("wait"), minutes: z.number().int().min(1).max(60) }).strict(),
   z.object({ type: z.literal("stop_treatment"), reason: Text }).strict(),

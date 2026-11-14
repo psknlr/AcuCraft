@@ -40,6 +40,32 @@ export function checkInvariants(_sc: Scenario, s: EncounterState): string[] {
   for (const p of Object.values(s.packs)) {
     if (p.holder && !(holders.get(p.id) ?? []).includes(p.holder)) broken.push(`pack ${p.id} names ${p.holder} as holder, who does not hold it`);
   }
+  // the evidence ledger: each item once, and every conclusion on record names items that are in it
+  const evidence = new Map<string, (typeof s.evidence)[number]>();
+  for (const e of s.evidence) {
+    if (evidence.has(e.id)) broken.push(`evidence ${e.id} is in the ledger twice`);
+    evidence.set(e.id, e);
+    if (e.needle && !s.needles[e.needle.id]) broken.push(`evidence ${e.id} is about a needle that does not exist (${e.needle.id})`);
+  }
+  for (const a of s.assessments) {
+    if (a.pattern !== null && a.patternEvidence.length === 0) broken.push(`the pattern ${a.pattern} is on record with no evidence named`);
+    for (const id of a.patternEvidence) {
+      const e = evidence.get(id);
+      if (!e) broken.push(`an assessment names evidence that was never obtained (${id})`);
+      else if (e.at > a.at + 1e-9) broken.push(`an assessment names evidence obtained after it (${id})`);
+    }
+  }
+  for (const d of s.documents) {
+    for (const r of d.record.needling?.responses ?? []) {
+      if ((r.response === "not-sought") !== (r.evidence.length === 0)) broken.push(`the recorded response of ${r.needle} (${r.response}) ${r.evidence.length === 0 ? "names no evidence" : "names evidence"}`);
+      for (const id of r.evidence) {
+        const e = evidence.get(id);
+        if (!e) broken.push(`a recorded needle response names evidence that was never obtained (${id})`);
+        else if (e.needle?.id !== r.needle) broken.push(`the recorded response of ${r.needle} names evidence of another needle (${id})`);
+      }
+    }
+  }
+  for (const n of needleList(s)) if ((n.insertion === null) !== (n.response === null)) broken.push(`${n.id}: a tissue response without an insertion, or an insertion without one`);
   if (s.finished && retainedNeedles(s).length > 0) broken.push("the encounter finished with needles in the patient");
   for (const v of s.visits) if (v.ended && v.endedAt === null) broken.push(`visit ${v.index} ended without a time`);
   return broken;

@@ -185,7 +185,10 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "hand_hygiene"
+      "type": "move",
+      "to": {
+        "fixture": "treat-sink"
+      }
     }
   },
   {
@@ -193,8 +196,7 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "examine",
-      "findingId": "ex-inspect-back"
+      "type": "hand_hygiene"
     }
   },
   {
@@ -202,8 +204,10 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "examine",
-      "findingId": "ex-palpate-back"
+      "type": "move",
+      "to": {
+        "person": "patient"
+      }
     }
   },
   {
@@ -212,7 +216,7 @@
     "patient": "patient",
     "action": {
       "type": "examine",
-      "findingId": "ex-rom-back"
+      "findingId": "ex-inspect-back"
     }
   },
   {
@@ -221,7 +225,7 @@
     "patient": "patient",
     "action": {
       "type": "examine",
-      "findingId": "ex-slr"
+      "findingId": "ex-palpate-back"
     }
   },
   {
@@ -230,7 +234,7 @@
     "patient": "patient",
     "action": {
       "type": "examine",
-      "findingId": "ex-neuro"
+      "findingId": "ex-rom-back"
     }
   },
   {
@@ -239,7 +243,7 @@
     "patient": "patient",
     "action": {
       "type": "examine",
-      "findingId": "ex-tongue"
+      "findingId": "ex-slr"
     }
   },
   {
@@ -248,7 +252,7 @@
     "patient": "patient",
     "action": {
       "type": "examine",
-      "findingId": "ex-pulse-tcm"
+      "findingId": "ex-neuro"
     }
   },
   {
@@ -256,11 +260,29 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "check_vitals"
+      "type": "examine",
+      "findingId": "ex-tongue"
     }
   },
   {
     "requestId": "lb-030",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-pulse-tcm"
+    }
+  },
+  {
+    "requestId": "lb-031",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_vitals"
+    }
+  },
+  {
+    "requestId": "lb-032",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -269,12 +291,20 @@
         "chronic-nonspecific-lbp"
       ],
       "pattern": "qi-blood-stagnation",
+      "patternEvidence": [
+        "hx-site",
+        "hx-pattern",
+        "hx-work",
+        "ex-palpate-back",
+        "ex-tongue",
+        "ex-pulse-tcm"
+      ],
       "redFlags": [],
       "rationale": "Mechanical non-radiating back pain with normal neurology; stress and sitting; purple tongue, wiry choppy pulse."
     }
   },
   {
-    "requestId": "lb-031",
+    "requestId": "lb-033",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -284,7 +314,7 @@
     }
   },
   {
-    "requestId": "lb-032",
+    "requestId": "lb-034",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -326,7 +356,7 @@
     }
   },
   {
-    "requestId": "lb-033",
+    "requestId": "lb-035",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -343,7 +373,7 @@
     }
   },
   {
-    "requestId": "lb-034",
+    "requestId": "lb-036",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -351,7 +381,7 @@
     }
   },
   {
-    "requestId": "lb-035",
+    "requestId": "lb-037",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -360,7 +390,7 @@
     }
   },
   {
-    "requestId": "lb-036",
+    "requestId": "lb-038",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -374,7 +404,19 @@
     }
   },
   {
-    "requestId": "lb-037",
+    "requestId": "lb-039",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "region": "lumbar",
+        "side": "midline"
+      }
+    }
+  },
+  {
+    "requestId": "lb-040",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -385,7 +427,7 @@
     }
   },
   {
-    "requestId": "lb-038",
+    "requestId": "lb-041",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -396,7 +438,7 @@
     }
   },
   {
-    "requestId": "lb-039",
+    "requestId": "lb-042",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -407,7 +449,7 @@
     }
   },
   {
-    "requestId": "lb-040",
+    "requestId": "lb-043",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -426,7 +468,7 @@
     }
   },
   {
-    "requestId": "lb-041",
+    "requestId": "lb-044",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -445,7 +487,7 @@
     }
   },
   {
-    "requestId": "lb-042",
+    "requestId": "lb-045",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -458,13 +500,13 @@
       "side": "right",
       "at": {
         "u": -3.32,
-        "v": 0.0
+        "v": 0
       },
       "method": "proportional"
     }
   },
   {
-    "requestId": "lb-043",
+    "requestId": "lb-046",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -476,14 +518,14 @@
       "region": "lumbar",
       "side": "midline",
       "at": {
-        "u": 0.0,
+        "u": 0,
         "v": -0.6
       },
       "method": "landmark"
     }
   },
   {
-    "requestId": "lb-044",
+    "requestId": "lb-047",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -494,36 +536,10 @@
       "region": "lumbar",
       "side": "right",
       "at": {
-        "u": -4.0,
+        "u": -4,
         "v": -0.5
       },
       "method": "palpation"
-    }
-  },
-  {
-    "requestId": "lb-045",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "move",
-      "to": "prep-area"
-    }
-  },
-  {
-    "requestId": "lb-046",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "hand_hygiene"
-    }
-  },
-  {
-    "requestId": "lb-047",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "fetch",
-      "item": "pack-a"
     }
   },
   {
@@ -532,11 +548,53 @@
     "patient": "patient",
     "action": {
       "type": "move",
-      "to": "treatment-room"
+      "to": {
+        "fixture": "prep-sink"
+      }
     }
   },
   {
     "requestId": "lb-049",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "hand_hygiene"
+    }
+  },
+  {
+    "requestId": "lb-050",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "fixture": "shelf"
+      }
+    }
+  },
+  {
+    "requestId": "lb-051",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "fetch",
+      "item": "pack-a"
+    }
+  },
+  {
+    "requestId": "lb-052",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "region": "lumbar",
+        "side": "left"
+      }
+    }
+  },
+  {
+    "requestId": "lb-053",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -546,7 +604,7 @@
     }
   },
   {
-    "requestId": "lb-050",
+    "requestId": "lb-054",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -556,7 +614,7 @@
     }
   },
   {
-    "requestId": "lb-051",
+    "requestId": "lb-055",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -566,7 +624,18 @@
     }
   },
   {
-    "requestId": "lb-052",
+    "requestId": "lb-056",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "fixture": "trolley-1"
+      }
+    }
+  },
+  {
+    "requestId": "lb-057",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -575,7 +644,7 @@
     }
   },
   {
-    "requestId": "lb-053",
+    "requestId": "lb-058",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -584,7 +653,43 @@
     }
   },
   {
-    "requestId": "lb-054",
+    "requestId": "lb-059",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "pick_up",
+      "object": "pack-a.2"
+    }
+  },
+  {
+    "requestId": "lb-060",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "pick_up",
+      "object": "pack-a.3"
+    }
+  },
+  {
+    "requestId": "lb-061",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "pick_up",
+      "object": "pack-a.4"
+    }
+  },
+  {
+    "requestId": "lb-062",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "pick_up",
+      "object": "pack-a.5"
+    }
+  },
+  {
+    "requestId": "lb-063",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -597,16 +702,38 @@
     }
   },
   {
-    "requestId": "lb-055",
+    "requestId": "lb-064",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "pick_up",
-      "object": "pack-a.2"
+      "type": "adjust_needle",
+      "needleId": "pack-a.1",
+      "technique": "lift-thrust"
     }
   },
   {
-    "requestId": "lb-056",
+    "requestId": "lb-065",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_sensation",
+      "needleId": "pack-a.1"
+    }
+  },
+  {
+    "requestId": "lb-066",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "region": "lumbar",
+        "side": "right"
+      }
+    }
+  },
+  {
+    "requestId": "lb-067",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -619,16 +746,26 @@
     }
   },
   {
-    "requestId": "lb-057",
+    "requestId": "lb-068",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "pick_up",
-      "object": "pack-a.3"
+      "type": "adjust_needle",
+      "needleId": "pack-a.2",
+      "technique": "lift-thrust"
     }
   },
   {
-    "requestId": "lb-058",
+    "requestId": "lb-069",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_sensation",
+      "needleId": "pack-a.2"
+    }
+  },
+  {
+    "requestId": "lb-070",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -641,16 +778,26 @@
     }
   },
   {
-    "requestId": "lb-059",
+    "requestId": "lb-071",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "pick_up",
-      "object": "pack-a.4"
+      "type": "adjust_needle",
+      "needleId": "pack-a.3",
+      "technique": "lift-thrust"
     }
   },
   {
-    "requestId": "lb-060",
+    "requestId": "lb-072",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_sensation",
+      "needleId": "pack-a.3"
+    }
+  },
+  {
+    "requestId": "lb-073",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -663,16 +810,16 @@
     }
   },
   {
-    "requestId": "lb-061",
+    "requestId": "lb-074",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "pick_up",
-      "object": "pack-a.5"
+      "type": "check_sensation",
+      "needleId": "pack-a.4"
     }
   },
   {
-    "requestId": "lb-062",
+    "requestId": "lb-075",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -685,7 +832,7 @@
     }
   },
   {
-    "requestId": "lb-063",
+    "requestId": "lb-076",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -695,7 +842,36 @@
     }
   },
   {
-    "requestId": "lb-064",
+    "requestId": "lb-077",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_sensation",
+      "needleId": "pack-a.5"
+    }
+  },
+  {
+    "requestId": "lb-078",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "adjust_needle",
+      "needleId": "pack-a.5",
+      "technique": "lift-thrust",
+      "depthCm": 2
+    }
+  },
+  {
+    "requestId": "lb-079",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_sensation",
+      "needleId": "pack-a.5"
+    }
+  },
+  {
+    "requestId": "lb-080",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -703,7 +879,7 @@
     }
   },
   {
-    "requestId": "lb-065",
+    "requestId": "lb-081",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -712,7 +888,7 @@
     }
   },
   {
-    "requestId": "lb-066",
+    "requestId": "lb-082",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -720,7 +896,7 @@
     }
   },
   {
-    "requestId": "lb-067",
+    "requestId": "lb-083",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -729,7 +905,7 @@
     }
   },
   {
-    "requestId": "lb-068",
+    "requestId": "lb-084",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -737,7 +913,7 @@
     }
   },
   {
-    "requestId": "lb-069",
+    "requestId": "lb-085",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -745,7 +921,18 @@
     }
   },
   {
-    "requestId": "lb-070",
+    "requestId": "lb-086",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "fixture": "sharps-1"
+      }
+    }
+  },
+  {
+    "requestId": "lb-087",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -754,7 +941,18 @@
     }
   },
   {
-    "requestId": "lb-071",
+    "requestId": "lb-088",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "fixture": "treat-sink"
+      }
+    }
+  },
+  {
+    "requestId": "lb-089",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -762,7 +960,7 @@
     }
   },
   {
-    "requestId": "lb-072",
+    "requestId": "lb-090",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -770,7 +968,18 @@
     }
   },
   {
-    "requestId": "lb-073",
+    "requestId": "lb-091",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "person": "patient"
+      }
+    }
+  },
+  {
+    "requestId": "lb-092",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -782,7 +991,7 @@
     }
   },
   {
-    "requestId": "lb-074",
+    "requestId": "lb-093",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -817,10 +1026,54 @@
         "needling": {
           "needleType": "0.25 × 40 mm single-use sterile filiform",
           "needleCount": 5,
-          "depth": "1.0–2.0 cm, perpendicular",
-          "responseSought": "deqi",
+          "depth": "1.5–2.0 cm, perpendicular",
+          "responseSought": "deqi at the back-shu and Ashi needles (lift and thrust; the Ashi needle taken from 1.5 to 2.0 cm when nothing took at 1.5); the midline needle not worked",
           "stimulation": "even",
-          "retentionMinutes": 20
+          "retentionMinutes": 20,
+          "responses": [
+            {
+              "needle": "pack-a.1",
+              "response": "deqi",
+              "evidence": [
+                "feel-1",
+                "sense-1",
+                "sense-2"
+              ]
+            },
+            {
+              "needle": "pack-a.2",
+              "response": "deqi",
+              "evidence": [
+                "feel-2",
+                "sense-3"
+              ]
+            },
+            {
+              "needle": "pack-a.3",
+              "response": "deqi",
+              "evidence": [
+                "feel-3",
+                "sense-4",
+                "sense-5"
+              ]
+            },
+            {
+              "needle": "pack-a.4",
+              "response": "none",
+              "evidence": [
+                "sense-6"
+              ]
+            },
+            {
+              "needle": "pack-a.5",
+              "response": "deqi",
+              "evidence": [
+                "feel-5",
+                "sense-8",
+                "sense-9"
+              ]
+            }
+          ]
         },
         "response": "Tolerated well.",
         "adverseEvents": "None.",
@@ -830,7 +1083,7 @@
     }
   },
   {
-    "requestId": "lb-075",
+    "requestId": "lb-094",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -838,7 +1091,7 @@
     }
   },
   {
-    "requestId": "lb-076",
+    "requestId": "lb-095",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -846,7 +1099,7 @@
     }
   },
   {
-    "requestId": "lb-077",
+    "requestId": "lb-096",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -855,7 +1108,7 @@
     }
   },
   {
-    "requestId": "lb-078",
+    "requestId": "lb-097",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -864,7 +1117,7 @@
     }
   },
   {
-    "requestId": "lb-079",
+    "requestId": "lb-098",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -874,7 +1127,7 @@
     }
   },
   {
-    "requestId": "lb-080",
+    "requestId": "lb-099",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -883,7 +1136,7 @@
     }
   },
   {
-    "requestId": "lb-081",
+    "requestId": "lb-100",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -893,7 +1146,7 @@
     }
   },
   {
-    "requestId": "lb-082",
+    "requestId": "lb-101",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -907,7 +1160,7 @@
     }
   },
   {
-    "requestId": "lb-083",
+    "requestId": "lb-102",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -915,7 +1168,7 @@
     }
   },
   {
-    "requestId": "lb-084",
+    "requestId": "lb-103",
     "actor": "practitioner",
     "patient": "patient",
     "action": {

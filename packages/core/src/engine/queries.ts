@@ -15,6 +15,12 @@ export const needleList = (s: EncounterState): NeedleState[] => Object.values(s.
 
 export const retainedNeedles = (s: EncounterState): NeedleState[] => needleList(s).filter((n) => n.location.kind === "patient");
 
+/** A needle that fell out of the patient unseen: until someone finds it, everyone takes it to be where it was placed. */
+export const fellUnseen = (n: NeedleState): boolean => n.location.kind === "floor" && n.location.hidden && n.insertion !== null;
+
+/** Needles the team takes to be in the patient: those that are, and any that fell out unseen. */
+export const apparentlyRetained = (s: EncounterState): NeedleState[] => needleList(s).filter((n) => n.location.kind === "patient" || fellUnseen(n));
+
 /** Needles taken out of their sealed pack (opened onto a tray): each must end disposed or with a recorded response. */
 export const openedNeedles = (s: EncounterState): NeedleState[] => needleList(s).filter((n) => n.location.kind !== "pack");
 
@@ -41,12 +47,12 @@ export function currentPlan(s: EncounterState): PlanVersion | null {
   return s.plans[s.plans.length - 1] ?? null;
 }
 
-export const refKey = (r: PointRef): string => ("ashi" in r ? `ashi:${r.ashi}` : `${r.point}:${r.side}`);
+export const refKey = (r: PointRef): string => ("ashi" in r ? `ashi:${r.ashi}` : `${r.point}:${r.side}${r.site ? `:${r.site}` : ""}`);
 
 /** The inverse of `refKey`. */
 export function parseRef(key: string): PointRef {
-  const [head, tail] = key.split(":") as [string, string | undefined];
-  return head === "ashi" ? { ashi: tail ?? "" } : ({ point: head, side: tail ?? "midline" } as PointRef);
+  const [head, tail, site] = key.split(":") as [string, string | undefined, string | undefined];
+  return head === "ashi" ? { ashi: tail ?? "" } : ({ point: head, side: tail ?? "midline", ...(site ? { site } : {}) } as PointRef);
 }
 
 export function planIncludes(plan: PlanVersion | null, r: PointRef): boolean {

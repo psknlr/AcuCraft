@@ -67,8 +67,10 @@ scenario's `patient.anatomy.regions[region]` (`both`, with `left`/`right` differ
 
 **Cun is the patient's own**: one B-cun of a segment is the patient's segment length (measured in the region's default
 configuration) divided by the segment's cun (`segments[]`, e.g. knee to lateral malleolus = 16 B-cun). It is never a
-fixed number of centimetres; the finger cun (`fingerCunCm`) is a separate measurement, kept apart (`measure` with
-`fingerCun: true`; `mark_point` records the method used).
+fixed number of centimetres. The finger cun (F-cun) is the patient's own middle-finger cun (`fingerCunCm`), a separate
+measurement (`measure` with `fingerCun: true`; `mark_point` records the method used): a distance written `{fcun: n}`
+is n times this patient's finger cun, so the nail-corner points (0.1 F-cun: LU11, LI1, HT9, SI1, TE1, SP1, LR1, ST45,
+GB44, BL67) and ST4 (0.4 F-cun) move with the patient's finger.
 
 The library (`content/acupoints/`, one file per channel) defines every point of the WHO standard (2008): 361 points on
 the 14 channels, plus the 48 extra points of the WHO standard nomenclature (1991). Each has its names, codes per
@@ -87,7 +89,16 @@ definition (`acucraft/acupoints@1`): `landmark` (+ offset), `between` two landma
 distance in cun or cm, then offsets `lateral`/`medial`/`cranial`/`caudal`. An anchor may also be another point,
 `point:<id>`, wherever that point is placed on this patient (LR11 is "2 B-cun distal to ST30": `point:ST30`, caudal
 2 B-cun). Its tolerance is the definition's (cm or cun). The evaluator compares each needle's actual entry with
-the instance in the configuration the needle went in under.
+the instance of the point the needle was *meant* for (named or marked) in the configuration it went in under, and
+records separately the point the entry actually lies on: two marks swapped are two errors, not two hits.
+
+**Group points.** A point with `siteLocalisations` is a group of sites, each its own target with its own chart,
+construction and tolerance, named as `site` wherever a point is named (`{point: "EX-HN1", side: "midline", site:
+"anterior"}`); it is never located at the group's centre, and naming it without a site is refused. Located site by
+site: Sishencong (EX-HN1, four sites 1 B-cun round GV20), Jiaji (EX-B2, T1–T12 on `upper-back` and L1–L5 on
+`lumbar`), Shixuan (EX-UE11, five fingertips), Sifeng (EX-UE10), Baxie (EX-UE9), Yaotongdian (EX-UE7), Bafeng
+(EX-LE10) and Xiyan (EX-LE5): 42 sites. Erbai (EX-UE2), Kuangu (EX-LE1) and Qiduan (EX-LE12) are placed at one
+canonical site. `pointTargets(point)` lists a point's targets.
 
 **Seams.** Where two charts meet, a region declares a seam (`seams[]`): the other region, and pairs of landmarks that
 are the same skin point on both charts. For a patient and side, `seamMap(scenario, from, to, side, configuration)`
@@ -119,14 +130,21 @@ hazard (`critical`, `caution`) and a consequence.
 ## 5. Needle paths
 
 `assessPath(frame, entry, angleDeg, azimuthDeg, depthCm, needle)`: angle 0 is perpendicular; azimuth 0 points cranial
-(+v), 90 to +u. The shaft never goes in to its hilt (90 % of its length at most). Layers are read at the entry; bone
+(+v), 90 to +u. The shaft never goes in to its hilt (90 % of its length at most). The shaft is walked in 0.5 mm steps
+and the tissue at each point is read from the zone above it, so an oblique needle meets the bone, pleura and organ
+layers of the zones it crosses, not only those under its entry (a perpendicular needle stays in one column); bone
 stops the tip (the executed depth differs from the requested one, and the patient feels pressure on the bone); the
 pleura layer is critical; each structure's clearance is the shortest distance between the shaft and its centreline,
 less its radius and the needle's; contact is clearance ≤ 0, `near` within the structure's positional uncertainty.
 
 With the guard on (`block-critical`), a path that reaches a critical structure or the pleura is refused before the
 needle touches the skin — the needle stays unused and sterile in the hand — and the attempt is recorded as an unsafe,
-blocked act. Manipulation (`adjust_needle` with a technique) with the tip in muscle or fascia produces deqi.
+blocked act.
+
+How the tissue answers a needle — whether qi arrives — is read from the same path: the tissue the tip lies in, the
+stimulation the needle has had, a nerve or tendon the shaft meets. A tip still in the subcutaneous layer is not helped
+by working the needle harder. That model, and how a recorded response is tied to what was observed at the needle, is
+in [EVIDENCE.md](EVIDENCE.md) §3.
 
 ## 6. Head and face
 

@@ -19,6 +19,8 @@ export interface Agent {
   next(view: AgentView): AgentTurn | Promise<AgentTurn>;
   /** Recorded model outputs (LLM agents): kept in the episode log so a replay never calls the model again. */
   transcript?(): unknown[];
+  /** Tokens a model used and how many turns it took (LLM agents): kept in the episode log. */
+  usage?(): { inputTokens: number; outputTokens: number; cacheReadTokens: number; cacheWriteTokens: number; modelCalls: number };
 }
 
 export type AgentFactory = (scenarioId: string) => Agent;

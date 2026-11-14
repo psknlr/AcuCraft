@@ -1,0 +1,119 @@
+{
+  "schema": "clinicalcraft/room-template@1",
+  "id": "acu-prep-room",
+  "name": {
+    "zh-CN": "准备间",
+    "en": "Preparation area"
+  },
+  "description": {
+    "zh-CN": "清洁准备间：存放未开封针具和耗材的货架、操作台、洗手池和锐器盒。",
+    "en": "A clean preparation area: the shelf of sealed needle packs and supplies, a worktop, a hand-wash sink and a sharps container."
+  },
+  "kind": "storage",
+  "size": {
+    "w": 4,
+    "d": 5
+  },
+  "floor": "lino",
+  "partitions": [
+    {
+      "side": "n",
+      "base": "acu-dado"
+    },
+    {
+      "side": "w",
+      "base": "acu-dado"
+    },
+    {
+      "side": "e",
+      "base": "acu-dado"
+    },
+    {
+      "side": "s",
+      "base": "acu-dado",
+      "openings": [
+        {
+          "kind": "door",
+          "width": 1.3,
+          "height": 2.4,
+          "offset": 0.25
+        }
+      ]
+    }
+  ],
+  "sign": {
+    "text": {
+      "zh-CN": "准备间",
+      "en": "Preparation"
+    },
+    "side": "n"
+  },
+  "lights": [
+    {
+      "x": 0,
+      "z": 0
+    }
+  ],
+  "placements": [
+    {
+      "id": "shelf",
+      "type": "acu-supply-shelf",
+      "x": 0.0,
+      "z": -2.1,
+      "label": {
+        "zh-CN": "耗材架",
+        "en": "Supply shelf"
+      }
+    },
+    {
+      "id": "sink",
+      "type": "sink",
+      "x": 1.5,
+      "z": 0.0,
+      "rot": 270,
+      "label": {
+        "zh-CN": "洗手池",
+        "en": "Hand-wash sink"
+      }
+    },
+    {
+      "id": "sharps",
+      "type": "sharps-bin",
+      "x": -1.55,
+      "z": -2.05,
+      "label": {
+        "zh-CN": "锐器盒",
+        "en": "Sharps container"
+      }
+    },
+    {
+      "id": "worktop",
+      "type": "instrument-table",
+      "x": -1.45,
+      "z": 0.2,
+      "rot": 90,
+      "label": {
+        "zh-CN": "操作台",
+        "en": "Worktop"
+      }
+    },
+    {
+      "id": "gloves",
+      "type": "glove-dispenser",
+      "x": 1.78,
+      "z": 1.4,
+      "rot": 270
+    },
+    {
+      "id": "bin",
+      "type": "trash-bin",
+      "x": -1.55,
+      "z": 1.9
+    }
+  ],
+  "capabilities": [],
+  "tags": [
+    "tcm",
+    "clean-utility"
+  ]
+}

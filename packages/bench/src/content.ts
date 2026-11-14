@@ -1,9 +1,10 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
-import type { Issue } from "@clinicalcraft/core";
+import { checkCatalogs, checkFacility, checkRoomTemplate, compileFacility, parseCatalog, parseFacility, parseRoomTemplate, type FacilityDefinition, type Issue } from "@clinicalcraft/core";
 import {
   AcupointsFileSchema,
+  BodyMapSchema,
   ClinicSchema,
   EvidenceFileSchema,
   RegionSchema,
@@ -11,11 +12,14 @@ import {
   RuleSetSchema,
   StandardsFileSchema,
   VocabularySchema,
+  pointTargets,
   resolveScenario,
   type ContentBundle,
   type Scenario,
   type ScenarioSource,
 } from "@acucraft/core";
+import type { Skill } from "@acucraft/agent";
+import { loadSkills } from "@acucraft/agent/node";
 import type { ZodTypeAny } from "zod";
 
 /**
@@ -24,6 +28,11 @@ import type { ZodTypeAny } from "zod";
  */
 
 export const DEFAULT_CONTENT_DIR = fileURLToPath(new URL("../../../content", import.meta.url));
+/**
+ * The pinned ClinicalCraft engine's own content: the built-in equipment catalogs and room templates a clinic's
+ * facility may use (`tools/bootstrap.sh` fetches the engine; `tools/clinicalcraft.rev` pins it).
+ */
+export const ENGINE_CONTENT_DIR = fileURLToPath(new URL("../../../.deps/clinicalcraft/packages/content", import.meta.url));
 
 export interface FamilyEntry {
   id: string;
@@ -39,6 +48,8 @@ export interface ContentPack {
   families: Map<string, FamilyEntry>;
   /** Other files by schema id (benchmark suites …). */
   extra: Map<string, { path: string; json: unknown }[]>;
+  /** The clinic's written skills (`skills/*.md`): public reference text an agent may read (docs/AGENT.md). */
+  skills: Skill[];
   issues: Issue[];
 }
 
@@ -68,7 +79,39 @@ export function loadContentPack(dir: string = DEFAULT_CONTENT_DIR): ContentPack 
     evidence: [],
     clinics: new Map(),
     vocabulary: null as never,
+    world: { facilities: new Map(), catalogs: [], templates: [] },
+    bodyMap: null,
   };
+  // the engine's built-in catalogs and room templates first: a pack's facility builds on them
+  const facilities: { path: string; def: FacilityDefinition }[] = [];
+  const packCatalogs = new Set<string>();
+  const packTemplates = new Set<string>();
+  const world = (kind: "catalog" | "template" | "facility", path: string, json: unknown, own: boolean) => {
+    const r = kind === "catalog" ? parseCatalog(json) : kind === "template" ? parseRoomTemplate(json) : parseFacility(json);
+    if (!r.ok) {
+      for (const i of r.issues) issues.push({ ...i, path: `${relative(dir, path)}:${i.path}` });
+      return;
+    }
+    if (kind === "catalog") {
+      const v = r.value as ContentBundle["world"]["catalogs"][number];
+      if (bundle.world.catalogs.some((c) => c.id === v.id)) issues.push({ path: relative(dir, path), message: `duplicate equipment catalog ${v.id}`, severity: "error" });
+      bundle.world.catalogs.push(v);
+      if (own) packCatalogs.add(v.id);
+    } else if (kind === "template") {
+      const v = r.value as ContentBundle["world"]["templates"][number];
+      if (bundle.world.templates.some((t) => t.id === v.id)) issues.push({ path: relative(dir, path), message: `duplicate room template ${v.id}`, severity: "error" });
+      bundle.world.templates.push(v);
+      if (own) packTemplates.add(v.id);
+    } else facilities.push({ path, def: r.value as FacilityDefinition });
+  };
+  for (const sub of ["catalogs", "templates"] as const) {
+    const folder = join(ENGINE_CONTENT_DIR, sub);
+    if (!existsSync(folder)) {
+      issues.push({ path: sub, message: `the ClinicalCraft engine's ${sub} were not found in ${folder}: run \`npm run bootstrap\``, severity: "error" });
+      continue;
+    }
+    for (const name of readdirSync(folder).sort()) if (name.endsWith(".json")) world(sub === "catalogs" ? "catalog" : "template", join(folder, name), readJson(join(folder, name)), false);
+  }
   const families = new Map<string, FamilyEntry>();
   const extra = new Map<string, { path: string; json: unknown }[]>();
   const parse = <T>(schema: ZodTypeAny, path: string, json: unknown): T | null => {
@@ -154,6 +197,20 @@ export function loadContentPack(dir: string = DEFAULT_CONTENT_DIR): ContentPack 
         }
         break;
       }
+      case "acucraft/body-map@1": {
+        const v = parse<NonNullable<ContentBundle["bodyMap"]>>(BodyMapSchema, path, json);
+        if (v) bundle.bodyMap = v;
+        break;
+      }
+      case "clinicalcraft/equipment-catalog@1":
+        world("catalog", path, json, true);
+        break;
+      case "clinicalcraft/room-template@1":
+        world("template", path, json, true);
+        break;
+      case "clinicalcraft/facility@1":
+        world("facility", path, json, true);
+        break;
       case "acucraft/variant@1":
       case "acucraft/field@1":
       case undefined:
@@ -166,10 +223,26 @@ export function loadContentPack(dir: string = DEFAULT_CONTENT_DIR): ContentPack 
       }
     }
   }
+  // the pack's world content, checked the way ClinicalCraft checks it (`clinicalcraft facilities validate`)
+  const own = (i: Issue, where: string): Issue => ({ ...i, path: `${where}:${i.path}` });
+  for (const i of checkCatalogs(bundle.world.catalogs)) if ([...packCatalogs].some((id) => i.path.includes(id)) || i.severity === "error") issues.push(own(i, "catalogs"));
+  for (const t of bundle.world.templates) if (packTemplates.has(t.id)) for (const i of checkRoomTemplate(t, bundle.world.catalogs)) issues.push(own(i, `templates/${t.id}`));
+  for (const f of facilities) {
+    const compiled = compileFacility(f.def, bundle.world.templates);
+    for (const i of compiled.issues) issues.push(own(i, relative(dir, f.path)));
+    if (!compiled.ok) continue;
+    for (const i of checkFacility(compiled.facility, bundle.world.catalogs)) issues.push(own(i, relative(dir, f.path)));
+    if (bundle.world.facilities.has(compiled.facility.id)) issues.push({ path: relative(dir, f.path), message: `duplicate facility ${compiled.facility.id}`, severity: "error" });
+    bundle.world.facilities.set(compiled.facility.id, compiled.facility);
+  }
+  if (!bundle.bodyMap) issues.push({ path: "", message: "no acucraft/body-map@1 file", severity: "error" });
+  else for (const id of bundle.regions.keys()) if (!bundle.bodyMap.regions[id]) issues.push({ path: `body-map.regions.${id}`, message: `region ${id} has no place on the body map`, severity: "error" });
   if (!bundle.vocabulary) issues.push({ path: "", message: "no acucraft/vocabulary@1 file", severity: "error" });
   if (bundle.standards.editions.length === 0) issues.push({ path: "", message: "no acucraft/standards@1 file", severity: "error" });
   checkBundle(bundle, issues);
-  return { dir, bundle, families, extra, issues };
+  const written = loadSkills(dir);
+  issues.push(...written.issues);
+  return { dir, bundle, families, extra, skills: written.skills, issues };
 }
 
 /** Cross-file checks of the knowledge base: point regions, landmarks and segments, editions. */
@@ -180,30 +253,38 @@ function checkBundle(b: ContentBundle, issues: Issue[]): void {
     for (const c of p.codes) if (!editions.has(c.edition)) issues.push({ path: at, message: `unknown edition ${c.edition}`, severity: "error" });
     if (!editions.has(p.location.edition)) issues.push({ path: at, message: `unknown edition ${p.location.edition}`, severity: "error" });
     if (!p.region) continue;
-    const r = b.regions.get(p.region);
-    if (!r) {
+    if (!b.regions.get(p.region)) {
       issues.push({ path: at, message: `unknown region ${p.region}`, severity: "error" });
       continue;
     }
-    const lms = new Set(r.landmarks.map((l) => l.id));
-    const segs = new Set(r.segments.map((s) => s.id));
-    const sides = r.laterality === "midline" && p.bilateral ? ["left", "right"] : ["x"];
-    const lmOk = (id: string) => sides.every((side) => lms.has(id.replace("{side}", side)));
-    const loc = p.localisation;
-    const used = !loc ? [] : loc.method === "landmark" ? [loc.landmark] : loc.method === "between" ? [loc.a, loc.b] : [loc.from, loc.toward];
-    for (const id of used) {
-      if (!id.startsWith("point:")) {
-        if (!lmOk(id)) issues.push({ path: at, message: `region ${r.id} has no landmark ${id}`, severity: "error" });
+    // each target: the point itself, or each site of a group point (on its own chart)
+    for (const { site, def } of pointTargets(p)) {
+      const where = site ? `${at}.${site}` : at;
+      const r = b.regions.get(def.region!);
+      if (!r) {
+        issues.push({ path: where, message: `unknown region ${def.region}`, severity: "error" });
         continue;
       }
-      const other = b.acupoints.get(id.slice("point:".length));
-      if (!other?.region || !other.localisation) issues.push({ path: at, message: `anchor ${id} is not a localised point`, severity: "error" });
-      else if (other.region !== r.id && !meets(b, other.region, r.id)) issues.push({ path: at, message: `anchor ${id} lies on ${other.region}, which has no seam with ${r.id}`, severity: "error" });
-      else if (other.bilateral !== p.bilateral) issues.push({ path: at, message: `anchor ${id} must be ${p.bilateral ? "bilateral" : "on the midline"} like ${p.id}`, severity: "error" });
+      const lms = new Set(r.landmarks.map((l) => l.id));
+      const segs = new Set(r.segments.map((s) => s.id));
+      const sides = r.laterality === "midline" && p.bilateral ? ["left", "right"] : ["x"];
+      const lmOk = (id: string) => sides.every((side) => lms.has(id.replace("{side}", side)));
+      const loc = def.localisation!;
+      const used = loc.method === "landmark" ? [loc.landmark] : loc.method === "between" ? [loc.a, loc.b] : [loc.from, loc.toward];
+      for (const id of used) {
+        if (!id.startsWith("point:")) {
+          if (!lmOk(id)) issues.push({ path: where, message: `region ${r.id} has no landmark ${id}`, severity: "error" });
+          continue;
+        }
+        const other = b.acupoints.get(id.slice("point:".length));
+        if (!other?.region || !other.localisation) issues.push({ path: where, message: `anchor ${id} is not a localised single point`, severity: "error" });
+        else if (other.region !== r.id && !meets(b, other.region, r.id)) issues.push({ path: where, message: `anchor ${id} lies on ${other.region}, which has no seam with ${r.id}`, severity: "error" });
+        else if (other.bilateral !== p.bilateral) issues.push({ path: where, message: `anchor ${id} must be ${p.bilateral ? "bilateral" : "on the midline"} like ${p.id}`, severity: "error" });
+      }
+      const dists = [loc.method === "along" ? loc.distance : undefined, loc.offset?.lateral, loc.offset?.medial, loc.offset?.cranial, loc.offset?.caudal, def.tolerance];
+      for (const d of dists) if (d && "segment" in d && !segs.has(d.segment)) issues.push({ path: where, message: `region ${r.id} has no segment ${d.segment}`, severity: "error" });
+      if (def.configuration && !r.configurations.some((c) => c.id === def.configuration)) issues.push({ path: where, message: `region ${r.id} has no configuration ${def.configuration}`, severity: "error" });
     }
-    const dists = [loc && loc.method === "along" ? loc.distance : undefined, loc?.offset?.lateral, loc?.offset?.medial, loc?.offset?.cranial, loc?.offset?.caudal, p.tolerance];
-    for (const d of dists) if (d && "segment" in d && !segs.has(d.segment)) issues.push({ path: at, message: `region ${r.id} has no segment ${d.segment}`, severity: "error" });
-    if (p.configuration && !r.configurations.some((c) => c.id === p.configuration)) issues.push({ path: at, message: `region ${r.id} has no configuration ${p.configuration}`, severity: "error" });
   }
   for (const r of b.regions.values()) {
     const lms = new Set(r.landmarks.map((l) => l.id));

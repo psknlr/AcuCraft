@@ -10,7 +10,7 @@ import type { Scenario } from "./scenario.js";
 
 export const LOCALE = "en";
 
-export const ABNORMAL_FEEDBACK: readonly FeedbackKind[] = ["sharp-pain", "electric-sensation", "faint", "nausea", "bleeding", "worse"];
+export const ABNORMAL_FEEDBACK: readonly FeedbackKind[] = ["sharp-pain", "electric-sensation", "too-strong", "faint", "nausea", "bleeding", "worse"];
 
 export const LYING: readonly string[] = ["supine", "supine-knee-flexed", "prone", "side-lying-left", "side-lying-right"];
 
@@ -212,7 +212,7 @@ function fire(sc: Scenario, s: EncounterState, ev: FieldEvent): void {
       const n = s.needles[pick.needle.id]!;
       const loc = n.location;
       if (fx.needle.becomes === "dropped-hidden") {
-        n.location = { kind: "floor", area: fx.needle.area, hidden: true };
+        n.location = { kind: "floor", area: fx.needle.area, hidden: true, ...(s.patient.support ? { near: s.patient.support } : {}) };
         n.contaminated = true;
         n.contamination.push("fell out of the patient");
         pushNeedleEvent(s, n.id, "system", "dropped", `fell out unseen (${fx.needle.area})`);

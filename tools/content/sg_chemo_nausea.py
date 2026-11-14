@@ -23,7 +23,7 @@ case = {
   "triageNote": "On adjuvant chemotherapy for breast cancer; asks about acupuncture for nausea.", "tags": ["nausea", "chemotherapy"],
   "persona": {"personality": "Gentle, tired, determined.", "speechStyle": "Soft-spoken Singapore English with some Malay.", "healthLiteracy": "medium", "affect": "calm",
    "openingLine": "Doctor, the chemo makes me so nauseous. My next cycle is next week.", "fallbackUnknown": "I'm not sure, doctor.", "concerns": ["She wants to be able to eat with her family."]},
-  "posture": "sitting", "appearance": {"build": "average"}},
+  "posture": "sitting", "appearance": {"build": "average", "skin": "#b98b68", "hair": "#2a2320", "hairStyle": "bob", "shirt": "#8d6ea0", "pants": "#3d4450", "presentation": "feminine"}},
  "phases": phases("Thursday 11:00 at the clinic, six days before her next chemotherapy cycle.", "One week later, three days after the cycle."), "initialPhase": V1,
  "clock": {"mode": "simulated", "startTime": "11:00", "actionCosts": {"ask": 1, "examine": 2, "order": 0, "read": 1, "intervene": 1, "answer": 0}},
  "history": [
@@ -85,6 +85,9 @@ field = {"schema": "acucraft/field@1", "clinic": "sg-tcm-outpatient", "roles": "
    {"id": "p-treat-unchecked", "label": "Needled without checking the blood count", "acceptable": False, "when": {"all": [{"needlesInserted": {"gte": 1}}, {"not": {"clinical": {"read": "inv-fbc"}}}]}}],
   "diagnoses": {"expected": ["chemotherapy-nausea"], "acceptable": []},
   "patterns": {"defensible": ["spleen-stomach-deficiency", "stomach-qi-rebellion"], "implausible": ["liver-yang-rising", "damp-heat-bi"]},
+  # what each finding shows, in the vocabulary's signs: a differentiation is read from the findings it names
+  "signs": {"hx-chief": ["nausea-vomiting"], "hx-nausea": ["nausea-vomiting", "poor-appetite"], "hx-tcm": ["fatigue", "poor-appetite", "loose-stools"], "ex-general": ["tired-appearance"],
+   "ex-tongue": ["tongue-pale", "tongue-swollen-toothmarked", "coat-thin-white"], "ex-pulse-tcm": ["pulse-weak", "pulse-slippery"]},
   "redFlags": [{"id": "fever-on-chemotherapy", "present": False}],
   "points": {"recommended": [{"point": "PC6", "side": "right"}, {"point": "PC6", "side": "left"}, {"point": "ST36"}], "acceptable": [{"point": "CV12", "side": "midline"}, {"point": "SP6"}, {"point": "LI4"}], "avoid": [], "maxNeedles": 8},
   "criticalErrors": [],
@@ -113,18 +116,21 @@ def treat(t, pts, prefix_marks, explain=EXPLAIN):
     t({"type": "seek_consent"})
     t({"type": "position_patient", "position": "supine-knee-flexed"})
     t({"type": "assign_task", "to": "assistant", "kind": "monitor-patient", "params": {"intervalMinutes": 5}, "note": "Please check on Mdm Siti every five minutes while the needles are in."})
-    for (target, region, side, method) in prefix_marks:
+    # one side of the couch, then the other: the wrist, then the leg
+    marks = [m for side in ("right", "left") for m in prefix_marks if m[2] == side]
+    for (target, region, side, method) in marks:
         key = f"{target['point']}:{side}"
         if region == "forearm": t.landmarks("forearm", side, "pl-fcr-wrist", "cubital-crease-mid")
         else: t.landmarks("knee-leg", side, "st35-depression", "ankle-anterior-midpoint", "lateral-malleolus")
         t.mark(target, region, side, *C[key], method=method)
     t.fetch_pack("pack-a")
-    for region, side in sorted({(r, s) for (_, r, s, _) in prefix_marks}):
+    for (_, region, side, _) in marks:
         t({"type": "prepare_site", "region": region, "side": side})
     t({"type": "open_pack", "packId": "pack-a"})
     depth = {"PC6": 1.0, "ST36": 2.0}
-    for i, (target, region, side, _) in enumerate(prefix_marks):
-        t.needle(f"pack-a.{i+1}", f"m{i+1}", depth[target["point"]])
+    for i, (target, region, side, _) in enumerate(marks):
+        # each needle is rotated gently once it is in, and she is asked what she feels at it
+        t.needle(f"pack-a.{i+1}", f"m{i+1}", depth[target["point"]], work="rotate", ask=True)
     t({"type": "monitor"})
     t({"type": "wait", "minutes": 10})
     t({"type": "monitor"})
@@ -136,7 +142,7 @@ def treat(t, pts, prefix_marks, explain=EXPLAIN):
 def doc(pts, n):
     return {"type": "document", "record": {"presentingComplaint": "Delayed nausea after chemotherapy cycles.", "assessment": "Chemotherapy-related nausea; counts satisfactory (1 Dec); oncology supportive.", "pattern": "Spleen–stomach deficiency with rebellious stomach qi",
       "rationale": "PC6 and ST36 as an adjunct to antiemetics.", "consent": "Verbal consent after explanation.", "pointsUsed": pts,
-      "needling": {"needleType": "0.25 × 40 mm single-use sterile filiform", "needleCount": n, "depth": "PC6 1.0 cm; ST36 2.0 cm", "responseSought": "mild deqi", "stimulation": "even", "retentionMinutes": 20},
+      "needling": {"needleType": "0.25 × 40 mm single-use sterile filiform", "needleCount": n, "depth": "PC6 1.0 cm; ST36 2.0 cm", "responseSought": "mild deqi (one gentle rotation at each needle)", "stimulation": "even", "retentionMinutes": 20},
       "response": "Tolerated.", "adverseEvents": "None.", "advice": "Continue antiemetics; small frequent meals.", "followUp": "After the next cycle."}}
 
 def follow_up(t):
@@ -148,7 +154,8 @@ def follow_up(t):
     t({"type": "finish_encounter"})
 
 def assess(t, extra_rationale=""):
-    t({"type": "assess", "diagnoses": ["chemotherapy-nausea"], "pattern": "stomach-qi-rebellion", "redFlags": [], "rationale": "Delayed nausea after each cycle; tired, poor appetite, loose stools; pale swollen tongue." + extra_rationale})
+    # the nausea and vomiting, the poor appetite, the thin white coat and the slippery pulse
+    t({"type": "assess", "diagnoses": ["chemotherapy-nausea"], "pattern": "stomach-qi-rebellion", "patternEvidence": ["hx-nausea", "hx-tcm", "ex-tongue", "ex-pulse-tcm"], "redFlags": [], "rationale": "Delayed nausea after each cycle; tired, poor appetite, loose stools; pale swollen tongue." + extra_rationale})
 
 MARKS_BOTH = [({"point": "PC6", "side": "right"}, "forearm", "right", "proportional"), ({"point": "PC6", "side": "left"}, "forearm", "left", "proportional"), ({"point": "ST36", "side": "right"}, "knee-leg", "right", "proportional"), ({"point": "ST36", "side": "left"}, "knee-leg", "left", "proportional")]
 MARKS_RIGHT_ARM = [m for m in MARKS_BOTH if not (m[1] == "forearm" and m[2] == "left")]
@@ -169,7 +176,7 @@ variants = [
   field={"evaluation": {"diagnoses": {"acceptable": ["neutropenia"]}, "patterns": {"$replace": {"defensible": [], "implausible": []}}, "pathways": [{"id": "p-treat", "$remove": True},
      {"id": "p-defer", "label": "Defer and liaise with the oncology team", "acceptable": True, "when": {"all": [{"disposition": ["defer", "refer", "decline"], "visit": 1}, {"needlesInserted": {"lte": 0}}, {"referred": {"to": ["oncology"]}}, {"visitEnded": 1}]}},
      {"id": "p-treated-neutropenic", "label": "Needled despite neutropenia and thrombocytopenia", "acceptable": False, "when": {"needlesInserted": {"gte": 1}}}],
-    "redFlags": {"$replace": [{"id": "fever-on-chemotherapy", "present": True}]},
+    "redFlags": {"$replace": [{"id": "fever-on-chemotherapy", "present": True, "evidence": [{"clinical": {"read": "inv-fbc"}}]}]},
     "points": {"$replace": {"recommended": [], "acceptable": [], "avoid": [], "maxNeedles": 1}},
     "criticalErrors": [{"id": "ce-needled-neutropenic", "label": "Needled with neutrophils 0.6 and platelets 48", "when": {"needlesInserted": {"gte": 1}}}],
     "followUp": None}}),
@@ -193,7 +200,7 @@ ly(doc(PTS_RIGHT_ARM, 3)); ly({"type": "end_visit"}); follow_up(ly)
 
 ne = Trajectory("cn")
 consult(ne)
-ne({"type": "assess", "diagnoses": ["chemotherapy-nausea", "neutropenia"], "pattern": "spleen-stomach-deficiency", "redFlags": ["fever-on-chemotherapy"], "rationale": "Neutrophils 0.6 and platelets 48 on the latest count: infection and bleeding risk."})
+ne({"type": "assess", "diagnoses": ["chemotherapy-nausea", "neutropenia"], "pattern": "spleen-stomach-deficiency", "patternEvidence": ["hx-tcm", "ex-general", "ex-tongue", "ex-pulse-tcm"], "redFlags": ["fever-on-chemotherapy"], "rationale": "Neutrophils 0.6 and platelets 48 on the latest count: infection and bleeding risk."})
 ne({"type": "decide", "disposition": "defer", "rationale": "Defer needling until the counts recover; contact the oncology team."})
 ne({"type": "explain", "topics": ["risks", "alternatives"], "text": "Your latest blood test shows low white cells and platelets, so needles would carry a risk of infection and bleeding. Let's not needle today. You could use an acupressure wristband on the inner wrist, eat small frequent meals, and I'll let your oncology team know. If you get a fever, go to the hospital straight away."})
 ne({"type": "refer", "to": "oncology", "urgency": "soon", "reason": "Neutrophils 0.6 and platelets 48 ×10⁹/L on 1 Dec; persistent delayed nausea; acupuncture deferred."})

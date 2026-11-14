@@ -189,9 +189,11 @@ NOTES = {
 # Placements contributed per body area (tools/content/localise_*.py): each module defines LOCALISE in the same form
 # as above, with an optional fourth item, the configuration the standard locates the point in.
 def extra_placements():
+    """Placements and group-point sites contributed per body area (localise_*.py: LOCALISE, and SITES for group points
+    located site by site: {id: (region, [(site, label, region or None, localisation, tolerance[, configuration])])})."""
     import glob, importlib.util
     here = os.path.dirname(os.path.abspath(__file__))
-    merged = {}
+    merged, sites = {}, {}
     for path in sorted(glob.glob(os.path.join(here, "localise_*.py"))):
         spec = importlib.util.spec_from_file_location(os.path.basename(path)[:-3], path)
         mod = importlib.util.module_from_spec(spec)
@@ -199,7 +201,10 @@ def extra_placements():
         for pid, entry in mod.LOCALISE.items():
             assert pid not in merged and pid not in LOCALISE, f"{pid} placed twice ({os.path.basename(path)})"
             merged[pid] = entry
-    return merged
+        for pid, entry in getattr(mod, "SITES", {}).items():
+            assert pid not in merged and pid not in LOCALISE and pid not in sites, f"{pid} placed twice ({os.path.basename(path)})"
+            sites[pid] = entry
+    return merged, sites
 
 def meridian_rows():
     tables = {**ARM, **LEG, **MID}
@@ -213,7 +218,8 @@ def extra_rows():
 
 def build():
     detail = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "acupoint_detail.json")))["points"]
-    placements = {**LOCALISE, **extra_placements()}
+    extra, group_sites = extra_placements()
+    placements = {**LOCALISE, **extra}
     by_file = {}
     seen = set()
     for ch, code, n, pinyin, hanzi, en, area, text, bilateral, sites in [*meridian_rows(), *extra_rows()]:
@@ -246,6 +252,20 @@ def build():
                 if k in d:
                     p[k] = d[k]
             p["tolerance"] = d["tolerance"]
+        elif pid in group_sites:
+            region, entries = group_sites[pid]
+            assert sites == len(entries), f"{pid}: {sites} sites, {len(entries)} located"
+            p["region"] = region
+            p["siteLocalisations"] = []
+            for site, label, site_region, loc, tol, *rest in entries:
+                e = {"id": site, "label": label}
+                if site_region and site_region != region:
+                    e["region"] = site_region
+                e["localisation"], e["tolerance"] = loc, tol
+                if rest and rest[0]:
+                    e["configuration"] = rest[0]
+                p["siteLocalisations"].append(e)
+            p["tolerance"] = entries[0][4]
         elif pid in placements:
             region, loc, tol, *rest = placements[pid]
             p["region"], p["localisation"], p["tolerance"] = region, loc, tol
@@ -267,7 +287,7 @@ def build():
         by_file.setdefault(ch, []).append(p)
     missing = set(detail) - seen
     assert not missing, f"detail for unknown points: {missing}"
-    unknown = (set(placements) | set(PREGNANCY) | set(NOTES)) - seen
+    unknown = (set(placements) | set(group_sites) | set(PREGNANCY) | set(NOTES)) - seen
     assert not unknown, f"unknown points: {unknown}"
     return by_file
 
@@ -280,8 +300,9 @@ def main():
     for ch, points in by_file.items():
         dump(os.path.join(out, f"{ch.lower()}.json"), {"schema": "acucraft/acupoints@1", "id": f"acucraft-points-{ch.lower()}", "version": VERSION, "points": points})
     total = sum(len(v) for v in by_file.values())
-    localised = sum(1 for v in by_file.values() for p in v if "localisation" in p)
-    print(f"{total} points in {len(by_file)} files ({localised} localised on the modelled regions)")
+    localised = sum(1 for v in by_file.values() for p in v if "localisation" in p or "siteLocalisations" in p)
+    groups = [p for v in by_file.values() for p in v if "siteLocalisations" in p]
+    print(f"{total} points in {len(by_file)} files ({localised} localised on the modelled regions; {len(groups)} groups by site: {sum(len(p['siteLocalisations']) for p in groups)} sites)")
 
 if __name__ == "__main__":
     main()

@@ -9,41 +9,34 @@ import { createInterface } from "node:readline/promises";
 import { parseArgs } from "node:util";
 import { verifyCase } from "@clinicalcraft/core";
 import {
+  ACUCRAFT_VERSION,
   ActionSchema,
+  clinicWorld,
   createEncounter,
   digest,
+  floorPlan,
+  freeSpot,
   observeAs,
+  patientBody,
   modelledRegions,
   patientRegion,
   pointInstance,
+  pointTargets,
   referenceLibrary,
   regionAccess,
   replayLog,
   step,
+  type AgentView,
   type EncounterLog,
+  type EncounterState,
   type Mode,
   type Position,
   type Side,
 } from "@acucraft/core";
-import {
-  claudeAgent,
-  encounterHtml,
-  episodeMarkdown,
-  evaluateEncounter,
-  loadContentPack,
-  loadScenario,
-  protocolAgent,
-  referenceAgent,
-  requireScenario,
-  runEpisode,
-  runSuite,
-  scenarioIds,
-  suiteMarkdown,
-  SuiteSchema,
-  DEFAULT_CONTENT_DIR,
-  type Agent,
-  type Effort,
-} from "@acucraft/bench";
+import { claudeAgent, llmAgent, lookup, oracleProvider, protocolAgent, referenceAgent, systemPrompt, toolsFor, type Agent, type Effort, type LlmEvent } from "@acucraft/agent";
+import { CLINICALCRAFT_REV, encounterHtml, episodeMarkdown, evaluateEncounter, loadContentPack, loadScenario, requireScenario, runEpisode, runSuite, scenarioIds, suiteMarkdown, SuiteSchema, DEFAULT_CONTENT_DIR } from "@acucraft/bench";
+import { runMcpServer } from "@acucraft/mcp";
+import type { Scenario } from "@acucraft/core";
 
 const HELP = `acucraft — acupuncture simulation and evaluation (Singapore edition)
 
@@ -56,21 +49,31 @@ usage: npm run acu -- <command> [options]
                                             body area (forearm) or region (knee-leg); or one point in full (ST36, SJ5)
   show <family/variant> [--mode teaching] [--library]
                                             the agent's opening view (and the public reference library)
+  map <family/variant>                      the clinic's floor plan: rooms, doors, fixtures and where everyone starts
+  vocabulary [PATTERN]                      the signs, what each pattern is recognised by, and what counts as deqi
   locate <family/variant> <position> [POINT:side ...]
                                             authoring: the hidden patient-specific landmarks and points
-  run <family/variant> [--agent protocol|reference|claude] [--seed N] [--mode assessment|teaching]
-      [--model ID] [--effort low|medium|high|xhigh|max] [--max-steps N] [--out DIR] [--verbose]
-                                            run one encounter; writes log.json, report.json and report.md
+  run <family/variant> [--agent protocol|reference|claude|scripted-llm] [--seed N] [--mode assessment|teaching]
+      [--model ID] [--effort low|medium|high|xhigh|max] [--max-steps N] [--no-skills] [--no-locate]
+      [--out DIR] [--verbose]               run one encounter; writes log.json, report.json and report.md
+                                            (claude: a live model through the Messages API; scripted-llm: the
+                                            reference trajectory spoken as tool calls through the same loop, offline)
   play <family/variant> [--mode teaching] [--seed N] [--out DIR]
                                             play the practitioner yourself (type help inside)
   replay <log.json>                         replay a log, check it reproduces the recorded state, re-evaluate
   evaluate <log.json> [--json]              evaluate a log
-  view <log.json> [--out FILE]              an HTML view of the encounter: charts with landmarks, structures,
-                                            reference locations and entries, and the timeline (shows hidden truth)
+  view <log.json> [--out FILE]              an HTML view of the encounter: the floor plan with every walk, charts with
+                                            landmarks, structures, reference locations and entries, the evidence
+                                            links and the timeline (shows hidden truth)
   bench [--suite FILE] [--agent ...] [--split dev|held-out|all] [--out DIR] [--model ID] [--effort ...]
                                             run a benchmark suite; writes suite-result.json and report.md
   export-clinicalcraft --out DIR            write every instance's ClinicalCraft case (cases/<id>/case.json) for
                                             ClinicalCraft's contentDirs setting
+  skills [ID]                               the clinic's written skills an agent may read: the index, or one in full
+  tools [--role ROLE]                       the tools a language-model practitioner is given (name and description)
+  prompt                                    the standing instructions a language-model practitioner is given
+  mcp                                       serve encounters to an MCP client over stdio (Claude Code, Claude Desktop):
+                                            the client plays the practitioner with the same tools (docs/AGENT.md)
 
   --content DIR                             another content pack (default: ./content)
 `;
@@ -95,6 +98,9 @@ const { positionals, values } = parseArgs({
     split: { type: "string", default: "all" },
     content: { type: "string" },
     verbose: { type: "boolean", default: false },
+    "no-skills": { type: "boolean", default: false },
+    "no-locate": { type: "boolean", default: false },
+    role: { type: "string" },
     library: { type: "boolean", default: false },
     json: { type: "boolean", default: false },
     help: { type: "boolean", short: "h", default: false },
@@ -117,16 +123,124 @@ const write = (path: string, data: string) => {
 };
 const mode = (): Mode => (values.mode === "teaching" ? "teaching" : "assessment");
 
+const FIXTURE_GLYPH: Record<string, string> = { couch: "C", chair: "h", trolley: "T", supplies: "S", "hand-hygiene": "w", "sharps-container": "!", "records-terminal": "R", screen: "|" };
+
+/**
+ * The clinic's floor plan as text, one character for half a metre: `#` wall or furniture, `.` floor that can be
+ * walked, a letter for each fixture; `@` the practitioner, `P` the patient, `a` the others — where they stand in `s`.
+ */
+function asciiMap(sc: Scenario, s: EncounterState, actor: string): string {
+  const w = clinicWorld(sc);
+  const plan = floorPlan(sc);
+  const step = 0.5;
+  const minX = Math.min(...plan.rooms.map((r) => r.rect.minX)) - step;
+  const maxX = Math.max(...plan.rooms.map((r) => r.rect.maxX)) + step;
+  const minZ = Math.min(...plan.rooms.map((r) => r.rect.minZ)) - step;
+  const maxZ = Math.max(...plan.rooms.map((r) => r.rect.maxZ)) + step;
+  const cols = Math.round((maxX - minX) / step);
+  const rows = Math.round((maxZ - minZ) / step);
+  const cell = (x: number, z: number) => ({ c: Math.floor((x - minX) / step), r: Math.floor((z - minZ) / step) });
+  const grid: string[][] = [];
+  for (let r = 0; r < rows; r++) {
+    const row: string[] = [];
+    for (let c = 0; c < cols; c++) {
+      const x = minX + (c + 0.5) * step;
+      const z = minZ + (r + 0.5) * step;
+      const inRoom = plan.rooms.some((room) => x > room.rect.minX && x < room.rect.maxX && z > room.rect.minZ && z < room.rect.maxZ);
+      row.push(freeSpot(w, { x, z }) ? "." : inRoom ? "#" : " ");
+    }
+    grid.push(row);
+  }
+  const put = (x: number, z: number, glyph: string) => {
+    const { c, r } = cell(x, z);
+    if (grid[r]?.[c] !== undefined) grid[r]![c] = glyph;
+  };
+  // a fixture covers the cells whose centre lies on its footprint (at least the one its own centre is in); where two
+  // share a footprint — the sharps box on the trolley — the one listed first in the legend shows
+  const order = Object.keys(FIXTURE_GLYPH);
+  for (const f of [...plan.fixtures].sort((a, b) => order.indexOf(b.kind) - order.indexOf(a.kind))) {
+    const glyph = FIXTURE_GLYPH[f.kind] ?? "f";
+    let drawn = 0;
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const x = minX + (c + 0.5) * step;
+        const z = minZ + (r + 0.5) * step;
+        if (Math.abs(x - f.x) <= f.w / 2 && Math.abs(z - f.z) <= f.d / 2) {
+          grid[r]![c] = glyph;
+          drawn += 1;
+        }
+      }
+    }
+    if (drawn === 0) put(f.x - 1e-6, f.z - 1e-6, glyph);
+  }
+  const body = patientBody(sc, s);
+  put(body.centre.x, body.centre.z, "P");
+  for (const a of Object.values(s.actors)) put(a.at.x, a.at.z, a.id === actor ? "@" : "a");
+  const lines = [`${sc.clinic.title} — north is up; one character is ${step} m (x ${minX}…${maxX} m east, z ${minZ}…${maxZ} m south)`, ""];
+  lines.push(...grid.map((row, r) => `${(minZ + (r + 0.5) * step).toFixed(2).padStart(6)}  ${row.join("")}`));
+  lines.push("", "  @ you   P patient   a the team   . floor   # wall or furniture   C couch  h chair  T trolley/worktop  S supplies  w hand hygiene  ! sharps  R records  | screen", "");
+  lines.push("rooms");
+  for (const room of plan.rooms) lines.push(`  ${room.id.padEnd(16)} ${room.label.padEnd(22)} x ${room.rect.minX}…${room.rect.maxX}, z ${room.rect.minZ}…${room.rect.maxZ}; door(s) ${room.doors.map((d) => `(${d.x}, ${d.z})${d.to ? ` to ${d.to}` : ""}`).join(", ") || "—"}`);
+  lines.push("fixtures");
+  for (const f of plan.fixtures) lines.push(`  ${f.id.padEnd(20)} ${f.kind.padEnd(17)} ${f.room.padEnd(15)} at (${f.x}, ${f.z}), ${f.w} × ${f.d} m; used from within ${f.reach} m`);
+  lines.push("", `reach: a body site within ${plan.ranges.armReach} m; at the patient's side within ${plan.ranges.contact} m; earshot ${plan.ranges.talk} m; sight ${plan.ranges.sight} m. Walking ${plan.walking.metresPerMinute} m/min, ${plan.walking.withPatient} with the patient.`);
+  return lines.join("\n");
+}
+
+/** Where you stand and what you can do from there, in a few lines (the `where` of play). */
+function whereText(v: AgentView): string {
+  const sp = v.space;
+  const p = sp.patient;
+  const lines = [`You are in the ${sp.you.room} at (${sp.you.x}, ${sp.you.z}), facing ${sp.you.facing}.`];
+  lines.push(`The patient is ${v.patient.position}${p.on ? ` on ${p.on}` : ""} in the ${p.room}, ${p.distance} m away: ${p.inEarshot ? "in earshot" : "out of earshot"}, ${p.atSide ? "at your side" : "not at your side"}${p.lying ? `; head to the ${p.lying.head}, their right to the ${p.lying.rightSide}` : ""}.`);
+  if (p.sites.inReach.length) lines.push(`Sites in reach: ${p.sites.inReach.join(", ")}.`);
+  if (p.sites.outOfReach.length) lines.push(`Out of reach: ${p.sites.outOfReach.map((x) => `${x.site} (${x.distance} m)`).join(", ")}.`);
+  const near = sp.fixtures.filter((f) => f.inReach);
+  lines.push(`Fixtures in reach: ${near.map((f) => `${f.id} (${f.kind})`).join(", ") || "none"}.`);
+  lines.push(`Elsewhere: ${sp.fixtures.filter((f) => !f.inReach).sort((a, b) => a.distance - b.distance).slice(0, 8).map((f) => `${f.id} ${f.distance} m`).join(", ")}.`);
+  return lines.join("\n");
+}
+
+/** The evidence obtained so far, with the id of each item (the `evidence` of play). */
+function evidenceText(v: AgentView): string {
+  const lines: string[] = [];
+  for (const h of v.record.history) lines.push(`  ${h.id.padEnd(22)} history   ${h.answer}`);
+  for (const e of v.record.examination) lines.push(`  ${e.id.padEnd(22)} exam      ${e.manoeuvre}: ${e.finding}`);
+  for (const r of v.record.results) lines.push(`  ${r.id.padEnd(22)} record    ${r.text}`);
+  for (const x of v.record.vitals) lines.push(`  ${x.id.padEnd(22)} vitals    ${Object.entries(x.vitals).map(([k, val]) => `${k} ${val}`).join(", ")}`);
+  for (const o of v.record.observations) lines.push(`  ${o.id.padEnd(22)} seen      ${o.text}`);
+  for (const n of v.needling) {
+    lines.push(`  needle ${n.needle} (${n.target})${n.inPlace ? "" : ", out"}, worked ${n.manipulations}×${n.recorded ? `, recorded ${n.recorded}` : ""}`);
+    for (const e of n.evidence) lines.push(`    ${e.id.padEnd(20)} ${e.from.padEnd(9)} ${e.text}`);
+  }
+  if (v.assessment?.pattern) lines.push(`  pattern on record: ${v.assessment.pattern} on ${v.assessment.patternEvidence.join(", ")}`);
+  return lines.length ? lines.join("\n") : "  nothing obtained yet";
+}
+
+/** A model at work, one line for each of its turns (`--verbose`). */
+function showModel(e: LlmEvent): void {
+  if (e.type === "model") {
+    if (e.text) console.log(`      │ ${e.text.replace(/\s+/g, " ").slice(0, 200)}`);
+    if (e.calls.length > 1) console.log(`      │ ${e.calls.length} calls: ${e.calls.map((c) => c.name).join(", ")}`);
+  } else if (e.type === "read") console.log(`      · ${e.name}${e.ok ? "" : " (not found)"}`);
+  else if (e.type === "skipped") console.log(`      · ${e.name} not carried out: ${e.reason}`);
+  else console.log(`      · ${e.name} not valid: ${e.error.slice(0, 160)}`);
+}
+
 function makeAgent(id: string, p: ReturnType<typeof pack>): Agent {
+  const llm = { skills: values["no-skills"] ? [] : p.skills, locate: !values["no-locate"], ...(values.verbose ? { onEvent: showModel } : {}) };
   switch (values.agent) {
     case "reference":
       return referenceAgent(requireScenario(p, id));
     case "claude":
-      return claudeAgent({ ...(values.model ? { model: values.model } : {}), ...(values.effort ? { effort: values.effort as Effort } : {}) });
+      return claudeAgent({ ...llm, ...(values.model ? { model: values.model } : {}), ...(values.effort ? { effort: values.effort as Effort } : {}) });
+    case "scripted-llm":
+      // the loop, the tools and the results, with the reference trajectory in place of a model: no network
+      return llmAgent({ ...llm, provider: oracleProvider(requireScenario(p, id).field.solution, { batch: 3 }) });
     case "protocol":
       return protocolAgent();
     default:
-      console.error(`unknown agent ${values.agent} (protocol, reference, claude)`);
+      console.error(`unknown agent ${values.agent} (protocol, reference, claude, scripted-llm)`);
       process.exit(2);
   }
 }
@@ -169,7 +283,7 @@ async function main(): Promise<void> {
         for (const pr of problems) console.log(`    ${pr}`);
         if (values.verbose) for (const w of r.warnings) console.log(`    warning ${w.path}: ${w.message}`);
       }
-      console.log(`\n${p.families.size} families, ${scenarioIds(p).length} instances, ${p.bundle.acupoints.size} point definitions (${[...p.bundle.acupoints.values()].filter((x) => x.localisation).length} localised), ${p.bundle.regions.size} regions, ${p.bundle.ruleSets.length} rule sets.`);
+      console.log(`\n${p.families.size} families, ${scenarioIds(p).length} instances, ${p.bundle.acupoints.size} point definitions (${[...p.bundle.acupoints.values()].filter((x) => pointTargets(x).length > 0).length} localised; ${[...p.bundle.acupoints.values()].filter((x) => x.siteLocalisations).length} groups by site), ${p.bundle.regions.size} regions, ${p.bundle.ruleSets.length} rule sets, ${p.skills.length} skills.`);
       if (failed) {
         console.log(`${failed} instance(s) failed.`);
         process.exit(1);
@@ -199,7 +313,10 @@ async function main(): Promise<void> {
         const by = new Map<string, number>();
         for (const d of all) by.set(d.channel, (by.get(d.channel) ?? 0) + 1);
         console.log([...by].map(([c, k]) => `${c} ${k}`).join(" · "));
-        console.log(`${all.length} points, ${all.filter((d) => d.localisation).length} localised on the modelled regions (${[...p.bundle.regions.keys()].join(", ")}).`);
+        console.log(`${all.length} points, ${all.filter((d) => pointTargets(d).length > 0).length} localised on the modelled regions (${[...p.bundle.regions.keys()].join(", ")}).`);
+        const groups = all.filter((d) => d.sites);
+        console.log(`Group points: ${groups.length}, ${groups.filter((d) => d.siteLocalisations).length} located site by site (${groups.filter((d) => d.siteLocalisations).map((d) => `${d.id} ${d.siteLocalisations!.length}`).join(", ")}); the others at one canonical site.`);
+        console.log(`Review: ${all.filter((d) => d.provenance.review.status !== "unreviewed").length} of ${all.length} points reviewed by an expert; none is suitable for assessment until reviewed.`);
         return;
       }
       const one = all.find((d) => d.id.toUpperCase() === key.toUpperCase() || d.aliases.some((a) => a.toUpperCase() === key.toUpperCase()));
@@ -222,21 +339,53 @@ async function main(): Promise<void> {
       console.log(JSON.stringify(values.library ? { view: observeAs(sc, s, actor), library: referenceLibrary(sc) } : observeAs(sc, s, actor), null, 2));
       return;
     }
+    case "map": {
+      const p = pack();
+      const sc = requireScenario(p, args[0] ?? "");
+      const actor = sc.field.cast.find((m) => m.agent === "under-test")!.id;
+      console.log(asciiMap(sc, createEncounter(sc, { seed: Number(values.seed) }), actor));
+      return;
+    }
+    case "vocabulary": {
+      const p = pack();
+      const sc = requireScenario(p, scenarioIds(p)[0]!);
+      const lib = referenceLibrary(sc);
+      if (args[0]) {
+        console.log(JSON.stringify(lookup(lib, { topic: "pattern", id: args[0] }), null, 2));
+        return;
+      }
+      const v = lib.vocabulary;
+      console.log(`${v.signs.length} signs, ${v.patterns.length} patterns. A differentiation rests on the findings it names when they show ${v.differentiation.key} key sign(s) and ${v.differentiation.total} in all, with fewer than ${v.differentiation.against} against.\n`);
+      const label = (id: string) => v.signs.find((x) => x.id === id)?.label ?? id;
+      for (const pt of v.patterns) {
+        console.log(`${pt.id}  ${pt.label}${pt.zh ? `  ${pt.zh}` : ""}`);
+        console.log(`    key         ${(pt.criteria?.key ?? []).map(label).join("; ") || "—"}`);
+        console.log(`    supporting  ${(pt.criteria?.supporting ?? []).map(label).join("; ") || "—"}`);
+        if (pt.criteria?.against.length) console.log(`    against     ${pt.criteria.against.map(label).join("; ")}`);
+      }
+      console.log(`\nNeedle sensations: ${v.sensations.map((x) => `${x.label}${x.zh ? ` ${x.zh}` : ""} (${x.deqi ? "deqi" : "not deqi"})`).join("; ")}.`);
+      if (v.deqi) {
+        console.log(`\nDeqi: ${v.deqi.definition}\nEvidence: ${v.deqi.evidence}`);
+        for (const src of [...v.deqi.sources, ...v.differentiation.sources.filter((x) => !v.deqi!.sources.some((y) => y.title === x.title))]) console.log(`  source${src.verified ? "" : " (not verified)"}: ${src.title}${src.publishedAt ? `, ${src.publishedAt}` : ""}${src.locator ? ` — ${src.locator}` : ""}`);
+      }
+      return;
+    }
     case "locate": {
       const p = pack();
       const sc = requireScenario(p, args[0] ?? "");
       const position = (args[1] ?? sc.field.patient.position) as Position;
       for (const spec of args.slice(2)) {
-        const [id, side] = spec.split(":");
+        const [id, side, site] = spec.split(":");
         const def = p.bundle.acupoints.get(id!);
-        if (!def?.region) {
-          console.log(`${spec}: no localisation`);
+        const target = def && pointTargets(def).find((t) => t.site === (site ?? null));
+        if (!def || !target?.def.region) {
+          console.log(`${spec}: no localisation${def?.siteLocalisations ? ` (a group: name a site, ${def.siteLocalisations.map((x) => x.id).join(", ")})` : ""}`);
           continue;
         }
-        const region = p.bundle.regions.get(def.region)!;
+        const region = p.bundle.regions.get(target.def.region)!;
         const s: Side = def.bilateral ? ((side ?? "right") as Side) : "midline";
         const access = regionAccess(region, s, position);
-        const inst = pointInstance(sc, def, s, access.configuration);
+        const inst = pointInstance(sc, def, s, access.configuration, site);
         console.log(inst ? `${spec}  u=${inst.position.u.toFixed(2)} v=${inst.position.v.toFixed(2)}  tolerance ${inst.toleranceCm.toFixed(2)} cm  (${inst.configuration}${access.accessible ? "" : ", not reachable in this position"})` : `${spec}: no instance`);
       }
       if (args.length <= 2) {
@@ -273,7 +422,9 @@ async function main(): Promise<void> {
       write(join(out, "report.json"), `${JSON.stringify(e.report, null, 2)}\n`);
       write(join(out, "report.md"), episodeMarkdown(e.report));
       write(join(out, "viewer.html"), encounterHtml(sc, e.state, e.report));
-      console.log(`${id}: ${e.report.primary.status} (${e.stopReason}, ${e.steps} actions)${e.error ? ` — error: ${e.error}` : ""}`);
+      console.log(`${id}: ${e.report.primary.status} (${e.stopReason}, ${e.steps} actions)${e.error ? ` — error: ${e.error}` : ""}${e.note ? ` — ${e.note}` : ""}`);
+      const used = agent.usage?.();
+      if (used) console.log(`  model: ${used.modelCalls} turns; ${used.inputTokens + used.cacheReadTokens + used.cacheWriteTokens} input tokens (${used.cacheReadTokens} from cache), ${used.outputTokens} output tokens`);
       for (const reason of e.report.primary.reasons) console.log(`  ${reason}`);
       console.log(`  tracks: ${Object.entries(e.report.tracks).map(([k, t]) => `${k} ${t.score === null ? "—" : t.score.toFixed(2)}`).join(", ")}`);
       console.log(`  wrote ${out}/log.json, report.json, report.md, viewer.html`);
@@ -302,7 +453,14 @@ async function main(): Promise<void> {
         }
         if (line === "quit" || line === "exit") break;
         if (line === "help") {
-          console.log("ask <question> | say <text> | exam <manoeuvre> | records <query> | view | lib <topic> [id] | actions | <JSON action> | quit");
+          console.log("ask <question> | say <text> | exam <manoeuvre> | records <query> | go <room|fixture|patient|region:side> | where | map | feel <needle> | evidence");
+          console.log("view | lib <points|point|region|regions|vocabulary|pattern|deqi|clinic|floorplan|roles|rules|evidence> [id] | actions | <JSON action> | quit");
+          prompt();
+          continue;
+        }
+        if (line === "where" || line === "map" || line === "evidence") {
+          const v = observeAs(sc, s, actor);
+          console.log(line === "where" ? whereText(v) : line === "map" ? asciiMap(sc, s, actor) : evidenceText(v));
           prompt();
           continue;
         }
@@ -316,10 +474,10 @@ async function main(): Promise<void> {
           prompt();
           continue;
         }
-        if (line.startsWith("lib")) {
+        if (line === "lib" || line.startsWith("lib ")) {
+          // the same reference library, by the same topics, as an agent under test looks up
           const [, topic, which] = line.split(/\s+/);
-          const data = topic === "point" ? lib.points.find((x) => x.id === which) : topic === "region" ? lib.regions.find((x) => x.id === which) : (lib as Record<string, unknown>)[topic ?? ""];
-          console.log(JSON.stringify(data ?? Object.keys(lib), null, 2));
+          console.log(JSON.stringify(lookup(lib, { ...(topic ? { topic } : {}), ...(which ? { id: which } : {}) }), null, 2));
           prompt();
           continue;
         }
@@ -330,7 +488,13 @@ async function main(): Promise<void> {
         else if (verb === "say") action = { type: "say", to: "patient", text };
         else if (verb === "exam") action = { type: "examine", text };
         else if (verb === "records") action = { type: "review_result", query: text };
-        else {
+        else if (verb === "feel") action = { type: "check_sensation", needleId: text };
+        else if (verb === "go") {
+          // a room, a fixture, a person, or a body site as region:side
+          const view = observeAs(sc, s, actor);
+          const [region, side] = text.split(":");
+          action = { type: "move", to: side ? { region, side } : view.space.fixtures.some((f) => f.id === text) ? { fixture: text } : text === "patient" || view.team.some((m) => m.id === text) ? { person: text } : { room: text } };
+        } else {
           try {
             action = JSON.parse(line);
           } catch {
@@ -354,7 +518,7 @@ async function main(): Promise<void> {
       rl.close();
       const report = evaluateEncounter(sc, s);
       const out = values.out ?? join("runs", `${id.replace("/", "--")}--play`);
-      const log: EncounterLog = { schema: "acucraft/log@1", scenarioId: sc.id, scenarioVersion: sc.family.version, engine: { acucraft: "0.1.0", clinicalcraft: "pinned" }, seed: Number(values.seed), mode: mode(), requests: requests as never, finalDigest: digest(s), meta: { agent: "human" } };
+      const log: EncounterLog = { schema: "acucraft/log@1", scenarioId: sc.id, scenarioVersion: sc.family.version, engine: { acucraft: ACUCRAFT_VERSION, clinicalcraft: CLINICALCRAFT_REV }, seed: Number(values.seed), mode: mode(), requests: requests as never, finalDigest: digest(s), meta: { agent: "human" } };
       write(join(out, "log.json"), `${JSON.stringify(log, null, 2)}\n`);
       write(join(out, "report.md"), episodeMarkdown(report));
       console.log(`\n${report.primary.status}: ${report.primary.reasons.join("; ") || report.primary.pathway}. Wrote ${out}/log.json and report.md`);
@@ -413,6 +577,46 @@ async function main(): Promise<void> {
       }
       write(join(out, "README.md"), `# AcuCraft cases for ClinicalCraft\n\nExported ClinicalCraft cases, one per AcuCraft scenario instance. Add this directory to ClinicalCraft's \`contentDirs\` setting to play the consultation part in ClinicalCraft's front-ends; needling, roles, consent and the evaluation run in AcuCraft.\n`);
       console.log(`wrote ${scenarioIds(p).length} cases to ${out}/cases`);
+      return;
+    }
+    case "skills": {
+      const p = pack();
+      const one = args[0] ? p.skills.find((s) => s.id === args[0]) : null;
+      if (args[0] && !one) {
+        console.error(`no skill ${args[0]} (${p.skills.map((s) => s.id).join(", ")})`);
+        process.exit(2);
+      }
+      if (one) console.log(`# ${one.title}\n\nRead it ${one.when}\n\n${one.body}`);
+      else for (const s of p.skills) console.log(`${s.id.padEnd(28)} ${s.title}\n${" ".repeat(29)}${s.when}`);
+      return;
+    }
+    case "tools": {
+      const p = pack();
+      const sc = requireScenario(p, args[0] ?? scenarioIds(p)[0]!);
+      const actor = values.role ? sc.field.cast.find((m) => m.role === values.role)?.id : sc.field.cast.find((m) => m.agent === "under-test")!.id;
+      if (!actor) {
+        console.error(`nobody in ${sc.id} has the role ${values.role} (${sc.field.cast.map((m) => m.role).join(", ")})`);
+        process.exit(2);
+      }
+      const view = observeAs(sc, createEncounter(sc, { seed: 1 }), actor);
+      const tools = toolsFor(view.you.may, { skills: p.skills.length > 0 });
+      if (values.json) console.log(JSON.stringify(tools.map((t) => ({ name: t.name, kind: t.kind, description: t.description, input_schema: t.inputSchema })), null, 2));
+      else for (const t of tools) console.log(`${t.name.padEnd(20)} ${t.kind.padEnd(5)} ${t.description}`);
+      return;
+    }
+    case "prompt": {
+      console.log(systemPrompt(pack().skills));
+      return;
+    }
+    case "mcp": {
+      const out = values.out ?? join("runs", "mcp");
+      await runMcpServer({
+        pack: pack(),
+        onClosed: ({ sessionId, log, report }) => {
+          write(join(out, sessionId, "log.json"), `${JSON.stringify(log, null, 2)}\n`);
+          write(join(out, sessionId, "report.md"), episodeMarkdown(report));
+        },
+      });
       return;
     }
     default:

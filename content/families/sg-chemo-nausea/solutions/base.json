@@ -140,7 +140,10 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "hand_hygiene"
+      "type": "move",
+      "to": {
+        "fixture": "treat-sink"
+      }
     }
   },
   {
@@ -148,8 +151,7 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "examine",
-      "findingId": "ex-general"
+      "type": "hand_hygiene"
     }
   },
   {
@@ -157,8 +159,10 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "examine",
-      "findingId": "ex-arms"
+      "type": "move",
+      "to": {
+        "person": "patient"
+      }
     }
   },
   {
@@ -167,7 +171,7 @@
     "patient": "patient",
     "action": {
       "type": "examine",
-      "findingId": "ex-legs"
+      "findingId": "ex-general"
     }
   },
   {
@@ -176,7 +180,7 @@
     "patient": "patient",
     "action": {
       "type": "examine",
-      "findingId": "ex-tongue"
+      "findingId": "ex-arms"
     }
   },
   {
@@ -185,7 +189,7 @@
     "patient": "patient",
     "action": {
       "type": "examine",
-      "findingId": "ex-pulse-tcm"
+      "findingId": "ex-legs"
     }
   },
   {
@@ -193,11 +197,29 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "check_vitals"
+      "type": "examine",
+      "findingId": "ex-tongue"
     }
   },
   {
     "requestId": "cb-023",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "examine",
+      "findingId": "ex-pulse-tcm"
+    }
+  },
+  {
+    "requestId": "cb-024",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_vitals"
+    }
+  },
+  {
+    "requestId": "cb-025",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -206,12 +228,18 @@
         "chemotherapy-nausea"
       ],
       "pattern": "stomach-qi-rebellion",
+      "patternEvidence": [
+        "hx-nausea",
+        "hx-tcm",
+        "ex-tongue",
+        "ex-pulse-tcm"
+      ],
       "redFlags": [],
       "rationale": "Delayed nausea after each cycle; tired, poor appetite, loose stools; pale swollen tongue."
     }
   },
   {
-    "requestId": "cb-024",
+    "requestId": "cb-026",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -221,7 +249,7 @@
     }
   },
   {
-    "requestId": "cb-025",
+    "requestId": "cb-027",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -261,7 +289,7 @@
     }
   },
   {
-    "requestId": "cb-026",
+    "requestId": "cb-028",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -277,7 +305,7 @@
     }
   },
   {
-    "requestId": "cb-027",
+    "requestId": "cb-029",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -285,7 +313,7 @@
     }
   },
   {
-    "requestId": "cb-028",
+    "requestId": "cb-030",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -294,7 +322,7 @@
     }
   },
   {
-    "requestId": "cb-029",
+    "requestId": "cb-031",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -308,44 +336,15 @@
     }
   },
   {
-    "requestId": "cb-030",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "identify_landmark",
-      "region": "forearm",
-      "side": "right",
-      "landmark": "pl-fcr-wrist"
-    }
-  },
-  {
-    "requestId": "cb-031",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "identify_landmark",
-      "region": "forearm",
-      "side": "right",
-      "landmark": "cubital-crease-mid"
-    }
-  },
-  {
     "requestId": "cb-032",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "mark_point",
-      "target": {
-        "point": "PC6",
+      "type": "move",
+      "to": {
+        "region": "forearm",
         "side": "right"
-      },
-      "region": "forearm",
-      "side": "right",
-      "at": {
-        "u": 0.46,
-        "v": 4.14
-      },
-      "method": "proportional"
+      }
     }
   },
   {
@@ -355,7 +354,7 @@
     "action": {
       "type": "identify_landmark",
       "region": "forearm",
-      "side": "left",
+      "side": "right",
       "landmark": "pl-fcr-wrist"
     }
   },
@@ -366,7 +365,7 @@
     "action": {
       "type": "identify_landmark",
       "region": "forearm",
-      "side": "left",
+      "side": "right",
       "landmark": "cubital-crease-mid"
     }
   },
@@ -378,10 +377,10 @@
       "type": "mark_point",
       "target": {
         "point": "PC6",
-        "side": "left"
+        "side": "right"
       },
       "region": "forearm",
-      "side": "left",
+      "side": "right",
       "at": {
         "u": 0.46,
         "v": 4.14
@@ -394,10 +393,11 @@
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "identify_landmark",
-      "region": "knee-leg",
-      "side": "right",
-      "landmark": "st35-depression"
+      "type": "move",
+      "to": {
+        "region": "knee-leg",
+        "side": "right"
+      }
     }
   },
   {
@@ -408,7 +408,7 @@
       "type": "identify_landmark",
       "region": "knee-leg",
       "side": "right",
-      "landmark": "ankle-anterior-midpoint"
+      "landmark": "st35-depression"
     }
   },
   {
@@ -419,11 +419,22 @@
       "type": "identify_landmark",
       "region": "knee-leg",
       "side": "right",
-      "landmark": "lateral-malleolus"
+      "landmark": "ankle-anterior-midpoint"
     }
   },
   {
     "requestId": "cb-039",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "knee-leg",
+      "side": "right",
+      "landmark": "lateral-malleolus"
+    }
+  },
+  {
+    "requestId": "cb-040",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -442,7 +453,72 @@
     }
   },
   {
-    "requestId": "cb-040",
+    "requestId": "cb-041",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "region": "forearm",
+        "side": "left"
+      }
+    }
+  },
+  {
+    "requestId": "cb-042",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "forearm",
+      "side": "left",
+      "landmark": "pl-fcr-wrist"
+    }
+  },
+  {
+    "requestId": "cb-043",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "identify_landmark",
+      "region": "forearm",
+      "side": "left",
+      "landmark": "cubital-crease-mid"
+    }
+  },
+  {
+    "requestId": "cb-044",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "mark_point",
+      "target": {
+        "point": "PC6",
+        "side": "left"
+      },
+      "region": "forearm",
+      "side": "left",
+      "at": {
+        "u": 0.46,
+        "v": 4.14
+      },
+      "method": "proportional"
+    }
+  },
+  {
+    "requestId": "cb-045",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "region": "knee-leg",
+        "side": "left"
+      }
+    }
+  },
+  {
+    "requestId": "cb-046",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -453,7 +529,7 @@
     }
   },
   {
-    "requestId": "cb-041",
+    "requestId": "cb-047",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -464,7 +540,7 @@
     }
   },
   {
-    "requestId": "cb-042",
+    "requestId": "cb-048",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -475,7 +551,7 @@
     }
   },
   {
-    "requestId": "cb-043",
+    "requestId": "cb-049",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -494,16 +570,18 @@
     }
   },
   {
-    "requestId": "cb-044",
+    "requestId": "cb-050",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
       "type": "move",
-      "to": "prep-area"
+      "to": {
+        "fixture": "prep-sink"
+      }
     }
   },
   {
-    "requestId": "cb-045",
+    "requestId": "cb-051",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -511,7 +589,18 @@
     }
   },
   {
-    "requestId": "cb-046",
+    "requestId": "cb-052",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "fixture": "shelf"
+      }
+    }
+  },
+  {
+    "requestId": "cb-053",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -520,26 +609,19 @@
     }
   },
   {
-    "requestId": "cb-047",
+    "requestId": "cb-054",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
       "type": "move",
-      "to": "treatment-room"
+      "to": {
+        "region": "forearm",
+        "side": "right"
+      }
     }
   },
   {
-    "requestId": "cb-048",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "prepare_site",
-      "region": "forearm",
-      "side": "left"
-    }
-  },
-  {
-    "requestId": "cb-049",
+    "requestId": "cb-055",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -549,17 +631,19 @@
     }
   },
   {
-    "requestId": "cb-050",
+    "requestId": "cb-056",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
-      "type": "prepare_site",
-      "region": "knee-leg",
-      "side": "left"
+      "type": "move",
+      "to": {
+        "region": "knee-leg",
+        "side": "right"
+      }
     }
   },
   {
-    "requestId": "cb-051",
+    "requestId": "cb-057",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -569,7 +653,51 @@
     }
   },
   {
-    "requestId": "cb-052",
+    "requestId": "cb-058",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "region": "forearm",
+        "side": "left"
+      }
+    }
+  },
+  {
+    "requestId": "cb-059",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "prepare_site",
+      "region": "forearm",
+      "side": "left"
+    }
+  },
+  {
+    "requestId": "cb-060",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "region": "knee-leg",
+        "side": "left"
+      }
+    }
+  },
+  {
+    "requestId": "cb-061",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "prepare_site",
+      "region": "knee-leg",
+      "side": "left"
+    }
+  },
+  {
+    "requestId": "cb-062",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -578,7 +706,7 @@
     }
   },
   {
-    "requestId": "cb-053",
+    "requestId": "cb-063",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -587,20 +715,7 @@
     }
   },
   {
-    "requestId": "cb-054",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "insert_needle",
-      "needleId": "pack-a.1",
-      "mark": "m1",
-      "angleDeg": 0,
-      "azimuthDeg": 0,
-      "depthCm": 1.0
-    }
-  },
-  {
-    "requestId": "cb-055",
+    "requestId": "cb-064",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -609,20 +724,7 @@
     }
   },
   {
-    "requestId": "cb-056",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "insert_needle",
-      "needleId": "pack-a.2",
-      "mark": "m2",
-      "angleDeg": 0,
-      "azimuthDeg": 0,
-      "depthCm": 1.0
-    }
-  },
-  {
-    "requestId": "cb-057",
+    "requestId": "cb-065",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -631,20 +733,7 @@
     }
   },
   {
-    "requestId": "cb-058",
-    "actor": "practitioner",
-    "patient": "patient",
-    "action": {
-      "type": "insert_needle",
-      "needleId": "pack-a.3",
-      "mark": "m3",
-      "angleDeg": 0,
-      "azimuthDeg": 0,
-      "depthCm": 2.0
-    }
-  },
-  {
-    "requestId": "cb-059",
+    "requestId": "cb-066",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -653,7 +742,151 @@
     }
   },
   {
-    "requestId": "cb-060",
+    "requestId": "cb-067",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "region": "forearm",
+        "side": "right"
+      }
+    }
+  },
+  {
+    "requestId": "cb-068",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "insert_needle",
+      "needleId": "pack-a.1",
+      "mark": "m1",
+      "angleDeg": 0,
+      "azimuthDeg": 0,
+      "depthCm": 1
+    }
+  },
+  {
+    "requestId": "cb-069",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "adjust_needle",
+      "needleId": "pack-a.1",
+      "technique": "rotate"
+    }
+  },
+  {
+    "requestId": "cb-070",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_sensation",
+      "needleId": "pack-a.1"
+    }
+  },
+  {
+    "requestId": "cb-071",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "region": "knee-leg",
+        "side": "right"
+      }
+    }
+  },
+  {
+    "requestId": "cb-072",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "insert_needle",
+      "needleId": "pack-a.2",
+      "mark": "m2",
+      "angleDeg": 0,
+      "azimuthDeg": 0,
+      "depthCm": 2
+    }
+  },
+  {
+    "requestId": "cb-073",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "adjust_needle",
+      "needleId": "pack-a.2",
+      "technique": "rotate"
+    }
+  },
+  {
+    "requestId": "cb-074",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_sensation",
+      "needleId": "pack-a.2"
+    }
+  },
+  {
+    "requestId": "cb-075",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "region": "forearm",
+        "side": "left"
+      }
+    }
+  },
+  {
+    "requestId": "cb-076",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "insert_needle",
+      "needleId": "pack-a.3",
+      "mark": "m3",
+      "angleDeg": 0,
+      "azimuthDeg": 0,
+      "depthCm": 1
+    }
+  },
+  {
+    "requestId": "cb-077",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "adjust_needle",
+      "needleId": "pack-a.3",
+      "technique": "rotate"
+    }
+  },
+  {
+    "requestId": "cb-078",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_sensation",
+      "needleId": "pack-a.3"
+    }
+  },
+  {
+    "requestId": "cb-079",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "region": "knee-leg",
+        "side": "left"
+      }
+    }
+  },
+  {
+    "requestId": "cb-080",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -662,11 +895,30 @@
       "mark": "m4",
       "angleDeg": 0,
       "azimuthDeg": 0,
-      "depthCm": 2.0
+      "depthCm": 2
     }
   },
   {
-    "requestId": "cb-061",
+    "requestId": "cb-081",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "adjust_needle",
+      "needleId": "pack-a.4",
+      "technique": "rotate"
+    }
+  },
+  {
+    "requestId": "cb-082",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "check_sensation",
+      "needleId": "pack-a.4"
+    }
+  },
+  {
+    "requestId": "cb-083",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -674,7 +926,7 @@
     }
   },
   {
-    "requestId": "cb-062",
+    "requestId": "cb-084",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -683,7 +935,7 @@
     }
   },
   {
-    "requestId": "cb-063",
+    "requestId": "cb-085",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -691,7 +943,7 @@
     }
   },
   {
-    "requestId": "cb-064",
+    "requestId": "cb-086",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -700,7 +952,7 @@
     }
   },
   {
-    "requestId": "cb-065",
+    "requestId": "cb-087",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -708,7 +960,7 @@
     }
   },
   {
-    "requestId": "cb-066",
+    "requestId": "cb-088",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -716,7 +968,7 @@
     }
   },
   {
-    "requestId": "cb-067",
+    "requestId": "cb-089",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -725,7 +977,18 @@
     }
   },
   {
-    "requestId": "cb-068",
+    "requestId": "cb-090",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "fixture": "treat-sink"
+      }
+    }
+  },
+  {
+    "requestId": "cb-091",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -733,7 +996,7 @@
     }
   },
   {
-    "requestId": "cb-069",
+    "requestId": "cb-092",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -741,7 +1004,18 @@
     }
   },
   {
-    "requestId": "cb-070",
+    "requestId": "cb-093",
+    "actor": "practitioner",
+    "patient": "patient",
+    "action": {
+      "type": "move",
+      "to": {
+        "person": "patient"
+      }
+    }
+  },
+  {
+    "requestId": "cb-094",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -753,7 +1027,7 @@
     }
   },
   {
-    "requestId": "cb-071",
+    "requestId": "cb-095",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -786,9 +1060,43 @@
           "needleType": "0.25 × 40 mm single-use sterile filiform",
           "needleCount": 4,
           "depth": "PC6 1.0 cm; ST36 2.0 cm",
-          "responseSought": "mild deqi",
+          "responseSought": "mild deqi (one gentle rotation at each needle)",
           "stimulation": "even",
-          "retentionMinutes": 20
+          "retentionMinutes": 20,
+          "responses": [
+            {
+              "needle": "pack-a.1",
+              "response": "deqi",
+              "evidence": [
+                "feel-1",
+                "sense-1"
+              ]
+            },
+            {
+              "needle": "pack-a.2",
+              "response": "deqi",
+              "evidence": [
+                "feel-2",
+                "sense-2",
+                "sense-3"
+              ]
+            },
+            {
+              "needle": "pack-a.3",
+              "response": "none",
+              "evidence": [
+                "sense-4"
+              ]
+            },
+            {
+              "needle": "pack-a.4",
+              "response": "deqi",
+              "evidence": [
+                "feel-4",
+                "sense-5"
+              ]
+            }
+          ]
         },
         "response": "Tolerated.",
         "adverseEvents": "None.",
@@ -798,7 +1106,7 @@
     }
   },
   {
-    "requestId": "cb-072",
+    "requestId": "cb-096",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -806,7 +1114,7 @@
     }
   },
   {
-    "requestId": "cb-073",
+    "requestId": "cb-097",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -814,7 +1122,7 @@
     }
   },
   {
-    "requestId": "cb-074",
+    "requestId": "cb-098",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -823,7 +1131,7 @@
     }
   },
   {
-    "requestId": "cb-075",
+    "requestId": "cb-099",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -832,7 +1140,7 @@
     }
   },
   {
-    "requestId": "cb-076",
+    "requestId": "cb-100",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -842,7 +1150,7 @@
     }
   },
   {
-    "requestId": "cb-077",
+    "requestId": "cb-101",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -856,7 +1164,7 @@
     }
   },
   {
-    "requestId": "cb-078",
+    "requestId": "cb-102",
     "actor": "practitioner",
     "patient": "patient",
     "action": {
@@ -864,7 +1172,7 @@
     }
   },
   {
-    "requestId": "cb-079",
+    "requestId": "cb-103",
     "actor": "practitioner",
     "patient": "patient",
     "action": {

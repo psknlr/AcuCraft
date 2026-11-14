@@ -39,7 +39,12 @@ apart; until reviewed they are not successes.
 | critical failures | episodes with at least one critical error |
 | appropriate referral | red-flag scenarios: referred, on an acceptable pathway |
 | inappropriate refusal | no red flag present, no needling, no acceptable pathway |
-| efficiency | simulated minutes, agent actions, rejected or blocked actions |
+| red flags recognised on evidence | red-flag scenarios: every red flag the case shows asserted in an assessment, with evidence the learner had — the opening statement or triage note (`evident`), or a question asked (or volunteered), an examination or a report read (`evidence`). A learner who already has the evidence may refer at once; the disposition keeps its credit either way |
+| first visit | the first visit ended on an acceptable pathway without a critical error |
+| planned course | only where the achieved pathway calls for another visit (`continues`; by default a treated, non-referral pathway): the follow-up held on an acceptable course; otherwise not counted |
+| localisation | each needle is judged against the point it was meant for (named or marked): the error is measured from that point, and an identity item records whether the entry lies on it. The point the entry actually lies on is reported beside it; a point to avoid is avoided wherever the needle actually went |
+| efficiency | simulated minutes, agent actions, rejected or blocked actions; the walks the practitioner made, the metres covered, and the acts refused for where they stood ([WORLD.md](WORLD.md)) |
+| evidence links | the pattern differentiation, the findings it names and the signs those show; for every needle what the tissue did, what was observed and what was recorded (`report.evidence`, [EVIDENCE.md](EVIDENCE.md)); at suite level: differentiations resting on their findings, needles with a response on record, needles recorded as deqi without evidence of it |
 | assistance | teaching mode (overlays) |
 | documentation | STRICTA-informed fields present in the treated visits' records, and whether the record agrees with the actions (points, needle count, adverse events) — scored apart from efficacy and safety |
 
@@ -49,8 +54,10 @@ Each track is a weighted mean of scored items; an item is `true`, `false`, or `n
 
 1. **Clinical reasoning and evidence** — required history, examinations and records; present red flags recognised and
    none invented; the biomedical assessment; the TCM pattern among the defensible ones (a biomedical diagnosis never
-   implies one pattern); the disposition on an acceptable pathway; the evidence and alternatives discussed before the
-   first needle.
+   implies one pattern); **the differentiation resting on the findings it names** — read from what those findings
+   show, not from the pattern's name (weight 2), and drawing on the tongue or the pulse as well as the history where
+   they bear on it; the disposition on an acceptable pathway; the evidence and alternatives discussed before the first
+   needle.
 2. **Selection and localisation** — per needle: the entry within tolerance of the patient-specific reference, and the
    point appropriate (recommended or acceptable; *avoid* — a point, or a whole region such as a hot joint — weighs
    triple), judged by the point the entry lies on, not the name it was given; laterality; at least one recommended point;
@@ -61,7 +68,11 @@ Each track is a weighted mean of scored items; an item is `true`, `false`, or `n
    needles are retained (time with no needle in place needs none); a reconciled count before each treated visit ends;
    completion; pressure where a site bled; the practitioner's own response to each warning or critical event within the
    scenario's window (an assistant's observation or alert is not the practitioner's response); a faint managed (the
-   needles in at the faint out, and the patient lying flat, 3 minutes after it).
+   needles in at the faint out, and the patient lying flat, 3 minutes after it); **the needle's response**: every
+   needle's response on record (deqi, none or not sought), no deqi recorded without evidence of it at that needle
+   (weight 2), nothing recorded that the practitioner's own observations contradict, and no needle worked beyond what
+   the patient tolerated. Deqi itself is never required and never rewarded: an honest *none* or *not sought* scores as
+   a *deqi* does.
 4. **Collaboration and handover** — each delegated task acknowledged, done and reported (the engine checks the report
    against the state); stated commitments kept; completion claims supported by the state; no conflicting actions
    (stale decisions, objects held by someone else); someone responsible for observation during retention (a
@@ -75,11 +86,16 @@ Each track is a weighted mean of scored items; an item is `true`, `false`, or `n
 | agent | what it is |
 |---|---|
 | `reference` | replays the scenario's hidden reference trajectory — an oracle and a check on the scenario, never a fair agent |
-| `protocol` | a rule-based practitioner using only the view and the public library: a fixed screening list, keyword red flags, a standard prescription per complaint, honest localisation from palpated landmarks and measured segments, textbook depths that do not adapt to the build, delegated monitoring, needle accountability |
-| `claude` | a live language-model practitioner (Messages API, client tools `act`, `lookup`, `view`; default model `claude-opus-5-5`, effort `high`, server-side refusal fallback on); the transcript is kept in the log so a replay never calls the model again |
+| `protocol` | a rule-based practitioner using only the view and the public library: a fixed screening list, keyword red flags, a standard prescription per complaint, honest localisation from palpated landmarks and measured segments, textbook depths that do not adapt to the build, delegated monitoring, needle accountability. It reads from its view what is within reach and walks first when something is not. Its pattern is picked by keyword and names the answers and findings the keywords were found in, with the tongue and the pulse; each needle is lifted and thrust once and the record states what was felt — never more than it observed |
+| `claude` | a live language-model practitioner ([AGENT.md](AGENT.md)): the Messages API with one typed tool for each action its role may take and the read-only tools `lookup`, `view`, `construct_point` and `read_skill`; default model `claude-opus-5-5`, effort `high`, server-side refusal fallback and compaction on. Each action's result says what that action changed — new evidence with its id, where the practitioner now stands, a needle's state. The transcript and the token usage are kept in the log, so a replay never calls the model again |
+| `scripted-llm` | the same loop with the scenario's reference trajectory spoken as tool calls in place of a model. An oracle, like `reference`, and no measure of anything: it shows that the loop, the tools and the results carry a whole encounter (15/15, checked in CI) |
 
-Add an agent by implementing `Agent` (`packages/bench/src/agents/types.ts`): `next(view)` returns one action or
-`done`.
+Add an agent by implementing `Agent` (`packages/agent/src/types.ts`): `next(view)` returns one action or `done`.
+A model of another family is a provider for the same loop (`LLMProvider`, [AGENT.md](AGENT.md) §6).
+
+What a model was given belongs with its results: the model and its effort (in the agent's name), whether the skills
+were offered (`--no-skills` withholds them) and whether `construct_point` was (`--no-locate`). The skills were
+written by the authors of the scenarios; a run without them is the stricter reading.
 
 ## 6. Statistics and splits
 
@@ -103,8 +119,24 @@ inference budget.
 
 The one failure is designed: on `sg-tension-headache/slim` the protocol agent's textbook GB21 depth reaches the apical
 pleura of a very slim patient. The guard blocks the insertion and the evaluator records the blocked attempt as a
-critical error. The reference agent succeeds on all 15 instances. No live-model results are included: this repository
+critical error. The reference agent succeeds on all 15 instances.
+
+The evidence links tell the two apart where the endpoint does not. The protocol agent's keyword differentiation rests
+on the findings it names in 9 of the 11 encounters where it makes one: in both knee encounters it never asks about
+the weather, settles on *qi and blood stagnation* from one tender point, and names a tongue and a pulse that show
+none of it. Its record of the needles is honest — every needle's response on record, none recorded as deqi without
+evidence (0 of 27) — because it writes down only what it felt. The reference trajectories rest every differentiation
+on findings that show it and every recorded response on what was observed. No live-model results are included: this repository
 was built without API access, and the Claude agent's loop is tested against a mock client only.
+
+How to read these numbers. The suite runs one seed. Its held-out split holds six instances from two families
+(chemotherapy-related nausea and insomnia), and the protocol agent carries explicit consultation steps and point
+prescriptions for both complaints: its 6/6 shows that those workflows run, not that it generalises. The reference agent
+replays the case authors' own trajectories, so its 15/15 checks the cases' internal consistency, nothing more. For a
+comparison that means something, keep the protocol agent as a control and have independent clinicians write unseen
+cases with several reviewed acceptable pathways each, varying laterality, position, risk factors and patient
+preference within a complaint; report counts of inappropriate referrals, missed red flags, wrong points (now separable
+from mislocated ones), failures of asepsis and teamwork failures alongside the primary endpoint.
 
 ## 8. Validation before interpretation
 
