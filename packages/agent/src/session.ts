@@ -43,6 +43,25 @@ export class EncounterSession {
     this.current = createEncounter(scenario, { seed: this.seed, mode: this.mode });
   }
 
+  /**
+   * A session brought back from its log: the recorded requests stepped again, exactly as they were made (their ids
+   * and versions), so the state is the one the log was written from. The engine is deterministic: a log whose
+   * digest the replay does not reproduce was written by another engine or content, and is refused.
+   */
+  static fromLog(scenario: Scenario, log: EncounterLog, options: Omit<SessionOptions, "seed" | "mode"> = {}): EncounterSession {
+    if (log.scenarioId !== scenario.id) throw new Error(`the log is of ${log.scenarioId}, not ${scenario.id}`);
+    const session = new EncounterSession(scenario, { ...options, seed: log.seed, mode: log.mode });
+    for (const request of log.requests) {
+      const stepped = step(scenario, session.current, request, { strict: session.strict });
+      session.current = stepped.state;
+      session.made.push(stepped.attempt.request);
+    }
+    if (log.finalDigest !== undefined && log.finalDigest !== digest(session.current)) {
+      throw new Error(`replaying the log of ${log.scenarioId} does not reproduce its recorded state (another engine or content wrote it)`);
+    }
+    return session;
+  }
+
   get state(): EncounterState {
     return this.current;
   }

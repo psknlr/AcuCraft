@@ -1,0 +1,17 @@
+{
+  "name": "@acucraft/server",
+  "version": "0.3.0",
+  "description": "AcuCraft's browser workspace: live acupuncture patient records that an operator and a language model work on together — an HTTP API, a real-time stream, MCP over HTTP and the browser app",
+  "type": "module",
+  "license": "MIT",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@acucraft/core": "0.3.0",
+    "@acucraft/agent": "0.3.0",
+    "@acucraft/bench": "0.3.0",
+    "@acucraft/mcp": "0.3.0",
+    "typescript": "5.9.3"
+  }
+}

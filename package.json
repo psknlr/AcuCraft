@@ -13,6 +13,7 @@
     "packages/agent",
     "packages/bench",
     "packages/mcp",
+    "packages/server",
     "packages/cli"
   ],
   "scripts": {

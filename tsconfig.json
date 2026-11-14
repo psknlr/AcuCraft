@@ -22,8 +22,9 @@
       "@acucraft/agent": ["./packages/agent/src/index.ts"],
       "@acucraft/agent/node": ["./packages/agent/src/node/index.ts"],
       "@acucraft/bench": ["./packages/bench/src/index.ts"],
-      "@acucraft/mcp": ["./packages/mcp/src/index.ts"]
+      "@acucraft/mcp": ["./packages/mcp/src/index.ts"],
+      "@acucraft/server": ["./packages/server/src/index.ts"]
     }
   },
-  "include": ["packages/*/src", "tools/*.ts", "vitest.config.ts"]
+  "include": ["packages/*/src", "packages/server/web", "tools/*.ts", "vitest.config.ts"]
 }

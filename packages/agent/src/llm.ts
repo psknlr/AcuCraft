@@ -33,9 +33,16 @@ export interface LlmAgentOptions {
   maxModelCalls?: number;
   /**
    * Asked before an action is handed to the engine: return a reason to refuse it. For a person supervising the
-   * agent; the refusal goes back to the model as the action's result and is kept in the transcript.
+   * agent — it may take its time (a promise): the loop waits for the answer. The refusal goes back to the model as
+   * the action's result and is kept in the transcript.
    */
-  approve?: (action: ActionInput, view: AgentView) => string | null | undefined | void;
+  approve?: (action: ActionInput, view: AgentView) => string | null | undefined | void | Promise<string | null | undefined | void>;
+  /**
+   * What others did to the encounter between the view an action was decided on and the view after it — a person
+   * working the same record, another client. Non-empty, it goes into the action's result as `meanwhile`, and the
+   * rest of the model's turn waits: it was decided without knowing.
+   */
+  meanwhile?: (before: AgentView, after: AgentView) => unknown[] | undefined;
   /** Watches the loop (a command line showing the model at work). */
   onEvent?: (event: LlmEvent) => void;
 }
@@ -116,8 +123,9 @@ export function llmAgent(options: LlmAgentOptions): LlmAgent {
         const { call, before } = awaiting;
         awaiting = null;
         const { status, result } = outcomeOf(before, view);
-        answer(call, result, status === "rejected" || status === "blocked");
-        halted = interruption(call.name, before, view);
+        const others = options.meanwhile?.(before, view) ?? [];
+        answer(call, others.length > 0 ? { ...result, meanwhile: others } : result, status === "rejected" || status === "blocked");
+        halted = interruption(call.name, before, view) ?? (others.length > 0 ? "someone else acted on the encounter meanwhile" : null);
       }
 
       for (let turns = 0; ; ) {
@@ -147,7 +155,7 @@ export function llmAgent(options: LlmAgentOptions): LlmAgent {
             halted = `the input of ${call.name} was not valid`;
             continue;
           }
-          const refused = options.approve?.(parsed.action, view);
+          const refused = await options.approve?.(parsed.action, view);
           if (typeof refused === "string" && refused) {
             answer(call, { error: `Not carried out: ${refused}` }, true);
             halted = `${call.name} was not approved`;

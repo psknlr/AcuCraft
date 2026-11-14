@@ -21,6 +21,7 @@ export default defineConfig({
       { find: /^@acucraft\/agent\/node$/, replacement: here("./packages/agent/src/node/index.ts") },
       { find: /^@acucraft\/bench$/, replacement: here("./packages/bench/src/index.ts") },
       { find: /^@acucraft\/mcp$/, replacement: here("./packages/mcp/src/index.ts") },
+      { find: /^@acucraft\/server$/, replacement: here("./packages/server/src/index.ts") },
       // one zod for AcuCraft and the engine sources, whatever node_modules the engine checkout has
       { find: /^zod$/, replacement: require.resolve("zod") },
     ],
