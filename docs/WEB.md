@@ -4,6 +4,8 @@
 
 ![A paused twirling preview: independently articulated holding and supporting hands, with the needle's label moved clear of the grip](img/technique-bimanual-preview.png)
 
+![A side view of the live precision pinch: continuous finger skins meet opposite surfaces of the needle handle, with the supporting hand still present](img/technique-grip-closeup.png)
+
 `npm run acu -- serve` opens a workspace in the browser where a person and a language model keep the same
 acupuncture patient records at the same time. Every record is a simulated encounter run by the AcuCraft engine: the
 operator works it from the page, a language model run by the server works it from the same page, and any MCP client
