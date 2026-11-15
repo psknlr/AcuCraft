@@ -172,7 +172,10 @@ export interface TechniqueMotionSample {
   /** External handle/shaft presentation only. Never apply these to the entry or internal needle tip. */
   lateralMm: { u: number; v: number };
   tiltRad: { u: number; v: number };
+  /** Legacy whole-performance visual envelope; renderers with an approach/release envelope must not apply it again. */
   grip: number;
+  /** Local thumb/index engagement only: 1 holds contact, 0 releases. Excludes approach/release timing. */
+  gripEngagement: number;
   contact: "none" | "skin" | "handle" | "nail-handle";
   nailContact: number;
   supportContact: number;
@@ -208,7 +211,7 @@ export function sampleTechnique(id: ManipulationTechniqueId, elapsedMs: number, 
   const primitive = phase.primitive;
   const out: TechniqueMotionSample = {
     withdrawalMm: 0, rotationRad: 0, lateralMm: { u: 0, v: 0 }, tiltRad: { u: 0, v: 0 },
-    grip: 0, contact: "none", nailContact: 0, supportContact: 0, handPose: "release",
+    grip: 0, gripEngagement: 1, contact: "none", nailContact: 0, supportContact: 0, handPose: "release",
     phase: { index, id: phase.id, label: phase.label, primitive, progress: local }, complete, durationMs: motion.durationMs,
   };
   if (complete || elapsed === 0 || !Number.isFinite(progress)) return out;
@@ -285,7 +288,10 @@ export function sampleTechnique(id: ManipulationTechniqueId, elapsedMs: number, 
     }
     case "fei":
       out.handPose = "tripod";
-      out.grip *= 1 - 0.55 * phaseEnvelope * (1 - pulse(cycle, 0.35));
+      // Only the active thumb/index pair releases; the middle-finger support is a separate contact.
+      // Returning to 1 at phase edges lets the renderer apply its approach/release envelope exactly once.
+      out.gripEngagement = 1 - phaseEnvelope * (1 - pulse(cycle, 0.35));
+      out.grip *= out.gripEngagement;
       out.rotationRad = rad(motion.rotationDeg) * swing * 0.5;
       break;
     case "mo":

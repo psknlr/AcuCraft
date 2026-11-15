@@ -3,6 +3,11 @@ import { BufferAttribute, BufferGeometry, Quaternion, Vector3 } from "three";
 const SEGMENTS = 16;
 const SIDES = 8;
 const RADIUS = 0.00024;
+/** Shared by the rendered handle and the articulated surface-contact solver. */
+export const NEEDLE_HANDLE_LENGTH_M = 0.025;
+export const NEEDLE_HANDLE_GRIP_Y_M = NEEDLE_HANDLE_LENGTH_M / 2;
+export const NEEDLE_HANDLE_RADIUS_M = 0.0007;
+export const needleHandleRadiusAt = (offsetM: number) => NEEDLE_HANDLE_RADIUS_M + Math.max(-0.0125, Math.min(0.0125, offsetM)) * (0.00004 / NEEDLE_HANDLE_LENGTH_M);
 
 /**
  * An exterior-only, length-preserving drawing aid. The entry point stays at the origin; the interior needle

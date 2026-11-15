@@ -76,7 +76,7 @@ For an LLM/MCP tool call, omit `type` and use the tool name `perform_technique`;
 | `grip` | `two-finger`, `three-finger` | Primary-hand grip configuration |
 | `support` | `none`, `stabilize`, `stretch`, `pinch`, `press` | Supporting-hand contact pattern |
 | `hand` | `auto`, `left`, `right` | Primary hand selection |
-| `gripApertureMm` | 0–12 mm | Visual finger opening control |
+| `gripApertureMm` | 0–12 mm | Approach/release opening, with minimum disengagement clearance; held fingers fit the actual handle |
 | `contactIntensity` | 0–1 | Normalized cosmetic contact intensity; no unit of force |
 
 Defaults and relevant controls differ by technique. Read them from the catalogue rather than assuming every setting visibly affects every primitive. None of these bounds is a clinical dose or an anatomical limit.
@@ -99,6 +99,10 @@ The manipulation panel selects a target and technique, exposes the applicable pa
 
 Local playback supports pause, speed adjustment and preview seeking. Valid parameter edits update an active preview in place while retaining its normalized progress, pause state and speed; changing the target or technique cancels that preview. Recorded performances retain their accepted parameter values; their clinical record is not rewound by playback controls. A newer authoritative state cancels an obsolete preview, and a recorded gesture takes precedence over starting a new local preview.
 
-The hand controller uses the Blender rig's moving pad/nail anchors, separate finger poses, grip changes and supporting-hand contacts. Scraping, flicking, surface contact, rolling and compound phases therefore have distinct contact behavior rather than sharing a whole-hand bob. Needle axial strokes remain within the executed depth. Lateral motion and bending affect the exposed shaft/handle geometry only; they do not move the skin entry or redirect the internal needle tip. The display does not claim to solve tissue deformation, internal shaft elasticity, contact force or haptics.
+The hand controller uses the Blender rig's moving pad/nail anchors, separate finger poses, grip changes and supporting-hand contacts. During needle holding, the opposing finger pads meet the actual handle surface; `gripApertureMm` controls opening during approach and release rather than allowing the fingers to float apart around a held needle. A three-finger grip gives the middle finger its own contact beside the handle. Scraping and flicking retain the stabilizing contacts while the active index finger follows its own nail-contact or release path; moving that finger does not translate the whole hand along the handle.
+
+The pure `sampleTechnique` output separates `gripEngagement` (local thumb/index contact, independent of approach/release) from the legacy `grip` envelope. A renderer that already supplies approach, grasp, release and retreat timing applies its envelope once and uses `gripEngagement` only for intentional local changes such as Fei. Normal holding remains engaged at motion endpoints and compound phase boundaries, avoiding an extra open/close jump as the manipulation starts or stops.
+
+Needle axial strokes remain within the executed depth. Lateral motion and bending affect the exposed shaft/handle geometry only; they do not move the skin entry or redirect the internal needle tip. The display does not claim to solve tissue deformation, internal shaft elasticity, contact force or haptics.
 
 Insertion remains a clinical `insert_needle` action. Its optional `presentation` field selects `durationMs` (400–8000), `grip`, `support`, `hand` and `gripApertureMm` (0–12) for the approach/grip/insertion animation. Angle, azimuth and depth remain the existing validated clinical inputs, and the renderer uses the executed result when insertion is partial.

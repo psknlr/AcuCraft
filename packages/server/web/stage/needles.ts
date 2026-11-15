@@ -19,7 +19,7 @@ import {
 } from "three";
 import type { SkinSite } from "./sites.js";
 import { sampleTechnique, techniqueMotion, type ManipulationMotionSettings, type ManipulationTechniqueId, type NeedleTechnique, type NeedleMotionSettings, type TechniqueMotionSample } from "@acucraft/core";
-import { exteriorGeometry, exteriorShape, updateExteriorGeometry } from "./needle-shape.js";
+import { exteriorGeometry, exteriorShape, updateExteriorGeometry, NEEDLE_HANDLE_GRIP_Y_M, NEEDLE_HANDLE_LENGTH_M, needleHandleRadiusAt } from "./needle-shape.js";
 
 /**
  * The needles in the patient and the practitioner's ink marks, drawn where the record has them: a needle of the
@@ -152,7 +152,7 @@ export class NeedleLayer {
     for (const l of this.live.values()) {
       if (l.leaving) continue;
       l.root.updateMatrixWorld(true);
-      const top = l.handleRoot.localToWorld(new Vector3(0, 0.025, 0));
+      const top = l.handleRoot.localToWorld(new Vector3(0, NEEDLE_HANDLE_LENGTH_M, 0));
       out.push({ id: l.spec.id, target: l.spec.target, at: top, inserted: l.inserted, highlight: l.highlight });
     }
     return out;
@@ -181,7 +181,7 @@ export class NeedleLayer {
     const l = this.live.get(id);
     if (!l) return null;
     l.root.updateMatrixWorld(true);
-    return { point: l.handleRoot.localToWorld(new Vector3(0, 0.0125, 0)), axis: new Vector3(0, 1, 0).applyQuaternion(l.handleRoot.getWorldQuaternion(new Quaternion())), rotation: l.body.rotation.y };
+    return { point: l.handleRoot.localToWorld(new Vector3(0, NEEDLE_HANDLE_GRIP_Y_M, 0)), axis: new Vector3(0, 1, 0).applyQuaternion(l.handleRoot.getWorldQuaternion(new Quaternion())), rotation: l.body.rotation.y };
   }
 
   /** Carry the uninserted needle between the approaching fingers, preserving its full shaft length. */
@@ -191,7 +191,7 @@ export class NeedleLayer {
     l.root.visible = true;
     l.root.quaternion.setFromUnitVectors(new Vector3(0, 1, 0), axis);
     l.root.updateMatrixWorld(true);
-    const current = l.handleRoot.localToWorld(new Vector3(0, 0.0125, 0));
+    const current = l.handleRoot.localToWorld(new Vector3(0, NEEDLE_HANDLE_GRIP_Y_M, 0));
     l.root.position.add(grip.clone().sub(current));
   }
 
@@ -380,10 +380,10 @@ export class NeedleLayer {
     exteriorShaft.frustumCulled = false;
     const handleRoot = new Group();
     handleRoot.name = "needle-handle";
-    const handle = new Mesh(new CylinderGeometry(0.00072, 0.00068, 0.025, 14, 1), this.handleMat.clone());
-    handle.position.y = 0.0125;
+    const handle = new Mesh(new CylinderGeometry(needleHandleRadiusAt(NEEDLE_HANDLE_GRIP_Y_M), needleHandleRadiusAt(-NEEDLE_HANDLE_GRIP_Y_M), NEEDLE_HANDLE_LENGTH_M, 14, 1), this.handleMat.clone());
+    handle.position.y = NEEDLE_HANDLE_GRIP_Y_M;
     const tail = new Mesh(this.tailGeo, this.tailMat);
-    tail.position.y = 0.025;
+    tail.position.y = NEEDLE_HANDLE_LENGTH_M;
     const hit = new Mesh(this.hitGeo, this.hitMat);
     hit.scale.set(1, spec.length + 0.03, 1);
     hit.userData.needle = spec.id;

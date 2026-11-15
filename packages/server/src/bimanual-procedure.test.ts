@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { Group, Quaternion, Vector3 } from "three";
+import { Group, Quaternion, Raycaster, SkinnedMesh, Triangle, Vector3 } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { ArticulatedHand, handOrientation, surfaceHandOrientation } from "../web/stage/hand.js";
 import { NeedleProcedure, type TechniquePerformanceInput } from "../web/stage/procedure.js";
@@ -13,6 +13,7 @@ import { practitionerFloorPlacement } from "../web/stage/navigation.js";
 import { SiteFinder } from "../web/stage/sites.js";
 import type { Person } from "../web/stage/cast.js";
 import type { SkinSite } from "../web/stage/sites.js";
+import { NEEDLE_HANDLE_RADIUS_M, needleHandleRadiusAt } from "../web/stage/needle-shape.js";
 
 const asset = readFileSync(fileURLToPath(new URL("../../../content/world/assets/models/acu-practitioner-hand.glb", import.meta.url)));
 const site: SkinSite = { p: new Vector3(0, 0.8, 0), n: new Vector3(0, 1, 0), uDir: new Vector3(1, 0, 0), vDir: new Vector3(0, 0, 1), bare: true };
@@ -41,6 +42,92 @@ async function makeScene(retained = false) {
 }
 
 describe("articulated anatomical hand contacts", () => {
+  it("keeps runtime pad and nail anchors on the real deformed skin for both mirrored hands", async () => {
+    const s = await makeScene(true);
+    for (const hand of ["left", "right"] as const) for (const technique of ["nian", "gua"] as const) {
+      s.procedure.stopPreview();
+      expect(s.procedure.preview(input(technique, { needleId: "needle-a", motion: { hand, support: "none", durationMs: 2400, grip: "three-finger" } }))).toBe(true);
+      s.procedure.setPlayback({ progress: 0.5, paused: true });
+      s.procedure.group.updateMatrixWorld(true);
+      const root = s.procedure.group.getObjectByName("needle-hand")!;
+      expect(root.visible).toBe(true);
+      for (const [digit, kind] of [["thumb", "pad"], ["index", technique === "gua" ? "nail" : "pad"], ["middle", "side"]] as const) {
+        const contact = root.getObjectByName(`${digit}_${kind}_contact`)!;
+        const p = contact.getWorldPosition(new Vector3()), normal = contact.localToWorld(new Vector3(0, 1, 0)).sub(p).normalize();
+        const surface = root.getObjectByName(kind === "nail" ? `${digit}_nail` : `${digit}_skin`) as SkinnedMesh;
+        if (surface instanceof SkinnedMesh) { surface.skeleton.update(); surface.computeBoundingBox(); surface.computeBoundingSphere(); }
+        // Exact crest/edge rays can miss both adjacent triangles after a mirrored world transform.
+        // Measure the real deformed triangles directly, and probe either side of that shared edge.
+        const vertices = Array.from({ length: surface.geometry.getAttribute("position").count }, (_, i) => surface.getVertexPosition(i, new Vector3()).applyMatrix4(surface.matrixWorld));
+        const indices = surface.geometry.index!, triangle = new Triangle(), closest = new Vector3();
+        let distance = Infinity;
+        for (let i = 0; i < indices.count; i += 3) {
+          triangle.set(vertices[indices.getX(i)]!, vertices[indices.getX(i + 1)]!, vertices[indices.getX(i + 2)]!);
+          distance = Math.min(distance, triangle.closestPointToPoint(p, closest).distanceTo(p));
+        }
+        expect(distance, `${hand}/${technique}/${digit}/${kind} actual skin fitting`).toBeLessThan(0.00005);
+        const tangent = normal.clone().cross(new Vector3(0, 1, 0));
+        if (tangent.lengthSq() < 1e-8) tangent.crossVectors(normal, new Vector3(1, 0, 0));
+        tangent.normalize();
+        const hits = [-0.00003, 0.00003].flatMap((offset) => new Raycaster(p.clone().addScaledVector(tangent, offset).addScaledVector(normal, 0.01), normal.clone().negate(), 0, 0.02).intersectObject(surface, false));
+        expect(hits.some((hit) => hit.point.distanceTo(p) < 0.00005), `${hand}/${technique}/${digit}/${kind} surface neighbourhood`).toBe(true);
+      }
+    }
+    s.dispose();
+  });
+
+  it("hides an invalid grip and reports the pose failure separately from arm reach", async () => {
+    const s = await makeScene(true);
+    vi.spyOn(ArticulatedHand.prototype, "contactValid", "get").mockReturnValue(false);
+    s.procedure.perform(input("nian", { needleId: "needle-a", motion: { support: "none" } }));
+    s.procedure.tick(0); s.procedure.tick(1700);
+    expect(s.procedure.group.getObjectByName("needle-hand")!.visible).toBe(false);
+    expect(s.procedure.playback.reachWarning).toContain("natural grip");
+    expect(s.procedure.playback.reachWarning).not.toContain("Move closer");
+    s.dispose();
+  });
+
+  it("gives each rendered hand an independent deforming skeleton", async () => {
+    const s = await makeScene(true);
+    s.procedure.perform(input("nian", { needleId: "needle-a", motion: { support: "press" } }));
+    s.procedure.tick(0); s.procedure.tick(1700);
+    s.procedure.group.updateMatrixWorld(true);
+    const main = s.procedure.group.getObjectByName("needle-hand")!, support = s.procedure.group.getObjectByName("support-hand")!;
+    const mainSkin = main.getObjectByName("index_skin") as SkinnedMesh, supportSkin = support.getObjectByName("index_skin") as SkinnedMesh;
+    expect(mainSkin.isSkinnedMesh).toBe(true); expect(supportSkin.isSkinnedMesh).toBe(true);
+    expect(mainSkin.skeleton).not.toBe(supportSkin.skeleton);
+    for (const [root, skin] of [[main, mainSkin], [support, supportSkin]] as const) {
+      expect(skin.frustumCulled).toBe(false);
+      for (const bone of skin.skeleton.bones) expect(root.getObjectByProperty("uuid", bone.uuid)).toBe(bone);
+      skin.skeleton.update();
+    }
+    const vertex = mainSkin.geometry.getAttribute("position").count - 1;
+    const before = mainSkin.getVertexPosition(vertex, new Vector3());
+    support.getObjectByName("index_DIP")!.rotateZ(0.3);
+    s.procedure.group.updateMatrixWorld(true); supportSkin.skeleton.update(); mainSkin.skeleton.update();
+    expect(mainSkin.getVertexPosition(vertex, new Vector3()).distanceTo(before)).toBeLessThan(1e-8);
+    s.dispose();
+  });
+
+  it("holds both individual pads at the handle surface across operation start and end", async () => {
+    const s = await makeScene(true), durationMs = 2400, total = durationMs + 1920;
+    for (const hand of ["left", "right"] as const) for (const grip of ["two-finger", "three-finger"] as const) {
+      s.procedure.stopPreview();
+      expect(s.procedure.preview(input("nian", { needleId: "needle-a", motion: { durationMs, hand, grip, support: "none", gripApertureMm: 12 } }))).toBe(true);
+      for (const workAt of [0, 1, 25, 100, 1200, 2300, 2399, 2400]) {
+        s.procedure.setPlayback({ progress: (1070 + workAt) / total, paused: true });
+        const root = s.procedure.group.getObjectByName("needle-hand")!, handle = s.needles.grip("needle-a")!;
+        for (const digit of ["thumb", "index"]) {
+          const offset = root.getObjectByName(`${digit}_pad_contact`)!.getWorldPosition(new Vector3()).sub(handle.point);
+          const axial = offset.dot(handle.axis), radial = offset.addScaledVector(handle.axis, -axial).length();
+          expect(Math.abs(axial), `${hand}/${grip}/${workAt}/${digit} plane`).toBeLessThan(0.000025);
+          expect(Math.abs(radial - NEEDLE_HANDLE_RADIUS_M), `${hand}/${grip}/${workAt}/${digit} surface`).toBeLessThan(0.000025);
+        }
+      }
+    }
+    s.dispose();
+  });
+
   it("uses moving pad and nail anchors while each thumb/index joint remains independently controllable", async () => {
     const gltf = await new GLTFLoader().parseAsync(Uint8Array.from(asset).buffer, "");
     const hand = new ArticulatedHand(gltf.scene, gltf.animations, "#cba88a");
@@ -172,7 +259,10 @@ describe("bimanual catalogue performances", () => {
     const contactNode = main.getObjectByName("index_nail_contact")!;
     const contact = contactNode.getWorldPosition(new Vector3());
     const handle = s.needles.grip("needle-a")!;
-    expect(contact.distanceTo(handle.point)).toBeLessThan(0.009);
+    const offset = contact.sub(handle.point), along = offset.dot(handle.axis);
+    expect(along).toBeGreaterThanOrEqual(0.0039);
+    expect(along).toBeLessThanOrEqual(0.0101);
+    expect(Math.abs(offset.addScaledVector(handle.axis, -along).length() - needleHandleRadiusAt(along))).toBeLessThan(0.000025);
     expect(s.targets.right).toBeNull();
     expect(s.procedure.playback.phase).toContain("scraping");
     s.dispose();

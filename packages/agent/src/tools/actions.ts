@@ -131,7 +131,7 @@ export const ACTION_DOCS: Record<ActionType, ActionDoc> = {
       "presentation.grip": "two-finger thumb-index pinch or three-finger grip with middle-finger support.",
       "presentation.support": "Illustrative supporting-hand pose: none, stabilize, stretch, pinch or press.",
       "presentation.hand": "auto chooses the closer hand; left or right requests the named hand.",
-      "presentation.gripApertureMm": "Visual grip aperture adjustment in millimetres, 0 to 12; this is not a measured contact force.",
+      "presentation.gripApertureMm": "Approach/release opening in millimetres, 0 to 12, with minimum clearance when letting go. Engaged fingers fit the actual rendered handle; this is not contact force.",
     },
   },
   adjust_needle: {
@@ -157,6 +157,7 @@ export const ACTION_DOCS: Record<ActionType, ActionDoc> = {
       motion: "Optional bounded presentation settings shared with the operator controls. Use lookup techniques for units and per-technique defaults. Contact intensity is cosmetic and is never a force measurement or clinical dose.",
       "motion.cycles": "Displayed cycles within each primitive phase, 1 to 12. A compound's total duration spans all phases.",
       "motion.durationMs": "Total performance duration in milliseconds, 400 to 30000, spanning every compound phase. Presentation time does not advance the clinical clock.",
+      "motion.gripApertureMm": "Approach/release opening in millimetres, 0 to 12. A held grip fits the actual handle; letting go retains minimum clearance even at zero. This cannot make the fingers float apart during a held manipulation.",
     },
   },
   check_sensation: {

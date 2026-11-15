@@ -15,7 +15,7 @@ blender -b -P tools/blender/build_hand.py
 The builder also writes `tools/blender/hand.json`, including the binary's hash,
 triangle count, dimensions, joint names, moving contact anchors, and measured
 contact positions in each authored pose. The exported hand
-has 4,340 triangles, 39 mesh primitives and two PBR materials, `hand_skin` and
+has 7,984 triangles, 12 mesh primitives and two PBR materials, `hand_skin` and
 `hand_nails`. The renderer can recolor them to match a practitioner's appearance.
 The asset is separate from the static equipment catalog because its articulated
 nodes are animated by the encounter renderer.
@@ -29,9 +29,14 @@ on the handle. `pinch` is an empty at the origin and `wrist` is an empty at
 `[0.162, 0.004, 0]`. The parent may mirror Z to use the other hand.
 
 The neutral pose is a thumb/index precision pinch. The fingertip centers are
-`thumb_tip = [0, 0, -0.006]` and `index_tip = [0, 0, 0.006]`, with their facing
-pads leaving approximately 2 mm for the deliberately enlarged visualization of a
-needle. `thumb_contact` and `index_contact` mark the gap at Z ±0.001 m. Each
+`thumb_tip = [-0.004, 0, -0.006]` and `index_tip = [-0.004, 0, 0.006]`.
+The broad facing pads are part of each continuous finger skin mesh, four
+millimetres behind the fingertip, and leave 1.4 mm for the rendered needle
+handle. Their contacts are `[0, 0, -0.0007]` and `[0, 0, 0.0007]`; the pad
+normals point directly toward one another across the shaft, and the two nails
+follow each digit's dorsal surface, including the opposed thumb. This avoids the former pointed, separated-finger
+appearance caused by small added fingertip spheres and a shared dorsal axis.
+`thumb_contact` and `index_contact` mark these same fixed rest positions. Each
 finger has three nested rotation nodes:
 
 | Digit | Nodes, from palm toward fingertip |
@@ -51,6 +56,28 @@ moving the rotation pivot or overwriting its sampled motion. The thumb names do
 not imply three interphalangeal joints. These are schematic control landmarks,
 not a calibrated model of each anatomical joint's degrees of freedom.
 
+Each digit is a single closed `SkinnedMesh` from its base to its rounded tip,
+with gently tapered cross sections and a small joint contour. There are no
+separate knuckle balls or capped phalanx pieces that can split apart during
+flexion. Adjacent controls blend their vertex weights across each joint; the
+contact-bearing terminal region remains rigidly attached to its distal control.
+The thumb's CMC segment is a metacarpal within the broad thenar mound, so its
+external silhouette shows two phalanges rather than three bead-like segments.
+The thumb and index rest joints bend consistently toward the palm, within a
+common flexion plane; distal joints do not reverse direction. The remaining
+digits use comfortable moderate flexion in their own palmar planes. Their
+cross-section frames transport a stable lateral axis through the bend, and
+authored clips inherit the preceding segment's frame before adding a minimum
+swing. This prevents a frame flip or axial twist from collapsing the skin into
+a narrow neck as a supporting hand unfolds.
+
+Blender generates the geometry and clips. A deterministic export step adds
+standard glTF skin attributes and inverse bind matrices using the same fifteen
+legacy controls as the actual skin joints. No second armature or per-frame
+transform copying is required. Independent hands **must use
+`SkeletonUtils.clone`**, because an ordinary scene clone shares skeleton bones.
+`apply_preview_skin()` evaluates these same weights in Blender for visual review.
+
 Every distal node has a `<digit>_tip`, `<digit>_pad_contact`, and
 `<digit>_nail_contact` attachment. The pad and nail contacts are fitted to the
 actual mesh surfaces and move with their phalanx. Their local **+Y axis points
@@ -58,17 +85,28 @@ along the outward contact normal**. `<digit>_pad` is a compatibility alias for t
 pad contact. `palm_contact` and `support_contact` provide palmar attachment frames.
 The old root-level `thumb_contact` and `index_contact` remain fixed reference
 points; controllers should use the moving contacts for articulated poses.
+`middle_side_contact` is the actual soft lateral pulp for three-finger holding;
+the ordinary middle pad remains available for skin contact. Its 6.3096 mm lateral
+radius leaves the side contact at Z 0.0006904 m, matching the slightly tapered
+handle 6 mm below the primary grip without twisting the middle MCP joint.
+
+Nails are thin closed curved plates fitted to the real distal skin, rather than
+floating flattened ellipsoids. Their rigid free edge continues the nail-bed
+tangent instead of wrapping around the soft fingertip. Each nail attachment
+is at its distal free edge, approximately 93% of the distal bone's length,
+with the actual smoothed surface normal. Scraping and flicking use this edge,
+not an unreachable contact in the middle of the nail bed.
 
 The asset contains five independently sampled clips. Each runs from 0 to 1 second
 and begins at the neutral precision pinch:
 
 | Clip | Pose and timing |
 | --- | --- |
-| `hand_open` | Pinch to loose open grasp; 15 rotation channels. |
+| `hand_open` | Pinch to loose open grasp; 15 rotation channels. Idle middle/ring/little joints release toward 10° PIP and 7° DIP palmar flexion, without reverse bending. |
 | `hand_support` | Pinch to an extended, spread-finger supporting pose. |
-| `hand_three_finger` | Moves the middle finger's real pad to `[0, -0.010, 0.001]` beside the handle, retaining all segment lengths. |
+| `hand_three_finger` | Moves the middle finger's real side pad to `[0, -0.006, 0.0006904]` beside the tapered handle, retaining all segment lengths. |
 | `hand_scrape` | Positions the index nail at `[0.012, 0.005, 0.001]`; align the moving nail anchor with the handle rather than assuming it shares the pinch origin. |
-| `hand_flick` | Loads the index at 0.4 s, releases at 16/30 s, and returns to pinch at 1 s. |
+| `hand_flick` | Loads the moving index nail contact at 0.4 s, releases at 16/30 s, and returns to pinch at 1 s. |
 
 Sample one base clip per hand, then apply bounded anatomical-parent adjustments.
 Unchanged neutral channels may be omitted by the glTF exporter. None of the clips
@@ -80,21 +118,45 @@ without pretending that a rendered fingertip supplies measured force.
 
 The mesh is sized for a roughly 17 cm adult hand. Model scale, finger shape and
 pad compression are rendering choices and do not prescribe needling technique.
+Asset checks probe a 3×3 patch on each real pad surface, verify opposed contact
+normals and outward-facing nails, and sample real posed skin contact across all
+five clips. They also verify connected finger topology, normalized joint
+weights, blended joint regions, and independent deformation after skeleton
+cloning. A matching pair of named empties alone is insufficient to establish a
+believable grip.
 
 ## Contact control in the encounter renderer
 
 Each hand samples its own base clip and independent anatomical joint adjustments.
-For precision grips, `gripApertureMm` is a geometric target for the separation of
-the moving thumb and index pad anchors. A bounded rotational solve adjusts the
-thumb CMC and index MCP controls; it does not scale the hand, translate a finger,
-or change a phalanx length. Scene-graph tests cover 0, 2, 6 and 12 mm for both
-mirrored hands. When a needle is held, a minimum 1.5 mm visual clearance accommodates
-the enlarged handle; zero means closed contact rather than interpenetration.
-The pinch midpoint remains attached to the handle after each joint adjustment.
-Aperture is a grip control, not a measure of palmar contact or grip force.
+During needle holding, a bounded fixed-length finger solve places the thumb
+and index pads separately on opposite sides of the actual 1.4 mm rendered handle,
+with their outward surface normals pointing toward it. The line joining their
+contacts is perpendicular to the shaft. Matching their midpoint alone is not a
+valid grip. The solver adjusts joint rotations without scaling the hand,
+translating a finger or changing a phalanx length.
 
-For scraping and flicking, the moving index nail contact is aligned to the actual
-external handle. Supporting-hand stabilization, stretching, pinching and pressing
+`gripApertureMm` controls opening during approach and release, rather than allowing
+an engaged grip to float around the handle. Even zero opening leaves 1.5 mm
+clearance on each side when letting go; a held grip fits the actual diameter.
+The three-finger pose adds an independent middle-finger side-pad
+contact 6 mm lower along the tapered handle, keeping the central palmar pad free
+for surface support instead of rotating it onto the handle. These are rendering dimensions, not
+clinical needle or grip specifications. Scene-graph tests cover both mirrored
+hands, two/three-finger grips, 0/2/12 mm opening, rotation through ±π, and all
+motion phases. They check individual surface distances, opposed normals,
+perpendicular contact lines, and unchanged bone lengths.
+
+Scraping and flicking retain the thumb/middle stabilizing frame; only the index
+nail moves along the handle surface or flicks away. Scraping travel follows the
+sampler's contact signal, so the timing control also changes nail travel.
+The entire hand no longer slides along the shaft with the active finger.
+Approach/release timing is applied once; the local `gripEngagement` signal only
+adds intentional thumb/index release in Fei while the middle contact stays in
+place. The downstream finger joints use fixed flexion hinges, with bounded bends
+and coordinated interphalangeal motion; contact does not authorize twisting a
+distal joint around its bone. When a grip cannot be solved within the pose
+constraints, the detail hand is hidden and playback reports the pose problem
+separately from arm reach. Supporting-hand stabilization, stretching, pinching and pressing
 use a separate hand and target. Skin contacts align the selected moving pad or
 nail outward normal against the skin normal, with the wrist direction fixing
 the remaining orientation. Needle grips retain their shaft-aligned frame. Both

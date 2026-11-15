@@ -44,6 +44,7 @@ export const InsertionPresentationSchema = z.object({
   grip: z.enum(["two-finger", "three-finger"]).optional(),
   support: z.enum(["none", "stabilize", "stretch", "pinch", "press"]).optional(),
   hand: z.enum(["auto", "left", "right"]).optional(),
+  /** Approach/release opening; the held fingers fit the actual needle handle. */
   gripApertureMm: z.number().min(0).max(12).optional(),
 }).strict();
 export type InsertionPresentation = z.infer<typeof InsertionPresentationSchema>;

@@ -177,8 +177,9 @@ The view draws the encounter as the record has it, in step with it:
 - **The practitioner's marks and the needles** are placed on the skin from the record: a mark at its chart
   coordinates, a needle at its mark (or at the place given with it) at the recorded angle, direction and depth,
   of each needle's own pack length, with a steel shaft and spiral handle. The geometry uses executed depth,
-  including a shorter partial insertion. An articulated Blender hand approaches and pinches its handle, guided
-  by a length-preserving arm solve and bounded torso lean. Its fingers carry the needle in, track the full
+  including a shorter partial insertion. Articulated Blender hands with continuous finger skins and independent
+  skeletons approach the handle, guided by a length-preserving arm solve and bounded torso lean. The holding
+  pads fit opposite handle surfaces; the opening control affects approach/release. The fingers carry the needle in, track the full
   insertion or manipulation, open, and retreat; withdrawal keeps the shaft's full size. Needle movements queue
   when actions arrive quickly, and an old record opens directly at its retained state. `lift`, `thrust`,
   `lift-thrust`, `twist`, `rotate`, `bu` and `xie` use bounded, deterministic profiles; outward strokes never

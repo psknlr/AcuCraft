@@ -303,6 +303,7 @@ optional state history is created only when this new action is used, preserving 
 Presentation time is independent of the simulated clinical clock, and replay makes no model call.
 
 `insert_needle` also accepts optional `presentation` fields: `durationMs`, `grip`, `support`, `hand` and
-`gripApertureMm`. These control the hand animation; anatomy checks and the executed depth remain those of the
+`gripApertureMm`. Opening controls approach/release; held fingers fit the rendered handle instead of floating at
+the requested opening. These control the hand animation; anatomy checks and the executed depth remain those of the
 original insertion action. Actual needle-depth changes still use `adjust_needle`; a visual performance does not
 authorize them. See [TECHNIQUES.md](TECHNIQUES.md) for the catalogue and modeling limits.
