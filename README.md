@@ -39,6 +39,18 @@ depth and direction plus lifting/thrusting stroke, rotation amplitude/direction,
 follows executed positions and needle geometry. Setup, units and clinical/visual limits are described in
 [docs/CHARACTER-CONTROL.md](docs/CHARACTER-CONTROL.md).
 
+**Move and manipulate in 3D.** Click the clinic map, use its arrow/WASD controls, or Shift-click the 3D floor to
+walk the practitioner along the engine's collision-planned path. GPT/OpenAI, MiniMax and Claude use the same
+validated action tools. A Blender-built articulated hand and length-preserving arm IK animate the approach,
+pinch, insertion, manipulation, release and withdrawal. The **Technique studio / 精细手法控制** offers 24 named
+maneuvers, 10 authored compound sequences, and bu/xie through the same `perform_technique` tool used by LLMs.
+Set timing, cycles, axial/rotational/exterior-shaft motion, grip aperture, handedness and supporting-hand contact;
+preview locally, pause, scrub and change parameters live before executing an attributed action. Both Blender hands
+use continuous finger skins, independent skeletons, individual pad/nail contacts and arm IK. Held fingers fit
+the actual handle; the opening control affects approach and release. Internal needle paths remain authoritative while exposed-shaft
+deflection is shown separately ([docs/TECHNIQUES.md](docs/TECHNIQUES.md), [docs/HANDS.md](docs/HANDS.md)).
+These profiles are illustrative choreography, without a model of their clinical efficacy or tissue loading.
+
 ![The workspace: the complete record of a low-back-pain encounter around a live 3D view of the treatment room — the patient face down on the couch with needles in the lower back and their labels, the practitioner beside the couch](docs/img/web-workspace.png)
 
 > **Status: first implementation milestone of the design proposal.** The engine, the evaluator and a pilot content pack

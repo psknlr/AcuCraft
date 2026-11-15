@@ -17,10 +17,9 @@ import {
   Vector3,
   type Raycaster,
 } from "three";
-import { ActionSchema, needleMotion, sampleNeedleMotion, type NeedleMotion } from "@acucraft/core";
 import type { SkinSite } from "./sites.js";
-import { sampleTechnique, techniqueMotion, type ManipulationMotionSettings, type ManipulationTechniqueId, type NeedleTechnique, type NeedleMotionSettings, type TechniqueMotionSample } from "@acucraft/core";
-import { exteriorGeometry, exteriorShape, updateExteriorGeometry } from "./needle-shape.js";
+import { ActionSchema, hasClinicalNeedleMotion, needleMotion, sampleNeedleMotion, sampleTechnique, techniqueMotion, type ManipulationMotionSettings, type ManipulationTechniqueId, type NeedleMotion, type NeedleTechnique, type NeedleMotionSettings, type TechniqueMotionSample } from "@acucraft/core";
+import { exteriorGeometry, exteriorShape, updateExteriorGeometry, NEEDLE_HANDLE_GRIP_Y_M, NEEDLE_HANDLE_LENGTH_M, needleHandleRadiusAt } from "./needle-shape.js";
 
 /**
  * The needles in the patient and the practitioner's ink marks, drawn where the record has them: a needle of the
@@ -39,8 +38,15 @@ export interface NeedleSpec {
   depthCm: number;
   /** Length of the needle's shaft (m). */
   length: number;
-  diameterMm: number;
+  /** Recorded shaft diameter. Older scene snapshots omit it and retain the 0.48 mm display diameter. */
+  diameterMm?: number;
 }
+
+type NeedlePose = Pick<TechniqueMotionSample, "withdrawalMm" | "rotationRad" | "lateralMm" | "tiltRad"> & {
+  /** An executed adjust_needle envelope, sampled by the shared clinical-motion implementation. */
+  depthM?: number;
+};
+const shaftDiameterMm = (spec: NeedleSpec) => typeof spec.diameterMm === "number" && Number.isFinite(spec.diameterMm) && spec.diameterMm > 0 ? spec.diameterMm : 0.48;
 
 const smooth = (t: number) => {
   const x = Math.min(1, Math.max(0, t));
@@ -97,7 +103,13 @@ interface Live {
   depth: number;
   targetDepth: number;
   leaving: boolean;
-  wiggle: { motion: NeedleMotion; start: number } | null;
+  wiggle: { type: "legacy"; kind: NeedleTechnique; start: number; motion?: NeedleMotionSettings }
+    | { type: "clinical"; motion: NeedleMotion; start: number } | null;
+  performance: { technique: ManipulationTechniqueId; start: number; elapsed?: number; motion?: ManipulationMotionSettings } | null;
+  controlled: boolean;
+  needsInsertion: boolean;
+  needsRemoval: boolean;
+  clearance: number;
   glow: { ring: Mesh; start: number } | null;
   highlight: boolean;
 }
@@ -123,10 +135,11 @@ export class NeedleLayer {
 
   constructor() {
     this.group.name = "needles";
-    // Unit geometry is scaled to each needle's recorded diameter, in millimetres.
+    // Geometry uses a 0.48 mm baseline; both shaft sections and the tip scale to the recorded diameter.
     this.shaftGeo = new CylinderGeometry(0.00024, 0.00024, 1, 8, 1);
     this.shaftGeo.translate(0, 0.5, 0);
     this.tipGeo = new CylinderGeometry(0.00024, 0.00002, 0.0016, 8, 1);
+    // The point ends at local y=0, so its visible geometry never extends past the approved tip.
     this.tipGeo.translate(0, 0.0008, 0);
     this.tailGeo = new SphereGeometry(0.00095, 14, 10);
     this.hitGeo = new CylinderGeometry(0.004, 0.004, 1, 6, 1);
@@ -148,7 +161,7 @@ export class NeedleLayer {
     for (const l of this.live.values()) {
       if (l.leaving) continue;
       l.root.updateMatrixWorld(true);
-      const top = l.handleRoot.localToWorld(new Vector3(0, 0.025, 0));
+      const top = l.handleRoot.localToWorld(new Vector3(0, NEEDLE_HANDLE_LENGTH_M, 0));
       out.push({ id: l.spec.id, target: l.spec.target, at: top, inserted: l.inserted, highlight: l.highlight });
     }
     return out;
@@ -177,7 +190,7 @@ export class NeedleLayer {
     const l = this.live.get(id);
     if (!l) return null;
     l.root.updateMatrixWorld(true);
-    return { point: l.handleRoot.localToWorld(new Vector3(0, 0.0125, 0)), axis: new Vector3(0, 1, 0).applyQuaternion(l.handleRoot.getWorldQuaternion(new Quaternion())), rotation: l.body.rotation.y };
+    return { point: l.handleRoot.localToWorld(new Vector3(0, NEEDLE_HANDLE_GRIP_Y_M, 0)), axis: new Vector3(0, 1, 0).applyQuaternion(l.handleRoot.getWorldQuaternion(new Quaternion())), rotation: l.body.rotation.y };
   }
 
   /** Carry the uninserted needle between the approaching fingers, preserving its full shaft length. */
@@ -187,7 +200,7 @@ export class NeedleLayer {
     l.root.visible = true;
     l.root.quaternion.setFromUnitVectors(new Vector3(0, 1, 0), axis);
     l.root.updateMatrixWorld(true);
-    const current = l.handleRoot.localToWorld(new Vector3(0, 0.0125, 0));
+    const current = l.handleRoot.localToWorld(new Vector3(0, NEEDLE_HANDLE_GRIP_Y_M, 0));
     l.root.position.add(grip.clone().sub(current));
   }
 
@@ -238,14 +251,56 @@ export class NeedleLayer {
   }
 
   /** The needle worked (`adjust_needle`): lifted and thrust along its shaft, or turned. */
-  work(id: string, input: Record<string, unknown>, now: number): void {
+  work(id: string, input: Record<string, unknown>, now: number): void;
+  work(id: string, kind: NeedleTechnique, now: number, motion?: NeedleMotionSettings): void;
+  work(id: string, input: Record<string, unknown> | NeedleTechnique, now: number, motion?: NeedleMotionSettings): void {
     const l = this.live.get(id);
-    const parsed = ActionSchema.safeParse({ ...input, type: "adjust_needle" });
-    if (l && parsed.success && parsed.data.type === "adjust_needle") l.wiggle = parsed.data.technique === "none" ? null : { motion: needleMotion(parsed.data, l.targetDepth * 100), start: now };
+    if (!l) return;
+    if (typeof input === "string") {
+      l.performance = null;
+      l.wiggle = { type: "legacy", kind: input, start: now, motion };
+      return;
+    }
+    const parsed = ActionSchema.safeParse({ ...input, type: "adjust_needle", needleId: id });
+    if (!parsed.success || parsed.data.type !== "adjust_needle") return;
+    if (!hasClinicalNeedleMotion(parsed.data)) {
+      this.work(id, parsed.data.technique, now, parsed.data.motion);
+      return;
+    }
+    l.performance = null;
+    l.wiggle = parsed.data.technique === "none" ? null
+      : { type: "clinical", motion: needleMotion(parsed.data, l.targetDepth * 100), start: now };
+    if (!l.wiggle) this.applyPose(l);
   }
 
+  /** Interrupt presentation without changing the executed needle geometry or its insertion/removal queue. */
   stopWork(): void {
-    for (const needle of this.live.values()) needle.wiggle = null;
+    for (const l of this.live.values()) {
+      l.wiggle = null;
+      l.performance = null;
+      this.applyPose(l);
+    }
+  }
+
+  /** Begin one accepted catalogue performance. Presentation does not mutate the needle's executed geometry. */
+  workTechnique(id: string, technique: ManipulationTechniqueId, start: number, motion?: ManipulationMotionSettings): void {
+    const l = this.live.get(id);
+    if (l) { l.wiggle = null; l.performance = { technique, start, motion }; }
+  }
+
+  /** Exact deterministic pose for a local preview or a locally paused record performance. */
+  poseTechnique(id: string, technique: ManipulationTechniqueId, elapsed: number, motion?: ManipulationMotionSettings): void {
+    const l = this.live.get(id);
+    if (!l) return;
+    l.performance = { technique, start: 0, elapsed, motion };
+    this.applyPose(l, sampleTechnique(technique, elapsed, motion));
+  }
+
+  clearTechnique(id: string): void {
+    const l = this.live.get(id);
+    if (!l) return;
+    l.performance = null;
+    this.applyPose(l);
   }
 
   /** A response on record at a needle: a glow spreads round it once. */
@@ -320,15 +375,24 @@ export class NeedleLayer {
         }
       } else if (!l.controlled && l.inserted < 1) l.inserted = Math.min(1, l.inserted + rate);
       if (Math.abs(l.depth - l.targetDepth) > 1e-5) l.depth += (l.targetDepth - l.depth) * Math.min(1, dt / 220);
-      let depth = l.depth * ease(l.inserted);
-      let spin = 0;
-      if (l.wiggle) {
-        const elapsed = (now - l.wiggle.start) / 1000;
-        if (elapsed >= l.wiggle.motion.durationSeconds || l.leaving) l.wiggle = null;
-        else {
-          const sample = sampleNeedleMotion(l.wiggle.motion, elapsed);
-          depth = sample.depthCm / 100;
-          spin = sample.rotationRad;
+      let motion: NeedlePose | undefined;
+      if (l.performance) {
+        const sample = sampleTechnique(l.performance.technique, l.performance.elapsed ?? now - l.performance.start, l.performance.motion);
+        if (sample.complete && l.performance.elapsed === undefined) l.performance = null;
+        else motion = sample;
+      } else if (l.wiggle) {
+        if (l.wiggle.type === "clinical") {
+          const seconds = Math.max(0, now - l.wiggle.start) / 1000;
+          if (seconds >= l.wiggle.motion.durationSeconds || l.leaving) l.wiggle = null;
+          else {
+            const sample = sampleNeedleMotion(l.wiggle.motion, seconds);
+            motion = { depthM: sample.depthCm / 100, withdrawalMm: 0, rotationRad: sample.rotationRad,
+              lateralMm: { u: 0, v: 0 }, tiltRad: { u: 0, v: 0 } };
+          }
+        } else {
+          const sample = techniqueMotion(l.wiggle.kind, now - l.wiggle.start, l.wiggle.motion);
+          if (sample.complete) l.wiggle = null;
+          else motion = { ...sample, lateralMm: { u: 0, v: 0 }, tiltRad: { u: 0, v: 0 } };
         }
       }
       this.applyPose(l, motion);
@@ -352,14 +416,21 @@ export class NeedleLayer {
     root.name = `needle:${spec.id}`;
     const body = new Group();
     const shaft = new Mesh(this.shaftGeo, this.shaftMat);
-    shaft.scale.set(spec.diameterMm / 0.48, spec.length - 0.0016, spec.diameterMm / 0.48);
-    shaft.position.y = 0.0016;
+    shaft.name = "internal-shaft";
     const tip = new Mesh(this.tipGeo, this.shaftMat);
-    tip.scale.set(spec.diameterMm / 0.48, 1, spec.diameterMm / 0.48);
-    const handle = new Mesh(new CylinderGeometry(0.00072, 0.00068, 0.025, 14, 1), this.handleMat.clone());
-    handle.position.y = 0.0125;
+    tip.name = "needle-tip";
+    const diameterScale = shaftDiameterMm(spec) / 0.48;
+    tip.scale.set(diameterScale, 1, diameterScale);
+    const exterior = new Group();
+    exterior.name = "external-shaft";
+    const exteriorShaft = new Mesh(exteriorGeometry(), this.shaftMat);
+    exteriorShaft.frustumCulled = false;
+    const handleRoot = new Group();
+    handleRoot.name = "needle-handle";
+    const handle = new Mesh(new CylinderGeometry(needleHandleRadiusAt(NEEDLE_HANDLE_GRIP_Y_M), needleHandleRadiusAt(-NEEDLE_HANDLE_GRIP_Y_M), NEEDLE_HANDLE_LENGTH_M, 14, 1), this.handleMat.clone());
+    handle.position.y = NEEDLE_HANDLE_GRIP_Y_M;
     const tail = new Mesh(this.tailGeo, this.tailMat);
-    tail.position.y = 0.025;
+    tail.position.y = NEEDLE_HANDLE_LENGTH_M;
     const hit = new Mesh(this.hitGeo, this.hitMat);
     hit.scale.set(1, spec.length + 0.03, 1);
     hit.userData.needle = spec.id;
@@ -391,15 +462,18 @@ export class NeedleLayer {
     l.root.quaternion.setFromUnitVectors(new Vector3(0, 1, 0), inward.clone().negate());
   }
 
-  private applyPose(l: Live, motion?: Pick<TechniqueMotionSample, "withdrawalMm" | "rotationRad" | "lateralMm" | "tiltRad">): void {
-    const retained = Math.min(l.depth, l.targetDepth) * smooth(l.inserted);
+  private applyPose(l: Live, motion?: NeedlePose): void {
+    const baseDepth = motion?.depthM === undefined ? Math.min(l.depth, l.targetDepth) : Math.max(0, Math.min(l.spec.length, motion.depthM));
+    const retained = baseDepth * smooth(l.inserted);
     const outward = Math.min(retained, Math.max(0, motion?.withdrawalMm ?? 0) / 1000);
     const depth = retained - outward - l.clearance;
     const spin = motion?.rotationRad ?? 0;
     l.body.position.set(0, -depth, 0);
     l.body.rotation.y = spin;
     const interiorLength = Math.max(0, Math.min(l.spec.length, depth));
-    l.interior.scale.set(1, interiorLength, 1);
+    const diameterScale = shaftDiameterMm(l.spec) / 0.48;
+    l.interior.scale.set(diameterScale, interiorLength, diameterScale);
+    l.body.getObjectByName("needle-tip")?.scale.set(diameterScale, 1, diameterScale);
     l.interior.visible = interiorLength > 1e-7;
     l.exterior.position.set(0, interiorLength, 0);
     const toLocal = (u: number, v: number) => l.spec.site.uDir.clone().multiplyScalar(u).addScaledVector(l.spec.site.vDir, v)
@@ -407,7 +481,7 @@ export class NeedleLayer {
     const lateral = toLocal((motion?.lateralMm.u ?? 0) / 1000, (motion?.lateralMm.v ?? 0) / 1000);
     const tilt = toLocal(motion?.tiltRad.u ?? 0, motion?.tiltRad.v ?? 0);
     const shape = exteriorShape(l.spec.length - interiorLength, lateral, tilt);
-    updateExteriorGeometry(l.exteriorShaft.geometry, shape.points);
+    updateExteriorGeometry(l.exteriorShaft.geometry, shape.points, shaftDiameterMm(l.spec) / 2000);
     l.handleRoot.position.copy(shape.end);
     l.handleRoot.quaternion.setFromUnitVectors(new Vector3(0, 1, 0), shape.tangent);
   }

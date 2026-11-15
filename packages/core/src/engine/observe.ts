@@ -42,6 +42,8 @@ export interface AgentView {
     you: { x: number; z: number; yaw: number; facing: string; room: string };
     rooms: { id: string; label: string; minX: number; maxX: number; minZ: number; maxZ: number }[];
     walks: import("../schema/state.js").WalkRecord[];
+    /** Current actor's latest walk, retained for existing animation consumers. */
+    lastWalk?: { attempt: number; from: { x: number; z: number }; to: { x: number; z: number }; path: { x: number; z: number }[]; withPatient: boolean } | null;
     fixtures: { id: string; kind: string; label: string; room: string; x: number; z: number; rot: number; distance: number; inReach: boolean }[];
     patient: {
       id: string;
@@ -227,7 +229,11 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
   const space: AgentView["space"] = {
     you: { x: me.x, z: me.z, yaw: me.yaw, facing: compass(me.yaw), room: actor.location },
     rooms: [...w.rooms.values()].map(r => ({ id: r.id, label: r.label, ...r.rect })),
-    walks: s.walks.slice(-24).map(walk => ({ ...walk, path: walk.path.map(p => ({ ...p })) })),
+    walks: s.walks.slice(-24).map(walk => ({ ...walk, from: { ...walk.from }, to: { ...walk.to }, path: walk.path.map(p => ({ ...p })) })),
+    lastWalk: (() => {
+      const walk = s.walks.findLast(entry => entry.actor === actorId);
+      return walk ? { attempt: walk.attempt, from: { ...walk.from }, to: { ...walk.to }, path: walk.path.map(p => ({ ...p })), withPatient: walk.withPatient } : null;
+    })(),
     fixtures: [...w.fixtures.values()].map((f) => {
       const r = fixtureReach(w, me, f.id)!;
       const c = areaCentre(f.area);

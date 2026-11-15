@@ -1,4 +1,5 @@
 import { Group, Quaternion, Vector3 } from "three";
+import type { WalkRecord } from "@acucraft/core";
 import { buildPerson, disposeRig, PLAIN_WEAR, setBlink, setBreath, setDistressed, setMouth, type AppearanceLike, type PersonOptions, type PersonRig } from "@clinicalcraft/web/world/npc.js";
 import { breathOf } from "@clinicalcraft/web/world/manikin.js";
 import { CONSULT, COUCH_TOP, SEAT_TOP, TREATMENT } from "./set.js";
@@ -68,13 +69,6 @@ const COAT = { ...PLAIN_WEAR, top: "shirt" as const, over: "coat" as const, shoe
 export class Person {
   readonly rig: PersonRig;
   readonly holder = new Group();
-  private route: Vector3[] = [];
-  private readonly restY: number;
-  private readonly restRoll: number;
-  private walkAttempt = -1;
-  private targetRot = 0;
-  private lookTarget: Vector3 | null = null;
-  private stride = 0;
   private blinkAt: number;
   private blinkPhase = -1;
   private speakingUntil = 0;
@@ -84,12 +78,12 @@ export class Person {
   private route: { x: number; z: number }[] = [];
   private destination: Placement["at"];
   private gestureFacing: number | null = null;
+  private walkAttempt = -1;
+  private lookTarget: Vector3 | null = null;
 
   constructor(appearance: AppearanceLike, readonly placement: Placement) {
     this.rig = buildPerson(appearance, placement.options);
     this.holder.add(this.rig.root);
-    this.restY = this.rig.body.position.y;
-    this.restRoll = this.rig.body.rotation.z;
     this.rig.root.position.set(placement.at.x, placement.at.y, placement.at.z);
     this.rig.root.rotation.y = placement.at.rot * DEG;
     this.destination = { ...placement.at };
@@ -103,24 +97,6 @@ export class Person {
     this.breathPhase = (this.rig.phase * 7.3) % 1;
     this.blinkAt = 900 + this.rig.phase * 2600;
   }
-
-  /** Keep the same geometry while moving. Follow recorded corners instead of cutting through furniture. */
-  moveTo(at: Placement["at"], walk: import("@acucraft/core").WalkRecord | undefined, animate: boolean): void {
-    this.targetRot = at.rot * DEG;
-    this.placement.at = { ...at };
-    if (animate && walk && walk.attempt !== this.walkAttempt && this.placement.options.posture === "standing") {
-      this.walkAttempt = walk.attempt;
-      this.rig.root.position.set(walk.from.x, 0, walk.from.z);
-      this.route = [...walk.path, walk.to].map(p => new Vector3(p.x, 0, p.z));
-    } else if (!animate || !this.route.length) {
-      this.walkAttempt = walk?.attempt ?? this.walkAttempt;
-      this.route = [];
-      this.rig.root.position.set(at.x, at.y, at.z);
-      this.rig.root.rotation.y = this.targetRot;
-    }
-  }
-
-  lookAt(target: Vector3): void { this.lookTarget = target; }
 
   /** Where the head is (world), for the camera. */
   headAt(): Vector3 {
@@ -141,7 +117,11 @@ export class Person {
   }
 
   /** Follow the world's already validated polyline. New walks can arrive while the previous one is being drawn. */
-  moveTo(at: Placement["at"], path: { x: number; z: number }[] = [], animate = true): void {
+  moveTo(at: Placement["at"], route: { x: number; z: number }[] | WalkRecord | undefined = [], animate = true): void {
+    const record = Array.isArray(route) ? null : route;
+    const path = Array.isArray(route) ? route : record ? [record.from, ...record.path, record.to] : [];
+    const freshWalk = record && record.attempt !== this.walkAttempt;
+    if (record) this.walkAttempt = record.attempt;
     this.gestureFacing = null;
     const old = this.destination;
     this.destination = { ...at };
@@ -152,7 +132,8 @@ export class Person {
       this.rig.root.rotation.y = at.rot * DEG;
       return;
     }
-    if (Math.hypot(old.x - at.x, old.z - at.z) < 0.001) return;
+    if (Math.hypot(old.x - at.x, old.z - at.z) < 0.001 && !freshWalk) return;
+    if (freshWalk && !this.route.length) this.rig.root.position.set(record.from.x, at.y, record.from.z);
     const points = path.length ? path.map((p) => ({ ...p })) : [{ x: at.x, z: at.z }];
     const end = points[points.length - 1]!;
     if (Math.hypot(end.x - at.x, end.z - at.z) > 0.001) points.push({ x: at.x, z: at.z });
@@ -160,6 +141,8 @@ export class Person {
     if (!this.route.length || !path.length || Math.hypot(points[0]!.x - old.x, points[0]!.z - old.z) > 0.08) this.route = [];
     this.route.push(...points);
   }
+
+  lookAt(target: Vector3): void { this.lookTarget = target.clone(); }
 
   get isMoving(): boolean {
     return this.route.length > 0;
@@ -190,7 +173,7 @@ export class Person {
 
   private walk(dt: number): number {
     const position = this.rig.root.position;
-    let budget = Math.max(0, Math.min(100, dt)) * 0.0011;
+    let budget = Math.max(0, Math.min(100, dt)) * 0.0012;
     let travelled = 0;
     while (this.route.length && budget > 0) {
       const point = this.route[0]!;
@@ -213,24 +196,9 @@ export class Person {
   }
 
   tick(now: number, dt: number): void {
-    let budget = Math.min(dt, 100) / 1000 * 1.2;
-    const walking = this.route.length > 0;
-    while (this.route.length && budget > 0) {
-      const to = this.route[0]!;
-      const delta = to.clone().sub(this.rig.root.position);
-      const distance = delta.length();
-      if (distance < 1e-5) { this.route.shift(); continue; }
-      const step = Math.min(distance, budget);
-      this.rig.root.position.addScaledVector(delta, step / distance);
-      this.rig.root.rotation.y = Math.atan2(delta.x, delta.z);
-      budget -= step;
-      this.stride += step * 5.7;
-      if (step >= distance) this.route.shift();
-    }
-    this.rig.body.position.y = this.restY + (walking ? Math.abs(Math.sin(this.stride)) * 0.025 : 0);
-    this.rig.body.rotation.z = this.restRoll + (walking ? Math.sin(this.stride) * 0.02 : 0);
-    if (!this.route.length) this.rig.root.rotation.y = this.targetRot || this.placement.at.rot * DEG;
-    if (this.lookTarget && !walking) {
+    const travelled = this.walk(dt);
+    this.animation?.tick(dt, travelled, this.isMoving);
+    if (this.lookTarget && !this.isMoving) {
       const local = this.rig.root.worldToLocal(this.lookTarget.clone());
       const yaw = Math.max(-0.45, Math.min(0.45, Math.atan2(local.x, local.z)));
       this.rig.head.rotation.y += (yaw - this.rig.head.rotation.y) * Math.min(1, dt / 180);

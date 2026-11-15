@@ -1,8 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { Mesh, Vector3 } from "three";
+import { Group, Mesh, Vector3 } from "three";
 import { MANIPULATION_TECHNIQUES } from "@acucraft/core";
 import { exteriorGeometry, exteriorShape, updateExteriorGeometry } from "../web/stage/needle-shape.js";
 import { NeedleLayer, type NeedleSpec } from "../web/stage/needles.js";
+import { NeedleProcedure } from "../web/stage/procedure.js";
+import type { Person } from "../web/stage/cast.js";
 
 beforeEach(() => vi.stubGlobal("document", { createElement: () => ({ width: 0, height: 0, getContext: () => ({ fillStyle: "", fillRect() {}, createRadialGradient: () => ({ addColorStop() {} }) }) }) }));
 afterEach(() => vi.unstubAllGlobals());
@@ -55,5 +57,73 @@ describe("exterior-only needle choreography", () => {
     root.updateMatrixWorld(true);
     expect(point.getWorldPosition(new Vector3()).distanceTo(s.site.p.clone().addScaledVector(inwardAxis, 0.02))).toBeLessThan(1e-8);
     layer.clear();
+  });
+
+  it("uses the recorded diameter for both shaft sections and the pointed tip", () => {
+    const layer = new NeedleLayer(), needle = { ...spec(), diameterMm: 0.2 };
+    for (const diameterMm of [0.2, 0.4]) {
+      needle.diameterMm = diameterMm;
+      layer.sync([needle], 0, false);
+      layer.tick(0, 0);
+      layer.group.updateMatrixWorld(true);
+      const root = layer.group.getObjectByName("needle:n1")!;
+      const axis = new Vector3(0, 1, 0).applyQuaternion(root.quaternion), origin = root.getWorldPosition(new Vector3());
+      for (const name of ["internal-shaft", "needle-tip", "external-shaft"]) {
+        const group = root.getObjectByName(name)!;
+        const mesh = (group instanceof Mesh ? group : group.children.find((child) => child instanceof Mesh)) as Mesh;
+        let radius = 0;
+        for (let vertex = 0; vertex < mesh.geometry.getAttribute("position").count; vertex++) {
+          const offset = mesh.localToWorld(mesh.getVertexPosition(vertex, new Vector3())).sub(origin);
+          radius = Math.max(radius, offset.addScaledVector(axis, -offset.dot(axis)).length());
+        }
+        expect(radius, `${name}/${diameterMm} mm`).toBeCloseTo(diameterMm / 2000, 8);
+      }
+    }
+    layer.clear();
+  });
+
+  it("samples the accepted clinical stroke and one-way rotation parameters, and stops both motion paths", () => {
+    const layer = new NeedleLayer(), needle = spec();
+    layer.sync([needle], 0, false);
+    const root = layer.group.getObjectByName("needle:n1")!, tip = root.getObjectByName("needle-tip")!;
+    const inward = new Vector3(0, -1, 0).applyQuaternion(root.quaternion);
+    const depth = () => { root.updateMatrixWorld(true); return tip.getWorldPosition(new Vector3()).sub(needle.site.p).dot(inward); };
+    layer.work("n1", { technique: "lift-thrust", strokeMm: 2, frequencyHz: 2, durationSeconds: 4 }, 0);
+    layer.tick(0, 125);
+    expect(depth()).toBeCloseTo(0.021, 8);
+    layer.tick(0, 375);
+    expect(depth()).toBeCloseTo(0.019, 8);
+    layer.work("n1", { technique: "rotate", rotationDeg: 90, rotationDirection: "clockwise", frequencyHz: 2, durationSeconds: 4 }, 1000);
+    layer.tick(0, 1500);
+    expect(root.children[0]!.rotation.y).toBeCloseTo(-Math.PI / 2, 8);
+    layer.stopWork();
+    expect(root.children[0]!.rotation.y).toBe(0);
+    expect(depth()).toBeCloseTo(0.02, 8);
+    layer.poseTechnique("n1", "yao", 450, { durationMs: 1800, lateralMm: 4, tiltDeg: 8 });
+    layer.stopWork();
+    expect(depth()).toBeCloseTo(0.02, 8);
+    expect(layer.transitions()).toEqual([]);
+    layer.clear();
+  });
+
+  it("keeps the complete clinical action queued until its recorded operation duration has elapsed", () => {
+    const layer = new NeedleLayer();
+    layer.sync([spec()], 0, false);
+    const actor = { isMoving: false, holder: new Group(), shoulderAt: () => new Vector3(0.2, 1.3, 0),
+      reach: (_side: string, wrist: Vector3 | null) => ({ wrist: wrist?.clone() ?? new Vector3(), elbow: new Vector3(), reachable: true }) };
+    const procedure = new NeedleProcedure(layer, () => actor as unknown as Person, () => {});
+    const work = vi.spyOn(layer, "work");
+    const first = { technique: "rotate", frequencyHz: 2, rotationDeg: 45, durationSeconds: 4 };
+    procedure.workAction("n1", first);
+    procedure.workAction("n1", { technique: "lift-thrust", strokeMm: 2, frequencyHz: 1, durationSeconds: 2 });
+    procedure.tick(0); procedure.tick(1071);
+    expect(work).toHaveBeenCalledTimes(1);
+    expect(work).toHaveBeenLastCalledWith("n1", expect.objectContaining(first), 1070);
+    procedure.tick(4000); procedure.tick(4001); procedure.tick(5072);
+    expect(work).toHaveBeenCalledTimes(1);
+    procedure.tick(5921); procedure.tick(5930); procedure.tick(7001);
+    expect(work).toHaveBeenCalledTimes(2);
+    expect(work).toHaveBeenLastCalledWith("n1", expect.objectContaining({ technique: "lift-thrust", durationSeconds: 2 }), 7000);
+    procedure.dispose(); layer.clear();
   });
 });

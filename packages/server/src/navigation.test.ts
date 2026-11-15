@@ -57,26 +57,26 @@ describe("avatar floor controls", () => {
 describe("the engine floor and the presentation sets", () => {
   const initial = (): AgentView => new EncounterSession(sc).view();
 
-  it("keeps coordinates invertible and anchors the real consultation chair to the drawn chair", () => {
+  it("keeps floor coordinates identical to the full clinic and invertible", () => {
     const view = initial();
     const fixture = view.space.fixtures.find((f) => f.id === "consult-chair")!;
-    expect(toStageFloor(view, fixture)).toEqual({ x: CONSULT.patientChair.x, z: CONSULT.patientChair.z });
+    expect(toStageFloor(view, fixture)).toEqual({ x: fixture.x, z: fixture.z });
     const point = { x: view.space.you.x + 0.73, z: view.space.you.z - 0.42 };
     const returned = fromStageFloor(view, toStageFloor(view, point));
     expect(returned.x).toBeCloseTo(point.x, 12);
     expect(returned.z).toBeCloseTo(point.z, 12);
   });
 
-  it("rotates a couch facing east onto the drawn north-facing couch without mirroring movement", () => {
+  it("keeps the recorded world position and yaw without rotating floor coordinates", () => {
     const view = initial();
     const fixture = view.space.fixtures.find((f) => f.id === "couch-1")!;
-    view.space.you = { x: fixture.x + 1, z: fixture.z, room: fixture.room, facing: "east" };
+    view.space.you = { x: fixture.x + 1, z: fixture.z, yaw: 90, room: fixture.room, facing: "east" };
     view.space.patient = { ...view.space.patient, room: fixture.room, on: fixture.id, x: fixture.x, z: fixture.z, lying: { head: "east", rightSide: "north" } };
     expect(floorFrame(view).set).toBe("treatment");
     const placement = practitionerFloorPlacement(view, "test");
-    expect(placement.at.x).toBeCloseTo(TREATMENT.couch.x);
-    expect(placement.at.z).toBeCloseTo(TREATMENT.couch.z - 1);
-    expect(placement.at.rot).toBeCloseTo(180);
+    expect(placement.at.x).toBeCloseTo(fixture.x + 1);
+    expect(placement.at.z).toBeCloseTo(fixture.z);
+    expect(placement.at.rot).toBeCloseTo(90);
     const returned = fromStageFloor(view, placement.at);
     expect(returned.x).toBeCloseTo(view.space.you.x, 12);
     expect(returned.z).toBeCloseTo(view.space.you.z, 12);
@@ -89,8 +89,8 @@ describe("the engine floor and the presentation sets", () => {
     view.space.patient = { ...view.space.patient, room: "consult-room", on: null, x: chair.x + 0.75, z: chair.z - 0.25 };
     const patientView = patientRoomView(view);
     const at = toStageFloor(patientView, patientView.space.patient);
-    expect(at.x).toBeCloseTo(CONSULT.patientChair.x + 0.75);
-    expect(at.z).toBeCloseTo(CONSULT.patientChair.z - 0.25);
+    expect(at.x).toBeCloseTo(chair.x + 0.75);
+    expect(at.z).toBeCloseTo(chair.z - 0.25);
     expect(view.space.you.room).toBe("treatment-room");
   });
 
@@ -100,11 +100,11 @@ describe("the engine floor and the presentation sets", () => {
     view.space.you = { ...view.space.you, room: chair.room, x: chair.x + 0.5, z: chair.z };
     view.space.patient = { ...view.space.patient, room: chair.room, on: chair.id, x: chair.x, z: chair.z };
     const path = [{ x: chair.x - 20, z: chair.z }, { x: chair.x - 0.5, z: chair.z }, { x: chair.x + 0.5, z: chair.z }];
-    view.space.lastWalk = { attempt: 4, from: path[0]!, to: path[2]!, path, withPatient: true };
+    view.space.walks = [{ attempt: 4, actor: view.you.id, at: 0, metres: 20, minutes: 0.3, from: path[0]!, to: path[2]!, path, withPatient: true }];
     const patientView = patientRoomView(view);
     expect(patientEscortArrival(view)).toEqual(path.slice(1).map((p) => toStageFloor(patientView, p)));
-    view.space.lastWalk.withPatient = false;
+    view.space.walks[0]!.withPatient = false;
     expect(patientEscortArrival(view)).toEqual([]);
-    expect(view.space.lastWalk.path).toEqual(path);
+    expect(view.space.walks[0]!.path).toEqual(path);
   });
 });

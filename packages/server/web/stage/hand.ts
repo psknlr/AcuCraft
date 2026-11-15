@@ -1,7 +1,8 @@
-import { AnimationMixer, Group, LoopOnce, Matrix4, Mesh, MeshStandardMaterial, Quaternion, Vector3, type AnimationAction, type AnimationClip, type Object3D } from "three";
+import { AnimationMixer, Group, LoopOnce, Matrix4, Mesh, MeshStandardMaterial, Quaternion, SkinnedMesh, Vector3, type AnimationAction, type AnimationClip, type Object3D } from "three";
+import { needleHandleRadiusAt } from "./needle-shape.js";
 
 export type HandPose = "pinch" | "tripod" | "palpate" | "press" | "stretch" | "scrape" | "flick" | "release";
-export type HandContact = "pinch" | "index" | "nail" | "palm";
+export type HandContact = "pinch" | "index" | "nail" | "palm" | "handle";
 export interface FingerPose {
   pose: HandPose;
   grip: number;
@@ -11,6 +12,10 @@ export interface FingerPose {
   rotationRad?: number;
   nailContact?: number;
   intensity?: number;
+  /** Constrain individual pads to this rendered handle, rather than aligning their midpoint only. */
+  handleRadiusM?: number;
+  /** The supporting middle finger stays engaged during an intentional thumb/index release. */
+  stabilizerGrip?: number;
 }
 
 const clamp = (x: number, lo = 0, hi = 1) => Math.max(lo, Math.min(hi, Number.isFinite(x) ? x : lo));
@@ -29,6 +34,8 @@ export class ArticulatedHand {
   private readonly actions = new Map<string, AnimationAction>();
   private readonly controls = new Map<string, Object3D>();
   private readonly neutral = new Map<Object3D, Quaternion>();
+  private readonly contactSolutions = new Map<string, { key: string; alpha: number; beta: number; rotations: Quaternion[]; openingKey?: string; openRotations?: Quaternion[] }>();
+  private validContacts = true;
   private readonly hasAliases: boolean;
 
   constructor(readonly model: Group, clips: AnimationClip[], skin: string) {
@@ -56,7 +63,13 @@ export class ArticulatedHand {
 
   setSide(side: "left" | "right"): void { this.model.scale.z = side === "left" ? -1 : 1; }
 
+  get contactValid(): boolean { return this.validContacts; }
+
   pose(settings: FingerPose): void {
+    this.validContacts = true;
+    // Nail work uses a closer palm and a flexed index. Leaving the palm at the almost extended
+    // pad-pinch distance would force the nail to face the handle through axial finger rotation.
+    this.model.position.x = settings.handleRadiusM !== undefined && (settings.pose === "scrape" || settings.pose === "flick") ? -0.027 : 0;
     const grip = clamp(settings.grip), phase = clamp(settings.phase);
     // Legacy nodes carry the Blender clips; zero-offset anatomical parents can add fine articulation.
     this.mixer.stopAllAction();
@@ -105,8 +118,226 @@ export class ArticulatedHand {
       turn("index_PIP", 0.08 * scrape * pulse);
       turn("index_DIP", -0.055 * scrape * pulse);
     }
-    if (settings.pose === "pinch" || settings.pose === "tripod" || settings.pose === "scrape") this.solveAperture(aperture);
+    if (settings.handleRadiusM !== undefined) {
+      this.relaxUnusedFingers(settings);
+      this.solveHandleContacts(settings);
+    }
+    else if (settings.pose === "pinch" || settings.pose === "tripod" || settings.pose === "scrape") this.solveAperture(aperture);
     this.model.updateMatrixWorld(true);
+  }
+
+  /** The inactive fingers also release through palmar hinges; old open clips must not reverse their PIP joints. */
+  private relaxUnusedFingers(settings: FingerPose): void {
+    for (const digit of ["middle", "ring", "little"]) {
+      if (digit === "middle" && ["tripod", "scrape", "flick"].includes(settings.pose)) continue;
+      const joints = ["MCP", "PIP", "DIP"].map((joint) => this.controls.get(`${digit}_${joint}`));
+      const legacy = ["proximal", "middle", "distal"].map((joint) => this.model.getObjectByName(`${digit}_${joint}`));
+      const tip = this.model.getObjectByName(`${digit}_tip`);
+      if (!tip || joints.some((joint) => !joint) || legacy.some((joint) => !joint)) continue;
+      const a = joints[1]!.position, b = joints[2]!.position, c = tip.position;
+      const hinge = new Vector3(0, 0, 1), grip = clamp(settings.grip);
+      const signed = (x: Vector3, y: Vector3) => Math.atan2(x.clone().cross(y).dot(hinge), x.dot(y));
+      const restA = signed(a, b), restB = signed(b, c);
+      const relaxed = new Quaternion().setFromUnitVectors(a.clone().normalize(), new Vector3(-1, -0.15, 0).normalize());
+      const rotations = [relaxed.slerp(new Quaternion(), grip),
+        new Quaternion().setFromAxisAngle(hinge, (10 * Math.PI / 180 - restA) * (1 - grip)),
+        new Quaternion().setFromAxisAngle(hinge, (7 * Math.PI / 180 - restB) * (1 - grip))];
+      for (let i = 0; i < 3; i++) joints[i]!.quaternion.copy(rotations[i]!).multiply(legacy[i]!.quaternion.clone().invert());
+    }
+  }
+
+  /** A precision grip has opposing surface contacts, not merely a midpoint on the needle axis. */
+  private solveHandleContacts(settings: FingerPose): void {
+    const radius = clamp(settings.handleRadiusM ?? 0.0007, 0.0001, 0.002);
+    // Even a zero opening setting must release the handle before the hand retreats.
+    const opening = Math.max(radius + 0.0015, clamp(settings.apertureMm ?? 2, 0, 12) / 2000);
+    const grip = clamp(settings.grip), stable = clamp(settings.stabilizerGrip ?? grip);
+    // The wrist supplies the small rotation around the handle; the two opposing pads keep their
+    // contacts. Orbiting each fingertip independently would twist an interphalangeal hinge sideways.
+    const radial = new Vector3(0, 0, 1);
+    const nailWork = settings.pose === "scrape" || settings.pose === "flick";
+    const thumbRadial = nailWork ? new Vector3(Math.cos(260 * Math.PI / 180), 0, Math.sin(260 * Math.PI / 180)) : radial.clone().negate();
+    this.solveFingerContact("thumb", "pad", thumbRadial.clone().multiplyScalar(radius), thumbRadial.clone().negate(), grip, thumbRadial.clone().multiplyScalar(opening));
+    if (settings.pose === "scrape" || settings.pose === "flick") {
+      // Thumb and middle retain the handle while only the index nail travels or flicks away.
+      const phase = clamp(settings.phase);
+      const smooth = (x: number) => { const t = clamp(x); return t * t * (3 - 2 * t); };
+      const release = settings.pose !== "flick" || phase < 0.28 ? 0
+        : phase < 0.42 ? smooth((phase - 0.28) / 0.14)
+        : phase < 0.72 ? 1 : 1 - smooth((phase - 0.72) / 0.28);
+      const y = 0.004 + (settings.pose === "scrape" ? clamp(settings.nailContact ?? 0) * 0.006 : Math.sin(phase * Math.PI) * 0.002);
+      // A curled index touches the upper handle with its dorsal nail. Keeping the nail on the same
+      // side as the pulp would demand an impossible half-turn at the distal interphalangeal joint.
+      const nailRadial = new Vector3(Math.cos(34 * Math.PI / 180), 0, Math.sin(34 * Math.PI / 180)), nailRadius = needleHandleRadiusAt(y);
+      const target = nailRadial.clone().multiplyScalar(nailRadius);
+      target.y = y;
+      const openTarget = nailRadial.clone().multiplyScalar(nailRadius + Math.max(opening - radius, settings.pose === "flick" ? 0.006 : 0));
+      openTarget.y = y;
+      this.solveFingerContact("index", "nail", target, nailRadial.clone().negate(), grip * (1 - release), openTarget);
+    } else this.solveFingerContact("index", "pad", radial.clone().multiplyScalar(radius), radial.clone().negate(), grip, radial.clone().multiplyScalar(opening));
+    if (settings.pose === "tripod" || settings.pose === "scrape" || settings.pose === "flick") {
+      const middleRadius = needleHandleRadiusAt(-0.006);
+      this.solveFingerContact("middle", "side", new Vector3(0, -0.006, middleRadius), new Vector3(0, 0, -1), stable,
+        new Vector3(0, -0.006, middleRadius + opening - radius));
+    }
+  }
+
+  /**
+   * The MCP/CMC supplies opposition; the two downstream joints are anatomical hinges, never arbitrary
+   * quaternion rotations. Two invariant equations determine their flexion angles while preserving exact
+   * surface position and normal: |contact vector| and its dot product with the terminal surface normal.
+   */
+  private solveFingerContact(digit: "thumb" | "index" | "middle", kind: "pad" | "nail" | "side", target: Vector3, outward: Vector3, engagement: number, openingTarget: Vector3): void {
+    const labels = digit === "thumb" ? ["CMC", "MCP", "IP"] : ["MCP", "PIP", "DIP"];
+    const controls = labels.map((label) => this.controls.get(`${digit}_${label}`));
+    const legacy = ["proximal", "middle", "distal"].map((name) => this.model.getObjectByName(`${digit}_${name}`));
+    const anchor = this.model.getObjectByName(`${digit}_${kind}_contact`), tip = this.model.getObjectByName(`${digit}_tip`);
+    if (!anchor || !tip || controls.some((node) => !node) || legacy.some((node) => !node)) { this.validContacts = false; return; }
+    this.root.updateWorldMatrix(true, true);
+    const modelTarget = target.clone().sub(this.model.position);
+    const modelOpening = openingTarget.clone().sub(this.model.position);
+    const cacheId = `${digit}:${kind}`, cacheKey = [...modelTarget.toArray(), ...outward.toArray()].join(",");
+    let rotations = this.contactSolutions.get(cacheId);
+    const base = controls[0]!.position.clone();
+    const a = controls[1]!.position.clone(), b = controls[2]!.position.clone(), c = tip.position.clone();
+    if (a.lengthSq() < 1e-10 || b.lengthSq() < 1e-10 || c.lengthSq() < 1e-10) { this.validContacts = false; return; }
+    const hingeA = a.clone().cross(b).normalize();
+    if (hingeA.dot(new Vector3(0, 1, 0).cross(a)) < 0) hingeA.negate();
+    const hingeB = b.clone().cross(c).normalize();
+    if (hingeB.dot(hingeA) < 0) hingeB.negate();
+    const restA = Math.atan2(a.clone().cross(b).dot(hingeA), a.dot(b));
+    const restB = Math.atan2(b.clone().cross(c).dot(hingeB), b.dot(c));
+    const localNormal = new Vector3(0, 1, 0).applyQuaternion(anchor.quaternion);
+    const delta = modelTarget.clone().sub(base), distance = delta.length(), normal = outward.clone().normalize();
+    const desiredDot = delta.dot(normal), radians = Math.PI / 180;
+    const minA = -5 * radians, maxA = (digit === "thumb" ? 85 : 115) * radians;
+    const minB = -5 * radians, maxB = 95 * radians;
+    const evaluate = (alpha: number, beta: number) => {
+        const proximal = new Quaternion().setFromAxisAngle(hingeA, alpha - restA);
+        const distal = new Quaternion().setFromAxisAngle(hingeB, beta - restB);
+        const vector = anchor.position.clone().applyQuaternion(distal).add(b).applyQuaternion(proximal).add(a);
+        const terminalNormal = localNormal.clone().applyQuaternion(distal).applyQuaternion(proximal);
+        return { proximal, distal, vector, normal: terminalNormal,
+          lengthError: vector.length() - distance, normalError: vector.dot(terminalNormal) - desiredDot };
+    };
+    const frame = (along: Vector3, surface: Vector3) => {
+        const x = along.clone().normalize(), y = surface.clone().addScaledVector(x, -surface.dot(x)).normalize();
+        return new Matrix4().makeBasis(x, y, new Vector3().crossVectors(x, y));
+    };
+    const naturalOpposition = (opposition: Quaternion, alpha: number, beta: number) => {
+      const axis = a.clone().normalize(), projection = new Vector3(opposition.x, opposition.y, opposition.z).dot(axis);
+      const raw = Math.abs(2 * Math.atan2(projection, opposition.w)), twist = Math.min(raw, 2 * Math.PI - raw);
+      if (twist > (digit === "thumb" ? 100 : 40) * radians) return null;
+      if (opposition.angleTo(new Quaternion()) > (digit === "thumb" ? 120 : 100) * radians) return null;
+      if (digit !== "thumb") {
+        const result = evaluate(alpha, beta);
+        const first = a.clone().applyQuaternion(opposition).normalize();
+        const second = b.clone().applyQuaternion(result.proximal).applyQuaternion(opposition).normalize();
+        const third = c.clone().applyQuaternion(result.distal).applyQuaternion(result.proximal).applyQuaternion(opposition).normalize();
+        const hinge = new Vector3(0, 1, 0).cross(first).normalize();
+        const signed = (x: Vector3, y: Vector3) => Math.atan2(x.clone().cross(y).dot(hinge), x.dot(y));
+        const pip = signed(first, second), dip = signed(second, third);
+        if (pip < -5 * radians || dip < -10 * radians || dip > Math.max(0, pip) * 1.5 + 15 * radians) return null;
+      }
+      return opposition.angleTo(new Quaternion()) + twist * 2 + Math.abs(beta - alpha * 0.7) * 0.2;
+    };
+    if (rotations?.key !== cacheKey) {
+      let best: { score: number; alpha: number; beta: number; rotations: Quaternion[] } | undefined;
+      const refine = (alphaSeed: number, betaSeed: number) => {
+        let alpha = clamp(alphaSeed, minA, maxA), beta = clamp(betaSeed, minB, maxB);
+        for (let iteration = 0; iteration < 20; iteration++) {
+          const result = evaluate(alpha, beta);
+          if (Math.hypot(result.lengthError, result.normalError) < 1e-8) break;
+          const epsilon = 1e-4, alongA = evaluate(alpha + epsilon, beta), alongB = evaluate(alpha, beta + epsilon);
+          const j00 = (alongA.lengthError - result.lengthError) / epsilon, j01 = (alongB.lengthError - result.lengthError) / epsilon;
+          const j10 = (alongA.normalError - result.normalError) / epsilon, j11 = (alongB.normalError - result.normalError) / epsilon;
+          const determinant = j00 * j11 - j01 * j10;
+          if (Math.abs(determinant) < 1e-12) break;
+          const stepA = (-result.lengthError * j11 + result.normalError * j01) / determinant;
+          const stepB = (-j00 * result.normalError + j10 * result.lengthError) / determinant;
+          const scale = Math.min(1, 0.4 / Math.max(Math.abs(stepA), Math.abs(stepB)));
+          alpha = clamp(alpha + stepA * scale, minA, maxA);
+          beta = clamp(beta + stepB * scale, minB, maxB);
+        }
+        const result = evaluate(alpha, beta);
+        if (Math.hypot(result.lengthError, result.normalError) > 1e-8) return;
+        const opposition = new Quaternion().setFromRotationMatrix(frame(delta, normal).multiply(frame(result.vector, result.normal).transpose()));
+        const score = naturalOpposition(opposition, alpha, beta);
+        if (score !== null && (!best || score < best.score)) best = { score, alpha, beta, rotations: [opposition, result.proximal, result.distal] };
+      };
+      // Consecutive frames normally need only a few Newton steps; use the full search only to acquire
+      // contact or recover from a target change. Finger lengths, hinge limits and contact tolerances
+      // are checked identically for warm and cold starts.
+      if (rotations) refine(rotations.alpha, rotations.beta);
+      if (!best) for (const alphaSeed of [5, 35, 65, 95]) for (const betaSeed of [0, 30, 60, 90]) {
+        refine(alphaSeed * radians, betaSeed * radians);
+      }
+      // A true side pad can lie parallel to both hinge axes. Its normal invariant is then already
+      // satisfied and the two-equation Jacobian loses rank; solve the remaining length equation.
+      if (!best) for (const betaSeed of [restB, 15 * radians, 30 * radians, 45 * radians, 60 * radians, 75 * radians, 90 * radians]) {
+        const beta = clamp(betaSeed, minB, maxB);
+        let previousAlpha = minA, previousError = evaluate(minA, beta).lengthError;
+        for (let sample = 1; sample <= 12; sample++) {
+          const nextAlpha = minA + (maxA - minA) * sample / 12, nextError = evaluate(nextAlpha, beta).lengthError;
+          if (previousError * nextError <= 0) {
+            let lo = previousAlpha, hi = nextAlpha, errorLo = previousError;
+            for (let iteration = 0; iteration < 25; iteration++) {
+              const middle = (lo + hi) / 2, error = evaluate(middle, beta).lengthError;
+              if (errorLo * error <= 0) hi = middle;
+              else { lo = middle; errorLo = error; }
+            }
+            refine((lo + hi) / 2, beta);
+          }
+          previousAlpha = nextAlpha; previousError = nextError;
+        }
+      }
+      if (!best) { this.validContacts = false; return; }
+      rotations = { key: cacheKey, alpha: best.alpha, beta: best.beta, rotations: best.rotations };
+      this.contactSolutions.set(cacheId, rotations);
+    }
+    let applied = rotations.rotations;
+    if (engagement < 0.999999) {
+      const openingKey = modelOpening.toArray().join(",");
+      if (rotations.openingKey !== openingKey || !rotations.openRotations) {
+        // A released finger has no contact normal to satisfy. Solve its point with the same fixed
+        // hinges and choose the MCP rotation nearest the held pose, rather than twisting it in air.
+        const openDelta = modelOpening.clone().sub(base), openDistance = openDelta.length();
+        let bestOpen: { score: number; rotations: Quaternion[] } | undefined;
+        const consider = (alpha: number, beta: number) => {
+          const result = evaluate(alpha, beta);
+          if (Math.abs(result.vector.length() - openDistance) > 1e-7) return;
+          const heldDirection = result.vector.clone().applyQuaternion(rotations!.rotations[0]!).normalize();
+          const opposition = new Quaternion().setFromUnitVectors(heldDirection, openDelta.clone().normalize()).multiply(rotations!.rotations[0]!);
+          if (naturalOpposition(opposition, alpha, beta) === null) return;
+          const score = opposition.angleTo(rotations!.rotations[0]!) * 2 + Math.abs(alpha - rotations!.alpha) + Math.abs(beta - rotations!.beta);
+          if (!bestOpen || score < bestOpen.score) bestOpen = { score, rotations: [opposition, result.proximal, result.distal] };
+        };
+        for (const betaSeed of [rotations.beta, restB, rotations.beta * 0.5, rotations.beta + 15 * radians]) {
+          const beta = clamp(betaSeed, minB, maxB);
+          let previousAlpha = minA, previousError = evaluate(minA, beta).vector.length() - openDistance;
+          for (let sample = 1; sample <= 12; sample++) {
+            const nextAlpha = minA + (maxA - minA) * sample / 12;
+            const nextError = evaluate(nextAlpha, beta).vector.length() - openDistance;
+            if (previousError * nextError <= 0) {
+              let lo = previousAlpha, hi = nextAlpha, errorLo = previousError;
+              for (let iteration = 0; iteration < 25; iteration++) {
+                const middle = (lo + hi) / 2, error = evaluate(middle, beta).vector.length() - openDistance;
+                if (errorLo * error <= 0) hi = middle;
+                else { lo = middle; errorLo = error; }
+              }
+              consider((lo + hi) / 2, beta);
+            }
+            previousAlpha = nextAlpha; previousError = nextError;
+          }
+        }
+        if (!bestOpen) { this.validContacts = false; return; }
+        rotations.openingKey = openingKey;
+        rotations.openRotations = bestOpen.rotations;
+      }
+      applied = rotations.rotations.map((rotation, index) => rotation.clone().slerp(rotations!.openRotations![index]!, 1 - clamp(engagement)));
+    }
+    for (let i = 0; i < 3; i++) controls[i]!.quaternion.copy(applied[i]!).multiply(legacy[i]!.quaternion.clone().invert());
+    this.root.updateWorldMatrix(true, true);
   }
 
   /** Geometric thumb/index pad clearance, measured after the articulated pose rather than inferred from angles. */
@@ -163,6 +394,7 @@ export class ArticulatedHand {
 
   /** Contacts follow the moving phalanges, rather than static empties at the model origin. */
   contact(kind: HandContact): Vector3 {
+    if (kind === "handle") return new Vector3();
     const index = this.anchor(["index_pad_contact", "index_pad", "index_tip"], new Vector3(0, 0, 0.006));
     if (kind === "index") return index;
     if (kind === "nail") return this.anchor(["index_nail_contact", "index_tip"], index);
@@ -189,6 +421,9 @@ export class ArticulatedHand {
   dispose(): void {
     this.mixer.stopAllAction();
     this.mixer.uncacheRoot(this.model);
+    const skeletons = new Set<SkinnedMesh["skeleton"]>();
+    this.model.traverse((object) => { if (object instanceof SkinnedMesh) skeletons.add(object.skeleton); });
+    for (const skeleton of skeletons) skeleton.dispose();
     this.root.removeFromParent();
   }
 }

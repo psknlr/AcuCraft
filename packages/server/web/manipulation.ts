@@ -105,7 +105,7 @@ const LABELS: Record<string, [string, string?]> = {
   durationMs: ["总时长 Total duration", "ms"], cycles: ["每阶段循环 Cycles per phase"], strokeMm: ["轴向幅度 Axial stroke", "mm"],
   rotationDeg: ["旋转幅度 Rotation", "°"], lateralMm: ["外露针身位移 Lateral motion", "mm"], tiltDeg: ["外露针身倾角 Tilt", "°"],
   tempoBias: ["提插时相比 Phase balance"], direction: ["旋转方向 Direction"], grip: ["持针方式 Grip"], support: ["辅助手 Support"],
-  hand: ["主操作手 Main hand"], gripApertureMm: ["指间开合 Aperture", "mm"], contactIntensity: ["接触表现 Contact intensity"],
+  hand: ["主操作手 Main hand"], gripApertureMm: ["接近与释放开口 Opening", "mm"], contactIntensity: ["接触表现 Contact intensity"],
 };
 const VALUES: Record<string, string> = {
   alternating: "往返 Alternating", clockwise: "顺时针 Clockwise", counterclockwise: "逆时针 Counterclockwise",
@@ -216,7 +216,7 @@ export function manipulationControls(id: string, hooks: Hooks): ManipulationCont
     angleDeg: numberPair("与皮肤法线夹角 Angle", "°", 0, 90, 1, 0),
     azimuthDeg: numberPair("区域方向 Azimuth", "°", 0, 360, 1, 0),
     durationMs: numberPair("插入动画时长 Duration", "ms", 400, 8000, 100, 1100),
-    gripApertureMm: numberPair("进针指间开合 Insertion aperture", "mm", 0, 12, 0.1, 2),
+    gripApertureMm: numberPair("进针接近与释放开口 Insertion opening", "mm", 0, 12, 0.1, 2),
   };
   const insertionChoices = {
     grip: choice("进针持针方式 Insertion grip", ["two-finger", "three-finger"], "two-finger"),
@@ -237,6 +237,7 @@ export function manipulationControls(id: string, hooks: Hooks): ManipulationCont
   const transport = h("div", { class: "manipulation-transport" }, play, speed, seek, phase, stopPreview);
   const recorded = h("div", { class: "manipulation-recorded" });
   el.append(introduction, h("div", { class: "manipulation-selection" }, field("操作 Action", mode), field("手法 Technique", technique), context), description, provenance, targets, parameters, insertion,
+    h("p", { class: "manipulation-intro" }, "持针时指腹自动贴合针柄；开口控制接近与释放，松手保留必要间隙。", h("br"), "Held fingers fit the handle. Opening controls approach/release, with clearance when letting go."),
     h("div", { class: "manipulation-actions" }, preview, execute, approach, reset), transport, status, recorded);
 
   let library: TechniqueLibrary | null = null;

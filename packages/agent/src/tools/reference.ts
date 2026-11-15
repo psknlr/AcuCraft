@@ -94,6 +94,7 @@ export function lookup(lib: Library, input: { topic?: string; id?: string }): un
         ...(schema.enum ? { options: schema.enum } : {}),
         ...(schema.type === "number" || schema.type === "integer" ? { step: schema.type === "integer" ? 1 : name === "tempoBias" || name === "contactIntensity" ? 0.01 : 0.1 } : {}),
         unit: units[name] ?? "", type: schema.type,
+        ...(name === "gripApertureMm" ? { description: "Approach/release opening; held fingers fit the actual handle. Letting go preserves minimum clearance even at zero." } : {}),
       }]));
       return {
         techniques: techniques.map((definition) => ({ ...definition, defaults: resolveManipulationMotion(definition.id) })),

@@ -250,11 +250,8 @@ function makeAgent(id: string, p: ReturnType<typeof pack>): Agent {
       return llmAgent({ ...llm, provider: openaiProvider({ provider: values.agent, ...(values.model ? { model: values.model } : {}) }) });
     case "claude":
       return claudeAgent({ ...llm, ...(values.model ? { model: values.model } : {}), ...(values.effort ? { effort: values.effort as Effort } : {}) });
-    case "openai":
     case "gpt":
       return llmAgent({ ...llm, provider: openaiProvider({ ...(values.model ? { model: values.model } : {}) }) });
-    case "minimax":
-      return llmAgent({ ...llm, provider: minimaxProvider({ ...(values.model ? { model: values.model } : {}) }) });
     case "scripted-llm":
       // the loop, the tools and the results, with the reference trajectory in place of a model: no network
       return llmAgent({ ...llm, provider: oracleProvider(requireScenario(p, id).field.solution, { batch: 3 }) });

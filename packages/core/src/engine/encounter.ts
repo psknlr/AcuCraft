@@ -61,7 +61,7 @@ import {
   type Ctx,
 } from "./runtime.js";
 import { clinicWorld, roleOf, type Scenario } from "./scenario.js";
-import { needleMotion, motionEnvelope } from "./manipulation.js";
+import { hasClinicalNeedleMotion, needleMotion, motionEnvelope } from "./manipulation.js";
 import { roomAt, walkMinutes } from "./world.js";
 import { atFixture, atFixtureOfKind, nearActor, patientBody, patientContact, patientSight, patientTalk, placeEveryone, placePatient, seatIn, siteOf, siteReach, walk, walkTarget, type MoveTarget, type Spatial } from "./space.js";
 import { ARM_REACH_M, CONTACT_RANGE_M, distanceToArea, fixtureReach, planWalk, seesArea, spotsNear } from "./world.js";
@@ -1590,15 +1590,17 @@ const HANDLERS: HandlerMap = {
     if (s.stopped && s.stopped.visit === visitIndex(s)) addUnsafe(ctx, "continued-after-adverse-event");
     const frame = regionFrame(ctx, loc.region, loc.side);
     const depth = a.depthCm ?? loc.depthCm;
-    if (a.strokeMm !== undefined && a.technique !== "lift-thrust") throw new Rejection("invalid", "strokeMm requires lift-thrust.");
-    if ((a.rotationDeg !== undefined || a.rotationDirection !== undefined) && a.technique !== "rotate") throw new Rejection("invalid", "Rotation parameters require rotate.");
+    const clinicalMotion = hasClinicalNeedleMotion(a);
+    const stimulus = techniqueStimulus(a.technique);
+    if (a.strokeMm !== undefined && stimulus !== "lift-thrust") throw new Rejection("invalid", "strokeMm requires an axial manipulation technique.");
+    if ((a.rotationDeg !== undefined || a.rotationDirection !== undefined) && stimulus !== "rotate") throw new Rejection("invalid", "Rotation parameters require a rotation technique.");
     if (a.technique === "none" && (a.frequencyHz !== undefined || a.durationSeconds !== undefined)) throw new Rejection("invalid", "Frequency and duration require a manipulation technique.");
     const motion = needleMotion(a, depth);
     const envelope = motionEnvelope(motion);
-    if (envelope.minDepthCm <= 0) throw new Rejection("invalid", "The lift would withdraw the needle through the skin; use remove_needle instead.");
-    if (s.stopped && s.stopped.visit === visitIndex(s)) blockers.push({ by: "simulation-guard", kind: "guard", reason: "treatment has stopped: remove the needles" });
+    if (clinicalMotion && envelope.minDepthCm <= 0) throw new Rejection("invalid", "The lift would withdraw the needle through the skin; use remove_needle instead.");
+    if (clinicalMotion && s.stopped && s.stopped.visit === visitIndex(s)) blockers.push({ by: "simulation-guard", kind: "guard", reason: "treatment has stopped: remove the needles" });
     let deepest: PathAssessment | undefined;
-    if (motion.strokeMm > 0) {
+    if (clinicalMotion && motion.strokeMm > 0) {
       deepest = doInsertCheckPath(ctx, n, frame, loc.entry, loc.angleDeg, loc.azimuthDeg, envelope.maxDepthCm, blockers);
       if (deepest.executedDepthCm + 1e-9 < envelope.maxDepthCm) blockers.push({ by: "simulation-guard", kind: "guard", reason: "the full thrust exceeds the available needle path" });
     }
@@ -1612,10 +1614,10 @@ const HANDLERS: HandlerMap = {
     }
     pushNeedleEvent(s, n.id, ctx.actor.id, "adjusted", `${fmt(path.executedDepthCm)} cm, ${a.technique}`);
     const event = n.events[n.events.length - 1]!;
-      // Keep the legacy event shape for unparameterized adjustments.
-    if (a.strokeMm !== undefined || a.rotationDeg !== undefined || a.rotationDirection !== undefined || a.frequencyHz !== undefined || a.durationSeconds !== undefined) event.motion = { ...motion, depthCm: path.executedDepthCm };
+    // Keep legacy events and replay output unchanged for presentation-only requests.
+    if (clinicalMotion) event.motion = { ...motion, depthCm: path.executedDepthCm };
     const before = n.response;
-    n.response = needleResponse(sc, s, n, path, a.technique === "none" ? null : a.technique);
+    n.response = needleResponse(sc, s, n, path, stimulus);
     consequences(ctx, n, deepest ?? path);
     if (a.technique !== "none") {
       // working the needle tells the operator how the tissue holds it: evidence of this needle's response
@@ -1630,8 +1632,10 @@ const HANDLERS: HandlerMap = {
       }
     }
     ctx.out.target = `needle:${n.id}`;
-    ctx.out.detail = `${n.id} to ${fmt(path.executedDepthCm)} cm (${a.technique}; stroke ${motion.strokeMm} mm, rotation ${motion.rotationDeg} degrees, ${motion.frequencyHz} Hz, ${motion.durationSeconds} s)`;
-    ctx.out.cost = a.technique === "none" ? 0.5 : motion.durationSeconds / 60;
+    ctx.out.detail = clinicalMotion
+      ? `${n.id} to ${fmt(path.executedDepthCm)} cm (${a.technique}; stroke ${motion.strokeMm} mm, rotation ${motion.rotationDeg} degrees, ${motion.frequencyHz} Hz, ${motion.durationSeconds} s)`
+      : `${n.id} to ${fmt(path.executedDepthCm)} cm (${a.technique})`;
+    ctx.out.cost = clinicalMotion && a.technique !== "none" ? motion.durationSeconds / 60 : 0.5;
   },
   perform_technique(ctx, a) {
     const { s } = ctx;

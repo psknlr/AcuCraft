@@ -23,7 +23,7 @@ simulator lies under towels with the marks and the needles of each step on its s
 | the pack's 11 equipment types | ClinicalCraft's world, from **AcuCraft's models** | `content/world/assets/models/<type>.glb`, referenced by the catalog (`model`: file, SHA-256, offset, licence, source, use status) |
 | ClinicalCraft's own equipment in the clinic (desk, office chair, sink, records terminal, curtain, waiting chairs …) | ClinicalCraft's world, from its built-in models | the pinned engine |
 | the people — the clinic assistant, the receptionist, the tutor, a case's patient | ClinicalCraft's figure kit: bodies of real proportions sculpted in code, the uniform of a role | a staff member's `role`, `position` and `appearance`; a case's `patient.appearance` |
-| the practitioner's two hands in the live encounter view | AcuCraft's articulated Blender hand, mirrored per side and attached to both animated arms | `acu-practitioner-hand.glb`; 4,340 triangles, 15 anatomical controls, five clips, moving pad/nail contacts, validated encounter actions ([HANDS.md](HANDS.md)) |
+| the practitioner's two hands in the live encounter view | AcuCraft's articulated Blender hand, mirrored per side and attached to both animated arms | `acu-practitioner-hand.glb`; continuous finger skins, independent skeletons, 15 anatomical controls, five clips and individual pad/nail contacts ([HANDS.md](HANDS.md)) |
 | the body on a needling station | ClinicalCraft's figure kit (the type's `manikin`) | the catalog: face down or on its back, under towels, breathing |
 | what stands on that body's skin — marks, needles, a timer | AcuCraft's model, in **layers** the station's state shows | `behavior.states.<id>.look.layers` |
 

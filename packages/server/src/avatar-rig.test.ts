@@ -6,7 +6,7 @@ import { loadContentPack, requireScenario } from "@acucraft/bench";
 import { solveTwoBone, turnTowards } from "../web/stage/kinematics.js";
 import { AvatarRig, MAX_REACH_LEAN } from "../web/stage/rig.js";
 import { Person, patientPlacement, practitionerPlacement } from "../web/stage/cast.js";
-import { practitionerFloorPlacement } from "../web/stage/navigation.js";
+import { patientFloorPlacement, practitionerFloorPlacement } from "../web/stage/navigation.js";
 import { SiteFinder } from "../web/stage/sites.js";
 
 describe("avatar arm kinematics", () => {
@@ -63,7 +63,7 @@ describe("avatar arm kinematics", () => {
     }
     const view = session.view();
     const patientInfo = scenario.case.patient as { heightCm?: number; sex?: string; appearance?: AppearanceLike };
-    const patient = new Person({ presentation: patientInfo.sex === "female" ? "feminine" : "neutral", ...patientInfo.appearance }, patientPlacement(view.patient.position, view.patient.location, patientInfo.heightCm ?? null, "reach-patient"));
+    const patient = new Person({ presentation: patientInfo.sex === "female" ? "feminine" : "neutral", ...patientInfo.appearance }, patientFloorPlacement(view, patientInfo.heightCm ?? null, "reach-patient"));
     const placement = practitionerFloorPlacement(view, "reach-practitioner");
     placement.options.wear = practitionerPlacement("treatment", 1, 0, "reach-practitioner").options.wear;
     const staff = new Person({}, placement);
@@ -104,7 +104,7 @@ describe("avatar walks", () => {
     person.tick(100, 100);
     expect(person.rig).toBe(rig);
     expect(person.rig.root.position.x).toBe(0);
-    expect(person.rig.root.position.z).toBeCloseTo(0.11, 6);
+    expect(person.rig.root.position.z).toBeCloseTo(0.12, 6);
     expect(person.isMoving).toBe(true);
     for (let now = 200; now <= 2200; now += 100) person.tick(now, 100);
     expect(person.rig.root.position.x).toBeCloseTo(1, 6);
@@ -122,7 +122,7 @@ describe("avatar walks", () => {
     person.moveTo({ x: 1, y: 0, z: 1, rot: 90 }, [{ x: 0, z: 1 }, { x: 1, z: 1 }]);
     person.tick(200, 100);
     expect(person.rig.root.position.x).toBe(0);
-    expect(person.rig.root.position.z).toBeCloseTo(0.22, 6);
+    expect(person.rig.root.position.z).toBeCloseTo(0.24, 6);
     person.dispose();
   });
 });

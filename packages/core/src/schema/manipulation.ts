@@ -29,6 +29,7 @@ export const ManipulationMotionSettingsSchema = z.object({
   grip: z.enum(["two-finger", "three-finger"]).optional(),
   support: z.enum(["none", "stabilize", "stretch", "pinch", "press"]).optional(),
   hand: z.enum(["auto", "left", "right"]).optional(),
+  /** Approach/release opening; retained-needle contact fits the actual handle diameter independently. */
   gripApertureMm: z.number().min(0).max(12).optional(),
   /** Normalized visual contact intensity; never a measured or prescribed force. */
   contactIntensity: z.number().min(0).max(1).optional(),

@@ -75,7 +75,7 @@ describe("presentation motion primitives", () => {
         expect(Math.abs(sample.rotationRad), id).toBeLessThanOrEqual(Math.PI + 1e-10);
         expect(length(sample.lateralMm), id).toBeLessThanOrEqual(4 + 1e-10);
         expect(length(sample.tiltRad), id).toBeLessThanOrEqual(8 * Math.PI / 180 + 1e-10);
-        for (const fraction of [sample.grip, sample.nailContact, sample.supportContact, sample.phase.progress]) {
+        for (const fraction of [sample.grip, sample.gripEngagement, sample.nailContact, sample.supportContact, sample.phase.progress]) {
           expect(fraction, id).toBeGreaterThanOrEqual(-1e-10);
           expect(fraction, id).toBeLessThanOrEqual(1 + 1e-10);
         }
@@ -97,9 +97,41 @@ describe("presentation motion primitives", () => {
         expect(sample.rotationRad, `${entry.id}@${time}`).toBeCloseTo(0, 7);
         expect(length(sample.lateralMm), `${entry.id}@${time}`).toBeCloseTo(0, 7);
         expect(length(sample.tiltRad), `${entry.id}@${time}`).toBeCloseTo(0, 7);
+        expect(sample.gripEngagement, `${entry.id}@${time}`).toBeCloseTo(1, 7);
       }
       expect(sampleTechnique(entry.id, durationMs)).toMatchObject({ complete: true, grip: 0, contact: "none", nailContact: 0, supportContact: 0 });
     }
+  });
+
+  it("keeps ordinary holding engaged across work endpoints without applying approach/release twice", () => {
+    // The procedure already closes the hand before work begins and opens it after work ends.
+    // A second whole-performance envelope would abruptly reopen it at the first work frame.
+    for (const entry of MANIPULATION_TECHNIQUES.filter((entry) => !entry.primitives.includes("fei"))) {
+      const durationMs = 2400;
+      for (const time of [0, 0.001, 1, 60, 1200, durationMs - 60, durationMs - 1, durationMs - 0.001, durationMs]) {
+        expect(sampleTechnique(entry.id, time, { durationMs }).gripEngagement, `${entry.id}@${time}`).toBe(1);
+      }
+    }
+    // The old envelope remains available for clients that do not supply procedure timing.
+    expect(sampleTechnique("nian", 1, { durationMs: 2400 }).grip).toBeLessThan(0.001);
+    expect(sampleTechnique("nian", 1200, { durationMs: 2400 }).grip).toBe(1);
+  });
+
+  it("releases only the intentional Fei engagement and rejoins contact at compound boundaries", () => {
+    const settings = { durationMs: 3000, cycles: 3 };
+    expect(sampleTechnique("fei", 350, settings).gripEngagement).toBeCloseTo(1, 7);
+    expect(sampleTechnique("fei", 1000, settings).gripEngagement).toBeCloseTo(0, 7);
+    expect(sampleTechnique("fei", 1350, settings).gripEngagement).toBeCloseTo(1, 7);
+    expect(sampleTechnique("fei", 2000, settings).gripEngagement).toBeCloseTo(0, 7);
+    expect(sampleTechnique("fei", 3000, settings).gripEngagement).toBe(1);
+
+    const compound = { durationMs: 9000, cycles: 3 };
+    for (const time of [6000 - 0.001, 6000, 6000 + 0.001, 9000 - 0.001, 9000]) {
+      expect(sampleTechnique("chi-feng-ying-yuan", time, compound).gripEngagement).toBeCloseTo(1, 7);
+    }
+    expect(sampleTechnique("chi-feng-ying-yuan", 7000, compound)).toMatchObject({
+      phase: { primitive: "fei" }, gripEngagement: 0,
+    });
   });
 
   it("keeps axial, rotational, external orientation and nail contact mechanically distinct", () => {
