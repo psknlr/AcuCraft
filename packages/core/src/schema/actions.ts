@@ -68,7 +68,7 @@ export const MoveTargetSchema = z.union([
   z.object({ room: IdSchema }).strict(),
   z.object({ fixture: IdSchema }).strict(),
   z.object({ person: IdSchema }).strict(),
-  z.object({ region: IdSchema, side: SideArgSchema }).strict(),
+  z.object({ region: IdSchema, side: SideArgSchema, within: z.number().finite().min(0.3).max(0.85).optional() }).strict(),
   z.object({ x: z.number(), z: z.number() }).strict(),
 ]);
 export type MoveTargetInput = z.infer<typeof MoveTargetSchema>;
@@ -188,7 +188,7 @@ export const ActionSchema = z.discriminatedUnion("type", [
 
   /* preparation */
   /**
-   * Walk: `to` is a room id, or a target (`{ fixture }`, `{ person }`, `{ region, side }`, `{ room }`, `{ x, z }`). The
+   * Walk: `to` is a room id, or a target (`{ fixture }`, `{ person }`, `{ region, side, within? }`, `{ room }`, `{ x, z }`). The
    * world plans the path and the walk takes the time it takes. `withPatient` (to a room) walks the patient there at
    * their pace and seats them; they must be able to walk.
    */

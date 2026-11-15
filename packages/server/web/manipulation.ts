@@ -193,7 +193,7 @@ export function manipulationControls(id: string, hooks: Hooks): ManipulationCont
   const badge = h("span", { class: "manipulation-mode", role: "status" }, "记录场景 · Record");
   const summary = h("summary", null, h("span", null, "精细手法控制 · Technique studio"), badge);
   const el = h("details", { class: "manipulation-studio", open: true }, summary);
-  const introduction = h("p", { class: "manipulation-intro" }, "预览不会改变病历；执行后才由模拟引擎核验并记录。操作者与 LLM 使用相同参数。", h("br"), "Preview changes the local scene. Execute validates and records the action.");
+  const introduction = h("p", { class: "manipulation-intro" }, "预览不会改变病历；执行和移动由模拟引擎核验并记录。操作者与 LLM 使用相同参数。", h("br"), "Preview stays local. Execute and Move closer validate and record actions.");
   const mode = h("select", { "aria-label": "操作类别 Action category" }, h("option", { value: "technique" }, "手法 Manipulation"), h("option", { value: "insertion" }, "进针 Insertion"));
   const technique = h("select", { "aria-label": "针刺手法 Acupuncture technique" });
   const description = h("p", { class: "manipulation-description" });
@@ -227,6 +227,7 @@ export function manipulationControls(id: string, hooks: Hooks): ManipulationCont
   const status = h("p", { class: "manipulation-status", role: "status", "aria-live": "polite" }, "正在读取手法目录 · Loading techniques…");
   const preview = h("button", { type: "button", class: "manipulation-preview" }, "本地预览 Preview");
   const execute = h("button", { type: "button", class: "manipulation-execute" }, "执行并记录 Execute");
+  const approach = h("button", { type: "button", class: "manipulation-approach", title: "沿碰撞规划路径移动至目标部位附近 · Plan a walk within 0.75 m of the target region" }, "移动靠近 Move closer");
   const reset = h("button", { type: "button" }, "恢复默认 Reset");
   const stopPreview = h("button", { type: "button" }, "返回记录 Return to record");
   const play = h("button", { type: "button", "aria-label": "暂停或继续动画 Pause or play animation" }, "暂停 Pause");
@@ -236,7 +237,7 @@ export function manipulationControls(id: string, hooks: Hooks): ManipulationCont
   const transport = h("div", { class: "manipulation-transport" }, play, speed, seek, phase, stopPreview);
   const recorded = h("div", { class: "manipulation-recorded" });
   el.append(introduction, h("div", { class: "manipulation-selection" }, field("操作 Action", mode), field("手法 Technique", technique), context), description, provenance, targets, parameters, insertion,
-    h("div", { class: "manipulation-actions" }, preview, execute, reset), transport, status, recorded);
+    h("div", { class: "manipulation-actions" }, preview, execute, approach, reset), transport, status, recorded);
 
   let library: TechniqueLibrary | null = null;
   let draft: TechniqueDraft | null = null;
@@ -399,6 +400,21 @@ export function manipulationControls(id: string, hooks: Hooks): ManipulationCont
     catch (error) { showError(error); return; }
     cancelLocalPreview(); busy = true; availability(); status.textContent = "正在核验并执行 · Validating and executing…";
     void api.act(id, mode.value === "insertion" ? "insert_needle" : "perform_technique", body).then((answer) => {
+      if (!gone) { status.textContent = answerMessage(answer); status.classList.toggle("refused", !answer.ok); }
+    }).catch(showError).finally(() => { busy = false; if (!gone) availability(); });
+  });
+  approach.addEventListener("click", () => {
+    if (busy || closed || !snapshot || !draft) return;
+    const view = snapshot.view;
+    const entry = definition();
+    const onNeedle = mode.value !== "insertion" && entry?.context !== "skin";
+    const needleSite = onNeedle ? view.needling.find((n) => n.needle === needle.value)?.placement : null;
+    const markSite = !onNeedle ? view.localisation.marks.find((m) => m.id === mark.value && !m.stale) : null;
+    const target = needleSite ?? markSite ?? (!onNeedle && region.value ? { region: region.value, side: side.value } : null);
+    if (!target) { showError(new Error("请先选择针具或定位部位 · Choose a needle or body site first.")); return; }
+    cancelLocalPreview(); busy = true; availability();
+    status.textContent = "正在规划靠近路径 · Planning a closer stance…";
+    void api.act(id, "move", { to: { region: target.region, side: target.side, within: 0.75 } }).then((answer) => {
       if (!gone) { status.textContent = answerMessage(answer); status.classList.toggle("refused", !answer.ok); }
     }).catch(showError).finally(() => { busy = false; if (!gone) availability(); });
   });

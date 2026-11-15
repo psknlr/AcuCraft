@@ -38,6 +38,30 @@ describe("the authored manipulation catalogue", () => {
     expect(PerformTechniqueSchema.safeParse({ type: "perform_technique", technique: "nian", source: "expert-validated" }).success).toBe(false);
     expect(PerformTechniqueSchema.parse({ type: "perform_technique", technique: "tui-withdraw", needleId: "pack-a.1", motion: { hand: "right", grip: "three-finger", contactIntensity: 0 } })).toMatchObject({ technique: "tui-withdraw", motion: { contactIntensity: 0 } });
   });
+
+  it("advertises controls consumed by each primitive and unions them for compound recipes", () => {
+    const controls = (id: string) => manipulationTechnique(id)!.controls;
+    expect(controls("chuai")).toEqual(["durationMs", "cycles", "hand", "support", "contactIntensity", "lateralMm", "tempoBias"]);
+    expect(controls("gua")).toEqual(["durationMs", "cycles", "hand", "support", "contactIntensity", "gripApertureMm", "lateralMm", "tempoBias"]);
+    expect(controls("tan")).toEqual(["durationMs", "cycles", "hand", "support", "contactIntensity", "lateralMm", "tiltDeg"]);
+    expect(controls("nu")).not.toContain("strokeMm");
+    expect(controls("nu")).toContain("grip");
+    expect(controls("yao")).not.toContain("direction");
+    expect(controls("pan")).toContain("direction");
+    expect(controls("nian")).toContain("rotationDeg");
+    expect(controls("nian")).not.toContain("strokeMm");
+    expect(controls("she")).toContain("gripApertureMm");
+    expect(controls("she")).not.toContain("grip");
+    for (const id of ["zhua", "an", "men"]) expect(controls(id)).toEqual(["durationMs", "cycles", "hand", "support", "contactIntensity"]);
+    for (const entry of MANIPULATION_TECHNIQUES.filter((t) => t.family === "compound")) {
+      const expected = [...new Set(entry.phases.flatMap((phase) => controls(phase.primitive)))];
+      expect(new Set(entry.controls), entry.id).toEqual(new Set(expected));
+    }
+    // A scraping phase's timing control really changes nail engagement, although its grip pose stays fixed.
+    const settings = { durationMs: 1000, cycles: 1 };
+    expect(sampleTechnique("gua", 250, { ...settings, tempoBias: 0.2 }).nailContact)
+      .not.toBeCloseTo(sampleTechnique("gua", 250, { ...settings, tempoBias: 0.8 }).nailContact, 5);
+  });
 });
 
 describe("presentation motion primitives", () => {

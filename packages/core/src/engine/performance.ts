@@ -34,16 +34,41 @@ const BASE: ResolvedManipulationMotion = {
   tempoBias: 0.5, direction: "alternating", grip: "two-finger", support: "stabilize", hand: "auto",
   gripApertureMm: 2, contactIntensity: 0.45,
 };
-const COMMON: ManipulationControl[] = ["durationMs", "cycles", "hand", "grip", "support", "gripApertureMm", "contactIntensity"];
-const CONTROLS: Record<ManipulationFamily, ManipulationControl[]> = {
-  contact: [...COMMON, "lateralMm", "tempoBias"],
-  axial: [...COMMON, "strokeMm", "tempoBias"],
-  rotation: [...COMMON, "rotationDeg", "direction", "tempoBias"],
-  orientation: [...COMMON, "lateralMm", "tiltDeg", "direction", "tempoBias"],
-  handle: [...COMMON, "lateralMm", "rotationDeg", "tiltDeg", "tempoBias"],
-  modulation: [...COMMON, "strokeMm", "lateralMm", "tiltDeg", "tempoBias"],
-  compound: [...COMMON, "strokeMm", "rotationDeg", "lateralMm", "tiltDeg", "direction", "tempoBias"],
-  "bu-xie": [...COMMON, "strokeMm", "rotationDeg", "direction", "tempoBias"],
+const COMMON: ManipulationControl[] = ["durationMs", "cycles", "hand", "support", "contactIntensity"];
+const GRIP: ManipulationControl[] = ["grip", "gripApertureMm"];
+/**
+ * Applicable controls follow the sampled primitive and its articulated hand pose, not its broad family.
+ * Fixed palpation/pressing/flicking poses ignore grip selection; only pinch/tripod/scrape poses solve aperture.
+ * Compound recipes expose the union of their constituent controls, so an inert knob is never advertised.
+ */
+const PRIMITIVE_CONTROLS: Partial<Record<ManipulationTechniqueId, ManipulationControl[]>> = {
+  chuai: ["lateralMm", "tempoBias"],
+  // Zhua's sampled nail intensity is not used by its fixed press pose, so no timing knob is exposed.
+  zhua: [],
+  xun: ["lateralMm", "tempoBias"],
+  she: ["gripApertureMm", "lateralMm", "tempoBias"],
+  yao: [...GRIP, "lateralMm", "tiltDeg", "tempoBias"],
+  pan: [...GRIP, "lateralMm", "tiltDeg", "direction", "tempoBias"],
+  nian: [...GRIP, "rotationDeg", "direction", "tempoBias"],
+  cuo: [...GRIP, "rotationDeg", "direction", "tempoBias"],
+  jin: [...GRIP, "strokeMm", "tempoBias"],
+  "tui-withdraw": [...GRIP, "strokeMm", "tempoBias"],
+  ti: [...GRIP, "strokeMm", "tempoBias"],
+  cha: [...GRIP, "strokeMm", "tempoBias"],
+  gua: ["gripApertureMm", "lateralMm", "tempoBias"],
+  tan: ["lateralMm", "tiltDeg"],
+  fei: ["gripApertureMm", "rotationDeg", "tempoBias"],
+  mo: [...GRIP, "lateralMm", "rotationDeg", "tempoBias"],
+  dong: [...GRIP, "strokeMm", "lateralMm", "tempoBias"],
+  "tui-push": [...GRIP, "strokeMm", "tempoBias"],
+  chan: [...GRIP, "strokeMm", "lateralMm", "tiltDeg", "tempoBias"],
+  nu: [...GRIP, "lateralMm", "tiltDeg", "tempoBias"],
+  an: [],
+  men: [],
+  sou: [...GRIP, "lateralMm", "tiltDeg", "tempoBias"],
+  bo: [...GRIP, "lateralMm", "tiltDeg", "tempoBias"],
+  bu: [...GRIP, "strokeMm", "rotationDeg", "direction", "tempoBias"],
+  xie: [...GRIP, "strokeMm", "rotationDeg", "direction", "tempoBias"],
 };
 const SOURCE = {
   id: "acucraft-authored-demonstration-v1" as const,
@@ -108,7 +133,9 @@ export const MANIPULATION_TECHNIQUES: readonly ManipulationTechnique[] = ENTRIES
   const phases = (RECIPES[id] ?? [[id, label]]).map(([primitive, name, weight], index) => ({ id: `${id}:${index + 1}`, label: name, primitive, weight: weight ?? 1 }));
   return {
     id, zh, label, family, context, needsNeedle: context !== "skin", description, evidence: "illustrative",
-    primitives: phases.map((p) => p.primitive), phases, controls: CONTROLS[family], defaults: { ...BASE, ...defaults }, source: SOURCE,
+    primitives: phases.map((p) => p.primitive), phases,
+    controls: [...new Set([...COMMON, ...phases.flatMap((p) => PRIMITIVE_CONTROLS[p.primitive] ?? [])])],
+    defaults: { ...BASE, ...defaults }, source: SOURCE,
   };
 });
 const BY_ID = new Map(MANIPULATION_TECHNIQUES.map((t) => [t.id, t]));

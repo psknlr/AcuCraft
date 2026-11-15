@@ -166,6 +166,19 @@ npm run acu -- map sg-knee-oa/base
 In `play`: `go <room | fixture | patient | region:side>` walks, `where` says what is in reach, `map` draws the plan
 with everyone on it.
 
+For precision hand work, a body-site move can request a closer stance:
+
+```json
+{ "type": "move", "to": { "region": "lumbar", "side": "left", "within": 0.75 } }
+```
+
+`within` is an optional finite maximum floor-plan distance in metres, from 0.3 to 0.85. It is not a clinical or
+hand-specific reach measurement. The Technique Studio's “移动靠近 Move closer” button explicitly requests 0.75 m
+for the selected target. Omitting `within` retains the original
+0.85 m body-site reach and historical paths. The same collision planner finds a free visible standing spot; if
+none is close enough, the move is refused and the actor stays where they were. A closer stance is requested
+explicitly by an operator or an LLM. The renderer does not move the actor automatically to make an arm reach.
+
 Authoring a reference trajectory does not need the floor plan: the helper in `tools/content/lib.py` walks the
 practitioner to wherever each act is done, and `tools/finish-solutions.ts` replays the result on the engine and drops
 the walks that covered no ground (see [CONTENT.md](CONTENT.md)).
