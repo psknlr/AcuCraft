@@ -39,6 +39,35 @@ describe("the authored manipulation catalogue", () => {
     expect(PerformTechniqueSchema.parse({ type: "perform_technique", technique: "tui-withdraw", needleId: "pack-a.1", motion: { hand: "right", grip: "three-finger", contactIntensity: 0 } })).toMatchObject({ technique: "tui-withdraw", motion: { contactIntensity: 0 } });
   });
 
+  it("defaults every retained technique to thumb-index holding while retaining explicit middle support", () => {
+    const retained = MANIPULATION_TECHNIQUES.filter((entry) => entry.context === "retained");
+    expect(retained).toHaveLength(30);
+    for (const entry of retained) {
+      expect(entry.defaults.grip, `${entry.id} catalogue default`).toBe("two-finger");
+      expect(resolveManipulationMotion(entry.id).grip, `${entry.id} resolved default`).toBe("two-finger");
+      expect(resolveManipulationMotion(entry.id, { grip: "three-finger" }).grip, `${entry.id} explicit support`).toBe("three-finger");
+    }
+  });
+
+  it("keeps the selected primary grip through ordinary and compound phases, including Fei", () => {
+    for (const entry of MANIPULATION_TECHNIQUES.filter((entry) => entry.context === "retained")) {
+      const totalWeight = entry.phases.reduce((sum, phase) => sum + phase.weight, 0);
+      let startWeight = 0;
+      for (const phase of entry.phases) {
+        const at = (startWeight + phase.weight * 0.5) / totalWeight * entry.defaults.durationMs;
+        startWeight += phase.weight;
+        // Nail work has separate active-finger roles; its main thumb-index pair stays held by the renderer.
+        if (phase.primitive === "gua" || phase.primitive === "tan") continue;
+        expect(sampleTechnique(entry.id, at).handPose, `${entry.id}/${phase.primitive} default`).toBe("pinch");
+        expect(sampleTechnique(entry.id, at, { grip: "two-finger" }).handPose, `${entry.id}/${phase.primitive} thumb-index`).toBe("pinch");
+        expect(sampleTechnique(entry.id, at, { grip: "three-finger" }).handPose, `${entry.id}/${phase.primitive} opt-in support`).toBe("tripod");
+      }
+    }
+    expect(manipulationTechnique("fei")!.controls).toContain("grip");
+    expect(sampleTechnique("chi-feng-ying-yuan", 7000, { durationMs: 9000, grip: "two-finger" }))
+      .toMatchObject({ phase: { primitive: "fei" }, handPose: "pinch", gripEngagement: 0 });
+  });
+
   it("advertises controls consumed by each primitive and unions them for compound recipes", () => {
     const controls = (id: string) => manipulationTechnique(id)!.controls;
     expect(controls("chuai")).toEqual(["durationMs", "cycles", "hand", "support", "contactIntensity", "lateralMm", "tempoBias"]);

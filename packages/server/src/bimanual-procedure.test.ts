@@ -8,12 +8,12 @@ import { NeedleProcedure, type TechniquePerformanceInput } from "../web/stage/pr
 import { NeedleLayer } from "../web/stage/needles.js";
 import { EncounterSession } from "@acucraft/agent";
 import { loadContentPack, requireScenario } from "@acucraft/bench";
-import { Person as ScenePerson, patientPlacement, practitionerPlacement } from "../web/stage/cast.js";
+import { Person as ScenePerson, practitionerPlacement } from "../web/stage/cast.js";
 import { patientFloorPlacement, practitionerFloorPlacement } from "../web/stage/navigation.js";
 import { SiteFinder } from "../web/stage/sites.js";
 import type { Person } from "../web/stage/cast.js";
 import type { SkinSite } from "../web/stage/sites.js";
-import { NEEDLE_HANDLE_RADIUS_M, needleHandleRadiusAt } from "../web/stage/needle-shape.js";
+import { needleHandleRadiusAt } from "../web/stage/needle-shape.js";
 
 const asset = readFileSync(fileURLToPath(new URL("../../../content/world/assets/models/acu-practitioner-hand.glb", import.meta.url)));
 const site: SkinSite = { p: new Vector3(0, 0.8, 0), n: new Vector3(0, 1, 0), uDir: new Vector3(1, 0, 0), vDir: new Vector3(0, 0, 1), bare: true };
@@ -44,17 +44,17 @@ async function makeScene(retained = false) {
 describe("articulated anatomical hand contacts", () => {
   it("keeps runtime pad and nail anchors on the real deformed skin for both mirrored hands", async () => {
     const s = await makeScene(true);
-    for (const hand of ["left", "right"] as const) for (const technique of ["nian", "gua"] as const) {
+    for (const hand of ["left", "right"] as const) for (const technique of ["nian", "gua", "tan"] as const) {
       s.procedure.stopPreview();
-      expect(s.procedure.preview(input(technique, { needleId: "needle-a", motion: { hand, support: "none", durationMs: 2400, grip: "three-finger" } }))).toBe(true);
+      expect(s.procedure.preview(input(technique, { needleId: "needle-a", motion: { hand, support: "none", durationMs: 2400, grip: technique === "nian" ? "three-finger" : "two-finger" } }))).toBe(true);
       s.procedure.setPlayback({ progress: 0.5, paused: true });
       s.procedure.group.updateMatrixWorld(true);
       const root = s.procedure.group.getObjectByName("needle-hand")!;
       expect(root.visible).toBe(true);
-      for (const [digit, kind] of [["thumb", "pad"], ["index", technique === "gua" ? "nail" : "pad"], ["middle", "side"]] as const) {
+      for (const [digit, kind] of [["thumb", "pad"], ["index", "pad"], ["middle", technique === "nian" ? "side" : "nail_edge"]] as const) {
         const contact = root.getObjectByName(`${digit}_${kind}_contact`)!;
         const p = contact.getWorldPosition(new Vector3()), normal = contact.localToWorld(new Vector3(0, 1, 0)).sub(p).normalize();
-        const surface = root.getObjectByName(kind === "nail" ? `${digit}_nail` : `${digit}_skin`) as SkinnedMesh;
+        const surface = root.getObjectByName(kind === "nail_edge" ? `${digit}_nail` : `${digit}_skin`) as SkinnedMesh;
         if (surface instanceof SkinnedMesh) { surface.skeleton.update(); surface.computeBoundingBox(); surface.computeBoundingSphere(); }
         // Exact crest/edge rays can miss both adjacent triangles after a mirrored world transform.
         // Measure the real deformed triangles directly, and probe either side of that shared edge.
@@ -120,8 +120,9 @@ describe("articulated anatomical hand contacts", () => {
         for (const digit of ["thumb", "index"]) {
           const offset = root.getObjectByName(`${digit}_pad_contact`)!.getWorldPosition(new Vector3()).sub(handle.point);
           const axial = offset.dot(handle.axis), radial = offset.addScaledVector(handle.axis, -axial).length();
-          expect(Math.abs(axial), `${hand}/${grip}/${workAt}/${digit} plane`).toBeLessThan(0.000025);
-          expect(Math.abs(radial - NEEDLE_HANDLE_RADIUS_M), `${hand}/${grip}/${workAt}/${digit} surface`).toBeLessThan(0.000025);
+          const holdY = grip === "three-finger" ? -0.012 : 0;
+          expect(Math.abs(axial - holdY), `${hand}/${grip}/${workAt}/${digit} plane`).toBeLessThan(0.000025);
+          expect(Math.abs(radial - needleHandleRadiusAt(holdY)), `${hand}/${grip}/${workAt}/${digit} surface`).toBeLessThan(0.000025);
         }
       }
     }
@@ -219,7 +220,7 @@ describe("bimanual catalogue performances", () => {
     const contactSite = new SiteFinder(patient.rig).find(view.localisation.marks.find((m) => m.id === insertion.mark)!)!;
     const needles = new NeedleLayer();
     needles.sync([{ id: "needle-a", target: "BL23:left", site: contactSite, angleDeg: insertion.angleDeg, azimuthDeg: insertion.azimuthDeg, depthCm: insertion.depthCm, length: 0.04 }], 0, false);
-    const procedure = new NeedleProcedure(needles, () => actor, () => {});
+    const procedure = new NeedleProcedure(needles, () => actor, () => {}, () => patient);
     const gltf = await new GLTFLoader().parseAsync(Uint8Array.from(asset).buffer, "");
     vi.spyOn(GLTFLoader.prototype, "loadAsync").mockResolvedValueOnce(gltf);
     await procedure.load("/hand.glb", "#cba88a");
@@ -230,10 +231,53 @@ describe("bimanual catalogue performances", () => {
     const world = (root: Group, name: string) => root.getObjectByName(name)!.getWorldPosition(new Vector3());
     const pinch = world(main as Group, "index_pad_contact").add(world(main as Group, "thumb_pad_contact")).multiplyScalar(0.5);
     expect(pinch.distanceTo(needles.grip("needle-a")!.point)).toBeLessThan(0.0001);
-    const pad = world(support as Group, "index_pad_contact").sub(contactSite.p);
+    const pad = world(support as Group, "index_volar_contact").sub(contactSite.p);
     expect(pad.dot(contactSite.n)).toBeCloseTo(0.002, 3);
     expect(pad.length()).toBeLessThan(0.045);
     expect(actor.rig.root.position.equals(feet)).toBe(true);
+    procedure.dispose(); needles.clear(); actor.dispose(); patient.dispose();
+  });
+
+  it("keeps ordinary holds visible on the real patient and reports a penetrating authored pose without changing the needle", async () => {
+    const scenario = requireScenario(loadContentPack(), "sg-low-back-pain/base");
+    const session = new EncounterSession(scenario, { seed: 1, mode: "teaching" });
+    const insertion = scenario.field.solution.find((r) => r.action.type === "insert_needle")!.action;
+    if (insertion.type !== "insert_needle") throw new Error("Missing reference insertion");
+    for (const request of scenario.field.solution) { if (request.action.type === "insert_needle") break; session.act(request.action); }
+    const view = session.view(), info = scenario.case.patient as { heightCm: number; appearance?: Record<string, unknown> };
+    const patient = new ScenePerson({ presentation: "feminine", ...info.appearance }, patientFloorPlacement(view, info.heightCm, "patient"));
+    const contactSite = new SiteFinder(patient.rig).find(view.localisation.marks.find((m) => m.id === insertion.mark)!)!;
+    const needles = new NeedleLayer();
+    const placement = practitionerFloorPlacement(view, "staff");
+    placement.options.wear = practitionerPlacement("treatment", 1, 0, "staff").options.wear;
+    const actor = new ScenePerson({}, placement);
+    const procedure = new NeedleProcedure(needles, () => actor, () => {}, () => patient);
+    const gltf = await new GLTFLoader().parseAsync(Uint8Array.from(asset).buffer, "");
+    vi.spyOn(GLTFLoader.prototype, "loadAsync").mockResolvedValueOnce(gltf);
+    await procedure.load("/hand.glb", "#cba88a");
+    for (const depthCm of [1.8, 3.6]) for (const angleDeg of [0, 25, 45]) for (const hand of ["left", "right"] as const) {
+      for (const technique of depthCm === 1.8 ? ["nian", "gua"] as const : ["gua"] as const) {
+        procedure.stopPreview();
+        needles.sync([{ id: "needle-a", target: "BL23:left", site: contactSite, angleDeg, azimuthDeg: 0, depthCm, length: 0.04 }], 0, false);
+        needles.tick(0, 0);
+        const baseline = needles.grip("needle-a")!.point.clone();
+        expect(procedure.preview({ id: `clearance-${depthCm}-${angleDeg}-${hand}-${technique}`, technique, needleId: "needle-a", site: contactSite,
+          motion: { hand, support: "none", durationMs: 2400, cycles: 1 } })).toBe(true);
+        procedure.setPlayback({ progress: 0.5, paused: true });
+        const visible = procedure.group.getObjectByName("needle-hand")!.visible;
+        if (depthCm === 1.8) {
+          expect(visible, `${hand}/${technique}/${angleDeg} ordinary pose`).toBe(true);
+          expect(procedure.playback.reachWarning).toBeNull();
+        } else {
+          expect(visible, `${hand}/${angleDeg} actual patient penetration`).toBe(false);
+          expect(procedure.playback.reachWarning).toContain("当前示意手型空间不足");
+          expect(procedure.playback.reachWarning).not.toContain("Move closer");
+        }
+        // Clearance only controls this detail model; it must never alter the recorded needle path.
+        procedure.stopPreview();
+        expect(needles.grip("needle-a")!.point.distanceTo(baseline)).toBeLessThan(1e-9);
+      }
+    }
     procedure.dispose(); needles.clear(); actor.dispose(); patient.dispose();
   });
 
@@ -256,13 +300,19 @@ describe("bimanual catalogue performances", () => {
     s.procedure.perform(input("gua", { needleId: "needle-a", motion: { hand: "left", support: "none", durationMs: 1800 } }));
     s.procedure.tick(0); s.procedure.tick(1600);
     const main = s.procedure.group.getObjectByName("needle-hand")!;
-    const contactNode = main.getObjectByName("index_nail_contact")!;
+    const contactNode = main.getObjectByName("middle_nail_edge_contact")!;
     const contact = contactNode.getWorldPosition(new Vector3());
     const handle = s.needles.grip("needle-a")!;
     const offset = contact.sub(handle.point), along = offset.dot(handle.axis);
-    expect(along).toBeGreaterThanOrEqual(0.0039);
-    expect(along).toBeLessThanOrEqual(0.0101);
+    expect(along).toBeGreaterThanOrEqual(0.0059);
+    expect(along).toBeLessThanOrEqual(0.0121);
     expect(Math.abs(offset.addScaledVector(handle.axis, -along).length() - needleHandleRadiusAt(along))).toBeLessThan(0.000025);
+    for (const digit of ["thumb", "index"]) {
+      const held = main.getObjectByName(`${digit}_pad_contact`)!.getWorldPosition(new Vector3()).sub(handle.point);
+      const axial = held.dot(handle.axis);
+      expect(Math.abs(axial + 0.012), `${digit} holds the lower handle`).toBeLessThan(0.000025);
+      expect(Math.abs(held.addScaledVector(handle.axis, -axial).length() - needleHandleRadiusAt(axial)), `${digit} holds the handle surface`).toBeLessThan(0.000025);
+    }
     expect(s.targets.right).toBeNull();
     expect(s.procedure.playback.phase).toContain("scraping");
     s.dispose();

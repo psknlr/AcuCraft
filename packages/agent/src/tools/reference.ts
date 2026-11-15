@@ -95,6 +95,7 @@ export function lookup(lib: Library, input: { topic?: string; id?: string }): un
         ...(schema.type === "number" || schema.type === "integer" ? { step: schema.type === "integer" ? 1 : name === "tempoBias" || name === "contactIntensity" ? 0.01 : 0.1 } : {}),
         unit: units[name] ?? "", type: schema.type,
         ...(name === "gripApertureMm" ? { description: "Approach/release opening; held fingers fit the actual handle. Letting go preserves minimum clearance even at zero." } : {}),
+        ...(name === "grip" ? { description: "Default two-finger means thumb-index holding. Explicit three-finger adds middle-finger support; the thumb and index remain the primary holders. During Gua/Tan, the middle nail is the active finger rather than a replacement holder." } : {}),
       }]));
       return {
         techniques: techniques.map((definition) => ({ ...definition, defaults: resolveManipulationMotion(definition.id) })),

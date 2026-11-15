@@ -307,3 +307,8 @@ Presentation time is independent of the simulated clinical clock, and replay mak
 the requested opening. These control the hand animation; anatomy checks and the executed depth remain those of the
 original insertion action. Actual needle-depth changes still use `adjust_needle`; a visual performance does not
 authorize them. See [TECHNIQUES.md](TECHNIQUES.md) for the catalogue and modeling limits.
+
+The default primary grip is thumb/index for insertion and retained-needle performances. Explicit
+`three-finger` adds middle-finger support to that pair. Fei and compound stages preserve the chosen
+grip. The authored scraping/flicking variants keep thumb/index on the handle and use the middle
+nail as the active digit, rather than replacing the index with a static middle-finger grip.

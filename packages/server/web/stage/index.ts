@@ -158,7 +158,7 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
   const procedure = new NeedleProcedure(needles, () => practitioner, (id) => {
     const site = needles.siteOf(id);
     if (site) director.cut({ ...director.closeOn(site.p, site.n, 0.46), hold: 4000 }, 650);
-  });
+  }, () => patient);
   procedure.onPlayback = (playback) => {
     hud.performance(playback);
     options.onPlayback?.(playback);

@@ -115,7 +115,12 @@ export class Hud {
   }
 
   performance(state: TechniquePlayback): void {
-    if (state.mode === "idle") { this.performanceLabel.hidden = true; return; }
+    if (state.mode === "idle") {
+      this.performanceLabel.hidden = !state.reachWarning;
+      this.performanceLabel.textContent = state.reachWarning ?? "";
+      this.performanceLabel.dataset.mode = "idle";
+      return;
+    }
     this.performanceLabel.hidden = false;
     this.performanceLabel.textContent = `${state.mode === "preview" ? "本地预览 Preview" : "记录回放 Record"} · ${state.technique ?? ""}${state.phase ? ` · ${state.phase}` : ""} · ${Math.round(state.progress * 100)}% · ${state.speed}×${state.playing ? "" : " · 暂停 Paused"}${state.reachWarning ? ` · ${state.reachWarning}` : ""}`;
     this.performanceLabel.dataset.mode = state.mode;

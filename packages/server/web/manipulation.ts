@@ -109,7 +109,7 @@ const LABELS: Record<string, [string, string?]> = {
 };
 const VALUES: Record<string, string> = {
   alternating: "往返 Alternating", clockwise: "顺时针 Clockwise", counterclockwise: "逆时针 Counterclockwise",
-  "two-finger": "二指 Two fingers", "three-finger": "三指 Three fingers", none: "无 None", stabilize: "稳定 Stabilize",
+  "two-finger": "拇指＋食指（默认） Thumb–index", "three-finger": "拇食主夹持＋中指辅助 Thumb–index + middle support", none: "无 None", stabilize: "稳定 Stabilize",
   stretch: "牵张 Stretch", pinch: "捏持 Pinch", press: "按压 Press", auto: "自动 Auto", left: "左 Left", right: "右 Right",
 };
 const CONTEXT: Record<string, string> = { skin: "皮肤接触 Skin contact", retained: "留针操作 Retained needle", removed: "出针后 Post-withdrawal" };
@@ -197,6 +197,7 @@ export function manipulationControls(id: string, hooks: Hooks): ManipulationCont
   const mode = h("select", { "aria-label": "操作类别 Action category" }, h("option", { value: "technique" }, "手法 Manipulation"), h("option", { value: "insertion" }, "进针 Insertion"));
   const technique = h("select", { "aria-label": "针刺手法 Acupuncture technique" });
   const description = h("p", { class: "manipulation-description" });
+  const holdingRoles = h("p", { class: "manipulation-intro manipulation-holding-roles" });
   const provenance = h("p", { class: "manipulation-provenance" }, "示意动画 · Illustrative choreography");
   const context = h("span", { class: "manipulation-context" });
   const needle = h("select", { "aria-label": "操作针具 Needle" });
@@ -236,7 +237,7 @@ export function manipulationControls(id: string, hooks: Hooks): ManipulationCont
   const phase = h("output", { class: "manipulation-phase" }, "等待播放 · Ready");
   const transport = h("div", { class: "manipulation-transport" }, play, speed, seek, phase, stopPreview);
   const recorded = h("div", { class: "manipulation-recorded" });
-  el.append(introduction, h("div", { class: "manipulation-selection" }, field("操作 Action", mode), field("手法 Technique", technique), context), description, provenance, targets, parameters, insertion,
+  el.append(introduction, h("div", { class: "manipulation-selection" }, field("操作 Action", mode), field("手法 Technique", technique), context), description, provenance, holdingRoles, targets, parameters, insertion,
     h("p", { class: "manipulation-intro" }, "持针时指腹自动贴合针柄；开口控制接近与释放，松手保留必要间隙。", h("br"), "Held fingers fit the handle. Opening controls approach/release, with clearance when letting go."),
     h("div", { class: "manipulation-actions" }, preview, execute, approach, reset), transport, status, recorded);
 
@@ -294,6 +295,15 @@ export function manipulationControls(id: string, hooks: Hooks): ManipulationCont
   }
   function availability(): void {
     const entry = definition(), insertionMode = mode.value === "insertion";
+    holdingRoles.hidden = !insertionMode && entry?.context !== "retained";
+    if (!holdingRoles.hidden) {
+      const nailWork = !insertionMode && (entry?.id === "gua" || entry?.id === "tan");
+      const three = insertionMode ? insertionChoices.grip.input.value === "three-finger" : draft?.motion.grip === "three-finger";
+      holdingRoles.textContent = nailWork
+        ? "持针：拇指＋食指；主动刮／弹：中指甲缘。 · Thumb/index hold; the middle nail edge performs the action."
+        : three ? "拇指＋食指主夹持，中指侧腹辅助。 · Thumb/index hold with middle-finger support."
+        : "默认拇指＋食指持针，中指自然放松。 · Thumb/index hold; the middle finger stays relaxed.";
+    }
     const disabled = busy || closed || !library;
     for (const control of Array.from(el.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLButtonElement>("input, select, button"))) control.disabled = disabled;
     // Playback remains local and may inspect a closed record; it never reopens the encounter.
@@ -372,6 +382,7 @@ export function manipulationControls(id: string, hooks: Hooks): ManipulationCont
     status.classList.add("refused");
   }
   for (const control of [needle, mark, region, side, u, v]) control.addEventListener("change", changed);
+  insertionChoices.grip.input.addEventListener("change", availability);
   mode.addEventListener("change", () => { cancelLocalPreview(); targetSignature = ""; drawTargets(); availability(); });
   technique.addEventListener("change", () => {
     if (!library) return;
@@ -384,6 +395,7 @@ export function manipulationControls(id: string, hooks: Hooks): ManipulationCont
       const pair = insertionNumbers[key as keyof typeof insertionNumbers]; pair.number.value = pair.range.value = String(value);
     }
     insertionChoices.grip.input.value = "two-finger"; insertionChoices.support.input.value = "stabilize"; insertionChoices.hand.input.value = "auto";
+    availability();
     status.textContent = "已恢复当前手法默认参数 · Shared defaults restored."; status.classList.remove("refused");
   });
   preview.addEventListener("click", () => {
@@ -461,7 +473,9 @@ export function manipulationControls(id: string, hooks: Hooks): ManipulationCont
             if (!library || typeof record.input.technique !== "string") return;
             mode.value = "technique"; technique.value = record.input.technique;
             draft = techniqueDraft(library, technique.value, draft ?? undefined);
-            if (record.input.motion && typeof record.input.motion === "object") Object.assign(draft.motion, record.input.motion);
+            const accepted = snapshot?.view.performances?.find((performance) => performance.requestId === record.requestId);
+            if (accepted) Object.assign(draft.motion, accepted.motion);
+            else if (record.input.motion && typeof record.input.motion === "object") Object.assign(draft.motion, record.input.motion);
             draft.needleId = typeof record.input.needleId === "string" ? record.input.needleId : "";
             draft.mark = typeof record.input.mark === "string" ? record.input.mark : "";
             draft.region = typeof record.input.region === "string" ? record.input.region : "";

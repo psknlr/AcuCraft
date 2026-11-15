@@ -38,7 +38,7 @@ const COMMON: ManipulationControl[] = ["durationMs", "cycles", "hand", "support"
 const GRIP: ManipulationControl[] = ["grip", "gripApertureMm"];
 /**
  * Applicable controls follow the sampled primitive and its articulated hand pose, not its broad family.
- * Fixed palpation/pressing/flicking poses ignore grip selection; only pinch/tripod/scrape poses solve aperture.
+ * Fixed surface/nail-work poses have technique-specific finger roles; ordinary holding and Fei respect grip selection.
  * Compound recipes expose the union of their constituent controls, so an inert knob is never advertised.
  */
 const PRIMITIVE_CONTROLS: Partial<Record<ManipulationTechniqueId, ManipulationControl[]>> = {
@@ -57,7 +57,7 @@ const PRIMITIVE_CONTROLS: Partial<Record<ManipulationTechniqueId, ManipulationCo
   cha: [...GRIP, "strokeMm", "tempoBias"],
   gua: ["gripApertureMm", "lateralMm", "tempoBias"],
   tan: ["lateralMm", "tiltDeg"],
-  fei: ["gripApertureMm", "rotationDeg", "tempoBias"],
+  fei: [...GRIP, "rotationDeg", "tempoBias"],
   mo: [...GRIP, "lateralMm", "rotationDeg", "tempoBias"],
   dong: [...GRIP, "strokeMm", "lateralMm", "tempoBias"],
   "tui-push": [...GRIP, "strokeMm", "tempoBias"],
@@ -90,14 +90,14 @@ const ENTRIES: Entry[] = [
   ["tui-withdraw", "退", "Tui · withdrawing gesture", "axial", "retained", "A withdrawal-led visual stroke followed by return to the approved depth. Complete removal remains remove_needle.", { tempoBias: 0.28 }],
   ["ti", "提", "Ti · lifting", "axial", "retained", "Outward axial phase followed by a controlled return, with finger stabilization and wrist participation.", { tempoBias: 0.3 }],
   ["cha", "插", "Cha · thrusting", "axial", "retained", "A return-led axial cycle bounded by the engine-approved insertion depth.", { tempoBias: 0.7 }],
-  ["gua", "刮", "Gua · scraping", "handle", "retained", "Sliding nail contact along the external handle while the other digits stabilize it.", { grip: "three-finger", support: "none" }],
-  ["tan", "弹", "Tan · flicking", "handle", "retained", "Brief finger contact and release followed by damped external-shaft motion; no force impulse is inferred.", { grip: "three-finger", lateralMm: 1.2, support: "none" }],
-  ["fei", "飞", "Fei · pinch and release", "handle", "retained", "Intermittent thumb-index engagement with a stabilizing third finger; an authored contact-state sequence.", { grip: "three-finger", support: "none" }],
+  ["gua", "刮", "Gua · scraping", "handle", "retained", "The thumb and index hold the handle while the middle fingernail slides along its exposed surface.", { support: "none" }],
+  ["tan", "弹", "Tan · flicking", "handle", "retained", "The thumb and index stabilize the handle while the middle fingernail contacts and releases it; no force impulse is inferred.", { lateralMm: 1.2, support: "none" }],
+  ["fei", "飞", "Fei · pinch and release", "handle", "retained", "Intermittent thumb-index engagement; middle-finger support is added only when explicitly selected. An authored contact-state sequence.", { support: "none" }],
   ["mo", "摩", "Mo · rubbing", "handle", "retained", "Fine rubbing contact along the handle with limited external movement.", { lateralMm: 0.6, rotationDeg: 25 }],
   ["dong", "动", "Dong · mobilization", "modulation", "retained", "Small source-sensitive mobilization. The name alone does not specify an obligatory direction.", { strokeMm: 0.6, lateralMm: 0.5 }],
   ["tui-push", "推", "Tui · pushing gesture", "modulation", "retained", "An illustrative loading/contact pattern with no deeper tip travel and no prescribed force.", { strokeMm: 0.6, lateralMm: 0.5, tempoBias: 0.7 }],
   ["chan", "颤", "Chan · trembling", "modulation", "retained", "Small-amplitude, repeated external movement with distinct oscillatory timing.", { cycles: 8, strokeMm: 0.3, lateralMm: 0.4, tiltDeg: 1 }],
-  ["nu", "弩", "Nu · shaft deflection", "modulation", "retained", "Illustrative deflection of the exposed shaft. Internal-tip movement and tissue shear are not simulated.", { grip: "three-finger", strokeMm: 0, lateralMm: 2.5, tiltDeg: 4 }],
+  ["nu", "弩", "Nu · shaft deflection", "modulation", "retained", "Illustrative deflection of the exposed shaft. Internal-tip movement and tissue shear are not simulated.", { strokeMm: 0, lateralMm: 2.5, tiltDeg: 4 }],
   ["an", "按", "An · pressing", "contact", "skin", "Supporting contact at the selected surface site. Visual intensity is not a measured pressure.", { support: "press", lateralMm: 0 }],
   ["men", "扪", "Men · covering and compression", "contact", "removed", "Site covering/compression after withdrawal, anchored to a removed needle's recorded entry.", { support: "press", lateralMm: 0 }],
   ["sou", "搜", "Sou · direction pattern", "orientation", "retained", "A source-sensitive external direction-changing pattern. The internal path remains fixed rather than searching through tissue.", { lateralMm: 1.5, tiltDeg: 2 }],
@@ -107,7 +107,7 @@ const ENTRIES: Entry[] = [
   ["qing-long-bai-wei", "青龙摆尾", "Qing Long Bai Wei", "compound", "retained", "An authored orientation sequence using alternating exposed-shaft oscillation and settling.", { durationMs: 5400 }],
   ["bai-hu-yao-tou", "白虎摇头", "Bai Hu Yao Tou", "compound", "retained", "An authored combination of external oscillation, outward travel, and small trembling.", { durationMs: 6000 }],
   ["cang-gui-tan-xue", "苍龟探穴", "Cang Gui Tan Xue", "compound", "retained", "An illustrative staged trajectory; apparent directional changes never redirect the internal tip.", { durationMs: 7200 }],
-  ["chi-feng-ying-yuan", "赤凤迎源", "Chi Feng Ying Yuan", "compound", "retained", "An authored axial, rolling, and contact-transition sequence.", { durationMs: 7200, grip: "three-finger" }],
+  ["chi-feng-ying-yuan", "赤凤迎源", "Chi Feng Ying Yuan", "compound", "retained", "An authored axial, rolling, and contact-transition sequence.", { durationMs: 7200 }],
   ["long-hu-jiao-zhan", "龙虎交战", "Long Hu Jiao Zhan", "compound", "retained", "An authored alternation of rotational motifs with explicit phase transitions.", { durationMs: 6000 }],
   ["zi-wu-dao-jiu", "子午捣臼", "Zi Wu Dao Jiu", "compound", "retained", "An authored alternation of bounded axial and rotational primitives.", { durationMs: 6000 }],
   ["yang-zhong-yin-yin", "阳中隐阴", "Yang Zhong Yin Yin", "compound", "retained", "An authored bu-then-xie phase sequence. Traditional designation and simulated mechanics remain separate.", { durationMs: 6400 }],
@@ -287,8 +287,8 @@ export function sampleTechnique(id: ManipulationTechniqueId, elapsedMs: number, 
       break;
     }
     case "fei":
-      out.handPose = "tripod";
-      // Only the active thumb/index pair releases; the middle-finger support is a separate contact.
+      // Keep the requested thumb-index grip. A third supporting contact is opt-in, including in compound phases.
+      // Only the active thumb/index pair releases; explicitly selected middle support remains a separate contact.
       // Returning to 1 at phase edges lets the renderer apply its approach/release envelope exactly once.
       out.gripEngagement = 1 - phaseEnvelope * (1 - pulse(cycle, 0.35));
       out.grip *= out.gripEngagement;

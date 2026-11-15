@@ -67,9 +67,8 @@ export class ArticulatedHand {
 
   pose(settings: FingerPose): void {
     this.validContacts = true;
-    // Nail work uses a closer palm and a flexed index. Leaving the palm at the almost extended
-    // pad-pinch distance would force the nail to face the handle through axial finger rotation.
-    this.model.position.x = settings.handleRadiusM !== undefined && (settings.pose === "scrape" || settings.pose === "flick") ? -0.027 : 0;
+    // The thumb/index precision grip supplies the stable frame for ordinary and nail manipulations.
+    this.model.position.x = 0;
     const grip = clamp(settings.grip), phase = clamp(settings.phase);
     // Legacy nodes carry the Blender clips; zero-offset anatomical parents can add fine articulation.
     this.mixer.stopAllAction();
@@ -111,22 +110,21 @@ export class ArticulatedHand {
     }
     if (settings.pose === "stretch") {
       turn("thumb_CMC", -0.12 * grip, new Vector3(1, 0, 0));
-      turn("index_MCP", 0.07 * grip, new Vector3(0, 1, 0));
-    }
-    if (settings.pose === "scrape") {
-      const scrape = clamp(settings.nailContact ?? 0);
-      turn("index_PIP", 0.08 * scrape * pulse);
-      turn("index_DIP", -0.055 * scrape * pulse);
+      // Spread the index toward the ulnar fingers; radial motion crowds the opposed thumb.
+      turn("index_MCP", -0.07 * grip, new Vector3(0, 1, 0));
     }
     if (settings.handleRadiusM !== undefined) {
       this.relaxUnusedFingers(settings);
       this.solveHandleContacts(settings);
     }
-    else if (settings.pose === "pinch" || settings.pose === "tripod" || settings.pose === "scrape") this.solveAperture(aperture);
+    else {
+      if (["palpate", "press", "stretch"].includes(settings.pose)) this.relaxSurfaceThumb();
+      if (settings.pose === "pinch" || settings.pose === "tripod" || settings.pose === "scrape") this.solveAperture(aperture);
+    }
     this.model.updateMatrixWorld(true);
   }
 
-  /** The inactive fingers also release through palmar hinges; old open clips must not reverse their PIP joints. */
+  /** Unused fingers stay softly folded back toward the palm, away from the working pair and patient. */
   private relaxUnusedFingers(settings: FingerPose): void {
     for (const digit of ["middle", "ring", "little"]) {
       if (digit === "middle" && ["tripod", "scrape", "flick"].includes(settings.pose)) continue;
@@ -135,15 +133,35 @@ export class ArticulatedHand {
       const tip = this.model.getObjectByName(`${digit}_tip`);
       if (!tip || joints.some((joint) => !joint) || legacy.some((joint) => !joint)) continue;
       const a = joints[1]!.position, b = joints[2]!.position, c = tip.position;
-      const hinge = new Vector3(0, 0, 1), grip = clamp(settings.grip);
+      const hinge = new Vector3(0, 0, 1);
       const signed = (x: Vector3, y: Vector3) => Math.atan2(x.clone().cross(y).dot(hinge), x.dot(y));
       const restA = signed(a, b), restB = signed(b, c);
-      const relaxed = new Quaternion().setFromUnitVectors(a.clone().normalize(), new Vector3(-1, -0.15, 0).normalize());
-      const rotations = [relaxed.slerp(new Quaternion(), grip),
-        new Quaternion().setFromAxisAngle(hinge, (10 * Math.PI / 180 - restA) * (1 - grip)),
-        new Quaternion().setFromAxisAngle(hinge, (7 * Math.PI / 180 - restB) * (1 - grip))];
+      const flexion = 80 * Math.PI / 180;
+      const relaxed = new Quaternion().setFromUnitVectors(a.clone().normalize(), new Vector3(-Math.cos(flexion), -Math.sin(flexion), 0));
+      if (digit === "middle") relaxed.premultiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), 5 * Math.PI / 180));
+      const rotations = [relaxed,
+        new Quaternion().setFromAxisAngle(hinge, 90 * Math.PI / 180 - restA),
+        new Quaternion().setFromAxisAngle(hinge, 65 * Math.PI / 180 - restB)];
       for (let i = 0; i < 3; i++) joints[i]!.quaternion.copy(rotations[i]!).multiply(legacy[i]!.quaternion.clone().invert());
     }
+  }
+
+  /** The pressing hand's thumb stays gently flexed instead of extending past the contacting index pulp. */
+  private relaxSurfaceThumb(): void {
+    const cmc = this.controls.get("thumb_CMC"), mcp = this.controls.get("thumb_MCP"), ip = this.controls.get("thumb_IP");
+    const proximal = this.model.getObjectByName("thumb_proximal"), middle = this.model.getObjectByName("thumb_middle"), distal = this.model.getObjectByName("thumb_distal"), tip = this.model.getObjectByName("thumb_tip");
+    if (!cmc || !mcp || !ip || !proximal || !middle || !distal || !tip) return;
+    const a = mcp.position, b = ip.position, c = tip.position;
+    const hingeA = a.clone().cross(b).normalize(), hingeB = b.clone().cross(c).normalize();
+    if (hingeB.dot(hingeA) < 0) hingeB.negate();
+    const restA = Math.atan2(a.clone().cross(b).dot(hingeA), a.dot(b));
+    const restB = Math.atan2(b.clone().cross(c).dot(hingeB), b.dot(c));
+    const swing = new Quaternion().setFromUnitVectors(a.clone().normalize(), new Vector3(-0.83, -0.10, 0.55).normalize());
+    const angle = 2 * Math.acos(clamp(swing.w, -1, 1));
+    const radial = new Vector3(swing.x, swing.y, swing.z).normalize();
+    cmc.quaternion.setFromAxisAngle(radial, Math.min(angle, 35 * Math.PI / 180)).multiply(proximal.quaternion.clone().invert());
+    mcp.quaternion.setFromAxisAngle(hingeA, 40 * Math.PI / 180 - restA).multiply(middle.quaternion.clone().invert());
+    ip.quaternion.setFromAxisAngle(hingeB, 20 * Math.PI / 180 - restB).multiply(distal.quaternion.clone().invert());
   }
 
   /** A precision grip has opposing surface contacts, not merely a midpoint on the needle axis. */
@@ -156,29 +174,41 @@ export class ArticulatedHand {
     // contacts. Orbiting each fingertip independently would twist an interphalangeal hinge sideways.
     const radial = new Vector3(0, 0, 1);
     const nailWork = settings.pose === "scrape" || settings.pose === "flick";
-    const thumbRadial = nailWork ? new Vector3(Math.cos(260 * Math.PI / 180), 0, Math.sin(260 * Math.PI / 180)) : radial.clone().negate();
-    this.solveFingerContact("thumb", "pad", thumbRadial.clone().multiplyScalar(radius), thumbRadial.clone().negate(), grip, thumbRadial.clone().multiplyScalar(opening));
+    // The optional third finger needs its own space above the primary pair. Two-finger holding keeps
+    // the central plane; middle support or nail work uses lower thumb/index and upper middle contacts.
+    const holdingY = nailWork || settings.pose === "tripod" ? -0.012 : 0;
+    const holdingRadius = holdingY ? needleHandleRadiusAt(holdingY) : radius;
+    const holdingOpening = Math.max(holdingRadius + 0.0015, clamp(settings.apertureMm ?? 2, 0, 12) / 2000);
+    const thumbRadial = radial.clone().negate();
+    const atHoldingPlane = (direction: Vector3, distance: number) => direction.clone().multiplyScalar(distance).setY(holdingY);
+    this.solveFingerContact("thumb", "pad", atHoldingPlane(thumbRadial, holdingRadius), thumbRadial.clone().negate(), grip, atHoldingPlane(thumbRadial, holdingOpening));
+    this.solveFingerContact("index", "pad", atHoldingPlane(radial, holdingRadius), radial.clone().negate(), grip, atHoldingPlane(radial, holdingOpening));
     if (settings.pose === "scrape" || settings.pose === "flick") {
-      // Thumb and middle retain the handle while only the index nail travels or flicks away.
+      // Thumb and index keep their opposing pad contacts while the middle nail works the handle.
       const phase = clamp(settings.phase);
       const smooth = (x: number) => { const t = clamp(x); return t * t * (3 - 2 * t); };
       const release = settings.pose !== "flick" || phase < 0.28 ? 0
         : phase < 0.42 ? smooth((phase - 0.28) / 0.14)
         : phase < 0.72 ? 1 : 1 - smooth((phase - 0.72) / 0.28);
-      const y = 0.004 + (settings.pose === "scrape" ? clamp(settings.nailContact ?? 0) * 0.006 : Math.sin(phase * Math.PI) * 0.002);
-      // A curled index touches the upper handle with its dorsal nail. Keeping the nail on the same
-      // side as the pulp would demand an impossible half-turn at the distal interphalangeal joint.
-      const nailRadial = new Vector3(Math.cos(34 * Math.PI / 180), 0, Math.sin(34 * Math.PI / 180)), nailRadius = needleHandleRadiusAt(y);
+      const y = 0.006 + (settings.pose === "scrape" ? clamp(settings.nailContact ?? 0) * 0.006 : Math.sin(phase * Math.PI) * 0.002);
+      const nailRadial = new Vector3(Math.cos(88 * Math.PI / 180), 0, Math.sin(88 * Math.PI / 180)), nailRadius = needleHandleRadiusAt(y);
       const target = nailRadial.clone().multiplyScalar(nailRadius);
       target.y = y;
       const openTarget = nailRadial.clone().multiplyScalar(nailRadius + Math.max(opening - radius, settings.pose === "flick" ? 0.006 : 0));
       openTarget.y = y;
-      this.solveFingerContact("index", "nail", target, nailRadial.clone().negate(), grip * (1 - release), openTarget);
-    } else this.solveFingerContact("index", "pad", radial.clone().multiplyScalar(radius), radial.clone().negate(), grip, radial.clone().multiplyScalar(opening));
-    if (settings.pose === "tripod" || settings.pose === "scrape" || settings.pose === "flick") {
-      const middleRadius = needleHandleRadiusAt(-0.006);
-      this.solveFingerContact("middle", "side", new Vector3(0, -0.006, middleRadius), new Vector3(0, 0, -1), stable,
-        new Vector3(0, -0.006, middleRadius + opening - radius));
+      this.solveFingerContact("middle", "nail_edge", target, nailRadial.clone().negate(), grip * (1 - release), openTarget);
+    }
+    if (settings.pose === "tripod") {
+      const middleY = 0.006, middleRadius = needleHandleRadiusAt(middleY);
+      const base = this.controls.get("middle_MCP")!.position;
+      const side = this.model.getObjectByName("middle_side_contact")!;
+      // A true lateral contact is parallel to the hinges. Match its measured lateral offset to the
+      // tapered handle analytically instead of rotating the finger by 90° or moving a skin anchor.
+      const phi = Math.atan2(base.z, base.x) + Math.acos(clamp((middleRadius - side.position.z) / Math.hypot(base.x, base.z), -1, 1));
+      const middleRadial = new Vector3(Math.cos(phi), 0, Math.sin(phi));
+      const contact = middleRadial.clone().multiplyScalar(middleRadius).setY(middleY);
+      const released = middleRadial.clone().multiplyScalar(middleRadius + opening - radius).setY(middleY);
+      this.solveFingerContact("middle", "side", contact, middleRadial.clone().negate(), stable, released);
     }
   }
 
@@ -187,7 +217,7 @@ export class ArticulatedHand {
    * quaternion rotations. Two invariant equations determine their flexion angles while preserving exact
    * surface position and normal: |contact vector| and its dot product with the terminal surface normal.
    */
-  private solveFingerContact(digit: "thumb" | "index" | "middle", kind: "pad" | "nail" | "side", target: Vector3, outward: Vector3, engagement: number, openingTarget: Vector3): void {
+  private solveFingerContact(digit: "thumb" | "index" | "middle", kind: "pad" | "nail" | "nail_edge" | "side", target: Vector3, outward: Vector3, engagement: number, openingTarget: Vector3): void {
     const labels = digit === "thumb" ? ["CMC", "MCP", "IP"] : ["MCP", "PIP", "DIP"];
     const controls = labels.map((label) => this.controls.get(`${digit}_${label}`));
     const legacy = ["proximal", "middle", "distal"].map((name) => this.model.getObjectByName(`${digit}_${name}`));
@@ -202,7 +232,9 @@ export class ArticulatedHand {
     const a = controls[1]!.position.clone(), b = controls[2]!.position.clone(), c = tip.position.clone();
     if (a.lengthSq() < 1e-10 || b.lengthSq() < 1e-10 || c.lengthSq() < 1e-10) { this.validContacts = false; return; }
     const hingeA = a.clone().cross(b).normalize();
-    if (hingeA.dot(new Vector3(0, 1, 0).cross(a)) < 0) hingeA.negate();
+    // The opposed thumb bends in its own volar plane after CMC opposition. Applying the fingers'
+    // global palmar sign to it would turn normal thumb flexion into an artificial reverse joint.
+    if (digit !== "thumb" && hingeA.dot(new Vector3(0, 1, 0).cross(a)) < 0) hingeA.negate();
     const hingeB = b.clone().cross(c).normalize();
     if (hingeB.dot(hingeA) < 0) hingeB.negate();
     const restA = Math.atan2(a.clone().cross(b).dot(hingeA), a.dot(b));
@@ -355,7 +387,7 @@ export class ArticulatedHand {
     const mirror = this.model.scale.z;
     this.model.scale.z = Math.abs(mirror);
     const correction = [0, 0];
-    for (let step = 0; step < 32; step++) {
+    for (let step = 0; step < 96; step++) {
       this.root.updateWorldMatrix(true, true);
       const a = thumb.getWorldPosition(new Vector3()), b = index.getWorldPosition(new Vector3());
       const difference = b.clone().sub(a), distance = difference.length();
@@ -396,7 +428,7 @@ export class ArticulatedHand {
   contact(kind: HandContact): Vector3 {
     if (kind === "handle") return new Vector3();
     const index = this.anchor(["index_pad_contact", "index_pad", "index_tip"], new Vector3(0, 0, 0.006));
-    if (kind === "index") return index;
+    if (kind === "index") return this.anchor(["index_volar_contact", "index_pad_contact", "index_pad", "index_tip"], index);
     if (kind === "nail") return this.anchor(["index_nail_contact", "index_tip"], index);
     if (kind === "palm") return this.anchor(["palm_contact", "support_contact"], new Vector3(0.105, -0.012, 0));
     const thumb = this.anchor(["thumb_pad_contact", "thumb_pad", "thumb_tip"], new Vector3(0, 0, -0.006));
@@ -404,7 +436,8 @@ export class ArticulatedHand {
   }
 
   contactNormal(kind: HandContact): Vector3 {
-    const names = kind === "nail" ? ["index_nail_contact"] : kind === "palm" ? ["palm_contact", "support_contact"] : ["index_pad_contact", "index_pad"];
+    const names = kind === "nail" ? ["index_nail_contact"] : kind === "palm" ? ["palm_contact", "support_contact"]
+      : kind === "index" ? ["index_volar_contact", "index_pad_contact", "index_pad"] : ["index_pad_contact", "index_pad"];
     const node = names.map((name) => this.model.getObjectByName(name)).find(Boolean);
     this.root.updateWorldMatrix(true, true);
     if (!node) return new Vector3(0, -1, 0);

@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { Vector3, type Object3D } from "three";
+import { DoubleSide, Raycaster, Triangle, Vector3, type Object3D, type SkinnedMesh } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { describe, expect, it } from "vitest";
 import { sampleTechnique } from "@acucraft/core";
@@ -92,7 +92,70 @@ function axialJointTwistDegrees(hand: ArticulatedHand, digit: string, index: 0 |
   return Math.min(radians, 2 * Math.PI - radians) * 180 / Math.PI;
 }
 
+/** A correct nail anchor still permits solid fingers to intersect; check the actual deformed distal skin. */
+function distalSkinIntrusion(hand: ArticulatedHand, fromDigit: string, intoDigit: string): number {
+  const from = node(hand, `${fromDigit}_skin`) as SkinnedMesh;
+  const into = node(hand, ["thenar", "palm_surface"].includes(intoDigit) ? intoDigit : `${intoDigit}_skin`) as SkinnedMesh;
+  for (const skin of [from, into]) {
+    if (skin.skeleton) { skin.skeleton.update(); skin.computeBoundingBox(); skin.computeBoundingSphere(); }
+    else { skin.geometry.computeBoundingBox(); skin.geometry.computeBoundingSphere(); }
+  }
+  const material = Array.isArray(into.material) ? into.material[0]! : into.material;
+  const originalSide = material.side;
+  material.side = DoubleSide;
+  const direction = new Vector3(0.431, 0.293, 0.853).normalize(), triangle = new Triangle(), nearest = new Vector3();
+  const vertices = Array.from({ length: into.geometry.getAttribute("position").count }, (_, i) => into.localToWorld(into.getVertexPosition(i, new Vector3())));
+  const indices = into.geometry.getIndex()!;
+  let intrusion = 0;
+  for (let vertex = 0; vertex < from.geometry.getAttribute("position").count; vertex++) {
+    let distalWeight = 0;
+    for (let influence = 0; influence < 4; influence++) {
+      const boneIndex = from.geometry.getAttribute("skinIndex").array[vertex * 4 + influence]!;
+      if (/(_distal|_DIP)$/.test(from.skeleton.bones[boneIndex]!.name)) distalWeight += from.geometry.getAttribute("skinWeight").array[vertex * 4 + influence]!;
+    }
+    if (distalWeight < 0.8) continue;
+    const point = from.localToWorld(from.getVertexPosition(vertex, new Vector3()));
+    const distances: number[] = [];
+    for (const hit of new Raycaster(point, direction, 0.000001, 1).intersectObject(into, false)) {
+      if (!distances.some((distance) => Math.abs(distance - hit.distance) < 1e-7)) distances.push(hit.distance);
+    }
+    if (distances.length % 2 === 0) continue;
+    let surfaceDistance = Infinity;
+    for (let index = 0; index < indices.count; index += 3) {
+      triangle.set(vertices[indices.getX(index)]!, vertices[indices.getX(index + 1)]!, vertices[indices.getX(index + 2)]!);
+      triangle.closestPointToPoint(point, nearest);
+      surfaceDistance = Math.min(surfaceDistance, point.distanceTo(nearest));
+    }
+    intrusion = Math.max(intrusion, surfaceDistance);
+    if (intrusion > 0.00005) break;
+  }
+  material.side = originalSide;
+  return intrusion;
+}
+
 describe("needle-handle surface grip regression", () => {
+  it("supports skin with the real volar index pulp and keeps the opposed thumb clear of adjacent fingers", async () => {
+    const hand = await handRig();
+    for (const side of ["left", "right"] as const) {
+      hand.setSide(side);
+      for (const pose of ["palpate", "press", "stretch"] as const) {
+        for (const phase of [0, 0.25, 0.5, 0.75, 1]) {
+          hand.pose({ pose, grip: phase, phase, intensity: 1 });
+          expect(hand.contactAt("index").distanceTo(point(hand, "index_volar_contact")), `${side}/${pose}/${phase} volar surface support`).toBeLessThan(1e-8);
+          expect(hand.contactAt("index").distanceTo(point(hand, "index_pad_contact")), `${side}/${pose}/${phase} separate radial needle pad`).toBeGreaterThan(0.005);
+          for (const [from, into] of [["thumb", "index"], ["index", "thumb"], ["thumb", "middle"], ["middle", "thumb"], ["index", "middle"], ["middle", "index"]]) {
+            expect(distalSkinIntrusion(hand, from!, into!), `${side}/${pose}/${phase}/${from} into ${into}`).toBeLessThan(0.00005);
+          }
+          const [proximal, middle, distal] = digitSegments(hand, "thumb") as [Vector3, Vector3, Vector3];
+          expect(proximal.angleTo(middle) * 180 / Math.PI, `${pose} supporting thumb MCP flexion`).toBeCloseTo(40, 3);
+          expect(middle.angleTo(distal) * 180 / Math.PI, `${pose} supporting thumb IP flexion`).toBeCloseTo(20, 3);
+          for (const joint of [0, 1, 2] as const) expect(axialJointTwistDegrees(hand, "thumb", joint), `${pose}/${phase} support thumb twist`).toBeLessThanOrEqual(20);
+        }
+      }
+    }
+    hand.dispose();
+  });
+
   it("keeps opposing pads on the actual handle for both hands, either grip, all openings and rolling directions", async () => {
     const hand = await handRig();
     hand.root.position.set(0.27, 0.94, -0.18);
@@ -103,13 +166,14 @@ describe("needle-handle surface grip regression", () => {
         for (const apertureMm of [0, 2, 12]) {
           for (const rotationRad of [-Math.PI, -Math.PI / 2, 0, Math.PI / 2, Math.PI]) {
             hand.pose({ pose, apertureMm, rotationRad, grip: 1, phase: 0.35, handleRadiusM: NEEDLE_HANDLE_RADIUS_M });
-            const thumb = expectSurfaceContact(hand, "thumb_pad_contact", 0);
-            const index = expectSurfaceContact(hand, "index_pad_contact", 0);
+            const holdingY = pose === "tripod" ? -0.012 : 0;
+            const thumb = expectSurfaceContact(hand, "thumb_pad_contact", holdingY);
+            const index = expectSurfaceContact(hand, "index_pad_contact", holdingY);
             const line = index.clone().sub(thumb);
             expect(Math.abs(line.dot(handleFrame(hand).axis))).toBeLessThan(toleranceM);
-            expect(line.length()).toBeCloseTo(2 * NEEDLE_HANDLE_RADIUS_M, 5);
+            expect(line.length()).toBeCloseTo(2 * needleHandleRadiusAt(holdingY), 5);
             expect(normal(hand, "thumb_pad_contact").dot(normal(hand, "index_pad_contact"))).toBeLessThan(-0.999);
-            if (pose === "tripod") expectSurfaceContact(hand, "middle_side_contact", -0.006);
+            if (pose === "tripod") expectSurfaceContact(hand, "middle_side_contact", 0.006);
           }
         }
       }
@@ -117,42 +181,42 @@ describe("needle-handle surface grip regression", () => {
     hand.dispose();
   });
 
-  it("scrapes with the index nail while the thumb and middle retain independent surface contacts", async () => {
+  it("scrapes with the middle nail while the thumb and index retain their primary grip", async () => {
     const hand = await handRig();
     for (const side of ["left", "right"] as const) {
       hand.setSide(side);
-      let thumb: Vector3 | undefined, middle: Vector3 | undefined;
+      let thumb: Vector3 | undefined, index: Vector3 | undefined;
       const nails: Vector3[] = [];
       for (const phase of [0.001, 0.1, 0.25, 0.5, 0.75, 0.9, 0.999]) {
         const sample = sampleTechnique("gua", phase * 2400, { durationMs: 2400, cycles: 1 });
         hand.pose({ pose: "scrape", grip: 1, stabilizerGrip: 1, apertureMm: 12, phase, nailContact: sample.nailContact, handleRadiusM: NEEDLE_HANDLE_RADIUS_M });
-        const nextThumb = expectSurfaceContact(hand, "thumb_pad_contact", 0);
-        const nextMiddle = expectSurfaceContact(hand, "middle_side_contact", -0.006);
-        nails.push(expectSurfaceContact(hand, "index_nail_contact"));
+        const nextThumb = expectSurfaceContact(hand, "thumb_pad_contact", -0.012);
+        const nextIndex = expectSurfaceContact(hand, "index_pad_contact", -0.012);
+        nails.push(expectSurfaceContact(hand, "middle_nail_edge_contact"));
         if (thumb) expect(nextThumb.distanceTo(thumb)).toBeLessThan(toleranceM);
-        if (middle) expect(nextMiddle.distanceTo(middle)).toBeLessThan(toleranceM);
-        thumb = nextThumb; middle = nextMiddle;
+        if (index) expect(nextIndex.distanceTo(index)).toBeLessThan(toleranceM);
+        thumb = nextThumb; index = nextIndex;
       }
       expect(Math.max(...nails.map((a) => Math.max(...nails.map((b) => a.distanceTo(b)))))).toBeGreaterThan(0.005);
     }
     hand.dispose();
   });
 
-  it("flicks and releases the index nail without dragging the stabilizing fingers away", async () => {
+  it("flicks and releases the middle nail without moving the thumb/index primary grip", async () => {
     const hand = await handRig();
     for (const side of ["left", "right"] as const) {
       hand.setSide(side);
-      let thumb: Vector3 | undefined, middle: Vector3 | undefined;
+      let thumb: Vector3 | undefined, index: Vector3 | undefined;
       for (const phase of [0.1, 0.2, 0.27, 0.5, 0.6, 0.85, 1]) {
         hand.pose({ pose: "flick", grip: 1, stabilizerGrip: 1, apertureMm: 12, phase, handleRadiusM: NEEDLE_HANDLE_RADIUS_M });
-        const nextThumb = expectSurfaceContact(hand, "thumb_pad_contact", 0);
-        const nextMiddle = expectSurfaceContact(hand, "middle_side_contact", -0.006);
+        const nextThumb = expectSurfaceContact(hand, "thumb_pad_contact", -0.012);
+        const nextIndex = expectSurfaceContact(hand, "index_pad_contact", -0.012);
         if (thumb) expect(nextThumb.distanceTo(thumb)).toBeLessThan(toleranceM);
-        if (middle) expect(nextMiddle.distanceTo(middle)).toBeLessThan(toleranceM);
-        thumb = nextThumb; middle = nextMiddle;
-        if (phase < 0.28 || phase === 1) expectSurfaceContact(hand, "index_nail_contact");
+        if (index) expect(nextIndex.distanceTo(index)).toBeLessThan(toleranceM);
+        thumb = nextThumb; index = nextIndex;
+        if (phase < 0.28 || phase === 1) expectSurfaceContact(hand, "middle_nail_edge_contact");
         if (phase === 0.5 || phase === 0.6) {
-          const frame = handleFrame(hand), offset = point(hand, "index_nail_contact").sub(frame.origin);
+          const frame = handleFrame(hand), offset = point(hand, "middle_nail_edge_contact").sub(frame.origin);
           expect(offset.addScaledVector(frame.axis, -offset.dot(frame.axis)).length()).toBeGreaterThan(0.005);
         }
       }
@@ -167,13 +231,76 @@ describe("needle-handle surface grip regression", () => {
       let middle: Vector3 | undefined;
       for (const grip of [1, 0.5, 0, 0.5, 1]) {
         hand.pose({ pose: "tripod", grip, stabilizerGrip: 1, apertureMm: 12, phase: 0.4, handleRadiusM: NEEDLE_HANDLE_RADIUS_M });
-        const nextMiddle = expectSurfaceContact(hand, "middle_side_contact", -0.006);
+        const nextMiddle = expectSurfaceContact(hand, "middle_side_contact", 0.006);
         if (middle) expect(nextMiddle.distanceTo(middle)).toBeLessThan(toleranceM);
         middle = nextMiddle;
         if (grip === 0) expect(hand.gapMm()).toBeCloseTo(12, 3);
         if (grip === 1) {
+          expectSurfaceContact(hand, "thumb_pad_contact", -0.012);
+          expectSurfaceContact(hand, "index_pad_contact", -0.012);
+        }
+      }
+    }
+    hand.dispose();
+  });
+
+  it("uses only the thumb/index pair for default Fei and keeps unused fingers relaxed and still", async () => {
+    const hand = await handRig();
+    for (const side of ["left", "right"] as const) {
+      hand.setSide(side);
+      let unused: Vector3[] | undefined;
+      for (const elapsedMs of [350, 1000, 1350, 2000, 2350]) {
+        const sample = sampleTechnique("fei", elapsedMs, { durationMs: 3000, cycles: 3, gripApertureMm: 12 });
+        expect(sample.handPose).toBe("pinch");
+        hand.pose({ pose: sample.handPose, grip: sample.gripEngagement, stabilizerGrip: 1, apertureMm: 12,
+          phase: sample.phase.progress * 3 % 1, rotationRad: sample.rotationRad, handleRadiusM: NEEDLE_HANDLE_RADIUS_M });
+        expect(hand.contactValid).toBe(true);
+        const points = ["middle", "ring", "little"].flatMap((digit) => ["MCP", "PIP", "DIP"].map((joint) => point(hand, `${digit}_${joint}`)));
+        if (unused) points.forEach((p, index) => expect(p.distanceTo(unused![index]!)).toBeLessThan(1e-8));
+        unused = points;
+        expect(point(hand, "middle_side_contact").distanceTo(hand.contactAt("handle"))).toBeGreaterThan(0.01);
+        if (sample.gripEngagement === 1) {
           expectSurfaceContact(hand, "thumb_pad_contact", 0);
           expectSurfaceContact(hand, "index_pad_contact", 0);
+        }
+        if (sample.gripEngagement === 0) expect(hand.gapMm()).toBeCloseTo(12, 3);
+      }
+    }
+    hand.dispose();
+  });
+
+  it("keeps supporting and active middle-finger skin outside both primary gripping fingers", async () => {
+    const hand = await handRig();
+    for (const side of ["left", "right"] as const) {
+      hand.setSide(side);
+      for (const pose of ["pinch", "tripod", "scrape", "flick"] as const) {
+        for (const phase of [0, 0.5, 1]) {
+          hand.pose({ pose, grip: 1, stabilizerGrip: 1, apertureMm: 12, phase, nailContact: phase, handleRadiusM: NEEDLE_HANDLE_RADIUS_M });
+          expect(hand.contactValid).toBe(true);
+          for (const [from, into] of [["middle", "index"], ["index", "middle"], ["middle", "thumb"], ["thumb", "middle"]]) {
+            expect(distalSkinIntrusion(hand, from!, into!), `${side}/${pose}/${phase} ${from} into ${into}`).toBeLessThan(0.00005);
+          }
+        }
+      }
+    }
+    hand.dispose();
+  });
+
+  it("keeps the unused fingers clear of an opened thumb/index pair", async () => {
+    const hand = await handRig();
+    for (const side of ["left", "right"] as const) {
+      hand.setSide(side);
+      for (const grip of [0, 0.5, 1]) {
+        hand.pose({ pose: "pinch", grip, stabilizerGrip: grip, apertureMm: 12, phase: 0, handleRadiusM: NEEDLE_HANDLE_RADIUS_M });
+        expect(hand.contactValid).toBe(true);
+        for (const digit of ["middle", "ring", "little"]) {
+          for (const primary of ["thumb", "index"]) {
+            expect(distalSkinIntrusion(hand, digit, primary), `${side}/${grip}/${digit} into ${primary}`).toBeLessThan(0.00005);
+            expect(distalSkinIntrusion(hand, primary, digit), `${side}/${grip}/${primary} into ${digit}`).toBeLessThan(0.00005);
+          }
+        }
+        for (const surface of ["thenar", "palm_surface"]) {
+          expect(distalSkinIntrusion(hand, "middle", surface), `${side}/${grip} unused middle into ${surface}`).toBeLessThan(0.00005);
         }
       }
     }
@@ -194,9 +321,10 @@ describe("needle-handle surface grip regression", () => {
           expect(hand.contactValid, `${side}/${pose}/${elapsedMs} contact solve`).toBe(true);
           for (const [name, value] of chainLengths(hand)) expect(value, `${side}/${pose}/${elapsedMs}/${name}`).toBeCloseTo(baseline.get(name)!, 7);
           hand.root.traverse((object) => expect(object.matrixWorld.elements.every(Number.isFinite)).toBe(true));
-          if (envelope.grip === 1 && pose !== "scrape" && pose !== "flick") {
-            expectSurfaceContact(hand, "thumb_pad_contact", 0);
-            expectSurfaceContact(hand, "index_pad_contact", 0);
+          if (envelope.grip === 1) {
+            const holdingY = pose === "pinch" ? 0 : -0.012;
+            expectSurfaceContact(hand, "thumb_pad_contact", holdingY);
+            expectSurfaceContact(hand, "index_pad_contact", holdingY);
           }
         }
       }

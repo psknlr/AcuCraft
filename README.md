@@ -47,7 +47,7 @@ maneuvers, 10 authored compound sequences, and bu/xie through the same `perform_
 Set timing, cycles, axial/rotational/exterior-shaft motion, grip aperture, handedness and supporting-hand contact;
 preview locally, pause, scrub and change parameters live before executing an attributed action. Both Blender hands
 use continuous finger skins, independent skeletons, individual pad/nail contacts and arm IK. Held fingers fit
-the actual handle; the opening control affects approach and release. Internal needle paths remain authoritative while exposed-shaft
+the actual handle with thumb/index by default; middle-finger support is optional. The opening control affects approach and release. Internal needle paths remain authoritative while exposed-shaft
 deflection is shown separately ([docs/TECHNIQUES.md](docs/TECHNIQUES.md), [docs/HANDS.md](docs/HANDS.md)).
 These profiles are illustrative choreography, without a model of their clinical efficacy or tissue loading.
 

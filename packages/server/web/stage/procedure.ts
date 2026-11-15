@@ -1,4 +1,4 @@
-import { Group, Mesh, SkinnedMesh, Vector3, type Material, type Quaternion } from "three";
+import { Group, Mesh, Quaternion, SkinnedMesh, Vector3, type Material } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { clone as cloneSkeleton } from "three/examples/jsm/utils/SkeletonUtils.js";
 import {
@@ -12,6 +12,7 @@ import type { SkinSite } from "./sites.js";
 import { sampleProcedure, type ProcedureKind } from "./choreography.js";
 import { ArticulatedHand, handOrientation, surfaceHandOrientation, type HandContact, type HandPose } from "./hand.js";
 import { NEEDLE_HANDLE_RADIUS_M } from "./needle-shape.js";
+import { PatientClearance } from "./clearance.js";
 
 export interface InsertionPresentation {
   /** Duration of the actual insertion phase, excluding approach/grasp/release/retreat. */
@@ -36,7 +37,7 @@ export interface ProcedurePlayback {
   technique: string | null;
   phase: string | null;
   durationMs: number;
-  /** A schematic hand target outside arm reach; the clipped hand is not drawn detached from the sleeve. */
+  /** A schematic pose, patient-clearance or arm-reach problem; the affected detail hand is hidden. */
   reachWarning?: string | null;
 }
 export interface PlaybackControl { paused?: boolean; speed?: number; progress?: number }
@@ -81,9 +82,12 @@ export class NeedleProcedure {
   private lastNow = 0;
   private reachWarning: string | null = null;
   private playbackState: ProcedurePlayback = { ...IDLE };
+  private readonly clearance = new PatientClearance();
+  private readonly clearanceRoll = new Map<ArticulatedHand, number>();
   private placements: { hand: ArticulatedHand; side: "left" | "right"; desiredWrist: Vector3; orientation: Quaternion; reach: number }[] = [];
 
-  constructor(private readonly needles: NeedleLayer, private readonly practitioner: () => Person | null, private readonly focus: (id: string) => void) {
+  constructor(private readonly needles: NeedleLayer, private readonly practitioner: () => Person | null, private readonly focus: (id: string) => void,
+    private readonly patient: () => Person | null = () => null) {
     this.group.name = "precision-needling";
     this.group.visible = false;
   }
@@ -181,6 +185,7 @@ export class NeedleProcedure {
     }
     // Seeking recorded actions would conceal ordering; only a clearly labelled local preview can be sought.
     if (control.progress !== undefined && active?.kind === "performance" && active.preview) {
+      this.clearanceRoll.clear();
       const motion = resolveManipulationMotion(active.input.technique, active.input.motion);
       active.elapsed = finiteClamp(control.progress, 0, 1) * sampleProcedure("work", 0, motion.durationMs).durationMs;
       active.lastNow = this.lastNow;
@@ -304,7 +309,10 @@ export class NeedleProcedure {
     this.settleHands(person);
     if (gesture.kind === "insert" && !gesture.worked && hand?.root.visible) this.needles.carry(gesture.id, hand.contactAt("handle"), gesture.axis);
     this.group.visible = !!this.hand?.root.visible || !!this.supportHand?.root.visible;
-    if (sample.complete) { this.finish(gesture); this.active = null; }
+    // Clinical insertion/work has its own clock; expose geometry feedback without offering the
+    // catalogue's local preview transport as a way to pause or seek that clinical action.
+    this.publish({ ...IDLE, speed: this.speed, reachWarning: this.reachWarning });
+    if (sample.complete) { this.finish(gesture); this.active = null; this.publish({ ...IDLE, speed: this.speed }); }
   }
 
   private renderPerformance(gesture: ActiveGesture & PerformanceGesture, person: Person | null): void {
@@ -353,8 +361,39 @@ export class NeedleProcedure {
 
   private placeHand(hand: ArticulatedHand, person: Person, side: "left" | "right", contact: Vector3, axis: Vector3, reach: number, anchor: HandContact, roll = 0, surface = false): void {
     const contactLocal = hand.contact(anchor), wristLocal = hand.wrist();
-    const orientation = surface ? surfaceHandOrientation(contactLocal, wristLocal, hand.contactNormal(anchor), contact, axis, person.shoulderAt(side))
+    let orientation = surface ? surfaceHandOrientation(contactLocal, wristLocal, hand.contactNormal(anchor), contact, axis, person.shoulderAt(side))
       : handOrientation(contact, axis, person.shoulderAt(side), roll);
+    const patient = this.patient();
+    if (patient && hand.contactValid) {
+      const base = orientation.clone(), normal = axis.clone().normalize();
+      const fits = (angle: number) => {
+        const candidate = new Quaternion().setFromAxisAngle(normal, angle).multiply(base);
+        hand.root.quaternion.copy(candidate);
+        hand.root.position.copy(contact).sub(contactLocal.clone().applyQuaternion(candidate));
+        return !this.clearance.intersects(hand.model, patient);
+      };
+      const preferred = this.clearanceRoll.get(hand) ?? 0;
+      let selected: number | null = fits(preferred) ? preferred : preferred !== 0 && fits(0) ? 0 : null;
+      if (selected === null) {
+        // Whole-wrist pronation preserves shaft alignment and every local skin contact. Search a
+        // small authored range; never rotate an IP joint or alter the patient's needle to gain space.
+        for (const degrees of [-15, -30, -45, 15, 30, 45]) {
+          const end = degrees * Math.PI / 180;
+          if (!fits(end)) continue;
+          let blocked = end - Math.sign(end) * Math.PI / 12, clear = end;
+          for (let i = 0; i < 5; i++) {
+            const middle = (blocked + clear) / 2;
+            if (fits(middle)) clear = middle; else blocked = middle;
+          }
+          selected = clear;
+          break;
+        }
+      }
+      if (selected !== null) {
+        orientation = new Quaternion().setFromAxisAngle(normal, selected).multiply(base);
+        this.clearanceRoll.set(hand, selected);
+      } else this.clearanceRoll.delete(hand);
+    }
     const wristOffset = wristLocal.sub(contactLocal).applyQuaternion(orientation);
     const desiredWrist = contact.clone().add(wristOffset);
     person.reach(side, desiredWrist, reach, orientation);
@@ -365,17 +404,21 @@ export class NeedleProcedure {
   private settleHands(person: Person): void {
     const unreachable: string[] = [];
     const invalidContacts: string[] = [];
+    const blocked: string[] = [];
     for (const placement of this.placements) {
       const { hand, side, desiredWrist, orientation, reach } = placement;
       const result = person.reach(side, desiredWrist, reach, orientation);
       hand.root.position.copy(result.wrist).sub(hand.wrist().applyQuaternion(orientation));
       hand.root.quaternion.copy(orientation);
-      hand.root.visible = hand.contactValid && person.holder.visible && reach > 0.02 && (result.reachable || reach < 0.99);
+      const lacksSpace = hand.contactValid && this.clearance.intersects(hand.model, this.patient());
+      hand.root.visible = hand.contactValid && !lacksSpace && person.holder.visible && reach > 0.02 && (result.reachable || reach < 0.99);
       if (reach >= 0.99 && !result.reachable) unreachable.push(side);
       if (reach >= 0.99 && !hand.contactValid) invalidContacts.push(side);
+      if (reach > 0.02 && lacksSpace) blocked.push(side);
     }
     this.reachWarning = invalidContacts.length
       ? "手型无法自然贴合针柄；请调整持针方式或手法参数。 · This hand pose cannot maintain a natural grip; adjust the grip or technique."
+      : blocked.length ? "当前示意手型空间不足，已隐藏相交的细节手模型；针位和临床参数保持不变。 · This schematic hand lacks clearance; the intersecting detail hand is hidden."
       : unreachable.length ? `Move closer: the ${unreachable.join(" and ")} hand cannot reach the selected contact.` : null;
   }
 
@@ -405,6 +448,7 @@ export class NeedleProcedure {
 
   private clearHands(): void {
     this.placements = [];
+    this.clearanceRoll.clear();
     this.reachWarning = null;
     this.actor?.faceToward?.(null);
     this.actor?.reach("left", null);

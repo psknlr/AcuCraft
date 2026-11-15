@@ -52,7 +52,7 @@ Compound sequences reorganize the same deterministic motor primitives; their pha
   "motion": {
     "durationMs": 3200,
     "cycles": 4,
-    "grip": "three-finger",
+    "grip": "two-finger",
     "support": "none",
     "hand": "right",
     "gripApertureMm": 2,
@@ -73,13 +73,15 @@ For an LLM/MCP tool call, omit `type` and use the tool name `perform_technique`;
 | `tiltDeg` | 0–8° | External shaft/handle tilt, not internal-tip redirection |
 | `tempoBias` | 0.2–0.8 | Relative timing of the two parts of a movement cycle |
 | `direction` | `alternating`, `clockwise`, `counterclockwise` | Primary visual excursion direction in the needle's local frame; each cycle returns to rest |
-| `grip` | `two-finger`, `three-finger` | Primary-hand grip configuration |
+| `grip` | `two-finger`, `three-finger` | Thumb/index holding by default; optional middle-finger support |
 | `support` | `none`, `stabilize`, `stretch`, `pinch`, `press` | Supporting-hand contact pattern |
 | `hand` | `auto`, `left`, `right` | Primary hand selection |
 | `gripApertureMm` | 0–12 mm | Approach/release opening, with minimum disengagement clearance; held fingers fit the actual handle |
 | `contactIntensity` | 0–1 | Normalized cosmetic contact intensity; no unit of force |
 
 Defaults and relevant controls differ by technique. Read them from the catalogue rather than assuming every setting visibly affects every primitive. None of these bounds is a clinical dose or an anatomical limit.
+
+All retained-needle entries default to thumb/index holding. Choosing three-finger support explicitly adds the middle finger beside that primary pair; it does not replace the index finger. Fei and compound phase transitions preserve the chosen grip. In the authored Gua/Tan variants, thumb/index retain the handle while the middle nail supplies the active scraping or flicking contact; that temporary third contact is distinct from a static three-finger hold.
 
 For a compound performance, its total duration is divided among the catalogue's explicit phases and each phase receives the selected cycle count. Direction labels do not imply accumulated tissue torque or a validated one-way rolling model; rotation remains a bounded excursion that settles at the phase boundary.
 
@@ -99,7 +101,7 @@ The manipulation panel selects a target and technique, exposes the applicable pa
 
 Local playback supports pause, speed adjustment and preview seeking. Valid parameter edits update an active preview in place while retaining its normalized progress, pause state and speed; changing the target or technique cancels that preview. Recorded performances retain their accepted parameter values; their clinical record is not rewound by playback controls. A newer authoritative state cancels an obsolete preview, and a recorded gesture takes precedence over starting a new local preview.
 
-The hand controller uses the Blender rig's moving pad/nail anchors, separate finger poses, grip changes and supporting-hand contacts. During needle holding, the opposing finger pads meet the actual handle surface; `gripApertureMm` controls opening during approach and release rather than allowing the fingers to float apart around a held needle. A three-finger grip gives the middle finger its own contact beside the handle. Scraping and flicking retain the stabilizing contacts while the active index finger follows its own nail-contact or release path; moving that finger does not translate the whole hand along the handle.
+The hand controller uses the Blender rig's moving pad/nail anchors, separate finger poses, grip changes and supporting-hand contacts. During needle holding, the opposing thumb/index pads meet the actual handle surface; `gripApertureMm` controls opening during approach and release rather than allowing the fingers to float apart around a held needle. An explicitly chosen three-finger grip adds middle-finger side support. Scraping and flicking keep thumb/index on the handle while the middle nail follows its active contact/release path.
 
 The pure `sampleTechnique` output separates `gripEngagement` (local thumb/index contact, independent of approach/release) from the legacy `grip` envelope. A renderer that already supplies approach, grasp, release and retreat timing applies its envelope once and uses `gripEngagement` only for intentional local changes such as Fei. Normal holding remains engaged at motion endpoints and compound phase boundaries, avoiding an extra open/close jump as the manipulation starts or stops.
 
