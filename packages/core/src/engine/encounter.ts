@@ -17,7 +17,7 @@ import { ActionRequestSchema, type Action, type ActionRequest, type ActionReques
 import { PositionSchema, type ChartPoint, type Position, type Side } from "../schema/common.js";
 import type { AcupointDefinition } from "../schema/knowledge.js";
 import type { UnsafeCode } from "../schema/field.js";
-import { ENCOUNTER_SCHEMA_ID, type AttemptRecord, type EncounterState, type Mode, type NeedleState, type Protection, type TaskState, type Violation } from "../schema/state.js";
+import { ENCOUNTER_SCHEMA_ID, type AttemptRecord, type EncounterState, type ManipulationPerformance, type Mode, type NeedleState, type Protection, type TaskState, type Violation } from "../schema/state.js";
 import { assessPath, patientRegion, pointInstance, pointTargets, regionAccess, type PathAssessment, type PatientRegion } from "./anatomy.js";
 import { addEvidence, describeGrasp, describeSensation, DEQI_THRESHOLD, evidenceById, needleEvidence, needleResponse, patternSupport, recordEvidenceId, showsDeqi, STRONG_RESPONSE } from "./evidence.js";
 import { checkInvariants } from "./invariants.js";
@@ -65,6 +65,8 @@ import { atFixture, atFixtureOfKind, nearActor, patientBody, patientContact, pat
 import { ARM_REACH_M, CONTACT_RANGE_M, distanceToArea, fixtureReach, planWalk, seesArea, spotsNear } from "./world.js";
 import { detectClaims, detectCommitment, detectTopics, questionCount, type Claim } from "./text.js";
 import { clone } from "./util.js";
+import { techniqueStimulus } from "./techniques.js";
+import { manipulationTechnique, resolveManipulationMotion } from "./performance.js";
 
 /**
  * The encounter engine: `createEncounter` and `step`. Pure — `step` never mutates its input and returns a new state.
@@ -1575,7 +1577,7 @@ const HANDLERS: HandlerMap = {
     }
     pushNeedleEvent(s, n.id, ctx.actor.id, "adjusted", `${fmt(path.executedDepthCm)} cm, ${a.technique}`);
     const before = n.response;
-    n.response = needleResponse(sc, s, n, path, a.technique === "none" ? null : a.technique);
+    n.response = needleResponse(sc, s, n, path, techniqueStimulus(a.technique));
     consequences(ctx, n, path);
     if (a.technique !== "none") {
       // working the needle tells the operator how the tissue holds it: evidence of this needle's response
@@ -1592,6 +1594,88 @@ const HANDLERS: HandlerMap = {
     ctx.out.target = `needle:${n.id}`;
     ctx.out.detail = `${n.id} to ${fmt(path.executedDepthCm)} cm (${a.technique})`;
     ctx.out.cost = 0.5;
+  },
+  perform_technique(ctx, a) {
+    const { s } = ctx;
+    const definition = manipulationTechnique(a.technique);
+    if (!definition) throw new Rejection("unknown-technique", `Unknown manipulation ${a.technique}: read lookup techniques.`);
+    const blockers: Protection[] = [];
+    if (definition.context !== "removed" && s.patient.fainted) {
+      addUnsafe(ctx, "continued-after-adverse-event");
+      blockers.push({ by: "simulation-guard", kind: "guard", reason: "the patient is unwell: attend to them" });
+    }
+    if (definition.context !== "removed" && !consentCovers(s)) {
+      if (s.patient.consent.status === "withdrawn") addUnsafe(ctx, "insertion-after-consent-withdrawn");
+      else addUnsafe(ctx, "insertion-without-consent");
+      blockers.push({ by: "simulation-guard", kind: "guard", reason: "obtain consent to the current plan before a technique performance" });
+    }
+    if (definition.context !== "removed" && s.stopped?.visit === visitIndex(s)) {
+      addUnsafe(ctx, "continued-after-adverse-event");
+      blockers.push({ by: "simulation-guard", kind: "guard", reason: "treatment is stopped: attend to the patient" });
+    }
+    blockIf(ctx, blockers, "Technique performance stopped");
+
+    let region: string;
+    let side: Side;
+    let entry: ChartPoint;
+    let needleId: string | null = null;
+    if (definition.context === "retained" || definition.context === "removed" || a.needleId) {
+      const n = a.needleId ? s.needles[a.needleId] : null;
+      if (!n) throw new Rejection("unknown-id", "Give a needleId from this encounter for this technique.");
+      if (!n.insertion || n.insertion.visit !== visitIndex(s)) throw new Rejection("wrong-visit", `${n.id} was not inserted in this visit.`);
+      if (definition.context === "retained" && n.location.kind !== "patient") throw new Rejection("not-inserted", `${n.id} is not retained in the patient.`);
+      if (definition.context === "removed" && (n.location.kind === "patient" || !n.removedBy || !n.events.some((event) => event.what === "withdrawn"))) {
+        throw new Rejection("not-removed", `${n.id} must have been withdrawn in this visit before this post-removal technique.`);
+      }
+      const placement = n.location.kind === "patient" ? n.location : n.insertion;
+      ({ region, side } = placement);
+      entry = { ...placement.entry };
+      needleId = n.id;
+      if ((a.region && a.region !== region) || (a.side && a.side !== side) || (a.at && (Math.abs(a.at.u - entry.u) > 1e-6 || Math.abs(a.at.v - entry.v) > 1e-6))) {
+        throw new Rejection("target-mismatch", "The supplied chart target does not match the needle's executed site.");
+      }
+      if (a.mark) {
+        const mark = s.marks[a.mark];
+        if (!mark || mark.visit !== visitIndex(s) || mark.stale || mark.region !== region || mark.side !== side || Math.hypot(mark.position.u - entry.u, mark.position.v - entry.v) > 1e-6) {
+          throw new Rejection("target-mismatch", "The supplied mark does not match the needle's current executed site.");
+        }
+      }
+    } else if (a.mark) {
+      const mark = s.marks[a.mark];
+      if (!mark || mark.visit !== visitIndex(s)) throw new Rejection("unknown-id", `There is no mark ${a.mark} in this visit.`);
+      if (mark.stale) throw new Rejection("stale-mark", "This mark was made in another patient position: localise it again before contact.");
+      ({ region, side } = mark);
+      entry = { ...mark.position };
+      if ((a.region && a.region !== region) || (a.side && a.side !== side) || (a.at && (a.at.u !== entry.u || a.at.v !== entry.v))) {
+        throw new Rejection("target-mismatch", "The supplied chart target conflicts with the selected mark.");
+      }
+    } else {
+      if (!a.region || !a.side || !a.at) throw new Rejection("invalid", "Give a current mark, a needleId, or a region, side and explicit chart position.");
+      region = a.region;
+      side = a.side;
+      entry = { ...a.at };
+    }
+    const frame = regionFrame(ctx, region, side);
+    if (!frame.inChart(entry)) throw new Rejection("off-chart", `${at2(entry)} is outside the ${frame.region.title} chart.`);
+    atSite(ctx, region, side);
+    const motion = resolveManipulationMotion(a.technique, a.motion);
+    const touchesSkin = definition.context !== "retained" || motion.support !== "none";
+    if (touchesSkin) {
+      touchSite(ctx, region, side, `${definition.zh} (${definition.id}) performance`);
+      soil(s, ctx.actor);
+    }
+    const performance: ManipulationPerformance = {
+      id: `performance-${s.attempts.length}`, requestId: ctx.req.requestId, attempt: s.attempts.length - 1, at: now(s), visit: visitIndex(s), actor: ctx.actor.id,
+      technique: definition.id, context: definition.context, needleId, site: { region, side, u: entry.u, v: entry.v },
+      patientPosition: s.patient.position, motion,
+      provenance: { kind: "illustrative", source: "acucraft-authored-demonstration-v1", review: "unreviewed", forces: "not-modelled" },
+    };
+    (s.performances ??= []).push(performance);
+    ctx.out.target = needleId ? `needle:${needleId}` : `${region}:${side}`;
+    ctx.out.detail = `${definition.zh} (${definition.label}) at ${region} ${side}; ${motion.durationMs} ms, ${motion.cycles} cycle(s); illustrative choreography`;
+    observe(ctx, `Recorded ${performance.id}: ${ctx.out.detail}. Needle depth and clinical response are unchanged; displayed contact intensity is not measured force.`);
+    // Presentation time is independent of the clinical clock; no invented treatment dose or physiological effect.
+    ctx.out.cost = 0;
   },
   check_sensation(ctx, a) {
     const { s } = ctx;

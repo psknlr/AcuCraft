@@ -1,4 +1,4 @@
-import { Raycaster, Vector2, Vector3 } from "three";
+import { Plane, Raycaster, Vector2, Vector3 } from "three";
 import { Director, type Shot } from "./director.js";
 import { Engine } from "./engine.js";
 import { Hud } from "./hud.js";
@@ -7,6 +7,11 @@ import { Person, patientAppearance, patientPlacement, practitionerAppearance, pr
 import { buildSets, CONSULT, TREATMENT, type ModelRef } from "./set.js";
 import { SiteFinder, siteOfInsertion, type SkinSite } from "./sites.js";
 import { refineSkin } from "./skin.js";
+import { floorFrame, fromStageFloor, patientEscortArrival, patientRoomView, practitionerFloorPlacement, toStageFloor } from "./navigation.js";
+import { NeedleProcedure } from "./procedure.js";
+import { PerformTechniqueSchema, manipulationTechnique, type NeedleTechnique, type NeedleMotionSettings } from "@acucraft/core";
+import type { TechniquePlayback, TechniquePreview } from "../manipulation.js";
+import { previewSite } from "./performance-target.js";
 import type { AgentView, CameraMode, ChartSite, Quality, StageInfo, StageState, TimelineEntry } from "./types.js";
 
 /**
@@ -20,6 +25,9 @@ export interface StageOptions {
   quality?: Quality | "auto";
   /** A needle was picked in the view (null: none). */
   onPick?: (needle: string | null) => void;
+  /** Shift-click a floor destination: the host submits it through the authoritative movement tool. */
+  onMove?: (to: { x: number; z: number }) => void;
+  onPlayback?: (state: TechniquePlayback) => void;
   /** The file of a model of the clinic's equipment, as a URL. */
   modelUrl?: (file: string) => string;
 }
@@ -28,6 +36,10 @@ export interface StageHandle {
   update(state: StageState): void;
   /** Highlight a needle (as when its row in the record is hovered). */
   highlight(needle: string | null): void;
+  /** A local, clearly labelled preview; it never submits an encounter action. */
+  previewTechnique(request: TechniquePreview): void;
+  setPlayback(state: { paused?: boolean; speed?: number; progress?: number }): void;
+  cancelPreview(): void;
   dispose(): void;
 }
 
@@ -64,6 +76,10 @@ function describe(e: TimelineEntry, view: AgentView): string {
       return `inserts ${s("needleId")} ${s("mark") ? `at ${s("mark")}` : s("target") ? `at ${sideWord(s("target"))}` : ""} · ${Number(i.depthCm ?? 0).toFixed(1)} cm`;
     case "adjust_needle":
       return `works ${s("needleId")}${s("technique") && s("technique") !== "none" ? ` (${s("technique")})` : ""}`;
+    case "perform_technique": {
+      const technique = manipulationTechnique(s("technique"));
+      return `${technique?.zh ?? s("technique")} · ${technique?.label ?? "technique"}`;
+    }
     case "mark_point":
       return `marks ${sideWord(s("target") || s("point"))}`;
     case "position_patient":
@@ -133,7 +149,14 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
   let practitioner: Person | null = null;
   let finder: SiteFinder | null = null;
   let placed = "";
+  let patientAtKey = "";
+  let patientWalkedAttempt = -1;
+  let patientArrival: (() => void) | null = null;
   let staffKey = "";
+  let staffAtKey = "";
+  let walkedAttempt = -1;
+  const seenPerformances = new Set<string>();
+  let previewSequence = 0;
   let set: SetName = "consult";
   let state: StageState | null = null;
   let seenEntries = 0;
@@ -143,6 +166,19 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
   let picked: string | null = null;
   const subtitles: { who: string; text: string; patient: boolean }[] = [];
   let speakingUntil = 0;
+
+  const procedure = new NeedleProcedure(needles, () => practitioner, (id) => {
+    const site = needles.siteOf(id);
+    if (site) director.cut({ ...director.closeOn(site.p, site.n, 0.46), hold: 4000 }, 650);
+  });
+  procedure.onPlayback = (playback) => {
+    hud.performance(playback);
+    options.onPlayback?.(playback);
+  };
+  engine.scene.add(procedure.group);
+  void procedure.load(modelUrl("acu-practitioner-hand.glb"), String(info.practitioner.appearance.skin ?? "#cba88a")).catch(() => {
+    // Needles and arm reach remain available if the optional detail asset cannot load.
+  });
 
   const setCentre = () => (set === "treatment" ? new Vector3(TREATMENT.couch.x, 0, TREATMENT.couch.z) : new Vector3(CONSULT.desk.x, 0, CONSULT.desk.z));
   function roomShot(): Shot {
@@ -195,6 +231,8 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
   const ray = new Raycaster();
   const mouse = new Vector2();
   const canvas = engine.renderer.domElement;
+  canvas.tabIndex = 0;
+  canvas.setAttribute("aria-label", "3D clinic. Shift-click the floor to walk; drag to orbit.");
   let down: { x: number; y: number } | null = null;
   canvas.addEventListener("pointerdown", (e) => (down = { x: e.clientX, y: e.clientY }));
   canvas.addEventListener("pointerup", (e) => {
@@ -202,6 +240,11 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
     const r = canvas.getBoundingClientRect();
     mouse.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
     ray.setFromCamera(mouse, engine.camera);
+    if (e.shiftKey && state && !state.closed && options.onMove) {
+      const point = ray.ray.intersectPlane(new Plane(new Vector3(0, 1, 0), 0), new Vector3());
+      if (point) options.onMove(fromStageFloor(state.view, point));
+      return;
+    }
     pick(needles.pick(ray));
   });
 
@@ -215,17 +258,53 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
     window.setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   }
 
-  /** The patient as the record has them now: rebuilt (and every site found again) when their position or room changes. */
+  /** Standing movement follows the patient's real floor position; sanctioned changes of pose rebuild the figure. */
   function castPatient(view: AgentView, animate: boolean): boolean {
+    const patientView = patientRoomView(view);
+    const frame = floorFrame(patientView);
     const placement: Placement = patientPlacement(view.patient.position, view.patient.location, info.patient.heightCm, info.patient.seed);
-    const key = `${placement.set}|${placement.position}`;
-    if (key === placed) return false;
+    if (view.patient.position === "standing") Object.assign(placement.at, toStageFloor(patientView, view.space.patient));
+    const key = `${placement.set}|${placement.position}|${frame.origin.x}|${frame.origin.z}|${frame.rotation}`;
+    const atKey = `${placement.at.x}|${placement.at.z}|${placement.at.rot}`;
+    const walk = view.space.lastWalk;
+    const arrival = animate && walk?.attempt !== patientWalkedAttempt ? patientEscortArrival(view) : [];
+    patientWalkedAttempt = walk?.attempt ?? -1;
+    if (key === placed && patient && arrival.length < 2) {
+      if (placement.position === "standing" && atKey !== patientAtKey) {
+        patient.moveTo(placement.at, undefined, animate);
+        engine.invalidate(45);
+      }
+      patientAtKey = atKey;
+      return false;
+    }
     placed = key;
-    if (animate) hud.dip();
+    patientAtKey = atKey;
+    patientArrival = null;
+    procedure.reset();
     patient?.dispose();
-    patient = new Person(patientAppearance(info), placement);
-    engine.scene.add(patient.holder);
-    finder = new SiteFinder(patient.rig);
+    const install = (next: Placement) => {
+      patient = new Person(patientAppearance(info), next);
+      engine.scene.add(patient.holder);
+      finder = new SiteFinder(patient.rig);
+      engine.invalidate(45);
+    };
+    if (arrival.length >= 2 && !view.needling.some((n) => n.inPlace)) {
+      // The route belongs to the escorting actor. Draw the shared arrival route, then the recorded seated pose.
+      const first = arrival[0]!, end = arrival[arrival.length - 1]!;
+      const standing = patientPlacement("standing", view.patient.location, info.patient.heightCm, info.patient.seed);
+      standing.at = { ...standing.at, ...first };
+      install(standing);
+      patient!.moveTo({ ...standing.at, ...end }, arrival, true);
+      patientArrival = () => {
+        patientArrival = null;
+        if (placement.position !== "standing") hud.dip();
+        patient?.dispose();
+        install(placement);
+      };
+    } else {
+      if (animate) hud.dip();
+      install(placement);
+    }
     needles.clear();
     seenRecorded = new Map();
     if (set !== placement.set) {
@@ -237,32 +316,48 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
   }
 
   /** The practitioner, beside the couch on the side being worked (or at the desk). */
-  function castPractitioner(site: SkinSite | null): void {
-    const c = setCentre();
-    const side: 1 | -1 = site ? (site.p.x - c.x >= -0.03 ? 1 : -1) : practitioner && practitioner.placement.set === set ? (Math.sign(practitioner.placement.at.x - c.x) as 1 | -1) || 1 : 1;
-    const along = site ? site.p.z - c.z + 0.1 : 0.05;
-    const placement = practitionerPlacement(set, side, Math.round(along * 4) / 4, info.practitioner.seed);
-    const key = `${placement.set}|${placement.at.x.toFixed(2)}|${placement.at.z.toFixed(2)}`;
-    if (key === staffKey) return;
-    staffKey = key;
-    practitioner?.dispose();
-    practitioner = new Person(practitionerAppearance(info), placement);
-    engine.scene.add(practitioner.holder);
+  function castPractitioner(view: AgentView, animate: boolean): void {
+    const placement = practitionerFloorPlacement(view, info.practitioner.seed);
+    placement.options.wear = practitionerPlacement("treatment", 1, 0, info.practitioner.seed).options.wear;
+    const frame = floorFrame(view);
+    const key = `${placement.set}|${frame.origin.x}|${frame.origin.z}|${frame.rotation}`;
+    const atKey = `${placement.at.x}|${placement.at.z}|${placement.at.rot}`;
+    if (key !== staffKey || !practitioner) {
+      procedure.reset();
+      staffKey = key;
+      practitioner?.dispose();
+      practitioner = new Person(practitionerAppearance(info), placement);
+      engine.scene.add(practitioner.holder);
+    } else if (atKey !== staffAtKey) {
+      const walk = view.space.lastWalk;
+      const path = walk && walk.attempt !== walkedAttempt ? walk.path.map((p) => toStageFloor(view, p)) : undefined;
+      practitioner.moveTo(placement.at, path, animate);
+    }
+    staffAtKey = atKey;
+    walkedAttempt = view.space.lastWalk?.attempt ?? -1;
+    if (set !== placement.set) {
+      set = placement.set;
+      const c = setCentre();
+      engine.lightSet(c.x, c.z);
+      if (animate) director.cut(roomShot(), 1100);
+    }
+    practitioner.holder.visible = /consult|treat|couch|bay/.test(view.space.you.room);
   }
 
   function sync(next: StageState, animate: boolean): void {
     const view = next.view;
     engine.invalidate(45);
     const moved = castPatient(view, animate);
+    castPractitioner(view, animate && !moved);
     const plans = needlePlans(next.timeline, view.localisation.marks);
     const length = needleLength(view);
     const specs: NeedleSpec[] = [];
     for (const n of view.needling) {
       if (!n.inPlace) continue;
       const plan = plans.get(n.needle);
-      const site = plan && finder ? finder.find(plan.site) : null;
-      if (!plan || !site) continue;
-      specs.push({ id: n.needle, target: plan.target || n.target, site, angleDeg: plan.angleDeg, azimuthDeg: plan.azimuthDeg, depthCm: plan.depthCm, length });
+      const site = finder ? finder.find(n.placement ?? plan?.site ?? { region: "", side: "", u: 0, v: 0 }) : null;
+      if (!site || (!plan && !n.placement)) continue;
+      specs.push({ id: n.needle, target: plan?.target || n.target, site, angleDeg: n.placement?.angleDeg ?? plan!.angleDeg, azimuthDeg: n.placement?.azimuthDeg ?? plan!.azimuthDeg, depthCm: n.placement?.depthCm ?? plan!.depthCm, length: n.placement ? n.placement.lengthMm / 1000 : length });
     }
     needles.sync(specs, performance.now(), animate && !moved);
     const marks: { id: string; site: SkinSite; stale: boolean }[] = [];
@@ -281,10 +376,22 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
       hud.action(byText(e.by), e.by.kind, describe(e, view), e.status);
       const id = typeof e.input.needleId === "string" ? e.input.needleId : null;
       if (e.tool === "insert_needle" && id && (e.status === "executed" || e.status === "partial")) {
+        if (e.input.presentation && typeof e.input.presentation === "object") procedure.setInsertionPresentation(id, e.input.presentation);
         lastNeedle = id;
         focus = needles.siteOf(id) ?? focus;
       }
-      if (e.tool === "adjust_needle" && id && typeof e.input.technique === "string" && e.input.technique !== "none") needles.work(id, e.input.technique as "lift-thrust" | "rotate", performance.now());
+      if (e.tool === "adjust_needle" && id && (e.status === "executed" || e.status === "partial")) procedure.work(id, (e.input.technique ?? "none") as NeedleTechnique, e.input.motion as NeedleMotionSettings | undefined);
+      if (e.tool === "perform_technique" && e.status === "executed") {
+        const performance = view.performances?.find((p) => p.requestId === e.requestId);
+        if (performance && !seenPerformances.has(performance.id)) {
+          seenPerformances.add(performance.id);
+          const site = performance.patientPosition === view.patient.position && performance.visit === view.setting.visit && performance.actor === view.you.id ? finder?.find(performance.site) : null;
+          if (site) {
+            procedure.perform({ id: performance.id, technique: performance.technique, needleId: performance.needleId ?? undefined, site, motion: performance.motion });
+            focus = site;
+          }
+        }
+      }
       if (e.tool === "mark_point" && (e.status === "executed" || e.status === "partial")) {
         const last = view.localisation.marks[view.localisation.marks.length - 1];
         const site = last && finder ? finder.find({ region: last.region, side: last.side, u: last.u, v: last.v }) : null;
@@ -306,8 +413,9 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
       for (const u of lines.slice(seenLines)) if (u.speaker !== view.you.name) subtitles.push({ who: u.speaker, text: u.text, patient: u.speaker === view.patient.name });
     }
     seenLines = lines.length;
+    for (const performance of view.performances ?? []) seenPerformances.add(performance.id);
 
-    castPractitioner(lastNeedle ? needles.siteOf(lastNeedle) : focus);
+    procedure.sync();
     if (moved && animate) director.cut(patientShot(), 1500);
     else if (focus && animate) director.cut(director.closeOn(focus.p, focus.n), 1200);
     hud.status({
@@ -345,14 +453,18 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
   engine.start((dt, now) => {
     nextSubtitle(now);
     patient?.tick(now, dt);
-    practitioner?.tick(now, dt);
+    if (patient?.isMoving) engine.invalidate(2);
+    else patientArrival?.();
     needles.tick(dt, now);
+    procedure.tick(now);
+    practitioner?.tick(now, dt);
+    if (practitioner?.isMoving || procedure.playback.mode !== "idle") engine.invalidate(2);
     director.update();
     // (the labels are placed with this frame's camera, not the last one's: no swimming while it moves)
     engine.camera.updateMatrixWorld();
     engine.focus(director.focusDistance);
     const r = host.getBoundingClientRect();
-    hud.place(needles.anchors(), engine.camera, r.width, r.height);
+    hud.place(needles.anchors(), engine.camera, r.width, r.height, procedure.group.visible);
   });
   sets.ready.then(
     () => {
@@ -365,6 +477,7 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
   return {
     update(next: StageState) {
       const first = state === null;
+      if (state && state.view.version !== next.view.version) procedure.stopPreview();
       state = next;
       sync(next, !first);
       if (first) {
@@ -379,11 +492,26 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
       picked = id;
       needles.highlight(id);
     },
+    previewTechnique(request) {
+      if (!state || !finder || !practitioner) throw new Error("3D 场景尚未就绪 · The 3D scene is not ready.");
+      const parsed = PerformTechniqueSchema.safeParse({ ...request, type: "perform_technique" });
+      if (!parsed.success) throw new Error(`参数无效 · Invalid technique parameters: ${parsed.error.issues.map((issue) => issue.path.join(".") + ": " + issue.message).join("; ")}`);
+      const target = previewSite(state.view, parsed.data);
+      const site = finder.find(target);
+      if (!site || !site.bare) throw new Error("当前图形未显示此处裸露皮肤，请选择可见标记 · Choose a site on the visible skin.");
+      if (!procedure.preview({ id: `preview-${++previewSequence}`, technique: parsed.data.technique, needleId: parsed.data.needleId, site, motion: parsed.data.motion })) throw new Error("请等待当前动作完成，再开始预览 · Wait for the current recorded action or walk to finish.");
+      director.cut({ ...director.closeOn(site.p, site.n, 0.5), hold: 60_000 }, 650);
+      engine.invalidate(45);
+    },
+    setPlayback(playback) { procedure.setPlayback(playback); engine.invalidate(3); },
+    cancelPreview() { procedure.stopPreview(); engine.invalidate(3); },
     dispose() {
+      patientArrival = null;
       engine.dispose();
       director.dispose();
       patient?.dispose();
       practitioner?.dispose();
+      procedure.dispose();
       hud.root.remove();
     },
   };

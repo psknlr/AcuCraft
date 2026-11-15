@@ -1,5 +1,7 @@
 import { api, type EncounterSnapshot, type Info, type StageInfo } from "./api.js";
 import { h, replace } from "./dom.js";
+import { navigationControls } from "./navigation.js";
+import { manipulationControls, type TechniquePlayback, type TechniquePreview } from "./manipulation.js";
 
 /**
  * The 3D view's place on the record page: a card that loads the view (`/app/stage.js`, bundled by the server
@@ -11,10 +13,13 @@ import { h, replace } from "./dom.js";
 interface StageHandle {
   update(state: { view: EncounterSnapshot["view"]; timeline: EncounterSnapshot["timeline"]; agent: string | null; closed: boolean }): void;
   highlight(needle: string | null): void;
+  previewTechnique(request: TechniquePreview): void | Promise<void>;
+  setPlayback(state: { paused?: boolean; speed?: number; progress?: number }): void;
+  cancelPreview(): void;
   dispose(): void;
 }
 interface StageModule {
-  mountStage(host: HTMLElement, info: StageInfo, options?: { onPick?: (needle: string | null) => void; quality?: string }): Promise<StageHandle>;
+  mountStage(host: HTMLElement, info: StageInfo, options?: { onPick?: (needle: string | null) => void; onMove?: (to: { x: number; z: number }) => void; onPlayback?: (state: TechniquePlayback) => void; quality?: string }): Promise<StageHandle>;
 }
 
 let loading: Promise<StageModule> | null = null;
@@ -42,9 +47,18 @@ export interface StageCard {
 }
 
 export function stageCard(id: string, info: Info, onPick: (needle: string | null) => void): StageCard {
+  const navigation = navigationControls(id);
   const host = h("div", { class: "stage", tabindex: "-1" });
-  const el = h("section", { class: "card stage-card", "aria-label": "3D view of the encounter" }, host);
   let handle: StageHandle | null = null;
+  const manipulation = manipulationControls(id, {
+    preview: (request) => {
+      if (!handle) throw new Error("3D 场景尚未就绪 · The 3D scene is not available yet.");
+      return handle.previewTechnique(request);
+    },
+    playback: (state) => handle?.setPlayback(state),
+    cancelPreview: () => handle?.cancelPreview(),
+  });
+  const el = h("section", { class: "card stage-card", "aria-label": "3D view of the encounter" }, host, manipulation.el, navigation.el);
   let pending: EncounterSnapshot | null = null;
   let gone = false;
   const say = (text: string) => replace(host, h("div", { class: "stage-off" }, h("p", null, text)));
@@ -58,7 +72,7 @@ export function stageCard(id: string, info: Info, onPick: (needle: string | null
         if (gone) return;
         // `?quality=high|medium|low` fixes the rendering quality (by default it follows the frame rate)
         const quality = new URLSearchParams(location.search).get("quality");
-        handle = await mod.mountStage(host, stage, { onPick, ...(quality && ["high", "medium", "low"].includes(quality) ? { quality } : {}) });
+        handle = await mod.mountStage(host, stage, { onPick, onMove: (to) => void navigation.move(to), onPlayback: (state) => manipulation.playback(state), ...(quality && ["high", "medium", "low"].includes(quality) ? { quality } : {}) });
         if (gone) return handle.dispose();
         if (pending) feed(pending);
       } catch (e) {
@@ -69,6 +83,8 @@ export function stageCard(id: string, info: Info, onPick: (needle: string | null
     el,
     update(snapshot) {
       pending = snapshot;
+      navigation.update(snapshot.view, snapshot.summary.status !== "open");
+      manipulation.update(snapshot);
       feed(snapshot);
     },
     highlight(needle) {
@@ -76,6 +92,8 @@ export function stageCard(id: string, info: Info, onPick: (needle: string | null
     },
     dispose() {
       gone = true;
+      navigation.dispose();
+      manipulation.dispose();
       handle?.dispose();
       handle = null;
     },

@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, describe, expect, it } from "vitest";
 import { digest, replayLog } from "@acucraft/core";
-import { referenceAgent } from "@acucraft/agent";
+import { oracleProvider, referenceAgent } from "@acucraft/agent";
 import { loadContentPack, requireScenario, runEpisode } from "@acucraft/bench";
 import { McpServer } from "@acucraft/mcp";
 import { operator, RecordHub, type HubEvent } from "./hub.js";
@@ -102,6 +102,19 @@ describe("a live record", () => {
 });
 
 describe("the server's language model on a record", () => {
+  it.each(["openai", "minimax"] as const)("runs %s through the shared guarded encounter loop with model attribution", async (provider) => {
+    const scenario = requireScenario(pack, "sg-knee-oa/hot-knee");
+    const hub = new RecordHub({ pack, runner: { providerOverride: oracleProvider(scenario.field.solution, { batch: 2 }) } });
+    const id = started(hub, { family: "sg-knee-oa", variant: 3 });
+    expect(hub.agent(id, "start", { provider, model: "test-tool-model" }, ann).status).toBe(200);
+    await hub.settle();
+    const snap = hub.snapshot(id)!;
+    expect(snap.agent).toMatchObject({ state: "finished", provider });
+    expect(snap.summary).toMatchObject({ status: "finished", outcome: "success" });
+    expect(snap.timeline.length).toBeGreaterThan(5);
+    expect(snap.timeline.every((e) => e.by.kind === "llm" && e.by.name.includes(provider === "openai" ? "GPT" : "MiniMax"))).toBe(true);
+  });
+
   it("plays the encounter through to the end, each action applied as it is made and attributed to it", async () => {
     const hub = new RecordHub({ pack, runner: { pace: 0 } });
     const agentEvents: HubEvent[] = [];

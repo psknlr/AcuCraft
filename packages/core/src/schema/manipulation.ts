@@ -1,0 +1,50 @@
+import { z } from "zod";
+import { ChartPointSchema, IdSchema, SideSchema } from "./common.js";
+
+/** Stable catalogue IDs. Chinese names are metadata, so identically romanized terms remain unambiguous. */
+export const MANIPULATION_TECHNIQUE_IDS = [
+  "chuai", "zhua", "xun", "she", "yao", "pan", "nian", "cuo", "jin", "tui-withdraw", "ti", "cha",
+  "gua", "tan", "fei", "mo", "dong", "tui-push", "chan", "nu", "an", "men", "sou", "bo",
+  "shao-shan-huo", "tou-tian-liang", "qing-long-bai-wei", "bai-hu-yao-tou", "cang-gui-tan-xue",
+  "chi-feng-ying-yuan", "long-hu-jiao-zhan", "zi-wu-dao-jiu", "yang-zhong-yin-yin", "yin-zhong-yin-yang",
+  "bu", "xie",
+] as const;
+export const ManipulationTechniqueSchema = z.enum(MANIPULATION_TECHNIQUE_IDS);
+export type ManipulationTechniqueId = z.infer<typeof ManipulationTechniqueSchema>;
+
+/**
+ * Bounded presentation parameters shared by operator controls and model tools. These are animation controls,
+ * not clinical doses: they do not authorize deeper insertion, anatomical redirection, or force application.
+ */
+export const ManipulationMotionSettingsSchema = z.object({
+  durationMs: z.number().int().min(400).max(30_000).optional(),
+  /** Each primitive phase repeats this many times; durationMs is the complete performance duration. */
+  cycles: z.number().int().min(1).max(12).optional(),
+  strokeMm: z.number().min(0).max(3).optional(),
+  rotationDeg: z.number().min(0).max(180).optional(),
+  lateralMm: z.number().min(0).max(4).optional(),
+  tiltDeg: z.number().min(0).max(8).optional(),
+  tempoBias: z.number().min(0.2).max(0.8).optional(),
+  direction: z.enum(["alternating", "clockwise", "counterclockwise"]).optional(),
+  grip: z.enum(["two-finger", "three-finger"]).optional(),
+  support: z.enum(["none", "stabilize", "stretch", "pinch", "press"]).optional(),
+  hand: z.enum(["auto", "left", "right"]).optional(),
+  gripApertureMm: z.number().min(0).max(12).optional(),
+  /** Normalized visual contact intensity; never a measured or prescribed force. */
+  contactIntensity: z.number().min(0).max(1).optional(),
+}).strict();
+export type ManipulationMotionSettings = z.infer<typeof ManipulationMotionSettingsSchema>;
+export type ResolvedManipulationMotion = Required<ManipulationMotionSettings>;
+
+/** The engine resolves the optional target against the technique's skin/retained/removed context. */
+export const PerformTechniqueSchema = z.object({
+  type: z.literal("perform_technique"),
+  technique: ManipulationTechniqueSchema,
+  needleId: IdSchema.optional(),
+  mark: IdSchema.optional(),
+  region: IdSchema.optional(),
+  side: SideSchema.optional(),
+  at: ChartPointSchema.extend({ u: z.number().finite(), v: z.number().finite() }).optional(),
+  motion: ManipulationMotionSettingsSchema.optional(),
+}).strict();
+export type PerformTechniqueAction = z.infer<typeof PerformTechniqueSchema>;

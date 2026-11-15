@@ -33,6 +33,17 @@ reference trajectory offline; supervised if wanted), any MCP client over HTTP �
 recorded under who did it, kept on disk and shown in every browser as it happens, around a live 3D view of the
 encounter ([docs/WEB.md](docs/WEB.md)).
 
+**Move and manipulate in 3D.** Click the clinic map, use its arrow/WASD controls, or Shift-click the 3D floor to
+walk the practitioner along the engine's collision-planned path. GPT/OpenAI, MiniMax and Claude use the same
+validated action tools. A Blender-built articulated hand and length-preserving arm IK animate the approach,
+pinch, insertion, manipulation, release and withdrawal. The **Technique studio / 精细手法控制** offers 24 named
+maneuvers, 10 authored compound sequences, and bu/xie through the same `perform_technique` tool used by LLMs.
+Set timing, cycles, axial/rotational/exterior-shaft motion, grip aperture, handedness and supporting-hand contact;
+preview locally, pause, scrub and change parameters live before executing an attributed action. Both Blender hands
+use moving fingertip/nail contacts and arm IK. Internal needle paths remain authoritative while exposed-shaft
+deflection is shown separately ([docs/TECHNIQUES.md](docs/TECHNIQUES.md), [docs/HANDS.md](docs/HANDS.md)).
+These profiles are illustrative choreography, without a model of their clinical efficacy or tissue loading.
+
 ![The workspace: the complete record of a low-back-pain encounter around a live 3D view of the treatment room — the patient face down on the couch with needles in the lower back and their labels, the practitioner beside the couch](docs/img/web-workspace.png)
 
 > **Status: first implementation milestone of the design proposal.** The engine, the evaluator and a pilot content pack
@@ -140,6 +151,10 @@ Keep the records in a browser, with a language model and MCP clients working on 
 ```bash
 npm run acu -- serve
 ```
+
+To use GPT or MiniMax, set `OPENAI_API_KEY` or `MINIMAX_API_KEY` on the server, then choose the provider and model
+in the browser's Language model panel. Keys remain on the server. The CLI also supports
+`npm run acu -- run sg-knee-oa/base --agent openai` and `--agent minimax`.
 
 ```bash
 claude mcp add --transport http acucraft http://127.0.0.1:8787/mcp

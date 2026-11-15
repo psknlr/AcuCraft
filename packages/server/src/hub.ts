@@ -114,7 +114,7 @@ export const TOOL_GROUPS: Readonly<Record<string, string>> = {
   ...Object.fromEntries(["assess", "decide", "propose_plan", "explain", "seek_consent", "refer"].map((t) => [t, "Decision and consent"])),
   ...Object.fromEntries(["position_patient", "identify_landmark", "measure", "mark_point"].map((t) => [t, "Localisation"])),
   ...Object.fromEntries(["move", "hand_hygiene", "fetch", "handover", "open_pack", "pick_up", "prepare_site", "prepare_couch"].map((t) => [t, "Preparation"])),
-  ...Object.fromEntries(["insert_needle", "adjust_needle", "check_sensation", "monitor", "wait", "stop_treatment"].map((t) => [t, "Procedure"])),
+  ...Object.fromEntries(["insert_needle", "adjust_needle", "perform_technique", "check_sensation", "monitor", "wait", "stop_treatment"].map((t) => [t, "Procedure"])),
   ...Object.fromEntries(["remove_needle", "remove_all_needles", "apply_pressure", "count_needles", "dispose", "search", "report_incident", "document", "end_visit", "begin_follow_up", "finish_encounter"].map((t) => [t, "Completion and records"])),
   ...Object.fromEntries(["assign_task", "acknowledge_task", "decline_task", "report_task", "cancel_task", "approve_plan"].map((t) => [t, "Team"])),
   ...Object.fromEntries(["lookup", "view", "construct_point", "read_skill"].map((t) => [t, "Reference (changes nothing)"])),
@@ -482,12 +482,13 @@ export class RecordHub {
       case "start": {
         if (runner?.active) return { status: 409, body: { error: "A language model is already working on this encounter: pause or stop it first." } };
         if (live.closed || live.session.finished) return { status: 409, body: { error: "This encounter is closed." } };
-        const provider = options.provider === "claude" ? "claude" : options.provider === "reference" ? "reference" : null;
-        if (!provider) return { status: 400, body: { error: 'provider is "claude" or "reference"' } };
+        const provider = options.provider === "claude" || options.provider === "openai" || options.provider === "minimax" || options.provider === "reference" ? options.provider : null;
+        if (!provider) return { status: 400, body: { error: 'provider is "claude", "openai", "minimax" or "reference"' } };
         const effort = options.effort && ["low", "medium", "high", "xhigh", "max"].includes(options.effort) ? options.effort : undefined;
         const model = typeof options.model === "string" && /^[a-z0-9][a-z0-9.\-_]{2,60}$/i.test(options.model) ? options.model : undefined;
         live.runs += 1;
-        const me: Attribution = { kind: "llm", name: provider === "claude" ? `Claude (${model ?? "claude-opus-5-5"})` : "reference trajectory", id: `llm:${live.id}:${live.runs}` };
+        const defaults = { claude: "claude-opus-5-5", openai: "gpt-4.1", minimax: "MiniMax-M2.5", reference: "" };
+        const me: Attribution = { kind: "llm", name: provider === "reference" ? "reference trajectory" : `${provider === "claude" ? "Claude" : provider === "openai" ? "GPT" : "MiniMax"} (${model ?? defaults[provider]})`, id: `llm:${live.id}:${live.runs}` };
         live.runner = new AgentRun(this.runnerHost(live, me), {
           provider,
           ...(model ? { model } : {}),

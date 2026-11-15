@@ -1,0 +1,675 @@
+{
+  "file": "assets/models/acu-practitioner-hand.glb",
+  "license": "CC0-1.0",
+  "source": "tools/blender/build_hand.py",
+  "sha256": "73b4ce8fbd21153aba538c8d90fff5f566adf5f60903f4c101aa60d734e794c0",
+  "bytes": 142416,
+  "triangles": 4340,
+  "root": "acu_practitioner_hand",
+  "coordinates": "metres; +Y along needle, +X from pinch toward wrist; rest precision pinch",
+  "wrist": [
+    0.162,
+    0.004,
+    0
+  ],
+  "pinch": [
+    0,
+    0,
+    0
+  ],
+  "tips": {
+    "thumb": [
+      0.0,
+      0.0,
+      -0.006
+    ],
+    "index": [
+      0.0,
+      0.0,
+      0.006
+    ],
+    "middle": [
+      0.079,
+      -0.035,
+      0.009
+    ],
+    "ring": [
+      0.086,
+      -0.032,
+      -0.012
+    ],
+    "little": [
+      0.092,
+      -0.027,
+      -0.03
+    ]
+  },
+  "contact": {
+    "thumb": [
+      0,
+      0,
+      -0.001
+    ],
+    "index": [
+      0,
+      0,
+      0.001
+    ]
+  },
+  "joints": {
+    "thumb": [
+      "thumb_proximal",
+      "thumb_middle",
+      "thumb_distal"
+    ],
+    "index": [
+      "index_proximal",
+      "index_middle",
+      "index_distal"
+    ],
+    "middle": [
+      "middle_proximal",
+      "middle_middle",
+      "middle_distal"
+    ],
+    "ring": [
+      "ring_proximal",
+      "ring_middle",
+      "ring_distal"
+    ],
+    "little": [
+      "little_proximal",
+      "little_middle",
+      "little_distal"
+    ]
+  },
+  "anatomicalJoints": {
+    "thumb": [
+      "thumb_CMC",
+      "thumb_MCP",
+      "thumb_IP"
+    ],
+    "index": [
+      "index_MCP",
+      "index_PIP",
+      "index_DIP"
+    ],
+    "middle": [
+      "middle_MCP",
+      "middle_PIP",
+      "middle_DIP"
+    ],
+    "ring": [
+      "ring_MCP",
+      "ring_PIP",
+      "ring_DIP"
+    ],
+    "little": [
+      "little_MCP",
+      "little_PIP",
+      "little_DIP"
+    ]
+  },
+  "anatomicalMapping": {
+    "thumb_proximal": "thumb_CMC",
+    "thumb_middle": "thumb_MCP",
+    "thumb_distal": "thumb_IP",
+    "index_proximal": "index_MCP",
+    "index_middle": "index_PIP",
+    "index_distal": "index_DIP",
+    "middle_proximal": "middle_MCP",
+    "middle_middle": "middle_PIP",
+    "middle_distal": "middle_DIP",
+    "ring_proximal": "ring_MCP",
+    "ring_middle": "ring_PIP",
+    "ring_distal": "ring_DIP",
+    "little_proximal": "little_MCP",
+    "little_middle": "little_PIP",
+    "little_distal": "little_DIP"
+  },
+  "contactAnchors": {
+    "palm_contact": {
+      "node": "palm_contact",
+      "normalAxis": "+Y",
+      "follows": "acu_practitioner_hand"
+    },
+    "support_contact": {
+      "node": "support_contact",
+      "normalAxis": "+Y",
+      "follows": "acu_practitioner_hand"
+    },
+    "thumb_pad_contact": {
+      "node": "thumb_pad_contact",
+      "normalAxis": "+Y",
+      "follows": "thumb_distal",
+      "surface": "thumb_pad_skin"
+    },
+    "thumb_nail_contact": {
+      "node": "thumb_nail_contact",
+      "normalAxis": "+Y",
+      "follows": "thumb_distal",
+      "surface": "thumb_nail"
+    },
+    "index_pad_contact": {
+      "node": "index_pad_contact",
+      "normalAxis": "+Y",
+      "follows": "index_distal",
+      "surface": "index_pad_skin"
+    },
+    "index_nail_contact": {
+      "node": "index_nail_contact",
+      "normalAxis": "+Y",
+      "follows": "index_distal",
+      "surface": "index_nail"
+    },
+    "middle_pad_contact": {
+      "node": "middle_pad_contact",
+      "normalAxis": "+Y",
+      "follows": "middle_distal",
+      "surface": "middle_distal_skin"
+    },
+    "middle_nail_contact": {
+      "node": "middle_nail_contact",
+      "normalAxis": "+Y",
+      "follows": "middle_distal",
+      "surface": "middle_nail"
+    },
+    "ring_pad_contact": {
+      "node": "ring_pad_contact",
+      "normalAxis": "+Y",
+      "follows": "ring_distal",
+      "surface": "ring_distal_skin"
+    },
+    "ring_nail_contact": {
+      "node": "ring_nail_contact",
+      "normalAxis": "+Y",
+      "follows": "ring_distal",
+      "surface": "ring_nail"
+    },
+    "little_pad_contact": {
+      "node": "little_pad_contact",
+      "normalAxis": "+Y",
+      "follows": "little_distal",
+      "surface": "little_distal_skin"
+    },
+    "little_nail_contact": {
+      "node": "little_nail_contact",
+      "normalAxis": "+Y",
+      "follows": "little_distal",
+      "surface": "little_nail"
+    }
+  },
+  "poseContacts": {
+    "pinch": {
+      "palm_contact": [
+        0.103,
+        -0.013,
+        -0.002
+      ],
+      "support_contact": [
+        0.071000002,
+        -0.01,
+        0.016000001
+      ],
+      "thumb_pad_contact": [
+        0.0,
+        0.0,
+        -0.001
+      ],
+      "thumb_nail_contact": [
+        0.010519392,
+        0.005234267,
+        -0.010972095
+      ],
+      "index_pad_contact": [
+        0.0,
+        0.0,
+        0.001
+      ],
+      "index_nail_contact": [
+        0.005822622,
+        0.010634238,
+        0.008682873
+      ],
+      "middle_pad_contact": [
+        0.076368518,
+        -0.042702705,
+        0.008815284
+      ],
+      "middle_nail_contact": [
+        0.070763253,
+        -0.034005918,
+        0.009
+      ],
+      "ring_pad_contact": [
+        0.083805986,
+        -0.039611679,
+        -0.011771685
+      ],
+      "ring_nail_contact": [
+        0.078601807,
+        -0.031616725,
+        -0.012
+      ],
+      "little_pad_contact": [
+        0.090022244,
+        -0.033676103,
+        -0.029798375
+      ],
+      "little_nail_contact": [
+        0.085382506,
+        -0.026953928,
+        -0.029999999
+      ]
+    },
+    "open": {
+      "palm_contact": [
+        0.103,
+        -0.013,
+        -0.002
+      ],
+      "support_contact": [
+        0.071000002,
+        -0.01,
+        0.016000001
+      ],
+      "thumb_pad_contact": [
+        0.016762692,
+        0.045031179,
+        -0.003276073
+      ],
+      "thumb_nail_contact": [
+        0.02770647,
+        0.040962894,
+        -0.013334934
+      ],
+      "index_pad_contact": [
+        0.010607321,
+        -0.026587136,
+        0.001
+      ],
+      "index_nail_contact": [
+        0.009067274,
+        -0.014561406,
+        0.008682873
+      ],
+      "middle_pad_contact": [
+        0.083180524,
+        -0.084763102,
+        0.008815284
+      ],
+      "middle_nail_contact": [
+        0.089435719,
+        -0.076521404,
+        0.009
+      ],
+      "ring_pad_contact": [
+        0.091798484,
+        -0.078949124,
+        -0.011771685
+      ],
+      "ring_nail_contact": [
+        0.097922549,
+        -0.071634844,
+        -0.012
+      ],
+      "little_pad_contact": [
+        0.097668409,
+        -0.068421155,
+        -0.029798375
+      ],
+      "little_nail_contact": [
+        0.102851294,
+        -0.062108267,
+        -0.029999999
+      ]
+    },
+    "support": {
+      "palm_contact": [
+        0.103,
+        -0.013,
+        -0.002
+      ],
+      "support_contact": [
+        0.071000002,
+        -0.01,
+        0.016000001
+      ],
+      "thumb_pad_contact": [
+        0.012533,
+        -0.003888063,
+        -0.097261488
+      ],
+      "thumb_nail_contact": [
+        0.024530567,
+        0.004392298,
+        -0.092262305
+      ],
+      "index_pad_contact": [
+        -0.009922026,
+        -0.001270172,
+        0.0270546
+      ],
+      "index_nail_contact": [
+        0.002073456,
+        0.006127078,
+        0.029775919
+      ],
+      "middle_pad_contact": [
+        -0.025842365,
+        0.002456082,
+        0.006815282
+      ],
+      "middle_nail_contact": [
+        -0.025369033,
+        -0.007879732,
+        0.006999998
+      ],
+      "ring_pad_contact": [
+        -0.016653508,
+        0.001395427,
+        -0.014767507
+      ],
+      "ring_nail_contact": [
+        -0.016913902,
+        -0.008136116,
+        -0.014397673
+      ],
+      "little_pad_contact": [
+        0.004358616,
+        -0.000881013,
+        -0.03751887
+      ],
+      "little_nail_contact": [
+        0.004070366,
+        -0.008854639,
+        -0.035759982
+      ]
+    },
+    "three_finger": {
+      "palm_contact": [
+        0.103,
+        -0.013,
+        -0.002
+      ],
+      "support_contact": [
+        0.071000002,
+        -0.01,
+        0.016000001
+      ],
+      "thumb_pad_contact": [
+        0.0,
+        0.0,
+        -0.001
+      ],
+      "thumb_nail_contact": [
+        0.010519392,
+        0.005234267,
+        -0.010972095
+      ],
+      "index_pad_contact": [
+        0.0,
+        0.0,
+        0.001
+      ],
+      "index_nail_contact": [
+        0.005822622,
+        0.010634238,
+        0.008682873
+      ],
+      "middle_pad_contact": [
+        1e-09,
+        -0.009999989,
+        0.001
+      ],
+      "middle_nail_contact": [
+        -0.001376104,
+        -0.01193455,
+        0.011072288
+      ],
+      "ring_pad_contact": [
+        0.083805986,
+        -0.039611679,
+        -0.011771685
+      ],
+      "ring_nail_contact": [
+        0.078601807,
+        -0.031616725,
+        -0.012
+      ],
+      "little_pad_contact": [
+        0.090022244,
+        -0.033676103,
+        -0.029798375
+      ],
+      "little_nail_contact": [
+        0.085382506,
+        -0.026953928,
+        -0.029999999
+      ]
+    },
+    "scrape": {
+      "palm_contact": [
+        0.103,
+        -0.013,
+        -0.002
+      ],
+      "support_contact": [
+        0.071000002,
+        -0.01,
+        0.016000001
+      ],
+      "thumb_pad_contact": [
+        0.0,
+        0.0,
+        -0.001
+      ],
+      "thumb_nail_contact": [
+        0.010519392,
+        0.005234267,
+        -0.010972095
+      ],
+      "index_pad_contact": [
+        -0.001158631,
+        -0.000264673,
+        -0.001269401
+      ],
+      "index_nail_contact": [
+        0.012,
+        0.005000002,
+        0.001
+      ],
+      "middle_pad_contact": [
+        1e-09,
+        -0.009999989,
+        0.001
+      ],
+      "middle_nail_contact": [
+        -0.001376104,
+        -0.01193455,
+        0.011072288
+      ],
+      "ring_pad_contact": [
+        0.083805986,
+        -0.039611679,
+        -0.011771685
+      ],
+      "ring_nail_contact": [
+        0.078601807,
+        -0.031616725,
+        -0.012
+      ],
+      "little_pad_contact": [
+        0.090022244,
+        -0.033676103,
+        -0.029798375
+      ],
+      "little_nail_contact": [
+        0.085382506,
+        -0.026953928,
+        -0.029999999
+      ]
+    },
+    "flick_loaded": {
+      "palm_contact": [
+        0.103,
+        -0.013,
+        -0.002
+      ],
+      "support_contact": [
+        0.071000002,
+        -0.01,
+        0.016000001
+      ],
+      "thumb_pad_contact": [
+        0.0,
+        0.0,
+        -0.001
+      ],
+      "thumb_nail_contact": [
+        0.010519392,
+        0.005234267,
+        -0.010972095
+      ],
+      "index_pad_contact": [
+        0.001000004,
+        0.008000011,
+        0.001000003
+      ],
+      "index_nail_contact": [
+        0.015165554,
+        0.006500605,
+        0.002762248
+      ],
+      "middle_pad_contact": [
+        1e-09,
+        -0.009999989,
+        0.001
+      ],
+      "middle_nail_contact": [
+        -0.001376104,
+        -0.01193455,
+        0.011072288
+      ],
+      "ring_pad_contact": [
+        0.083805986,
+        -0.039611679,
+        -0.011771685
+      ],
+      "ring_nail_contact": [
+        0.078601807,
+        -0.031616725,
+        -0.012
+      ],
+      "little_pad_contact": [
+        0.090022244,
+        -0.033676103,
+        -0.029798375
+      ],
+      "little_nail_contact": [
+        0.085382506,
+        -0.026953928,
+        -0.029999999
+      ]
+    },
+    "flick_release": {
+      "palm_contact": [
+        0.103,
+        -0.013,
+        -0.002
+      ],
+      "support_contact": [
+        0.071000002,
+        -0.01,
+        0.016000001
+      ],
+      "thumb_pad_contact": [
+        0.0,
+        0.0,
+        -0.001
+      ],
+      "thumb_nail_contact": [
+        0.010519392,
+        0.005234267,
+        -0.010972095
+      ],
+      "index_pad_contact": [
+        0.010607321,
+        -0.026587136,
+        0.001
+      ],
+      "index_nail_contact": [
+        0.009067274,
+        -0.014561406,
+        0.008682873
+      ],
+      "middle_pad_contact": [
+        1e-09,
+        -0.009999989,
+        0.001
+      ],
+      "middle_nail_contact": [
+        -0.001376104,
+        -0.01193455,
+        0.011072288
+      ],
+      "ring_pad_contact": [
+        0.083805986,
+        -0.039611679,
+        -0.011771685
+      ],
+      "ring_nail_contact": [
+        0.078601807,
+        -0.031616725,
+        -0.012
+      ],
+      "little_pad_contact": [
+        0.090022244,
+        -0.033676103,
+        -0.029798375
+      ],
+      "little_nail_contact": [
+        0.085382506,
+        -0.026953928,
+        -0.029999999
+      ]
+    }
+  },
+  "materials": [
+    "hand_skin",
+    "hand_nails"
+  ],
+  "animations": [
+    "hand_open",
+    "hand_support",
+    "hand_scrape",
+    "hand_flick",
+    "hand_three_finger"
+  ],
+  "animation": "Every clip is 0..1 second and begins at precision pinch. hand_open/support/three_finger/scrape end at the named pose. hand_flick is loaded at .4s, released at .533333s, back at pinch at 1s. Sample only one base clip per hand; anatomical parent controls may overlay it.",
+  "clipFrames": {
+    "hand_open": [
+      0.0,
+      1.0
+    ],
+    "hand_support": [
+      0.0,
+      1.0
+    ],
+    "hand_three_finger": [
+      0.0,
+      1.0
+    ],
+    "hand_scrape": [
+      0.0,
+      1.0
+    ],
+    "hand_flick": [
+      0.0,
+      0.4,
+      0.533333333,
+      1.0
+    ]
+  },
+  "review": "schematic animation asset, no anatomical or clinical validation"
+}

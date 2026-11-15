@@ -91,8 +91,8 @@ export const ACTION_DOCS: Record<ActionType, ActionDoc> = {
 
   /* preparation */
   move: {
-    does: "Walk. `to` is a room id, or { fixture } (to where it can be used), { person } (a colleague's id, or \"patient\"), { region, side } (to where that body site is within arm's reach as the patient lies now: a site on the far side of the couch means walking round it) or { x, z }. With a room and `withPatient: true` the patient walks there at your side and takes its seat. Walking takes simulated time, and nothing else walks for you: an act out of reach is refused, and the refusal names this walk.",
-    fields: { withPatient: "true to walk the patient to a room with you. They must be able to walk: not faint, no needles in." },
+    does: "Walk. `to` is a room id, or { fixture } (to where it can be used), { person } (a colleague's id, or \"patient\"), { region, side, within? } (to where that body site is within the requested distance as the patient lies now: a site on the far side of the couch means walking round it) or { x, z }. A body site's optional within is 0.3 to 0.85 metres on the floor plan; omitting it preserves the ordinary 0.85 m reach. Ask for a smaller distance, such as 0.75, when the 3D hand needs a closer stance. The existing collision planner may refuse when no free spot meets that distance; it never moves you through furniture. With a room and `withPatient: true` the patient walks there at your side and takes its seat. Walking takes simulated time, and nothing else walks for you: an act out of reach is refused, and the refusal names this walk.",
+    fields: { withPatient: "true to walk the patient to a room with you. They must be able to walk: not faint, no needles in.", "to.within": "Optional maximum floor-plan distance to a region/side target in metres, finite 0.3 to 0.85. Default 0.85 preserves legacy moves. It is not a clinical or hand-specific reach measurement. The collision planner refuses when no free visible spot is close enough." },
   },
   hand_hygiene: {
     does: "Clean your hands at a sink or hand-rub dispenser within reach: before handling sterile needles or prepared skin, and after contact with the patient or with used needles. Not possible while you hold needles.",
@@ -126,11 +126,38 @@ export const ACTION_DOCS: Record<ActionType, ActionDoc> = {
       angleDeg: "0 is perpendicular to the skin, 45 oblique, 75 to 90 transverse.",
       azimuthDeg: "The direction the tip travels across the chart: 0 cranial (+v), 90 towards +u, 180 caudal, 270 towards -u.",
       depthCm: "Depth along the shaft, in centimetres.",
+      presentation: "Optional 3D insertion choreography: duration, grip, supporting hand and needle-holding hand. These settings never alter the permitted needle path, depth, consent or clinical response.",
+      "presentation.durationMs": "Insertion movement duration in milliseconds, 400 to 8000.",
+      "presentation.grip": "two-finger thumb-index pinch or three-finger grip with middle-finger support.",
+      "presentation.support": "Illustrative supporting-hand pose: none, stabilize, stretch, pinch or press.",
+      "presentation.hand": "auto chooses the closer hand; left or right requests the named hand.",
+      "presentation.gripApertureMm": "Visual grip aperture adjustment in millimetres, 0 to 12; this is not a measured contact force.",
     },
   },
   adjust_needle: {
-    does: "Work a needle in place, or change its depth: lift and thrust, rotate, or re-seat it deeper or shallower. What you then feel in the needle is evidence of its response. Stronger stimulation is never the aim: a tip that lies too shallow is not helped by working it harder, and a sharp, burning or electric sensation means withdraw a little or take the needle out.",
-    fields: { depthCm: "A new depth along the shaft, in centimetres.", technique: "none (depth only), lift-thrust or rotate." },
+    does: "Work a needle in place, or change its depth: lift, thrust, lift-thrust, rotate/twist, or the simulator's illustrative bu/xie gestures. Bu/xie are choreography labels, not a model of therapeutic efficacy. What you then feel in the needle is evidence of its response. Stronger stimulation is never the aim: a tip that lies too shallow is not helped by working it harder, and a sharp, burning or electric sensation means withdraw a little or take the needle out.",
+    fields: {
+      depthCm: "A new depth along the shaft, in centimetres; checked against the patient's anatomy.",
+      technique: "none (depth only), lift, thrust, lift-thrust, rotate, twist, bu (tonification gesture) or xie (sedation gesture). These names do not establish clinical effects.",
+      motion: "Optional animation settings only. A displayed stroke withdraws from, then returns to, the approved depth. These settings do not change depth or the tissue response.",
+      "motion.cycles": "Number of displayed gesture cycles, 1 to 8 (default 3). One action remains one simulation manipulation.",
+      "motion.durationMs": "Whole animation duration in milliseconds, 400 to 8000 (default 1800).",
+      "motion.strokeMm": "Displayed outward stroke in millimetres, 0 to 3 (default 1.5), clamped to the retained depth.",
+      "motion.rotationDeg": "Maximum displayed twist amplitude in degrees, 0 to 180 (default 90).",
+    },
+  },
+  perform_technique: {
+    does: "Perform one illustrative 3D manipulation, using the same bounded parameters as the operator panel. Read lookup techniques for all 24 basic terms, 10 compound demonstrations and bu/xie, source status, contexts, defaults and bounds. This records choreography; it does not insert, withdraw, deepen a needle, measure force, produce clinical evidence or change therapeutic effects. Retained maneuvers require an inserted needle; post-removal maneuvers require a needle withdrawn in this visit; skin maneuvers use a current mark, a needle's executed site, or explicit chart coordinates. Treatment gestures need current consent and a well patient; post-removal covering follows aftercare permissions and may still be demonstrated after treatment stops. Every gesture needs permission and the actual body site within reach. Skin contact affects preparation and hand hygiene; follow the engine's returned conditions.",
+    fields: {
+      technique: "Stable technique id from lookup techniques, such as nian, ti, gua, an, men, shao-shan-huo, bu or xie. Definitions are authored illustrative variants rather than verified clinical standards.",
+      needleId: "Required for retained or post-removal techniques. May anchor a skin gesture to a needle's executed site in this visit.",
+      mark: "A current non-stale mark for a skin gesture. Omit conflicting targets when needleId determines the site.",
+      region: "Without mark or needleId, name a regional model and give side and at.",
+      at: CHART_AT,
+      motion: "Optional bounded presentation settings shared with the operator controls. Use lookup techniques for units and per-technique defaults. Contact intensity is cosmetic and is never a force measurement or clinical dose.",
+      "motion.cycles": "Displayed cycles within each primitive phase, 1 to 12. A compound's total duration spans all phases.",
+      "motion.durationMs": "Total performance duration in milliseconds, 400 to 30000, spanning every compound phase. Presentation time does not advance the clinical clock.",
+    },
   },
   check_sensation: {
     does: "Ask the patient what they feel at one needle. Their answer is evidence of that needle's response. Within earshot.",
