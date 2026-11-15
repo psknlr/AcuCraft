@@ -166,14 +166,14 @@ The view draws the encounter as the record has it, in step with it:
 
 - **The set** is the clinic's own: the treatment couch, the needle trolley with its sharps box, the heat lamp, the
   herb cabinet, the meridian chart and the bronze meridian figure, the patient's chairs and the pulse cushion —
-  the pack's models, built in Blender (docs/MODELS.md), loaded from `content/world/assets/models` — in a treatment
-  room and a consultation room with a window, blinds, a privacy curtain and a desk.
+  the pack's models, built in Blender (docs/MODELS.md), loaded from `content/world/assets/models` throughout the
+  clinic's floor-plan rooms. The scene and the movement map use the same world coordinates.
 - **The people** are drawn with ClinicalCraft's figure kit — the same figures as its 3D world — from the
   bundle of the pinned engine: the patient as their case describes them (skin, hair, build, clothes; a variant may
   change how they look, never say its name) and built to their height, in the position on the record — seated at
   the desk, standing, or on the couch on their back, face down or on one side, bare under towels; the practitioner
-  in a white coat, at the actor's actual floor position. Click-to-walk, the focused map's arrow/WASD controls, and
-  Shift-click on the 3D floor all submit the same `move` tool; the practitioner follows the world's planned
+  in a white coat, at the actor's actual floor position. Choose a character, then click the map, use the step controls or
+  Shift-click on the 3D floor to submit the same `move` tool; the character follows the world's planned
   corners with continuous gait and turning. Pose changes use the existing patient positioning tool. They breathe and blink; the
   patient's lips move while they speak; a patient who feels faint is drawn pale and clammy.
 - **The practitioner's marks and the needles** are placed on the skin from the record: a mark at its chart

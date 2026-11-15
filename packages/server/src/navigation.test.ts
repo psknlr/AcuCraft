@@ -54,7 +54,7 @@ describe("avatar floor controls", () => {
   });
 });
 
-describe("the engine floor and the presentation sets", () => {
+describe("the shared clinic floor coordinates", () => {
   const initial = (): AgentView => new EncounterSession(sc).view();
 
   it("keeps floor coordinates identical to the full clinic and invertible", () => {
@@ -70,7 +70,7 @@ describe("the engine floor and the presentation sets", () => {
   it("keeps the recorded world position and yaw without rotating floor coordinates", () => {
     const view = initial();
     const fixture = view.space.fixtures.find((f) => f.id === "couch-1")!;
-    view.space.you = { x: fixture.x + 1, z: fixture.z, yaw: 90, room: fixture.room, facing: "east" };
+    view.space.you = { x: fixture.x + 1, z: fixture.z, yaw: -Math.PI / 2, room: fixture.room, facing: "east" };
     view.space.patient = { ...view.space.patient, room: fixture.room, on: fixture.id, x: fixture.x, z: fixture.z, lying: { head: "east", rightSide: "north" } };
     expect(floorFrame(view).set).toBe("treatment");
     const placement = practitionerFloorPlacement(view, "test");

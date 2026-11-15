@@ -18,9 +18,9 @@ export function floorFrame(view: AgentView): FloorFrame {
 export function toStageFloor(_view: AgentView, point: FloorPoint): FloorPoint { return { x: point.x, z: point.z }; }
 export function fromStageFloor(_view: AgentView, point: FloorPoint): FloorPoint { return { x: point.x, z: point.z }; }
 
-/** Standing figures face +z at zero rotation; the engine's zero yaw faces north (-z). */
+/** Standing figures face +z at zero rotation; the engine's zero yaw faces north (-z) and positive yaw turns west. */
 export function practitionerFloorPlacement(view: AgentView, seed: string): Placement {
-  return { set: floorFrame(view).set, position: "standing", options: { posture: "standing", seed }, at: { x: view.space.you.x, y: 0, z: view.space.you.z, rot: 180 - view.space.you.yaw * 180 / Math.PI } };
+  return { set: floorFrame(view).set, position: "standing", options: { posture: "standing", seed }, at: { x: view.space.you.x, y: 0, z: view.space.you.z, rot: 180 + view.space.you.yaw * 180 / Math.PI } };
 }
 
 /** The patient follows their actual support fixture, even when the practitioner is in another room. */
@@ -33,7 +33,7 @@ export function patientFloorPlacement(view: AgentView, heightCm: number | null, 
     const dz = lying ? placement.at.z - couch.z : 0;
     const angle = support.rot * Math.PI / 180;
     placement.at = { x: support.x + dz * Math.sin(angle), y: 0, z: support.z + dz * Math.cos(angle), rot: support.rot };
-  } else placement.at = { x: view.space.patient.x, y: 0, z: view.space.patient.z, rot: 180 - view.space.patient.yaw * 180 / Math.PI };
+  } else placement.at = { x: view.space.patient.x, y: 0, z: view.space.patient.z, rot: 180 + view.space.patient.yaw * 180 / Math.PI };
   return placement;
 }
 

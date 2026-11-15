@@ -39,7 +39,7 @@ depth and direction plus lifting/thrusting stroke, rotation amplitude/direction,
 follows executed positions and needle geometry. Setup, units and clinical/visual limits are described in
 [docs/CHARACTER-CONTROL.md](docs/CHARACTER-CONTROL.md).
 
-**Move and manipulate in 3D.** Click the clinic map, use its arrow/WASD controls, or Shift-click the 3D floor to
+**Move and manipulate in 3D.** Click the clinic map, use its step controls, or Shift-click the 3D floor to
 walk the practitioner along the engine's collision-planned path. GPT/OpenAI, MiniMax and Claude use the same
 validated action tools. A Blender-built articulated hand and length-preserving arm IK animate the approach,
 pinch, insertion, manipulation, release and withdrawal. The **Technique studio / 精细手法控制** offers 24 named

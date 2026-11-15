@@ -105,4 +105,6 @@ The pure `sampleTechnique` output separates `gripEngagement` (local thumb/index 
 
 Needle axial strokes remain within the executed depth. Lateral motion and bending affect the exposed shaft/handle geometry only; they do not move the skin entry or redirect the internal needle tip. The display does not claim to solve tissue deformation, internal shaft elasticity, contact force or haptics.
 
+These bounds describe `perform_technique` and legacy `motion` presentation settings. Explicit top-level `adjust_needle` stroke, frequency, rotation and duration parameters use the separately checked clinical envelope described in [CHARACTER-CONTROL.md](CHARACTER-CONTROL.md). The two APIs retain their own units and timing semantics, and both use the same articulated hands.
+
 Insertion remains a clinical `insert_needle` action. Its optional `presentation` field selects `durationMs` (400–8000), `grip`, `support`, `hand` and `gripApertureMm` (0–12) for the approach/grip/insertion animation. Angle, azimuth and depth remain the existing validated clinical inputs, and the renderer uses the executed result when insertion is partial.

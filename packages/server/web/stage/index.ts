@@ -58,6 +58,7 @@ const POSITION_WORDS: Record<string, string> = {
 };
 
 const byText = (by: TimelineEntry["by"]) => (by.kind === "operator" ? by.name : by.kind === "llm" ? `LLM · ${by.name}` : `MCP · ${by.name}`);
+const workStopped = (state: StageState) => state.closed || state.view.patient.consent === "withdrawn" || /faint|clammy|grey/.test(state.view.patient.appearance) || !!state.view.documentation.stopped;
 const sideWord = (t: string) => t.replace(/:left$/, " left").replace(/:right$/, " right").replace(/:midline$/, "");
 
 /** What an action did, in a few words, for its caption (a question asked by its history item in its words). */
@@ -279,7 +280,7 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
     practitioner.lookAt(patient?.headAt() ?? new Vector3());
     for (const member of view.space.team) {
       let person = colleagues.get(member.id);
-      const at = { x: member.x, y: 0, z: member.z, rot: 180 - member.yaw * 180 / Math.PI };
+      const at = { x: member.x, y: 0, z: member.z, rot: 180 + member.yaw * 180 / Math.PI };
       if (!person) {
         person = new Person({ ...practitionerAppearance(info), shirt: "#81a9ad" }, { ...placement, at, options: { ...placement.options, seed: member.id } });
         colleagues.set(member.id, person); engine.scene.add(person.holder);
@@ -290,6 +291,7 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
 
   function sync(next: StageState, animate: boolean): void {
     const view = next.view;
+    const stopped = workStopped(next);
     engine.invalidate(45);
     engine.lightSet(view.space.patient.x, view.space.patient.z);
     const moved = castPatient(view, animate);
@@ -304,6 +306,8 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
       specs.push({ id: n.needle, target: n.target, site, angleDeg: g.angleDeg, azimuthDeg: g.azimuthDeg, depthCm: g.depthCm, length: g.lengthMm / 1000, diameterMm: g.diameterMm });
     }
     needles.sync(specs, performance.now(), animate && !moved);
+    // A stop settles already accepted insertions; it must not start a new insertion gesture from a coalesced update.
+    if (stopped) for (const spec of specs) needles.progress(spec.id, "insert", 1);
     const marks: { id: string; site: SkinSite; stale: boolean }[] = [];
     for (const m of view.localisation.marks) {
       const site = finder?.find({ region: m.region, side: m.side, u: m.u, v: m.v });
@@ -324,13 +328,13 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
         lastNeedle = id;
         focus = needles.siteOf(id) ?? focus;
       }
-      if (e.tool === "adjust_needle" && id && (e.status === "executed" || e.status === "partial")) procedure.workAction(id, e.input);
+      if (!stopped && e.tool === "adjust_needle" && id && (e.status === "executed" || e.status === "partial")) procedure.workAction(id, e.input);
       if (e.tool === "perform_technique" && e.status === "executed") {
         const performance = view.performances?.find((p) => p.requestId === e.requestId);
         if (performance && !seenPerformances.has(performance.id)) {
           seenPerformances.add(performance.id);
           const site = performance.patientPosition === view.patient.position && performance.visit === view.setting.visit && performance.actor === view.you.id ? finder?.find(performance.site) : null;
-          if (site) {
+          if (site && (!stopped || performance.context === "removed")) {
             procedure.perform({ id: performance.id, technique: performance.technique, needleId: performance.needleId ?? undefined, site, motion: performance.motion });
             focus = site;
           }
@@ -351,7 +355,7 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
       if (animate && was !== undefined && n.recorded === "deqi" && was !== "deqi") needles.respond(n.needle, performance.now());
       seenRecorded.set(n.needle, n.recorded);
     }
-    if (view.patient.consent === "withdrawn" || /faint|clammy|grey/.test(view.patient.appearance) || view.documentation.stopped || next.closed) needles.stopWork();
+    if (stopped) needles.stopWork();
     // the lines said since: the patient's (and others') words
     const lines = view.conversation;
     if (animate && lines.length > seenLines) {
@@ -422,7 +426,8 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
   return {
     update(next: StageState) {
       const first = state === null;
-      if (state && state.view.version !== next.view.version) procedure.stopPreview();
+      if (workStopped(next) && (!state || !workStopped(state)) || state && state.view.setting.visit !== next.view.setting.visit) procedure.reset();
+      else if (state && state.view.version !== next.view.version) procedure.stopPreview();
       state = next;
       sync(next, !first);
       if (first) {
