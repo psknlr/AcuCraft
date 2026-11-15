@@ -1,5 +1,5 @@
 import { createRng, seedFrom } from "@clinicalcraft/core";
-import type { NeedleResponseClaim, PointRef } from "../schema/actions.js";
+import type { NeedleResponseClaim, NeedleTechnique, PointRef } from "../schema/actions.js";
 import type { NeedleSensation } from "../schema/field.js";
 import type { EncounterState, EvidenceItem, EvidenceKind, NeedleResponse, NeedleState } from "../schema/state.js";
 import type { PathAssessment } from "./anatomy.js";
@@ -215,8 +215,8 @@ export function describeSensation(r: NeedleResponse): { text: string; qualities:
 }
 
 /** What the operator feels in the needle on working it. */
-export function describeGrasp(r: NeedleResponse, technique: "lift-thrust" | "rotate"): { text: string; grasp: boolean } {
-  const act = technique === "rotate" ? "rotate" : "lift and thrust";
+export function describeGrasp(r: NeedleResponse, technique: Exclude<NeedleTechnique, "none">): { text: string; grasp: boolean } {
+  const act = technique === "rotate" || technique === "twist" ? "rotate" : technique === "lift" ? "lift" : technique === "thrust" ? "thrust" : technique === "bu" || technique === "xie" ? `work (${technique} simulation gesture)` : "lift and thrust";
   if (r.noxious !== null) return { text: `The patient flinches as you ${act} the needle.`, grasp: false };
   if (r.deqi) return { text: `The needle is gripped as you ${act} it: it feels heavy and tight.`, grasp: true };
   if (r.intensity >= 0.3) return { text: `A slight drag on the needle as you ${act} it, no more.`, grasp: false };

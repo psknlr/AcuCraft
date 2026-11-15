@@ -91,8 +91,8 @@ export const ACTION_DOCS: Record<ActionType, ActionDoc> = {
 
   /* preparation */
   move: {
-    does: "Walk. `to` is a room id, or { fixture } (to where it can be used), { person } (a colleague's id, or \"patient\"), { region, side } (to where that body site is within arm's reach as the patient lies now: a site on the far side of the couch means walking round it) or { x, z }. With a room and `withPatient: true` the patient walks there at your side and takes its seat. Walking takes simulated time, and nothing else walks for you: an act out of reach is refused, and the refusal names this walk.",
-    fields: { withPatient: "true to walk the patient to a room with you. They must be able to walk: not faint, no needles in." },
+    does: "Walk. `to` is a room id, or { fixture } (to where it can be used), { person } (a colleague's id, or \"patient\"), { region, side, within? } (to where that body site is within the requested distance as the patient lies now: a site on the far side of the couch means walking round it) or { x, z }. A body site's optional within is 0.3 to 0.85 metres on the floor plan; omitting it preserves the ordinary 0.85 m reach. Ask for a smaller distance, such as 0.75, when the 3D hand needs a closer stance. The existing collision planner may refuse when no free spot meets that distance; it never moves you through furniture. With a room and `withPatient: true` the patient walks there at your side and takes its seat. Walking takes simulated time, and nothing else walks for you: an act out of reach is refused, and the refusal names this walk.",
+    fields: { withPatient: "true to walk the patient to a room with you. They must be able to walk: not faint, no needles in.", "to.within": "Optional maximum floor-plan distance to a region/side target in metres, finite 0.3 to 0.85. Default 0.85 preserves legacy moves. It is not a clinical or hand-specific reach measurement. The collision planner refuses when no free visible spot is close enough." },
   },
   hand_hygiene: {
     does: "Clean your hands at a sink or hand-rub dispenser within reach: before handling sterile needles or prepared skin, and after contact with the patient or with used needles. Not possible while you hold needles.",
@@ -126,6 +126,12 @@ export const ACTION_DOCS: Record<ActionType, ActionDoc> = {
       angleDeg: "0 is perpendicular to the skin, 45 oblique, 75 to 90 transverse.",
       azimuthDeg: "The direction the tip travels across the chart: 0 cranial (+v), 90 towards +u, 180 caudal, 270 towards -u.",
       depthCm: "Depth along the shaft, in centimetres.",
+      presentation: "Optional 3D insertion choreography: duration, grip, supporting hand and needle-holding hand. These settings never alter the permitted needle path, depth, consent or clinical response.",
+      "presentation.durationMs": "Insertion movement duration in milliseconds, 400 to 8000.",
+      "presentation.grip": "two-finger thumb-index pinch or three-finger grip with middle-finger support.",
+      "presentation.support": "Illustrative supporting-hand pose: none, stabilize, stretch, pinch or press.",
+      "presentation.hand": "auto chooses the closer hand; left or right requests the named hand.",
+      "presentation.gripApertureMm": "Visual grip aperture adjustment in millimetres, 0 to 12; this is not a measured contact force.",
     },
   },
   adjust_needle: {

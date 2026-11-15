@@ -1,5 +1,9 @@
 # Patient records in the browser, live (`acu serve`)
 
+![The bilingual technique studio: the same bounded parameters used by the operator and LLM tools, with local preview, playback controls and attributed execution](img/technique-studio.png)
+
+![A paused twirling preview: independently articulated holding and supporting hands, with the needle's label moved clear of the grip](img/technique-bimanual-preview.png)
+
 `npm run acu -- serve` opens a workspace in the browser where a person and a language model keep the same
 acupuncture patient records at the same time. Every record is a simulated encounter run by the AcuCraft engine: the
 operator works it from the page, a language model run by the server works it from the same page, and any MCP client
@@ -60,11 +64,22 @@ by typing a few letters. **/** puts the cursor in "Ask the patient…".
 ### The language model
 
 The "Language model" panel starts a model on the open record: **Claude** through the Messages API (model and
-effort chosen on the page; needs `ANTHROPIC_API_KEY` on the server), or the **reference trajectory** — the
+effort chosen on the page; needs `ANTHROPIC_API_KEY` on the server), **GPT/OpenAI** (`OPENAI_API_KEY`),
+**MiniMax** (`MINIMAX_API_KEY`), or the **reference trajectory** — the
 scenario's reference actions spoken through the same loop, offline, as a demonstration (not a model). The
 operator can pause it (its next action is held), resume it, stop it, or run it supervised: each action then waits
 for the operator's approval, and a refusal — with a reason — is told to the model, which goes on. Its transcript
 (what it said, what it read, each action and how the engine answered) streams into the panel.
+
+### Fine manipulation controls
+
+The 3D card also has a manipulation panel. Choose one of the 36 Chinese/English catalogue entries, select a retained needle or surface mark as appropriate, and edit its applicable motion parameters: cycles, duration, axial stroke, rotation, lateral deflection, tilt, relative phase timing, direction, grip, supporting-hand mode, primary hand, aperture and normalized visual contact intensity. Reset restores that entry's catalogue defaults. Parameter edits remain a draft when new snapshots arrive.
+
+Preview plays a local demonstration with pause, speed and preview-seeking controls; valid parameter edits update it while preserving playback progress, and changing the target or technique cancels it. Preview does not perform treatment or write to the encounter. Execute submits `perform_technique` through the same validated tool used by GPT, MiniMax, Claude and MCP clients, and displays the engine's acceptance or refusal. A new authoritative state cancels an obsolete preview. Current recorded gestures take precedence, so a preview may need to wait for their animation to finish. Closed records cannot execute new performances.
+
+Insertion has its own controls for the needle/mark, angle, direction and depth, plus optional grip, support, primary hand and animation duration. The clinical values pass the existing insertion guard. The animation draws the executed insertion, including a shorter partial result.
+
+Each catalogue entry labels the choreography as illustrative and unreviewed; contact intensity is a cosmetic fraction, not measured force. Surface contact keeps the encounter's normal preparation and hygiene consequences. The full parameter contract, lifecycle conditions, replay behavior and modeling limits are in [TECHNIQUES.md](TECHNIQUES.md).
 
 ### Working together
 
@@ -155,12 +170,19 @@ The view draws the encounter as the record has it, in step with it:
   bundle of the pinned engine: the patient as their case describes them (skin, hair, build, clothes; a variant may
   change how they look, never say its name) and built to their height, in the position on the record — seated at
   the desk, standing, or on the couch on their back, face down or on one side, bare under towels; the practitioner
-  in a white coat, beside the couch on the side being needled, or across the desk. They breathe and blink; the
+  in a white coat, at the actor's actual floor position. Click-to-walk, the focused map's arrow/WASD controls, and
+  Shift-click on the 3D floor all submit the same `move` tool; the practitioner follows the world's planned
+  corners with continuous gait and turning. Pose changes use the existing patient positioning tool. They breathe and blink; the
   patient's lips move while they speak; a patient who feels faint is drawn pale and clammy.
 - **The practitioner's marks and the needles** are placed on the skin from the record: a mark at its chart
   coordinates, a needle at its mark (or at the place given with it) at the recorded angle, direction and depth,
-  of the pack's length, with a steel shaft and spiral handle. A needle slides in when it is inserted and out when
-  it is withdrawn, moves with lift-thrust or turns with rotation when worked, and a recorded deqi glows once
+  of each needle's own pack length, with a steel shaft and spiral handle. The geometry uses executed depth,
+  including a shorter partial insertion. An articulated Blender hand approaches and pinches its handle, guided
+  by a length-preserving arm solve and bounded torso lean. Its fingers carry the needle in, track the full
+  insertion or manipulation, open, and retreat; withdrawal keeps the shaft's full size. Needle movements queue
+  when actions arrive quickly, and an old record opens directly at its retained state. `lift`, `thrust`,
+  `lift-thrust`, `twist`, `rotate`, `bu` and `xie` use bounded, deterministic profiles; outward strokes never
+  deepen the engine-approved insertion ([TECHNIQUES.md](TECHNIQUES.md), [HANDS.md](HANDS.md)). A recorded deqi glows once
   round it. Each needle carries its label; picking one in the view highlights its row in the record.
 - **From chart to skin** (`web/stage/sites.ts`): each regional chart's origin is found on the figure by
   proportional measurement, as `tools/figure-fit.mts` does for the needling stations — the lower border of L4 13 cm
@@ -191,10 +213,11 @@ The view draws the encounter as the record has it, in step with it:
 | | |
 |---|---|
 | operator and language model on the same record, live in every browser | done (§1, §2) |
-| Claude through the Messages API; the reference trajectory offline; supervised approvals; pause, resume, stop | done |
+| Claude, GPT/OpenAI and MiniMax; the reference trajectory offline; supervised approvals; pause, resume, stop | done |
 | MCP over Streamable HTTP, joining an open record | done; no server-initiated stream (a client polls with its tools) |
 | records kept, restored by replay, imported from a log | done |
 | the 3D view: the clinic's models, the people as the 3D world draws them, marks and needles on the skin, the directed camera | done; the chart-to-figure placement is schematic (§4) |
+| 36-entry manipulation catalogue, operator/LLM parameters, bimanual and finger-contact animation, local preview | done; authored illustrative choreography, external shaft deflection only ([TECHNIQUES.md](TECHNIQUES.md)) |
 | several operators at once | done (each tab is attributed by its name); no accounts, no roles per operator |
 | a patient voiced by a language model; Mandarin | not yet (the patient answers from the case's authored facts; English) |
 
@@ -206,3 +229,5 @@ labelled), `bundle.test.ts` (the 3D view's bundle builds from the pinned engine)
 with the practitioner's questions put back in, the note's draft made of facts on the record only, the palette's
 ranking). The page itself was checked in Chromium: two tabs on one record, the operator acting, a supervised and a
 free run of the language model, and the 3D view through four families' treatments.
+
+`manipulation-integration.test.ts` exercises all 36 entries in their real encounter contexts, shared operator/MCP parameter validation, GPT/MiniMax tool-loop control, refusal atomicity, clinical-state invariants, public provenance and disk replay. Separate catalogue, hand, needle-shape, procedure and control-panel tests check deterministic profiles and local visual behavior.

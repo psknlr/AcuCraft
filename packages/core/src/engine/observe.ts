@@ -1,6 +1,6 @@
 import { t } from "@clinicalcraft/core";
 import type { DocumentRecord, PointRef } from "../schema/actions.js";
-import type { EncounterState } from "../schema/state.js";
+import type { EncounterState, ManipulationPerformance } from "../schema/state.js";
 import { pointInstance, pointTargets, regionAccess } from "./anatomy.js";
 import { consentCovers, currentPlan, currentVisit, fellUnseen, fmt, needleList, now, parseRef, refKey, visitIndex } from "./queries.js";
 import { needleEvidence, recordEvidenceId } from "./evidence.js";
@@ -30,6 +30,8 @@ export interface AgentView {
   version: number;
   minute: number;
   finished: boolean;
+  /** Latest accepted visual performances, including resolved parameters and an explicit illustrative provenance. */
+  performances?: ManipulationPerformance[];
   you: { id: string; name: string; role: string; roleLabel: string; location: string; holding: string[]; may: string[] };
   /**
    * Where you are in the clinic (metres on its floor plan: +x east, +z south) and what is within reach from there.
@@ -102,6 +104,10 @@ export interface AgentView {
     needle: string;
     target: string;
     inPlace: boolean;
+    /** A recorded withdrawal, distinguished from a needle found dropped or broken. */
+    withdrawn?: boolean;
+    /** Executed geometry and the pack's shaft length, excluding hidden anatomy and path findings. */
+    placement?: { region: string; side: string; u: number; v: number; depthCm: number; angleDeg: number; azimuthDeg: number; lengthMm: number };
     /** Times the needle has been worked (lift-thrust or rotation). */
     manipulations: number;
     /** Executed geometry, not a reconstruction from requested values. */
@@ -261,6 +267,12 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
     version: s.version,
     minute: Math.round(now(s) * 100) / 100,
     finished: s.finished,
+    ...(s.performances ? { performances: s.performances.slice(-64).map((performance) => ({
+      id: performance.id, requestId: performance.requestId, attempt: performance.attempt, at: performance.at, visit: performance.visit,
+      actor: performance.actor, technique: performance.technique, context: performance.context, needleId: performance.needleId,
+      site: { ...performance.site }, patientPosition: performance.patientPosition, motion: { ...performance.motion },
+      provenance: { ...performance.provenance },
+    })) } : {}),
     you: {
       id: actorId,
       name: isPatient ? t(sc.case.patient.displayName, LOCALE) : member.name,
@@ -313,6 +325,11 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
           target: placed ? label(parseRef(placed)) : `${n.insertion!.region} ${n.insertion!.side}`,
           // a needle that fell out unseen is still taken to be in place (as in `equipment`) until someone finds it
           inPlace: n.location.kind === "patient" || fellUnseen(n),
+          withdrawn: n.events.some((event) => event.what === "withdrawn"),
+          placement: (() => {
+            const p = n.location.kind === "patient" ? n.location : n.insertion!;
+            return { region: p.region, side: p.side, u: p.entry.u, v: p.entry.v, depthCm: p.depthCm, angleDeg: p.angleDeg, azimuthDeg: p.azimuthDeg, lengthMm: n.spec.lengthMm };
+          })(),
           manipulations: n.response?.manipulations ?? 0,
           geometry: { region: n.insertion!.region, side: n.insertion!.side, u: n.insertion!.entry.u, v: n.insertion!.entry.v, depthCm: n.insertion!.depthCm, angleDeg: n.insertion!.angleDeg, azimuthDeg: n.insertion!.azimuthDeg, lengthMm: n.spec.lengthMm, diameterMm: n.spec.diameterMm },
           evidence: needleEvidence(s, n.id).map((e) => ({ id: e.id, minute: round2(e.at), from: e.kind === "needle-feel" ? ("operator" as const) : ("patient" as const), text: e.text, qualities: [...(e.needle?.qualities ?? [])], grasp: e.needle?.grasp ?? null, unasked: e.needle?.volunteered ?? false })),

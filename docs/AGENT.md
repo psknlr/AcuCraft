@@ -2,7 +2,7 @@
 
 > Status: the contract for `@acucraft/agent` and `@acucraft/mcp`. If the code and this page disagree, fix one of them
 > in the same change. Built and tested without access to a live model: every test of the loop runs against a scripted
-> provider or a stand-in for the SDK client (§9).
+> provider, a stand-in for the SDK client, or mocked HTTP responses (§9).
 
 Whoever plays the practitioner — the rule-based baseline, a language model, an agent in another program, a person —
 sees the same view and acts through the same requests. This page is about how a language model does it: the tools it
@@ -17,7 +17,7 @@ clinic needs.
                                    │                                          ▼ outcome: what it did, what changed
  runner (bench) ── next(view) ──▶ llmAgent ──▶ tools: one per action · lookup · view · construct_point · read_skill
                                    │  ▲
-                        ChatRequest│  │Completion          provider: anthropic (Messages API) · scripted · oracle
+                        ChatRequest│  │Completion          provider: anthropic · openai · minimax · scripted · oracle
                                    ▼  │
                                  a model
 ```
@@ -32,6 +32,8 @@ clinic needs.
 | `referenceAgent` | `reference` | replays the scenario's hidden reference trajectory: an oracle and a check on the scenario |
 | `protocolAgent` | `protocol` | the rule-based baseline: a fixed screening list, a standard prescription per complaint, honest localisation, textbook depths ([EVALUATION.md](EVALUATION.md)) |
 | `claudeAgent` | `claude` | a language model through the Messages API: `llmAgent` over `anthropicProvider` |
+| `llmAgent` + `openaiProvider` | `openai` (or `gpt`) | GPT through OpenAI's Chat Completions API; default `gpt-4.1` |
+| `llmAgent` + `minimaxProvider` | `minimax` | MiniMax through its OpenAI-compatible Chat Completions API; default `MiniMax-M2.5` |
 | `llmAgent` + `oracleProvider` | `scripted-llm` | the reference trajectory spoken as tool calls through the same loop — no network, no fairness: an instrument (§9) |
 
 ## 2. Tools
@@ -159,6 +161,24 @@ default 3, on top of the SDK's own), and an endpoint that will not take compacti
 Options: `model`, `effort`, `maxTokens` (default 32 000, thinking included), `fallbacks`, `compactAt`, `retries`,
 `client`.
 
+**`openaiProvider`** and **`minimaxProvider`** use the same agent loop and typed engine tools through
+Chat Completions. Their defaults are `gpt-4.1` and `MiniMax-M2.5`; `--model` selects another model available to your
+account. Tool call ids and each assistant message are preserved for the next turn, including provider reasoning
+fields when returned. Tool arguments are parsed before the engine sees them, and usage, provider errors, retries
+and cancellation use the neutral provider contract above.
+
+Set credentials in the server or CLI process environment:
+
+```bash
+OPENAI_API_KEY=… npm run acu -- run sg-knee-oa/base --agent openai
+MINIMAX_API_KEY=… npm run acu -- run sg-knee-oa/base --agent minimax --model MiniMax-M2.5
+```
+
+The browser workspace also offers **GPT / OpenAI** and **MiniMax** in its Language model panel. Start the server
+with `OPENAI_API_KEY` or `MINIMAX_API_KEY`, select the provider and model, and use the same pause, stop and approval
+controls. API keys stay in the server process; the browser receives only a flag saying whether each key is set.
+`--effort` and the browser effort selector apply to Claude. GPT and MiniMax use their model's defaults.
+
 **`scriptedProvider(turns)`** plays fixed turns and records every request it received. **`oracleProvider(steps)`**
 plays a reference trajectory as tool calls, several a turn if asked, and asks again for calls that were skipped.
 
@@ -229,14 +249,60 @@ claude mcp add --transport http acucraft http://127.0.0.1:8787/mcp
 - **The Messages API**: the request body field by field; older models; what is sent back after a fallback; error
   classes; retries and the wait between them; compaction withdrawn when refused; an encounter against a stand-in
   client with thinking blocks echoed unchanged.
+- **Chat Completions providers**: mocked HTTP responses verify wire messages, tool result ids, usage, malformed
+  responses, authentication failures, retries and cancellation. Tests make no paid model calls.
 - **Skills** and **MCP**: as described above.
 
 ## 10. Limits
 
 - **No live-model results.** This release was built without API access. The request shape follows the current
-  Messages API documentation and the SDK's types; it has not been exercised against the service.
+  provider API contracts and the SDK's types; the Claude, GPT and MiniMax integrations have not been exercised
+  against live services in this change.
 - One practitioner. The support team stays the engine's scripted policies; a model does not voice the patient or
   the assistant.
-- One provider for a real model. The neutral types are there for others; none is written.
 - A person supervising a model (`approve`) is a function in code and the workspace's supervised mode
   ([WEB.md](WEB.md)), not a command-line mode.
+
+## 11. Shared manipulation controls
+
+`lookup { "topic": "techniques" }` exposes the 24 named basic maneuvers, ten authored compound demonstrations,
+and bu/xie. Each catalogue entry states its stable id, Chinese name, context (`skin`, `retained` or `removed`),
+per-technique defaults, motor phases, applicable controls and illustrative provenance. The result also includes
+the shared JSON `motionSchema`, canonical `defaults` by id, and a compact `parameters` map with bounds, units,
+steps and enum options. Both the browser panel and every LLM/MCP client use this same engine schema.
+
+For example, after inserting a needle and while its site is within reach:
+
+```json
+{
+  "type": "perform_technique",
+  "technique": "nian",
+  "needleId": "pack-a.1",
+  "motion": {
+    "durationMs": 3200,
+    "cycles": 4,
+    "rotationDeg": 70,
+    "grip": "two-finger",
+    "support": "none",
+    "hand": "right"
+  }
+}
+```
+
+`durationMs` spans the whole presentation; `cycles` applies within each primitive phase. A skin maneuver instead
+uses a current `mark`, explicit `region`/`side`/`at`, or a needle's executed site. Men (`men`) requires a needle
+actually withdrawn in the current visit. Treatment gestures require consent to the current plan, a patient able
+to continue, permission and reach; Men follows post-removal aftercare semantics and remains available after
+treatment stops. Touching skin invalidates its preparation and soils the actor's hands, so later sterile actions
+are checked by the existing hygiene rules. It does not fabricate examination findings or change a needle's
+clinical response. Cosmetic `contactIntensity` is not force, pressure or a treatment dose.
+
+Accepted gestures enter `view.performances` with resolved parameters, the executed site, patient position and
+illustrative provenance; the public view keeps the latest 64. Refused gestures create no performance. The
+optional state history is created only when this new action is used, preserving historical replay digests.
+Presentation time is independent of the simulated clinical clock, and replay makes no model call.
+
+`insert_needle` also accepts optional `presentation` fields: `durationMs`, `grip`, `support`, `hand` and
+`gripApertureMm`. These control the hand animation; anatomy checks and the executed depth remain those of the
+original insertion action. Actual needle-depth changes still use `adjust_needle`; a visual performance does not
+authorize them. See [TECHNIQUES.md](TECHNIQUES.md) for the catalogue and modeling limits.

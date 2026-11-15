@@ -1,8 +1,10 @@
-import { Group, Vector3 } from "three";
+import { Group, Quaternion, Vector3 } from "three";
 import { buildPerson, disposeRig, PLAIN_WEAR, setBlink, setBreath, setDistressed, setMouth, type AppearanceLike, type PersonOptions, type PersonRig } from "@clinicalcraft/web/world/npc.js";
 import { breathOf } from "@clinicalcraft/web/world/manikin.js";
 import { CONSULT, COUCH_TOP, SEAT_TOP, TREATMENT } from "./set.js";
 import type { StageInfo } from "./types.js";
+import { AvatarRig, type HandSide, type ReachResult } from "./rig.js";
+import { turnTowards } from "./kinematics.js";
 
 /**
  * The people of the encounter as the 3D world draws people (ClinicalCraft's figure kit): the patient as their case
@@ -78,6 +80,10 @@ export class Person {
   private speakingUntil = 0;
   private speech = 0;
   private readonly breathPhase: number;
+  private readonly animation: AvatarRig | null;
+  private route: { x: number; z: number }[] = [];
+  private destination: Placement["at"];
+  private gestureFacing: number | null = null;
 
   constructor(appearance: AppearanceLike, readonly placement: Placement) {
     this.rig = buildPerson(appearance, placement.options);
@@ -86,6 +92,8 @@ export class Person {
     this.restRoll = this.rig.body.rotation.z;
     this.rig.root.position.set(placement.at.x, placement.at.y, placement.at.z);
     this.rig.root.rotation.y = placement.at.rot * DEG;
+    this.destination = { ...placement.at };
+    this.animation = placement.options.posture === "standing" ? new AvatarRig(this.rig) : null;
     this.rig.root.traverse((o) => {
       if ((o as { isMesh?: boolean }).isMesh && o.visible) {
         o.castShadow = true;
@@ -130,6 +138,78 @@ export class Person {
 
   distress(on: boolean): void {
     if (this.rig.distressed !== on) setDistressed(this.rig, on);
+  }
+
+  /** Follow the world's already validated polyline. New walks can arrive while the previous one is being drawn. */
+  moveTo(at: Placement["at"], path: { x: number; z: number }[] = [], animate = true): void {
+    this.gestureFacing = null;
+    const old = this.destination;
+    this.destination = { ...at };
+    Object.assign(this.placement.at, at);
+    if (!animate || !this.animation) {
+      this.route = [];
+      this.rig.root.position.set(at.x, at.y, at.z);
+      this.rig.root.rotation.y = at.rot * DEG;
+      return;
+    }
+    if (Math.hypot(old.x - at.x, old.z - at.z) < 0.001) return;
+    const points = path.length ? path.map((p) => ({ ...p })) : [{ x: at.x, z: at.z }];
+    const end = points[points.length - 1]!;
+    if (Math.hypot(end.x - at.x, end.z - at.z) > 0.001) points.push({ x: at.x, z: at.z });
+    // An action stream can be much faster than the animation: preserve the preceding planned corners.
+    if (!this.route.length || !path.length || Math.hypot(points[0]!.x - old.x, points[0]!.z - old.z) > 0.08) this.route = [];
+    this.route.push(...points);
+  }
+
+  get isMoving(): boolean {
+    return this.route.length > 0;
+  }
+
+  /** A presentation turn on the spot toward the working hands. The feet's floor position never changes. */
+  faceToward(target: Vector3 | null, blend = 1): void {
+    if (!target || this.isMoving) { this.gestureFacing = null; return; }
+    const at = this.rig.root.position;
+    const yaw = Math.atan2(target.x - at.x, target.z - at.z);
+    this.gestureFacing = turnTowards(this.destination.rot * DEG, yaw, Math.max(0, Math.min(1, blend)));
+    this.rig.root.rotation.y = this.gestureFacing;
+    this.rig.root.updateMatrixWorld(true);
+  }
+
+  shoulderAt(side: HandSide): Vector3 {
+    return this.animation?.shoulderAt(side) ?? this.rig.body.getWorldPosition(new Vector3());
+  }
+
+  wristAt(side: HandSide): Vector3 {
+    return this.animation?.wristAt(side) ?? this.shoulderAt(side);
+  }
+
+  /** Request a hand target in world space. The returned wrist is clamped to the person's own arm lengths. */
+  reach(side: HandSide, wristWorld: Vector3 | null, blend = 1, palmQuat?: Quaternion): ReachResult {
+    return this.animation?.reach(side, wristWorld, blend, palmQuat) ?? { wrist: this.wristAt(side), elbow: this.shoulderAt(side), reachable: false };
+  }
+
+  private walk(dt: number): number {
+    const position = this.rig.root.position;
+    let budget = Math.max(0, Math.min(100, dt)) * 0.0011;
+    let travelled = 0;
+    while (this.route.length && budget > 0) {
+      const point = this.route[0]!;
+      const dx = point.x - position.x, dz = point.z - position.z;
+      const distance = Math.hypot(dx, dz);
+      if (distance < 0.001) { this.route.shift(); continue; }
+      const step = Math.min(budget, distance);
+      position.x += dx / distance * step;
+      position.z += dz / distance * step;
+      this.rig.root.rotation.y = turnTowards(this.rig.root.rotation.y, Math.atan2(dx, dz), Math.min(1, dt / 120));
+      budget -= step;
+      travelled += step;
+      if (step >= distance - 1e-6) this.route.shift();
+    }
+    if (!this.route.length) {
+      position.y = this.destination.y;
+      this.rig.root.rotation.y = turnTowards(this.rig.root.rotation.y, this.gestureFacing ?? this.destination.rot * DEG, Math.min(1, dt / 140));
+    }
+    return travelled;
   }
 
   tick(now: number, dt: number): void {

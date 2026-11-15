@@ -5,6 +5,8 @@ export * from "./anatomy.js";
 export * from "./world.js";
 export * from "./space.js";
 export * from "./evidence.js";
+export * from "./techniques.js";
+export * from "./performance.js";
 export * from "./queries.js";
 export * from "./conditions.js";
 export * from "./text.js";

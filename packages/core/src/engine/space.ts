@@ -34,7 +34,7 @@ import {
  */
 
 /** Where to walk, as a `move` action names it. */
-export type MoveTarget = { room: string } | { fixture: string } | { person: string } | { region: string; side: Side } | { x: number; z: number };
+export type MoveTarget = { room: string } | { fixture: string } | { person: string } | { region: string; side: Side; within?: number } | { x: number; z: number };
 
 /** Where a person "in the room" is not when in none of the clinic's rooms. */
 export const OUTSIDE = "outside";
@@ -222,8 +222,11 @@ export function walkTarget(sc: Scenario, s: EncounterState, to: MoveTarget): { o
   }
   if ("region" in to) {
     if (!sc.bundle.regions.has(to.region)) return { ok: false, code: "not-modelled", message: `There is no regional model ${to.region}.` };
+    if (to.within !== undefined && (!Number.isFinite(to.within) || to.within < 0.3 || to.within > ARM_REACH_M)) {
+      return { ok: false, code: "invalid", message: `A body-site approach distance must be between 0.3 and ${ARM_REACH_M} metres.` };
+    }
     const site = siteOf(sc, s, to.region, to.side);
-    return { ok: true, target: { kind: "near", area: site.area, within: ARM_REACH_M, face: site.point, what: `the ${site.label}` }, label: `the ${site.label}` };
+    return { ok: true, target: { kind: "near", area: site.area, within: to.within ?? ARM_REACH_M, face: site.point, what: `the ${site.label}` }, label: `the ${site.label}` };
   }
   return { ok: true, target: { kind: "point", at: { x: to.x, z: to.z } }, label: `(${fmt1(to.x)}, ${fmt1(to.z)})` };
 }

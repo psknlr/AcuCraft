@@ -1,4 +1,6 @@
 import type { AgentView } from "@acucraft/core";
+import { MANIPULATION_TECHNIQUES, ManipulationMotionSettingsSchema, resolveManipulationMotion } from "@acucraft/core";
+import { objectSchemaOf } from "./schema.js";
 import { constructPoint, requirements, type Observed } from "../localise.js";
 import type { Library, ReadTool, ToolContext } from "./types.js";
 
@@ -11,7 +13,7 @@ import type { Library, ReadTool, ToolContext } from "./types.js";
 
 type Side = "left" | "right" | "midline";
 
-export const LOOKUP_TOPICS = ["points", "point", "region", "regions", "vocabulary", "pattern", "deqi", "clinic", "floorplan", "roles", "rules", "evidence"] as const;
+export const LOOKUP_TOPICS = ["points", "point", "region", "regions", "vocabulary", "pattern", "deqi", "clinic", "floorplan", "roles", "rules", "evidence", "techniques"] as const;
 
 /** Point ids grouped by channel: the whole library in a few kilobytes. */
 const idsByChannel = (lib: Library) => {
@@ -80,6 +82,26 @@ export function lookup(lib: Library, input: { topic?: string; id?: string }): un
       return lib.rules;
     case "evidence":
       return lib.evidence;
+    case "techniques": {
+      const key = input.id?.toLowerCase();
+      const techniques = key ? MANIPULATION_TECHNIQUES.filter((definition) => definition.id === key || definition.zh === input.id || definition.label.toLowerCase() === key) : MANIPULATION_TECHNIQUES;
+      if (techniques.length === 0) return { error: `no technique ${input.id}`, available: MANIPULATION_TECHNIQUES.map((definition) => definition.id) };
+      const motionSchema = objectSchemaOf(ManipulationMotionSettingsSchema);
+      const units: Record<string, string> = { durationMs: "ms", cycles: "cycles", strokeMm: "mm", rotationDeg: "deg", lateralMm: "mm", tiltDeg: "deg", tempoBias: "ratio", gripApertureMm: "mm", contactIntensity: "normalized visual amount" };
+      const parameters = Object.fromEntries(Object.entries(motionSchema.properties).map(([name, schema]) => [name, {
+        ...(schema.minimum !== undefined ? { min: schema.minimum } : {}),
+        ...(schema.maximum !== undefined ? { max: schema.maximum } : {}),
+        ...(schema.enum ? { options: schema.enum } : {}),
+        ...(schema.type === "number" || schema.type === "integer" ? { step: schema.type === "integer" ? 1 : name === "tempoBias" || name === "contactIntensity" ? 0.01 : 0.1 } : {}),
+        unit: units[name] ?? "", type: schema.type,
+      }]));
+      return {
+        techniques: techniques.map((definition) => ({ ...definition, defaults: resolveManipulationMotion(definition.id) })),
+        defaults: Object.fromEntries(techniques.map((definition) => [definition.id, resolveManipulationMotion(definition.id)])),
+        parameters, motionSchema,
+        note: "Authored illustrative choreography. No technique here establishes a verified standard, measured force, therapeutic effect or safe clinical dose. Needle depth changes use insert_needle/adjust_needle and their anatomy guard, not performance parameters.",
+      };
+    }
     default:
       return { error: `unknown topic ${input.topic}`, topics: LOOKUP_TOPICS };
   }
@@ -92,7 +114,7 @@ export const lookupTool: ReadTool = {
   kind: "read",
   name: "lookup",
   description:
-    "Read the public reference library. Topics: points (the index: every point that can be needled, by regional model, and every point id by channel; with id, the points of one channel, body area or region), point (one point in full by id or alias: location, construction, cautions), region (one regional chart by id: landmarks and how each is found, segments and their cun, seams with neighbouring charts), regions, vocabulary (the diagnosis, pattern and red-flag ids to assess with), pattern (what each pattern is recognised by and what speaks against it; with id, one pattern), deqi (the needle sensations, which of them are deqi, what counts as evidence), clinic (rooms, where supplies are kept, referral targets), floorplan (rooms, doors, fixtures and reach distances in metres), roles, rules (the rule sets in force on each visit's date), evidence (guideline records for the condition). Call it whenever a decision rests on a definition, an id or a rule you have not read in this encounter.",
+    "Read the public reference library. Topics: points (the index: every point that can be needled, by regional model, and every point id by channel; with id, the points of one channel, body area or region), point (one point in full by id or alias: location, construction, cautions), region (one regional chart by id: landmarks and how each is found, segments and their cun, seams with neighbouring charts), regions, vocabulary (the diagnosis, pattern and red-flag ids to assess with), pattern (what each pattern is recognised by and what speaks against it; with id, one pattern), deqi (the needle sensations, which of them are deqi, what counts as evidence), clinic (rooms, where supplies are kept, referral targets), floorplan (rooms, doors, fixtures and reach distances in metres), roles, rules (the rule sets in force on each visit's date), evidence (guideline records for the condition), techniques (the illustrative manipulation catalogue, source status, contexts, parameters, defaults and bounds; with id, one technique). Call it whenever a decision rests on a definition, an id or a rule you have not read in this encounter.",
   inputSchema: {
     type: "object",
     properties: {
@@ -110,7 +132,7 @@ export const lookupTool: ReadTool = {
 };
 
 /** The sections of the view a caller may ask for one at a time. */
-export const VIEW_SECTIONS = ["you", "space", "patient", "conversation", "record", "assessment", "needling", "localisation", "plan", "equipment", "team", "tasks", "counts", "couches", "rules", "last", "teaching"] as const satisfies readonly (keyof AgentView)[];
+export const VIEW_SECTIONS = ["you", "space", "patient", "conversation", "record", "assessment", "needling", "performances", "localisation", "plan", "equipment", "team", "tasks", "counts", "couches", "rules", "last", "teaching"] as const satisfies readonly (keyof AgentView)[];
 
 export const viewTool: ReadTool = {
   kind: "read",

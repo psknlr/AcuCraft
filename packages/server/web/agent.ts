@@ -5,7 +5,7 @@ import { pill } from "./record.js";
 import { clock } from "./text.js";
 
 /**
- * The language model in the workspace: start one on the encounter (Claude through the Messages API, or the
+ * The language model in the workspace: start one on the encounter (Claude, GPT / OpenAI, MiniMax, or the
  * scenario's reference trajectory as an offline demonstration of the loop), watch it work, pause it, approve its
  * actions one by one, or stop it — and how to connect a model of your own over MCP to the same record.
  */

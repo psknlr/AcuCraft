@@ -147,6 +147,10 @@ Keep the records in a browser, with a language model and MCP clients working on 
 npm run acu -- serve
 ```
 
+To use GPT or MiniMax, set `OPENAI_API_KEY` or `MINIMAX_API_KEY` on the server, then choose the provider and model
+in the browser's Language model panel. Keys remain on the server. The CLI also supports
+`npm run acu -- run sg-knee-oa/base --agent openai` and `--agent minimax`.
+
 ```bash
 claude mcp add --transport http acucraft http://127.0.0.1:8787/mcp
 ```

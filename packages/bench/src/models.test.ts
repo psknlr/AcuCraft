@@ -29,13 +29,13 @@ describe("the pack's equipment models", () => {
     expect(types.length).toBe(11);
   });
 
-  it("every type is drawn as a model that is on disk, and nothing else lies beside them", () => {
+  it("every type is drawn as a model on disk, beside the separately animated practitioner hand", () => {
     for (const type of types) {
       expect(type.model, `${type.id} has no model: tools/blender/build.py, then tools/content/clinic_world.py`).toBeDefined();
       expect(type.model!.uri).toBe(`models/${type.id}.glb`);
       expect(existsSync(join(WORLD, "assets", type.model!.uri)), `${type.id}: ${type.model!.uri} is not on disk`).toBe(true);
     }
-    expect(readdirSync(join(WORLD, "assets", "models")).sort()).toEqual(types.map((t) => `${t.id}.glb`).sort());
+    expect(readdirSync(join(WORLD, "assets", "models")).sort()).toEqual([...types.map((t) => `${t.id}.glb`), "acu-practitioner-hand.glb"].sort());
   });
 
   it("each passes the engine's inspection against its catalog reference: licence, use status, pinned hash, size, layers", () => {
