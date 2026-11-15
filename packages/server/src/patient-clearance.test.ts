@@ -68,6 +68,17 @@ describe("actual patient surface clearance", () => {
     expect(guard.intersects(model, subject)).toBe(true);
   });
 
+  it("detects equal-thickness crossing solids whose vertices and face intersections lie on shared boundaries", () => {
+    const subject = patient(mesh(new BoxGeometry(0.02, 0.2, 0.02)));
+    const model = new Group(); model.add(mesh(new BoxGeometry(0.2, 0.02, 0.02)));
+    const guard = new PatientClearance();
+    expect(guard.intersects(model, subject)).toBe(true);
+    subject.holder.position.x = 0.11;
+    expect(guard.intersects(model, subject)).toBe(false);
+    subject.holder.position.x -= 0.0002;
+    expect(guard.intersects(model, subject)).toBe(true);
+  });
+
   it("rebuilds the patient surface after position data changes in the same attribute", () => {
     const body = mesh(new BoxGeometry(2, 2, 2)), subject = patient(body);
     const { model, surface } = probe(), guard = new PatientClearance();

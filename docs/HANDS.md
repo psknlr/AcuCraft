@@ -137,6 +137,11 @@ weights, blended joint regions, and independent deformation after skeleton
 cloning. A matching pair of named empties alone is insufficient to establish a
 believable grip.
 
+Soft-tissue compression remains unmodelled. In the long Gua stroke, adjacent
+near-nail pulp can overlap the visual handle by about 0.21 mm even though the
+nail-edge attachment fits its surface. This limits the demonstration's use for
+contact-mechanics or pressure validation.
+
 ## Contact control in the encounter renderer
 
 Each hand samples its own base clip and independent anatomical joint adjustments.

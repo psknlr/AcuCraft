@@ -159,6 +159,26 @@ export class PatientClearance {
     }
     const triangle = new Triangle(), bounds = new Box3(), normal = new Vector3(), direction = new Vector3();
     const ray = new Ray(), hit = new Vector3(), barycentric = new Vector3(), sample = new Vector3();
+    let handTree: Node | undefined;
+    const overlapAtEdge = (point: Vector3): boolean => {
+      if (!handTree) {
+        const indices = mesh.geometry.index, triangles: Triangle[] = [];
+        for (let i = 0, count = indices?.count ?? hand.points.length; i < count; i += 3) {
+          const vertex = (j: number) => this.localPoints[indices ? indices.getX(i + j) : i + j]!.clone();
+          triangles.push(new Triangle(vertex(0), vertex(1), vertex(2)));
+        }
+        handTree = build(triangles);
+      }
+      // Shared edges can also belong to overlapping closed volumes (for example equal-thickness
+      // crossing shapes). Confirm material inside both bodies instead of rejecting every edge hit.
+      const origin = point.clone(), probe = new Vector3();
+      for (const step of [epsilon * 2, epsilon * 4]) for (let x = -1; x <= 1; x++) for (let y = -1; y <= 1; y++) for (let z = -1; z <= 1; z++) {
+        if (!x && !y && !z) continue;
+        probe.copy(origin).add(sample.set(x * step, y * step, z * step));
+        if (this.inside(probe, body.root, epsilon) && this.inside(probe, handTree, epsilon)) return true;
+      }
+      return false;
+    };
     const crossing = (a: Vector3, b: Vector3, face: Triangle, checkBody: boolean): boolean => {
       face.getNormal(normal);
       const da = normal.dot(a) - normal.dot(face.a), db = normal.dot(b) - normal.dot(face.a);
@@ -168,8 +188,7 @@ export class PatientClearance {
       ray.set(a, direction);
       if (!ray.intersectTriangle(face.a, face.b, face.c, false, hit) || hit.distanceTo(a) >= length) return false;
       face.getBarycoord(hit, barycentric);
-      // Edge-only coincidence is contact; a genuine crossing reaches the face interior.
-      if (Math.min(barycentric.x, barycentric.y, barycentric.z) < 1e-8) return false;
+      if (Math.min(barycentric.x, barycentric.y, barycentric.z) < 1e-8) return overlapAtEdge(hit);
       if (!checkBody) return true;
       const step = epsilon * 2 / Math.max(1e-8, Math.abs(direction.dot(normal))), distance = hit.distanceTo(a);
       for (const sign of [-1, 1]) {
