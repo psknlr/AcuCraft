@@ -27,6 +27,14 @@ reasons about the same building — where one can stand, walk and reach — with
 *A needling station of the skills room, while its needles are retained. The body is one of the world's figures; the
 marks and the needles are layers of the station's model that follow its state.*
 
+**Patient records in the browser, live.** `npm run acu -- serve` opens a workspace where a person and a language
+model keep the same patient records at once — the operator from the page, a model run by the server (Claude, or the
+reference trajectory offline; supervised if wanted), any MCP client over HTTP — every action checked by the engine,
+recorded under who did it, kept on disk and shown in every browser as it happens, around a live 3D view of the
+encounter ([docs/WEB.md](docs/WEB.md)).
+
+![The workspace: the complete record of a low-back-pain encounter around a live 3D view of the treatment room — the patient face down on the couch with needles in the lower back and their labels, the practitioner beside the couch](docs/img/web-workspace.png)
+
 > **Status: first implementation milestone of the design proposal.** The engine, the evaluator and a pilot content pack
 > (5 case families × 3 variants) are implemented and tested. **All clinical, anatomical and regulatory content is
 > AI-assisted and unreviewed**: the regional anatomy is schematic for the head and limbs and derived from one reference body for the trunk, the Singapore rule encodings have not been checked
@@ -126,6 +134,17 @@ Let an agent in another program play the practitioner over MCP, with the same to
 claude mcp add acucraft -- npm run -s acu -- mcp
 ```
 
+Keep the records in a browser, with a language model and MCP clients working on the same records live
+([docs/WEB.md](docs/WEB.md)) — then open http://127.0.0.1:8787/:
+
+```bash
+npm run acu -- serve
+```
+
+```bash
+claude mcp add --transport http acucraft http://127.0.0.1:8787/mcp
+```
+
 See what a model is given — its tools, its standing instructions, the skills:
 
 ```bash
@@ -147,8 +166,9 @@ npm run acu -- skills
 | `packages/core` — `@acucraft/core` | schemas; scenario resolution (family + variant overlays); patient-specific anatomy, proportional (B-cun) localisation and needle path assessment; the deterministic encounter engine over ClinicalCraft's clinical session; the clinic as a walkable world over ClinicalCraft's world layer (stances, planned walks, reach); the evidence ledger, pattern support and the needle's response; needle lifecycle and invariants; roles, versioned rules and the simulation guard; consent; delegation and NPC policies; field events; replay; the agent view |
 | `packages/agent` — `@acucraft/agent` | who plays the practitioner: the reference oracle and the rule-based protocol baseline; the runtime of a language-model practitioner — one typed tool per action generated from the engine's schemas, the read-only tools (`lookup`, `view`, `construct_point`, `read_skill`), standing instructions, skills as data, a provider for the Messages API and two offline ones, a loop that carries several calls a turn and stops a batch when the patient needs an answer; the session |
 | `packages/bench` — `@acucraft/bench` | content loader; the independent evaluator (primary endpoint, five tracks, critical errors, unsafe attempts executed/blocked, the evidence links, adjudication, STRICTA-informed documentation); runner; suites; statistics; reports; the HTML viewer |
-| `packages/mcp` — `@acucraft/mcp` | an MCP server over stdio: another program's agent plays the practitioner with the same tools, and is served nothing hidden until the encounter is over |
-| `packages/cli` — `acucraft` | `validate`, `list`, `points`, `show`, `map` (the floor plan), `vocabulary` (signs, pattern criteria, deqi), `locate`, `run`, `play`, `replay`, `evaluate`, `view` (an HTML encounter viewer: the floor plan with every walk, charts with landmarks, structures, reference locations and entries, the evidence links and the timeline), `bench`, `export-clinicalcraft`, `skills`, `tools`, `prompt`, `mcp` |
+| `packages/mcp` — `@acucraft/mcp` | an MCP server (stdio, and the store the workspace shares): another program's agent plays the practitioner with the same tools, and is served nothing hidden until the encounter is over |
+| `packages/server` — `@acucraft/server` | the browser workspace (`serve`): live records an operator, the server's language model and MCP clients work on together — the record hub (attribution, timeline, records kept and restored by replay), an HTTP API, a server-sent event stream, MCP over Streamable HTTP, the language-model runner (approvals, pause, stop), the browser app (the complete record, every tool as a form) and its 3D view of the encounter, drawn with ClinicalCraft's figure kit and the pack's models |
+| `packages/cli` — `acucraft` | `validate`, `list`, `points`, `show`, `map` (the floor plan), `vocabulary` (signs, pattern criteria, deqi), `locate`, `run`, `play`, `replay`, `evaluate`, `view` (an HTML encounter viewer: the floor plan with every walk, charts with landmarks, structures, reference locations and entries, the evidence links and the timeline), `bench`, `export-clinicalcraft`, `skills`, `tools`, `prompt`, `mcp`, `serve` (the browser workspace) |
 | `content/` | 3 standard editions, the full point library (409: the WHO 2008 standard's 361 meridian points and the WHO 1991 nomenclature's 48 extra points; 399 localised and needleable), 18 regional models covering the whole body (the trunk and front of the neck derived from the HuBMAP Visible Human Male reference body, CC BY 4.0, see THIRD_PARTY.md; the head and limbs schematic) and where each lies on the body, Singapore roles, 3 rule-set series, the clinic and its floor plan (a ClinicalCraft facility with three room templates), a skills room with two needling stations, an equipment catalog of 11 types each with a model built in Blender (`world/assets/models`), the vocabulary (diagnoses, 66 signs, 13 patterns with their criteria, needle sensations, deqi), guideline evidence, 9 skills (how the clinic works, for an agent to read), 5 families, the pilot suite |
 | `tools/` | `bootstrap.sh` (the pinned engine), `check.sh` (what CI runs), `locate.ts`, `finish-solutions.ts` (replays the reference trajectories: drops idle walks, writes the needle responses from the evidence), `content/` (authoring scripts: families, the clinic's world, the vocabulary), `blender/` (the equipment models: `build.py`, `models.py`, and each needling station's fit to its body), `figure-fit.mts` (measures that body on the pinned figure kit), `world-shots.mjs` and `preview-sheets.py` (the pictures of `docs/img`) |
 
@@ -177,7 +197,7 @@ other variant of the family (both are tested).
 | §7 shared action system for all characters; observable delegation; deterministic control; seeded events; replay from recorded outputs; four records per request | yes ([ARCHITECTURE.md](docs/ARCHITECTURE.md)) | LLM-voiced patient and assistant (the patient answers from authored facts) |
 | §8 fixed case state, investigation sequence, "not provided or not modelled" | yes (ClinicalCraft records and turnaround) | |
 | §9 primary endpoint, separate reports, five tracks, multiple pathways, adjudication, family splits, clustering | yes ([EVALUATION.md](docs/EVALUATION.md)) | expert review; the four experiments need live-model runs |
-| §10 MVP: ~40 families, 120 instances, 30–40 points, 4–6 regions | 5 families (3 dev, 2 held-out), 15 instances; all 409 standard points defined (399 localised); 18 regions covering the whole body; practitioner, patient and support roles; the clinic; interruptions, abnormal sensations, bleeding, a syncope-like event, consent withdrawn mid-procedure, a dropped needle (tests); UI (CLI), action API, case format, replay, reports | 35 more families; a graphical UI |
+| §10 MVP: ~40 families, 120 instances, 30–40 points, 4–6 regions | 5 families (3 dev, 2 held-out), 15 instances; all 409 standard points defined (399 localised); 18 regions covering the whole body; practitioner, patient and support roles; the clinic; interruptions, abnormal sensations, bleeding, a syncope-like event, consent withdrawn mid-procedure, a dropped needle (tests); UI (CLI, and the browser workspace with its live 3D view: [WEB.md](docs/WEB.md)), action API, case format, replay, reports | 35 more families |
 | §13 release acceptance criteria | each one is an executable test (`packages/bench/src/acceptance.test.ts`) | |
 
 Electroacupuncture, moxibustion and haptics are out of scope for this release, as the proposal plans.
@@ -202,6 +222,7 @@ an encounter. There are no live-model results: this release was built without AP
 - [docs/ANATOMY.md](docs/ANATOMY.md) — charts, configurations, patient-specific instances and cun, tissue, needle paths
 - [docs/EVALUATION.md](docs/EVALUATION.md) — endpoint, tracks, agents, statistics, the baseline
 - [docs/AGENT.md](docs/AGENT.md) — the practitioner's runtime: tools, the loop, what a model is told, skills, providers, sessions, MCP
+- [docs/WEB.md](docs/WEB.md) — the browser workspace: live records shared by an operator, a language model and MCP clients; the API, the event stream, MCP over HTTP, security, the 3D view
 - [docs/SINGAPORE.md](docs/SINGAPORE.md) — roles, rule sets and versions, what remains to verify
 - [docs/CONTENT.md](docs/CONTENT.md) — authoring families, variants, fields, conditions and reference trajectories
 - [docs/AUDIT-2026-11.md](docs/AUDIT-2026-11.md) — the November 2026 clinical and gameplay audit: what changed, the regression tests, what remains open

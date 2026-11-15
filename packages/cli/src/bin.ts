@@ -3,6 +3,7 @@
  * acucraft — validate the content pack, run and replay encounters, play one yourself, run the benchmark.
  * Run from the repository root: `npm run acu -- <command>` (see `npm run acu -- help`).
  */
+import { randomBytes } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { createInterface } from "node:readline/promises";
@@ -36,6 +37,7 @@ import {
 import { claudeAgent, llmAgent, lookup, oracleProvider, protocolAgent, referenceAgent, systemPrompt, toolsFor, type Agent, type Effort, type LlmEvent } from "@acucraft/agent";
 import { CLINICALCRAFT_REV, encounterHtml, episodeMarkdown, evaluateEncounter, loadContentPack, loadScenario, requireScenario, runEpisode, runSuite, scenarioIds, suiteMarkdown, SuiteSchema, DEFAULT_CONTENT_DIR } from "@acucraft/bench";
 import { runMcpServer } from "@acucraft/mcp";
+import { isLoopbackHost, RecordHub, serve } from "@acucraft/server";
 import type { Scenario } from "@acucraft/core";
 
 const HELP = `acucraft — acupuncture simulation and evaluation (Singapore edition)
@@ -74,6 +76,11 @@ usage: npm run acu -- <command> [options]
   prompt                                    the standing instructions a language-model practitioner is given
   mcp                                       serve encounters to an MCP client over stdio (Claude Code, Claude Desktop):
                                             the client plays the practitioner with the same tools (docs/AGENT.md)
+  serve [--port 8787] [--host 127.0.0.1] [--data runs/web | --in-memory] [--token-file FILE] [--verbose]
+                                            the live patient-record workspace in a web browser: you, a language model
+                                            the server runs, and any MCP client (Streamable HTTP at /mcp) work on the
+                                            same records in real time (docs/WEB.md). A token comes from --token-file or
+                                            ACUCRAFT_TOKEN; any address but loopback needs one (made up if not given)
 
   --content DIR                             another content pack (default: ./content)
 `;
@@ -103,6 +110,11 @@ const { positionals, values } = parseArgs({
     role: { type: "string" },
     library: { type: "boolean", default: false },
     json: { type: "boolean", default: false },
+    port: { type: "string", default: "8787" },
+    host: { type: "string", default: "127.0.0.1" },
+    data: { type: "string" },
+    "in-memory": { type: "boolean", default: false },
+    "token-file": { type: "string" },
     help: { type: "boolean", short: "h", default: false },
   },
 });
@@ -616,6 +628,42 @@ async function main(): Promise<void> {
           write(join(out, sessionId, "log.json"), `${JSON.stringify(log, null, 2)}\n`);
           write(join(out, sessionId, "report.md"), episodeMarkdown(report));
         },
+      });
+      return;
+    }
+    case "serve": {
+      const port = Number(values.port);
+      if (!Number.isInteger(port) || port < 0 || port > 65535) throw new Error(`--port must be a port number, not ${values.port}`);
+      const fromFile = values["token-file"] ? readFileSync(resolve(values["token-file"]), "utf8").trim() : "";
+      if (values["token-file"] && !fromFile) throw new Error(`the token file ${values["token-file"]} is empty`);
+      const loopback = isLoopbackHost(values.host);
+      let token: string | null = fromFile || process.env.ACUCRAFT_TOKEN?.trim() || null;
+      const madeUp = !token && !loopback;
+      if (madeUp) token = randomBytes(24).toString("hex");
+      if (token && token.length < 16) throw new Error("the access token must be at least 16 characters");
+      const dataDir = values["in-memory"] ? null : resolve(values.data ?? join("runs", "web"));
+      const hub = new RecordHub({ pack: pack(), dataDir, log: (line) => console.error(line) });
+      const restored = hub.restore();
+      for (const s of restored.skipped) console.error(`skipped ${s.file}: ${s.reason}`);
+      const running = await serve({ hub, host: values.host, port, token, log: values.verbose ? (line) => console.error(line) : undefined });
+      const url = running.url.replace(/\/$/, "");
+      console.log(`AcuCraft workspace   ${url}/${madeUp ? `?token=${token}` : ""}`);
+      console.log(`  records            ${dataDir ? `${dataDir} (${restored.restored} restored)` : "in memory only (gone when the server stops)"}`);
+      console.log(`  language model     ${process.env.ANTHROPIC_API_KEY ? "Claude through the Messages API (ANTHROPIC_API_KEY is set)" : "the reference trajectory only (set ANTHROPIC_API_KEY for Claude)"}`);
+      console.log(`  MCP over HTTP      ${url}/mcp`);
+      console.log(`    claude mcp add --transport http acucraft ${url}/mcp${token ? ' --header "Authorization: Bearer <token>"' : ""}`);
+      if (token && !madeUp) console.log("  access             the token you gave: open the workspace once with ?token=<token>");
+      if (!loopback) console.log("  warning            listening beyond this computer: anyone with the token can read and change the records");
+      console.log("Ctrl-C stops the server.");
+      await new Promise<void>((done) => {
+        const stop = () => {
+          process.off("SIGINT", stop);
+          process.off("SIGTERM", stop);
+          console.error("stopping…");
+          void running.close().then(done);
+        };
+        process.on("SIGINT", stop);
+        process.on("SIGTERM", stop);
       });
       return;
     }

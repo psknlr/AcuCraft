@@ -71,6 +71,25 @@ export function viewChanges(prev: AgentView, next: AgentView): Record<string, un
   put("assessment", next.assessment, !same(prev.assessment, next.assessment));
   put("plan", next.plan, !same(prev.plan, next.plan));
 
+  // the written record: what is new in it (a note, a decision, a referral …), and the consent as it now stands
+  const documentation: Record<string, unknown> = {};
+  const pd = prev.documentation, nd = next.documentation;
+  const at = (x: { visit?: number; minute: number; by: string }) => `${x.visit ?? ""}|${x.minute}|${x.by}`;
+  const notes = changed(pd.notes, nd.notes, (n) => `${at(n)}|${JSON.stringify(n.record)}`);
+  const decisions = changed(pd.decisions, nd.decisions, (d) => `${at(d)}|${d.disposition}`);
+  const explanations = changed(pd.explanations, nd.explanations, (e) => `${at(e)}|${e.topics.join(",")}`);
+  const referrals = changed(pd.referrals, nd.referrals, (r) => `${at(r)}|${r.to}`);
+  const incidents = changed(pd.incidents, nd.incidents, (x) => `${at(x)}|${x.kind}`);
+  if (notes.length) documentation.notes = notes;
+  if (decisions.length) documentation.decisions = decisions;
+  if (explanations.length) documentation.explanations = explanations;
+  if (referrals.length) documentation.referrals = referrals;
+  if (incidents.length) documentation.incidents = incidents;
+  if (!same(pd.consent, nd.consent)) documentation.consent = nd.consent;
+  if (!same(pd.stopped, nd.stopped)) documentation.stopped = nd.stopped;
+  if (pd.visits.length !== nd.visits.length) documentation.visits = nd.visits;
+  put("documentation", documentation, Object.keys(documentation).length > 0);
+
   const needling = changed(prev.needling, next.needling, (n) => n.needle);
   put("needling", needling, needling.length > 0);
 

@@ -83,7 +83,12 @@ at a time. So:
    (`maxModelCalls`, default 800) end the agent's part with a note. The loop does not throw for anything the model
    or the provider did; the note is in the episode log (`meta.note`) and on the command line.
 5. `approve(action, view)` can refuse an action before it reaches the engine (a person supervising the agent). The
-   refusal goes back to the model as that call's result.
+   refusal goes back to the model as that call's result. It may answer later (a promise): the workspace's
+   supervised mode waits for the operator's click ([WEB.md](WEB.md)).
+6. `meanwhile(before, after)` reports what others did to the encounter between the view a call was made on and the
+   view after it (the workspace: the operator's and MCP clients' actions). When it says anything, the call's result
+   carries it as `meanwhile` and the rest of the turn's batch is not carried out — the model decides again on the
+   encounter as it now stands.
 
 The conversation is only ever appended to, and an assistant turn is sent back exactly as it came
 (`ChatMessage.raw`). The standing instructions and the tools are identical on every request. Two things follow: a
@@ -163,7 +168,9 @@ Another model family is another provider: implement `complete`.
 
 `EncounterSession` (`session.ts`) is the one way a request gets its id and its version: `view()`, `library()`,
 `act(action)` → the attempt, the new view and the outcome as a practitioner is told it, and `log(engine, meta)` — the
-replayable `acucraft/log@1`. The runner, the MCP server and tests use it.
+replayable `acucraft/log@1`. `EncounterSession.fromLog(scenario, log)` brings a session back by replaying a log's
+requests, and refuses one that does not reproduce the log's recorded state. The runner, the MCP server, the
+workspace and tests use it.
 
 An episode's log keeps, in `meta`: the agent's name with its model and effort, why it stopped, a note when it stopped
 by itself, `usage` (model turns; input, output, cache-read and cache-write tokens) and the `transcript` — every
@@ -194,9 +201,21 @@ To register it with Claude Code, from this repository:
 claude mcp add acucraft -- npm run -s acu -- mcp
 ```
 
+**Over HTTP, on the workspace's records.** `npm run acu -- serve` serves the same tools at `/mcp` (Streamable HTTP:
+a session from `initialize` in `Mcp-Session-Id`, JSON answers, 202 for notifications, `DELETE` to end it;
+[WEB.md](WEB.md) §2). There an encounter is a record of the browser workspace: one a client starts appears in every
+browser, and `list_open_encounters` lets a client join one someone else started — the operator, the server's
+language model, another client — with its `session_id`. Every action is attributed to the client by the name it
+gave in `initialize`; each result says what `changed` since the client last looked and what others did `meanwhile`.
+
+```bash
+claude mcp add --transport http acucraft http://127.0.0.1:8787/mcp
+```
+
 ## 9. Tests
 
-`packages/agent/src/*.test.ts`, `packages/mcp/src/mcp.test.ts` — no network anywhere.
+`packages/agent/src/*.test.ts`, `packages/mcp/src/mcp.test.ts`, and for the workspace's runner and MCP over HTTP
+`packages/server/src/*.test.ts` — no network anywhere.
 
 - **Tools**: one for every action, closed schemas, the engine's bounds; every action of every reference trajectory
   (1 125 of them) passes through its tool unchanged; invalid inputs are refused with the field named; the read-only
@@ -219,4 +238,5 @@ claude mcp add acucraft -- npm run -s acu -- mcp
 - One practitioner. The support team stays the engine's scripted policies; a model does not voice the patient or
   the assistant.
 - One provider for a real model. The neutral types are there for others; none is written.
-- A person supervising a model (`approve`) is a function in code, not yet a command-line mode.
+- A person supervising a model (`approve`) is a function in code and the workspace's supervised mode
+  ([WEB.md](WEB.md)), not a command-line mode.

@@ -1,5 +1,5 @@
 import { t } from "@clinicalcraft/core";
-import type { PointRef } from "../schema/actions.js";
+import type { DocumentRecord, PointRef } from "../schema/actions.js";
 import type { EncounterState } from "../schema/state.js";
 import { pointInstance, pointTargets, regionAccess } from "./anatomy.js";
 import { consentCovers, currentPlan, currentVisit, fellUnseen, fmt, needleList, now, parseRef, refKey, visitIndex } from "./queries.js";
@@ -109,7 +109,24 @@ export interface AgentView {
     measurements: { region: string; side: string; what: string; cm: number }[];
     marks: { id: string; target: string; region: string; side: string; u: number; v: number; stale: boolean }[];
   };
-  plan: { version: number; points: string[]; retentionMinutes: number; stimulation: string; approved: boolean } | null;
+  /** The plan as set (`propose_plan`): the latest version, which the patient's consent may or may not cover. */
+  plan: { version: number; minute: number; points: string[]; retentionMinutes: number; stimulation: string; method: string; rationale: string; alternatives: string[]; followUp: string | null; approved: boolean } | null;
+  /**
+   * The written record, every visit so far: the decisions made, what the patient was told and agreed to, the
+   * referrals, the incidents reported, a treatment stopped, and the notes written (`document`). It is the
+   * practitioner's own record and the team's — what they wrote and decided — so nothing in it is hidden from them,
+   * and a follow-up visit starts from the notes of the first.
+   */
+  documentation: {
+    visits: { visit: number; date: string; current: boolean; ended: boolean }[];
+    decisions: { visit: number; minute: number; by: string; disposition: string; rationale: string }[];
+    consent: { status: string; planVersion: number | null; minute: number | null; topics: string[] };
+    explanations: { visit: number; minute: number; by: string; topics: string[]; text: string | null }[];
+    referrals: { minute: number; by: string; to: string; urgency: string; reason: string }[];
+    notes: { visit: number; minute: number; by: string; record: DocumentRecord }[];
+    incidents: { visit: number; minute: number; by: string; kind: string; needle: string | null; description: string }[];
+    stopped: { visit: number; minute: number; by: string; reason: string } | null;
+  };
   equipment: {
     packs: { id: string; where: string; sealed: boolean; needles: number; spec: string; expiredLabel: boolean }[];
     needles: { id: string; where: string; used: boolean; contaminated: boolean }[];
@@ -298,8 +315,31 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
     },
     plan: (() => {
       const p = currentPlan(s);
-      return p ? { version: p.version, points: p.plan.points.map((x) => refKey(x as PointRef)), retentionMinutes: p.plan.technique.retentionMinutes, stimulation: p.plan.technique.stimulation, approved: s.planApproved === p.version } : null;
+      return p
+        ? {
+            version: p.version,
+            minute: round2(p.at),
+            points: p.plan.points.map((x) => refKey(x as PointRef)),
+            retentionMinutes: p.plan.technique.retentionMinutes,
+            stimulation: p.plan.technique.stimulation,
+            method: p.plan.technique.method,
+            rationale: p.plan.rationale,
+            alternatives: [...p.plan.alternatives],
+            followUp: p.plan.followUp ?? null,
+            approved: s.planApproved === p.version,
+          }
+        : null;
     })(),
+    documentation: {
+      visits: s.visits.map((v, i) => ({ visit: v.index, date: v.date, current: i === s.visits.length - 1, ended: v.ended })),
+      decisions: s.decisions.map((d) => ({ visit: d.visit, minute: round2(d.at), by: speakerLabel(sc, d.by), disposition: d.disposition, rationale: d.rationale })),
+      consent: { status: s.patient.consent.status, planVersion: s.patient.consent.planVersion, minute: s.patient.consent.at === null ? null : round2(s.patient.consent.at), topics: [...s.patient.consent.topics] },
+      explanations: s.explanations.map((e) => ({ visit: e.visit, minute: round2(e.at), by: speakerLabel(sc, e.by), topics: [...e.topics], text: e.text })),
+      referrals: s.referrals.map((r) => ({ minute: round2(r.at), by: speakerLabel(sc, r.by), to: r.to, urgency: r.urgency, reason: r.reason })),
+      notes: s.documents.map((d) => ({ visit: d.visit, minute: round2(d.at), by: speakerLabel(sc, d.by), record: structuredClone(d.record) })),
+      incidents: s.incidents.map((x) => ({ visit: x.visit, minute: round2(x.at), by: speakerLabel(sc, x.by), kind: x.kind, needle: x.needleId, description: x.description })),
+      stopped: s.stopped ? { visit: s.stopped.visit, minute: round2(s.stopped.at), by: speakerLabel(sc, s.stopped.by), reason: s.stopped.reason } : null,
+    },
     equipment: {
       packs: Object.values(s.packs).map((p) => {
         const spec = s.needles[p.needles[0]!]!.spec;
