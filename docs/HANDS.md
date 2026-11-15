@@ -8,6 +8,11 @@ animation asset, without anatomical or clinical validation.
 
 ![The live renderer's precision pinch from the side, showing the actual finger surfaces around the needle handle](img/technique-grip-closeup.png)
 
+The same asset in Blender, with the radial thumb origin, thenar mound and its two
+exposed phalanges visible independently of the supporting hand:
+
+![Blender render of the actual hand asset and thumb-index hold](img/technique-thumb-anatomy.png)
+
 Rebuild with Blender 4.3 or newer:
 
 ```bash
