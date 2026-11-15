@@ -9,7 +9,9 @@ import { SiteFinder, siteOfInsertion, type SkinSite } from "./sites.js";
 import { refineSkin } from "./skin.js";
 import { floorFrame, fromStageFloor, patientEscortArrival, patientRoomView, practitionerFloorPlacement, toStageFloor } from "./navigation.js";
 import { NeedleProcedure } from "./procedure.js";
-import type { NeedleTechnique, NeedleMotionSettings } from "@acucraft/core";
+import { PerformTechniqueSchema, manipulationTechnique, type NeedleTechnique, type NeedleMotionSettings } from "@acucraft/core";
+import type { TechniquePlayback, TechniquePreview } from "../manipulation.js";
+import { previewSite } from "./performance-target.js";
 import type { AgentView, CameraMode, ChartSite, Quality, StageInfo, StageState, TimelineEntry } from "./types.js";
 
 /**
@@ -25,6 +27,7 @@ export interface StageOptions {
   onPick?: (needle: string | null) => void;
   /** Shift-click a floor destination: the host submits it through the authoritative movement tool. */
   onMove?: (to: { x: number; z: number }) => void;
+  onPlayback?: (state: TechniquePlayback) => void;
   /** The file of a model of the clinic's equipment, as a URL. */
   modelUrl?: (file: string) => string;
 }
@@ -33,6 +36,10 @@ export interface StageHandle {
   update(state: StageState): void;
   /** Highlight a needle (as when its row in the record is hovered). */
   highlight(needle: string | null): void;
+  /** A local, clearly labelled preview; it never submits an encounter action. */
+  previewTechnique(request: TechniquePreview): void;
+  setPlayback(state: { paused?: boolean; speed?: number; progress?: number }): void;
+  cancelPreview(): void;
   dispose(): void;
 }
 
@@ -69,6 +76,10 @@ function describe(e: TimelineEntry, view: AgentView): string {
       return `inserts ${s("needleId")} ${s("mark") ? `at ${s("mark")}` : s("target") ? `at ${sideWord(s("target"))}` : ""} · ${Number(i.depthCm ?? 0).toFixed(1)} cm`;
     case "adjust_needle":
       return `works ${s("needleId")}${s("technique") && s("technique") !== "none" ? ` (${s("technique")})` : ""}`;
+    case "perform_technique": {
+      const technique = manipulationTechnique(s("technique"));
+      return `${technique?.zh ?? s("technique")} · ${technique?.label ?? "technique"}`;
+    }
     case "mark_point":
       return `marks ${sideWord(s("target") || s("point"))}`;
     case "position_patient":
@@ -144,6 +155,8 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
   let staffKey = "";
   let staffAtKey = "";
   let walkedAttempt = -1;
+  const seenPerformances = new Set<string>();
+  let previewSequence = 0;
   let set: SetName = "consult";
   let state: StageState | null = null;
   let seenEntries = 0;
@@ -158,6 +171,10 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
     const site = needles.siteOf(id);
     if (site) director.cut({ ...director.closeOn(site.p, site.n, 0.46), hold: 4000 }, 650);
   });
+  procedure.onPlayback = (playback) => {
+    hud.performance(playback);
+    options.onPlayback?.(playback);
+  };
   engine.scene.add(procedure.group);
   void procedure.load(modelUrl("acu-practitioner-hand.glb"), String(info.practitioner.appearance.skin ?? "#cba88a")).catch(() => {
     // Needles and arm reach remain available if the optional detail asset cannot load.
@@ -359,10 +376,22 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
       hud.action(byText(e.by), e.by.kind, describe(e, view), e.status);
       const id = typeof e.input.needleId === "string" ? e.input.needleId : null;
       if (e.tool === "insert_needle" && id && (e.status === "executed" || e.status === "partial")) {
+        if (e.input.presentation && typeof e.input.presentation === "object") procedure.setInsertionPresentation(id, e.input.presentation);
         lastNeedle = id;
         focus = needles.siteOf(id) ?? focus;
       }
       if (e.tool === "adjust_needle" && id && (e.status === "executed" || e.status === "partial")) procedure.work(id, (e.input.technique ?? "none") as NeedleTechnique, e.input.motion as NeedleMotionSettings | undefined);
+      if (e.tool === "perform_technique" && e.status === "executed") {
+        const performance = view.performances?.find((p) => p.requestId === e.requestId);
+        if (performance && !seenPerformances.has(performance.id)) {
+          seenPerformances.add(performance.id);
+          const site = performance.patientPosition === view.patient.position && performance.visit === view.setting.visit && performance.actor === view.you.id ? finder?.find(performance.site) : null;
+          if (site) {
+            procedure.perform({ id: performance.id, technique: performance.technique, needleId: performance.needleId ?? undefined, site, motion: performance.motion });
+            focus = site;
+          }
+        }
+      }
       if (e.tool === "mark_point" && (e.status === "executed" || e.status === "partial")) {
         const last = view.localisation.marks[view.localisation.marks.length - 1];
         const site = last && finder ? finder.find({ region: last.region, side: last.side, u: last.u, v: last.v }) : null;
@@ -384,6 +413,7 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
       for (const u of lines.slice(seenLines)) if (u.speaker !== view.you.name) subtitles.push({ who: u.speaker, text: u.text, patient: u.speaker === view.patient.name });
     }
     seenLines = lines.length;
+    for (const performance of view.performances ?? []) seenPerformances.add(performance.id);
 
     procedure.sync();
     if (moved && animate) director.cut(patientShot(), 1500);
@@ -428,13 +458,13 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
     needles.tick(dt, now);
     procedure.tick(now);
     practitioner?.tick(now, dt);
-    if (practitioner?.isMoving) engine.invalidate(2);
+    if (practitioner?.isMoving || procedure.playback.mode !== "idle") engine.invalidate(2);
     director.update();
     // (the labels are placed with this frame's camera, not the last one's: no swimming while it moves)
     engine.camera.updateMatrixWorld();
     engine.focus(director.focusDistance);
     const r = host.getBoundingClientRect();
-    hud.place(needles.anchors(), engine.camera, r.width, r.height);
+    hud.place(needles.anchors(), engine.camera, r.width, r.height, procedure.group.visible);
   });
   sets.ready.then(
     () => {
@@ -447,6 +477,7 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
   return {
     update(next: StageState) {
       const first = state === null;
+      if (state && state.view.version !== next.view.version) procedure.stopPreview();
       state = next;
       sync(next, !first);
       if (first) {
@@ -461,6 +492,19 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
       picked = id;
       needles.highlight(id);
     },
+    previewTechnique(request) {
+      if (!state || !finder || !practitioner) throw new Error("3D 场景尚未就绪 · The 3D scene is not ready.");
+      const parsed = PerformTechniqueSchema.safeParse({ ...request, type: "perform_technique" });
+      if (!parsed.success) throw new Error(`参数无效 · Invalid technique parameters: ${parsed.error.issues.map((issue) => issue.path.join(".") + ": " + issue.message).join("; ")}`);
+      const target = previewSite(state.view, parsed.data);
+      const site = finder.find(target);
+      if (!site || !site.bare) throw new Error("当前图形未显示此处裸露皮肤，请选择可见标记 · Choose a site on the visible skin.");
+      if (!procedure.preview({ id: `preview-${++previewSequence}`, technique: parsed.data.technique, needleId: parsed.data.needleId, site, motion: parsed.data.motion })) throw new Error("请等待当前动作完成，再开始预览 · Wait for the current recorded action or walk to finish.");
+      director.cut({ ...director.closeOn(site.p, site.n, 0.5), hold: 60_000 }, 650);
+      engine.invalidate(45);
+    },
+    setPlayback(playback) { procedure.setPlayback(playback); engine.invalidate(3); },
+    cancelPreview() { procedure.stopPreview(); engine.invalidate(3); },
     dispose() {
       patientArrival = null;
       engine.dispose();

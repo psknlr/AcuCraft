@@ -4,11 +4,11 @@ export type ProcedureKind = "insert" | "remove" | "work";
 const clamp = (t: number) => Math.max(0, Math.min(1, t));
 export const settle = (t: number) => { const x = clamp(t); return x * x * x * (x * (x * 6 - 15) + 10); };
 
-export function sampleProcedure(kind: ProcedureKind, elapsedMs: number, workMs = 1800): {
+export function sampleProcedure(kind: ProcedureKind, elapsedMs: number, workMs = 1800, operationMs?: number): {
   reach: number; grip: number; operation: number; operating: boolean; complete: boolean; durationMs: number; operationStartMs: number;
 } {
   const approach = 850, grasp = 220, release = 200, retreat = 650;
-  const duration = kind === "insert" ? 1100 : kind === "remove" ? 850 : workMs;
+  const duration = operationMs !== undefined && Number.isFinite(operationMs) ? Math.max(1, operationMs) : kind === "insert" ? 1100 : kind === "remove" ? 850 : workMs;
   const begin = approach + grasp, end = begin + duration;
   const durationMs = end + release + retreat;
   const t = Math.max(0, elapsedMs);

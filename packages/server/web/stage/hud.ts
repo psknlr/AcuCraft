@@ -1,5 +1,6 @@
 import { Vector3, type PerspectiveCamera } from "three";
 import type { CameraMode, Quality } from "./types.js";
+import type { TechniquePlayback } from "../manipulation.js";
 
 /**
  * What is drawn over the 3D view, as in a game's heads-up display: where the patient is and how they are, the
@@ -54,6 +55,7 @@ export class Hud {
   private readonly labels = el("div", "hud-labels");
   private readonly timer = el("div", "hud-timer");
   private readonly tools = el("div", "hud-tools");
+  private readonly performanceLabel = el("div", "hud-performance");
   private readonly loading = el("div", "stage-loading");
   private readonly fader = el("div", "stage-fade");
   private readonly note = el("div", "hud-note", "Schematic figure: positions on the body are drawn approximately");
@@ -67,7 +69,8 @@ export class Hud {
   private last = "";
 
   constructor(private readonly controls: HudControls) {
-    this.root.append(this.labels, this.cluster, this.tl, this.tr, this.caption, this.sub, this.timer, this.tools, this.note, this.fader, this.loading);
+    this.performanceLabel.hidden = true;
+    this.root.append(this.labels, this.cluster, this.tl, this.tr, this.caption, this.sub, this.timer, this.tools, this.performanceLabel, this.note, this.fader, this.loading);
     this.cluster.type = "button";
     this.cluster.title = "the needles: a closer look";
     this.cluster.addEventListener("click", () => this.controls.shot("needle"));
@@ -109,6 +112,13 @@ export class Hud {
   ready(): void {
     this.loading.classList.add("done");
     window.setTimeout(() => this.loading.remove(), 900);
+  }
+
+  performance(state: TechniquePlayback): void {
+    if (state.mode === "idle") { this.performanceLabel.hidden = true; return; }
+    this.performanceLabel.hidden = false;
+    this.performanceLabel.textContent = `${state.mode === "preview" ? "本地预览 Preview" : "记录回放 Record"} · ${state.technique ?? ""}${state.phase ? ` · ${state.phase}` : ""} · ${Math.round(state.progress * 100)}% · ${state.speed}×${state.playing ? "" : " · 暂停 Paused"}${state.reachWarning ? ` · ${state.reachWarning}` : ""}`;
+    this.performanceLabel.dataset.mode = state.mode;
   }
 
   failed(message: string): void {
@@ -188,7 +198,7 @@ export class Hud {
   }
 
   /** Put each needle's label where its handle is on the screen. */
-  place(anchors: { id: string; target: string; at: Vector3; inserted: number; highlight: boolean }[], camera: PerspectiveCamera, w: number, h: number): void {
+  place(anchors: { id: string; target: string; at: Vector3; inserted: number; highlight: boolean }[], camera: PerspectiveCamera, w: number, h: number, handsActive = false): void {
     const keep = new Set(anchors.map((a) => a.id));
     for (const [id, e] of this.labelEls) {
       if (keep.has(id)) continue;
@@ -240,7 +250,7 @@ export class Hud {
     const placed: { x0: number; x1: number; y0: number; y1: number }[] = [];
     const H = 22;
     for (const s of shown) {
-      let lift = 6;
+      let lift = handsActive ? 36 : 6;
       for (let tries = 0; tries < 12; tries++) {
         const box = { x0: s.x - s.w / 2 - 3, x1: s.x + s.w / 2 + 3, y0: s.y - lift - H, y1: s.y - lift };
         const hit = placed.find((p) => box.x0 < p.x1 && box.x1 > p.x0 && box.y0 < p.y1 && box.y1 > p.y0);

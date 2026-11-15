@@ -126,6 +126,12 @@ export const ACTION_DOCS: Record<ActionType, ActionDoc> = {
       angleDeg: "0 is perpendicular to the skin, 45 oblique, 75 to 90 transverse.",
       azimuthDeg: "The direction the tip travels across the chart: 0 cranial (+v), 90 towards +u, 180 caudal, 270 towards -u.",
       depthCm: "Depth along the shaft, in centimetres.",
+      presentation: "Optional 3D insertion choreography: duration, grip, supporting hand and needle-holding hand. These settings never alter the permitted needle path, depth, consent or clinical response.",
+      "presentation.durationMs": "Insertion movement duration in milliseconds, 400 to 8000.",
+      "presentation.grip": "two-finger thumb-index pinch or three-finger grip with middle-finger support.",
+      "presentation.support": "Illustrative supporting-hand pose: none, stabilize, stretch, pinch or press.",
+      "presentation.hand": "auto chooses the closer hand; left or right requests the named hand.",
+      "presentation.gripApertureMm": "Visual grip aperture adjustment in millimetres, 0 to 12; this is not a measured contact force.",
     },
   },
   adjust_needle: {
@@ -138,6 +144,19 @@ export const ACTION_DOCS: Record<ActionType, ActionDoc> = {
       "motion.durationMs": "Whole animation duration in milliseconds, 400 to 8000 (default 1800).",
       "motion.strokeMm": "Displayed outward stroke in millimetres, 0 to 3 (default 1.5), clamped to the retained depth.",
       "motion.rotationDeg": "Maximum displayed twist amplitude in degrees, 0 to 180 (default 90).",
+    },
+  },
+  perform_technique: {
+    does: "Perform one illustrative 3D manipulation, using the same bounded parameters as the operator panel. Read lookup techniques for all 24 basic terms, 10 compound demonstrations and bu/xie, source status, contexts, defaults and bounds. This records choreography; it does not insert, withdraw, deepen a needle, measure force, produce clinical evidence or change therapeutic effects. Retained maneuvers require an inserted needle; post-removal maneuvers require a needle withdrawn in this visit; skin maneuvers use a current mark, a needle's executed site, or explicit chart coordinates. Treatment gestures need current consent and a well patient; post-removal covering follows aftercare permissions and may still be demonstrated after treatment stops. Every gesture needs permission and the actual body site within reach. Skin contact affects preparation and hand hygiene; follow the engine's returned conditions.",
+    fields: {
+      technique: "Stable technique id from lookup techniques, such as nian, ti, gua, an, men, shao-shan-huo, bu or xie. Definitions are authored illustrative variants rather than verified clinical standards.",
+      needleId: "Required for retained or post-removal techniques. May anchor a skin gesture to a needle's executed site in this visit.",
+      mark: "A current non-stale mark for a skin gesture. Omit conflicting targets when needleId determines the site.",
+      region: "Without mark or needleId, name a regional model and give side and at.",
+      at: CHART_AT,
+      motion: "Optional bounded presentation settings shared with the operator controls. Use lookup techniques for units and per-technique defaults. Contact intensity is cosmetic and is never a force measurement or clinical dose.",
+      "motion.cycles": "Displayed cycles within each primitive phase, 1 to 12. A compound's total duration spans all phases.",
+      "motion.durationMs": "Total performance duration in milliseconds, 400 to 30000, spanning every compound phase. Presentation time does not advance the clinical clock.",
     },
   },
   check_sensation: {

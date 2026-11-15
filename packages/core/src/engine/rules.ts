@@ -33,6 +33,7 @@ export const ACTION_PERMISSIONS: Record<ActionType, Permission | null> = {
   prepare_couch: "handle-equipment",
   insert_needle: "insert-needle",
   adjust_needle: "manipulate-needle",
+  perform_technique: "manipulate-needle",
   check_sensation: "monitor",
   monitor: "monitor",
   wait: null,
@@ -57,7 +58,7 @@ export const ACTION_PERMISSIONS: Record<ActionType, Permission | null> = {
 };
 
 /** Acts whose unauthorised attempt is itself unsafe (recorded as `unauthorised-act`, never executed). */
-export const CLINICAL_ACTS: readonly ActionType[] = ["insert_needle", "adjust_needle", "remove_needle", "remove_all_needles", "open_pack", "prepare_site"];
+export const CLINICAL_ACTS: readonly ActionType[] = ["insert_needle", "adjust_needle", "perform_technique", "remove_needle", "remove_all_needles", "open_pack", "prepare_site"];
 
 export type PermissionVerdict = { ok: true } | { ok: false; reason: string };
 

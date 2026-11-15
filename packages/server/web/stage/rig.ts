@@ -6,7 +6,7 @@ export type HandSide = "left" | "right";
 export interface ReachResult { wrist: Vector3; elbow: Vector3; reachable: boolean }
 
 /** Presentation-only hip hinge limits, in the figure's metre frame. Feet and limb lengths are unchanged. */
-export const MAX_REACH_LEAN = { forward: 0.16, down: 0.12 } as const;
+export const MAX_REACH_LEAN = { forward: 0.30, down: 0.20 } as const;
 
 interface Limb {
   root: Vector3;
@@ -107,7 +107,9 @@ export class AvatarRig {
 
   private updateLean(): void {
     this.lean.set(0, 0, 0);
-    let count = 0;
+    const targets: { toward: Vector3; comfortable: number; blend: number }[] = [];
+    const direction = new Vector3();
+    let blend = 0;
     for (let i = 0; i < 2; i++) {
       const r = this.reaches[i];
       if (!r) continue;
@@ -115,20 +117,23 @@ export class AvatarRig {
       const target = this.rig.body.worldToLocal(r.target.clone());
       const limb = this.limbs[i]!;
       const toward = target.sub(limb.root);
-      const distance = Math.hypot(toward.x, toward.z) || 1;
-      const hinge = new Vector3(toward.x / distance * MAX_REACH_LEAN.forward, toward.y < 0 ? -MAX_REACH_LEAN.down : 0, toward.z / distance * MAX_REACH_LEAN.forward);
-      // Use only the hinge needed for this target, keeping a small bend in the elbow when the limits allow it.
-      const comfortable = limb.upper + limb.lower - 0.015;
-      let low = 0, high = toward.length() <= comfortable ? 0 : 1;
-      for (let step = 0; step < 12 && high > 0; step++) {
-        const middle = (low + high) / 2;
-        if (toward.clone().addScaledVector(hinge, -middle).length() > comfortable) low = middle;
-        else high = middle;
-      }
-      this.lean.addScaledVector(hinge, high * smoothUnit(r.blend));
-      count++;
+      targets.push({ toward, comfortable: limb.upper + limb.lower - 0.015, blend: smoothUnit(r.blend) });
+      direction.addScaledVector(toward, smoothUnit(r.blend));
+      blend = Math.max(blend, smoothUnit(r.blend));
     }
-    if (count) this.lean.divideScalar(count);
+    if (!targets.length || blend === 0) return;
+    const distance = Math.hypot(direction.x, direction.z) || 1;
+    const hinge = new Vector3(direction.x / distance * MAX_REACH_LEAN.forward, direction.y < 0 ? -MAX_REACH_LEAN.down : 0, direction.z / distance * MAX_REACH_LEAN.forward);
+    // One shared hip hinge must satisfy both arms. Averaging independently solved leans can leave the other
+    // hand short even when a common bounded posture is reachable.
+    const misses = (fraction: number) => Math.max(...targets.map((r) => r.toward.clone().addScaledVector(hinge, -fraction).length() - r.comfortable));
+    let low = 0, high = misses(0) <= 0 ? 0 : 1;
+    for (let step = 0; step < 16 && high > 0; step++) {
+      const middle = (low + high) / 2;
+      if (misses(middle) > 0) low = middle;
+      else high = middle;
+    }
+    this.lean.copy(hinge).multiplyScalar(high * blend);
   }
 
   private pose(index: number): TwoBonePose {

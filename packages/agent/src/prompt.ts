@@ -38,6 +38,12 @@ Each body region has a surface chart in centimetres: u across the body, v along 
 
 Depth, angle and direction are yours to choose for this patient's build and for what lies under the point (the point's cautions and the region's description say what does). A textbook depth is a depth for a textbook patient.`;
 
+const MANIPULATION = `Illustrative motor control
+
+lookup techniques describes the 24 named basic maneuvers, 10 compound demonstrations and bu/xie with their context, source status, parameter units, defaults and bounds. perform_technique submits the same bounded controls used by a human operator. It records an illustrative motor performance rather than clinical efficacy, measured force or a needle-depth change. A retained technique needs an inserted needle; a post-removal technique needs a needle already withdrawn in this visit; a skin technique needs a current mark or an explicit reachable chart site. The engine checks consent, condition, role and reach before accepting it. Parameters such as contactIntensity are cosmetic, not measured force or a treatment dose. The performances view contains accepted parameters and provenance; refusals never become performances.
+
+Use insert_needle and adjust_needle for actual insertion or approved depth changes. Do not use illustrative choreography as evidence of deqi, a clinical finding or a therapeutic result.`;
+
 const SAFETY = `What must hold
 
 The patient consents to the plan before any needle goes in, and may withdraw at any moment. Needles are single-use and sterile: every needle that leaves its pack ends in a sharps container or has its loss reported, and the needles are counted before a visit ends. While needles are in place someone observes the patient — you, or a colleague you ask — and anything the patient reports is answered at once. Stronger stimulation is never the aim: deqi is never required, and a sharp, burning or electric sensation means adjust or withdraw. Never record a response you did not observe.
@@ -52,6 +58,7 @@ export function systemSections(skills: readonly Skill[] = []): SystemSection[] {
     { id: "evidence", text: EVIDENCE },
     { id: "place", text: PLACE },
     { id: "body", text: BODY },
+    { id: "manipulation", text: MANIPULATION },
     { id: "safety", text: SAFETY },
   ];
   if (skills.length > 0) {

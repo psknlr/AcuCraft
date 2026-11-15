@@ -2,6 +2,7 @@ import type { DomainEvent, SessionState } from "@clinicalcraft/core";
 import type { Action, ActionRequest, ActionType, DocumentRecord, PlanBody, PointRef, TaskKind } from "./actions.js";
 import type { ChartPoint, Position, Side } from "./common.js";
 import type { ConsentStatus, FeedbackKind, NeedleSensation, NeedleSpec, UnsafeCode } from "./field.js";
+import type { ManipulationTechniqueId, ResolvedManipulationMotion } from "./manipulation.js";
 
 /**
  * Encounter state — `acucraft/encounter@1`: the authoritative simulation state human learners and AI agents share.
@@ -34,6 +35,23 @@ export interface WalkRecord {
   minutes: number;
   /** The patient walked alongside. */
   withPatient: boolean;
+}
+
+/** An accepted, reproducible presentation performance; it never asserts a clinical response or measured force. */
+export interface ManipulationPerformance {
+  id: string;
+  requestId: string;
+  attempt: number;
+  at: number;
+  visit: number;
+  actor: string;
+  technique: ManipulationTechniqueId;
+  context: "skin" | "retained" | "removed";
+  needleId: string | null;
+  site: { region: string; side: Side; u: number; v: number };
+  patientPosition: Position;
+  motion: ResolvedManipulationMotion;
+  provenance: { kind: "illustrative"; source: "acucraft-authored-demonstration-v1"; review: "unreviewed"; forces: "not-modelled" };
 }
 
 /**
@@ -358,6 +376,8 @@ export interface EncounterState {
   events: Record<string, { armedAt: number; draw: boolean; firedAt: number | null }>;
   /** Every walk made, in order. */
   walks: WalkRecord[];
+  /** Created only by perform_technique, leaving historical encounter/replay digests unchanged. */
+  performances?: ManipulationPerformance[];
   /** The evidence ledger: everything obtained, in order, each item once. */
   evidence: EvidenceItem[];
   attempts: AttemptRecord[];

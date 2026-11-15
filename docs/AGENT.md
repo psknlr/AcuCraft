@@ -262,3 +262,47 @@ claude mcp add --transport http acucraft http://127.0.0.1:8787/mcp
   the assistant.
 - A person supervising a model (`approve`) is a function in code and the workspace's supervised mode
   ([WEB.md](WEB.md)), not a command-line mode.
+
+## 11. Shared manipulation controls
+
+`lookup { "topic": "techniques" }` exposes the 24 named basic maneuvers, ten authored compound demonstrations,
+and bu/xie. Each catalogue entry states its stable id, Chinese name, context (`skin`, `retained` or `removed`),
+per-technique defaults, motor phases, applicable controls and illustrative provenance. The result also includes
+the shared JSON `motionSchema`, canonical `defaults` by id, and a compact `parameters` map with bounds, units,
+steps and enum options. Both the browser panel and every LLM/MCP client use this same engine schema.
+
+For example, after inserting a needle and while its site is within reach:
+
+```json
+{
+  "type": "perform_technique",
+  "technique": "nian",
+  "needleId": "pack-a.1",
+  "motion": {
+    "durationMs": 3200,
+    "cycles": 4,
+    "rotationDeg": 70,
+    "grip": "two-finger",
+    "support": "none",
+    "hand": "right"
+  }
+}
+```
+
+`durationMs` spans the whole presentation; `cycles` applies within each primitive phase. A skin maneuver instead
+uses a current `mark`, explicit `region`/`side`/`at`, or a needle's executed site. Men (`men`) requires a needle
+actually withdrawn in the current visit. Treatment gestures require consent to the current plan, a patient able
+to continue, permission and reach; Men follows post-removal aftercare semantics and remains available after
+treatment stops. Touching skin invalidates its preparation and soils the actor's hands, so later sterile actions
+are checked by the existing hygiene rules. It does not fabricate examination findings or change a needle's
+clinical response. Cosmetic `contactIntensity` is not force, pressure or a treatment dose.
+
+Accepted gestures enter `view.performances` with resolved parameters, the executed site, patient position and
+illustrative provenance; the public view keeps the latest 64. Refused gestures create no performance. The
+optional state history is created only when this new action is used, preserving historical replay digests.
+Presentation time is independent of the simulated clinical clock, and replay makes no model call.
+
+`insert_needle` also accepts optional `presentation` fields: `durationMs`, `grip`, `support`, `hand` and
+`gripApertureMm`. These control the hand animation; anatomy checks and the executed depth remain those of the
+original insertion action. Actual needle-depth changes still use `adjust_needle`; a visual performance does not
+authorize them. See [TECHNIQUES.md](TECHNIQUES.md) for the catalogue and modeling limits.

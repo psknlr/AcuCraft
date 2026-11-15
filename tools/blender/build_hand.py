@@ -16,7 +16,8 @@ import math
 from pathlib import Path
 
 import bpy
-from mathutils import Vector
+from mathutils import Euler, Matrix, Quaternion, Vector
+from mathutils.bvhtree import BVHTree
 
 REPO = Path(__file__).resolve().parents[2]
 OUT = REPO / "content/world/assets/models/acu-practitioner-hand.glb"
@@ -29,13 +30,17 @@ DIGITS = {
     "little": [(0.076, -0.002, -0.031), (0.056, -0.026, -0.030), (0.074, -0.041, -0.030), (0.092, -0.027, -0.030)],
 }
 JOINTS = ("proximal", "middle", "distal")
+ANATOMICAL = {digit: ("CMC", "MCP", "IP") if digit == "thumb" else ("MCP", "PIP", "DIP") for digit in DIGITS}
 
 
-def empty(name: str, parent=None, at=(0, 0, 0)):
+def empty(name: str, parent=None, at=(0, 0, 0), normal=None):
     ob = bpy.data.objects.new(name, None)
     bpy.context.collection.objects.link(ob)
     ob.parent = parent
     ob.location = at
+    if normal is not None:
+        ob.rotation_mode = "QUATERNION"
+        ob.rotation_quaternion = Vector((0, 1, 0)).rotation_difference(Vector(normal).normalized())
     return ob
 
 
@@ -118,6 +123,92 @@ def palm(root, skin):
     ellipsoid("thenar", (0.103, -0.006, -0.021), (0.027, 0.013, 0.025), skin, root, segments=16, rings=8)
 
 
+def surface_anchor(name, parent, surface, target):
+    """Place a moving attachment on the actual mesh, with +Y along its outward normal."""
+    vertices = [v.co.copy() for v in surface.data.vertices]
+    faces = [list(p.vertices) for p in surface.data.polygons]
+    tree = BVHTree.FromPolygons(vertices, faces)
+    point, normal, _, _ = tree.find_nearest(Vector(target))
+    anchor = empty(name, parent, point, normal)
+    anchor["surface"] = surface.name
+    return anchor
+
+
+def align_contact(axis, normal, target_axis, target_normal):
+    """Rigid orientation mapping a bone axis and contact-normal plane to their requested frame."""
+    def basis(a, n):
+        x = Vector(a).normalized()
+        y = Vector(n) - x * Vector(n).dot(x)
+        if y.length < 1e-7:
+            y = Vector((0, 0, 1)) - x * x.z
+        y.normalize()
+        z = x.cross(y).normalized()
+        return Matrix((x, y, z)).transposed()
+    return (basis(target_axis, target_normal) @ basis(axis, normal).transposed()).to_quaternion()
+
+
+def chain_rotations(digit, directions, terminal=None):
+    """Compute parent-local joint rotations while retaining every phalanx length."""
+    points = [Vector(p) for p in DIGITS[digit]]
+    parent = Quaternion()
+    out = []
+    for i, direction in enumerate(directions):
+        world = terminal if i == 2 and terminal is not None else (points[i + 1] - points[i]).rotation_difference(Vector(direction).normalized())
+        # rotation_difference retains the source vector's magnitude only in the source; its output is unit.
+        local = parent.inverted() @ world
+        out.append(local)
+        parent = parent @ local
+    return out
+
+
+def contact_pose(digit, attachment, target, direction, outward):
+    """Three-joint pose placing a real pad/nail anchor at a target with a specified distal direction."""
+    points = [Vector(p) for p in DIGITS[digit]]
+    delta = points[3] - points[2]
+    local_normal = attachment.rotation_quaternion @ Vector((0, 1, 0))
+    terminal = align_contact(delta, local_normal, direction, outward)
+    end = Vector(target) - terminal @ attachment.location
+    root = points[0]
+    lengths = [(points[i + 1] - points[i]).length for i in range(3)]
+    vector = end - root
+    distance = vector.length
+    lo, hi = abs(lengths[0] - lengths[1]) + 1e-6, lengths[0] + lengths[1] - 1e-6
+    if not lo <= distance <= hi:
+        raise ValueError(f"{digit} contact target outside proximal chain: {distance:.5f} not in [{lo:.5f}, {hi:.5f}]")
+    axis = vector.normalized()
+    along = (lengths[0] ** 2 - lengths[1] ** 2 + distance ** 2) / (2 * distance)
+    height = math.sqrt(max(0, lengths[0] ** 2 - along ** 2))
+    pole = Vector((0, -1, 0))
+    pole -= axis * pole.dot(axis)
+    if pole.length < 1e-6:
+        pole = Vector((0, 0, 1)) - axis * axis.z
+    pole.normalize()
+    mid = root + axis * along + pole * height
+    return chain_rotations(digit, [mid - root, end - mid, direction], terminal)
+
+
+def add_clip(name, nodes, frames):
+    """Bake independent named NLA tracks; every clip has a neutral frame at zero seconds."""
+    for digit in DIGITS:
+        for i, joint in enumerate(JOINTS):
+            node = nodes[f"{digit}_{joint}"]
+            node.rotation_mode = "QUATERNION"
+            for frame, pose in frames:
+                node.rotation_quaternion = pose[digit][i]
+                node.keyframe_insert(data_path="rotation_quaternion", frame=frame, group=node.name)
+            action = node.animation_data.action
+            action.name = f"{node.name}_{name}"
+            track = node.animation_data.nla_tracks.new()
+            track.name = name
+            track.strips.new(name, 1, action)
+            node.animation_data.action = None
+
+
+def pose_points(anchors):
+    bpy.context.view_layer.update()
+    return {name: [round(v, 9) for v in node.matrix_world.translation] for name, node in anchors.items()}
+
+
 def build():
     bpy.ops.wm.read_factory_settings(use_empty=True)
     scene = bpy.context.scene
@@ -132,6 +223,9 @@ def build():
     palm(root, skin)
     empty("wrist", root, (0.162, 0.004, 0))
     empty("pinch", root)
+    anchors = {}
+    anchors["palm_contact"] = empty("palm_contact", root, (0.103, -0.013, -0.002), (0, -1, 0))
+    anchors["support_contact"] = empty("support_contact", root, (0.071, -0.010, 0.016), (0, -1, 0))
     nodes = {}
     for digit, points in DIGITS.items():
         radius = {"thumb": 0.0090, "index": 0.0075, "middle": 0.0080, "ring": 0.0075, "little": 0.0064}[digit]
@@ -139,22 +233,39 @@ def build():
         for i, joint in enumerate(JOINTS):
             start, end = Vector(points[i]), Vector(points[i + 1])
             parent_origin = Vector(points[i - 1]) if i else Vector((0, 0, 0))
-            node = empty(f"{digit}_{joint}", parent, start - parent_origin)
+            anatomical = empty(f"{digit}_{ANATOMICAL[digit][i]}", parent, start - parent_origin)
+            anatomical["joint"] = ANATOMICAL[digit][i]
+            anatomical["digit"] = digit
+            # Existing clip controls stay at the same pivot, nested below the named anatomical overlay.
+            node = empty(f"{digit}_{joint}", anatomical)
+            node["anatomical_control"] = anatomical.name
             nodes[node.name] = node
             delta = end - start
             r = radius * (1 - i * 0.12)
-            ellipsoid(f"{digit}_{joint}_skin", delta * 0.5, (delta.length * 0.5 + r * 0.5, r * 0.95, r), skin, node, axis=delta)
+            surface = ellipsoid(f"{digit}_{joint}_skin", delta * 0.5, (delta.length * 0.5 + r * 0.5, r * 0.95, r), skin, node, axis=delta)
             ellipsoid(f"{digit}_{joint}_knuckle", (0, 0, 0), (r * 0.9, r * 0.95, r), skin, node, rings=5)
             if i == 2:
                 empty(f"{digit}_tip", node, delta)
                 # Nails on the dorsal side, following each distal phalanx.
-                ellipsoid(f"{digit}_nail", delta * 0.59 + Vector((0, r * 0.89, 0)), (delta.length * 0.30, 0.00075, r * 0.66), nail, node, rings=4, axis=delta)
+                nail_surface = ellipsoid(f"{digit}_nail", delta * 0.59 + Vector((0, r * 0.89, 0)), (delta.length * 0.30, 0.00075, r * 0.66), nail, node, rings=4, axis=delta)
+                if digit in ("thumb", "index"):
+                    # Rounded fingertip pulp makes the neutral opposing contacts a real 2 mm gap,
+                    # while preserving the existing fingertip/joint coordinates and clip pivots.
+                    surface = ellipsoid(f"{digit}_pad_skin", delta, (0.0045, 0.0038, 0.005), skin, node)
+                    target = Vector((0, 0, -0.001 if digit == "thumb" else 0.001)) - start
+                else:
+                    target = delta * 0.86 + Vector((0, -r * 0.85, 0))
+                pad = surface_anchor(f"{digit}_pad_contact", node, surface, target)
+                anchors[pad.name] = pad
+                # Both names are offered while existing runtime integrations migrate to *_pad_contact.
+                empty(f"{digit}_pad", node, pad.location, pad.rotation_quaternion @ Vector((0, 1, 0)))
+                nail_anchor = surface_anchor(f"{digit}_nail_contact", node, nail_surface, delta * 0.59 + Vector((0, r + 0.002, 0)))
+                anchors[nail_anchor.name] = nail_anchor
             parent = node
     empty("thumb_contact", root, (0, 0, -0.001))
     empty("index_contact", root, (0, 0, 0.001))
 
-    # One clip for the mixer: zero is the precision pinch, one is a loose open
-    # grasp. At rest the named joints also accept procedural rotations directly.
+    # Named poses are contact choreography, not measured joint-angle prescriptions.
     open_degrees = {
         "thumb": [(-8, 0, -20), (0, 0, -12), (0, 0, -8)],
         "index": [(0, 0, 18), (0, 0, 10), (0, 0, 8)],
@@ -162,19 +273,45 @@ def build():
         "ring": [(0, 0, 44), (0, 0, -72), (0, 0, -45)],
         "little": [(0, 0, 43), (0, 0, -72), (0, 0, -45)],
     }
+    neutral = {digit: [Quaternion() for _ in JOINTS] for digit in DIGITS}
+    opened = {digit: [Euler(tuple(math.radians(v) for v in angles), "XYZ").to_quaternion() for angles in open_degrees[digit]] for digit in DIGITS}
+    support = {}
     for digit in DIGITS:
-        for i, joint in enumerate(JOINTS):
-            node = nodes[f"{digit}_{joint}"]
-            node.rotation_mode = "XYZ"
-            node.rotation_euler = (0, 0, 0)
-            node.keyframe_insert(data_path="rotation_euler", frame=1, group=node.name)
-            node.rotation_euler = tuple(math.radians(v) for v in open_degrees[digit][i])
-            node.keyframe_insert(data_path="rotation_euler", frame=31, group=node.name)
-            node.animation_data.action.name = f"{node.name}_hand_open"
-            track = node.animation_data.nla_tracks.new()
-            track.name = "hand_open"
-            track.strips.new("hand_open", 1, node.animation_data.action)
-            node.animation_data.action = None
+        axis = {"thumb": (-0.72, -0.04, -0.70), "index": (-1, -0.06, 0.06), "middle": (-1, -0.04, 0), "ring": (-1, -0.04, -0.02), "little": (-1, -0.04, -0.08)}[digit]
+        support[digit] = chain_rotations(digit, [axis] * 3)
+    tripod = {d: list(q) for d, q in neutral.items()}
+    tripod["middle"] = contact_pose("middle", anchors["middle_pad_contact"], (0, -0.010, 0.001), (-0.8, 0.6, 0), (0, 0, -1))
+    scrape = {d: list(q) for d, q in tripod.items()}
+    # The nail contact has its own anchor. The renderer aligns that anchor, rather than the pinch root,
+    # with the handle while the other hand stabilizes it; a nail is proximal to the fingertip pad.
+    scrape["index"] = contact_pose("index", anchors["index_nail_contact"], (0.012, 0.005, 0.001), (-1, 0.15, 0), (0, 0, -1))
+    flick_loaded = {d: list(q) for d, q in tripod.items()}
+    flick_loaded["index"] = contact_pose("index", anchors["index_pad_contact"], (0.001, 0.008, 0.001), (-0.8, 0.6, 0), (0, 0, -1))
+    flick_release = {d: list(q) for d, q in tripod.items()}
+    flick_release["index"] = opened["index"]
+    clips = {
+        "hand_open": [(1, neutral), (31, opened)],
+        "hand_support": [(1, neutral), (31, support)],
+        "hand_three_finger": [(1, neutral), (31, tripod)],
+        "hand_scrape": [(1, neutral), (31, scrape)],
+        "hand_flick": [(1, neutral), (13, flick_loaded), (17, flick_release), (31, neutral)],
+    }
+    for name, frames in clips.items():
+        add_clip(name, nodes, frames)
+
+    # Measure the real contact transforms of each authored pose for both runtime attachment and tests.
+    for node in nodes.values():
+        for track in node.animation_data.nla_tracks:
+            track.mute = True
+    contacts_by_pose = {}
+    for name, pose in {"pinch": neutral, "open": opened, "support": support, "three_finger": tripod, "scrape": scrape, "flick_loaded": flick_loaded, "flick_release": flick_release}.items():
+        for digit in DIGITS:
+            for i, joint in enumerate(JOINTS):
+                nodes[f"{digit}_{joint}"].rotation_quaternion = pose[digit][i]
+        contacts_by_pose[name] = pose_points(anchors)
+    for node in nodes.values():
+        for track in node.animation_data.nla_tracks:
+            track.mute = False
     scene.frame_set(1)
     OUT.parent.mkdir(parents=True, exist_ok=True)
     bpy.ops.export_scene.gltf(
@@ -201,9 +338,14 @@ def build():
         "tips": {d: list(points[-1]) for d, points in DIGITS.items()},
         "contact": {"thumb": [0, 0, -0.001], "index": [0, 0, 0.001]},
         "joints": {d: [f"{d}_{j}" for j in JOINTS] for d in DIGITS},
+        "anatomicalJoints": {d: [f"{d}_{j}" for j in ANATOMICAL[d]] for d in DIGITS},
+        "anatomicalMapping": {f"{d}_{j}": f"{d}_{ANATOMICAL[d][i]}" for d in DIGITS for i, j in enumerate(JOINTS)},
+        "contactAnchors": {name: {"node": name, "normalAxis": "+Y", "follows": node.parent.name, **({"surface": node["surface"]} if "surface" in node else {})} for name, node in anchors.items()},
+        "poseContacts": contacts_by_pose,
         "materials": ["hand_skin", "hand_nails"],
         "animations": [a["name"] for a in gltf.get("animations", [])],
-        "animation": "hand_open: t=0 precision pinch; t=1 second loose open grasp; clamp mixer time for blend",
+        "animation": "Every clip is 0..1 second and begins at precision pinch. hand_open/support/three_finger/scrape end at the named pose. hand_flick is loaded at .4s, released at .533333s, back at pinch at 1s. Sample only one base clip per hand; anatomical parent controls may overlay it.",
+        "clipFrames": {name: [round((frame - 1) / 30, 9) for frame, _ in frames] for name, frames in clips.items()},
         "review": "schematic animation asset, no anatomical or clinical validation",
     }
     MANIFEST.write_text(json.dumps(manifest, indent=2) + "\n")

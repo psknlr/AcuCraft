@@ -76,6 +76,7 @@ export class Person {
   private readonly animation: AvatarRig | null;
   private route: { x: number; z: number }[] = [];
   private destination: Placement["at"];
+  private gestureFacing: number | null = null;
 
   constructor(appearance: AppearanceLike, readonly placement: Placement) {
     this.rig = buildPerson(appearance, placement.options);
@@ -114,6 +115,7 @@ export class Person {
 
   /** Follow the world's already validated polyline. New walks can arrive while the previous one is being drawn. */
   moveTo(at: Placement["at"], path: { x: number; z: number }[] = [], animate = true): void {
+    this.gestureFacing = null;
     const old = this.destination;
     this.destination = { ...at };
     Object.assign(this.placement.at, at);
@@ -134,6 +136,16 @@ export class Person {
 
   get isMoving(): boolean {
     return this.route.length > 0;
+  }
+
+  /** A presentation turn on the spot toward the working hands. The feet's floor position never changes. */
+  faceToward(target: Vector3 | null, blend = 1): void {
+    if (!target || this.isMoving) { this.gestureFacing = null; return; }
+    const at = this.rig.root.position;
+    const yaw = Math.atan2(target.x - at.x, target.z - at.z);
+    this.gestureFacing = turnTowards(this.destination.rot * DEG, yaw, Math.max(0, Math.min(1, blend)));
+    this.rig.root.rotation.y = this.gestureFacing;
+    this.rig.root.updateMatrixWorld(true);
   }
 
   shoulderAt(side: HandSide): Vector3 {
@@ -168,7 +180,7 @@ export class Person {
     }
     if (!this.route.length) {
       position.y = this.destination.y;
-      this.rig.root.rotation.y = turnTowards(this.rig.root.rotation.y, this.destination.rot * DEG, Math.min(1, dt / 140));
+      this.rig.root.rotation.y = turnTowards(this.rig.root.rotation.y, this.gestureFacing ?? this.destination.rot * DEG, Math.min(1, dt / 140));
     }
     return travelled;
   }

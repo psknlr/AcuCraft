@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { ChartPointSchema, IdSchema, PositionSchema } from "./common.js";
+import { PerformTechniqueSchema } from "./manipulation.js";
 
 /**
  * The action interface (proposal §7.3) — every actor (the practitioner or learner under test, the support agent,
@@ -36,6 +37,16 @@ export const NeedleMotionSettingsSchema = z.object({
   rotationDeg: z.number().min(0).max(180).optional(),
 }).strict();
 export type NeedleMotionSettings = z.infer<typeof NeedleMotionSettingsSchema>;
+
+/** Optional presentation controls; they neither alter the needle path nor prescribe clinical dosing. */
+export const InsertionPresentationSchema = z.object({
+  durationMs: z.number().int().min(400).max(8000).optional(),
+  grip: z.enum(["two-finger", "three-finger"]).optional(),
+  support: z.enum(["none", "stabilize", "stretch", "pinch", "press"]).optional(),
+  hand: z.enum(["auto", "left", "right"]).optional(),
+  gripApertureMm: z.number().min(0).max(12).optional(),
+}).strict();
+export type InsertionPresentation = z.infer<typeof InsertionPresentationSchema>;
 
 export const DISPOSITIONS = ["treat", "treat-modified", "further-assessment", "defer", "refer", "decline"] as const;
 export const DispositionSchema = z.enum(DISPOSITIONS);
@@ -207,9 +218,11 @@ export const ActionSchema = z.discriminatedUnion("type", [
       /** Direction the needle tip travels across the chart: 0 = cranial (+v), 90 = +u, 180 = caudal, 270 = −u. */
       azimuthDeg: z.number().min(0).max(360).default(0),
       depthCm: z.number().positive().max(10),
+      presentation: InsertionPresentationSchema.optional(),
     })
     .strict(),
   z.object({ type: z.literal("adjust_needle"), needleId: IdSchema, depthCm: z.number().positive().max(10).optional(), technique: NeedleTechniqueSchema.default("none"), motion: NeedleMotionSettingsSchema.optional() }).strict(),
+  PerformTechniqueSchema,
   /** Ask the patient what they feel at one needle: their answer is evidence of that needle's response. */
   z.object({ type: z.literal("check_sensation"), needleId: IdSchema }).strict(),
   z.object({ type: z.literal("monitor") }).strict(),
