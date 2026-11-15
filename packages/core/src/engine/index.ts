@@ -1,4 +1,5 @@
 export * from "./util.js";
+export * from "./manipulation.js";
 export * from "./scenario.js";
 export * from "./anatomy.js";
 export * from "./world.js";

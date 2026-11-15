@@ -394,3 +394,15 @@ html { scroll-behavior: smooth; }
 .hud-cluster { position: absolute; left: 0; top: 0; opacity: 0; pointer-events: none; padding: 4px 10px 4px 22px; border-radius: 999px; font: 700 11.5px/1.2 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #1b1307; background: rgb(255 196 110 / 0.92); border: 1px solid #ffd28a; box-shadow: 0 6px 22px rgb(0 0 0 / 0.25); cursor: pointer; white-space: nowrap; transition: opacity 0.3s; will-change: transform; }
 .hud-cluster::before { content: ""; position: absolute; left: 8px; top: 50%; width: 7px; height: 7px; margin-top: -3.5px; border-radius: 50%; background: #1b1307; box-shadow: 0 0 0 3px rgb(27 19 7 / 0.15); animation: blink 1.6s ease-in-out infinite; }
 .hud-cluster::after { content: ""; position: absolute; left: 50%; top: 100%; width: 1px; height: 10px; background: linear-gradient(rgb(255 210 140 / 0.9), rgb(255 210 140 / 0)); }
+
+/* Authoritative clinic navigation */
+.movement { padding: 1rem; border-top: 1px solid #93aaa3; }
+.clinic-map { display:block; width:100%; max-height:260px; margin:1rem 0; cursor:crosshair; background:#edf2ef; }
+.map-room { fill:#f7faf8; stroke:#7b9389; stroke-width:.05; }
+.map-label { font-size:.3px; fill:#183b33; pointer-events:none; }
+.map-fixture { fill:#a4aaa7; }
+.map-person { fill:#3275ac; }
+.map-patient { fill:#bf7844; }
+.map-path { fill:none; stroke:#309b74; stroke-width:.08; stroke-dasharray:.15; }
+
+.movement select { min-width: 180px; flex: 1 1 180px; width: auto; max-width: 100%; }

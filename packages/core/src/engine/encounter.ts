@@ -61,6 +61,8 @@ import {
   type Ctx,
 } from "./runtime.js";
 import { clinicWorld, roleOf, type Scenario } from "./scenario.js";
+import { needleMotion, motionEnvelope } from "./manipulation.js";
+import { roomAt, walkMinutes } from "./world.js";
 import { atFixture, atFixtureOfKind, nearActor, patientBody, patientContact, patientSight, patientTalk, placeEveryone, placePatient, seatIn, siteOf, siteReach, walk, walkTarget, type MoveTarget, type Spatial } from "./space.js";
 import { ARM_REACH_M, CONTACT_RANGE_M, distanceToArea, fixtureReach, planWalk, seesArea, spotsNear } from "./world.js";
 import { detectClaims, detectCommitment, detectTopics, questionCount, type Claim } from "./text.js";
@@ -235,7 +237,7 @@ function apply(sc: Scenario, s: EncounterState, req: ActionRequest, origin: "ext
   try {
     if (s.finished) throw new Rejection("finished", "The encounter has finished.");
     if (req.patient !== s.patient.id) throw new Rejection("unknown-patient", `There is no patient ${req.patient} in this encounter.`);
-    if (!s.actors[req.actor]) throw new Rejection("unknown-actor", `${req.actor} is not part of this encounter.`);
+    if (!s.actors[req.actor] && req.actor !== s.patient.id) throw new Rejection("unknown-actor", `${req.actor} is not part of this encounter.`);
     if (req.expectedVersion !== undefined && req.expectedVersion !== s.version) {
       throw new Rejection("stale-version", `The request was decided on state version ${req.expectedVersion}; the state is now at version ${s.version}. Observe again and decide on the current state.`);
     }
@@ -248,7 +250,7 @@ function apply(sc: Scenario, s: EncounterState, req: ActionRequest, origin: "ext
       s,
       req,
       get actor() {
-        return s.actors[req.actor]!;
+        return req.actor === s.patient.id ? { id: s.patient.id, role: "patient", location: s.patient.location, at: s.patient.at, hygieneSeq: null, soiledSeq: null, holding: [] } : s.actors[req.actor]!;
       },
       out: newOutcome(),
       npcTurn,
@@ -845,6 +847,7 @@ const HANDLERS: HandlerMap = {
     utter(s, ctx.actor.id, a.to ?? null, a.text, "speech");
     ctx.out.cost = 0.25;
     ctx.out.detail = "spoke";
+    if (ctx.actor.id === s.patient.id) return; // role-play never fabricates findings, consent or clinical evidence
     const kind = detectCommitment(a.text);
     if (kind) {
       const task = makeTask(ctx, ctx.actor.id, kind, {}, "statement");
@@ -1234,6 +1237,26 @@ const HANDLERS: HandlerMap = {
     const w = clinicWorld(sc);
     const to: MoveTarget = typeof a.to === "string" ? { room: a.to } : a.to;
     const index = s.attempts.length - 1;
+    if (ctx.actor.id === s.patient.id) {
+      if (a.withPatient || "region" in to || ("person" in to && to.person === s.patient.id)) throw new Rejection("invalid", "Choose a floor point, room, fixture or another person.");
+      if (s.patient.fainted) throw new Rejection("unsafe-position", "The patient is not well enough to walk.");
+      if (Object.values(s.needles).some(n => n.location.kind === "patient" || n.location.kind === "broken-in-patient")) throw new Rejection("needles-retained", "Remove or resolve every retained needle before walking.");
+      const target = walkTarget(sc, s, to);
+      if (!target.ok) throw new Rejection(target.code, target.message);
+      const from = { ...s.patient.at };
+      const plan = planWalk(w, from, target.target);
+      if (!plan.ok) throw new Rejection("no-route", plan.message);
+      const minutes = walkMinutes(plan.metres, true);
+      s.patient.at = plan.to;
+      s.patient.location = roomAt(w, plan.to) ?? "outside";
+      s.patient.support = null;
+      setPatientPosition(ctx, "standing");
+      if (plan.metres > 0) s.walks.push({ attempt: index, at: now(s), actor: s.patient.id, from, to: plan.to, path: plan.path, metres: plan.metres, minutes, withPatient: false });
+      ctx.out.cost = minutes;
+      ctx.out.detail = "patient walked " + fmt(plan.metres) + " m to " + target.label;
+      observe(ctx, ctx.out.detail);
+      return;
+    }
     if (a.withPatient) {
       // the patient walks at the actor's side to a room and takes its seat (the chair, else the couch)
       if (!("room" in to)) throw new Rejection("invalid", "Walk the patient to a room (`to` a room id): once there they take a seat, and `position_patient` gets them onto the couch.");
@@ -1565,6 +1588,18 @@ const HANDLERS: HandlerMap = {
     if (s.stopped && s.stopped.visit === visitIndex(s)) addUnsafe(ctx, "continued-after-adverse-event");
     const frame = regionFrame(ctx, loc.region, loc.side);
     const depth = a.depthCm ?? loc.depthCm;
+    if (a.strokeMm !== undefined && a.technique !== "lift-thrust") throw new Rejection("invalid", "strokeMm requires lift-thrust.");
+    if ((a.rotationDeg !== undefined || a.rotationDirection !== undefined) && a.technique !== "rotate") throw new Rejection("invalid", "Rotation parameters require rotate.");
+    if (a.technique === "none" && (a.frequencyHz !== undefined || a.durationSeconds !== undefined)) throw new Rejection("invalid", "Frequency and duration require a manipulation technique.");
+    const motion = needleMotion(a, depth);
+    const envelope = motionEnvelope(motion);
+    if (envelope.minDepthCm <= 0) throw new Rejection("invalid", "The lift would withdraw the needle through the skin; use remove_needle instead.");
+    if (s.stopped && s.stopped.visit === visitIndex(s)) blockers.push({ by: "simulation-guard", kind: "guard", reason: "treatment has stopped: remove the needles" });
+    let deepest: PathAssessment | undefined;
+    if (motion.strokeMm > 0) {
+      deepest = doInsertCheckPath(ctx, n, frame, loc.entry, loc.angleDeg, loc.azimuthDeg, envelope.maxDepthCm, blockers);
+      if (deepest.executedDepthCm + 1e-9 < envelope.maxDepthCm) blockers.push({ by: "simulation-guard", kind: "guard", reason: "the full thrust exceeds the available needle path" });
+    }
     const path = doInsertCheckPath(ctx, n, frame, loc.entry, loc.angleDeg, loc.azimuthDeg, depth, blockers);
     blockIf(ctx, blockers, `Adjustment of ${n.id} stopped`);
     loc.depthCm = path.executedDepthCm;
@@ -1574,9 +1609,12 @@ const HANDLERS: HandlerMap = {
       n.insertion.findings = insertionFindings(path);
     }
     pushNeedleEvent(s, n.id, ctx.actor.id, "adjusted", `${fmt(path.executedDepthCm)} cm, ${a.technique}`);
+    const event = n.events[n.events.length - 1]!;
+      // Keep the legacy event shape for unparameterized adjustments.
+    if (a.strokeMm !== undefined || a.rotationDeg !== undefined || a.rotationDirection !== undefined || a.frequencyHz !== undefined || a.durationSeconds !== undefined) event.motion = { ...motion, depthCm: path.executedDepthCm };
     const before = n.response;
     n.response = needleResponse(sc, s, n, path, a.technique === "none" ? null : a.technique);
-    consequences(ctx, n, path);
+    consequences(ctx, n, deepest ?? path);
     if (a.technique !== "none") {
       // working the needle tells the operator how the tissue holds it: evidence of this needle's response
       const feel = describeGrasp(n.response, a.technique);
@@ -1590,8 +1628,8 @@ const HANDLERS: HandlerMap = {
       }
     }
     ctx.out.target = `needle:${n.id}`;
-    ctx.out.detail = `${n.id} to ${fmt(path.executedDepthCm)} cm (${a.technique})`;
-    ctx.out.cost = 0.5;
+    ctx.out.detail = `${n.id} to ${fmt(path.executedDepthCm)} cm (${a.technique}; stroke ${motion.strokeMm} mm, rotation ${motion.rotationDeg} degrees, ${motion.frequencyHz} Hz, ${motion.durationSeconds} s)`;
+    ctx.out.cost = a.technique === "none" ? 0.5 : motion.durationSeconds / 60;
   },
   check_sensation(ctx, a) {
     const { s } = ctx;

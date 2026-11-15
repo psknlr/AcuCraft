@@ -41,7 +41,7 @@ export const MoveTargetSchema = z.union([
   z.object({ fixture: IdSchema }).strict(),
   z.object({ person: IdSchema }).strict(),
   z.object({ region: IdSchema, side: SideArgSchema }).strict(),
-  z.object({ x: z.number(), z: z.number() }).strict(),
+  z.object({ x: z.number().finite(), z: z.number().finite() }).strict(),
 ]);
 export type MoveTargetInput = z.infer<typeof MoveTargetSchema>;
 
@@ -192,7 +192,15 @@ export const ActionSchema = z.discriminatedUnion("type", [
       depthCm: z.number().positive().max(10),
     })
     .strict(),
-  z.object({ type: z.literal("adjust_needle"), needleId: IdSchema, depthCm: z.number().positive().max(10).optional(), technique: z.enum(["none", "lift-thrust", "rotate"]).default("none") }).strict(),
+  z.object({ type: z.literal("adjust_needle"), needleId: IdSchema,
+    depthCm: z.number().finite().positive().max(10).optional(),
+    technique: z.enum(["none", "lift-thrust", "rotate"]).default("none"),
+    strokeMm: z.number().finite().positive().max(20).optional(),
+    rotationDeg: z.number().finite().positive().max(360).optional(),
+    rotationDirection: z.enum(["alternating", "clockwise", "counterclockwise"]).optional(),
+    frequencyHz: z.number().finite().min(0.1).max(10).optional(),
+    durationSeconds: z.number().finite().min(0.1).max(120).optional(),
+  }).strict(),
   /** Ask the patient what they feel at one needle: their answer is evidence of that needle's response. */
   z.object({ type: z.literal("check_sensation"), needleId: IdSchema }).strict(),
   z.object({ type: z.literal("monitor") }).strict(),

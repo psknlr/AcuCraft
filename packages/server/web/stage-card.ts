@@ -1,4 +1,5 @@
 import { api, type EncounterSnapshot, type Info, type StageInfo } from "./api.js";
+import { movementPanel } from "./movement.js";
 import { h, replace } from "./dom.js";
 
 /**
@@ -43,7 +44,8 @@ export interface StageCard {
 
 export function stageCard(id: string, info: Info, onPick: (needle: string | null) => void): StageCard {
   const host = h("div", { class: "stage", tabindex: "-1" });
-  const el = h("section", { class: "card stage-card", "aria-label": "3D view of the encounter" }, host);
+  const movement = movementPanel(id);
+  const el = h("section", { class: "card stage-card", "aria-label": "3D view of the encounter" }, host, movement.el);
   let handle: StageHandle | null = null;
   let pending: EncounterSnapshot | null = null;
   let gone = false;
@@ -69,6 +71,7 @@ export function stageCard(id: string, info: Info, onPick: (needle: string | null
     el,
     update(snapshot) {
       pending = snapshot;
+      movement.update(snapshot);
       feed(snapshot);
     },
     highlight(needle) {

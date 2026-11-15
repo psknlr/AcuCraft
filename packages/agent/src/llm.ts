@@ -71,7 +71,7 @@ export function llmAgent(options: LlmAgentOptions): LlmAgent {
   const skills = options.skills ?? [];
   const maxCallsPerTurn = options.maxCallsPerTurn ?? 8;
   const maxModelCalls = options.maxModelCalls ?? 800;
-  const system = systemSections(skills);
+  let system = systemSections(skills);
   const emit = options.onEvent ?? (() => {});
 
   let library!: AgentInit["library"];
@@ -110,6 +110,8 @@ export function llmAgent(options: LlmAgentOptions): LlmAgent {
     async next(view: AgentView): Promise<AgentTurn> {
       if (view.finished) return { done: true };
       if (messages.length === 0) {
+        if (view.you.role === "patient") system = [{ id: "patient", text: "You control the simulated patient. Use only move, say, wait and read tools. Speak from the disclosed record only; do not invent symptoms, findings, consent or treatment outcomes. Movement is constrained by the clinic and retained needles. Your speech is role-play, not clinical evidence. Stop when no further action is appropriate." }];
+        else if (!view.you.may.includes("assess")) system = [{ id: "role", text: `You control ${view.you.name}, role ${view.you.roleLabel}. Carry out the tasks of this role using only its offered actions. Do not impersonate the practitioner or invent clinical findings.` }, ...system.slice(1)];
         // the tools of this role, fixed for the encounter
         tools = toolsFor(view.you.may, { locate: options.locate !== false, skills: skills.length > 0 });
         specs = tools.map((t) => ({ name: t.name, description: t.description, inputSchema: t.inputSchema }));

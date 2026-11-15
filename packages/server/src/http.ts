@@ -163,7 +163,7 @@ export async function serve(options: ServeOptions): Promise<RunningServer> {
   async function api(req: IncomingMessage, res: ServerResponse, url: URL, path: string): Promise<void> {
     const method = req.method ?? "GET";
     if (path === "/api/info" && method === "GET") {
-      return json(res, 200, { name: "AcuCraft workspace", version: ACUCRAFT_VERSION, clinicalcraft: CLINICALCRAFT_REV, families: hub.families(), auth: { token: token !== null }, mcp: "/mcp", languageModel: { claude: Boolean(process.env.ANTHROPIC_API_KEY) }, stage: { available: stage.available, missing: stage.missing } });
+      return json(res, 200, { name: "AcuCraft workspace", version: ACUCRAFT_VERSION, clinicalcraft: CLINICALCRAFT_REV, families: hub.families(), auth: { token: token !== null }, mcp: "/mcp", languageModel: { claude: Boolean(process.env.ANTHROPIC_API_KEY), openai: Boolean(process.env.OPENAI_API_KEY), minimax: Boolean(process.env.MINIMAX_API_KEY), compatible: Boolean(process.env.LLM_API_KEY) }, stage: { available: stage.available, missing: stage.missing } });
     }
     if (path === "/api/stream" && method === "GET") return stream(req, res, url.searchParams.get("encounter"));
     if (path === "/api/encounters") {
@@ -193,7 +193,7 @@ export async function serve(options: ServeOptions): Promise<RunningServer> {
         return json(res, 200, hub.stage(id));
       case "POST act": {
         const body = record(await readBody(req, MAX_BODY));
-        return send(res, hub.act(id, body.tool, body.input, byOf(body)));
+        return send(res, hub.act(id, body.tool, body.input, byOf(body), body.actor));
       }
       case "POST close": {
         const body = record(await readBody(req, MAX_BODY));

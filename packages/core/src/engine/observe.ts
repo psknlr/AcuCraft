@@ -37,9 +37,13 @@ export interface AgentView {
    * couch or chair the patient is on, and to each body site as the patient lies now.
    */
   space: {
-    you: { x: number; z: number; facing: string; room: string };
-    fixtures: { id: string; kind: string; label: string; room: string; x: number; z: number; distance: number; inReach: boolean }[];
+    you: { x: number; z: number; yaw: number; facing: string; room: string };
+    rooms: { id: string; label: string; minX: number; maxX: number; minZ: number; maxZ: number }[];
+    walks: import("../schema/state.js").WalkRecord[];
+    fixtures: { id: string; kind: string; label: string; room: string; x: number; z: number; rot: number; distance: number; inReach: boolean }[];
     patient: {
+      id: string;
+      yaw: number;
       room: string;
       /** The fixture they sit or lie on (null: standing). */
       on: string | null;
@@ -58,7 +62,7 @@ export interface AgentView {
        */
       sites: { inReach: string[]; outOfReach: { site: string; distance: number }[] };
     };
-    team: { id: string; room: string; x: number; z: number; distance: number; inReach: boolean }[];
+    team: { id: string; room: string; x: number; z: number; yaw: number; distance: number; inReach: boolean }[];
   };
   patient: {
     name: string;
@@ -100,6 +104,8 @@ export interface AgentView {
     inPlace: boolean;
     /** Times the needle has been worked (lift-thrust or rotation). */
     manipulations: number;
+    /** Executed geometry, not a reconstruction from requested values. */
+    geometry: { region: string; side: string; u: number; v: number; depthCm: number; angleDeg: number; azimuthDeg: number; lengthMm: number; diameterMm: number };
     evidence: { id: string; minute: number; from: "patient" | "operator"; text: string; qualities: string[]; grasp: boolean | null; unasked: boolean }[];
     /** The response on record for it (`deqi`, `none`, `not-sought`), if any. */
     recorded: string | null;
@@ -143,7 +149,8 @@ export interface AgentView {
 }
 
 export function observeAs(sc: Scenario, s: EncounterState, actorId: string): AgentView {
-  const actor = s.actors[actorId];
+  const isPatient = actorId === s.patient.id;
+  const actor = isPatient ? { id: s.patient.id, role: "patient", location: s.patient.location, at: s.patient.at, holding: [] } : s.actors[actorId];
   if (!actor) throw new Error(`unknown actor ${actorId}`);
   const role = roleOf(sc, actorId);
   const member = sc.field.cast.find((m) => m.id === actorId)!;
@@ -212,13 +219,16 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
   const right = body.lying && body.support ? siteOf(sc, s, "hand-dorsum", "right").point : null;
   const toward = (p: { x: number; z: number }, from: { x: number; z: number }) => compass(Math.atan2(-(p.x - from.x), -(p.z - from.z)));
   const space: AgentView["space"] = {
-    you: { x: me.x, z: me.z, facing: compass(me.yaw), room: actor.location },
+    you: { x: me.x, z: me.z, yaw: me.yaw, facing: compass(me.yaw), room: actor.location },
+    rooms: [...w.rooms.values()].map(r => ({ id: r.id, label: r.label, ...r.rect })),
+    walks: s.walks.slice(-24).map(walk => ({ ...walk, path: walk.path.map(p => ({ ...p })) })),
     fixtures: [...w.fixtures.values()].map((f) => {
       const r = fixtureReach(w, me, f.id)!;
       const c = areaCentre(f.area);
-      return { id: f.id, kind: f.kind, label: f.label, room: f.room, x: round2(c.x), z: round2(c.z), distance: round2(r.distance), inReach: r.ok };
+      return { id: f.id, kind: f.kind, label: f.label, room: f.room, x: round2(c.x), z: round2(c.z), rot: f.entity.rot, distance: round2(r.distance), inReach: r.ok };
     }),
     patient: {
+      id: s.patient.id, yaw: s.patient.at.yaw,
       room: s.patient.location,
       on: s.patient.support,
       x: round2(body.centre.x),
@@ -237,7 +247,7 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
       .map((m) => {
         const other = s.actors[m.id]!;
         const distance = Math.hypot(me.x - other.at.x, me.z - other.at.z);
-        return { id: m.id, room: other.location, x: other.at.x, z: other.at.z, distance: round2(distance), inReach: distance <= CONTACT_RANGE_M + 1e-6 && seesArea(w, me, { minX: other.at.x - 0.25, maxX: other.at.x + 0.25, minZ: other.at.z - 0.25, maxZ: other.at.z + 0.25 }) };
+        return { id: m.id, room: other.location, x: other.at.x, z: other.at.z, yaw: other.at.yaw, distance: round2(distance), inReach: distance <= CONTACT_RANGE_M + 1e-6 && seesArea(w, me, { minX: other.at.x - 0.25, maxX: other.at.x + 0.25, minZ: other.at.z - 0.25, maxZ: other.at.z + 0.25 }) };
       }),
   };
 
@@ -253,12 +263,12 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
     finished: s.finished,
     you: {
       id: actorId,
-      name: member.name,
+      name: isPatient ? t(sc.case.patient.displayName, LOCALE) : member.name,
       role: actor.role,
       roleLabel: role?.label ?? actor.role,
       location: actor.location,
       holding: [...actor.holding],
-      may: Object.entries(ACTION_PERMISSIONS)
+      may: isPatient ? ["move", "say", "wait"] : Object.entries(ACTION_PERMISSIONS)
         .filter(([, p]) => p === null || role?.grants.some((g) => (typeof g === "string" ? g : g.permission) === p))
         .map(([type]) => type),
     },
@@ -304,6 +314,7 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
           // a needle that fell out unseen is still taken to be in place (as in `equipment`) until someone finds it
           inPlace: n.location.kind === "patient" || fellUnseen(n),
           manipulations: n.response?.manipulations ?? 0,
+          geometry: { region: n.insertion!.region, side: n.insertion!.side, u: n.insertion!.entry.u, v: n.insertion!.entry.v, depthCm: n.insertion!.depthCm, angleDeg: n.insertion!.angleDeg, azimuthDeg: n.insertion!.azimuthDeg, lengthMm: n.spec.lengthMm, diameterMm: n.spec.diameterMm },
           evidence: needleEvidence(s, n.id).map((e) => ({ id: e.id, minute: round2(e.at), from: e.kind === "needle-feel" ? ("operator" as const) : ("patient" as const), text: e.text, qualities: [...(e.needle?.qualities ?? [])], grasp: e.needle?.grasp ?? null, unasked: e.needle?.volunteered ?? false })),
           recorded,
         };

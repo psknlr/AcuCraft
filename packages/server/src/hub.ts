@@ -1,7 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { LOG_SCHEMA_ID, type ActionInput, type AgentView, type AttemptRecord, type EncounterLog, type Mode } from "@acucraft/core";
+import { clinicWorld, LOG_SCHEMA_ID, type ActionInput, type AgentView, type AttemptRecord, type EncounterLog, type Mode } from "@acucraft/core";
 import { EncounterSession, openingText, outcomeOf, toolsFor, type ToolContext, type ToolDefinition } from "@acucraft/agent";
 import { CLINICALCRAFT_REV, encounterHtml, evaluateEncounter, requireScenario, type ContentPack, type EncounterReport } from "@acucraft/bench";
 import { familiesOf, reportOutput, startChoice, type ClientRef, type EncounterStore, type StoreResult } from "@acucraft/mcp";
@@ -29,6 +29,7 @@ export interface Attribution {
   kind: ActorKind;
   name: string;
   id: string;
+  actor?: string;
 }
 
 /** One action on the record, as the timeline shows it. */
@@ -96,6 +97,7 @@ export type HubEvent =
 
 /** What the 3D view draws of the people of an encounter beyond its view (`RecordHub.stage`). */
 export interface StageInfo {
+  layout: { rooms: AgentView["space"]["rooms"]; colliders: { id: string; kind: string; minX: number; maxX: number; minY: number; maxY: number; minZ: number; maxZ: number; passable: boolean }[]; placements: { id: string; type: string; x: number; y: number; z: number; rot: number }[] };
   /** The clinic's equipment models by type: the set of the 3D view is built from these. */
   models: Record<string, { file: string; offset: [number, number, number]; scale: number }>;
   patient: { appearance: Record<string, unknown>; heightCm: number | null; seed: string };
@@ -265,6 +267,7 @@ export class RecordHub {
     const p = live.session.scenario.case.patient as { heightCm?: number; sex?: string; appearance?: Record<string, unknown> };
     const presentation = p.sex === "female" ? "feminine" : p.sex === "male" ? "masculine" : "neutral";
     return {
+      layout: { rooms: this.viewOf(live).space.rooms, colliders: clinicWorld(live.session.scenario).collision.colliders.map(c => ({ id: c.id, kind: c.kind, minX: c.minX, maxX: c.maxX, minY: c.minY, maxY: c.maxY, minZ: c.minZ, maxZ: c.maxZ, passable: c.passable })), placements: clinicWorld(live.session.scenario).facility.placements.map(p => ({ id: p.id, type: p.type, x: p.x, z: p.z, y: 0, rot: p.rot ?? 0 })) },
       models: this.models(),
       patient: { appearance: { presentation, ...(p.appearance ?? {}) }, heightCm: typeof p.heightCm === "number" ? p.heightCm : null, seed: `patient:${live.session.scenario.id}` },
       practitioner: { appearance: { skin: "#d9b48f", hair: "#24201d", hairStyle: "short", shirt: "#dfe7ea", pants: "#2f3a45", build: "average", presentation: "neutral" }, seed: `practitioner:${live.id}` },
@@ -367,10 +370,15 @@ export class RecordHub {
    * pushed to every subscriber. The result is what the practitioner is told: what the engine did, what it changed
    * since the caller last looked, and what others did meanwhile.
    */
-  act(id: string, toolName: unknown, input: unknown, by: Attribution): HubResult<{ ok: boolean; output: unknown; entry?: TimelineEntry } | { error: string }> {
+  act(id: string, toolName: unknown, input: unknown, by: Attribution, actor?: unknown): HubResult<{ ok: boolean; output: unknown; entry?: TimelineEntry } | { error: string }> {
     const live = this.records.get(id);
     if (!live) return { status: 404, body: { error: "no such encounter" } };
-    const tool = typeof toolName === "string" ? live.tools.find((t) => t.name === toolName) : undefined;
+    if (actor !== undefined) {
+      if (typeof actor !== "string" || (!live.session.state.actors[actor] && actor !== live.session.state.patient.id)) return { status: 400, body: { error: "Unknown character." } };
+      by = { ...by, actor };
+    }
+    const available = by.actor ? toolsFor(live.session.view(by.actor).you.may, { skills: true }) : live.tools;
+    const tool = typeof toolName === "string" ? available.find((t) => t.name === toolName) : undefined;
     if (!tool) return { status: 400, body: { error: `there is no tool ${String(toolName)}` } };
     const fields = input && typeof input === "object" && !Array.isArray(input) ? (input as Record<string, unknown>) : {};
     const done = this.callTool(live, tool, fields, by);
@@ -379,7 +387,7 @@ export class RecordHub {
 
   private callTool(live: Live, tool: ToolDefinition, input: Record<string, unknown>, by: Attribution): { ok: boolean; output: unknown; entry?: TimelineEntry } {
     if (tool.kind === "read") {
-      const view = this.viewOf(live);
+      const view = by.actor ? live.session.view(by.actor) : this.viewOf(live);
       const ctx: ToolContext = { library: live.session.library(), view, skills: this.pack.skills };
       if (tool.name === "view" && by.kind !== "operator") live.seen.set(by.id, view);
       return tool.run(input, ctx);
@@ -388,7 +396,7 @@ export class RecordHub {
     const parsed = tool.toAction(input);
     if (!parsed.ok) return { ok: false, output: { error: parsed.error } };
     const joined = by.kind !== "operator" && !live.seen.has(by.id);
-    const before = by.kind === "operator" ? this.viewOf(live) : (live.seen.get(by.id) ?? this.viewOf(live));
+    const before = by.actor ? live.session.view(by.actor) : by.kind === "operator" ? this.viewOf(live) : (live.seen.get(by.id) ?? this.viewOf(live));
     const applied = this.apply(live, parsed.action, by);
     const { result } = outcomeOf(before, applied.view);
     const others = this.meanwhile(live, by, before.version, applied.entry.seq);
@@ -399,8 +407,9 @@ export class RecordHub {
   /** Step one action as `by`, keep it, tell everyone. */
   private apply(live: Live, action: ActionInput, by: Attribution): { attempt: AttemptRecord; view: AgentView; entry: TimelineEntry } {
     const wasFinished = live.session.finished;
-    const done = live.session.act(action);
-    this.views.set(live.session.state, done.view);
+    const done = live.session.act(action, by.actor);
+    const publicView = live.session.view();
+    this.views.set(live.session.state, publicView);
     const a = done.attempt;
     const entry: TimelineEntry = {
       seq: live.timeline.length + 1,
@@ -423,7 +432,7 @@ export class RecordHub {
     if (finishedNow) live.report = evaluateEncounter(live.session.scenario, live.session.state);
     this.save(live);
     const summary = this.summaryOf(live);
-    this.emit({ type: "update", id: live.id, summary, view: done.view, entry });
+    this.emit({ type: "update", id: live.id, summary, view: publicView, entry });
     if (finishedNow && live.report) this.emit({ type: "closed", id: live.id, summary, report: live.report });
     return { attempt: a, view: done.view, entry };
   }
@@ -482,14 +491,18 @@ export class RecordHub {
       case "start": {
         if (runner?.active) return { status: 409, body: { error: "A language model is already working on this encounter: pause or stop it first." } };
         if (live.closed || live.session.finished) return { status: 409, body: { error: "This encounter is closed." } };
-        const provider = options.provider === "claude" ? "claude" : options.provider === "reference" ? "reference" : null;
-        if (!provider) return { status: 400, body: { error: 'provider is "claude" or "reference"' } };
+        const provider = options.provider && ["claude", "openai", "minimax", "compatible", "reference"].includes(options.provider) ? options.provider : null;
+        if (!provider) return { status: 400, body: { error: 'provider must be claude, openai, minimax, compatible or reference' } };
         const effort = options.effort && ["low", "medium", "high", "xhigh", "max"].includes(options.effort) ? options.effort : undefined;
-        const model = typeof options.model === "string" && /^[a-z0-9][a-z0-9.\-_]{2,60}$/i.test(options.model) ? options.model : undefined;
+        if (options.model !== undefined && (typeof options.model !== "string" || !/^[a-z0-9][a-z0-9._:/-]{0,199}$/i.test(options.model))) return { status: 400, body: { error: "Invalid model identifier." } };
+        const model = options.model;
+        const actor = options.actor ?? live.session.actor;
+        if (typeof actor !== "string" || (!live.session.state.actors[actor] && actor !== live.session.state.patient.id)) return { status: 400, body: { error: "Unknown character." } };
+        if (provider === "reference" && actor !== live.session.actor) return { status: 400, body: { error: "The reference trajectory is authored for the practitioner only." } };
         live.runs += 1;
-        const me: Attribution = { kind: "llm", name: provider === "claude" ? `Claude (${model ?? "claude-opus-5-5"})` : "reference trajectory", id: `llm:${live.id}:${live.runs}` };
+        const me: Attribution = { kind: "llm", name: `${provider} (${actor})`, actor, id: `llm:${live.id}:${live.runs}` };
         live.runner = new AgentRun(this.runnerHost(live, me), {
-          provider,
+          provider, actor,
           ...(model ? { model } : {}),
           ...(effort ? { effort } : {}),
           supervised: options.supervised === true,
@@ -535,7 +548,7 @@ export class RecordHub {
 
   private runnerHost(live: Live, me: Attribution) {
     return {
-      view: () => (this.records.get(live.id) === live && !live.closed ? this.viewOf(live) : null),
+      view: () => (this.records.get(live.id) === live && !live.closed ? live.session.view(me.actor) : null),
       library: () => live.session.library(),
       apply: (action: ActionInput) => {
         if (this.records.get(live.id) !== live || live.closed || live.session.finished) return null;

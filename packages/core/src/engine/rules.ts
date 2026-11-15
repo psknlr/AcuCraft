@@ -63,6 +63,7 @@ export type PermissionVerdict = { ok: true } | { ok: false; reason: string };
 
 /** Does the actor's role grant the permission an action needs, with its conditions met? */
 export function checkPermission(sc: Scenario, s: EncounterState, actorId: string, type: ActionType): PermissionVerdict {
+  if (actorId === s.patient.id) return ["move", "say", "wait"].includes(type) ? { ok: true } : { ok: false, reason: "The patient may move, speak or wait; clinical actions require a practitioner." };
   const needed = ACTION_PERMISSIONS[type];
   if (needed === null) return { ok: true };
   const role = roleOf(sc, actorId);

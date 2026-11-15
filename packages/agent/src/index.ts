@@ -19,6 +19,7 @@ export * from "./render.js";
 export * from "./tools/index.js";
 export * from "./providers/types.js";
 export * from "./providers/anthropic.js";
+export * from "./providers/openai.js";
 export * from "./providers/scripted.js";
 export * from "./llm.js";
 export * from "./session.js";

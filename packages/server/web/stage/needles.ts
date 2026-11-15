@@ -17,6 +17,7 @@ import {
   Vector3,
   type Raycaster,
 } from "three";
+import { ActionSchema, needleMotion, sampleNeedleMotion, type NeedleMotion } from "@acucraft/core";
 import type { SkinSite } from "./sites.js";
 
 /**
@@ -36,6 +37,7 @@ export interface NeedleSpec {
   depthCm: number;
   /** Length of the needle's shaft (m). */
   length: number;
+  diameterMm: number;
 }
 
 const ease = (t: number) => 1 - Math.pow(1 - Math.min(1, Math.max(0, t)), 3);
@@ -90,7 +92,7 @@ interface Live {
   depth: number;
   targetDepth: number;
   leaving: boolean;
-  wiggle: { kind: "lift-thrust" | "rotate"; until: number } | null;
+  wiggle: { motion: NeedleMotion; start: number } | null;
   glow: { ring: Mesh; start: number } | null;
   highlight: boolean;
 }
@@ -116,11 +118,11 @@ export class NeedleLayer {
 
   constructor() {
     this.group.name = "needles";
-    // (a shaft is a quarter of a millimetre thick: drawn a little thicker, as a game draws a wire, to be seen at all)
+    // Unit geometry is scaled to each needle's recorded diameter, in millimetres.
     this.shaftGeo = new CylinderGeometry(0.00024, 0.00024, 1, 8, 1);
     this.shaftGeo.translate(0, 0.5, 0);
     this.tipGeo = new CylinderGeometry(0.00024, 0.00002, 0.0016, 8, 1);
-    this.tipGeo.translate(0, -0.0008, 0);
+    this.tipGeo.translate(0, 0.0008, 0);
     this.tailGeo = new SphereGeometry(0.00095, 14, 10);
     this.hitGeo = new CylinderGeometry(0.004, 0.004, 1, 6, 1);
     this.hitGeo.translate(0, 0.5, 0);
@@ -181,9 +183,14 @@ export class NeedleLayer {
   }
 
   /** The needle worked (`adjust_needle`): lifted and thrust along its shaft, or turned. */
-  work(id: string, kind: "lift-thrust" | "rotate", now: number): void {
+  work(id: string, input: Record<string, unknown>, now: number): void {
     const l = this.live.get(id);
-    if (l) l.wiggle = { kind, until: now + 1800 };
+    const parsed = ActionSchema.safeParse({ ...input, type: "adjust_needle" });
+    if (l && parsed.success && parsed.data.type === "adjust_needle") l.wiggle = parsed.data.technique === "none" ? null : { motion: needleMotion(parsed.data, l.targetDepth * 100), start: now };
+  }
+
+  stopWork(): void {
+    for (const needle of this.live.values()) needle.wiggle = null;
   }
 
   /** A response on record at a needle: a glow spreads round it once. */
@@ -261,13 +268,12 @@ export class NeedleLayer {
       let depth = l.depth * ease(l.inserted);
       let spin = 0;
       if (l.wiggle) {
-        const left = l.wiggle.until - now;
-        if (left <= 0) l.wiggle = null;
+        const elapsed = (now - l.wiggle.start) / 1000;
+        if (elapsed >= l.wiggle.motion.durationSeconds || l.leaving) l.wiggle = null;
         else {
-          const k = Math.min(1, left / 400);
-          const phase = (now / 1000) * Math.PI * 2 * 2.2;
-          if (l.wiggle.kind === "lift-thrust") depth += Math.sin(phase) * 0.0028 * k;
-          else spin = Math.sin(phase) * 1.4 * k;
+          const sample = sampleNeedleMotion(l.wiggle.motion, elapsed);
+          depth = sample.depthCm / 100;
+          spin = sample.rotationRad;
         }
       }
       // the tip at `depth` under the skin along the needle's way in; from it the shaft, the handle and its tail
@@ -294,8 +300,10 @@ export class NeedleLayer {
     root.name = `needle:${spec.id}`;
     const body = new Group();
     const shaft = new Mesh(this.shaftGeo, this.shaftMat);
-    shaft.scale.set(1, spec.length, 1);
+    shaft.scale.set(spec.diameterMm / 0.48, spec.length - 0.0016, spec.diameterMm / 0.48);
+    shaft.position.y = 0.0016;
     const tip = new Mesh(this.tipGeo, this.shaftMat);
+    tip.scale.set(spec.diameterMm / 0.48, 1, spec.diameterMm / 0.48);
     const handle = new Mesh(new CylinderGeometry(0.00072, 0.00068, 0.025, 14, 1), this.handleMat.clone());
     handle.position.y = spec.length + 0.0125;
     const tail = new Mesh(this.tailGeo, this.tailMat);

@@ -1,5 +1,5 @@
 import type { ActionInput, ActionRequestInput, AgentView, AttemptRecord } from "@acucraft/core";
-import { anthropicProvider, llmAgent, oracleProvider, type Effort, type Library, type LlmAgent, type LlmEvent, type LLMProvider, type ProviderError, type Skill } from "@acucraft/agent";
+import { openaiProvider, anthropicProvider, llmAgent, oracleProvider, type Effort, type Library, type LlmAgent, type LlmEvent, type LLMProvider, type ProviderError, type Skill } from "@acucraft/agent";
 
 /**
  * A language model working an encounter from inside the server (docs/WEB.md "The LLM in the workspace"): the
@@ -13,11 +13,13 @@ import { anthropicProvider, llmAgent, oracleProvider, type Effort, type Library,
  */
 
 /** Who plays the practitioner: Claude through the Messages API, or the scenario's reference trajectory spoken as tool calls (no network — a demonstration of the loop, not a model). */
-export type RunnerProvider = "claude" | "reference";
+export type RunnerProvider = "claude" | "openai" | "minimax" | "compatible" | "reference";
 
 export interface RunnerOptions {
   provider: RunnerProvider;
-  /** The Claude model (default `claude-opus-5-5`). */
+  /** Character to control; default is the practitioner. */
+  actor?: string;
+  /** Provider model identifier; defaults may also be supplied through server environment variables. */
   model?: string;
   effort?: Effort;
   /** Each action waits for the operator's approval (default false). */
@@ -113,8 +115,8 @@ export class AgentRun {
     this.supervised = setup.supervised === true;
     this.maxActions = setup.maxActions ?? 400;
     this.now = setup.now ?? (() => new Date());
-    const inner = setup.providerOverride ?? (setup.provider === "claude" ? anthropicProvider({ ...(setup.model ? { model: setup.model } : {}), ...(setup.effort ? { effort: setup.effort } : {}) }) : oracleProvider(setup.solution ?? [], { batch: 1 }));
-    this.label = setup.provider === "claude" ? `claude (${inner.label})` : "reference trajectory (offline, not a model)";
+    const inner = setup.providerOverride ?? (setup.provider === "claude" ? anthropicProvider({ ...(setup.model ? { model: setup.model } : {}), ...(setup.effort ? { effort: setup.effort } : {}) }) : setup.provider === "reference" ? oracleProvider(setup.solution ?? [], { batch: 1 }) : openaiProvider({ provider: setup.provider, model: setup.model }));
+    this.label = setup.provider === "reference" ? "reference trajectory (offline, not a model)" : `${inner.label} · ${setup.actor ?? "practitioner"}`;
     const pace = setup.provider === "reference" ? (setup.pace ?? 600) : 0;
     const stopped = (): ProviderError => ({ ok: false, kind: "aborted", message: "The run was stopped.", retryable: false });
     const provider: LLMProvider = {

@@ -129,8 +129,8 @@ export const ACTION_DOCS: Record<ActionType, ActionDoc> = {
     },
   },
   adjust_needle: {
+    fields: { strokeMm: "Total peak-to-peak axial excursion in mm; lift-thrust only. The full excursion is checked against anatomy.", rotationDeg: "Peak angular displacement in degrees for alternating turns, degrees per cycle for one-way turns; rotate only.", frequencyHz: "Cycles per second, not a clinical recommendation.", durationSeconds: "Duration in seconds of simulated time.", depthCm: "Depth along the shaft from skin entry in cm. Decrease to lift, increase to thrust. Angles are fixed while inserted; withdraw before redirecting." },
     does: "Work a needle in place, or change its depth: lift and thrust, rotate, or re-seat it deeper or shallower. What you then feel in the needle is evidence of its response. Stronger stimulation is never the aim: a tip that lies too shallow is not helped by working it harder, and a sharp, burning or electric sensation means withdraw a little or take the needle out.",
-    fields: { depthCm: "A new depth along the shaft, in centimetres.", technique: "none (depth only), lift-thrust or rotate." },
   },
   check_sensation: {
     does: "Ask the patient what they feel at one needle. Their answer is evidence of that needle's response. Within earshot.",

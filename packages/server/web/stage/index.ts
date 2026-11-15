@@ -1,10 +1,11 @@
+import { buildClinic } from "./clinic.js";
 import { Raycaster, Vector2, Vector3 } from "three";
 import { Director, type Shot } from "./director.js";
 import { Engine } from "./engine.js";
 import { Hud } from "./hud.js";
 import { NeedleLayer, type NeedleSpec } from "./needles.js";
 import { Person, patientAppearance, patientPlacement, practitionerAppearance, practitionerPlacement, type Placement, type SetName } from "./cast.js";
-import { buildSets, CONSULT, TREATMENT, type ModelRef } from "./set.js";
+import { CONSULT, TREATMENT, type ModelRef } from "./set.js";
 import { SiteFinder, siteOfInsertion, type SkinSite } from "./sites.js";
 import { refineSkin } from "./skin.js";
 import type { AgentView, CameraMode, ChartSite, Quality, StageInfo, StageState, TimelineEntry } from "./types.js";
@@ -95,15 +96,6 @@ function needlePlans(timeline: TimelineEntry[], marks: AgentView["localisation"]
   return plans;
 }
 
-/** The length of the pack's needles (its spec, e.g. "0.25 × 40 mm"), in metres. */
-function needleLength(view: AgentView): number {
-  for (const p of view.equipment.packs) {
-    const m = /(\d+(?:\.\d+)?)\s*mm\b/.exec(String(p.spec));
-    if (m) return Math.min(0.1, Math.max(0.013, Number(m[1]) / 1000));
-  }
-  return 0.04;
-}
-
 export async function mountStage(host: HTMLElement, info: StageInfoWithModels, options: StageOptions = {}): Promise<StageHandle> {
   refineSkin();
   const engine = new Engine(host, options.quality ?? "auto");
@@ -126,14 +118,14 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
   hud.setQuality(engine.currentQuality, (options.quality ?? "auto") === "auto");
 
   const modelUrl = options.modelUrl ?? ((file: string) => `/app/models/${file.split("/").pop()}`);
-  const sets = buildSets(info.models, modelUrl);
+  const sets = buildClinic(info, modelUrl);
   engine.scene.add(sets.root, needles.group);
 
   let patient: Person | null = null;
   let practitioner: Person | null = null;
+  const colleagues = new Map<string, Person>();
   let finder: SiteFinder | null = null;
   let placed = "";
-  let staffKey = "";
   let set: SetName = "consult";
   let state: StageState | null = null;
   let seenEntries = 0;
@@ -144,7 +136,7 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
   const subtitles: { who: string; text: string; patient: boolean }[] = [];
   let speakingUntil = 0;
 
-  const setCentre = () => (set === "treatment" ? new Vector3(TREATMENT.couch.x, 0, TREATMENT.couch.z) : new Vector3(CONSULT.desk.x, 0, CONSULT.desk.z));
+  const setCentre = () => state ? new Vector3(state.view.space.patient.x, 0, state.view.space.patient.z) : new Vector3();
   function roomShot(): Shot {
     const c = setCentre();
     return set === "treatment"
@@ -160,7 +152,10 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
       return { eye: c.clone().add(new Vector3(-side * 1.15, 1.55, 1.25)), at: c.clone().add(new Vector3(0, 0.66, -0.12)), ms: 1300, fov: 36 };
     }
     const head = patient.headAt();
-    return { eye: head.clone().add(new Vector3(0.95, 0.12, -1.25)), at: head.clone().add(new Vector3(0, -0.28, 0)), ms: 1300, fov: 34 };
+    const away = practitioner ? head.clone().sub(practitioner.headAt()).setY(0) : new Vector3(0.95, 0, -1.25);
+    if (away.lengthSq() < 0.01) away.set(0.95, 0, -1.25);
+    away.normalize().multiplyScalar(1.55).setY(0.12);
+    return { eye: head.clone().add(away), at: head.clone().add(new Vector3(0, -0.28, 0)), ms: 1300, fov: 34 };
   }
   function faceShot(): Shot | null {
     if (!patient) return null;
@@ -218,13 +213,22 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
   /** The patient as the record has them now: rebuilt (and every site found again) when their position or room changes. */
   function castPatient(view: AgentView, animate: boolean): boolean {
     const placement: Placement = patientPlacement(view.patient.position, view.patient.location, info.patient.heightCm, info.patient.seed);
-    const key = `${placement.set}|${placement.position}`;
-    if (key === placed) return false;
+    const support = view.space.fixtures.find(f => f.id === view.space.patient.on);
+    if (support && placement.position !== "standing") {
+      const couch = placement.set === "treatment" ? TREATMENT.couch : CONSULT.patientChair;
+      const lying = ["prone", "lying", "lateral"].includes(placement.options.posture);
+      const dz = lying ? placement.at.z - couch.z : 0;
+      const angle = support.rot * Math.PI / 180;
+      placement.at = { x: support.x + dz * Math.sin(angle), y: 0, z: support.z + dz * Math.cos(angle), rot: support.rot };
+    } else placement.at = { x: view.space.patient.x, y: 0, z: view.space.patient.z, rot: 180 + view.space.patient.yaw * 180 / Math.PI };
+    const key = placement.set + "|" + placement.position + "|" + view.space.patient.on;
+    if (key === placed && patient) { patient.moveTo(placement.at, view.space.walks.filter(w => w.actor === view.space.patient.id).at(-1), animate); return false; }
     placed = key;
     if (animate) hud.dip();
     patient?.dispose();
     patient = new Person(patientAppearance(info), placement);
     engine.scene.add(patient.holder);
+    patient.moveTo(placement.at, view.space.walks.filter(w => w.actor === view.space.patient.id).at(-1), animate && state?.timeline.at(-1)?.tool === "move");
     finder = new SiteFinder(patient.rig);
     needles.clear();
     seenRecorded = new Map();
@@ -237,32 +241,38 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
   }
 
   /** The practitioner, beside the couch on the side being worked (or at the desk). */
-  function castPractitioner(site: SkinSite | null): void {
-    const c = setCentre();
-    const side: 1 | -1 = site ? (site.p.x - c.x >= -0.03 ? 1 : -1) : practitioner && practitioner.placement.set === set ? (Math.sign(practitioner.placement.at.x - c.x) as 1 | -1) || 1 : 1;
-    const along = site ? site.p.z - c.z + 0.1 : 0.05;
-    const placement = practitionerPlacement(set, side, Math.round(along * 4) / 4, info.practitioner.seed);
-    const key = `${placement.set}|${placement.at.x.toFixed(2)}|${placement.at.z.toFixed(2)}`;
-    if (key === staffKey) return;
-    staffKey = key;
-    practitioner?.dispose();
-    practitioner = new Person(practitionerAppearance(info), placement);
-    engine.scene.add(practitioner.holder);
+  function castPractitioner(view: AgentView, animate: boolean): void {
+    const placement = practitionerPlacement(set, 1, 0, info.practitioner.seed);
+    placement.position = "standing";
+    placement.options = { ...placement.options, posture: "standing" };
+    placement.at = { x: view.space.you.x, y: 0, z: view.space.you.z, rot: 180 + view.space.you.yaw * 180 / Math.PI };
+    if (!practitioner) { practitioner = new Person(practitionerAppearance(info), placement); engine.scene.add(practitioner.holder); }
+    practitioner.moveTo(placement.at, view.space.walks.filter(w => w.actor === view.you.id).at(-1), animate);
+    practitioner.lookAt(patient?.headAt() ?? new Vector3());
+    for (const member of view.space.team) {
+      let person = colleagues.get(member.id);
+      const at = { x: member.x, y: 0, z: member.z, rot: 180 + member.yaw * 180 / Math.PI };
+      if (!person) {
+        person = new Person({ ...practitionerAppearance(info), shirt: "#81a9ad" }, { ...placement, at, options: { ...placement.options, seed: member.id } });
+        colleagues.set(member.id, person); engine.scene.add(person.holder);
+      }
+      person.moveTo(at, view.space.walks.filter(w => w.actor === member.id).at(-1), animate);
+    }
   }
 
   function sync(next: StageState, animate: boolean): void {
     const view = next.view;
     engine.invalidate(45);
+    engine.lightSet(view.space.patient.x, view.space.patient.z);
     const moved = castPatient(view, animate);
     const plans = needlePlans(next.timeline, view.localisation.marks);
-    const length = needleLength(view);
     const specs: NeedleSpec[] = [];
     for (const n of view.needling) {
       if (!n.inPlace) continue;
-      const plan = plans.get(n.needle);
-      const site = plan && finder ? finder.find(plan.site) : null;
-      if (!plan || !site) continue;
-      specs.push({ id: n.needle, target: plan.target || n.target, site, angleDeg: plan.angleDeg, azimuthDeg: plan.azimuthDeg, depthCm: plan.depthCm, length });
+      const g = n.geometry;
+      const site = finder ? finder.find(g) : null;
+      if (!site) continue;
+      specs.push({ id: n.needle, target: n.target, site, angleDeg: g.angleDeg, azimuthDeg: g.azimuthDeg, depthCm: g.depthCm, length: g.lengthMm / 1000, diameterMm: g.diameterMm });
     }
     needles.sync(specs, performance.now(), animate && !moved);
     const marks: { id: string; site: SkinSite; stale: boolean }[] = [];
@@ -284,7 +294,7 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
         lastNeedle = id;
         focus = needles.siteOf(id) ?? focus;
       }
-      if (e.tool === "adjust_needle" && id && typeof e.input.technique === "string" && e.input.technique !== "none") needles.work(id, e.input.technique as "lift-thrust" | "rotate", performance.now());
+      if (e.tool === "adjust_needle" && id && (e.status === "executed" || e.status === "partial")) needles.work(id, e.input, performance.now());
       if (e.tool === "mark_point" && (e.status === "executed" || e.status === "partial")) {
         const last = view.localisation.marks[view.localisation.marks.length - 1];
         const site = last && finder ? finder.find({ region: last.region, side: last.side, u: last.u, v: last.v }) : null;
@@ -300,6 +310,7 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
       if (animate && was !== undefined && n.recorded === "deqi" && was !== "deqi") needles.respond(n.needle, performance.now());
       seenRecorded.set(n.needle, n.recorded);
     }
+    if (view.patient.consent === "withdrawn" || /faint|clammy|grey/.test(view.patient.appearance) || view.documentation.stopped || next.closed) needles.stopWork();
     // the lines said since: the patient's (and others') words
     const lines = view.conversation;
     if (animate && lines.length > seenLines) {
@@ -307,11 +318,11 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
     }
     seenLines = lines.length;
 
-    castPractitioner(lastNeedle ? needles.siteOf(lastNeedle) : focus);
+    castPractitioner(view, animate);
     if (moved && animate) director.cut(patientShot(), 1500);
     else if (focus && animate) director.cut(director.closeOn(focus.p, focus.n), 1200);
     hud.status({
-      room: set === "treatment" ? "Treatment room" : "Consultation room",
+      room: view.space.rooms.find(r => r.id === view.patient.location)?.label ?? view.patient.location,
       position: `${POSITION_WORDS[view.patient.position] ?? view.patient.position}${["prone", "supine", "supine-knee-flexed"].includes(view.patient.position) ? " · towels" : ""}`,
       appearance: view.patient.appearance,
       consent: view.patient.consent,
@@ -346,6 +357,7 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
     nextSubtitle(now);
     patient?.tick(now, dt);
     practitioner?.tick(now, dt);
+    for (const person of colleagues.values()) person.tick(now, dt);
     needles.tick(dt, now);
     director.update();
     // (the labels are placed with this frame's camera, not the last one's: no swimming while it moves)
@@ -384,6 +396,7 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
       director.dispose();
       patient?.dispose();
       practitioner?.dispose();
+      for (const person of colleagues.values()) person.dispose();
       hud.root.remove();
     },
   };

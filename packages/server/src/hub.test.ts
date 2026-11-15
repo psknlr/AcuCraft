@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, describe, expect, it } from "vitest";
 import { digest, replayLog } from "@acucraft/core";
-import { referenceAgent } from "@acucraft/agent";
+import { referenceAgent, NO_USAGE, type LLMProvider } from "@acucraft/agent";
 import { loadContentPack, requireScenario, runEpisode } from "@acucraft/bench";
 import { McpServer } from "@acucraft/mcp";
 import { operator, RecordHub, type HubEvent } from "./hub.js";
@@ -102,6 +102,30 @@ describe("a live record", () => {
 });
 
 describe("the server's language model on a record", () => {
+  it("binds a model to the patient while keeping broadcasts in practitioner perspective", async () => {
+    const offered: string[][] = [];
+    const provider: LLMProvider = { id: "test", model: "patient-test", label: "patient-test", async complete(request) {
+      offered.push(request.tools.map(t => t.name));
+      return { ok: true, id: "one", model: "patient-test", stopReason: "tool_use", text: "", raw: null,
+        usage: { ...NO_USAGE }, toolCalls: [{ id: "walk", name: "move", input: { to: "reception" } }] };
+    } };
+    const hub = new RecordHub({ pack, runner: { providerOverride: provider } });
+    const id = started(hub);
+    expect(hub.agent(id, "start", { provider: "openai", actor: "patient", model: "vendor/model:v1", maxActions: 1 }, ann).status).toBe(200);
+    await hub.settle();
+    const snap = hub.snapshot(id)!;
+    expect(offered[0]).toContain("move");
+    expect(offered[0]).not.toContain("insert_needle");
+    expect(offered[0]).not.toContain("assess");
+    expect(snap.view.you.id).toBe("practitioner");
+    expect(snap.view.patient.location).toBe("reception");
+    expect(snap.timeline.at(-1)).toMatchObject({ tool: "move", by: { kind: "llm", actor: "patient" } });
+    expect(hub.logOf(id)!.requests.at(-1)?.actor).toBe("patient");
+    expect(hub.act(id, "insert_needle", {}, ann, "patient").status).toBe(400);
+    expect(hub.act(id, "move", { to: "reception" }, ann, "unknown").status).toBe(400);
+    expect(hub.agent(id, "start", { provider: "reference", actor: "patient" }, ann).status).toBe(400);
+  });
+
   it("plays the encounter through to the end, each action applied as it is made and attributed to it", async () => {
     const hub = new RecordHub({ pack, runner: { pace: 0 } });
     const agentEvents: HubEvent[] = [];
