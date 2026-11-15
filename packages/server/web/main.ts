@@ -324,7 +324,7 @@ async function openRecord(id: string): Promise<void> {
   const parts = { banner: h("div", { class: "part" }), tools: h("div", { class: "part" }), report: h("div", { class: "part" }), record: h("div", { class: "part" }) };
   const open: Open = { id, snapshot, tools, lib: null, seen: null, act: undefined!, agent: undefined!, stage: undefined!, parts };
   open.act = composer({ id, tools, view: () => open.snapshot.view, lib: () => open.lib });
-  open.agent = agentPanel({ id, info: state.info! });
+  open.agent = agentPanel({ id, info: state.info!, characters: [{ id: snapshot.view.you.id, name: snapshot.view.you.name }, ...snapshot.view.team.filter(c => c.id !== snapshot.view.you.id), { id: snapshot.view.space.patient.id, name: snapshot.view.patient.name }] });
   open.stage = stageCard(id, state.info!, (needle) => highlightNeedle(needle));
   state.open = open;
   recordPage(open);

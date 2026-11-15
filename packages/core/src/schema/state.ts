@@ -131,6 +131,7 @@ export interface NeedleEvent {
   actor: string;
   what: "pack-opened" | "picked-up" | "handed-over" | "inserted" | "adjusted" | "withdrawn" | "disposed" | "dropped" | "found" | "broken" | "contaminated" | "pressure";
   detail?: string;
+  motion?: import("../engine/manipulation.js").NeedleMotion;
 }
 
 export interface NeedleState {

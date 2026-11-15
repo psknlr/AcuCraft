@@ -135,29 +135,8 @@ export const ACTION_DOCS: Record<ActionType, ActionDoc> = {
     },
   },
   adjust_needle: {
-    does: "Work a needle in place, or change its depth: lift, thrust, lift-thrust, rotate/twist, or the simulator's illustrative bu/xie gestures. Bu/xie are choreography labels, not a model of therapeutic efficacy. What you then feel in the needle is evidence of its response. Stronger stimulation is never the aim: a tip that lies too shallow is not helped by working it harder, and a sharp, burning or electric sensation means withdraw a little or take the needle out.",
-    fields: {
-      depthCm: "A new depth along the shaft, in centimetres; checked against the patient's anatomy.",
-      technique: "none (depth only), lift, thrust, lift-thrust, rotate, twist, bu (tonification gesture) or xie (sedation gesture). These names do not establish clinical effects.",
-      motion: "Optional animation settings only. A displayed stroke withdraws from, then returns to, the approved depth. These settings do not change depth or the tissue response.",
-      "motion.cycles": "Number of displayed gesture cycles, 1 to 8 (default 3). One action remains one simulation manipulation.",
-      "motion.durationMs": "Whole animation duration in milliseconds, 400 to 8000 (default 1800).",
-      "motion.strokeMm": "Displayed outward stroke in millimetres, 0 to 3 (default 1.5), clamped to the retained depth.",
-      "motion.rotationDeg": "Maximum displayed twist amplitude in degrees, 0 to 180 (default 90).",
-    },
-  },
-  perform_technique: {
-    does: "Perform one illustrative 3D manipulation, using the same bounded parameters as the operator panel. Read lookup techniques for all 24 basic terms, 10 compound demonstrations and bu/xie, source status, contexts, defaults and bounds. This records choreography; it does not insert, withdraw, deepen a needle, measure force, produce clinical evidence or change therapeutic effects. Retained maneuvers require an inserted needle; post-removal maneuvers require a needle withdrawn in this visit; skin maneuvers use a current mark, a needle's executed site, or explicit chart coordinates. Treatment gestures need current consent and a well patient; post-removal covering follows aftercare permissions and may still be demonstrated after treatment stops. Every gesture needs permission and the actual body site within reach. Skin contact affects preparation and hand hygiene; follow the engine's returned conditions.",
-    fields: {
-      technique: "Stable technique id from lookup techniques, such as nian, ti, gua, an, men, shao-shan-huo, bu or xie. Definitions are authored illustrative variants rather than verified clinical standards.",
-      needleId: "Required for retained or post-removal techniques. May anchor a skin gesture to a needle's executed site in this visit.",
-      mark: "A current non-stale mark for a skin gesture. Omit conflicting targets when needleId determines the site.",
-      region: "Without mark or needleId, name a regional model and give side and at.",
-      at: CHART_AT,
-      motion: "Optional bounded presentation settings shared with the operator controls. Use lookup techniques for units and per-technique defaults. Contact intensity is cosmetic and is never a force measurement or clinical dose.",
-      "motion.cycles": "Displayed cycles within each primitive phase, 1 to 12. A compound's total duration spans all phases.",
-      "motion.durationMs": "Total performance duration in milliseconds, 400 to 30000, spanning every compound phase. Presentation time does not advance the clinical clock.",
-    },
+    fields: { strokeMm: "Total peak-to-peak axial excursion in mm; lift-thrust only. The full excursion is checked against anatomy.", rotationDeg: "Peak angular displacement in degrees for alternating turns, degrees per cycle for one-way turns; rotate only.", frequencyHz: "Cycles per second, not a clinical recommendation.", durationSeconds: "Duration in seconds of simulated time.", depthCm: "Depth along the shaft from skin entry in cm. Decrease to lift, increase to thrust. Angles are fixed while inserted; withdraw before redirecting." },
+    does: "Work a needle in place, or change its depth: lift and thrust, rotate, or re-seat it deeper or shallower. What you then feel in the needle is evidence of its response. Stronger stimulation is never the aim: a tip that lies too shallow is not helped by working it harder, and a sharp, burning or electric sensation means withdraw a little or take the needle out.",
   },
   check_sensation: {
     does: "Ask the patient what they feel at one needle. Their answer is evidence of that needle's response. Within earshot.",

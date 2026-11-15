@@ -17,7 +17,7 @@ export interface Info {
   families: { family: string; title: string; variants: number }[];
   auth: { token: boolean };
   mcp: string;
-  languageModel: { claude: boolean; openai: boolean; minimax: boolean };
+  languageModel: { claude: boolean; openai?: boolean; minimax?: boolean; compatible?: boolean };
   /** The 3D view of an encounter: whether the server has it (it needs the pinned engine's figure kit). */
   stage: { available: boolean; missing: string | null };
 }
@@ -111,7 +111,7 @@ export const api = {
   snapshot: (id: string) => request<EncounterSnapshot>("GET", enc(id)),
   tools: (id: string) => request<{ tools: ToolInfo[] }>("GET", `${enc(id)}/tools`),
   stage: (id: string) => request<StageInfo>("GET", `${enc(id)}/stage`),
-  act: (id: string, tool: string, input: Record<string, unknown>) => request<ActAnswer>("POST", `${enc(id)}/act`, { tool, input, by: by() }),
+  act: (id: string, tool: string, input: Record<string, unknown>, actor?: string) => request<ActAnswer>("POST", `${enc(id)}/act`, { tool, input, actor, by: by() }),
   close: (id: string, abandon: boolean) => request<{ report: EncounterReport }>("POST", `${enc(id)}/close`, { abandon, by: by() }),
   remove: (id: string) => request<{ removed: string }>("DELETE", enc(id)),
   agent: (id: string, op: "start" | "pause" | "resume" | "stop", options: Record<string, unknown> = {}) => request<{ agent: RunnerSnapshot | null }>("POST", `${enc(id)}/agent`, { op, options, by: by() }),

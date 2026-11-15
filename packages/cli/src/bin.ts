@@ -34,7 +34,7 @@ import {
   type Position,
   type Side,
 } from "@acucraft/core";
-import { claudeAgent, llmAgent, lookup, minimaxProvider, openaiProvider, oracleProvider, protocolAgent, referenceAgent, systemPrompt, toolsFor, type Agent, type Effort, type LlmEvent } from "@acucraft/agent";
+import { openaiProvider, claudeAgent, llmAgent, lookup, oracleProvider, protocolAgent, referenceAgent, systemPrompt, toolsFor, type Agent, type Effort, type LlmEvent } from "@acucraft/agent";
 import { CLINICALCRAFT_REV, encounterHtml, episodeMarkdown, evaluateEncounter, loadContentPack, loadScenario, requireScenario, runEpisode, runSuite, scenarioIds, suiteMarkdown, SuiteSchema, DEFAULT_CONTENT_DIR } from "@acucraft/bench";
 import { runMcpServer } from "@acucraft/mcp";
 import { isLoopbackHost, RecordHub, serve } from "@acucraft/server";
@@ -55,10 +55,10 @@ usage: npm run acu -- <command> [options]
   vocabulary [PATTERN]                      the signs, what each pattern is recognised by, and what counts as deqi
   locate <family/variant> <position> [POINT:side ...]
                                             authoring: the hidden patient-specific landmarks and points
-  run <family/variant> [--agent protocol|reference|claude|openai|minimax|scripted-llm] [--seed N] [--mode assessment|teaching]
+  run <family/variant> [--agent protocol|reference|claude|openai|minimax|compatible|scripted-llm] [--seed N] [--mode assessment|teaching]
       [--model ID] [--effort low|medium|high|xhigh|max] [--max-steps N] [--no-skills] [--no-locate]
       [--out DIR] [--verbose]               run one encounter; writes log.json, report.json and report.md
-                                            (claude, openai, minimax: live models; --effort applies to Claude; scripted-llm: the
+                                            (claude/openai/minimax/compatible: live model providers; scripted-llm: the
                                             reference trajectory spoken as tool calls through the same loop, offline)
   play <family/variant> [--mode teaching] [--seed N] [--out DIR]
                                             play the practitioner yourself (type help inside)
@@ -244,6 +244,10 @@ function makeAgent(id: string, p: ReturnType<typeof pack>): Agent {
   switch (values.agent) {
     case "reference":
       return referenceAgent(requireScenario(p, id));
+    case "openai":
+    case "minimax":
+    case "compatible":
+      return llmAgent({ ...llm, provider: openaiProvider({ provider: values.agent, ...(values.model ? { model: values.model } : {}) }) });
     case "claude":
       return claudeAgent({ ...llm, ...(values.model ? { model: values.model } : {}), ...(values.effort ? { effort: values.effort as Effort } : {}) });
     case "openai":
@@ -654,8 +658,7 @@ async function main(): Promise<void> {
       const url = running.url.replace(/\/$/, "");
       console.log(`AcuCraft workspace   ${url}/${madeUp ? `?token=${token}` : ""}`);
       console.log(`  records            ${dataDir ? `${dataDir} (${restored.restored} restored)` : "in memory only (gone when the server stops)"}`);
-      const liveModels = [process.env.ANTHROPIC_API_KEY && "Claude", process.env.OPENAI_API_KEY && "GPT / OpenAI", process.env.MINIMAX_API_KEY && "MiniMax"].filter(Boolean);
-      console.log(`  language model     ${liveModels.length ? liveModels.join(", ") : "the reference trajectory only (set ANTHROPIC_API_KEY, OPENAI_API_KEY or MINIMAX_API_KEY for a live model)"}`);
+      console.log("  language models    Claude, OpenAI, MiniMax, compatible endpoint, or offline reference (docs/CHARACTER-CONTROL.md)");
       console.log(`  MCP over HTTP      ${url}/mcp`);
       console.log(`    claude mcp add --transport http acucraft ${url}/mcp${token ? ' --header "Authorization: Bearer <token>"' : ""}`);
       if (token && !madeUp) console.log("  access             the token you gave: open the workspace once with ?token=<token>");

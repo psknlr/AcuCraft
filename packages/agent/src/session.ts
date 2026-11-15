@@ -75,8 +75,8 @@ export class EncounterSession {
     return this.made;
   }
 
-  view(): AgentView {
-    return observeAs(this.scenario, this.current, this.actor);
+  view(actor = this.actor): AgentView {
+    return observeAs(this.scenario, this.current, actor);
   }
 
   library(): ReturnType<typeof referenceLibrary> {
@@ -84,13 +84,13 @@ export class EncounterSession {
   }
 
   /** One action, decided on the current state. The engine decides what becomes of it. */
-  act(action: ActionInput): ActOutcome {
-    const before = this.view();
-    const request = { requestId: `${this.actor}-${String(this.made.length + 1).padStart(4, "0")}`, actor: this.actor, patient: this.scenario.field.patient.id, action, expectedVersion: before.version };
+  act(action: ActionInput, actor = this.actor): ActOutcome {
+    const before = this.view(actor);
+    const request = { requestId: `${actor}-${String(this.made.length + 1).padStart(4, "0")}`, actor, patient: this.scenario.field.patient.id, action, expectedVersion: before.version };
     const stepped = step(this.scenario, this.current, request, { strict: this.strict });
     this.current = stepped.state;
     this.made.push(stepped.attempt.request);
-    const view = this.view();
+    const view = this.view(actor);
     return { attempt: stepped.attempt, view, result: outcomeOf(before, view).result };
   }
 

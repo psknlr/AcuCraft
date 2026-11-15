@@ -1,5 +1,5 @@
 import type { ActionInput, ActionRequestInput, AgentView, AttemptRecord } from "@acucraft/core";
-import { anthropicProvider, llmAgent, minimaxProvider, openaiProvider, oracleProvider, type Effort, type Library, type LlmAgent, type LlmEvent, type LLMProvider, type ProviderError, type Skill } from "@acucraft/agent";
+import { openaiProvider, anthropicProvider, llmAgent, oracleProvider, type Effort, type Library, type LlmAgent, type LlmEvent, type LLMProvider, type ProviderError, type Skill } from "@acucraft/agent";
 
 /**
  * A language model working an encounter from inside the server (docs/WEB.md "The LLM in the workspace"): the
@@ -12,12 +12,14 @@ import { anthropicProvider, llmAgent, minimaxProvider, openaiProvider, oraclePro
  * others did meanwhile in the result of its next action, and the rest of its turn waits.
  */
 
-/** Live tool-calling models, or the scenario's reference trajectory as an offline demonstration. */
-export type RunnerProvider = "claude" | "openai" | "minimax" | "reference";
+/** Who plays the practitioner: Claude through the Messages API, or the scenario's reference trajectory spoken as tool calls (no network — a demonstration of the loop, not a model). */
+export type RunnerProvider = "claude" | "openai" | "minimax" | "compatible" | "reference";
 
 export interface RunnerOptions {
   provider: RunnerProvider;
-  /** A model for the selected provider; omitted to use its default. */
+  /** Character to control; default is the practitioner. */
+  actor?: string;
+  /** Provider model identifier; defaults may also be supplied through server environment variables. */
   model?: string;
   effort?: Effort;
   /** Each action waits for the operator's approval (default false). */
@@ -113,9 +115,8 @@ export class AgentRun {
     this.supervised = setup.supervised === true;
     this.maxActions = setup.maxActions ?? 400;
     this.now = setup.now ?? (() => new Date());
-    const settings = { ...(setup.model ? { model: setup.model } : {}), ...(setup.effort ? { effort: setup.effort } : {}) };
-    const inner = setup.providerOverride ?? (setup.provider === "claude" ? anthropicProvider(settings) : setup.provider === "openai" ? openaiProvider(settings) : setup.provider === "minimax" ? minimaxProvider(settings) : oracleProvider(setup.solution ?? [], { batch: 1 }));
-    this.label = setup.provider === "reference" ? "reference trajectory (offline, not a model)" : `${setup.provider} (${inner.label})`;
+    const inner = setup.providerOverride ?? (setup.provider === "claude" ? anthropicProvider({ ...(setup.model ? { model: setup.model } : {}), ...(setup.effort ? { effort: setup.effort } : {}) }) : setup.provider === "reference" ? oracleProvider(setup.solution ?? [], { batch: 1 }) : openaiProvider({ provider: setup.provider, model: setup.model }));
+    this.label = setup.provider === "reference" ? "reference trajectory (offline, not a model)" : `${inner.label} · ${setup.actor ?? "practitioner"}`;
     const pace = setup.provider === "reference" ? (setup.pace ?? 600) : 0;
     const stopped = (): ProviderError => ({ ok: false, kind: "aborted", message: "The run was stopped.", retryable: false });
     const provider: LLMProvider = {

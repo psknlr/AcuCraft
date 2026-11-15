@@ -68,6 +68,13 @@ const COAT = { ...PLAIN_WEAR, top: "shirt" as const, over: "coat" as const, shoe
 export class Person {
   readonly rig: PersonRig;
   readonly holder = new Group();
+  private route: Vector3[] = [];
+  private readonly restY: number;
+  private readonly restRoll: number;
+  private walkAttempt = -1;
+  private targetRot = 0;
+  private lookTarget: Vector3 | null = null;
+  private stride = 0;
   private blinkAt: number;
   private blinkPhase = -1;
   private speakingUntil = 0;
@@ -81,6 +88,8 @@ export class Person {
   constructor(appearance: AppearanceLike, readonly placement: Placement) {
     this.rig = buildPerson(appearance, placement.options);
     this.holder.add(this.rig.root);
+    this.restY = this.rig.body.position.y;
+    this.restRoll = this.rig.body.rotation.z;
     this.rig.root.position.set(placement.at.x, placement.at.y, placement.at.z);
     this.rig.root.rotation.y = placement.at.rot * DEG;
     this.destination = { ...placement.at };
@@ -94,6 +103,24 @@ export class Person {
     this.breathPhase = (this.rig.phase * 7.3) % 1;
     this.blinkAt = 900 + this.rig.phase * 2600;
   }
+
+  /** Keep the same geometry while moving. Follow recorded corners instead of cutting through furniture. */
+  moveTo(at: Placement["at"], walk: import("@acucraft/core").WalkRecord | undefined, animate: boolean): void {
+    this.targetRot = at.rot * DEG;
+    this.placement.at = { ...at };
+    if (animate && walk && walk.attempt !== this.walkAttempt && this.placement.options.posture === "standing") {
+      this.walkAttempt = walk.attempt;
+      this.rig.root.position.set(walk.from.x, 0, walk.from.z);
+      this.route = [...walk.path, walk.to].map(p => new Vector3(p.x, 0, p.z));
+    } else if (!animate || !this.route.length) {
+      this.walkAttempt = walk?.attempt ?? this.walkAttempt;
+      this.route = [];
+      this.rig.root.position.set(at.x, at.y, at.z);
+      this.rig.root.rotation.y = this.targetRot;
+    }
+  }
+
+  lookAt(target: Vector3): void { this.lookTarget = target; }
 
   /** Where the head is (world), for the camera. */
   headAt(): Vector3 {
@@ -186,8 +213,28 @@ export class Person {
   }
 
   tick(now: number, dt: number): void {
-    const travelled = this.walk(dt);
-    this.animation?.tick(dt, travelled, this.isMoving);
+    let budget = Math.min(dt, 100) / 1000 * 1.2;
+    const walking = this.route.length > 0;
+    while (this.route.length && budget > 0) {
+      const to = this.route[0]!;
+      const delta = to.clone().sub(this.rig.root.position);
+      const distance = delta.length();
+      if (distance < 1e-5) { this.route.shift(); continue; }
+      const step = Math.min(distance, budget);
+      this.rig.root.position.addScaledVector(delta, step / distance);
+      this.rig.root.rotation.y = Math.atan2(delta.x, delta.z);
+      budget -= step;
+      this.stride += step * 5.7;
+      if (step >= distance) this.route.shift();
+    }
+    this.rig.body.position.y = this.restY + (walking ? Math.abs(Math.sin(this.stride)) * 0.025 : 0);
+    this.rig.body.rotation.z = this.restRoll + (walking ? Math.sin(this.stride) * 0.02 : 0);
+    if (!this.route.length) this.rig.root.rotation.y = this.targetRot || this.placement.at.rot * DEG;
+    if (this.lookTarget && !walking) {
+      const local = this.rig.root.worldToLocal(this.lookTarget.clone());
+      const yaw = Math.max(-0.45, Math.min(0.45, Math.atan2(local.x, local.z)));
+      this.rig.head.rotation.y += (yaw - this.rig.head.rotation.y) * Math.min(1, dt / 180);
+    }
     const o = this.placement.options;
     const breathing = { breathing: "both" as const, posture: o.posture, cover: o.cover ?? "clothes" };
     const [depth, rise] = breathOf(breathing as Parameters<typeof breathOf>[0], now, this.breathPhase);

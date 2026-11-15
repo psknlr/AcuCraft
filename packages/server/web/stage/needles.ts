@@ -17,6 +17,7 @@ import {
   Vector3,
   type Raycaster,
 } from "three";
+import { ActionSchema, needleMotion, sampleNeedleMotion, type NeedleMotion } from "@acucraft/core";
 import type { SkinSite } from "./sites.js";
 import { sampleTechnique, techniqueMotion, type ManipulationMotionSettings, type ManipulationTechniqueId, type NeedleTechnique, type NeedleMotionSettings, type TechniqueMotionSample } from "@acucraft/core";
 import { exteriorGeometry, exteriorShape, updateExteriorGeometry } from "./needle-shape.js";
@@ -38,6 +39,7 @@ export interface NeedleSpec {
   depthCm: number;
   /** Length of the needle's shaft (m). */
   length: number;
+  diameterMm: number;
 }
 
 const smooth = (t: number) => {
@@ -95,12 +97,7 @@ interface Live {
   depth: number;
   targetDepth: number;
   leaving: boolean;
-  wiggle: { kind: NeedleTechnique; start: number; motion?: NeedleMotionSettings } | null;
-  performance: { technique: ManipulationTechniqueId; start: number; elapsed?: number; motion?: ManipulationMotionSettings } | null;
-  controlled: boolean;
-  needsInsertion: boolean;
-  needsRemoval: boolean;
-  clearance: number;
+  wiggle: { motion: NeedleMotion; start: number } | null;
   glow: { ring: Mesh; start: number } | null;
   highlight: boolean;
 }
@@ -126,11 +123,10 @@ export class NeedleLayer {
 
   constructor() {
     this.group.name = "needles";
-    // (a shaft is a quarter of a millimetre thick: drawn a little thicker, as a game draws a wire, to be seen at all)
+    // Unit geometry is scaled to each needle's recorded diameter, in millimetres.
     this.shaftGeo = new CylinderGeometry(0.00024, 0.00024, 1, 8, 1);
     this.shaftGeo.translate(0, 0.5, 0);
     this.tipGeo = new CylinderGeometry(0.00024, 0.00002, 0.0016, 8, 1);
-    // The point ends at local y=0, so its visible geometry never extends past the approved tip.
     this.tipGeo.translate(0, 0.0008, 0);
     this.tailGeo = new SphereGeometry(0.00095, 14, 10);
     this.hitGeo = new CylinderGeometry(0.004, 0.004, 1, 6, 1);
@@ -242,30 +238,14 @@ export class NeedleLayer {
   }
 
   /** The needle worked (`adjust_needle`): lifted and thrust along its shaft, or turned. */
-  work(id: string, kind: NeedleTechnique, now: number, motion?: NeedleMotionSettings): void {
+  work(id: string, input: Record<string, unknown>, now: number): void {
     const l = this.live.get(id);
-    if (l) { l.performance = null; l.wiggle = { kind, start: now, motion }; }
+    const parsed = ActionSchema.safeParse({ ...input, type: "adjust_needle" });
+    if (l && parsed.success && parsed.data.type === "adjust_needle") l.wiggle = parsed.data.technique === "none" ? null : { motion: needleMotion(parsed.data, l.targetDepth * 100), start: now };
   }
 
-  /** Begin one accepted catalogue performance. Presentation does not mutate the needle's executed geometry. */
-  workTechnique(id: string, technique: ManipulationTechniqueId, start: number, motion?: ManipulationMotionSettings): void {
-    const l = this.live.get(id);
-    if (l) { l.wiggle = null; l.performance = { technique, start, motion }; }
-  }
-
-  /** Exact deterministic pose for a local preview or a locally paused record performance. */
-  poseTechnique(id: string, technique: ManipulationTechniqueId, elapsed: number, motion?: ManipulationMotionSettings): void {
-    const l = this.live.get(id);
-    if (!l) return;
-    l.performance = { technique, start: 0, elapsed, motion };
-    this.applyPose(l, sampleTechnique(technique, elapsed, motion));
-  }
-
-  clearTechnique(id: string): void {
-    const l = this.live.get(id);
-    if (!l) return;
-    l.performance = null;
-    this.applyPose(l);
+  stopWork(): void {
+    for (const needle of this.live.values()) needle.wiggle = null;
   }
 
   /** A response on record at a needle: a glow spreads round it once. */
@@ -340,15 +320,16 @@ export class NeedleLayer {
         }
       } else if (!l.controlled && l.inserted < 1) l.inserted = Math.min(1, l.inserted + rate);
       if (Math.abs(l.depth - l.targetDepth) > 1e-5) l.depth += (l.targetDepth - l.depth) * Math.min(1, dt / 220);
-      let motion: Pick<TechniqueMotionSample, "withdrawalMm" | "rotationRad" | "lateralMm" | "tiltRad"> | undefined;
-      if (l.performance) {
-        const sample = sampleTechnique(l.performance.technique, l.performance.elapsed ?? now - l.performance.start, l.performance.motion);
-        if (sample.complete && l.performance.elapsed === undefined) l.performance = null;
-        else motion = sample;
-      } else if (l.wiggle) {
-        const sample = techniqueMotion(l.wiggle.kind, now - l.wiggle.start, l.wiggle.motion);
-        if (sample.complete) l.wiggle = null;
-        else motion = { ...sample, lateralMm: { u: 0, v: 0 }, tiltRad: { u: 0, v: 0 } };
+      let depth = l.depth * ease(l.inserted);
+      let spin = 0;
+      if (l.wiggle) {
+        const elapsed = (now - l.wiggle.start) / 1000;
+        if (elapsed >= l.wiggle.motion.durationSeconds || l.leaving) l.wiggle = null;
+        else {
+          const sample = sampleNeedleMotion(l.wiggle.motion, elapsed);
+          depth = sample.depthCm / 100;
+          spin = sample.rotationRad;
+        }
       }
       this.applyPose(l, motion);
       if (l.glow) {
@@ -371,15 +352,10 @@ export class NeedleLayer {
     root.name = `needle:${spec.id}`;
     const body = new Group();
     const shaft = new Mesh(this.shaftGeo, this.shaftMat);
-    shaft.name = "internal-shaft";
+    shaft.scale.set(spec.diameterMm / 0.48, spec.length - 0.0016, spec.diameterMm / 0.48);
+    shaft.position.y = 0.0016;
     const tip = new Mesh(this.tipGeo, this.shaftMat);
-    tip.name = "needle-tip";
-    const exterior = new Group();
-    exterior.name = "external-shaft";
-    const exteriorShaft = new Mesh(exteriorGeometry(), this.shaftMat);
-    exteriorShaft.frustumCulled = false;
-    const handleRoot = new Group();
-    handleRoot.name = "needle-handle";
+    tip.scale.set(spec.diameterMm / 0.48, 1, spec.diameterMm / 0.48);
     const handle = new Mesh(new CylinderGeometry(0.00072, 0.00068, 0.025, 14, 1), this.handleMat.clone());
     handle.position.y = 0.0125;
     const tail = new Mesh(this.tailGeo, this.tailMat);

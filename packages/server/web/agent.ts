@@ -13,6 +13,7 @@ import { clock } from "./text.js";
 export interface AgentPanelContext {
   id: string;
   info: Info;
+  characters: { id: string; name: string }[];
 }
 
 const STATE_TONE: Record<string, "ok" | "warn" | "bad" | "info" | "muted"> = { thinking: "info", "awaiting-approval": "warn", paused: "warn", finished: "ok", stopped: "muted", failed: "bad" };
@@ -20,16 +21,14 @@ const STATE_TONE: Record<string, "ok" | "warn" | "bad" | "info" | "muted"> = { t
 export function agentPanel(ctx: AgentPanelContext): { el: HTMLElement; update(agent: RunnerSnapshot | null): void; add(item: TranscriptItem): void; setClosed(closed: boolean): void } {
   const provider = h(
     "select",
-    { "aria-label": "who plays the practitioner" },
+    { "aria-label": "Model provider" },
     h("option", { value: "claude" }, ctx.info.languageModel.claude ? "Claude (Messages API)" : "Claude (Messages API — no API key on the server)"),
-    h("option", { value: "openai" }, ctx.info.languageModel.openai ? "GPT / OpenAI" : "GPT / OpenAI — no API key on the server"),
-    h("option", { value: "minimax" }, ctx.info.languageModel.minimax ? "MiniMax" : "MiniMax — no API key on the server"),
+    ...(["openai", "minimax", "compatible"] as const).map(id => h("option", { value: id }, `${id === "openai" ? "GPT / OpenAI" : id === "minimax" ? "MiniMax" : "Compatible endpoint"}${ctx.info.languageModel[id] ? "" : " (configure server key)"}`)),
     h("option", { value: "reference" }, "Reference trajectory (offline demo, not a model)"),
   );
-  provider.value = ctx.info.languageModel.claude ? "claude" : ctx.info.languageModel.openai ? "openai" : ctx.info.languageModel.minimax ? "minimax" : "reference";
-  const models: Record<string, string> = { claude: "claude-opus-5-5", openai: "gpt-4.1", minimax: "MiniMax-M2.5", reference: "" };
-  let selectedProvider = provider.value;
-  const model = h("input", { type: "text", value: models[selectedProvider], "aria-label": "model", spellcheck: "false" });
+  if (!ctx.info.languageModel.claude) provider.value = "reference";
+  const model = h("input", { type: "text", value: "claude-opus-5-5", "aria-label": "model", spellcheck: "false" });
+  const actor = h("select", { "aria-label": "Controlled character" }, ctx.characters.map(c => h("option", { value: c.id }, c.name)));
   const effort = h("select", { "aria-label": "effort" }, ["low", "medium", "high", "xhigh", "max"].map((e) => h("option", { value: e, selected: e === "high" }, `effort ${e}`)));
   const supervised = h("input", { type: "checkbox" });
   const status = h("p", { class: "status" });
@@ -37,7 +36,7 @@ export function agentPanel(ctx: AgentPanelContext): { el: HTMLElement; update(ag
   const list = h("ol", { class: "transcript", "aria-live": "polite" });
   const send = async (op: "start" | "pause" | "resume" | "stop") => {
     try {
-      const out = await api.agent(ctx.id, op, op === "start" ? { provider: provider.value, ...(provider.value !== "reference" ? { model: model.value.trim() } : {}), ...(provider.value === "claude" ? { effort: effort.value } : {}), supervised: supervised.checked } : {});
+      const out = await api.agent(ctx.id, op, op === "start" ? { actor: actor.value, provider: provider.value, ...(model.value.trim() ? { model: model.value.trim() } : {}), effort: effort.value, supervised: supervised.checked } : {});
       update(out.agent);
       if (op === "start") replace(list);
     } catch (e) {
@@ -48,18 +47,14 @@ export function agentPanel(ctx: AgentPanelContext): { el: HTMLElement; update(ag
   const pause = h("button", { type: "button", on: { click: () => void send("pause") } }, icon("pause", 14), "Pause");
   const resume = h("button", { type: "button", on: { click: () => void send("resume") } }, icon("play", 14), "Resume");
   const stop = h("button", { type: "button", on: { click: () => void send("stop") } }, icon("stop", 14), "Stop");
-  const liveOptions = h("span", { class: "row wrap" }, model, effort);
-  const showOptions = () => {
-    liveOptions.classList.toggle("hidden", provider.value === "reference");
-    effort.classList.toggle("hidden", provider.value !== "claude");
-  };
+  const claudeOnly = h("span", { class: "claude-only row wrap" }, model, effort);
   provider.addEventListener("change", () => {
-    models[selectedProvider] = model.value;
-    selectedProvider = provider.value;
-    model.value = models[selectedProvider] ?? "";
-    showOptions();
+    claudeOnly.classList.toggle("hidden", provider.value === "reference");
+    effort.classList.toggle("hidden", provider.value !== "claude");
+    model.value = provider.value === "claude" ? "claude-opus-5-5" : provider.value === "openai" ? "gpt-4.1" : "";
+    model.placeholder = "Server model or model ID";
   });
-  showOptions();
+  claudeOnly.classList.toggle("hidden", provider.value !== "claude");
 
   const origin = location.origin;
   const command = `claude mcp add --transport http acucraft ${origin}/mcp${ctx.info.auth.token ? ' --header "Authorization: Bearer <the server\'s token>"' : ""}`;
@@ -77,7 +72,7 @@ export function agentPanel(ctx: AgentPanelContext): { el: HTMLElement; update(ag
     "section",
     { class: "card agent", "aria-label": "language model" },
     h("h3", null, "Language model"),
-    h("div", { class: "controls" }, provider, liveOptions, h("label", { class: "check" }, supervised, " approve each action before it is done")),
+    h("div", { class: "controls" }, actor, provider, claudeOnly, h("label", { class: "check" }, supervised, " approve each action before it is done")),
     h("div", { class: "row wrap" }, start, pause, resume, stop),
     status,
     pending,
@@ -104,7 +99,7 @@ export function agentPanel(ctx: AgentPanelContext): { el: HTMLElement; update(ag
     pause.disabled = !active || agent!.state === "paused";
     resume.disabled = !active || agent!.state !== "paused";
     stop.disabled = !active;
-    for (const c of [provider, model, effort, supervised]) c.disabled = active || closed;
+    for (const c of [actor, provider, model, effort, supervised]) c.disabled = active || closed;
     if (!agent) {
       replace(status, h("span", { class: "muted" }, closed ? "This record is closed." : "No language model has worked on this encounter."));
       replace(pending);

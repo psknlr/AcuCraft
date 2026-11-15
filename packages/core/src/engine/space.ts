@@ -122,7 +122,7 @@ const roomLabel = (w: ClinicWorld, id: string) => w.rooms.get(id)?.label ?? id;
 
 function toPatient(sc: Scenario, s: EncounterState, actorId: string, range: number, purpose: string): Spatial {
   const w = clinicWorld(sc);
-  const me = s.actors[actorId]!.at;
+  const me = actorId === s.patient.id ? s.patient.at : s.actors[actorId]!.at;
   const body = patientBody(sc, s);
   const distance = distanceToArea(me.x, me.z, body.area);
   const hint: MoveTarget = { person: s.patient.id };

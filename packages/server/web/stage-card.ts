@@ -1,4 +1,5 @@
 import { api, type EncounterSnapshot, type Info, type StageInfo } from "./api.js";
+import { movementPanel } from "./movement.js";
 import { h, replace } from "./dom.js";
 import { navigationControls } from "./navigation.js";
 import { manipulationControls, type TechniquePlayback, type TechniquePreview } from "./manipulation.js";
@@ -49,6 +50,8 @@ export interface StageCard {
 export function stageCard(id: string, info: Info, onPick: (needle: string | null) => void): StageCard {
   const navigation = navigationControls(id);
   const host = h("div", { class: "stage", tabindex: "-1" });
+  const movement = movementPanel(id);
+  const el = h("section", { class: "card stage-card", "aria-label": "3D view of the encounter" }, host, movement.el);
   let handle: StageHandle | null = null;
   const manipulation = manipulationControls(id, {
     preview: (request) => {
@@ -83,8 +86,7 @@ export function stageCard(id: string, info: Info, onPick: (needle: string | null
     el,
     update(snapshot) {
       pending = snapshot;
-      navigation.update(snapshot.view, snapshot.summary.status !== "open");
-      manipulation.update(snapshot);
+      movement.update(snapshot);
       feed(snapshot);
     },
     highlight(needle) {
