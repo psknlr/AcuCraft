@@ -6,6 +6,8 @@ its animation are dedicated to the public domain under CC0-1.0; there are no
 downloaded meshes, textures, external add-ons or patient data. It is a schematic
 animation asset, without anatomical or clinical validation.
 
+![The live renderer's precision pinch from the side, showing the actual finger surfaces around the needle handle](img/technique-grip-closeup.png)
+
 Rebuild with Blender 4.3 or newer:
 
 ```bash
