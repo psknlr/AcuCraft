@@ -38,6 +38,8 @@ export interface AgentView {
    */
   space: {
     you: { x: number; z: number; facing: string; room: string };
+    /** The actor's latest executed walk, for continuous playback of its collision-planned path. */
+    lastWalk?: { attempt: number; from: { x: number; z: number }; to: { x: number; z: number }; path: { x: number; z: number }[]; withPatient: boolean } | null;
     fixtures: { id: string; kind: string; label: string; room: string; x: number; z: number; distance: number; inReach: boolean }[];
     patient: {
       room: string;
@@ -98,6 +100,8 @@ export interface AgentView {
     needle: string;
     target: string;
     inPlace: boolean;
+    /** Executed geometry and the pack's shaft length, excluding hidden anatomy and path findings. */
+    placement?: { region: string; side: string; u: number; v: number; depthCm: number; angleDeg: number; azimuthDeg: number; lengthMm: number };
     /** Times the needle has been worked (lift-thrust or rotation). */
     manipulations: number;
     evidence: { id: string; minute: number; from: "patient" | "operator"; text: string; qualities: string[]; grasp: boolean | null; unasked: boolean }[];
@@ -213,6 +217,10 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
   const toward = (p: { x: number; z: number }, from: { x: number; z: number }) => compass(Math.atan2(-(p.x - from.x), -(p.z - from.z)));
   const space: AgentView["space"] = {
     you: { x: me.x, z: me.z, facing: compass(me.yaw), room: actor.location },
+    lastWalk: (() => {
+      const walk = s.walks.findLast((entry) => entry.actor === actorId);
+      return walk ? { attempt: walk.attempt, from: { ...walk.from }, to: { ...walk.to }, path: walk.path.map((p) => ({ ...p })), withPatient: walk.withPatient } : null;
+    })(),
     fixtures: [...w.fixtures.values()].map((f) => {
       const r = fixtureReach(w, me, f.id)!;
       const c = areaCentre(f.area);
@@ -303,6 +311,10 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
           target: placed ? label(parseRef(placed)) : `${n.insertion!.region} ${n.insertion!.side}`,
           // a needle that fell out unseen is still taken to be in place (as in `equipment`) until someone finds it
           inPlace: n.location.kind === "patient" || fellUnseen(n),
+          placement: (() => {
+            const p = n.location.kind === "patient" ? n.location : n.insertion!;
+            return { region: p.region, side: p.side, u: p.entry.u, v: p.entry.v, depthCm: p.depthCm, angleDeg: p.angleDeg, azimuthDeg: p.azimuthDeg, lengthMm: n.spec.lengthMm };
+          })(),
           manipulations: n.response?.manipulations ?? 0,
           evidence: needleEvidence(s, n.id).map((e) => ({ id: e.id, minute: round2(e.at), from: e.kind === "needle-feel" ? ("operator" as const) : ("patient" as const), text: e.text, qualities: [...(e.needle?.qualities ?? [])], grasp: e.needle?.grasp ?? null, unasked: e.needle?.volunteered ?? false })),
           recorded,

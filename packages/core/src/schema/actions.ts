@@ -20,6 +20,23 @@ export const PointRefSchema = z.union([
 ]);
 export type PointRef = z.infer<typeof PointRefSchema>;
 
+/** Named simulation movements. Bu/xie are illustrative choreography, not a model of treatment efficacy. */
+export const NEEDLE_TECHNIQUES = ["none", "lift-thrust", "rotate", "lift", "thrust", "twist", "bu", "xie"] as const;
+export const NeedleTechniqueSchema = z.enum(NEEDLE_TECHNIQUES);
+export type NeedleTechnique = z.infer<typeof NeedleTechniqueSchema>;
+
+/**
+ * Presentation settings only: the approved depth and the tissue response are still decided by the engine.
+ * A displayed stroke withdraws towards the skin and returns to the approved depth; it never goes deeper.
+ */
+export const NeedleMotionSettingsSchema = z.object({
+  cycles: z.number().int().min(1).max(8).optional(),
+  durationMs: z.number().int().min(400).max(8000).optional(),
+  strokeMm: z.number().min(0).max(3).optional(),
+  rotationDeg: z.number().min(0).max(180).optional(),
+}).strict();
+export type NeedleMotionSettings = z.infer<typeof NeedleMotionSettingsSchema>;
+
 export const DISPOSITIONS = ["treat", "treat-modified", "further-assessment", "defer", "refer", "decline"] as const;
 export const DispositionSchema = z.enum(DISPOSITIONS);
 export type Disposition = z.infer<typeof DispositionSchema>;
@@ -192,7 +209,7 @@ export const ActionSchema = z.discriminatedUnion("type", [
       depthCm: z.number().positive().max(10),
     })
     .strict(),
-  z.object({ type: z.literal("adjust_needle"), needleId: IdSchema, depthCm: z.number().positive().max(10).optional(), technique: z.enum(["none", "lift-thrust", "rotate"]).default("none") }).strict(),
+  z.object({ type: z.literal("adjust_needle"), needleId: IdSchema, depthCm: z.number().positive().max(10).optional(), technique: NeedleTechniqueSchema.default("none"), motion: NeedleMotionSettingsSchema.optional() }).strict(),
   /** Ask the patient what they feel at one needle: their answer is evidence of that needle's response. */
   z.object({ type: z.literal("check_sensation"), needleId: IdSchema }).strict(),
   z.object({ type: z.literal("monitor") }).strict(),

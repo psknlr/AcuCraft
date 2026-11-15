@@ -2,7 +2,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { request as httpRequest } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { loadContentPack } from "@acucraft/bench";
 import { RecordHub } from "./hub.js";
 import { serve, type RunningServer } from "./http.js";
@@ -97,6 +97,19 @@ describe("the workspace on its loopback address", () => {
     expect(again.status).toBe(304);
     expect((await call(base, "GET", "/app/models/..%2Fcatalogs%2Facucraft-tcm.json")).status).toBe(404);
     expect((await call(base, "GET", "/app/models/nothing-here.glb")).status).toBe(404);
+  });
+
+  it("advertises model availability without sending provider credentials to the browser", async () => {
+    vi.stubEnv("OPENAI_API_KEY", "test-openai-private-key");
+    vi.stubEnv("MINIMAX_API_KEY", "test-minimax-private-key");
+    try {
+      const info = await call(base, "GET", "/api/info");
+      expect(info.json.languageModel).toMatchObject({ openai: true, minimax: true });
+      expect(info.text).not.toContain("test-openai-private-key");
+      expect(info.text).not.toContain("test-minimax-private-key");
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 
   it("works a record over the API: create, act, the stage's people, close as it stands, the debrief only once closed", async () => {

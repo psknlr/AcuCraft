@@ -1,0 +1,95 @@
+{
+  "file": "assets/models/acu-practitioner-hand.glb",
+  "license": "CC0-1.0",
+  "source": "tools/blender/build_hand.py",
+  "sha256": "5f2e022a300b47b944d57218656df10e1064d8b229fdd6aa5ba29c9fadf6f840",
+  "bytes": 110392,
+  "triangles": 4100,
+  "root": "acu_practitioner_hand",
+  "coordinates": "metres; +Y along needle, +X from pinch toward wrist; rest precision pinch",
+  "wrist": [
+    0.162,
+    0.004,
+    0
+  ],
+  "pinch": [
+    0,
+    0,
+    0
+  ],
+  "tips": {
+    "thumb": [
+      0.0,
+      0.0,
+      -0.006
+    ],
+    "index": [
+      0.0,
+      0.0,
+      0.006
+    ],
+    "middle": [
+      0.079,
+      -0.035,
+      0.009
+    ],
+    "ring": [
+      0.086,
+      -0.032,
+      -0.012
+    ],
+    "little": [
+      0.092,
+      -0.027,
+      -0.03
+    ]
+  },
+  "contact": {
+    "thumb": [
+      0,
+      0,
+      -0.001
+    ],
+    "index": [
+      0,
+      0,
+      0.001
+    ]
+  },
+  "joints": {
+    "thumb": [
+      "thumb_proximal",
+      "thumb_middle",
+      "thumb_distal"
+    ],
+    "index": [
+      "index_proximal",
+      "index_middle",
+      "index_distal"
+    ],
+    "middle": [
+      "middle_proximal",
+      "middle_middle",
+      "middle_distal"
+    ],
+    "ring": [
+      "ring_proximal",
+      "ring_middle",
+      "ring_distal"
+    ],
+    "little": [
+      "little_proximal",
+      "little_middle",
+      "little_distal"
+    ]
+  },
+  "materials": [
+    "hand_skin",
+    "hand_nails"
+  ],
+  "animations": [
+    "hand_open"
+  ],
+  "animation": "hand_open: t=0 precision pinch; t=1 second loose open grasp; clamp mixer time for blend",
+  "review": "schematic animation asset, no anatomical or clinical validation"
+}

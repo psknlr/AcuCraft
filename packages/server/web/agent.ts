@@ -5,7 +5,7 @@ import { pill } from "./record.js";
 import { clock } from "./text.js";
 
 /**
- * The language model in the workspace: start one on the encounter (Claude through the Messages API, or the
+ * The language model in the workspace: start one on the encounter (Claude, GPT / OpenAI, MiniMax, or the
  * scenario's reference trajectory as an offline demonstration of the loop), watch it work, pause it, approve its
  * actions one by one, or stop it — and how to connect a model of your own over MCP to the same record.
  */
@@ -22,10 +22,14 @@ export function agentPanel(ctx: AgentPanelContext): { el: HTMLElement; update(ag
     "select",
     { "aria-label": "who plays the practitioner" },
     h("option", { value: "claude" }, ctx.info.languageModel.claude ? "Claude (Messages API)" : "Claude (Messages API — no API key on the server)"),
+    h("option", { value: "openai" }, ctx.info.languageModel.openai ? "GPT / OpenAI" : "GPT / OpenAI — no API key on the server"),
+    h("option", { value: "minimax" }, ctx.info.languageModel.minimax ? "MiniMax" : "MiniMax — no API key on the server"),
     h("option", { value: "reference" }, "Reference trajectory (offline demo, not a model)"),
   );
-  if (!ctx.info.languageModel.claude) provider.value = "reference";
-  const model = h("input", { type: "text", value: "claude-opus-5-5", "aria-label": "model", spellcheck: "false" });
+  provider.value = ctx.info.languageModel.claude ? "claude" : ctx.info.languageModel.openai ? "openai" : ctx.info.languageModel.minimax ? "minimax" : "reference";
+  const models: Record<string, string> = { claude: "claude-opus-5-5", openai: "gpt-4.1", minimax: "MiniMax-M2.5", reference: "" };
+  let selectedProvider = provider.value;
+  const model = h("input", { type: "text", value: models[selectedProvider], "aria-label": "model", spellcheck: "false" });
   const effort = h("select", { "aria-label": "effort" }, ["low", "medium", "high", "xhigh", "max"].map((e) => h("option", { value: e, selected: e === "high" }, `effort ${e}`)));
   const supervised = h("input", { type: "checkbox" });
   const status = h("p", { class: "status" });
@@ -33,7 +37,7 @@ export function agentPanel(ctx: AgentPanelContext): { el: HTMLElement; update(ag
   const list = h("ol", { class: "transcript", "aria-live": "polite" });
   const send = async (op: "start" | "pause" | "resume" | "stop") => {
     try {
-      const out = await api.agent(ctx.id, op, op === "start" ? { provider: provider.value, model: model.value.trim(), effort: effort.value, supervised: supervised.checked } : {});
+      const out = await api.agent(ctx.id, op, op === "start" ? { provider: provider.value, ...(provider.value !== "reference" ? { model: model.value.trim() } : {}), ...(provider.value === "claude" ? { effort: effort.value } : {}), supervised: supervised.checked } : {});
       update(out.agent);
       if (op === "start") replace(list);
     } catch (e) {
@@ -44,9 +48,18 @@ export function agentPanel(ctx: AgentPanelContext): { el: HTMLElement; update(ag
   const pause = h("button", { type: "button", on: { click: () => void send("pause") } }, icon("pause", 14), "Pause");
   const resume = h("button", { type: "button", on: { click: () => void send("resume") } }, icon("play", 14), "Resume");
   const stop = h("button", { type: "button", on: { click: () => void send("stop") } }, icon("stop", 14), "Stop");
-  const claudeOnly = h("span", { class: "claude-only row wrap" }, model, effort);
-  provider.addEventListener("change", () => claudeOnly.classList.toggle("hidden", provider.value !== "claude"));
-  claudeOnly.classList.toggle("hidden", provider.value !== "claude");
+  const liveOptions = h("span", { class: "row wrap" }, model, effort);
+  const showOptions = () => {
+    liveOptions.classList.toggle("hidden", provider.value === "reference");
+    effort.classList.toggle("hidden", provider.value !== "claude");
+  };
+  provider.addEventListener("change", () => {
+    models[selectedProvider] = model.value;
+    selectedProvider = provider.value;
+    model.value = models[selectedProvider] ?? "";
+    showOptions();
+  });
+  showOptions();
 
   const origin = location.origin;
   const command = `claude mcp add --transport http acucraft ${origin}/mcp${ctx.info.auth.token ? ' --header "Authorization: Bearer <the server\'s token>"' : ""}`;
@@ -64,7 +77,7 @@ export function agentPanel(ctx: AgentPanelContext): { el: HTMLElement; update(ag
     "section",
     { class: "card agent", "aria-label": "language model" },
     h("h3", null, "Language model"),
-    h("div", { class: "controls" }, provider, claudeOnly, h("label", { class: "check" }, supervised, " approve each action before it is done")),
+    h("div", { class: "controls" }, provider, liveOptions, h("label", { class: "check" }, supervised, " approve each action before it is done")),
     h("div", { class: "row wrap" }, start, pause, resume, stop),
     status,
     pending,

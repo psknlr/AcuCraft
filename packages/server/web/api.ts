@@ -17,7 +17,7 @@ export interface Info {
   families: { family: string; title: string; variants: number }[];
   auth: { token: boolean };
   mcp: string;
-  languageModel: { claude: boolean };
+  languageModel: { claude: boolean; openai: boolean; minimax: boolean };
   /** The 3D view of an encounter: whether the server has it (it needs the pinned engine's figure kit). */
   stage: { available: boolean; missing: string | null };
 }

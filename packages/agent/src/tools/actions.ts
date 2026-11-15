@@ -129,8 +129,16 @@ export const ACTION_DOCS: Record<ActionType, ActionDoc> = {
     },
   },
   adjust_needle: {
-    does: "Work a needle in place, or change its depth: lift and thrust, rotate, or re-seat it deeper or shallower. What you then feel in the needle is evidence of its response. Stronger stimulation is never the aim: a tip that lies too shallow is not helped by working it harder, and a sharp, burning or electric sensation means withdraw a little or take the needle out.",
-    fields: { depthCm: "A new depth along the shaft, in centimetres.", technique: "none (depth only), lift-thrust or rotate." },
+    does: "Work a needle in place, or change its depth: lift, thrust, lift-thrust, rotate/twist, or the simulator's illustrative bu/xie gestures. Bu/xie are choreography labels, not a model of therapeutic efficacy. What you then feel in the needle is evidence of its response. Stronger stimulation is never the aim: a tip that lies too shallow is not helped by working it harder, and a sharp, burning or electric sensation means withdraw a little or take the needle out.",
+    fields: {
+      depthCm: "A new depth along the shaft, in centimetres; checked against the patient's anatomy.",
+      technique: "none (depth only), lift, thrust, lift-thrust, rotate, twist, bu (tonification gesture) or xie (sedation gesture). These names do not establish clinical effects.",
+      motion: "Optional animation settings only. A displayed stroke withdraws from, then returns to, the approved depth. These settings do not change depth or the tissue response.",
+      "motion.cycles": "Number of displayed gesture cycles, 1 to 8 (default 3). One action remains one simulation manipulation.",
+      "motion.durationMs": "Whole animation duration in milliseconds, 400 to 8000 (default 1800).",
+      "motion.strokeMm": "Displayed outward stroke in millimetres, 0 to 3 (default 1.5), clamped to the retained depth.",
+      "motion.rotationDeg": "Maximum displayed twist amplitude in degrees, 0 to 180 (default 90).",
+    },
   },
   check_sensation: {
     does: "Ask the patient what they feel at one needle. Their answer is evidence of that needle's response. Within earshot.",

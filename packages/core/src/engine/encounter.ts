@@ -65,6 +65,7 @@ import { atFixture, atFixtureOfKind, nearActor, patientBody, patientContact, pat
 import { ARM_REACH_M, CONTACT_RANGE_M, distanceToArea, fixtureReach, planWalk, seesArea, spotsNear } from "./world.js";
 import { detectClaims, detectCommitment, detectTopics, questionCount, type Claim } from "./text.js";
 import { clone } from "./util.js";
+import { techniqueStimulus } from "./techniques.js";
 
 /**
  * The encounter engine: `createEncounter` and `step`. Pure — `step` never mutates its input and returns a new state.
@@ -1575,7 +1576,7 @@ const HANDLERS: HandlerMap = {
     }
     pushNeedleEvent(s, n.id, ctx.actor.id, "adjusted", `${fmt(path.executedDepthCm)} cm, ${a.technique}`);
     const before = n.response;
-    n.response = needleResponse(sc, s, n, path, a.technique === "none" ? null : a.technique);
+    n.response = needleResponse(sc, s, n, path, techniqueStimulus(a.technique));
     consequences(ctx, n, path);
     if (a.technique !== "none") {
       // working the needle tells the operator how the tissue holds it: evidence of this needle's response

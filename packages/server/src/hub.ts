@@ -482,12 +482,13 @@ export class RecordHub {
       case "start": {
         if (runner?.active) return { status: 409, body: { error: "A language model is already working on this encounter: pause or stop it first." } };
         if (live.closed || live.session.finished) return { status: 409, body: { error: "This encounter is closed." } };
-        const provider = options.provider === "claude" ? "claude" : options.provider === "reference" ? "reference" : null;
-        if (!provider) return { status: 400, body: { error: 'provider is "claude" or "reference"' } };
+        const provider = options.provider === "claude" || options.provider === "openai" || options.provider === "minimax" || options.provider === "reference" ? options.provider : null;
+        if (!provider) return { status: 400, body: { error: 'provider is "claude", "openai", "minimax" or "reference"' } };
         const effort = options.effort && ["low", "medium", "high", "xhigh", "max"].includes(options.effort) ? options.effort : undefined;
         const model = typeof options.model === "string" && /^[a-z0-9][a-z0-9.\-_]{2,60}$/i.test(options.model) ? options.model : undefined;
         live.runs += 1;
-        const me: Attribution = { kind: "llm", name: provider === "claude" ? `Claude (${model ?? "claude-opus-5-5"})` : "reference trajectory", id: `llm:${live.id}:${live.runs}` };
+        const defaults = { claude: "claude-opus-5-5", openai: "gpt-4.1", minimax: "MiniMax-M2.5", reference: "" };
+        const me: Attribution = { kind: "llm", name: provider === "reference" ? "reference trajectory" : `${provider === "claude" ? "Claude" : provider === "openai" ? "GPT" : "MiniMax"} (${model ?? defaults[provider]})`, id: `llm:${live.id}:${live.runs}` };
         live.runner = new AgentRun(this.runnerHost(live, me), {
           provider,
           ...(model ? { model } : {}),

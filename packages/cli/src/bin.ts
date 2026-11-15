@@ -34,7 +34,7 @@ import {
   type Position,
   type Side,
 } from "@acucraft/core";
-import { claudeAgent, llmAgent, lookup, oracleProvider, protocolAgent, referenceAgent, systemPrompt, toolsFor, type Agent, type Effort, type LlmEvent } from "@acucraft/agent";
+import { claudeAgent, llmAgent, lookup, minimaxProvider, openaiProvider, oracleProvider, protocolAgent, referenceAgent, systemPrompt, toolsFor, type Agent, type Effort, type LlmEvent } from "@acucraft/agent";
 import { CLINICALCRAFT_REV, encounterHtml, episodeMarkdown, evaluateEncounter, loadContentPack, loadScenario, requireScenario, runEpisode, runSuite, scenarioIds, suiteMarkdown, SuiteSchema, DEFAULT_CONTENT_DIR } from "@acucraft/bench";
 import { runMcpServer } from "@acucraft/mcp";
 import { isLoopbackHost, RecordHub, serve } from "@acucraft/server";
@@ -55,10 +55,10 @@ usage: npm run acu -- <command> [options]
   vocabulary [PATTERN]                      the signs, what each pattern is recognised by, and what counts as deqi
   locate <family/variant> <position> [POINT:side ...]
                                             authoring: the hidden patient-specific landmarks and points
-  run <family/variant> [--agent protocol|reference|claude|scripted-llm] [--seed N] [--mode assessment|teaching]
+  run <family/variant> [--agent protocol|reference|claude|openai|minimax|scripted-llm] [--seed N] [--mode assessment|teaching]
       [--model ID] [--effort low|medium|high|xhigh|max] [--max-steps N] [--no-skills] [--no-locate]
       [--out DIR] [--verbose]               run one encounter; writes log.json, report.json and report.md
-                                            (claude: a live model through the Messages API; scripted-llm: the
+                                            (claude, openai, minimax: live models; --effort applies to Claude; scripted-llm: the
                                             reference trajectory spoken as tool calls through the same loop, offline)
   play <family/variant> [--mode teaching] [--seed N] [--out DIR]
                                             play the practitioner yourself (type help inside)
@@ -246,13 +246,18 @@ function makeAgent(id: string, p: ReturnType<typeof pack>): Agent {
       return referenceAgent(requireScenario(p, id));
     case "claude":
       return claudeAgent({ ...llm, ...(values.model ? { model: values.model } : {}), ...(values.effort ? { effort: values.effort as Effort } : {}) });
+    case "openai":
+    case "gpt":
+      return llmAgent({ ...llm, provider: openaiProvider({ ...(values.model ? { model: values.model } : {}) }) });
+    case "minimax":
+      return llmAgent({ ...llm, provider: minimaxProvider({ ...(values.model ? { model: values.model } : {}) }) });
     case "scripted-llm":
       // the loop, the tools and the results, with the reference trajectory in place of a model: no network
       return llmAgent({ ...llm, provider: oracleProvider(requireScenario(p, id).field.solution, { batch: 3 }) });
     case "protocol":
       return protocolAgent();
     default:
-      console.error(`unknown agent ${values.agent} (protocol, reference, claude, scripted-llm)`);
+      console.error(`unknown agent ${values.agent} (protocol, reference, claude, openai, minimax, scripted-llm)`);
       process.exit(2);
   }
 }
@@ -649,7 +654,8 @@ async function main(): Promise<void> {
       const url = running.url.replace(/\/$/, "");
       console.log(`AcuCraft workspace   ${url}/${madeUp ? `?token=${token}` : ""}`);
       console.log(`  records            ${dataDir ? `${dataDir} (${restored.restored} restored)` : "in memory only (gone when the server stops)"}`);
-      console.log(`  language model     ${process.env.ANTHROPIC_API_KEY ? "Claude through the Messages API (ANTHROPIC_API_KEY is set)" : "the reference trajectory only (set ANTHROPIC_API_KEY for Claude)"}`);
+      const liveModels = [process.env.ANTHROPIC_API_KEY && "Claude", process.env.OPENAI_API_KEY && "GPT / OpenAI", process.env.MINIMAX_API_KEY && "MiniMax"].filter(Boolean);
+      console.log(`  language model     ${liveModels.length ? liveModels.join(", ") : "the reference trajectory only (set ANTHROPIC_API_KEY, OPENAI_API_KEY or MINIMAX_API_KEY for a live model)"}`);
       console.log(`  MCP over HTTP      ${url}/mcp`);
       console.log(`    claude mcp add --transport http acucraft ${url}/mcp${token ? ' --header "Authorization: Bearer <token>"' : ""}`);
       if (token && !madeUp) console.log("  access             the token you gave: open the workspace once with ?token=<token>");

@@ -60,7 +60,8 @@ by typing a few letters. **/** puts the cursor in "Ask the patient…".
 ### The language model
 
 The "Language model" panel starts a model on the open record: **Claude** through the Messages API (model and
-effort chosen on the page; needs `ANTHROPIC_API_KEY` on the server), or the **reference trajectory** — the
+effort chosen on the page; needs `ANTHROPIC_API_KEY` on the server), **GPT/OpenAI** (`OPENAI_API_KEY`),
+**MiniMax** (`MINIMAX_API_KEY`), or the **reference trajectory** — the
 scenario's reference actions spoken through the same loop, offline, as a demonstration (not a model). The
 operator can pause it (its next action is held), resume it, stop it, or run it supervised: each action then waits
 for the operator's approval, and a refusal — with a reason — is told to the model, which goes on. Its transcript
@@ -155,12 +156,19 @@ The view draws the encounter as the record has it, in step with it:
   bundle of the pinned engine: the patient as their case describes them (skin, hair, build, clothes; a variant may
   change how they look, never say its name) and built to their height, in the position on the record — seated at
   the desk, standing, or on the couch on their back, face down or on one side, bare under towels; the practitioner
-  in a white coat, beside the couch on the side being needled, or across the desk. They breathe and blink; the
+  in a white coat, at the actor's actual floor position. Click-to-walk, the focused map's arrow/WASD controls, and
+  Shift-click on the 3D floor all submit the same `move` tool; the practitioner follows the world's planned
+  corners with continuous gait and turning. Pose changes use the existing patient positioning tool. They breathe and blink; the
   patient's lips move while they speak; a patient who feels faint is drawn pale and clammy.
 - **The practitioner's marks and the needles** are placed on the skin from the record: a mark at its chart
   coordinates, a needle at its mark (or at the place given with it) at the recorded angle, direction and depth,
-  of the pack's length, with a steel shaft and spiral handle. A needle slides in when it is inserted and out when
-  it is withdrawn, moves with lift-thrust or turns with rotation when worked, and a recorded deqi glows once
+  of each needle's own pack length, with a steel shaft and spiral handle. The geometry uses executed depth,
+  including a shorter partial insertion. An articulated Blender hand approaches and pinches its handle, guided
+  by a length-preserving arm solve and bounded torso lean. Its fingers carry the needle in, track the full
+  insertion or manipulation, open, and retreat; withdrawal keeps the shaft's full size. Needle movements queue
+  when actions arrive quickly, and an old record opens directly at its retained state. `lift`, `thrust`,
+  `lift-thrust`, `twist`, `rotate`, `bu` and `xie` use bounded, deterministic profiles; outward strokes never
+  deepen the engine-approved insertion ([TECHNIQUES.md](TECHNIQUES.md), [HANDS.md](HANDS.md)). A recorded deqi glows once
   round it. Each needle carries its label; picking one in the view highlights its row in the record.
 - **From chart to skin** (`web/stage/sites.ts`): each regional chart's origin is found on the figure by
   proportional measurement, as `tools/figure-fit.mts` does for the needling stations — the lower border of L4 13 cm

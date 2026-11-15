@@ -18,6 +18,7 @@ import {
   type Raycaster,
 } from "three";
 import type { SkinSite } from "./sites.js";
+import { techniqueMotion, type NeedleTechnique, type NeedleMotionSettings } from "@acucraft/core";
 
 /**
  * The needles in the patient and the practitioner's ink marks, drawn where the record has them: a needle of the
@@ -38,7 +39,6 @@ export interface NeedleSpec {
   length: number;
 }
 
-const ease = (t: number) => 1 - Math.pow(1 - Math.min(1, Math.max(0, t)), 3);
 const smooth = (t: number) => {
   const x = Math.min(1, Math.max(0, t));
   return x * x * (3 - 2 * x);
@@ -90,7 +90,11 @@ interface Live {
   depth: number;
   targetDepth: number;
   leaving: boolean;
-  wiggle: { kind: "lift-thrust" | "rotate"; until: number } | null;
+  wiggle: { kind: NeedleTechnique; start: number; motion?: NeedleMotionSettings } | null;
+  controlled: boolean;
+  needsInsertion: boolean;
+  needsRemoval: boolean;
+  clearance: number;
   glow: { ring: Mesh; start: number } | null;
   highlight: boolean;
 }
@@ -157,13 +161,61 @@ export class NeedleLayer {
     return !!l && !l.leaving;
   }
 
+  /** Visual transitions awaiting the practitioner's hand. The record has already passed the engine's guards. */
+  transitions(): { id: string; kind: "insert" | "remove" }[] {
+    return [...this.live.values()].flatMap((l) => [
+      ...(l.needsInsertion ? [{ id: l.spec.id, kind: "insert" as const }] : []),
+      ...(l.needsRemoval ? [{ id: l.spec.id, kind: "remove" as const }] : []),
+    ]);
+  }
+
+  /** The precision pinch follows the actual animated handle, including depth adjustments. */
+  grip(id: string): { point: Vector3; axis: Vector3; rotation: number } | null {
+    const l = this.live.get(id);
+    if (!l) return null;
+    l.root.updateMatrixWorld(true);
+    return { point: l.body.localToWorld(new Vector3(0, l.spec.length + 0.0125, 0)), axis: new Vector3(0, 1, 0).applyQuaternion(l.root.quaternion), rotation: l.body.rotation.y };
+  }
+
+  /** Carry the uninserted needle between the approaching fingers, preserving its full shaft length. */
+  carry(id: string, grip: Vector3, axis: Vector3): void {
+    const l = this.live.get(id);
+    if (!l || !l.needsInsertion) return;
+    l.root.visible = true;
+    l.root.quaternion.setFromUnitVectors(new Vector3(0, 1, 0), axis);
+    l.root.position.copy(grip).addScaledVector(axis, -l.spec.length - 0.0125 - l.body.position.y);
+  }
+
+  /** Drive the insertion/withdrawal only while the practitioner's pinch has reached the handle. */
+  progress(id: string, kind: "insert" | "remove", fraction: number): void {
+    const l = this.live.get(id);
+    if (!l) return;
+    const t = Math.min(1, Math.max(0, fraction));
+    l.controlled = true;
+    l.root.visible = true;
+    this.place(l);
+    l.inserted = kind === "insert" ? t : 1 - t;
+    l.clearance = 0.012 * (1 - smooth(l.inserted));
+    l.body.position.y = -Math.min(l.depth, l.targetDepth) * smooth(l.inserted) + l.clearance;
+    if (t >= 1) {
+      if (kind === "remove") return this.drop(l);
+      l.needsInsertion = false;
+      l.controlled = l.needsRemoval;
+      l.clearance = 0;
+    }
+  }
+
   /**
    * Make the needles drawn the ones given: new ones slide in (or are simply there, without `animate`), ones no
    * longer in are withdrawn, a changed depth is followed; `moved` (a needle worked) wiggles it.
    */
   sync(specs: NeedleSpec[], now: number, animate: boolean): void {
     const keep = new Set(specs.map((s) => s.id));
-    for (const [id, l] of this.live) if (!keep.has(id) && !l.leaving) l.leaving = true;
+    for (const [id, l] of this.live) if (!keep.has(id) && !l.leaving) {
+      l.leaving = true;
+      l.needsRemoval = animate;
+      l.controlled = animate;
+    }
     for (const spec of specs) {
       const l = this.live.get(spec.id);
       if (!l || l.leaving) {
@@ -181,9 +233,9 @@ export class NeedleLayer {
   }
 
   /** The needle worked (`adjust_needle`): lifted and thrust along its shaft, or turned. */
-  work(id: string, kind: "lift-thrust" | "rotate", now: number): void {
+  work(id: string, kind: NeedleTechnique, now: number, motion?: NeedleMotionSettings): void {
     const l = this.live.get(id);
-    if (l) l.wiggle = { kind, until: now + 1800 };
+    if (l) l.wiggle = { kind, start: now, motion };
   }
 
   /** A response on record at a needle: a glow spreads round it once. */
@@ -250,30 +302,27 @@ export class NeedleLayer {
   tick(dt: number, now: number): void {
     for (const l of [...this.live.values()]) {
       const rate = dt / 650;
-      if (l.leaving) {
+      if (l.leaving && !l.controlled) {
         l.inserted = Math.max(0, l.inserted - dt / 520);
         if (l.inserted <= 0) {
           this.drop(l);
           continue;
         }
-      } else if (l.inserted < 1) l.inserted = Math.min(1, l.inserted + rate);
+      } else if (!l.controlled && l.inserted < 1) l.inserted = Math.min(1, l.inserted + rate);
       if (Math.abs(l.depth - l.targetDepth) > 1e-5) l.depth += (l.targetDepth - l.depth) * Math.min(1, dt / 220);
-      let depth = l.depth * ease(l.inserted);
+      let depth = Math.min(l.depth, l.targetDepth) * smooth(l.inserted) - l.clearance;
       let spin = 0;
       if (l.wiggle) {
-        const left = l.wiggle.until - now;
-        if (left <= 0) l.wiggle = null;
+        const sample = techniqueMotion(l.wiggle.kind, now - l.wiggle.start, l.wiggle.motion);
+        if (sample.complete) l.wiggle = null;
         else {
-          const k = Math.min(1, left / 400);
-          const phase = (now / 1000) * Math.PI * 2 * 2.2;
-          if (l.wiggle.kind === "lift-thrust") depth += Math.sin(phase) * 0.0028 * k;
-          else spin = Math.sin(phase) * 1.4 * k;
+          depth -= Math.min(Math.max(0, depth), sample.withdrawalMm / 1000);
+          spin = sample.rotationRad;
         }
       }
       // the tip at `depth` under the skin along the needle's way in; from it the shaft, the handle and its tail
       l.body.position.set(0, -depth, 0);
       l.body.rotation.y = spin;
-      if (l.leaving) l.body.scale.setScalar(Math.max(0.001, smooth(l.inserted * 3)));
       if (l.glow) {
         const age = (now - l.glow.start) / 1600;
         if (age >= 1) {
@@ -309,7 +358,9 @@ export class NeedleLayer {
     }
     body.add(shaft, tip, handle, tail, hit);
     root.add(body);
-    const l: Live = { spec, root, body, handle, hit, inserted, depth: spec.depthCm / 100, targetDepth: spec.depthCm / 100, leaving: false, wiggle: null, glow: null, highlight: false };
+    const pending = inserted === 0;
+    const l: Live = { spec, root, body, handle, hit, inserted, depth: spec.depthCm / 100, targetDepth: spec.depthCm / 100, leaving: false, wiggle: null, controlled: pending, needsInsertion: pending, needsRemoval: false, clearance: pending ? 0.012 : 0, glow: null, highlight: false };
+    root.visible = !pending;
     this.place(l);
     this.live.set(spec.id, l);
     this.group.add(root);

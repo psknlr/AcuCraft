@@ -1,5 +1,6 @@
 import { api, type EncounterSnapshot, type Info, type StageInfo } from "./api.js";
 import { h, replace } from "./dom.js";
+import { navigationControls } from "./navigation.js";
 
 /**
  * The 3D view's place on the record page: a card that loads the view (`/app/stage.js`, bundled by the server
@@ -14,7 +15,7 @@ interface StageHandle {
   dispose(): void;
 }
 interface StageModule {
-  mountStage(host: HTMLElement, info: StageInfo, options?: { onPick?: (needle: string | null) => void; quality?: string }): Promise<StageHandle>;
+  mountStage(host: HTMLElement, info: StageInfo, options?: { onPick?: (needle: string | null) => void; onMove?: (to: { x: number; z: number }) => void; quality?: string }): Promise<StageHandle>;
 }
 
 let loading: Promise<StageModule> | null = null;
@@ -42,8 +43,9 @@ export interface StageCard {
 }
 
 export function stageCard(id: string, info: Info, onPick: (needle: string | null) => void): StageCard {
+  const navigation = navigationControls(id);
   const host = h("div", { class: "stage", tabindex: "-1" });
-  const el = h("section", { class: "card stage-card", "aria-label": "3D view of the encounter" }, host);
+  const el = h("section", { class: "card stage-card", "aria-label": "3D view of the encounter" }, host, navigation.el);
   let handle: StageHandle | null = null;
   let pending: EncounterSnapshot | null = null;
   let gone = false;
@@ -58,7 +60,7 @@ export function stageCard(id: string, info: Info, onPick: (needle: string | null
         if (gone) return;
         // `?quality=high|medium|low` fixes the rendering quality (by default it follows the frame rate)
         const quality = new URLSearchParams(location.search).get("quality");
-        handle = await mod.mountStage(host, stage, { onPick, ...(quality && ["high", "medium", "low"].includes(quality) ? { quality } : {}) });
+        handle = await mod.mountStage(host, stage, { onPick, onMove: (to) => void navigation.move(to), ...(quality && ["high", "medium", "low"].includes(quality) ? { quality } : {}) });
         if (gone) return handle.dispose();
         if (pending) feed(pending);
       } catch (e) {
@@ -69,6 +71,7 @@ export function stageCard(id: string, info: Info, onPick: (needle: string | null
     el,
     update(snapshot) {
       pending = snapshot;
+      navigation.update(snapshot.view, snapshot.summary.status !== "open");
       feed(snapshot);
     },
     highlight(needle) {
@@ -76,6 +79,7 @@ export function stageCard(id: string, info: Info, onPick: (needle: string | null
     },
     dispose() {
       gone = true;
+      navigation.dispose();
       handle?.dispose();
       handle = null;
     },

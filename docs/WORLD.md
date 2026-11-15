@@ -72,6 +72,30 @@ room's chair; they must be able to walk — not faint, no needles in — and be 
 
 `position_patient` moves the patient within the room: lying positions onto the room's couch, sitting onto a chair.
 
+### Browser avatar controls
+
+The workspace's **Move in the clinic** panel reads the same public floor plan as `lookup floorplan`. Click a floor
+destination to request a walk; with the map focused, arrow keys or WASD request 0.5 m steps. Each request uses the
+ordinary `move` tool, so the engine plans around walls and furniture, records who moved and advances simulated time.
+The browser waits for the accepted position in the live record instead of moving an avatar speculatively. Refusals
+are shown beside the controls. Repeated keydown events are ignored and a pending request holds further input.
+
+The panel also offers room destinations, an explicit **Escort patient** option, **Go to patient**, and patient
+positioning. These use `move {withPatient:true}` and `position_patient` with their existing proximity, consent,
+patient-preference and retained-needle checks. The same requests are available to language models through their
+typed tools. The controls remain usable when the browser cannot draw WebGL.
+
+The 3D view maps the engine's coordinates onto its presentation sets using the patient's chair or couch as a common
+anchor. A rotated couch's head direction sets the rotation of that mapping. Both directions are invertible, so a
+Shift-click on the 3D floor requests an engine coordinate. The drawn furniture is an illustration of the clinic;
+the floor plan and its collision grid remain the authority for where an avatar can walk.
+
+A standing patient uses their own recorded floor coordinates, including when the practitioner is in another room.
+An escort reuses the escorting actor's recorded route for its arrival in the destination set, then changes to the
+recorded seated pose. The workspace's two presentation rooms do not draw the connecting corridor, so that portion
+of the walk remains on the floor-plan record. A later position change cancels an unfinished arrival animation and
+draws the newly accepted pose.
+
 ## 3. Reach
 
 | what | range | acts that need it |

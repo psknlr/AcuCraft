@@ -33,6 +33,13 @@ reference trajectory offline; supervised if wanted), any MCP client over HTTP â€
 recorded under who did it, kept on disk and shown in every browser as it happens, around a live 3D view of the
 encounter ([docs/WEB.md](docs/WEB.md)).
 
+**Move and manipulate in 3D.** Click the clinic map, use its arrow/WASD controls, or Shift-click the 3D floor to
+walk the practitioner along the engine's collision-planned path. GPT/OpenAI, MiniMax and Claude use the same
+validated action tools. A Blender-built articulated hand and length-preserving arm IK animate the approach,
+pinch, insertion, manipulation, release and withdrawal. `lift`, `thrust`, `twist`, `bu` and `xie` have explicit,
+bounded playback profiles ([docs/TECHNIQUES.md](docs/TECHNIQUES.md), [docs/HANDS.md](docs/HANDS.md)); bu/xie are
+illustrative choreography, without a model of their clinical efficacy.
+
 ![The workspace: the complete record of a low-back-pain encounter around a live 3D view of the treatment room â€” the patient face down on the couch with needles in the lower back and their labels, the practitioner beside the couch](docs/img/web-workspace.png)
 
 > **Status: first implementation milestone of the design proposal.** The engine, the evaluator and a pilot content pack
@@ -140,6 +147,10 @@ Keep the records in a browser, with a language model and MCP clients working on 
 ```bash
 npm run acu -- serve
 ```
+
+To use GPT or MiniMax, set `OPENAI_API_KEY` or `MINIMAX_API_KEY` on the server, then choose the provider and model
+in the browser's Language model panel. Keys remain on the server. The CLI also supports
+`npm run acu -- run sg-knee-oa/base --agent openai` and `--agent minimax`.
 
 ```bash
 claude mcp add --transport http acucraft http://127.0.0.1:8787/mcp
