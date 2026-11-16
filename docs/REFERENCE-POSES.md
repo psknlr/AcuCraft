@@ -117,6 +117,25 @@ retains partial cuff occlusion of the wrist; the grip and shaft remain visible.
 When scene geometry requires a substantially different camera direction, the
 camera button labels the result as an adjusted oblique view.
 
+The [main-hand motion detail](img/technique-reference-main-hand-motion.mp4) shows
+side-pulp Nian with `support: "none"`, wrist 55°, 120° rotation and two cycles.
+Its 130 genuine High-rendered frames provide a 4.33-second local preview,
+ending during the final 20 ms of release/retreat.
+
+The [full-scene High motion export](img/technique-reference-motion-offline.mp4) contains
+507 actual browser-rendered frames: insertion, side-held Nian and tip-held Ti,
+with each segment returning to Ready. Its controlled scene clock produces
+**30 output frames per second** over 16.90 seconds. It does not measure device FPS.
+
+The separate [real-time recording](img/technique-reference-motion-realtime.mp4)
+preserves actual wall-clock timing and ends during hand release/retreat. Its
+25-fps video container includes repeated display frames. A separate quiet Low
+test on headless Chromium's **SwiftShader software GPU measured about 1.39 FPS**
+(8 frame intervals over 5.77 seconds). The main-thread callback elapsed median was
+29.7 ms; this is distinct from the much longer display interval. Real-time
+performance on target GPU hardware remains unverified. Neither clip establishes
+AAA fidelity.
+
 ## Verification and limits
 
 [The validation snapshot](REFERENCE-POSE-VALIDATION.json) pins the tested runtime
