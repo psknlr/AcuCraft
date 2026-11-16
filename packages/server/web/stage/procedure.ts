@@ -12,6 +12,7 @@ import type { NeedleLayer } from "./needles.js";
 import type { SkinSite } from "./sites.js";
 import { sampleProcedure, type ProcedureKind } from "./choreography.js";
 import { ArticulatedHand, handOrientation, surfaceHandOrientation, type HandContact, type HandPose } from "./hand.js";
+import { alignNeedleWristAzimuth } from "./needle-hand-frame.js";
 import { NEEDLE_HANDLE_RADIUS_M } from "./needle-shape.js";
 import { PatientClearance } from "./clearance.js";
 
@@ -93,6 +94,7 @@ export class NeedleProcedure {
   private playbackState: ProcedurePlayback = { ...IDLE };
   private readonly clearance = new PatientClearance();
   private readonly clearanceRoll = new Map<ArticulatedHand, number>();
+  private readonly clearancePlan = new Map<ArticulatedHand, number>();
   private placements: { hand: ArticulatedHand; side: "left" | "right"; desiredWrist: Vector3; orientation: Quaternion; reach: number; anchor: HandContact }[] = [];
 
   constructor(private readonly needles: NeedleLayer, private readonly practitioner: () => Person | null, private readonly focus: (id: string) => void,
@@ -120,8 +122,12 @@ export class NeedleProcedure {
     const site = gesture?.kind === "performance" ? gesture.input.site : gesture ? this.needles.siteOf(gesture.id) : null;
     const visibilityPoints = [contact.clone()];
     if (placement.anchor === "handle") {
-      const thumb = hand.model.getObjectByName("thumb_pad_contact")?.getWorldPosition(new Vector3());
-      if (thumb) visibilityPoints.push(thumb, hand.contactAt("pinch").multiplyScalar(2).sub(thumb));
+      // Inspect the real participating materials: side pulp, third-finger
+      // support and nail work do not share one inferred thumb/index midpoint.
+      for (const name of Object.keys(hand.materialContacts())) {
+        const material = hand.model.getObjectByName(name);
+        if (material) visibilityPoints.push(material.getWorldPosition(new Vector3()));
+      }
       for (const name of ["thumb_MCP", "index_PIP"]) {
         const joint = hand.model.getObjectByName(name);
         if (joint) visibilityPoints.push(joint.getWorldPosition(new Vector3()));
@@ -418,27 +424,33 @@ export class NeedleProcedure {
   private placeHand(hand: ArticulatedHand, person: Person, side: "left" | "right", contact: Vector3, axis: Vector3, reach: number, anchor: HandContact, roll = 0, surface = false): void {
     const gesture = this.active;
     const site = gesture?.kind === "performance" ? gesture.input.site : gesture ? this.needles.siteOf(gesture.id) : null;
+    const workingContact = contact;
     // Approach and retreat above the local skin plane rather than cutting diagonally through the
     // patient with the carried needle. The arc vanishes before any recorded insertion takes place.
     if (site && reach > 0 && reach < 1) contact = contact.clone().addScaledVector(site.n, Math.sin(Math.PI * reach) * 0.08);
     const contactLocal = hand.contact(anchor), wristLocal = hand.wrist();
     let orientation = surface ? surfaceHandOrientation(contactLocal, wristLocal, hand.contactNormal(anchor), contact, axis, person.shoulderAt(side))
-      : handOrientation(contact, axis, person.shoulderAt(side), roll);
+      : alignNeedleWristAzimuth(handOrientation(contact, axis, person.shoulderAt(side), roll), contactLocal, wristLocal);
     const patient = this.patient();
     if (patient && hand.contactValid) {
       const base = orientation.clone(), normal = axis.clone().normalize();
+      // Choose a needle-hand branch against the working point before adding
+      // the approach arc. A branch that only clears while hovering can force
+      // a sudden palm turn when the hand arrives or starts retreating.
+      const clearanceContact = anchor === "handle" && !surface ? workingContact : contact;
       const fits = (angle: number) => {
         const candidate = new Quaternion().setFromAxisAngle(normal, angle).multiply(base);
         hand.root.quaternion.copy(candidate);
-        hand.root.position.copy(contact).sub(contactLocal.clone().applyQuaternion(candidate));
+        hand.root.position.copy(clearanceContact).sub(contactLocal.clone().applyQuaternion(candidate));
         return !this.clearance.intersects(hand.model, patient);
       };
-      const preferred = this.clearanceRoll.get(hand) ?? 0;
+      const preferred = this.clearanceRoll.get(hand) ?? this.clearancePlan.get(hand) ?? 0;
       let selected: number | null = fits(preferred) ? preferred : preferred !== 0 && fits(0) ? 0 : null;
       if (selected === null) {
-        // Whole-wrist pronation preserves shaft alignment and every local skin contact. Search a
-        // small authored range; never rotate an IP joint or alter the patient's needle to gain space.
-        for (const degrees of [-15, -30, -45, 15, 30, 45]) {
+        // Rotate the complete hand about the needle axis, retaining every local
+        // contact. Oblique needles can require a further turn to lift the ulnar
+        // palm clear; keep the smaller candidates first.
+        for (const degrees of [-15, -30, -45, 15, 30, 45, -60, 60, -75, 75, -90, 90]) {
           const end = degrees * Math.PI / 180;
           if (!fits(end)) continue;
           let blocked = end - Math.sign(end) * Math.PI / 12, clear = end;
@@ -453,6 +465,9 @@ export class NeedleProcedure {
       if (selected !== null) {
         orientation = new Quaternion().setFromAxisAngle(normal, selected).multiply(base);
         this.clearanceRoll.set(hand, selected);
+        // A preview seek resets frame feedback, but retains the branch planned
+        // at gesture start. Its approach and retreat must use the same side.
+        if (!this.clearancePlan.has(hand)) this.clearancePlan.set(hand, selected);
       } else this.clearanceRoll.delete(hand);
     }
     const wristOffset = wristLocal.sub(contactLocal).applyQuaternion(orientation);
@@ -510,6 +525,7 @@ export class NeedleProcedure {
   private clearHands(): void {
     this.placements = [];
     this.clearanceRoll.clear();
+    this.clearancePlan.clear();
     this.reachWarning = null;
     this.actor?.faceToward?.(null);
     this.actor?.reach("left", null);

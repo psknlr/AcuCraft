@@ -314,10 +314,12 @@ the requested opening. These control the hand animation; anatomy checks and the 
 original insertion action. Actual needle-depth changes still use `adjust_needle`; a visual performance does not
 authorize them. See [TECHNIQUES.md](TECHNIQUES.md) for the catalogue and modeling limits.
 
-The default primary grip is thumb/index for insertion and retained-needle performances. Explicit
-`three-finger` adds middle-finger support to that pair. Fei and compound stages preserve the chosen
-grip. The authored scraping/flicking variants keep thumb/index on the handle and use the middle
-nail as the active digit, rather than replacing the index with a static middle-finger grip.
+The default primary grip is thumb/index for insertion and ordinary retained-needle holding.
+Explicit `three-finger` adds middle volar-pulp support to that pair. Fei and ordinary compound
+holding stages preserve the chosen grip. Gua uses a thumb tail brace and an active index nail
+edge; its aperture sets the index nail's release gap while the thumb separately clears the tail.
+Tan uses thumb-assisted skin-to-skin preparation, followed by index-nail contact and recoil.
+Use the selected technique's advertised controls; Tan does not advertise an aperture control.
 
 `wristElevationDeg` normally accepts 35–70° with default 55°. The optional
 three-finger variant uses tip contact at 44–51°, default 48°, as published in

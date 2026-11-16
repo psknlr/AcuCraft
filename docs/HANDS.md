@@ -6,7 +6,7 @@ and animation are CC0-1.0. It contains no downloaded meshes, external textures,
 patient data or copies of the supplied reference photographs. This is an authored
 visual simulation, without anatomical, motion-capture or clinical validation.
 
-![The current procedural hand in Blender, evaluated with the shipped skin weights and authored grip](img/technique-reference-source.png)
+![The revised hand engaged in the actual working needle-grasp scene](img/hand-anatomy-working-tip.png)
 
 [Reference interpretation, shared controls and inspection views](REFERENCE-POSES.md)
 describes how the supplied images inform the implementation.
@@ -17,39 +17,71 @@ Rebuild with Blender 4.3 or newer:
 blender -b -P tools/blender/build_hand.py
 ```
 
+After changing runtime choreography, first sample it from the actual source
+GLB, then rebuild the asset with those matching poses:
+
+```bash
+npx tsx tools/blender/export_hand_poses.ts --input content/world/assets/models/acu-practitioner-hand.glb
+blender -b -P tools/blender/build_hand.py
+```
+
+The input supplies real geometry and attachment frames; existing animation is
+ignored. Its recorded SHA identifies the calibration input, not the subsequently
+rebuilt output, so the provenance does not require a circular output hash. A
+checkout can use its shipped source GLB for the next sampling run. The validation
+snapshot retains this iteration's original calibration-input identity.
+
+`tools/blender/hand_anatomy.json` is the explicit source for the carpal/palm basis,
+joint positions, fixed segment lengths, hinges and distal skin/nail directions.
 `tools/blender/hand.json` records the actual binary hash, byte and triangle counts,
 coordinate frames, skin influences, surface attachments and evaluated clip
-contacts. `tools/blender/hand_poses.json` stores the authored quaternion keyframes
-and whole-hand presentation transforms. These generated files and the GLB must be
-updated together. The separate hand asset is loaded by the encounter renderer,
-not the static equipment catalog.
+contacts. `tools/blender/hand_poses.json` stores the quaternion keyframes and
+whole-hand transforms sampled from the matching runtime. Source, sampled poses,
+manifest and GLB must be updated together. A new source fixture with older clips
+is a geometry diagnostic, not a matching runtime animation export. The encounter
+renderer loads the separate hand asset directly.
 
 ## Shape, frames and skinning
 
-The GLB uses metres and Y up. The outer `acu_practitioner_hand` frame follows the
-needle: +Y points outward along its shaft. The raised neutral wrist is
-`[0.080, 0.110, 0]`, above and behind the pinch. The source index bends back toward
-the shorter thumb, forming a compact C. The fingertips are staggered rather than
-ending as two parallel tongs. The other three fingers have adult relative lengths
-and graduated bends.
+The GLB uses metres. The outer `acu_practitioner_hand` frame follows the needle:
++Y points outward along its shaft. The manifest records the actual source wrist,
+carpal landmarks and palm basis. Wrist elevation is the angle to the needle's
+transverse plane, `atan2(y, hypot(x, z))`; the source wrist need not lie in XY.
+The source index bends toward the shorter thumb, forming a compact C. The active
+crest source has index MCP/PIP/DIP flexion of 45°/100°/60°: these describe its
+authored bind posture, not the operator's current solved working angles, a
+relaxed hand or a general comfort limit. Runtime contact solving uses separate
+working references. The other three fingers have adult relative lengths and
+graduated bends.
 
 `palm_frame` and `wrist_frame` describe the actual palm, separately from the
-needle frame: -X points toward the fingers, -Y is volar and +Z is radial. Their
-basis follows the MCP-to-wrist direction. This differs from the origin-to-wrist
-bearing used by the wrist-elevation control. Mirroring Z creates the opposite
-hand; frame extraction uses transformed axes to preserve the actual dorsal side.
+needle frame: -X points toward the fingers, -Y is volar and +Z is radial. This
+full anatomical basis is distinct from the wrist-elevation bearing. The actor
+uses the actual wrist azimuth to approach the shoulder. Mirroring includes the
+presentation rotation and translation as well as the skin, so a three-dimensional
+source frame remains a true opposite hand. Frame extraction uses transformed
+axes to preserve the actual dorsal side.
 
 `palm_surface` is one closed connected skin including the thenar region, palm
-arch, MCP roots and wrist taper. There is no separate thenar ellipsoid. The thin
-thumb metacarpal connector stays inside this palm; the two exposed phalanges
+arch, MCP roots and wrist taper. The thumb CMC lies near the carpus; its buried
+metacarpal transition meets the thenar region, and its two exposed phalanges
 supply the external thumb silhouette. Tests check entire root-cap circumferences
-against the actual palm, rather than checking only joint centers.
+against the actual palm. The metacarpal is not a third exposed thumb phalanx.
 
 Each digit is one closed `SkinnedMesh`, without separate knuckle balls or capped
 phalanx pieces. Cross-section frames transport a stable lateral axis through the
 bend. Neighboring controls blend their weights around joints, while the terminal
 contact-bearing surfaces remain rigidly attached to the distal control. The
 connected palm blends static and local CMC influence to follow opposition.
+
+The palm has a proximal radial thenar cushion, an ulnar hypothenar cushion, a
+shallow central hollow and a first-web recess. The carpal origin, index flexion
+and pulp/nail directions are fitted together in one complete three-dimensional
+basis. Each motion keeps the rebuilt source's segment lengths fixed; it does
+not scale a finger or translate its joints to satisfy contact. The precision
+fingers' terminal skin follows the actual three-dimensional distal bone, avoiding an extra sharp
+turn toward a global axis. Distal depth blends through the index DIP, and rounded
+tips close with small caps instead of broad flat end disks.
 
 The skin has sixteen influences: fifteen legacy digit controls and static
 `palm_root`. Anatomical parents carry the corresponding joint translations:
@@ -75,6 +107,90 @@ side through the finger bend; their free edge continues the nail-bed tangent.
 The Node test image adapter decodes the actual embedded PNG pixels, so tests
 exercise the shipped textured GLB rather than substituting empty textures.
 
+## Physiological interpretation
+
+Joint activity is measured from the actual posed bone directions in the palm
+frame. An animation control's quaternion relative to an already bent bind pose
+is not an anatomical flexion angle. The middle, ring and little fingers use the
+shared `RESTING_POSTURES` table in
+[`hand-physiology.ts`](../packages/server/web/stage/hand-physiology.ts) for the
+operator's `curled` and `relaxed` choices. These unused-finger settings are
+separate from the active crest source's index 100°/60° PIP/DIP bends.
+The `curled` setting is an authored closed-fist posture with PIP bends of
+95–100°; it is not a neutral or universally comfortable resting position.
+The `relaxed` setting has its own milder angles.
+
+MCP abduction is applied in the extended palm plane, followed by flexion about
+that digit's radial hinge. The shared extension fan progresses toward the ulnar
+digits and narrows by `0.2 + 0.8*cos(MCP flexion)^2`; the diagnostic reads the
+same exported table and verifies it against the runtime output. Complete frame
+alignment keeps the proximal ray and PIP/DIP flexion plane together. Contacting
+fingers retain independent PIP/DIP solutions for their real surface targets.
+
+The pose choices follow these anatomical principles, rather than treating a
+maximum range of motion as a precision-grasp target:
+
+- [Normal active joint motion, 390 hands (2024)](https://pmc.ncbi.nlm.nih.gov/articles/PMC11436331/)
+  shows substantial individual variation in maximum motion.
+- [Functional range of motion (Hume et al.)](https://pubmed.ncbi.nlm.nih.gov/2324451/)
+  distinguishes functional use from maximum joint excursion; it does not define
+  acupuncture-specific angles.
+- [PIP–DIP linkage in manipulation (2022)](https://pmc.ncbi.nlm.nih.gov/articles/PMC9541616/)
+  supports task-dependent coordination, rather than a fixed ratio for every hold.
+- [MCP collateral ligament mechanics (2024)](https://pubmed.ncbi.nlm.nih.gov/38428155/)
+  describes increased ligament tension in flexion. The software's narrowing
+  spread curve is an engineering choice, not a measured clinical envelope.
+- [The Puzzle of the Thumb](https://pmc.ncbi.nlm.nih.gov/articles/PMC4397810/)
+  describes compound CMC opposition; MCP/IP twisting cannot substitute for it.
+- [Thumb metacarpal anatomy](https://pubmed.ncbi.nlm.nih.gov/26228383/) and
+  [CMC functional anatomy](https://pubmed.ncbi.nlm.nih.gov/3595013/) inform the
+  distinction between segment scale and a basal joint's placement near the
+  carpus. Plausible lengths alone cannot validate an incorrectly placed CMC.
+- [University of Oklahoma hand biomechanics](https://www.ouhsc.edu/bserdac/dthompso/web/namics/hand.htm)
+  describes palm arches and the distinct roles of radial and ulnar metacarpals.
+
+The flexion sheet evaluates the actual GLB's skin weights with fixed-length
+MCP/PIP/DIP hinges, without interpolating animation-clip quaternions. It compares
+three explicit inspection poses—extended, half flexion and curled inspection—from
+palmar, dorsal and radial-side views. The third row is labelled **Curled
+inspection** and reads the shared closed-fist M/R/L table. Its independent index
+example remains 52°/72°/42°, rather than representing the operator's actual
+working index. The thumb has a separate, mildly flexed
+abducted inspection pose. Actual angles, bone-length errors, helper hash and
+asset hash are recorded with the result.
+
+The three recorded diagnostics report zero digit-skin triangle boundary
+intersections, including the previously intersecting first web. This is a finite
+deformation check. It does not exercise every thumb direction, needle-grip
+variant, movement phase, patient contact or complete enclosure case. Actual
+needle-volume clearance and runtime motion require their separate checks.
+The report also compares thumb-root material-ring perimeters, centre spacing
+and geometric normals between adjacent bands before and after deformation,
+excluding closed caps. These local shape measurements and the actual images
+expose a stretched or pointed skin bridge even when separate surfaces do not
+intersect; zero intersections alone cannot establish a natural silhouette.
+Neither photographs nor passing mesh checks establish patient-specific
+physiology, tissue mechanics, clinical technique or AAA production quality.
+
+![Actual-GLB inspection of three fixed-length finger-flexion poses](img/hand-anatomy-flexion-audit.png)
+
+Reproduce the actual-GLB inspection with:
+
+```bash
+blender -b -t 4 -P tools/blender/render_hand_audit.py -- --report /tmp/hand-audit.json
+```
+
+Add `--no-render` to measure bone lengths, actual joint angles and digit-skin
+boundary intersections without rendering. The script exports the current
+runtime physiology table through the repository's `tsx`; `--physiology-table`
+accepts a saved export with a matching helper hash. Use `--asset` and
+`--expected-asset-sha256` to inspect a particular immutable source fixture.
+[The anatomy validation snapshot](HAND-ANATOMY-VALIDATION.json) records
+the inspected asset, measured sections, finite runtime checks and image scope.
+`hand-morphology.test.ts` measures real triangle sections and terminal surface
+axes. `hand-physiology.test.ts` measures posed bones in the palm frame for both
+hands, rather than accepting control values as proof of the resulting pose.
+
 ## Real surface attachments
 
 Moving contacts live under their actual phalanx, with local +Y along the outward
@@ -82,24 +198,31 @@ surface normal. Pad, side-pulp and nail-edge attachments are fitted to real skin
 or nail triangles. Fixed root-level `thumb_contact` and `index_contact` are legacy
 bind references, not live articulated contacts.
 
+Ordinary thumb/index skin attachments and runtime fitting sample the same
+exported smooth vertex-normal field barycentrically on the actual triangles.
+Index-nail work instead uses the declared normal cone of the adjacent keratin
+facets at the actual leading free edge. Each contact point stays on its real
+surface. These orientation fits are checked separately from the clearance of
+neighboring pulp, nails and the whole needle volume.
+
 | Attachment | Role |
 | --- | --- |
 | `thumb_pad_contact`, `index_pad_contact` | Opposed primary needle hold |
 | `index_side_contact` | More proximal index-pulp hold, with the index tip extending below it |
-| `middle_side_contact` | Explicit optional third-finger support |
-| `middle_nail_edge_contact` | Actual forward free edge used for scraping/flicking |
+| `middle_pad_contact` and the exported middle-pulp field | Volar-pulp reference and material contacts for optional third-finger support |
+| `index_nail_edge_contact` | Actual index-keratin free edge used for Gua/Tan |
 | `index_volar_contact` | Palmar skin contact for the supporting hand |
 | `palm_contact` | Actual static ulnar heel facet used for pressing |
 | `support_contact` | Additional static palmar attachment |
 
-The middle nail contact is near the true forward free edge. A side rim halfway
+The active index nail contact is near the true forward free edge. A side rim halfway
 along a nail cannot stand in for it. Likewise, the supporting index uses a true
 volar triangle; reusing the needle-bearing side pad turns the palm into the
 patient. Manifest surface/feature fields record these distinctions.
 
 ## Contact and motion control
 
-Thumb/index is the default primary hold for insertion and retained-needle
+Thumb/index is the default primary hold for insertion and ordinary retained-needle
 techniques. A bounded fixed-length solve places their individual real surfaces
 on opposite sides of the rendered handle, with normals pointing inward. Matching
 their midpoint alone is insufficient. The solve changes joint rotations without
@@ -113,8 +236,14 @@ contact line while preserving the recorded needle angle. Ordinary holds expose
 at 44–51° (default 48°). These combinations appear in `handProfiles`. The authored
 Gua/Tan nail variant exposes 50–60° through its `parameterBounds`. The engine
 rejects unsupported executed angles or grip combinations explicitly.
-`gripApertureMm` affects
-approach/release; an engaged hold fits the actual tapered handle. An insertion
+`gripApertureMm` affects approach/release; an engaged ordinary hold fits the
+actual tapered handle. In Gua it requests the index nail's gap from the handle
+when letting go, with a minimum 1.5 mm air gap even for a zero request. The
+thumb's separate release clears the needle tail by 1.5 mm. The held thumb-tail
+and index-nail contacts are already 14.5–20.5 mm apart along the needle axis;
+the opening value is neither that axial separation nor a command to spread
+every finger by the requested amount. Both Gua working contacts still meet
+their actual surfaces while engaged. An insertion
 approaches with the needle already held, follows a hover arc above the skin,
 then begins the recorded insertion trajectory.
 
@@ -126,10 +255,13 @@ one primary pad remains engaged. Axial techniques share a small bounded part of
 the already approved movement with the fingers; the remaining travel follows the
 wrist. Neither presentation mechanism changes clinical needle displacement.
 
-Gua/Tan retain primary thumb/index stabilization while the middle nail works and
-releases. Contact-space trajectories must be checked against whole finger skin
-and the handle volume: a correct attachment point does not prove that adjacent
-pulp clears the needle. Unused fingers use graduated curled or relaxed poses.
+Gua uses thumb support at the needle tail while the index nail edge scrapes the
+handle. Tan has an index cocking, contact and release sequence, with separately
+timed thumb preparation/support. These authored roles use the index keratin edge,
+separately from the ordinary index-pulp hold. Contact-space trajectories must be
+checked against whole finger skin, keratin and the needle volume: a correct
+attachment point does not prove that adjacent pulp clears the needle. Unused
+fingers use the shared curled or relaxed poses.
 Separate supporting hands have their own skeleton and palpation, stretch and
 heel-press postures.
 
@@ -140,6 +272,9 @@ sampling resets this carrier before applying the live needle/palm transform, so
 it is not applied twice. Legacy clip rotations are canceled consistently when
 runtime contact solutions replace them. Manifest samples permit source/runtime
 comparisons.
+The exporter records nine poses and open/scrape/flick sequences with 31/31/34
+samples. Flick includes the actual 0.08, 0.28, 0.5 and 0.58 cycle events so that
+preparation, nail contact and recoil are retained between the uniform samples.
 
 ## Patient clearance, arms and inspection
 
@@ -150,15 +285,21 @@ repeating unchanged surface checks. A pose that cannot fit is hidden with a
 specific hand-space message; an unsolved grip is reported separately from an
 unreachable arm. These visual guards never change an accepted clinical needle
 path or recommend a depth to fit the model.
+In the low-back inspection fixture, palpation and stretching are reachable;
+heel pressing remains beyond the supporting arm's reach and is hidden with a
+move-closer warning. Passing its geometry checks does not make that pose visible
+or reachable from the same stance.
 
 Both arm targets are registered before either hand is drawn. The actual wrist
 orientation drives gradual distal-forearm pronation while bone lengths, elbow
 and wrist positions remain fixed. Two-bone reach clamps unreachable targets.
+Forearm roll is bounded at 85°, so a held pose can retain wrist/cuff mismatch.
+Sleeves can still obscure part of the palm in an actual inspection view.
 A temporary turn and bounded shared torso lean help reach the working area;
 feet stay at their authorized floor positions, and walking cancels the pose.
 
-The **手部 Grip** camera cycles three-quarter, side and palmar views and fits the
-complete hand, wrist and nearby needle. Local shadows and restrained depth of
+The **手部 Grip** camera cycles three-quarter, side and palmar views and frames
+the hand, wrist and nearby needle. Local shadows and restrained depth of
 field preserve contact readability. Review continuous approach, insertion,
 rotation, axial motion and release as well as still images. Offline frame
 exports and real-time recordings are labeled separately.

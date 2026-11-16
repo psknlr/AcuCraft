@@ -24,13 +24,27 @@ Unused digits have progressively different bends instead of identical fist
 angles. Nail beds, joint contours and material detail remain visible in the
 complete hand views.
 
+The rebuilt source in `tools/blender/hand_anatomy.json` fits the carpal frame,
+near-carpal thumb CMC, finger chains and distal skin/nail directions together.
+Its active crest index uses MCP/PIP/DIP bends of 45°/100°/60°. Those are the
+authored source-bind angles; the actual operator's working references and
+surface-contact solutions are separate. They do not define a relaxed hand or a
+universal range of motion. Unused digits obtain their `curled`/`relaxed` settings and
+flexion-dependent ulnar fan from the separate shared runtime physiology table.
+The `curled` choice is an authored closed-fist posture, including 95–100° PIP
+bends; `relaxed` remains a separate, milder choice. Neither the source grasp nor
+the closed-fist table should be described as a neutral or universal comfort pose.
+
 The renderer distinguishes the needle frame, the actual palm frame and the
 forearm frame. Raising the wrist preserves needle contact; it does not change
 the clinically recorded needle angle. Forearm pronation follows the actual wrist
-orientation while elbow/wrist positions and limb lengths remain fixed.
+orientation while elbow/wrist positions and limb lengths remain fixed. The
+palm uses a full three-dimensional basis, and the source wrist can have a nonzero
+transverse Z component.
 
 During twirling, the active material contact moves over real terminal skin
-triangles. The solver fits each current skin point and its normal to the needle
+triangles. Attachments and runtime fitting use the same exported smooth normal
+field. The solver fits each current skin point and its normal to the needle
 while the finger joints flex. This produces local thumb/index movement instead
 of applying a rotation that a subsequent contact solve immediately overwrites.
 Contact migration does not measure friction, pressure or therapeutic efficacy.
@@ -46,11 +60,13 @@ schemas. Use `presentation` with `insert_needle`, or `motion` with
 | `wristElevationDeg` | Two-finger 35–70° / default 55°; three-finger 44–51° / default 48°; Gua/Tan 50–60° / default 55° | Actual hand/wrist elevation; independent of needle insertion angle |
 | `gripStyle` | `tip-pinch`, `side-pinch`; three-finger uses tip only | Opposed terminal pulp or a more proximal index-pulp contact with a naturally extending tip |
 | `idleFingerPose` | `curled`, `relaxed` | Graduated poses for digits that are not actively holding or manipulating |
-| `grip` | `two-finger`, `three-finger` | Thumb/index primary holding, optionally with middle-side support |
+| `gripApertureMm` | 0–12 mm requested | Approach/release opening; in Gua, the index nail's release gap from the handle, with at least 1.5 mm clearance |
+| `grip` | `two-finger`, `three-finger` | Thumb/index primary holding, optionally with middle volar-pulp support |
 | `support` | `none`, `stabilize`, `stretch`, `pinch`, `press` | Role of the separate supporting hand |
 
-Gua/Tan retain their explicit thumb/index stabilization and active middle nail
-role. Their fixed nail-work variants do not advertise the ordinary grip-style
+Gua uses thumb support at the needle tail and the active index nail edge. Tan
+separates the index's cocking, contact and release from the thumb's preparation
+and support. Their fixed nail-work variants do not advertise the ordinary grip-style
 selector. Their published `parameterBounds` supply the narrower reachable wrist
 range to the operator and LLM; out-of-range executed requests are rejected rather
 than recorded with a silently substituted wrist angle. `handProfiles.threeFinger`
@@ -59,6 +75,12 @@ wrist angle resolves to 48°. Switching a UI selector preserves an existing wris
 or contact-style value and displays any incompatibility for correction. Every
 exposed control must affect the actual pose; changes to one
 setting do not silently overwrite the operator's remaining draft parameters.
+
+Gua's thumb-tail and index-nail working contacts are axially separated by
+14.5–20.5 mm. `gripApertureMm` does not specify their total separation: it
+controls the index nail's gap from the handle when releasing, while the thumb
+has its own 1.5 mm clearance from the tail. A zero opening request still keeps
+the minimum 1.5 mm release gap; an engaged Gua retains real surface contact.
 
 For example, the visual portion of an insertion request can contain:
 
@@ -96,11 +118,82 @@ kinematics; clinical motion capture and deformable contact mechanics require
 separate validation. Visual quality is assessed from actual scene views and
 continuous motion, alongside contact, joint, collision and performance checks.
 
+The separate [flexion diagnostic](HANDS.md#physiological-interpretation) uses the
+real GLB's fixed-length hinges and shared runtime posture table. Its three
+recorded poses report zero digit-skin triangle boundary intersections; the
+earlier free-thumb first-web intersection is absent in those samples. This
+unobstructed free-hand probe does not test every runtime grip, needle-volume
+clearance, supporting contact or movement phase. Those require the matching
+runtime checks and scene captures.
+
 ## Actual scene views
+
+The current morphology and flexion iteration is described in [HANDS.md](HANDS.md)
+and its [separate validation snapshot](HAND-ANATOMY-VALIDATION.json). The gallery
+and snapshot identify each group's exported GLB and runtime. The primary working
+image, optional grasp and new motion/nail captures use the current export; the
+retained ordinary/bimanual comparisons identify their earlier `1bb07096…` /
+`5809c719…` checkpoint. The later change calibrates the optional three-finger
+grasp's height; ordinary geometry and sampled motion are unchanged. A source-only
+fixture retaining older clips is not evidence of matching runtime choreography.
+The actual scene captures use the public controls:
+
+![Current thumb/index hold at the closer working stance](img/hand-anatomy-working-tip.png)
+
+![Retained side-pulp comparison with relaxed unused fingers, at the cart stance](img/hand-anatomy-side-relaxed.png)
+
+![Retained bimanual comparison at the cart stance](img/hand-anatomy-bimanual.png)
+
+Additional views inspect [optional middle-pulp support at 48°](img/hand-anatomy-three-finger.png)
+and [the working index nail in Gua at 55°](img/hand-anatomy-gua-nail.png).
+The [Gua release view](img/hand-anatomy-gua-release.png) uses a public 12 mm
+opening request after the release envelope completes. It shows the index nail's
+release gap alongside the separate, smaller thumb-tail retreat.
+The Gua images use the actual public **Palm** preset; its two working digits
+are clearer than in the available three-quarter view. The Tan strip uses one
+public **Side** view fitted at contact and retained for all three phases.
+
+The [approach-to-release strip](img/hand-anatomy-motion-phases.png) uses five
+actual public-seek screenshots from one fixed inspection camera: approach,
+partial grasp, engaged hold, release and retreat. Plain resizing and tiling make
+the strip; they do not create intermediate animation frames. These sampled
+stages complement the unobstructed flexion sheet and finite motion checks,
+without measuring real-time rendering speed.
+
+The primary working image is an unchanged copy of that strip's raw engaged
+frame, with its complete browser-response provenance. The eight ordinary
+hand/style/unused-finger comparison images and the bimanual view retain the
+earlier cart stance at floor anchor (0.25, −3.75). The optional-hand and motion
+views use the closer working anchor (0.25, −4.25), reached by one recorded public
+0.5 m walk before playback. Each motion keeps its own floor anchor fixed. The
+gallery therefore contains two explicit stance groups, rather than one common
+world pose or camera.
+
+The [Tan phase strip](img/hand-anatomy-tan-motion-phases.png) separately samples
+thumb/index preparation, index-nail contact and recoil from the same public
+camera. These correspond to actuator cycle phases near 0, 0.28 and 0.5. Public
+playback progress includes approach and grasp time, so the report records the
+actual slider values and their mapping through the production samplers; the
+slider's 0.001 step allows small phase differences. Plain resizing and tiling
+preserve the three actual frames.
+
+The revised hand retains a reach limit in this low-back fixture: supporting
+palpation and stretching can be shown, while heel pressing is hidden with a
+move-closer warning. The model preserves arm lengths rather than displaying an
+unreachable supporting hand.
+The bounded forearm roll can also leave a wrist/cuff mismatch. Some public
+side views preserve clear needle contacts while sleeves obscure part of the
+palm or unused fingers; the captures retain those actual scene occlusions.
+
+### Earlier reference-pose snapshot
+
+The remaining media below preserve the earlier `9262eb64…` asset snapshot from
+commit `3c312cf`. They document that implementation's choreography, camera and
+performance; they are not measurements or captures of the revised anatomy.
 
 The main operating hand below uses the public `support: "none"` setting, matching
 the single-hand reference compositions. This is an actual High-quality browser
-capture of the shipped asset and scene.
+capture of that earlier asset and scene.
 
 ![Main thumb/index precision hold, with the wrist above the contact and a compact curled index](img/technique-reference-three-quarter.png)
 
@@ -138,20 +231,22 @@ AAA fidelity.
 
 ## Verification and limits
 
-[The validation snapshot](REFERENCE-POSE-VALIDATION.json) pins the tested runtime
-and asset hashes. `bash tools/check.sh` passes 563 tests in 40 files, content and
+[The earlier validation snapshot](REFERENCE-POSE-VALIDATION.json) pins its runtime
+and asset hashes. At `3c312cf`, `bash tools/check.sh` passed 563 tests in 40 files, content and
 generator checks, all 11 figure-fit sites and the offline scripted LLM loop
-(15/15). Two Blender rebuilds produce the same 13,472-triangle, 1,144,328-byte GLB.
+(15/15). Two Blender rebuilds produced that snapshot's same 13,472-triangle,
+1,144,328-byte GLB.
 
-Independent actual-mesh checks cover 216 ordinary and 972 three-finger poses,
+For that earlier asset, independent actual-mesh checks covered 216 ordinary and
+972 three-finger poses,
 including reciprocal and continuous rolling. They check exposed finger surfaces,
 terminal skin against the palm, actual clip cancellation and independent
 main/stabilizer engagement, using a 50-micrometre geometric tolerance. These are
 finite samples, not a proof for every possible posture or clinical motion.
 
-Supporting contacts use an authored local skin-plane target with small visual
-clearance. Palpation and stretching are reachable in the tested low-back stance;
-heel pressing from that stance exceeds the arm's reach and is hidden with
-explicit feedback. The simulator does not stretch the bones to display it.
-Procedural skin junctions, simplified folds and the lack of tissue compression
-remain visible limits of the current model.
+The earlier low-back setup used an authored local skin-plane target with small
+visual clearance. Palpation and stretching were reachable; heel pressing from
+that stance exceeded the arm's reach and was hidden with explicit feedback.
+New sources and stances require their own reach checks. The simulator preserves
+bone lengths. Procedural skin junctions, simplified folds and the lack of tissue
+compression remain visible limits of the current model.

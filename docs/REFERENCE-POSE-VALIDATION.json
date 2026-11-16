@@ -1,5 +1,5 @@
 {
-  "scope": "Authored visual kinematics; finite sampled states, not clinical or AAA-quality validation.",
+  "scope": "Historical reference-pose snapshot at 3c312cf, asset 9262eb64; predates the anatomy iteration in HAND-ANATOMY-VALIDATION.json. Authored visual kinematics; finite sampled states, not clinical or AAA-quality validation.",
   "asset": {
     "sha256": "9262eb640e7668f1b051aad8e0a2ce9004a52f3da0e4d318c8e7325b9996e53c",
     "bytes": 1144328,

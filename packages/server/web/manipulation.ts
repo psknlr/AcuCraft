@@ -346,11 +346,17 @@ export function manipulationControls(id: string, hooks: Hooks): ManipulationCont
       const three = insertionMode ? insertionChoices.grip.input.value === "three-finger" : draft?.motion.grip === "three-finger";
       const lateral = insertionMode ? insertionChoices.gripStyle.input.value === "side-pinch" : draft?.motion.gripStyle === "side-pinch";
       holdingRoles.textContent = nailWork
-        ? "持针：拇指＋食指；主动刮／弹：中指甲缘。 · Thumb/index hold; the middle nail edge performs the action."
+        ? entry?.id === "gua"
+          ? "刮针：拇指支撑针尾，食指甲缘沿针柄刮动。 · The thumb braces the needle tail; the index nail edge scrapes the handle."
+          : "弹针：拇指辅助预备，食指甲缘触柄后离开。 · The thumb helps prepare the index finger; its nail edge flicks the handle and releases."
         : lateral ? `拇指腹＋食指侧腹持针，食指末端自然下伸${three ? "，中指辅助" : ""}。 · Thumb/index side pinch${three ? " with middle support" : ""}; the index tip extends below the grip.`
-        : three ? "拇指＋食指指端主夹持，中指侧腹辅助。 · Thumb/index tip pinch with middle-finger support."
+        : three ? "拇指＋食指指端主夹持，中指腹承托。 · Thumb/index tip pinch with middle-pulp support."
         : "默认拇指＋食指指端精密捏持。 · Thumb/index precision tip pinch.";
     }
+    const openingHint = !insertionMode && entry?.id === "gua"
+      ? "松开时食指甲缘离针柄的间隙；拇指另行离开针尾。 · Index-nail clearance on release; the thumb separately clears the needle tail."
+      : "接近与释放时的开口；松开仍保留最小间隙。 · Approach/release opening, with minimum clearance when letting go.";
+    for (const control of parameterFields.get("gripApertureMm")?.inputs ?? []) control.title = openingHint;
     const disabled = busy || closed || !library;
     for (const control of Array.from(el.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLButtonElement>("input, select, button"))) control.disabled = disabled;
     // Playback remains local and may inspect a closed record; it never reopens the encounter.

@@ -1,6 +1,8 @@
-import { AnimationMixer, Group, LoopOnce, Matrix3, Matrix4, Mesh, MeshStandardMaterial, Quaternion, SkinnedMesh, Triangle, Vector3, type AnimationAction, type AnimationClip, type Object3D } from "three";
+import { AnimationMixer, Group, LoopOnce, Matrix3, Matrix4, Mesh, MeshStandardMaterial, Quaternion, Ray, SkinnedMesh, Triangle, Vector3, type AnimationAction, type AnimationClip, type Object3D } from "three";
 import { needleHandleRadiusAt } from "./needle-shape.js";
 import { NAIL_WORK_WRIST_BOUNDS, THREE_FINGER_WRIST_BOUNDS, THREE_FINGER_WRIST_DEFAULT } from "@acucraft/core";
+import { RESTING_FINGER_SPREAD_AT_EXTENSION_DEG, SIDE_INDEX_WORKING_POSTURE, SIDE_THUMB_ACQUISITION_M, THREE_FINGER_WORKING_PROFILE, alignNormalAroundAxis, contactFrameAtElevation, fingerPostureReference, handOffProgress, minimumPlanarContactDistance, minimumPlanarContactRetreat, ordinaryTipPosture, restingFingerBaseRotation, restingFingerPosture, smoothPositiveDistance, tipReleasePalmarBlend } from "./hand-physiology.js";
+import { createNailWorkRig, sampleNailWork, type NailWorkRig, type NailWorkSample } from "./hand-nail-work.js";
 
 export type HandPose = "pinch" | "tripod" | "palpate" | "press" | "stretch" | "scrape" | "flick" | "release";
 export type HandContact = "pinch" | "index" | "nail" | "palm" | "handle";
@@ -31,10 +33,24 @@ interface RollingPatch {
   origin: Vector3;
   orientation: Quaternion;
   along: Vector3;
+  tipAlong: Vector3;
+  sourceNormal: Vector3;
+  sourcePoint: Vector3;
+  bindAttachment: Matrix4;
   triangles: { triangle: Triangle; normals: [Vector3, Vector3, Vector3] }[];
 }
 
+export interface HandMaterialContact {
+  surface: string;
+  normalField: string;
+  definition: Record<string, unknown>;
+  engaged?: boolean;
+  /** A preparation pad may contact the opposing finger rather than the needle. */
+  engagedWith?: string;
+}
+
 const clamp = (x: number, lo = 0, hi = 1) => Math.max(lo, Math.min(hi, Number.isFinite(x) ? x : lo));
+const primaryHoldingY = (pose: HandPose) => ["tripod", "scrape", "flick"].includes(pose) ? -0.012 : 0;
 const anatomical: Record<string, string> = {
   thumb_CMC: "thumb_proximal", thumb_MCP: "thumb_middle", thumb_IP: "thumb_distal",
   index_MCP: "index_proximal", index_PIP: "index_middle", index_DIP: "index_distal",
@@ -50,6 +66,7 @@ export class ArticulatedHand {
   private readonly actions = new Map<string, AnimationAction>();
   private readonly controls = new Map<string, Object3D>();
   private readonly neutral = new Map<Object3D, Quaternion>();
+  private readonly materialBinds = new Map<Object3D, { position: Vector3; quaternion: Quaternion }>();
   private readonly contactSolutions = new Map<string, { key: string; alpha: number; beta: number; rotations: Quaternion[]; openingKey?: string; openRotations?: Quaternion[] }>();
   private validContacts = true;
   private readonly hasAliases: boolean;
@@ -58,8 +75,28 @@ export class ArticulatedHand {
   private readonly authoredPoseFrame: Object3D | undefined;
   private readonly sourceWristElevation: number;
   private readonly sourceWristDirection: Vector3;
+  private readonly sourceWristPosition: Vector3;
+  private readonly sourceElevationAxis: Vector3;
+  private readonly contactFrameHorizontalBranch: -1 | 1 | undefined;
+  private readonly graspWristDirection = new Vector3();
+  private readonly sideIndexReference?: ReturnType<typeof fingerPostureReference>;
+  private readonly sideIndexFrame?: { point: Vector3; normal: Vector3 };
+  private readonly sideThumbPatch?: RollingPatch;
+  private readonly tripodIndexReference?: ReturnType<typeof fingerPostureReference>;
+  private readonly tripodIndexFrame?: { point: Vector3; normal: Vector3 };
+  private readonly tripodThumbPatch?: RollingPatch;
+  private readonly tripodMiddleContact?: { point: Vector3; orientation: Quaternion };
+  private readonly nailWorkRig?: NailWorkRig;
+  private nailWorkSample?: NailWorkSample;
+  private readonly sourceIndex?: { base: Vector3; a: Vector3; b: Vector3; c: Vector3; palm: Matrix4 };
+  private ordinaryIndexReference?: ReturnType<typeof fingerPostureReference>;
+  private ordinaryIndexFrame?: { point: Vector3; normal: Vector3 };
+  private ordinaryPosture = ordinaryTipPosture(55);
+  private poseState?: FingerPose;
   private indexHoldingName = "index_pad_contact";
   private readonly rollingEngagement = new Map<string, number>();
+  private readonly materialEngagement = new Map<string, number>();
+  private walkingRetreatTransition: { from: { point: Vector3; normal: Vector3 }; to: { point: Vector3; normal: Vector3 }; progress: number } | undefined;
 
   constructor(readonly model: Group, clips: AnimationClip[], skin: string) {
     this.root.add(model);
@@ -85,23 +122,78 @@ export class ArticulatedHand {
     this.palmFrame = model.getObjectByName("palm_frame");
     this.authoredPoseFrame = model.getObjectByName("hand_pose_frame");
     if (this.authoredPoseFrame) { this.authoredPoseFrame.position.set(0, 0, 0); this.authoredPoseFrame.quaternion.identity(); }
+    model.traverse((node) => { if (node.name.endsWith("_contact")) this.materialBinds.set(node, { position: node.position.clone(), quaternion: node.quaternion.clone() }); });
     const wrist = this.wrist();
-    this.sourceWristElevation = Math.atan2(wrist.y, wrist.x) * 180 / Math.PI;
+    this.sourceWristPosition = wrist.clone();
+    const branch = this.palmFrame?.userData.contactFrameHorizontalBranch;
+    this.contactFrameHorizontalBranch = branch === -1 || branch === 1 ? branch : undefined;
+    this.sourceWristElevation = Math.atan2(wrist.y, Math.hypot(wrist.x, wrist.z)) * 180 / Math.PI;
     this.sourceWristDirection = wrist.clone().normalize();
+    this.graspWristDirection.copy(this.sourceWristDirection);
+    const horizontal = new Vector3(wrist.x, 0, wrist.z);
+    if (horizontal.lengthSq() < 1e-20) horizontal.set(1, 0, 0);
+    this.sourceElevationAxis = horizontal.normalize().cross(new Vector3(0, 1, 0)).normalize();
     for (const [digit, name] of [["thumb", "thumb_pad_contact"], ["index", "index_pad_contact"], ["index", "index_side_contact"]] as const) this.captureRollingPatch(digit, name);
+    if (this.contactFrameHorizontalBranch !== undefined) {
+      const side = this.patches.get("index_side_contact"), thumb = this.patches.get("thumb_pad_contact");
+      const base = this.controls.get("index_MCP"), pip = this.controls.get("index_PIP"), dip = this.controls.get("index_DIP"), tip = model.getObjectByName("index_tip");
+      if (base && pip && dip && tip) this.sourceIndex = { base: base.position.clone(), a: pip.position.clone(), b: dip.position.clone(), c: tip.position.clone(), palm: this.palmTransform().clone() };
+      if (side && base && pip && dip && tip) {
+        this.sideIndexReference = fingerPostureReference(base.position, pip.position, dip.position, tip.position, this.palmTransform(), SIDE_INDEX_WORKING_POSTURE);
+        this.sideIndexFrame = {
+          point: side.origin.clone().applyMatrix4(this.sideIndexReference.attachment),
+          normal: new Vector3(0, 1, 0).applyQuaternion(side.orientation).transformDirection(this.sideIndexReference.attachment),
+        };
+      }
+      if (thumb) {
+        const cap = this.projectRollingPatch(thumb, thumb.origin.clone().addScaledVector(thumb.tipAlong, SIDE_THUMB_ACQUISITION_M));
+        if (cap) this.sideThumbPatch = { ...thumb, origin: cap.point, orientation: new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), cap.normal),
+          sourcePoint: cap.point.clone().applyMatrix4(thumb.bindAttachment), sourceNormal: cap.normal.clone().transformDirection(thumb.bindAttachment) };
+        const front = this.rayProjectRollingPatch(thumb, thumb.origin.clone().addScaledVector(thumb.tipAlong, THREE_FINGER_WORKING_PROFILE.thumbAcquisitionM));
+        if (front) this.tripodThumbPatch = { ...thumb, origin: front.point, orientation: new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), front.normal),
+          sourcePoint: front.point.clone().applyMatrix4(thumb.bindAttachment), sourceNormal: front.normal.clone().transformDirection(thumb.bindAttachment) };
+      }
+      const pad = this.patches.get("index_pad_contact"), source = this.sourceIndex;
+      if (pad && source && this.tripodThumbPatch) {
+        this.tripodIndexReference = fingerPostureReference(source.base, source.a, source.b, source.c, source.palm, THREE_FINGER_WORKING_PROFILE.index);
+        this.tripodIndexFrame = { point: pad.origin.clone().applyMatrix4(this.tripodIndexReference.attachment), normal: new Vector3(0, 1, 0).applyQuaternion(pad.orientation).transformDirection(this.tripodIndexReference.attachment) };
+        this.captureRollingPatch("middle", THREE_FINGER_WORKING_PROFILE.middleContact);
+        const middle = this.patches.get(THREE_FINGER_WORKING_PROFILE.middleContact);
+        const field = middle && this.projectRollingPatch(middle, middle.origin);
+        if (field) this.tripodMiddleContact = { point: field.point, orientation: new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), field.normal) };
+      }
+    }
+    // Capture actual skin and keratin in the immutable source frame, after the
+    // authored pose frame is cleared and before any animation or role is sampled.
+    this.nailWorkRig = createNailWorkRig(model);
   }
 
-  setSide(side: "left" | "right"): void { this.model.scale.z = side === "left" ? -1 : 1; }
+  setSide(side: "left" | "right"): void {
+    const mirror = side === "left" ? -1 : 1;
+    if (Math.sign(this.model.scale.z) !== mirror) this.mirrorPresentation();
+    if (this.model.scale.z === mirror) return;
+    this.model.scale.z = mirror;
+    this.root.updateWorldMatrix(true, false);
+    this.model.updateMatrixWorld(true);
+  }
+
+  /** S R S reflection: a general elevation rotation does not commute with the left-hand scale. */
+  private mirrorPresentation(): void {
+    this.model.position.z *= -1;
+    this.model.quaternion.x *= -1;
+    this.model.quaternion.y *= -1;
+  }
 
   get contactValid(): boolean { return this.validContacts; }
 
   pose(settings: FingerPose): void {
     this.validContacts = true;
-    if (this.palmFrame && settings.pose === "tripod" && settings.gripStyle === "side-pinch") {
-      this.validContacts = false;
-      return;
-    }
-    // The thumb/index precision grip supplies the stable frame for ordinary and nail manipulations.
+    this.poseState = { ...settings };
+    this.materialEngagement.clear();
+    this.rollingEngagement.clear();
+    this.walkingRetreatTransition = undefined;
+    this.nailWorkSample = undefined;
+    // Every role starts in the canonical source frame before choosing its actual contacts.
     this.model.position.set(0, 0, 0);
     this.model.quaternion.identity();
     this.indexHoldingName = settings.handleRadiusM !== undefined && ["pinch", "tripod"].includes(settings.pose) && settings.gripStyle === "side-pinch"
@@ -121,7 +213,14 @@ export class ArticulatedHand {
       this.mixer.update(0);
     }
     if (this.authoredPoseFrame) { this.authoredPoseFrame.position.set(0, 0, 0); this.authoredPoseFrame.quaternion.identity(); }
+    // Material channels in baked clips must not leak from a preceding role into
+    // support/no-handle poses. Only contact aliases are restored; no bone is translated.
+    for (const [node, bind] of this.materialBinds) { node.position.copy(bind.position); node.quaternion.copy(bind.quaternion); }
     if (this.hasAliases) for (const [node, neutral] of this.neutral) node.quaternion.copy(neutral);
+    if (this.palmFrame && settings.pose === "tripod" && settings.gripStyle === "side-pinch") {
+      this.validContacts = false;
+      return;
+    }
     const roll = Math.sin((settings.rotationRad ?? 0) * 1.2) * 0.045;
     const aperture = clamp(settings.apertureMm ?? 2, 0, 12) / 1000;
     const pulse = Math.sin(phase * Math.PI * 2);
@@ -152,10 +251,16 @@ export class ArticulatedHand {
       turn("index_MCP", -0.07 * grip, new Vector3(0, 1, 0));
     }
     if (settings.handleRadiusM !== undefined) {
-      this.orientPalm(settings);
-      this.relaxUnusedFingers(settings);
-      this.rollHoldingSurfaces(settings);
-      this.solveHandleContacts(settings);
+      if (this.nailWorkRig && (settings.pose === "scrape" || settings.pose === "flick")) {
+        this.applyNailWork({ ...settings, pose: settings.pose });
+        this.relaxUnusedFingers(settings);
+      } else {
+        this.orientPalm(settings);
+        this.relaxUnusedFingers(settings);
+        this.rollHoldingSurfaces(settings);
+        this.accommodateRollingContact(settings);
+        this.solveHandleContacts(settings);
+      }
     }
     else {
       if (["palpate", "press", "stretch"].includes(settings.pose)) {
@@ -164,7 +269,34 @@ export class ArticulatedHand {
       }
       if (settings.pose === "pinch" || settings.pose === "tripod" || settings.pose === "scrape") this.solveAperture(aperture);
     }
+    // All joint solutions use the same canonical source frame. Reflect the complete final
+    // presentation so a left hand preserves the source azimuth and actual wrist elevation.
+    if (this.model.scale.z < 0) this.mirrorPresentation();
     this.model.updateMatrixWorld(true);
+  }
+
+  /** Single-hand nail work uses its real tail/skin/keratin roles, independently of pad pinching. */
+  private applyNailWork(settings: FingerPose & { pose: "scrape" | "flick" }): void {
+    const sample = this.nailWorkRig && sampleNailWork(this.nailWorkRig, settings);
+    if (!sample) { this.validContacts = false; return; }
+    const materials = Object.entries(sample.contacts).map(([name, material]) => ({ node: this.model.getObjectByName(name), material }));
+    if (materials.some(({ node, material }) => !node || node.parent?.name !== material.parent)) { this.validContacts = false; return; }
+    this.nailWorkSample = sample;
+    this.validContacts &&= sample.valid;
+    this.model.position.copy(sample.modelPosition);
+    this.model.quaternion.copy(sample.modelQuaternion);
+    for (const [digit, labels, rotations] of [["thumb", ["CMC", "MCP", "IP"], sample.thumbRotations], ["index", ["MCP", "PIP", "DIP"], sample.indexRotations]] as const) {
+      for (let i = 0; i < 3; i++) {
+        const control = this.controls.get(`${digit}_${labels[i]}`), legacy = this.model.getObjectByName(`${digit}_${["proximal", "middle", "distal"][i]}`);
+        if (!control || !legacy) { this.validContacts = false; continue; }
+        control.quaternion.copy(rotations[i]!).multiply(legacy.quaternion.clone().invert());
+      }
+    }
+    for (const { node, material } of materials) {
+      node!.position.copy(material.point);
+      node!.quaternion.setFromUnitVectors(new Vector3(0, 1, 0), material.normal);
+      this.materialEngagement.set(node!.name, material.engaged ? 1 : 0);
+    }
   }
 
   /** Keep the needle frame canonical while raising the actual palm around the holding contact line. */
@@ -173,8 +305,25 @@ export class ArticulatedHand {
     const nailWork = settings.pose === "scrape" || settings.pose === "flick";
     const bounds = nailWork ? NAIL_WORK_WRIST_BOUNDS : settings.pose === "tripod" ? THREE_FINGER_WRIST_BOUNDS : { min: 35, max: 70 };
     const elevation = clamp(settings.wristElevationDeg ?? (settings.pose === "tripod" ? THREE_FINGER_WRIST_DEFAULT : 55), bounds.min, bounds.max);
-    this.model.quaternion.setFromAxisAngle(new Vector3(0, 0, 1), (elevation - this.sourceWristElevation) * Math.PI / 180);
-    const pivot = new Vector3(0, ["tripod", "scrape", "flick"].includes(settings.pose) ? -0.012 : 0, 0);
+    const patch = this.patches.get(this.indexHoldingName);
+    const pivot = new Vector3(0, this.holdingY(settings.pose), 0);
+    if (this.contactFrameHorizontalBranch !== undefined && patch) {
+      if (this.usesOrdinaryReference && this.sourceIndex) {
+        const source = this.sourceIndex;
+        this.ordinaryPosture = ordinaryTipPosture(elevation);
+        this.ordinaryIndexReference = fingerPostureReference(source.base, source.a, source.b, source.c, source.palm, this.ordinaryPosture);
+        this.ordinaryIndexFrame = { point: patch.origin.clone().applyMatrix4(this.ordinaryIndexReference.attachment), normal: new Vector3(0, 1, 0).applyQuaternion(patch.orientation).transformDirection(this.ordinaryIndexReference.attachment) };
+      }
+      const reference = this.indexHoldingName === "index_side_contact" ? this.sideIndexFrame : settings.pose === "tripod" ? this.tripodIndexFrame : this.usesOrdinaryReference ? this.ordinaryIndexFrame : undefined;
+      this.applyContactFrame(settings, reference?.point ?? patch.sourcePoint, reference?.normal ?? patch.sourceNormal, elevation);
+      return;
+    }
+    this.graspWristDirection.copy(this.sourceWristDirection);
+    const elevationRotation = new Quaternion().setFromAxisAngle(this.sourceElevationAxis, (elevation - this.sourceWristElevation) * Math.PI / 180);
+    const sourceNormal = this.patches.get(this.indexHoldingName)?.sourceNormal;
+    const targetNormal = new Vector3(0, 0, -1).applyQuaternion(elevationRotation.clone().invert());
+    this.model.quaternion.copy(elevationRotation);
+    if (sourceNormal) this.model.quaternion.multiply(alignNormalAroundAxis(sourceNormal, targetNormal, this.sourceWristDirection));
     // The reference bind holds at its own origin. Move that complete grasp to the selected handle
     // segment, then elevate about that contact line rather than stretching the fingers down to it.
     this.model.position.copy(pivot);
@@ -182,8 +331,137 @@ export class ArticulatedHand {
     this.model.position.y -= (this.indexHoldingName === "index_side_contact" ? 0.00035 : 0.00065) * Math.tanh(clamp(settings.axialDisplacementMm ?? 0, -3, 3));
   }
 
+  private applyContactFrame(settings: FingerPose, sourcePoint: Vector3, sourceNormal: Vector3, elevation: number): void {
+    const pivot = new Vector3(0, this.holdingY(settings.pose), 0);
+    const radius = pivot.y ? needleHandleRadiusAt(pivot.y) : clamp(settings.handleRadiusM ?? 0.0007, 0.0001, 0.002);
+    const origin = sourcePoint.clone().addScaledVector(sourceNormal, radius);
+    const frame = contactFrameAtElevation(origin, sourceNormal, this.sourceWristPosition, elevation, this.contactFrameHorizontalBranch!);
+    if (!frame) { this.validContacts = false; return; }
+    this.model.quaternion.copy(frame.rotation);
+    this.model.position.copy(frame.position).add(pivot);
+    this.graspWristDirection.copy(frame.wristDirection);
+    // ProcedureController moves the complete hand with the actual handle.point during
+    // lifting/thrusting. This anatomically refitted grip keeps that handle contact fixed;
+    // an additional internal Y shift would stretch the nearly extended thumb twice.
+  }
+
+  /** A small wrist accommodation keeps circumferential rolling inside the real IP workspace. */
+  private accommodateRollingContact(settings: FingerPose): void {
+    if (!this.palmFrame || settings.pose !== "pinch" || (this.indexHoldingName !== "index_pad_contact" && this.contactFrameHorizontalBranch === undefined)) return;
+    if (this.contactFrameHorizontalBranch !== undefined && this.indexHoldingName === "index_side_contact") {
+      const patch = this.patches.get(this.indexHoldingName);
+      if (patch) {
+        // A lateral pulp normal is nearly parallel to the IP hinges. Let a small palm roll
+        // accompany material migration, instead of demanding impossible hinge compensation.
+        // Reconstruct it only through the immutable bind attachment: posed world transforms
+        // would make seeking or switching styles change the next request's source frame.
+        const attachment = this.sideIndexReference?.attachment ?? patch.bindAttachment;
+        const point = patch.anchor.position.clone().applyMatrix4(attachment);
+        const normal = new Vector3(0, 1, 0).applyQuaternion(patch.anchor.quaternion).transformDirection(attachment);
+        this.applyContactFrame(settings, point, normal, clamp(settings.wristElevationDeg ?? 55, 35, 70));
+      }
+      // This complete frame already supplies a known, valid IP posture for the exact
+      // material point/normal. A separate singular-workspace reserve would reject it.
+      return;
+    }
+    const mcp = this.controls.get("index_MCP"), pip = this.controls.get("index_PIP"), dip = this.controls.get("index_DIP");
+    const anchor = this.model.getObjectByName(this.indexHoldingName), tip = this.model.getObjectByName("index_tip");
+    if (!mcp || !pip || !dip || !anchor || !tip) return;
+    const hinge = pip.position.clone().cross(dip.position).normalize(), distalHinge = dip.position.clone().cross(tip.position).normalize();
+    if (Math.abs(hinge.dot(distalHinge)) < 0.99999) return;
+    const y = this.holdingY(settings.pose) - this.sideStagger;
+    const radius = y ? needleHandleRadiusAt(y) : clamp(settings.handleRadiusM ?? 0.0007, 0.0001, 0.002);
+    const inverse = this.model.quaternion.clone().invert();
+    const delta = new Vector3(0, y, radius).sub(this.model.position).applyQuaternion(inverse).sub(mcp.position);
+    const normal = new Vector3(0, 0, -1).applyQuaternion(inverse);
+    // Keep 0.25 mm away from the singular workspace edge. The C2 onset avoids a palm jump
+    // when the moving skin normal first requires a longer reach.
+    const distance = delta.length();
+    const retreatFor = (point: Vector3, surfaceNormal: Vector3) => {
+      const sourceContact = pip.position.clone().add(dip.position).add(point);
+      const sourceNormal = surfaceNormal.clone().normalize(), alongNormal = sourceNormal.dot(hinge);
+      const transverseNormalSquared = Math.max(0, 1 - alongNormal * alongNormal);
+      const minimum = minimumPlanarContactDistance(hinge, sourceContact, sourceNormal, delta.dot(normal));
+      let squaredClearance = 0;
+      if (transverseNormalSquared > 1e-10 && Number.isFinite(minimum)) {
+        const extra = smoothPositiveDistance(minimum + 0.00025 - distance);
+        if (extra < 1e-12) return 0;
+        const target = distance + extra;
+        // This is exactly the previous distance margin for a wrist orthogonal to the
+        // contact normal; the general quadratic also accounts for a changing target dot.
+        squaredClearance = transverseNormalSquared * Math.max(0, target * target - minimum * minimum);
+      }
+      return minimumPlanarContactRetreat({ displacement: delta, direction: this.graspWristDirection, targetNormal: normal,
+        hinge, contactVector: sourceContact, contactNormal: sourceNormal, squaredClearance, maximum: 0.003 });
+    };
+    const transition = this.walkingRetreatTransition;
+    // An airborne pad has no bearing normal. Move smoothly between the two endpoint
+    // accommodations while its real material point resets, rather than chasing that normal.
+    const retreat = transition
+      ? retreatFor(transition.from.point, transition.from.normal) * (1 - transition.progress) + retreatFor(transition.to.point, transition.to.normal) * transition.progress
+      : retreatFor(anchor.position, new Vector3(0, 1, 0).applyQuaternion(anchor.quaternion));
+    if (!Number.isFinite(retreat) || retreat > 0.003) { this.validContacts = false; return; }
+    this.model.position.addScaledVector(this.graspWristDirection.clone().applyQuaternion(this.model.quaternion), Math.max(0, retreat));
+  }
+
+  private get sideStagger(): number {
+    return this.palmFrame && this.indexHoldingName === "index_side_contact" && this.contactFrameHorizontalBranch === undefined ? 0.00025 : 0;
+  }
+
+  private holdingY(pose: HandPose): number {
+    return this.contactFrameHorizontalBranch !== undefined && pose === "tripod" && this.tripodIndexReference ? THREE_FINGER_WORKING_PROFILE.primaryY : primaryHoldingY(pose);
+  }
+
+  private get usesOrdinaryReference(): boolean {
+    return this.contactFrameHorizontalBranch !== undefined && this.indexHoldingName === "index_pad_contact" && (this.poseState?.pose === "pinch" || this.poseState?.pose === "release");
+  }
+
+  private get activeIndexReference(): ReturnType<typeof fingerPostureReference> | undefined {
+    return this.indexHoldingName === "index_side_contact" ? this.sideIndexReference : this.poseState?.pose === "tripod" ? this.tripodIndexReference : this.usesOrdinaryReference ? this.ordinaryIndexReference : undefined;
+  }
+
+  private holdingPatch(name: string): RollingPatch | undefined {
+    if (name === "thumb_pad_contact") {
+      if (this.indexHoldingName === "index_side_contact") return this.sideThumbPatch ?? this.patches.get(name);
+      if (this.poseState?.pose === "tripod") return this.tripodThumbPatch ?? this.patches.get(name);
+    }
+    return this.patches.get(name);
+  }
+
+  /** Project onto actual terminal triangles and the same normal field exported by Blender. */
+  private projectRollingPatch(patch: RollingPatch, target: Vector3) {
+    const closest = new Vector3(), barycentric = new Vector3(), normal = new Vector3();
+    let best: { point: Vector3; normal: Vector3; distance: number } | undefined;
+    for (const surface of patch.triangles) {
+      surface.triangle.closestPointToPoint(target, closest);
+      const error = closest.distanceToSquared(target);
+      if (best && error >= best.distance) continue;
+      surface.triangle.getBarycoord(closest, barycentric);
+      normal.copy(surface.normals[0]).multiplyScalar(barycentric.x).addScaledVector(surface.normals[1], barycentric.y).addScaledVector(surface.normals[2], barycentric.z).normalize();
+      best = { point: closest.clone(), normal: normal.clone(), distance: error };
+    }
+    return best;
+  }
+
+  /** A front-pulp acquisition uses the real outward ray, rather than a different closest flank. */
+  private rayProjectRollingPatch(patch: RollingPatch, target: Vector3) {
+    const direction = new Vector3(0, 1, 0).applyQuaternion(patch.orientation);
+    const ray = new Ray(target.clone().addScaledVector(direction, 0.02), direction.clone().negate());
+    const hit = new Vector3(), barycentric = new Vector3();
+    let best: { point: Vector3; normal: Vector3; distance: number } | undefined;
+    for (const surface of patch.triangles) {
+      if (!ray.intersectTriangle(surface.triangle.a, surface.triangle.b, surface.triangle.c, false, hit)) continue;
+      const distance = hit.distanceToSquared(ray.origin);
+      if (best && distance >= best.distance) continue;
+      surface.triangle.getBarycoord(hit, barycentric);
+      const normal = surface.normals[0].clone().multiplyScalar(barycentric.x).addScaledVector(surface.normals[1], barycentric.y).addScaledVector(surface.normals[2], barycentric.z).normalize();
+      best = { point: hit.clone(), normal, distance };
+    }
+    return best;
+  }
+
   /** Real terminal skin triangles, expressed in the distal attachment's frame at bind pose. */
-  private captureRollingPatch(digit: "thumb" | "index", name: string): void {
+  private captureRollingPatch(digit: "thumb" | "index" | "middle", name: string): void {
     const anchor = this.model.getObjectByName(name), skin = this.model.getObjectByName(`${digit}_skin`);
     if (!anchor?.parent || !(skin instanceof SkinnedMesh)) return;
     this.model.updateMatrixWorld(true); skin.skeleton.update();
@@ -203,65 +481,106 @@ export class ArticulatedHand {
       triangles.push({ triangle: new Triangle(points[0]!, points[1]!, points[2]!), normals: vertices.map((vertex) => new Vector3().fromBufferAttribute(normals, vertex).applyNormalMatrix(normalMatrix)) as [Vector3, Vector3, Vector3] });
     }
     if (!triangles.length) return;
-    const forward = Math.sign(this.model.getObjectByName(`${digit}_tip`)!.position.x) || 1;
-    const along = new Vector3(forward, 0, 0).transformDirection(this.model.matrixWorld).transformDirection(anchor.parent.matrixWorld.clone().invert());
-    this.patches.set(name, { anchor, origin: anchor.position.clone(), orientation: anchor.quaternion.clone(), along, triangles });
+    const before = this.model.getObjectByName(`${digit}_pad_roll_m3_contact`), after = this.model.getObjectByName(`${digit}_pad_roll_p3_contact`);
+    const inverseAttachment = anchor.parent.matrixWorld.clone().invert();
+    // Authored material samples follow skin-normal × needle-axis around the shaft.
+    // This circumferential direction is independent of the distal phalanx's long axis.
+    const along = before && after
+      ? after.getWorldPosition(new Vector3()).sub(before.getWorldPosition(new Vector3())).transformDirection(inverseAttachment)
+      : new Vector3(0, 1, 0).transformDirection(anchor.matrixWorld)
+        .cross(new Vector3(0, 1, 0).transformDirection(this.root.matrixWorld)).transformDirection(inverseAttachment);
+    const surfaceNormal = new Vector3(0, 1, 0).applyQuaternion(anchor.quaternion);
+    const sourceNormal = new Vector3(0, 1, 0).transformDirection(anchor.matrixWorld).transformDirection(this.model.matrixWorld.clone().invert());
+    const sourcePoint = anchor.getWorldPosition(new Vector3()).applyMatrix4(this.model.matrixWorld.clone().invert());
+    const bindAttachment = this.model.matrixWorld.clone().invert().multiply(anchor.parent.matrixWorld);
+    const tipAlong = this.model.getObjectByName(`${digit}_tip`)!.position.clone();
+    tipAlong.addScaledVector(surfaceNormal, -tipAlong.dot(surfaceNormal)).normalize();
+    this.patches.set(name, { anchor, origin: anchor.position.clone(), orientation: anchor.quaternion.clone(), along, tipAlong, sourceNormal, sourcePoint, bindAttachment, triangles });
   }
 
   /** Contact material migrates over real pulp while the distal hinges roll the needle. */
   private rollHoldingSurfaces(settings: FingerPose): void {
-    const rotation = Number.isFinite(settings.rotationRad) ? settings.rotationRad! : 0;
+    // Reflection reverses axial rotation handedness. Keep the same physical needle
+    // turn by reversing the left hand's canonical material roll before SRS mirroring.
+    const handedness = this.contactFrameHorizontalBranch !== undefined && this.model.scale.z < 0 ? -1 : 1;
+    const rotation = (Number.isFinite(settings.rotationRad) ? settings.rotationRad! : 0) * handedness;
     const sideGrip = this.indexHoldingName === "index_side_contact";
-    // Bounded turns take a short pulp bite; one-way turns walk across a larger patch.
-    // The thumb settles nearer its true tip to keep its stem clear of the opposed index pulp.
-    const travel = sideGrip || !settings.continuousRoll ? 0.00015 : 0.0005;
+    // One-way turns repeat the same short bite with staggered release and acquisition.
+    const travel = 0.00015;
     const bounded = this.palmFrame ? travel * Math.tanh(rotation / 1.2) * clamp(settings.grip) : 0;
     this.rollingEngagement.clear();
+    this.walkingRetreatTransition = undefined;
+    for (const patch of this.patches.values()) {
+      patch.anchor.position.copy(patch.origin); patch.anchor.quaternion.copy(patch.orientation);
+    }
+    const thumb = this.holdingPatch("thumb_pad_contact");
+    if (thumb) { thumb.anchor.position.copy(thumb.origin); thumb.anchor.quaternion.copy(thumb.orientation); }
+    const materialTangents = new Map<string, Vector3>();
+    if (this.contactFrameHorizontalBranch !== undefined) {
+      // Capture the tangent in the actually opposed distal frame. The bind marker's
+      // circumferential direction can become axial after the palm changes azimuth.
+      const y = this.holdingY(settings.pose), stagger = this.sideStagger;
+      for (const [digit, name, sign, contactY, kind] of [["thumb", "thumb_pad_contact", -1, y + stagger, "pad"],
+        ["index", this.indexHoldingName, 1, y - stagger, sideGrip ? "side" : "pad"]] as const) {
+        const patch = this.holdingPatch(name);
+        if (!patch?.anchor.parent) continue;
+        const radius = contactY ? needleHandleRadiusAt(contactY) : clamp(settings.handleRadiusM ?? 0.0007, 0.0001, 0.002);
+        const target = new Vector3(0, contactY, sign * radius), outward = new Vector3(0, 0, -sign);
+        this.solveFingerContact(digit, kind, target, outward, 1, target);
+        this.model.updateWorldMatrix(true, true);
+        const attachment = this.model.matrixWorld.clone().invert().multiply(patch.anchor.parent.matrixWorld);
+        const tangent = outward.cross(new Vector3(0, 1, 0)).applyQuaternion(this.model.quaternion.clone().invert()).transformDirection(attachment.invert());
+        const surfaceNormal = new Vector3(0, 1, 0).applyQuaternion(patch.orientation);
+        tangent.addScaledVector(surfaceNormal, -tangent.dot(surfaceNormal)).normalize();
+        materialTangents.set(name, tangent);
+      }
+    }
     const smooth = (value: number) => { const t = clamp(value); return t * t * t * (t * (t * 6 - 15) + 10); };
     const cycles = Math.abs(rotation) / 2.4, warm = smooth(cycles), direction = Math.sign(rotation) || 1;
-    const closest = new Vector3(), barycentric = new Vector3(), normal = new Vector3();
-    for (const [name, patch] of this.patches) {
+    for (const [name] of this.patches) {
+      const patch = this.holdingPatch(name)!;
       patch.anchor.position.copy(patch.origin); patch.anchor.quaternion.copy(patch.orientation);
       if (name !== "thumb_pad_contact" && name !== this.indexHoldingName) continue;
       let distance = bounded;
       if (this.palmFrame && settings.continuousRoll) {
         const phase = (cycles + (name === "thumb_pad_contact" ? 0 : 0.5)) % 1;
-        const material = phase < 0.72 ? -1 + 2 * smooth(phase / 0.72) : phase < 0.8 ? 1 : phase < 0.92 ? 1 - 2 * smooth((phase - 0.8) / 0.12) : -1;
-        const engagement = phase < 0.72 ? 1 : phase < 0.8 ? 1 - smooth((phase - 0.72) / 0.08) : phase < 0.92 ? 0 : smooth((phase - 0.92) / 0.08);
+        const material = phase < 0.52 ? -1 + 2 * handOffProgress(phase / 0.52) : phase < 0.67 ? 1 : phase < 0.85 ? 1 - 2 * handOffProgress((phase - 0.67) / 0.18) : -1;
+        // Each finger is fully engaged for more than half the cycle. Its counterpart
+        // supplies support while the released finger returns through a relaxed pose.
+        const engagement = phase < 0.52 ? 1 : phase < 0.67 ? 1 - handOffProgress((phase - 0.52) / 0.15) : phase < 0.85 ? 0 : handOffProgress((phase - 0.85) / 0.15);
         distance = travel * material * direction * warm * clamp(settings.grip);
         this.rollingEngagement.set(name, 1 - warm * (1 - engagement));
       }
-      if (this.palmFrame && name === "thumb_pad_contact") {
-        // Preserve the authored zero-turn bind; the first bounded turn gently acquires the new patch.
-        const settle = sideGrip ? 1 : settings.continuousRoll ? 0 : smooth(Math.abs(rotation) / 0.3);
-        distance -= 0.00065 * settle * clamp(settings.grip);
-      }
-      if (Math.abs(distance) < 1e-9) continue;
-      const target = patch.origin.clone().addScaledVector(patch.along, -distance);
-      let best: { point: Vector3; normal: Vector3; distance: number } | undefined;
-      for (const surface of patch.triangles) {
-        surface.triangle.closestPointToPoint(target, closest);
-        const error = closest.distanceToSquared(target);
-        if (best && error >= best.distance) continue;
-        surface.triangle.getBarycoord(closest, barycentric);
-        normal.copy(surface.normals[0]).multiplyScalar(barycentric.x).addScaledVector(surface.normals[1], barycentric.y).addScaledVector(surface.normals[2], barycentric.z).normalize();
-        best = { point: closest.clone(), normal: normal.clone(), distance: error };
-      }
+      // Acquiring the fleshy tip and rolling around the needle are independent directions.
+      // The corrected thumb's distal axis differs from its circumferential material tangent.
+      const tipSettle = this.palmFrame && this.contactFrameHorizontalBranch === undefined && name === "thumb_pad_contact"
+        ? (sideGrip ? 1 : smooth(Math.abs(rotation) / 0.3)) * 0.00065 * clamp(settings.grip) : 0;
+      const acquireWalkingReach = !!settings.continuousRoll && name === "index_pad_contact" && !sideGrip;
+      if (Math.abs(distance) < 1e-9 && tipSettle < 1e-9 && !acquireWalkingReach) continue;
+      const along = materialTangents.get(name) ?? patch.along;
+      const target = patch.origin.clone().addScaledVector(along, -distance).addScaledVector(patch.tipAlong, tipSettle);
+      const best = this.projectRollingPatch(patch, target);
       if (best) {
         patch.anchor.position.copy(best.point);
         patch.anchor.quaternion.setFromUnitVectors(new Vector3(0, 1, 0), best.normal);
+        if (acquireWalkingReach) {
+          const phase = (cycles + 0.5) % 1;
+          if (warm >= 0.999999 && phase >= 0.67 && phase < 0.85) {
+            const amplitude = travel * warm * clamp(settings.grip) * direction;
+            const from = this.projectRollingPatch(patch, patch.origin.clone().addScaledVector(along, -amplitude));
+            const to = this.projectRollingPatch(patch, patch.origin.clone().addScaledVector(along, amplitude));
+            if (from && to) this.walkingRetreatTransition = { from, to, progress: handOffProgress((phase - 0.67) / 0.18) };
+          }
+        }
       }
     }
   }
 
-  /** Unused fingers stay softly folded back toward the palm, away from the working pair and patient. */
+  /** Unused fingers fold toward the palm in the selected closed or relaxed idle posture. */
   private relaxUnusedFingers(settings: FingerPose): void {
-    const presets = settings.idleFingerPose === "relaxed"
-      ? [[60, 65, 30], [48, 64, 39], [54, 70, 44]]
-      : [[65, 82, 48], [72, 90, 35], [78, 96, 60]];
     const palm = this.palmFrame ? this.palmTransform() : new Matrix4();
-    for (const digit of ["middle", "ring", "little"]) {
-      if (digit === "middle" && ["tripod", "scrape", "flick"].includes(settings.pose)) continue;
+    for (const digit of ["middle", "ring", "little"] as const) {
+      if (digit === "middle" && (settings.pose === "tripod" || !this.nailWorkSample && ["scrape", "flick"].includes(settings.pose))) continue;
       const joints = ["MCP", "PIP", "DIP"].map((joint) => this.controls.get(`${digit}_${joint}`));
       const legacy = ["proximal", "middle", "distal"].map((joint) => this.model.getObjectByName(`${digit}_${joint}`));
       const tip = this.model.getObjectByName(`${digit}_tip`);
@@ -271,16 +590,14 @@ export class ArticulatedHand {
       if (hingeB.dot(hingeA) < 0) hingeB.negate();
       const signed = (x: Vector3, y: Vector3, hinge: Vector3) => Math.atan2(x.clone().cross(y).dot(hinge), x.dot(y));
       const restA = signed(a, b, hingeA), restB = signed(b, c, hingeB);
-      const angles = this.palmFrame ? presets[["middle", "ring", "little"].indexOf(digit)]! : [80, 90, 65];
+      const posture = restingFingerPosture(digit, settings.idleFingerPose === "relaxed" ? "relaxed" : "curled");
+      const angles = this.palmFrame ? [posture.mcpDeg, posture.pipDeg, posture.dipDeg] : [80, 90, 65];
       const flexion = angles[0]! * Math.PI / 180;
       const direction = new Vector3(-Math.cos(flexion), -Math.sin(flexion), 0).transformDirection(palm);
-      const relaxed = new Quaternion().setFromUnitVectors(a.clone().normalize(), direction);
-      if (this.palmFrame || digit === "middle") {
-        const ulna = new Vector3(0, 0, -1).transformDirection(palm);
-        const spreadAxis = this.palmFrame ? new Vector3().crossVectors(direction, ulna).normalize() : new Vector3(0, 1, 0);
-        const spread = this.palmFrame ? (settings.idleFingerPose === "relaxed" ? [25, 20, 10] : [22, 17, 7])[["middle", "ring", "little"].indexOf(digit)]! : 5;
-        relaxed.premultiply(new Quaternion().setFromAxisAngle(spreadAxis, spread * Math.PI / 180));
-      }
+      const relaxed = this.palmFrame
+        ? restingFingerBaseRotation(a, hingeA, palm, posture.mcpDeg, posture.ulnarSpreadDeg)
+        : new Quaternion().setFromUnitVectors(a.clone().normalize(), direction);
+      if (!this.palmFrame && digit === "middle") relaxed.premultiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), 5 * Math.PI / 180));
       const rotations = [relaxed,
         new Quaternion().setFromAxisAngle(hingeA, angles[1]! * Math.PI / 180 - restA),
         new Quaternion().setFromAxisAngle(hingeB, angles[2]! * Math.PI / 180 - restB)];
@@ -295,7 +612,8 @@ export class ArticulatedHand {
 
   private relaxSurfaceFingers(settings: FingerPose): void {
     const palm = this.palmTransform(), pulse = Math.sin(clamp(settings.phase) * Math.PI * 2) * clamp(settings.intensity ?? 0.5);
-    for (const digit of ["index", "middle", "ring", "little"]) {
+    const roundedVolarTip = this.model.getObjectByName("index_volar_contact")?.userData.feature === "true-volar-distal-tip";
+    for (const digit of ["index", "middle", "ring", "little"] as const) {
       const joints = ["MCP", "PIP", "DIP"].map((label) => this.controls.get(`${digit}_${label}`));
       const legacy = ["proximal", "middle", "distal"].map((label) => this.model.getObjectByName(`${digit}_${label}`));
       const tip = this.model.getObjectByName(`${digit}_tip`);
@@ -304,6 +622,23 @@ export class ArticulatedHand {
       const hingeA = a.clone().cross(b).normalize(), hingeB = b.clone().cross(c).normalize();
       if (hingeB.dot(hingeA) < 0) hingeB.negate();
       const signed = (x: Vector3, y: Vector3, hinge: Vector3) => Math.atan2(x.clone().cross(y).dot(hinge), x.dot(y));
+      if (roundedVolarTip) {
+        // Palpation uses the rounded forward pulp, with a lightly flexed index.
+        // Keep the other fingers above that contact instead of retaining the
+        // source needle-grasp C or rotating the entire palm through the skin.
+        const ordinal = digit === "index" ? -1 : ["middle", "ring", "little"].indexOf(digit);
+        const pressing = settings.pose === "press";
+        const mcpDeg = pressing ? 0 : digit === "index" ? 5 : [-10, -7, -4][ordinal]!;
+        const pipDeg = digit === "index" ? pressing ? 5 : 10 : [5, 7, 9][ordinal]!;
+        const dipDeg = pressing ? 0 : 5;
+        const spreadDeg = digit === "index" ? settings.pose === "stretch" ? -5 * clamp(settings.grip) : 0
+          : RESTING_FINGER_SPREAD_AT_EXTENSION_DEG[digit] * (0.2 + 0.8 * Math.cos(mcpDeg * Math.PI / 180) ** 2);
+        const rotations = [restingFingerBaseRotation(a, hingeA, palm, mcpDeg, spreadDeg),
+          new Quaternion().setFromAxisAngle(hingeA, (pipDeg + pulse * 0.5) * Math.PI / 180 - signed(a, b, hingeA)),
+          new Quaternion().setFromAxisAngle(hingeB, dipDeg * Math.PI / 180 - signed(b, c, hingeB))];
+        for (let i = 0; i < 3; i++) joints[i]!.quaternion.copy(rotations[i]!).multiply(legacy[i]!.quaternion.clone().invert());
+        continue;
+      }
       if (digit === "index" && settings.pose !== "press") {
         const proximal = new Quaternion();
         if (settings.pose === "stretch") {
@@ -325,7 +660,7 @@ export class ArticulatedHand {
     }
   }
 
-  /** The pressing hand's thumb stays gently flexed instead of extending past the contacting index pulp. */
+  /** Fold the supporting thumb clear of the contact plane and the extended supporting fingers. */
   private relaxSurfaceThumb(): void {
     const cmc = this.controls.get("thumb_CMC"), mcp = this.controls.get("thumb_MCP"), ip = this.controls.get("thumb_IP");
     const proximal = this.model.getObjectByName("thumb_proximal"), middle = this.model.getObjectByName("thumb_middle"), distal = this.model.getObjectByName("thumb_distal"), tip = this.model.getObjectByName("thumb_tip");
@@ -335,10 +670,23 @@ export class ArticulatedHand {
     if (hingeB.dot(hingeA) < 0) hingeB.negate();
     const restA = Math.atan2(a.clone().cross(b).dot(hingeA), a.dot(b));
     const restB = Math.atan2(b.clone().cross(c).dot(hingeB), b.dot(c));
-    if (this.palmFrame) {
-      cmc.quaternion.copy(proximal!.quaternion).invert();
-      mcp.quaternion.setFromAxisAngle(hingeA, 40 * Math.PI / 180 - restA).multiply(middle.quaternion.clone().invert());
+    if (this.model.getObjectByName("index_volar_contact")?.userData.feature === "true-volar-distal-tip") {
+      // The corrected source opposition is already suitable for a relaxed
+      // supporting thumb; preserve its CMC frame and gently flex its hinges.
+      cmc.quaternion.copy(proximal.quaternion).invert();
+      mcp.quaternion.setFromAxisAngle(hingeA, 20 * Math.PI / 180 - restA).multiply(middle.quaternion.clone().invert());
       ip.quaternion.setFromAxisAngle(hingeB, 20 * Math.PI / 180 - restB).multiply(distal.quaternion.clone().invert());
+      return;
+    }
+    if (this.palmFrame) {
+      // Palmar CMC motion separates the thumb from the straight middle/ring
+      // proximal segments; flexing its own hinges brings the pulp back above
+      // the supporting surface. These authored angles preserve every bone
+      // length and do not change the index/heel contact or the patient's target.
+      const radial = new Vector3(0, 0, 1).transformDirection(this.palmTransform());
+      cmc.quaternion.setFromAxisAngle(radial, 20 * Math.PI / 180).multiply(proximal.quaternion.clone().invert());
+      mcp.quaternion.setFromAxisAngle(hingeA, 55 * Math.PI / 180 - restA).multiply(middle.quaternion.clone().invert());
+      ip.quaternion.setFromAxisAngle(hingeB, 55 * Math.PI / 180 - restB).multiply(distal.quaternion.clone().invert());
       return;
     }
     const swing = new Quaternion().setFromUnitVectors(a.clone().normalize(), new Vector3(-0.83, -0.10, 0.55).normalize());
@@ -360,20 +708,31 @@ export class ArticulatedHand {
     const radial = new Vector3(0, 0, 1);
     const nailWork = settings.pose === "scrape" || settings.pose === "flick";
     // The optional third finger bears on a real oblique pulp patch above the primary pair.
-    const holdingY = nailWork || settings.pose === "tripod" ? -0.012 : 0;
+    const holdingY = this.holdingY(settings.pose);
     const holdingRadius = holdingY ? needleHandleRadiusAt(holdingY) : radius;
     const holdingOpening = Math.max(holdingRadius + 0.0015, clamp(settings.apertureMm ?? 2, 0, 12) / 2000);
     const thumbRadial = radial.clone().negate();
     // A side grip bears on a longer section of the index. Its two real contact centres are gently
     // staggered along the handle, leaving room for the rounded thumb rather than intersecting skin.
-    const sideStagger = this.palmFrame && this.indexHoldingName === "index_side_contact" ? 0.00025 : 0;
+    const sideStagger = this.sideStagger;
     for (const [digit, direction, y, kind] of [["thumb", thumbRadial, holdingY + sideStagger, "pad"],
       ["index", radial, holdingY - sideStagger, this.indexHoldingName === "index_side_contact" ? "side" : "pad"]] as const) {
       const contactRadius = y === 0 ? radius : needleHandleRadiusAt(y);
       const openingDistance = settings.continuousRoll && grip >= 0.999999 ? contactRadius + 0.0006 : holdingOpening;
       const target = direction.clone().multiplyScalar(contactRadius).setY(y);
-      const open = direction.clone().multiplyScalar(openingDistance).setY(y);
-      this.solveFingerContact(digit, kind, target, direction.clone().negate(), grip * (this.rollingEngagement.get(digit === "thumb" ? "thumb_pad_contact" : this.indexHoldingName) ?? 1), open);
+      let open = direction.clone().multiplyScalar(openingDistance).setY(y);
+      if (digit === "thumb" && this.usesOrdinaryReference) {
+        const blend = tipReleasePalmarBlend(openingDistance - contactRadius, this.ordinaryPosture.mcpDeg);
+        const palmar = new Vector3(0, -1, 0).transformDirection(this.sourceIndex!.palm).applyQuaternion(this.model.quaternion);
+        // Preserve the requested two-pad gap while opening outward from the palm.
+        // The small walking release has zero extra palmar excursion.
+        const separation = direction.clone().addScaledVector(palmar, blend).normalize();
+        open = new Vector3(0, y, openingDistance).addScaledVector(separation, 2 * openingDistance);
+      }
+      // The true lateral grip keeps its opposed CMC reference while airborne. Returning
+      // to the tip-grip source opposition would sweep the thumb through the index/handle.
+      const independentOpening = !!settings.continuousRoll && !this.activeIndexReference;
+      this.solveFingerContact(digit, kind, target, direction.clone().negate(), grip * (this.rollingEngagement.get(digit === "thumb" ? "thumb_pad_contact" : this.indexHoldingName) ?? 1), open, independentOpening);
     }
     if (settings.pose === "scrape" || settings.pose === "flick") {
       // Thumb and index keep their opposing pad contacts while the middle nail works the handle.
@@ -393,12 +752,14 @@ export class ArticulatedHand {
       this.solveFingerContact("middle", "nail_edge", target, nailRadial.clone().negate(), grip * (1 - release), openTarget);
     }
     if (settings.pose === "tripod") {
-      const middleY = this.palmFrame ? 0.010 : 0.006, middleRadius = needleHandleRadiusAt(middleY);
+      const refitted = this.contactFrameHorizontalBranch !== undefined && this.tripodMiddleContact && this.tripodIndexReference;
+      const middleY = refitted ? THREE_FINGER_WORKING_PROFILE.middleY : this.palmFrame ? 0.010 : 0.006, middleRadius = needleHandleRadiusAt(middleY);
       const base = this.controls.get("middle_MCP")!.position.clone().applyQuaternion(this.model.quaternion).add(this.model.position);
       const side = this.model.getObjectByName("middle_side_contact")!;
+      if (refitted) { side.position.copy(this.tripodMiddleContact!.point); side.quaternion.copy(this.tripodMiddleContact!.orientation); }
       // Reference support uses an authored oblique pulp route. Legacy lateral patches retain their
       // analytical normal/hinge relation instead of rotating a finger or moving its surface marker.
-      const phi = this.palmFrame ? -Math.PI / 3 : Math.atan2(base.z, base.x) + Math.acos(clamp((middleRadius - side.position.z) / Math.hypot(base.x, base.z), -1, 1));
+      const phi = refitted ? THREE_FINGER_WORKING_PROFILE.middleAzimuthRad : this.palmFrame ? -Math.PI / 3 : Math.atan2(base.z, base.x) + Math.acos(clamp((middleRadius - side.position.z) / Math.hypot(base.x, base.z), -1, 1));
       const middleRadial = new Vector3(Math.cos(phi), 0, Math.sin(phi));
       const contact = middleRadial.clone().multiplyScalar(middleRadius).setY(middleY);
       const released = middleRadial.clone().multiplyScalar(middleRadius + opening - radius).setY(middleY);
@@ -411,7 +772,8 @@ export class ArticulatedHand {
    * quaternion rotations. Two invariant equations determine their flexion angles while preserving exact
    * surface position and normal: |contact vector| and its dot product with the terminal surface normal.
    */
-  private solveFingerContact(digit: "thumb" | "index" | "middle", kind: "pad" | "nail" | "nail_edge" | "side", target: Vector3, outward: Vector3, engagement: number, openingTarget: Vector3): void {
+  private solveFingerContact(digit: "thumb" | "index" | "middle", kind: "pad" | "nail" | "nail_edge" | "side", target: Vector3, outward: Vector3, engagement: number, openingTarget: Vector3, independentOpening = false): void {
+    this.materialEngagement.set(`${digit}_${kind}_contact`, clamp(engagement));
     if (this.palmFrame && digit === "middle" && kind === "nail_edge" && engagement < 0.999999) {
       // The keratin tip follows an explicit surface-to-clearance path. Blending two solved joint
       // poses bows the nail through the handle even when both endpoint poses are correct.
@@ -469,14 +831,26 @@ export class ArticulatedHand {
         const first = a.clone().applyQuaternion(opposition).normalize();
         const second = b.clone().applyQuaternion(result.proximal).applyQuaternion(opposition).normalize();
         const third = c.clone().applyQuaternion(result.distal).applyQuaternion(result.proximal).applyQuaternion(opposition).normalize();
-        const hinge = palmUp.clone().cross(first).normalize();
-        const signed = (x: Vector3, y: Vector3) => Math.atan2(x.clone().cross(y).dot(hinge), x.dot(y));
-        const pip = signed(first, second), dip = signed(second, third);
+        // At 90° MCP flexion the proximal bone is parallel to the palmar direction,
+        // so palmUp × first cannot recover a joint axis. Use the actual transported
+        // hinges of the refitted rig; retain the older asset's presentation convention.
+        const pipHinge = this.contactFrameHorizontalBranch !== undefined ? hingeA.clone().applyQuaternion(opposition) : palmUp.clone().cross(first).normalize();
+        const dipHinge = this.contactFrameHorizontalBranch !== undefined ? hingeB.clone().applyQuaternion(result.proximal).applyQuaternion(opposition) : pipHinge;
+        const signed = (x: Vector3, y: Vector3, hinge: Vector3) => Math.atan2(x.clone().cross(y).dot(hinge), x.dot(y));
+        const pip = signed(first, second, pipHinge), dip = signed(second, third, dipHinge);
         if (pip < -5 * radians || dip < -10 * radians || dip > Math.max(0, pip) * 1.5 + 15 * radians) return null;
+      }
+      const reference = digit === "index" ? this.activeIndexReference : undefined;
+      if (reference) {
+        const posture = this.indexHoldingName === "index_side_contact" ? SIDE_INDEX_WORKING_POSTURE : this.poseState?.pose === "tripod" ? THREE_FINGER_WORKING_PROFILE.index : this.ordinaryPosture;
+        return opposition.angleTo(reference.rotations[0]) * 2 + Math.abs(alpha - posture.pipDeg * radians) + Math.abs(beta - posture.dipDeg * radians);
       }
       return opposition.angleTo(new Quaternion()) + twist * 2 + Math.abs(beta - alpha * 0.7) * 0.2;
     };
-    if (rotations?.key !== cacheKey) {
+    if (independentOpening && engagement < 0.000001) {
+      const reference = evaluate(restA, restB);
+      rotations = { key: cacheKey, alpha: restA, beta: restB, rotations: [new Quaternion(), reference.proximal, reference.distal] };
+    } else if (rotations?.key !== cacheKey) {
       let best: { score: number; alpha: number; beta: number; rotations: Quaternion[] } | undefined;
       const refine = (alphaSeed: number, betaSeed: number) => {
         let alpha = clamp(alphaSeed, minA, maxA), beta = clamp(betaSeed, minB, maxB);
@@ -532,7 +906,7 @@ export class ArticulatedHand {
     }
     let applied = rotations.rotations;
     if (engagement < 0.999999) {
-      const openingKey = modelOpening.toArray().join(",");
+      const openingKey = `${modelOpening.toArray().join(",")}:${independentOpening}`;
       if (rotations.openingKey !== openingKey || !rotations.openRotations) {
         // A released finger has no contact normal to satisfy. Solve its point with the same fixed
         // hinges and choose the MCP rotation nearest the held pose, rather than twisting it in air.
@@ -541,13 +915,32 @@ export class ArticulatedHand {
         const consider = (alpha: number, beta: number) => {
           const result = evaluate(alpha, beta);
           if (Math.abs(result.vector.length() - openDistance) > 1e-7) return;
-          const heldDirection = result.vector.clone().applyQuaternion(rotations!.rotations[0]!).normalize();
-          const opposition = new Quaternion().setFromUnitVectors(heldDirection, openDelta.clone().normalize()).multiply(rotations!.rotations[0]!);
+          const reference = independentOpening ? new Quaternion() : rotations!.rotations[0]!;
+          const heldDirection = result.vector.clone().applyQuaternion(reference).normalize();
+          const opposition = new Quaternion().setFromUnitVectors(heldDirection, openDelta.clone().normalize()).multiply(reference);
           if (naturalOpposition(opposition, alpha, beta) === null) return;
           const score = opposition.angleTo(rotations!.rotations[0]!) * 2 + Math.abs(alpha - rotations!.alpha) + Math.abs(beta - rotations!.beta);
           if (!bestOpen || score < bestOpen.score) bestOpen = { score, rotations: [opposition, result.proximal, result.distal] };
         };
-        for (const betaSeed of [rotations.beta, restB, rotations.beta * 0.5, rotations.beta + 15 * radians]) {
+        // Opening constrains a point, rather than a surface normal. Project the held angles
+        // continuously onto that one distance constraint; choosing among discrete beta seeds
+        // can switch the released DIP to a different branch during a material reset.
+        let openAlpha = independentOpening ? restA : rotations.alpha, openBeta = independentOpening ? restB : rotations.beta;
+        for (let iteration = 0; iteration < 20; iteration++) {
+          const length = evaluate(openAlpha, openBeta).vector.length(), error = length - openDistance;
+          if (Math.abs(error) < 1e-9) break;
+          const epsilon = 1e-4;
+          const gradientA = (evaluate(openAlpha + epsilon, openBeta).vector.length() - length) / epsilon;
+          const gradientB = (evaluate(openAlpha, openBeta + epsilon).vector.length() - length) / epsilon;
+          const squared = gradientA * gradientA + gradientB * gradientB;
+          if (squared < 1e-12) break;
+          const stepA = -error * gradientA / squared, stepB = -error * gradientB / squared;
+          const scale = Math.min(1, 0.1 / Math.max(Math.abs(stepA), Math.abs(stepB)));
+          openAlpha = clamp(openAlpha + stepA * scale, minA, maxA);
+          openBeta = clamp(openBeta + stepB * scale, minB, maxB);
+        }
+        consider(openAlpha, openBeta);
+        if (!bestOpen) for (const betaSeed of [rotations.beta, restB, rotations.beta * 0.5, rotations.beta + 15 * radians]) {
           const beta = clamp(betaSeed, minB, maxB);
           let previousAlpha = minA, previousError = evaluate(minA, beta).vector.length() - openDistance;
           for (let sample = 1; sample <= 12; sample++) {
@@ -627,19 +1020,63 @@ export class ArticulatedHand {
     return object ? this.root.worldToLocal(object.getWorldPosition(new Vector3())) : fallback.clone();
   }
 
+  /** Nominal reference for the selected wrist bearing, independent of released pad midpoints. */
+  principalContact(): Vector3 {
+    if (this.nailWorkSample) {
+      const reference = this.nailWorkSample.principalContact.clone();
+      if (this.model.scale.z < 0) reference.z *= -1;
+      return reference;
+    }
+    const pose = this.poseState?.pose ?? "pinch";
+    if (pose === "press") return this.contact("palm");
+    if (pose === "palpate" || pose === "stretch") return this.contact("index");
+    return new Vector3(0, this.holdingY(pose), 0);
+  }
+
+  /** Read-only material provenance; the exporter reads each canonical node's actual local P/Q. */
+  materialContacts(): Record<string, HandMaterialContact> {
+    const pose = this.poseState?.pose ?? "pinch", refitted = this.contactFrameHorizontalBranch !== undefined;
+    if (this.nailWorkSample) return Object.fromEntries(Object.entries(this.nailWorkSample.contacts).map(([name, material]) => [name, {
+      surface: material.surface, normalField: material.normalField, definition: structuredClone(material.definition), engaged: material.engaged,
+      ...(material.engagedWith ? { engagedWith: material.engagedWith } : {}),
+    }]));
+    const skin = (name: string, digit: string, definition: Record<string, unknown>): HandMaterialContact => {
+      const engagement = this.materialEngagement.get(name);
+      return { surface: `${digit}_skin`, normalField: refitted ? "skin-bary" : "legacy-authored", definition,
+        ...(engagement === undefined ? {} : { engaged: engagement >= 0.999999 }) };
+    };
+    if (["palpate", "stretch", "press"].includes(pose)) return {
+      [pose === "press" ? "palm_contact" : "index_volar_contact"]: pose === "press"
+        ? { surface: "palm_surface", normalField: refitted ? "actual-triangle-facet" : "legacy-authored", definition: { role: "surface-heel-support" } }
+        : { surface: "index_skin", normalField: refitted ? "actual-triangle-facet" : "legacy-authored", definition: { role: "surface-index-support", source: "true-volar-distal-tip" } },
+    };
+    const tripod = refitted && pose === "tripod" && !!this.tripodIndexReference;
+    const side = refitted && this.indexHoldingName === "index_side_contact";
+    const contacts: Record<string, HandMaterialContact> = {
+      thumb_pad_contact: skin("thumb_pad_contact", "thumb", { role: "primary-thumb", acquisition: tripod ? "outward-normal-ray" : side ? "closest-surface" : "flat-pulp",
+        tipwardMm: tripod ? THREE_FINGER_WORKING_PROFILE.thumbAcquisitionM * 1000 : side ? SIDE_THUMB_ACQUISITION_M * 1000 : 0 }),
+      [this.indexHoldingName]: skin(this.indexHoldingName, "index", { role: "primary-index", reference: side ? { ...SIDE_INDEX_WORKING_POSTURE } : tripod ? { ...THREE_FINGER_WORKING_PROFILE.index } : this.usesOrdinaryReference ? { ...this.ordinaryPosture } : "source-bind" }),
+    };
+    if (pose === "tripod") contacts.middle_side_contact = skin("middle_side_contact", "middle", { role: "third-finger-pulp-support", source: tripod ? THREE_FINGER_WORKING_PROFILE.middleContact : "legacy-middle-side", principalY: this.holdingY(pose),
+      ...(tripod ? { targetY: THREE_FINGER_WORKING_PROFILE.middleY, azimuthRad: THREE_FINGER_WORKING_PROFILE.middleAzimuthRad } : {}) });
+    if (pose === "scrape" || pose === "flick") contacts.middle_nail_edge_contact = { surface: "middle_nail", normalField: "legacy-authored", definition: { role: "legacy-middle-nail-work" },
+      engaged: (this.materialEngagement.get("middle_nail_edge_contact") ?? 0) >= 0.999999 };
+    return contacts;
+  }
+
   /** Contacts follow the moving phalanges, rather than static empties at the model origin. */
   contact(kind: HandContact): Vector3 {
     if (kind === "handle") return new Vector3();
     const index = this.anchor([this.indexHoldingName, "index_pad_contact", "index_pad", "index_tip"], new Vector3(0, 0, 0.006));
     if (kind === "index") return this.anchor(["index_volar_contact", "index_pad_contact", "index_pad", "index_tip"], index);
-    if (kind === "nail") return this.anchor(["index_nail_contact", "index_tip"], index);
+    if (kind === "nail") return this.anchor(this.nailWorkSample ? ["index_nail_edge_contact", "index_nail_contact", "index_tip"] : ["index_nail_contact", "index_tip"], index);
     if (kind === "palm") return this.anchor(["palm_contact", "support_contact"], new Vector3(0.105, -0.012, 0));
     const thumb = this.anchor(["thumb_pad_contact", "thumb_pad", "thumb_tip"], new Vector3(0, 0, -0.006));
     return index.add(thumb).multiplyScalar(0.5);
   }
 
   contactNormal(kind: HandContact): Vector3 {
-    const names = kind === "nail" ? ["index_nail_contact"] : kind === "palm" ? ["palm_contact", "support_contact"]
+    const names = kind === "nail" ? this.nailWorkSample ? ["index_nail_edge_contact"] : ["index_nail_contact"] : kind === "palm" ? ["palm_contact", "support_contact"]
       : kind === "index" ? ["index_volar_contact", "index_pad_contact", "index_pad"] : [this.indexHoldingName, "index_pad_contact", "index_pad"];
     const node = names.map((name) => this.model.getObjectByName(name)).find(Boolean);
     this.root.updateWorldMatrix(true, true);
