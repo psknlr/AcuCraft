@@ -45,6 +45,9 @@ export const ManipulationMotionSettingsSchema = z.object({
 }).strict();
 export type ManipulationMotionSettings = z.infer<typeof ManipulationMotionSettingsSchema>;
 export type ResolvedManipulationMotion = Required<ManipulationMotionSettings>;
+/** Historical records keep their original 13 resolved fields unless the request uses new hand controls. */
+export type RecordedManipulationMotion = Omit<ResolvedManipulationMotion, keyof typeof HandPresentationSettingsShape>
+  & Pick<ManipulationMotionSettings, keyof typeof HandPresentationSettingsShape>;
 
 /** The engine resolves the optional target against the technique's skin/retained/removed context. */
 export const PerformTechniqueSchema = z.object({

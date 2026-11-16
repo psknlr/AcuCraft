@@ -168,6 +168,12 @@ deterministic seeking, restores the recorded needle when stopped and cannot
 replace accepted actions already playing or queued. All skeleton, material,
 texture and image resources are released when the scene is disposed.
 
+Historical performance logs retain their original 13-field motion payload when
+no new hand control was requested. Current viewers resolve presentation defaults
+separately, including 48° for optional middle support. Explicit new hand requests
+record the complete resolved presentation. A golden old-engine log verifies
+strict restoration without rewriting its original digest.
+
 Soft-tissue compression, measured pressure, friction and tissue response remain
 unmodeled. Static photographs do not establish the hidden 3D joint configuration
 or motion timing. The geometry and contact checks support visual review; they do

@@ -120,7 +120,7 @@ camera button labels the result as an adjusted oblique view.
 ## Verification and limits
 
 [The validation snapshot](REFERENCE-POSE-VALIDATION.json) pins the tested runtime
-and asset hashes. `bash tools/check.sh` passes 559 tests in 40 files, content and
+and asset hashes. `bash tools/check.sh` passes 563 tests in 40 files, content and
 generator checks, all 11 figure-fit sites and the offline scripted LLM loop
 (15/15). Two Blender rebuilds produce the same 13,472-triangle, 1,144,328-byte GLB.
 

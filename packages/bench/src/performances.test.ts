@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
 import {
-  ActionSchema, MANIPULATION_TECHNIQUES, createEncounter, digest, now, observeAs, referenceLibrary, step,
-  type ActionInput, type ActionRequestInput, type EncounterState,
+  ActionSchema, MANIPULATION_TECHNIQUES, createEncounter, digest, now, observeAs, referenceLibrary, resolveManipulationMotion, step,
+  type ActionInput, type ActionRequestInput, type EncounterLog, type EncounterState,
 } from "@acucraft/core";
-import { actionTool, lookupTool, toolsFor } from "@acucraft/agent";
+import { EncounterSession, actionTool, lookupTool, toolsFor } from "@acucraft/agent";
 import { loadContentPack, requireScenario } from "./content.js";
 
 const pack = loadContentPack();
@@ -40,7 +41,10 @@ describe("authoritative technique performances", () => {
     for (const wristElevationDeg of [44, 48, 51, undefined]) {
       const result = perform(retained, { technique: "nian", needleId: "pack-a.1", motion: { grip: "three-finger", wristElevationDeg } });
       expect(result.attempt.status).toBe("executed");
-      expect(result.state.performances!.at(-1)!.motion.wristElevationDeg).toBe(wristElevationDeg ?? 48);
+      const recorded = result.state.performances!.at(-1)!.motion;
+      expect(resolveManipulationMotion("nian", recorded).wristElevationDeg).toBe(wristElevationDeg ?? 48);
+      if (wristElevationDeg === undefined) expect(recorded).not.toHaveProperty("wristElevationDeg");
+      else expect(recorded.wristElevationDeg).toBe(wristElevationDeg);
       expect(result.state.needles).toEqual(retained.needles);
     }
     expect(perform(retained, { technique: "nian", needleId: "pack-a.1", motion: { grip: "three-finger", gripStyle: "side-pinch" } }).attempt.code).toBe("technique-parameter");
@@ -180,6 +184,73 @@ describe("authoritative technique performances", () => {
     expect(view.performances?.[0]?.site).not.toHaveProperty("findings");
     view.performances![0]!.motion.cycles = 12;
     expect(a.state.performances![0]!.motion.cycles).not.toBe(12);
+  });
+});
+
+describe("historical manipulation record compatibility", () => {
+  const legacyKeys = ["durationMs", "cycles", "strokeMm", "rotationDeg", "lateralMm", "tiltDeg", "tempoBias", "direction", "grip", "support", "hand", "gripApertureMm", "contactIntensity"].sort();
+
+  it("preserves the original 13-field record for requests that omit the new hand controls", () => {
+    const state = before("adjust_needle");
+    for (const motion of [undefined, {}, { grip: "three-finger" as const }, { cycles: 3, wristElevationDeg: undefined }]) {
+      const result = perform(state, { technique: "nian", needleId: "pack-a.1", motion });
+      expect(result.attempt.status).toBe("executed");
+      const recorded = result.state.performances!.at(-1)!.motion;
+      expect(Object.keys(recorded).sort()).toEqual(legacyKeys);
+      const resolved = resolveManipulationMotion("nian", recorded);
+      expect(resolved.wristElevationDeg).toBe(motion?.grip === "three-finger" ? 48 : 55);
+      expect(resolved.gripStyle).toBe("tip-pinch");
+      expect(resolved.idleFingerPose).toBe("curled");
+    }
+  });
+
+  it("records all resolved hand controls whenever any new control is explicitly supplied", () => {
+    const state = before("adjust_needle");
+    for (const motion of [
+      { wristElevationDeg: 60 }, { gripStyle: "side-pinch" as const }, { idleFingerPose: "relaxed" as const },
+      { grip: "three-finger" as const, gripStyle: "tip-pinch" as const },
+    ]) {
+      const result = perform(state, { technique: "nian", needleId: "pack-a.1", motion });
+      expect(result.attempt.status).toBe("executed");
+      const recorded = result.state.performances!.at(-1)!.motion;
+      expect(Object.keys(recorded).sort()).toEqual([...legacyKeys, "wristElevationDeg", "gripStyle", "idleFingerPose"].sort());
+      expect(recorded).toEqual(resolveManipulationMotion("nian", motion));
+      expect(result.state.needles).toEqual(state.needles);
+    }
+  });
+
+  it("strictly restores an actual old-engine log against its independent golden digest and still rejects tampering", () => {
+    // Synthetic studio encounter saved before the three hand controls existed. Its original
+    // requests and digest are a golden fixture, not regenerated from the current implementation.
+    const log = JSON.parse(readFileSync(new URL("./fixtures/legacy-manipulation-log.json", import.meta.url), "utf8")) as EncounterLog;
+    const oldScenario = requireScenario(pack, log.scenarioId);
+    expect(log.finalDigest).toBe("11e2e21581004a");
+    const restored = EncounterSession.fromLog(oldScenario, log);
+    expect(digest(restored.state)).toBe("11e2e21581004a");
+    expect(restored.state.performances).toHaveLength(1);
+    expect(restored.state.performances![0]!.motion).toEqual({
+      durationMs: 5000, cycles: 3, strokeMm: 1.5, rotationDeg: 65, lateralMm: 2, tiltDeg: 3,
+      tempoBias: 0.5, direction: "alternating", grip: "two-finger", support: "stabilize", hand: "auto", gripApertureMm: 2, contactIntensity: 0.45,
+    });
+    expect(Object.keys(restored.state.performances![0]!.motion).sort()).toEqual(legacyKeys);
+    const tampered = structuredClone(log), request = tampered.requests.find((r) => r.action.type === "perform_technique")!;
+    if (request.action.type !== "perform_technique") throw new Error("Missing historical performance");
+    request.action.motion = { ...request.action.motion, cycles: 4 };
+    expect(() => EncounterSession.fromLog(oldScenario, tampered)).toThrow(/does not reproduce its recorded state/);
+
+    // The historical encounter ends after withdrawal: continue it with current-visit aftercare,
+    // then reopen the combined old/new records through the same strict persistence boundary.
+    const originalMotion = structuredClone(restored.state.performances![0]!.motion);
+    const newMotion = { wristElevationDeg: 60, gripStyle: "side-pinch", idleFingerPose: "relaxed", support: "none" } as const;
+    expect(restored.act({ type: "perform_technique", technique: "men", needleId: "pack-a.1", motion: newMotion }).attempt.status).toBe("executed");
+    const mixedLog = restored.log({ clinicalcraft: log.engine.clinicalcraft });
+    const reopened = EncounterSession.fromLog(oldScenario, mixedLog);
+    expect(digest(reopened.state)).toBe(mixedLog.finalDigest);
+    expect(reopened.state.performances).toHaveLength(2);
+    expect(reopened.state.performances![0]!.motion).toEqual(originalMotion);
+    expect(Object.keys(reopened.state.performances![0]!.motion).sort()).toEqual(legacyKeys);
+    expect(reopened.state.performances![1]!.motion).toEqual(resolveManipulationMotion("men", newMotion));
+    expect(Object.keys(reopened.state.performances![1]!.motion)).toHaveLength(16);
   });
 });
 

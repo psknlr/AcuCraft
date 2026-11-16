@@ -1725,10 +1725,18 @@ const HANDLERS: HandlerMap = {
       touchSite(ctx, region, side, `${definition.zh} (${definition.id}) performance`);
       soil(s, ctx.actor);
     }
+    // Presentation-only controls must not change the authoritative state of historical requests:
+    // their recorded digests were made from the original 13-field motion object.
+    const recordedMotion: ManipulationPerformance["motion"] = { ...motion };
+    if (a.motion?.wristElevationDeg === undefined && a.motion?.gripStyle === undefined && a.motion?.idleFingerPose === undefined) {
+      delete recordedMotion.wristElevationDeg;
+      delete recordedMotion.gripStyle;
+      delete recordedMotion.idleFingerPose;
+    }
     const performance: ManipulationPerformance = {
       id: `performance-${s.attempts.length}`, requestId: ctx.req.requestId, attempt: s.attempts.length - 1, at: now(s), visit: visitIndex(s), actor: ctx.actor.id,
       technique: definition.id, context: definition.context, needleId, site: { region, side, u: entry.u, v: entry.v },
-      patientPosition: s.patient.position, motion,
+      patientPosition: s.patient.position, motion: recordedMotion,
       provenance: { kind: "illustrative", source: "acucraft-authored-demonstration-v1", review: "unreviewed", forces: "not-modelled" },
     };
     (s.performances ??= []).push(performance);

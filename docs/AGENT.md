@@ -302,6 +302,11 @@ illustrative provenance; the public view keeps the latest 64. Refused gestures c
 optional state history is created only when this new action is used, preserving historical replay digests.
 Presentation time is independent of the simulated clinical clock, and replay makes no model call.
 
+Requests without the new hand-presentation fields retain the original 13-field
+recorded motion payload. The viewer resolves current hand defaults from
+`handProfiles` when loading those records. Supplying any new hand field records
+all three resolved hand fields as well. Strict replay checks remain unchanged.
+
 `insert_needle` also accepts optional `presentation` fields: `durationMs`, `grip`, `support`, `hand` and
 `gripApertureMm`, plus shared `wristElevationDeg`, `gripStyle` and `idleFingerPose` hand settings.
 Opening controls approach/release; held fingers fit the rendered handle instead of floating at

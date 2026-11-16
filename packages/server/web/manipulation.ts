@@ -70,6 +70,14 @@ export function techniqueDraft(library: TechniqueLibrary, id: string, previous?:
   };
 }
 
+/** Accepted records take priority; historical 13-field records resolve their current presentation defaults. */
+export function historicalTechniqueMotion(library: TechniqueLibrary, id: string, accepted?: Record<string, unknown>, requested?: Record<string, unknown>): Record<string, string | number> {
+  const source = accepted ?? requested, motion = { ...library.defaults[id] };
+  for (const [key, value] of Object.entries(source ?? {})) if (typeof value === "string" || typeof value === "number") motion[key] = value;
+  if (source?.wristElevationDeg === undefined) motion.wristElevationDeg = wristControlProfile(library, motion, library.techniques.find((entry) => entry.id === id)).default;
+  return motion;
+}
+
 /** Client feedback uses exactly the bounds supplied by the engine's schema; the engine validates again on Execute. */
 export function motionErrors(motion: Record<string, unknown>, schema: JsonSchema, definition?: TechniqueDefinition, handProfiles?: TechniqueLibrary["handProfiles"]): string[] {
   const errors: string[] = [];
@@ -527,11 +535,8 @@ export function manipulationControls(id: string, hooks: Hooks): ManipulationCont
             mode.value = "technique"; technique.value = record.input.technique;
             draft = techniqueDraft(library, technique.value, draft ?? undefined);
             const accepted = snapshot?.view.performances?.find((performance) => performance.requestId === record.requestId);
-            if (accepted) Object.assign(draft.motion, accepted.motion);
-            else if (record.input.motion && typeof record.input.motion === "object") {
-              Object.assign(draft.motion, record.input.motion);
-              if (!("wristElevationDeg" in record.input.motion)) draft.motion.wristElevationDeg = wristControlProfile(library, draft.motion, definition()).default;
-            }
+            const requested = record.input.motion && typeof record.input.motion === "object" ? record.input.motion as Record<string, unknown> : undefined;
+            draft.motion = historicalTechniqueMotion(library, technique.value, accepted?.motion, requested);
             draft.needleId = typeof record.input.needleId === "string" ? record.input.needleId : "";
             draft.mark = typeof record.input.mark === "string" ? record.input.mark : "";
             draft.region = typeof record.input.region === "string" ? record.input.region : "";

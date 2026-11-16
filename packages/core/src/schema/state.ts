@@ -2,7 +2,7 @@ import type { DomainEvent, SessionState } from "@clinicalcraft/core";
 import type { Action, ActionRequest, ActionType, DocumentRecord, PlanBody, PointRef, TaskKind } from "./actions.js";
 import type { ChartPoint, Position, Side } from "./common.js";
 import type { ConsentStatus, FeedbackKind, NeedleSensation, NeedleSpec, UnsafeCode } from "./field.js";
-import type { ManipulationTechniqueId, ResolvedManipulationMotion } from "./manipulation.js";
+import type { ManipulationTechniqueId, RecordedManipulationMotion } from "./manipulation.js";
 
 /**
  * Encounter state — `acucraft/encounter@1`: the authoritative simulation state human learners and AI agents share.
@@ -50,7 +50,7 @@ export interface ManipulationPerformance {
   needleId: string | null;
   site: { region: string; side: Side; u: number; v: number };
   patientPosition: Position;
-  motion: ResolvedManipulationMotion;
+  motion: RecordedManipulationMotion;
   provenance: { kind: "illustrative"; source: "acucraft-authored-demonstration-v1"; review: "unreviewed"; forces: "not-modelled" };
 }
 

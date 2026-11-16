@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { HAND_PRESENTATION_PROFILES, MANIPULATION_TECHNIQUES, ManipulationMotionSettingsSchema, PerformTechniqueSchema, resolveManipulationMotion } from "@acucraft/core";
 import { objectSchemaOf } from "../../agent/src/tools/schema.js";
-import { answerMessage, motionErrors, previewParameterUpdates, techniqueDraft, techniqueInput, wristControlProfile, type TechniqueLibrary, type TechniquePlayback } from "../web/manipulation.js";
+import { answerMessage, historicalTechniqueMotion, motionErrors, previewParameterUpdates, techniqueDraft, techniqueInput, wristControlProfile, type TechniqueLibrary, type TechniquePlayback } from "../web/manipulation.js";
 
 const library: TechniqueLibrary = {
   techniques: MANIPULATION_TECHNIQUES,
@@ -99,6 +99,20 @@ describe("the operator's shared technique parameters", () => {
     expect(next.motion).toEqual(library.defaults.gua);
     next.motion.rotationDeg = 13;
     expect(draft.motion.rotationDeg).toBe(47);
+  });
+
+  it("loads accepted historical records and raw omitted controls with the correct grip default while preserving explicit accepted controls", () => {
+    const oldMotion: Record<string, string | number> = { ...library.defaults.nian!, grip: "three-finger" };
+    for (const key of ["wristElevationDeg", "gripStyle", "idleFingerPose"]) delete oldMotion[key];
+    expect(historicalTechniqueMotion(library, "nian", oldMotion, { grip: "two-finger", wristElevationDeg: 68 }))
+      .toMatchObject({ grip: "three-finger", wristElevationDeg: 48, gripStyle: "tip-pinch", idleFingerPose: "curled" });
+    expect(oldMotion).not.toHaveProperty("wristElevationDeg");
+    expect(historicalTechniqueMotion(library, "nian", undefined, { grip: "three-finger" })).toMatchObject({ grip: "three-finger", wristElevationDeg: 48 });
+    expect(historicalTechniqueMotion(library, "nian", undefined, { grip: "three-finger", wristElevationDeg: 44, idleFingerPose: "relaxed" }))
+      .toMatchObject({ grip: "three-finger", wristElevationDeg: 44, idleFingerPose: "relaxed" });
+    const accepted = { ...oldMotion, wristElevationDeg: 51, gripStyle: "tip-pinch", idleFingerPose: "relaxed" };
+    expect(historicalTechniqueMotion(library, "nian", accepted, { wristElevationDeg: 55, idleFingerPose: "curled" }))
+      .toMatchObject({ wristElevationDeg: 51, gripStyle: "tip-pinch", idleFingerPose: "relaxed" });
   });
 
   it("submits the operator's reference grip, wrist and unused-finger choices with the shared action schema", () => {

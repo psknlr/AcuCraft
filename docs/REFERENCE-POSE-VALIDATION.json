@@ -16,13 +16,13 @@
   "repositoryCheck": {
     "command": "bash tools/check.sh",
     "testFiles": 40,
-    "testsPassed": 559,
+    "testsPassed": 563,
     "typecheck": "passed",
     "contentAndGenerator": "passed",
     "figureFitSites": 11,
     "scriptedLlm": "15/15",
     "protocolBaseline": "14/15; existing slim-headache pleura outcome unchanged",
-    "testDurationSeconds": 55.43
+    "testDurationSeconds": 89.79
   },
   "blender": {
     "rebuilds": 2,
@@ -101,5 +101,33 @@
     "errors": [],
     "limits": "Palmar inspection retains partial cuff occlusion of the wrist. These captures do not establish AAA or clinical fidelity.",
     "cameraRuntimeSha256": "b21c1026ee6d7bfea2e94b3383004ec824e8afb0c9d53c233b5dd562da98e9da"
+  },
+  "legacyReplay": {
+    "fixture": "../packages/bench/src/fixtures/legacy-manipulation-log.json",
+    "synthetic": true,
+    "requests": 66,
+    "originalDigest": "11e2e21581004a",
+    "strictRestore": true,
+    "tamperingRejected": true,
+    "originalSavedRecordUnchanged": true,
+    "motionFieldCounts": {
+      "noNewHandControlsRequested": 13,
+      "anyNewHandControlRequested": 16
+    }
+  },
+  "browserFunctional": {
+    "finiteInsertionDepthCm": 1.8,
+    "matrixCaptures": 26,
+    "previewIsolation": true,
+    "unsupportedUiCases": 5,
+    "unsupportedApiCases": 2,
+    "recordAndLoad": {
+      "wristElevationDeg": 70,
+      "gripStyle": "side-pinch",
+      "idleFingerPose": "relaxed"
+    },
+    "stopCancelsPreview": true,
+    "withdrawal": true,
+    "javascriptErrors": []
   }
 }
