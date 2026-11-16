@@ -1,13 +1,45 @@
 import { describe, expect, it } from "vitest";
-import { Matrix4, Quaternion, Vector3 } from "three";
+import { Matrix4, Mesh, Quaternion, Vector3, type BufferAttribute } from "three";
 import { buildPerson, disposeRig, type AppearanceLike } from "@clinicalcraft/web/world/npc.js";
 import { EncounterSession } from "@acucraft/agent";
 import { loadContentPack, requireScenario } from "@acucraft/bench";
-import { solveTwoBone, turnTowards } from "../web/stage/kinematics.js";
+import { boneTurn, solveTwoBone, turnTowards } from "../web/stage/kinematics.js";
 import { AvatarRig, MAX_REACH_LEAN } from "../web/stage/rig.js";
 import { Person, patientPlacement, practitionerPlacement } from "../web/stage/cast.js";
 import { patientFloorPlacement, practitionerFloorPlacement } from "../web/stage/navigation.js";
 import { SiteFinder } from "../web/stage/sites.js";
+
+function armFixture(rotated = false) {
+  const rig = buildPerson({}, practitionerPlacement("treatment", 1, 0, "wrist-frame-test").options);
+  if (rotated) { rig.root.position.set(0.5, 0, 1.2); rig.root.rotation.y = 0.7; }
+  const mesh = rig.body.children.find((object) => object instanceof Mesh && object.userData.figure && object !== rig.torso) as Mesh;
+  const positions = mesh.geometry.getAttribute("position") as BufferAttribute;
+  const normals = mesh.geometry.getAttribute("normal") as BufferAttribute;
+  const original = Array.from(positions.array), originalNormals = Array.from(normals.array);
+  const animation = new AvatarRig(rig);
+  const point = (array: ArrayLike<number>, i: number) => new Vector3(array[i * 3]!, array[i * 3 + 1]!, array[i * 3 + 2]!);
+  const limb = (side: "left" | "right") => {
+    const source = rig.skeleton.arms[side === "left" ? 0 : 1], sign = side === "left" ? 1 : -1;
+    const bodyPoint = (p: readonly number[]) => new Vector3(p[0]! * sign, p[1]!, p[2]!);
+    return { root: bodyPoint(source.root), mid: bodyPoint(source.mid), end: bodyPoint(source.end), face: bodyPoint(source.face) };
+  };
+  const section = (side: "left" | "right", from: number, to: number, upper = false) => {
+    const l = limb(side), a = upper ? l.root : l.mid, b = upper ? l.mid : l.end;
+    const d = b.clone().sub(a), lengthSq = d.lengthSq(), result: number[] = [];
+    for (let i = 0; i < positions.count; i++) {
+      const p = point(original, i), t = p.clone().sub(a).dot(d) / lengthSq;
+      if (t >= from && t <= to && p.distanceTo(a.clone().addScaledVector(d, t)) < (upper ? 0.085 : 0.055)) result.push(i);
+    }
+    return result;
+  };
+  const dorsal = (side: "left" | "right", elbowWorld: Vector3, wristWorld: Vector3) => {
+    rig.body.updateWorldMatrix(true, false);
+    const l = limb(side), lower = rig.body.worldToLocal(wristWorld.clone()).sub(rig.body.worldToLocal(elbowWorld.clone()));
+    const normal = l.face.clone().negate().applyQuaternion(boneTurn(l.end.clone().sub(l.mid), lower));
+    return normal.transformDirection(rig.body.matrixWorld);
+  };
+  return { rig, positions, normals, original, originalNormals, animation, point, limb, section, dorsal };
+}
 
 describe("avatar arm kinematics", () => {
   it("holds both bone lengths for reachable, overextended and folded targets", () => {
@@ -91,6 +123,79 @@ describe("avatar arm kinematics", () => {
     expect(result.elbow.distanceTo(result.wrist)).toBeCloseTo(new Vector3(...arm.mid).distanceTo(new Vector3(...arm.end)) * staff.rig.scale, 6);
     staff.dispose();
     patient.dispose();
+  });
+
+  it("uses the actual wrist frame to turn the distal forearm and cuff while preserving its bone ends and cross sections", () => {
+    const f = armFixture(true), target = f.animation.shoulderAt("left").add(new Vector3(0.08, -0.32, 0.16));
+    const first = f.animation.reach("left", target, 1);
+    const baselineDorsal = f.dorsal("left", first.elbow, first.wrist);
+    const base = new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), baselineDorsal);
+    f.animation.reach("left", target, 1, base); f.animation.tick(16, 0, false);
+    const before = Array.from(f.positions.array), beforeNormals = Array.from(f.normals.array);
+    const axis = first.wrist.clone().sub(first.elbow).normalize();
+    const next = new Quaternion().setFromAxisAngle(axis, Math.PI / 3).multiply(base);
+    const result = f.animation.reach("left", target, 1, next); f.animation.tick(16, 0, false);
+    expect(result.wrist.distanceTo(first.wrist)).toBeLessThan(1e-8);
+    expect(result.elbow.distanceTo(first.elbow)).toBeLessThan(1e-8);
+    const cuff = f.section("left", 0.80, 0.99), upper = f.section("left", 0.25, 0.65, true);
+    expect(cuff.length).toBeGreaterThan(15); expect(upper.length).toBeGreaterThan(15);
+    expect(Math.max(...cuff.map((i) => f.point(before, i).distanceTo(f.point(f.positions.array, i))))).toBeGreaterThan(0.008);
+    expect(Math.max(...cuff.map((i) => f.point(beforeNormals, i).distanceTo(f.point(f.normals.array, i))))).toBeGreaterThan(0.3);
+    expect(Math.max(...upper.map((i) => f.point(before, i).distanceTo(f.point(f.positions.array, i))))).toBeLessThan(1e-7);
+    const elbow = f.rig.body.worldToLocal(first.elbow.clone()), wrist = f.rig.body.worldToLocal(first.wrist.clone()), along = wrist.sub(elbow).normalize();
+    for (const i of cuff) {
+      const a = f.point(before, i).sub(elbow), b = f.point(f.positions.array, i).sub(elbow);
+      expect(a.dot(along)).toBeCloseTo(b.dot(along), 6);
+      expect(a.clone().addScaledVector(along, -a.dot(along)).length()).toBeCloseTo(b.clone().addScaledVector(along, -b.dot(along)).length(), 6);
+    }
+    f.animation.reach("left", null); f.animation.tick(16, 0, false);
+    for (let i = 0; i < f.positions.count; i++) {
+      expect(f.point(f.positions.array, i).distanceTo(f.point(f.original, i))).toBeLessThan(2e-7);
+      expect(f.point(f.normals.array, i).distanceTo(f.point(f.originalNormals, i))).toBeLessThan(2e-7);
+    }
+    disposeRig(f.rig);
+  });
+
+  it("turns mirrored cuffs consistently for mirrored palm frames", () => {
+    const f = armFixture(), targets = { left: f.animation.shoulderAt("left").add(new Vector3(0.08, -0.32, 0.16)), right: f.animation.shoulderAt("right").add(new Vector3(-0.08, -0.32, 0.16)) };
+    const left = f.animation.reach("left", targets.left, 1), right = f.animation.reach("right", targets.right, 1);
+    const axis = left.wrist.clone().sub(left.elbow).normalize();
+    const dorsal = f.dorsal("left", left.elbow, left.wrist).applyAxisAngle(axis, 0.7);
+    const reflected = new Vector3(-dorsal.x, dorsal.y, dorsal.z);
+    f.animation.reach("left", targets.left, 1, new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), dorsal));
+    f.animation.reach("right", targets.right, 1, new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), reflected));
+    f.animation.tick(16, 0, false);
+    const key = (point: Vector3) => point.toArray().map((v) => v.toFixed(6)).join(",");
+    const lookup = new Map(Array.from({ length: f.positions.count }, (_, i) => [key(f.point(f.original, i)), i]));
+    let checked = 0;
+    for (const i of f.section("left", 0.75, 0.99)) {
+      const original = f.point(f.original, i); original.x *= -1;
+      const j = lookup.get(key(original));
+      if (j === undefined) continue;
+      const p = f.point(f.positions.array, i); p.x *= -1;
+      expect(p.distanceTo(f.point(f.positions.array, j))).toBeLessThan(2e-6);
+      checked++;
+    }
+    expect(checked).toBeGreaterThan(15);
+    expect(left.wrist.distanceTo(targets.left)).toBeLessThan(1e-7);
+    expect(right.wrist.distanceTo(targets.right)).toBeLessThan(1e-7);
+    disposeRig(f.rig);
+  });
+
+  it("does not flip the sleeve when a wrist orientation passes the quaternion angle wrap", () => {
+    const f = armFixture(), target = f.animation.shoulderAt("left").add(new Vector3(0.08, -0.32, 0.16));
+    const result = f.animation.reach("left", target, 1), axis = result.wrist.clone().sub(result.elbow).normalize();
+    const base = new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), f.dorsal("left", result.elbow, result.wrist));
+    let previous: number[] | undefined;
+    for (const degrees of [179, 180, 181, 182]) {
+      const orientation = new Quaternion().setFromAxisAngle(axis, degrees * Math.PI / 180).multiply(base);
+      f.animation.reach("left", target, 1, orientation); f.animation.tick(16, 0, false);
+      const current = Array.from(f.positions.array);
+      if (previous) expect(Math.max(...f.section("left", 0.75, 0.99).map((i) => f.point(previous!, i).distanceTo(f.point(current, i))))).toBeLessThan(0.001);
+      previous = current;
+    }
+    expect(Array.from(f.positions.array).every(Number.isFinite)).toBe(true);
+    disposeRig(f.rig);
   });
 });
 

@@ -12,6 +12,14 @@ export const MANIPULATION_TECHNIQUE_IDS = [
 export const ManipulationTechniqueSchema = z.enum(MANIPULATION_TECHNIQUE_IDS);
 export type ManipulationTechniqueId = z.infer<typeof ManipulationTechniqueSchema>;
 
+/** Shared hand-presentation controls for insertion and retained-needle choreography. */
+export const HandPresentationSettingsShape = {
+  /** Hand/wrist elevation in the authored needle frame; does not change the clinical needle angle. */
+  wristElevationDeg: z.number().min(35).max(70).optional(),
+  gripStyle: z.enum(["tip-pinch", "side-pinch"]).optional(),
+  idleFingerPose: z.enum(["curled", "relaxed"]).optional(),
+};
+
 /**
  * Bounded presentation parameters shared by operator controls and model tools. These are animation controls,
  * not clinical doses: they do not authorize deeper insertion, anatomical redirection, or force application.
@@ -27,6 +35,7 @@ export const ManipulationMotionSettingsSchema = z.object({
   tempoBias: z.number().min(0.2).max(0.8).optional(),
   direction: z.enum(["alternating", "clockwise", "counterclockwise"]).optional(),
   grip: z.enum(["two-finger", "three-finger"]).optional(),
+  ...HandPresentationSettingsShape,
   support: z.enum(["none", "stabilize", "stretch", "pinch", "press"]).optional(),
   hand: z.enum(["auto", "left", "right"]).optional(),
   /** Approach/release opening; retained-needle contact fits the actual handle diameter independently. */

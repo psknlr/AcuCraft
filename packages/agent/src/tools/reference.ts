@@ -1,5 +1,5 @@
 import type { AgentView } from "@acucraft/core";
-import { MANIPULATION_TECHNIQUES, ManipulationMotionSettingsSchema, resolveManipulationMotion } from "@acucraft/core";
+import { HAND_PRESENTATION_PROFILES, MANIPULATION_TECHNIQUES, ManipulationMotionSettingsSchema, resolveManipulationMotion } from "@acucraft/core";
 import { objectSchemaOf } from "./schema.js";
 import { constructPoint, requirements, type Observed } from "../localise.js";
 import type { Library, ReadTool, ToolContext } from "./types.js";
@@ -87,7 +87,7 @@ export function lookup(lib: Library, input: { topic?: string; id?: string }): un
       const techniques = key ? MANIPULATION_TECHNIQUES.filter((definition) => definition.id === key || definition.zh === input.id || definition.label.toLowerCase() === key) : MANIPULATION_TECHNIQUES;
       if (techniques.length === 0) return { error: `no technique ${input.id}`, available: MANIPULATION_TECHNIQUES.map((definition) => definition.id) };
       const motionSchema = objectSchemaOf(ManipulationMotionSettingsSchema);
-      const units: Record<string, string> = { durationMs: "ms", cycles: "cycles", strokeMm: "mm", rotationDeg: "deg", lateralMm: "mm", tiltDeg: "deg", tempoBias: "ratio", gripApertureMm: "mm", contactIntensity: "normalized visual amount" };
+      const units: Record<string, string> = { durationMs: "ms", cycles: "cycles", strokeMm: "mm", rotationDeg: "deg", lateralMm: "mm", tiltDeg: "deg", tempoBias: "ratio", gripApertureMm: "mm", contactIntensity: "normalized visual amount", wristElevationDeg: "deg" };
       const parameters = Object.fromEntries(Object.entries(motionSchema.properties).map(([name, schema]) => [name, {
         ...(schema.minimum !== undefined ? { min: schema.minimum } : {}),
         ...(schema.maximum !== undefined ? { max: schema.maximum } : {}),
@@ -96,11 +96,14 @@ export function lookup(lib: Library, input: { topic?: string; id?: string }): un
         unit: units[name] ?? "", type: schema.type,
         ...(name === "gripApertureMm" ? { description: "Approach/release opening; held fingers fit the actual handle. Letting go preserves minimum clearance even at zero." } : {}),
         ...(name === "grip" ? { description: "Default two-finger means thumb-index holding. Explicit three-finger adds middle-finger support; the thumb and index remain the primary holders. During Gua/Tan, the middle nail is the active finger rather than a replacement holder." } : {}),
+        ...(name === "wristElevationDeg" ? { description: "Authored wrist/hand elevation, distinct from the clinical needle angle. Use handProfiles.threeFinger for explicit three-finger support and handProfiles.ordinary for two-finger holding; omission uses the selected profile's default. Technique parameterBounds take precedence; Gua/Tan use handProfiles.nailWork." } : {}),
+        ...(name === "gripStyle" ? { description: "Tip-pinch uses thumb/index tip pulp; side-pinch leaves the index tip extending below the hold. Explicit three-finger support accepts only handProfiles.threeFinger.gripStyles. Use only for gestures advertising this control; Gua/Tan use their fixed nail-work roles." } : {}),
+        ...(name === "idleFingerPose" ? { description: "Graded curled or relaxed pose for unused fingers; it does not replace active holding or nail contacts." } : {}),
       }]));
       return {
         techniques: techniques.map((definition) => ({ ...definition, defaults: resolveManipulationMotion(definition.id) })),
         defaults: Object.fromEntries(techniques.map((definition) => [definition.id, resolveManipulationMotion(definition.id)])),
-        parameters, motionSchema,
+        parameters, motionSchema, handProfiles: HAND_PRESENTATION_PROFILES,
         note: "Authored illustrative choreography. No technique here establishes a verified standard, measured force, therapeutic effect or safe clinical dose. Needle depth changes use insert_needle/adjust_needle and their anatomy guard, not performance parameters.",
       };
     }

@@ -1,4 +1,4 @@
-import { ActionSchema, type ActionInput, type ActionType } from "@acucraft/core";
+import { ActionSchema, HAND_PRESENTATION_PROFILES, type ActionInput, type ActionType } from "@acucraft/core";
 import type { z, ZodTypeAny } from "zod";
 import { objectSchemaOf, type FieldNotes } from "./schema.js";
 import type { ActionTool } from "./types.js";
@@ -14,6 +14,11 @@ interface ActionDoc {
   does: string;
   fields?: FieldNotes;
 }
+
+const ordinaryWrist = HAND_PRESENTATION_PROFILES.ordinary.wristElevationDeg;
+const threeFingerWrist = HAND_PRESENTATION_PROFILES.threeFinger.wristElevationDeg;
+const nailWrist = HAND_PRESENTATION_PROFILES.nailWork.wristElevationDeg;
+const wristProfiles = `Two-finger holding: ${ordinaryWrist.min} to ${ordinaryWrist.max} degrees, default ${ordinaryWrist.default}. Explicit three-finger support: ${threeFingerWrist.min} to ${threeFingerWrist.max} degrees, default ${threeFingerWrist.default}. Read lookup techniques handProfiles; an omitted wrist uses the selected profile's default, while an explicit out-of-range value is rejected.`;
 
 const POINT_TARGET = "A standard point with its side ({ point, side }; a group point also names one `site`), or an Ashi point found on examination ({ ashi }).";
 const CHART_AT = "Chart position in centimetres: u across the body, v along it (cranial positive).";
@@ -132,6 +137,9 @@ export const ACTION_DOCS: Record<ActionType, ActionDoc> = {
       "presentation.support": "Illustrative supporting-hand pose: none, stabilize, stretch, pinch or press.",
       "presentation.hand": "auto chooses the closer hand; left or right requests the named hand.",
       "presentation.gripApertureMm": "Approach/release opening in millimetres, 0 to 12, with minimum clearance when letting go. Engaged fingers fit the actual rendered handle; this is not contact force.",
+      "presentation.wristElevationDeg": `Authored hand/wrist elevation. ${wristProfiles} Changes the holding pose without changing the clinical needle angle or path.`,
+      "presentation.gripStyle": "tip-pinch (default) uses opposing thumb/index tip pulp. side-pinch uses the index's distal side pulp, allowing its tip to extend below the holding point. Explicit three-finger support accepts only the gripStyles published in lookup techniques handProfiles.threeFinger; an unsupported combination is rejected.",
+      "presentation.idleFingerPose": "curled (default) or relaxed: coordinated pose of fingers not actively holding or manipulating the needle.",
     },
   },
   adjust_needle: {
@@ -159,6 +167,9 @@ export const ACTION_DOCS: Record<ActionType, ActionDoc> = {
       "motion.durationMs": "Total performance duration in milliseconds, 400 to 30000, spanning every compound phase. Presentation time does not advance the clinical clock.",
       "motion.grip": "Default two-finger holding uses the thumb and index. For techniques offering grip selection, three-finger explicitly adds middle-finger support without replacing the thumb-index pair. Gua/Tan keep thumb-index holding and use the middle nail as the active finger.",
       "motion.gripApertureMm": "Approach/release opening in millimetres, 0 to 12. A held grip fits the actual handle; letting go retains minimum clearance even at zero. This cannot make the fingers float apart during a held manipulation.",
+      "motion.wristElevationDeg": `Authored hand/wrist elevation. ${wristProfiles} Gua/Tan nail-work parameterBounds take precedence: ${nailWrist.min} to ${nailWrist.max} degrees, default ${nailWrist.default}. It does not change the clinical needle angle, entry or depth.`,
+      "motion.gripStyle": "For gestures advertising this control: tip-pinch (default) uses the thumb/index tip pulp; side-pinch uses the index's distal side pulp with its tip extending below the grip. Explicit three-finger support accepts only handProfiles.threeFinger.gripStyles from lookup techniques. Gua/Tan retain their specific nail-work contact roles.",
+      "motion.idleFingerPose": "For retained-needle gestures, curled (default) or relaxed sets the graded pose of unused fingers; active thumb/index or middle-nail contacts remain separate.",
     },
   },
   check_sensation: {

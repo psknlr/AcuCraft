@@ -29,6 +29,64 @@ function perform(state: EncounterState, fields: Omit<PerformanceAction, "type">,
 }
 
 describe("authoritative technique performances", () => {
+  it("publishes and enforces the actual middle-support variant for insertion and retained work", () => {
+    const retained = before("adjust_needle");
+    for (const wristElevationDeg of [43.9, 51.1, 55, 70]) {
+      const result = perform(retained, { technique: "nian", needleId: "pack-a.1", motion: { grip: "three-finger", wristElevationDeg } });
+      expect(result.attempt.code).toBe("technique-parameter");
+      expect(result.state.performances).toBeUndefined();
+      expect(result.state.needles).toEqual(retained.needles);
+    }
+    for (const wristElevationDeg of [44, 48, 51, undefined]) {
+      const result = perform(retained, { technique: "nian", needleId: "pack-a.1", motion: { grip: "three-finger", wristElevationDeg } });
+      expect(result.attempt.status).toBe("executed");
+      expect(result.state.performances!.at(-1)!.motion.wristElevationDeg).toBe(wristElevationDeg ?? 48);
+      expect(result.state.needles).toEqual(retained.needles);
+    }
+    expect(perform(retained, { technique: "nian", needleId: "pack-a.1", motion: { grip: "three-finger", gripStyle: "side-pinch" } }).attempt.code).toBe("technique-parameter");
+
+    const state = before("insert_needle"), request = scenario.field.solution.find((r) => r.action.type === "insert_needle")!;
+    const original = request.action;
+    if (original.type !== "insert_needle") throw new Error("Missing insertion fixture");
+    for (const presentation of [
+      { grip: "three-finger", wristElevationDeg: 55 },
+      { grip: "three-finger", gripStyle: "side-pinch" },
+    ] as const) {
+      const result = step(scenario, state, { ...request, action: { ...original, presentation } }, { strict: true });
+      expect(result.attempt.code).toBe("presentation-parameter");
+      expect(result.state.needles).toEqual(state.needles);
+    }
+    const baseline = step(scenario, state, request, { strict: true });
+    for (const wristElevationDeg of [44, 48, 51, undefined]) {
+      const result = step(scenario, state, { ...request, action: { ...original, presentation: { grip: "three-finger", wristElevationDeg } } }, { strict: true });
+      expect(result.attempt.status).toBe(baseline.attempt.status);
+      expect(result.state.needles).toEqual(baseline.state.needles);
+    }
+  });
+
+  it("rejects unsupported nail-work wrist angles without recording a different pose or changing the needle", () => {
+    const state = before("adjust_needle");
+    for (const technique of ["gua", "tan"] as const) {
+      for (const wristElevationDeg of [35, 49.9, 60.1, 70]) {
+        const result = perform(state, { technique, needleId: "pack-a.1", motion: { wristElevationDeg } });
+        expect(result.attempt.code).toBe("technique-parameter");
+        expect(result.attempt.message).toContain("50 to 60");
+        expect(result.state.performances).toBeUndefined();
+        expect(result.state.needles).toEqual(state.needles);
+      }
+      for (const wristElevationDeg of [50, 55, 60]) {
+        const result = perform(state, { technique, needleId: "pack-a.1", motion: { wristElevationDeg } });
+        expect(result.attempt.status).toBe("executed");
+        expect(result.state.performances!.at(-1)!.motion.wristElevationDeg).toBe(wristElevationDeg);
+        expect(result.state.needles).toEqual(state.needles);
+      }
+    }
+    // Ordinary holds retain their wider range.
+    for (const wristElevationDeg of [35, 70]) {
+      expect(perform(state, { technique: "nian", needleId: "pack-a.1", motion: { wristElevationDeg } }).attempt.status).toBe("executed");
+    }
+  });
+
   it("accepts every retained technique with canonical parameters, without changing needle geometry or clinical response", () => {
     const state = before("adjust_needle");
     for (const definition of MANIPULATION_TECHNIQUES.filter((definition) => definition.context === "retained")) {
@@ -134,6 +192,9 @@ describe("shared model and operator manipulation contract", () => {
     expect(result.output.techniques).toHaveLength(36);
     expect(result.output.parameters.strokeMm).toMatchObject({ min: 0, max: 3, unit: "mm" });
     expect(result.output.parameters.hand.options).toEqual(["auto", "left", "right"]);
+    for (const id of ["gua", "tan"]) expect(result.output.techniques.find((entry: { id: string }) => entry.id === id).parameterBounds)
+      .toMatchObject({ wristElevationDeg: { min: 50, max: 60 } });
+    expect(result.output.handProfiles.threeFinger).toMatchObject({ wristElevationDeg: { min: 44, max: 51, default: 48 }, gripStyles: ["tip-pinch"] });
     const tool = actionTool("perform_technique");
     expect(tool.inputSchema.properties.motion?.properties?.strokeMm).toMatchObject({ minimum: 0, maximum: 3 });
     expect(tool.toAction({ technique: "nian", needleId: "pack-a.1", motion: { strokeMm: 9 } }).ok).toBe(false);

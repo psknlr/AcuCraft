@@ -303,7 +303,8 @@ optional state history is created only when this new action is used, preserving 
 Presentation time is independent of the simulated clinical clock, and replay makes no model call.
 
 `insert_needle` also accepts optional `presentation` fields: `durationMs`, `grip`, `support`, `hand` and
-`gripApertureMm`. Opening controls approach/release; held fingers fit the rendered handle instead of floating at
+`gripApertureMm`, plus shared `wristElevationDeg`, `gripStyle` and `idleFingerPose` hand settings.
+Opening controls approach/release; held fingers fit the rendered handle instead of floating at
 the requested opening. These control the hand animation; anatomy checks and the executed depth remain those of the
 original insertion action. Actual needle-depth changes still use `adjust_needle`; a visual performance does not
 authorize them. See [TECHNIQUES.md](TECHNIQUES.md) for the catalogue and modeling limits.
@@ -312,3 +313,14 @@ The default primary grip is thumb/index for insertion and retained-needle perfor
 `three-finger` adds middle-finger support to that pair. Fei and compound stages preserve the chosen
 grip. The authored scraping/flicking variants keep thumb/index on the handle and use the middle
 nail as the active digit, rather than replacing the index with a static middle-finger grip.
+
+`wristElevationDeg` normally accepts 35–70° with default 55°. The optional
+three-finger variant uses tip contact at 44–51°, default 48°, as published in
+`handProfiles.threeFinger`. Gua/Tan advertise 50–60° in their `parameterBounds`.
+The engine rejects requests outside these bounds and incompatible side/three-finger
+combinations. This changes the visible hand
+frame independently of the clinical needle angle. `gripStyle` selects compact
+`tip-pinch` or a more proximal `side-pinch` contact with a naturally extending
+index tip. `idleFingerPose` selects graduated `curled` or `relaxed` unused digits.
+Use only settings advertised by the selected technique; active nail-work roles
+take precedence. See [REFERENCE-POSES.md](REFERENCE-POSES.md) for the pose groups.

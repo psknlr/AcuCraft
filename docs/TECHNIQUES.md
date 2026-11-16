@@ -74,6 +74,9 @@ For an LLM/MCP tool call, omit `type` and use the tool name `perform_technique`;
 | `tempoBias` | 0.2–0.8 | Relative timing of the two parts of a movement cycle |
 | `direction` | `alternating`, `clockwise`, `counterclockwise` | Primary visual excursion direction in the needle's local frame; each cycle returns to rest |
 | `grip` | `two-finger`, `three-finger` | Thumb/index holding by default; optional middle-finger support |
+| `gripStyle` | `tip-pinch`, `side-pinch` | Compact terminal-pulp holding, or a more proximal index contact with its tip extending below the grip |
+| `wristElevationDeg` | degrees, two-finger 35–70 / default 55; three-finger 44–51 / default 48; Gua/Tan 50–60 / default 55 | Actual hand/wrist elevation; use `handProfiles` and the technique's `parameterBounds`, independent of clinical insertion angle |
+| `idleFingerPose` | `curled`, `relaxed` | Graduated poses of digits not participating in holding or nail work |
 | `support` | `none`, `stabilize`, `stretch`, `pinch`, `press` | Supporting-hand contact pattern |
 | `hand` | `auto`, `left`, `right` | Primary hand selection |
 | `gripApertureMm` | 0–12 mm | Approach/release opening, with minimum disengagement clearance; held fingers fit the actual handle |
@@ -82,6 +85,12 @@ For an LLM/MCP tool call, omit `type` and use the tool name `perform_technique`;
 Defaults and relevant controls differ by technique. Read them from the catalogue rather than assuming every setting visibly affects every primitive. None of these bounds is a clinical dose or an anatomical limit.
 
 All retained-needle entries default to thumb/index holding. Choosing three-finger support explicitly adds the middle finger beside that primary pair; it does not replace the index finger. Fei and compound phase transitions preserve the chosen grip. In the authored Gua/Tan variants, thumb/index retain the handle while the middle nail supplies the active scraping or flicking contact; that temporary third contact is distinct from a static three-finger hold.
+
+The reference-based hand uses a raised wrist and a curled index with a shorter,
+broader thumb. `gripStyle` is advertised for ordinary holding; Gua/Tan keep their
+fixed nail-work roles. The **手部 Grip** camera cycles through complete hand views
+for checking the palm, thumb origin and needle together. See
+[the reference-pose guide](REFERENCE-POSES.md) for the image groups and controls.
 
 For a compound performance, its total duration is divided among the catalogue's explicit phases and each phase receives the selected cycle count. Direction labels do not imply accumulated tissue torque or a validated one-way rolling model; rotation remains a bounded excursion that settles at the phase boundary.
 

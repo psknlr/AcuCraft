@@ -7,12 +7,15 @@ export interface ReachResult { wrist: Vector3; elbow: Vector3; reachable: boolea
 
 /** Presentation-only hip hinge limits, in the figure's metre frame. Feet and limb lengths are unchanged. */
 export const MAX_REACH_LEAN = { forward: 0.30, down: 0.20 } as const;
+/** Authored presentation limit; clinical forearm range is not inferred from the hand's target frame. */
+const MAX_FOREARM_ROLL = 85 * Math.PI / 180;
 
 interface Limb {
   root: Vector3;
   mid: Vector3;
   end: Vector3;
   along: Vector3;
+  face: Vector3;
   upper: number;
   lower: number;
 }
@@ -39,6 +42,7 @@ export class AvatarRig {
   private readonly bindings: VertexBinding[] = [];
   private readonly neck: number[] = [];
   private readonly reaches: [Reach | null, Reach | null] = [null, null];
+  private readonly forearmRoll: [number, number] = [0, 0];
   private lean = new Vector3();
   private walkPhase = 0;
   private gait = 0;
@@ -60,7 +64,7 @@ export class AvatarRig {
       const mirror = i % 2 === 0 ? 1 : -1;
       const toV = (p: readonly number[]) => new Vector3(p[0]! * mirror, p[1]!, p[2]!);
       const root = toV(l.root), mid = toV(l.mid), end = toV(l.end);
-      return { root, mid, end, along: toV(l.along).normalize(), upper: root.distanceTo(mid), lower: mid.distanceTo(end) };
+      return { root, mid, end, along: toV(l.along).normalize(), face: toV(l.face).normalize(), upper: root.distanceTo(mid), lower: mid.distanceTo(end) };
     });
     for (let i = 0; i < this.positions.count; i++) {
       this.v.fromArray(this.original, i * 3);
@@ -99,6 +103,7 @@ export class AvatarRig {
   reach(side: HandSide, wristWorld: Vector3 | null, blend = 1, palm?: Quaternion): ReachResult {
     const index = sideIndex(side);
     this.reaches[index] = wristWorld ? { target: wristWorld.clone(), blend: Math.max(0, Math.min(1, blend)), ...(palm ? { palm: palm.clone() } : {}) } : null;
+    if (!wristWorld || !palm) this.forearmRoll[index] = 0;
     this.updateLean();
     const pose = this.pose(index);
     this.changed = true;
@@ -159,6 +164,30 @@ export class AvatarRig {
     return { root, mid, end, reachable: true };
   }
 
+  /** The wrist frame supplies pronation, while the two-bone solve owns the elbow and wrist positions. */
+  private wristRoll(index: number, pose: TwoBonePose, lowerTurn: Quaternion): { axis: Vector3; angle: number } | null {
+    if (index > 1) return null;
+    const reach = this.reaches[index];
+    if (!reach?.palm) return null;
+    const axis = pose.end.clone().sub(pose.mid).normalize();
+    // Figure-kit `face` is palmar; the detail hand's wrist frame +Y is dorsal.
+    const dorsal = this.limbs[index]!.face.clone().negate().applyQuaternion(lowerTurn);
+    const target = new Vector3(0, 1, 0).applyQuaternion(reach.palm)
+      .transformDirection(this.rig.body.matrixWorld.clone().invert());
+    dorsal.addScaledVector(axis, -dorsal.dot(axis));
+    target.addScaledVector(axis, -target.dot(axis));
+    if (dorsal.lengthSq() < 1e-10 || target.lengthSq() < 1e-10) {
+      return { axis, angle: this.forearmRoll[index]! * smoothUnit(reach.blend) };
+    }
+    dorsal.normalize(); target.normalize();
+    const raw = Math.atan2(axis.dot(new Vector3().crossVectors(dorsal, target)), dorsal.dot(target));
+    const previous = this.forearmRoll[index]!;
+    const continuous = previous + Math.atan2(Math.sin(raw - previous), Math.cos(raw - previous));
+    const angle = Math.max(-MAX_FOREARM_ROLL, Math.min(MAX_FOREARM_ROLL, continuous));
+    this.forearmRoll[index] = angle;
+    return { axis, angle: angle * smoothUnit(reach.blend) };
+  }
+
   tick(dt: number, metres: number, moving: boolean): void {
     const previous = this.gait;
     this.gait += ((moving ? 1 : 0) - this.gait) * Math.min(1, dt / 170);
@@ -171,17 +200,28 @@ export class AvatarRig {
       const l = this.limbs[i]!;
       return [boneTurn(l.mid.clone().sub(l.root), p.mid.clone().sub(p.root)), boneTurn(l.end.clone().sub(l.mid), p.end.clone().sub(p.mid))] as const;
     });
+    const wristRolls = poses.map((p, i) => this.wristRoll(i, p, turns[i]![1]));
     const upperPoint = new Vector3(), lowerPoint = new Vector3(), upperNormal = new Vector3(), lowerNormal = new Vector3();
+    const twist = new Quaternion();
     for (const b of this.bindings) {
       const l = this.limbs[b.limb]!, p = poses[b.limb]!, q = turns[b.limb]!;
       this.v.fromArray(this.original, b.index * 3);
       this.n.fromArray(this.originalNormals, b.index * 3);
       upperPoint.copy(this.v).sub(l.root).applyQuaternion(q[0]).add(p.root);
       lowerPoint.copy(this.v).sub(l.mid).applyQuaternion(q[1]).add(p.mid);
-      const weight = smoothUnit((b.t - 0.83) / 0.34);
-      this.v.copy(upperPoint).lerp(lowerPoint, weight);
       upperNormal.copy(this.n).applyQuaternion(q[0]);
       lowerNormal.copy(this.n).applyQuaternion(q[1]);
+      const wristRoll = wristRolls[b.limb];
+      if (wristRoll) {
+        // The source forearm already turns into its own hand plane. Add only the requested change,
+        // with no axial displacement or abrupt seam at the elbow and no rotation of the upper arm.
+        const amount = smoothUnit((b.t - 1.1) / 0.85);
+        twist.setFromAxisAngle(wristRoll.axis, wristRoll.angle * amount);
+        lowerPoint.sub(p.mid).applyQuaternion(twist).add(p.mid);
+        lowerNormal.applyQuaternion(twist);
+      }
+      const weight = smoothUnit((b.t - 0.83) / 0.34);
+      this.v.copy(upperPoint).lerp(lowerPoint, weight);
       this.n.copy(upperNormal).lerp(lowerNormal, weight).normalize();
       const reach = b.limb < 2 ? this.reaches[b.limb] : null;
       // Default fingertips disappear into the wrist while the articulated Blender hand takes over.

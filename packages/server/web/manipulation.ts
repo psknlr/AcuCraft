@@ -12,13 +12,24 @@ export interface TechniqueDefinition {
   description: string;
   evidence: string;
   controls?: readonly string[];
+  parameterBounds?: Record<string, { min: number; max: number }>;
   source?: { id: string; review: string; note: string };
 }
 export interface TechniqueLibrary {
   techniques: readonly TechniqueDefinition[];
   defaults: Record<string, Record<string, string | number>>;
   motionSchema: JsonSchema;
+  handProfiles?: Record<"ordinary" | "threeFinger" | "nailWork", { wristElevationDeg: { min: number; max: number; default: number }; gripStyles?: readonly string[] }>;
   note: string;
+}
+
+/** Lookup supplies contact-specific wrist ranges to both insertion and retained-needle controls. */
+export function wristControlProfile(library: Pick<TechniqueLibrary, "handProfiles" | "motionSchema" | "defaults">, motion: Record<string, unknown>, definition?: TechniqueDefinition): { min: number; max: number; default: number } {
+  const nailWork = definition?.id === "gua" || definition?.id === "tan";
+  const profile = library.handProfiles?.[nailWork ? "nailWork" : motion.grip === "three-finger" ? "threeFinger" : "ordinary"]?.wristElevationDeg;
+  const schema = library.motionSchema.properties?.wristElevationDeg;
+  const base = profile ?? { min: schema?.minimum ?? 0, max: schema?.maximum ?? 180, default: Number(library.defaults[definition?.id ?? "nian"]?.wristElevationDeg ?? schema?.default ?? schema?.minimum ?? 0) };
+  return { ...base, ...definition?.parameterBounds?.wristElevationDeg };
 }
 export interface TechniquePreview {
   technique: string;
@@ -60,10 +71,12 @@ export function techniqueDraft(library: TechniqueLibrary, id: string, previous?:
 }
 
 /** Client feedback uses exactly the bounds supplied by the engine's schema; the engine validates again on Execute. */
-export function motionErrors(motion: Record<string, unknown>, schema: JsonSchema): string[] {
+export function motionErrors(motion: Record<string, unknown>, schema: JsonSchema, definition?: TechniqueDefinition, handProfiles?: TechniqueLibrary["handProfiles"]): string[] {
   const errors: string[] = [];
   for (const [key, value] of Object.entries(motion)) {
-    const rule = schema.properties?.[key];
+    const base = schema.properties?.[key], bounds = key === "wristElevationDeg" && handProfiles
+      ? wristControlProfile({ handProfiles, motionSchema: schema, defaults: {} }, motion, definition) : definition?.parameterBounds?.[key];
+    const rule = base && bounds ? { ...base, minimum: bounds.min, maximum: bounds.max } : base;
     if (!rule) { errors.push(`Unknown parameter: ${key}`); continue; }
     if (rule.enum) {
       if (!rule.enum.includes(value as string)) errors.push(`${key}: choose one of ${rule.enum.join(", ")}`);
@@ -73,6 +86,9 @@ export function motionErrors(motion: Record<string, unknown>, schema: JsonSchema
       else if (rule.minimum !== undefined && value < rule.minimum || rule.maximum !== undefined && value > rule.maximum) errors.push(`${key}: use ${rule.minimum ?? "−∞"} to ${rule.maximum ?? "∞"}`);
     }
   }
+  const nailWork = definition?.id === "gua" || definition?.id === "tan";
+  const styles = !nailWork && motion.grip === "three-finger" ? handProfiles?.threeFinger.gripStyles : undefined;
+  if (styles && motion.gripStyle !== undefined && !styles.includes(String(motion.gripStyle))) errors.push(`gripStyle: three-finger supports ${styles.join(", ")}`);
   return errors;
 }
 
@@ -106,11 +122,13 @@ const LABELS: Record<string, [string, string?]> = {
   rotationDeg: ["旋转幅度 Rotation", "°"], lateralMm: ["外露针身位移 Lateral motion", "mm"], tiltDeg: ["外露针身倾角 Tilt", "°"],
   tempoBias: ["提插时相比 Phase balance"], direction: ["旋转方向 Direction"], grip: ["持针方式 Grip"], support: ["辅助手 Support"],
   hand: ["主操作手 Main hand"], gripApertureMm: ["接近与释放开口 Opening", "mm"], contactIntensity: ["接触表现 Contact intensity"],
+  wristElevationDeg: ["手腕抬高角 Wrist elevation", "°"], gripStyle: ["持针接触 Grip style"], idleFingerPose: ["闲置手指 Idle fingers"],
 };
 const VALUES: Record<string, string> = {
   alternating: "往返 Alternating", clockwise: "顺时针 Clockwise", counterclockwise: "逆时针 Counterclockwise",
   "two-finger": "拇指＋食指（默认） Thumb–index", "three-finger": "拇食主夹持＋中指辅助 Thumb–index + middle support", none: "无 None", stabilize: "稳定 Stabilize",
   stretch: "牵张 Stretch", pinch: "捏持 Pinch", press: "按压 Press", auto: "自动 Auto", left: "左 Left", right: "右 Right",
+  "tip-pinch": "指端精密捏持 Tip pinch", "side-pinch": "食指侧腹捏持 Side pinch", curled: "自然收拢 Curled", relaxed: "自然下垂 Relaxed",
 };
 const CONTEXT: Record<string, string> = { skin: "皮肤接触 Skin contact", retained: "留针操作 Retained needle", removed: "出针后 Post-withdrawal" };
 const FAMILIES: Record<string, string> = {
@@ -218,11 +236,14 @@ export function manipulationControls(id: string, hooks: Hooks): ManipulationCont
     azimuthDeg: numberPair("区域方向 Azimuth", "°", 0, 360, 1, 0),
     durationMs: numberPair("插入动画时长 Duration", "ms", 400, 8000, 100, 1100),
     gripApertureMm: numberPair("进针接近与释放开口 Insertion opening", "mm", 0, 12, 0.1, 2),
+    wristElevationDeg: numberPair("进针手腕抬高角 Insertion wrist elevation", "°", 0, 1, 0.1, 0),
   };
   const insertionChoices = {
     grip: choice("进针持针方式 Insertion grip", ["two-finger", "three-finger"], "two-finger"),
     support: choice("进针辅助手 Insertion support", ["none", "stabilize", "stretch", "pinch", "press"], "stabilize"),
     hand: choice("进针主操作手 Insertion main hand", ["auto", "left", "right"], "auto"),
+    gripStyle: choice("进针持针接触 Insertion grip style", ["tip-pinch", "side-pinch"], "tip-pinch"),
+    idleFingerPose: choice("进针闲置手指 Insertion idle fingers", ["curled", "relaxed"], "curled"),
   };
   insertion.append(...Object.values(insertionNumbers).map((p) => p.el), ...Object.values(insertionChoices).map((p) => p.el));
   const status = h("p", { class: "manipulation-status", role: "status", "aria-live": "polite" }, "正在读取手法目录 · Loading techniques…");
@@ -244,10 +265,10 @@ export function manipulationControls(id: string, hooks: Hooks): ManipulationCont
   let library: TechniqueLibrary | null = null;
   let draft: TechniqueDraft | null = null;
   let snapshot: EncounterSnapshot | null = null;
-  let closed = false, busy = false, gone = false, scrubbing = false;
+  let closed = false, busy = false, gone = false, scrubbing = false, handErrorShown = false;
   let lastPlayback: TechniquePlayback = { mode: "idle", playing: false, progress: 0, speed: 1, technique: "", phase: "", durationMs: 0 };
   let targetSignature = "", recordSignature = "";
-  const parameterFields = new Map<string, { el: HTMLElement; inputs: (HTMLInputElement | HTMLSelectElement)[] }>();
+  const parameterFields = new Map<string, { el: HTMLElement; inputs: (HTMLInputElement | HTMLSelectElement)[]; unit?: HTMLElement }>();
   const previewUpdates = previewParameterUpdates({
     read: () => input(),
     state: () => lastPlayback,
@@ -274,7 +295,7 @@ export function manipulationControls(id: string, hooks: Hooks): ManipulationCont
     const el = field(label, h("span", { class: "manipulation-number-pair" }, range, number, output));
     range.addEventListener("input", () => { number.value = range.value; number.dispatchEvent(new Event("change", { bubbles: true })); });
     number.addEventListener("input", () => { if (Number.isFinite(number.valueAsNumber)) range.value = number.value; });
-    return { el, range, number };
+    return { el, range, number, unit: output };
   }
   const definition = () => library?.techniques.find((t) => t.id === draft?.technique);
   function cancelLocalPreview(): void {
@@ -295,14 +316,32 @@ export function manipulationControls(id: string, hooks: Hooks): ManipulationCont
   }
   function availability(): void {
     const entry = definition(), insertionMode = mode.value === "insertion";
+    if (library) {
+      const motion = insertionMode ? { grip: insertionChoices.grip.input.value, gripStyle: insertionChoices.gripStyle.input.value, wristElevationDeg: insertionNumbers.wristElevationDeg.number.valueAsNumber } : draft?.motion ?? {};
+      const profile = wristControlProfile(library, motion, insertionMode ? undefined : entry);
+      const pair = insertionMode ? insertionNumbers.wristElevationDeg : parameterFields.get("wristElevationDeg");
+      const controls = pair && ("inputs" in pair ? pair.inputs : [pair.range, pair.number]);
+      for (const control of controls ?? []) {
+        if (!(control instanceof HTMLInputElement)) continue;
+        control.min = String(profile.min); control.max = String(profile.max);
+        if (control.type === "number") control.placeholder = String(profile.default);
+        else if (typeof motion.wristElevationDeg === "number" && Number.isFinite(motion.wristElevationDeg)) control.value = String(motion.wristElevationDeg);
+      }
+      if (pair?.unit) pair.unit.textContent = `° · ${profile.min}–${profile.max}`;
+      const handError = motionErrors(motion, library.motionSchema, insertionMode ? undefined : entry, library.handProfiles).find((error) => error.startsWith("wristElevationDeg:") || error.startsWith("gripStyle:"));
+      if (handError) { showError(handError); handErrorShown = true; }
+      else if (handErrorShown) { status.textContent = "持针参数有效 · Hand parameters are valid."; status.classList.remove("refused"); handErrorShown = false; }
+    }
     holdingRoles.hidden = !insertionMode && entry?.context !== "retained";
     if (!holdingRoles.hidden) {
       const nailWork = !insertionMode && (entry?.id === "gua" || entry?.id === "tan");
       const three = insertionMode ? insertionChoices.grip.input.value === "three-finger" : draft?.motion.grip === "three-finger";
+      const lateral = insertionMode ? insertionChoices.gripStyle.input.value === "side-pinch" : draft?.motion.gripStyle === "side-pinch";
       holdingRoles.textContent = nailWork
         ? "持针：拇指＋食指；主动刮／弹：中指甲缘。 · Thumb/index hold; the middle nail edge performs the action."
-        : three ? "拇指＋食指主夹持，中指侧腹辅助。 · Thumb/index hold with middle-finger support."
-        : "默认拇指＋食指持针，中指自然放松。 · Thumb/index hold; the middle finger stays relaxed.";
+        : lateral ? `拇指腹＋食指侧腹持针，食指末端自然下伸${three ? "，中指辅助" : ""}。 · Thumb/index side pinch${three ? " with middle support" : ""}; the index tip extends below the grip.`
+        : three ? "拇指＋食指指端主夹持，中指侧腹辅助。 · Thumb/index tip pinch with middle-finger support."
+        : "默认拇指＋食指指端精密捏持。 · Thumb/index precision tip pinch.";
     }
     const disabled = busy || closed || !library;
     for (const control of Array.from(el.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLButtonElement>("input, select, button"))) control.disabled = disabled;
@@ -334,12 +373,14 @@ export function manipulationControls(id: string, hooks: Hooks): ManipulationCont
         control.input.addEventListener("change", () => { if (draft) draft.motion[key] = control.input.value; motionChanged(); });
         parameters.append(control.el); parameterFields.set(key, { el: control.el, inputs: [control.input] });
       } else if (schema.type === "number" || schema.type === "integer") {
-        const step = schema.type === "integer" ? key === "durationMs" ? 100 : 1 : key === "tempoBias" || key === "contactIntensity" ? 0.01 : key.endsWith("Deg") ? 1 : 0.1;
-        const control = numberPair(label, unit, schema.minimum ?? 0, schema.maximum ?? 1, step, Number(draft.motion[key] ?? schema.default ?? schema.minimum ?? 0));
+        const step = schema.type === "integer" ? key === "durationMs" ? 100 : 1 : key === "tempoBias" || key === "contactIntensity" ? 0.01 : key === "wristElevationDeg" ? 0.1 : key.endsWith("Deg") ? 1 : 0.1;
+        const bounds = key === "wristElevationDeg" ? wristControlProfile(library, draft.motion, definition()) : definition()?.parameterBounds?.[key];
+        const initial = draft.motion[key] ?? (bounds && "default" in bounds ? bounds.default : undefined) ?? schema.default ?? schema.minimum ?? 0;
+        const control = numberPair(label, unit, bounds?.min ?? schema.minimum ?? 0, bounds?.max ?? schema.maximum ?? 1, step, Number(initial));
         const update = () => { if (draft) draft.motion[key] = control.number.value.trim() ? control.number.valueAsNumber : NaN; motionChanged(); };
         control.number.addEventListener("change", update);
         control.number.addEventListener("input", update);
-        parameters.append(control.el); parameterFields.set(key, { el: control.el, inputs: [control.range, control.number] });
+        parameters.append(control.el); parameterFields.set(key, { el: control.el, inputs: [control.range, control.number], unit: control.unit });
       }
     }
     availability();
@@ -365,24 +406,32 @@ export function manipulationControls(id: string, hooks: Hooks): ManipulationCont
   }
   function input(): TechniquePreview {
     if (!draft || !library || !definition()) throw new Error("手法目录尚未就绪 · Techniques are not ready.");
-    const errors = motionErrors(draft.motion, library.motionSchema);
+    const errors = motionErrors(draft.motion, library.motionSchema, definition()!, library.handProfiles);
     if (errors.length) throw new Error(errors[0]);
     return techniqueInput(draft, definition()!);
   }
   function insertionInput(): Record<string, unknown> {
     if (!needle.value || !mark.value) throw new Error("请选择手中未使用针具和有效定位标记 · Choose a held unused needle and a valid mark.");
     const values = Object.fromEntries(Object.entries(insertionNumbers).map(([key, pair]) => [key, pair.number.valueAsNumber]));
+    const presentation = {
+      durationMs: values.durationMs, gripApertureMm: values.gripApertureMm, wristElevationDeg: values.wristElevationDeg,
+      ...Object.fromEntries(Object.entries(insertionChoices).map(([key, c]) => [key, c.input.value])),
+    };
+    if (library) {
+      const errors = motionErrors(presentation, library.motionSchema, undefined, library.handProfiles);
+      if (errors.length) throw new Error(errors[0]);
+    }
     for (const pair of Object.values(insertionNumbers)) if (!pair.number.checkValidity() || !Number.isFinite(pair.number.valueAsNumber)) throw new Error("请检查进针参数范围 · Check the insertion parameter bounds.");
-    return { needleId: needle.value, mark: mark.value, depthCm: values.depthCm, angleDeg: values.angleDeg, azimuthDeg: values.azimuthDeg, presentation: {
-      durationMs: values.durationMs, gripApertureMm: values.gripApertureMm, ...Object.fromEntries(Object.entries(insertionChoices).map(([key, c]) => [key, c.input.value])),
-    } };
+    return { needleId: needle.value, mark: mark.value, depthCm: values.depthCm, angleDeg: values.angleDeg, azimuthDeg: values.azimuthDeg, presentation };
   }
   function showError(error: unknown): void {
     status.textContent = error instanceof Error ? error.message : String(error);
     status.classList.add("refused");
   }
   for (const control of [needle, mark, region, side, u, v]) control.addEventListener("change", changed);
-  insertionChoices.grip.input.addEventListener("change", availability);
+  for (const control of [insertionChoices.grip.input, insertionChoices.gripStyle.input]) control.addEventListener("change", availability);
+  insertionNumbers.wristElevationDeg.number.addEventListener("input", availability);
+  insertionNumbers.wristElevationDeg.number.addEventListener("change", availability);
   mode.addEventListener("change", () => { cancelLocalPreview(); targetSignature = ""; drawTargets(); availability(); });
   technique.addEventListener("change", () => {
     if (!library) return;
@@ -391,10 +440,12 @@ export function manipulationControls(id: string, hooks: Hooks): ManipulationCont
   reset.addEventListener("click", () => {
     if (!library || !draft) return;
     cancelLocalPreview(); draft = techniqueDraft(library, draft.technique, draft); drawParameters();
-    for (const [key, value] of Object.entries({ depthCm: 1, angleDeg: 0, azimuthDeg: 0, durationMs: 1100, gripApertureMm: 2 })) {
+    insertionChoices.grip.input.value = "two-finger";
+    for (const [key, value] of Object.entries({ depthCm: 1, angleDeg: 0, azimuthDeg: 0, durationMs: 1100, gripApertureMm: 2, wristElevationDeg: wristControlProfile(library, { grip: insertionChoices.grip.input.value }).default })) {
       const pair = insertionNumbers[key as keyof typeof insertionNumbers]; pair.number.value = pair.range.value = String(value);
     }
     insertionChoices.grip.input.value = "two-finger"; insertionChoices.support.input.value = "stabilize"; insertionChoices.hand.input.value = "auto";
+    insertionChoices.gripStyle.input.value = "tip-pinch"; insertionChoices.idleFingerPose.input.value = "curled";
     availability();
     status.textContent = "已恢复当前手法默认参数 · Shared defaults restored."; status.classList.remove("refused");
   });
@@ -445,6 +496,8 @@ export function manipulationControls(id: string, hooks: Hooks): ManipulationCont
     const value = answer.output as TechniqueLibrary;
     if (!Array.isArray(value?.techniques) || !value.motionSchema?.properties || !value.defaults) throw new Error("无法读取手法参数目录 · Technique parameters could not be read.");
     library = value;
+    const initialWrist = wristControlProfile(library, { grip: insertionChoices.grip.input.value });
+    insertionNumbers.wristElevationDeg.number.value = String(initialWrist.default);
     const families = new Map<string, HTMLOptGroupElement>();
     for (const entry of library.techniques) {
       let group = families.get(entry.family);
@@ -475,7 +528,10 @@ export function manipulationControls(id: string, hooks: Hooks): ManipulationCont
             draft = techniqueDraft(library, technique.value, draft ?? undefined);
             const accepted = snapshot?.view.performances?.find((performance) => performance.requestId === record.requestId);
             if (accepted) Object.assign(draft.motion, accepted.motion);
-            else if (record.input.motion && typeof record.input.motion === "object") Object.assign(draft.motion, record.input.motion);
+            else if (record.input.motion && typeof record.input.motion === "object") {
+              Object.assign(draft.motion, record.input.motion);
+              if (!("wristElevationDeg" in record.input.motion)) draft.motion.wristElevationDeg = wristControlProfile(library, draft.motion, definition()).default;
+            }
             draft.needleId = typeof record.input.needleId === "string" ? record.input.needleId : "";
             draft.mark = typeof record.input.mark === "string" ? record.input.mark : "";
             draft.region = typeof record.input.region === "string" ? record.input.region : "";

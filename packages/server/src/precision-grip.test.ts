@@ -1,12 +1,12 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { DoubleSide, Raycaster, Triangle, Vector3, type Object3D, type SkinnedMesh } from "three";
+import { Box3, BufferGeometry, DoubleSide, Mesh, MeshBasicMaterial, Quaternion, Ray, Raycaster, Triangle, Vector3, type Object3D, type SkinnedMesh } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { describe, expect, it } from "vitest";
-import { sampleTechnique } from "@acucraft/core";
+import { THREE_FINGER_WRIST_BOUNDS, THREE_FINGER_WRIST_DEFAULT, sampleTechnique } from "@acucraft/core";
 import { ArticulatedHand, type HandPose } from "../web/stage/hand.js";
 import { sampleProcedure } from "../web/stage/choreography.js";
-import { NEEDLE_HANDLE_RADIUS_M, needleHandleRadiusAt } from "../web/stage/needle-shape.js";
+import { NEEDLE_HANDLE_RADIUS_M, exteriorGeometry, needleHandleRadiusAt, updateExteriorGeometry } from "../web/stage/needle-shape.js";
 
 const asset = readFileSync(fileURLToPath(new URL("../../../content/world/assets/models/acu-practitioner-hand.glb", import.meta.url)));
 const toleranceM = 0.000025;
@@ -75,7 +75,9 @@ function digitSegments(hand: ArticulatedHand, digit: string): Vector3[] {
 /** Signed palmar flexion in the unmirrored model frame, so left and right use the same convention. */
 function fingerFlexion(hand: ArticulatedHand, digit: string): [number, number] {
   const [proximal, middle, distal] = digitSegments(hand, digit) as [Vector3, Vector3, Vector3];
-  const hinge = new Vector3(0, 1, 0).cross(proximal).normalize();
+  const palm = node(hand, "palm_frame"), origin = palm.getWorldPosition(new Vector3());
+  const dorsal = palm.localToWorld(new Vector3(0, 1, 0)).sub(origin).transformDirection(hand.model.matrixWorld.clone().invert());
+  const hinge = dorsal.cross(proximal).normalize();
   const angle = (a: Vector3, b: Vector3) => Math.atan2(a.clone().cross(b).dot(hinge), a.dot(b)) * 180 / Math.PI;
   return [angle(proximal, middle), angle(middle, distal)];
 }
@@ -92,48 +94,303 @@ function axialJointTwistDegrees(hand: ArticulatedHand, digit: string, index: 0 |
   return Math.min(radians, 2 * Math.PI - radians) * 180 / Math.PI;
 }
 
-/** A correct nail anchor still permits solid fingers to intersect; check the actual deformed distal skin. */
-function distalSkinIntrusion(hand: ArticulatedHand, fromDigit: string, intoDigit: string): number {
-  const from = node(hand, `${fromDigit}_skin`) as SkinnedMesh;
-  const into = node(hand, ["thenar", "palm_surface"].includes(intoDigit) ? intoDigit : `${intoDigit}_skin`) as SkinnedMesh;
-  for (const skin of [from, into]) {
-    if (skin.skeleton) { skin.skeleton.update(); skin.computeBoundingBox(); skin.computeBoundingSphere(); }
-    else { skin.geometry.computeBoundingBox(); skin.geometry.computeBoundingSphere(); }
+/** Compare the attachment with the actual deformed triangles, never an analytical capsule. */
+function skinDistance(hand: ArticulatedHand, digit: string, attachment: string): number {
+  const skin = node(hand, `${digit}_skin`) as SkinnedMesh;
+  skin.skeleton.update();
+  const target = skin.worldToLocal(point(hand, attachment)), vertices = skin.geometry.getAttribute("position"), indices = skin.geometry.index!;
+  const triangle = new Triangle(), nearest = new Vector3();
+  let distance = Infinity;
+  for (let index = 0; index < indices.count; index += 3) {
+    triangle.set(...[0, 1, 2].map((offset) => skin.getVertexPosition(indices.getX(index + offset), new Vector3())) as [Vector3, Vector3, Vector3]);
+    triangle.closestPointToPoint(target, nearest);
+    distance = Math.min(distance, target.distanceTo(nearest));
   }
-  const material = Array.isArray(into.material) ? into.material[0]! : into.material;
-  const originalSide = material.side;
-  material.side = DoubleSide;
-  const direction = new Vector3(0.431, 0.293, 0.853).normalize(), triangle = new Triangle(), nearest = new Vector3();
-  const vertices = Array.from({ length: into.geometry.getAttribute("position").count }, (_, i) => into.localToWorld(into.getVertexPosition(i, new Vector3())));
-  const indices = into.geometry.getIndex()!;
+  expect(vertices.count).toBeGreaterThan(100);
+  return distance;
+}
+
+function jointRotations(hand: ArticulatedHand): Quaternion[] {
+  return ["thumb", "index"].flatMap((digit) => {
+    const labels = digit === "thumb" ? ["CMC", "MCP", "IP"] : ["MCP", "PIP", "DIP"];
+    return labels.map((label, index) => node(hand, `${digit}_${label}`).quaternion.clone().multiply(node(hand, `${digit}_${["proximal", "middle", "distal"][index]}`).quaternion));
+  });
+}
+
+interface SurfaceTree { box: Box3; children?: [SurfaceTree, SurfaceTree]; triangles?: Triangle[] }
+
+function surfaceTree(triangles: Triangle[]): SurfaceTree {
+  const box = new Box3();
+  for (const triangle of triangles) box.expandByPoint(triangle.a).expandByPoint(triangle.b).expandByPoint(triangle.c);
+  if (triangles.length <= 12) return { box, triangles };
+  const size = box.getSize(new Vector3()), axis = size.x >= size.y && size.x >= size.z ? "x" : size.y >= size.z ? "y" : "z";
+  triangles.sort((a, b) => a.a[axis] + a.b[axis] + a.c[axis] - b.a[axis] - b.b[axis] - b.c[axis]);
+  const middle = Math.floor(triangles.length / 2);
+  return { box, children: [surfaceTree(triangles.slice(0, middle)), surfaceTree(triangles.slice(middle))] };
+}
+
+function posedSurface(hand: ArticulatedHand, name: string): { points: Vector3[]; tree: SurfaceTree } {
+  const mesh = node(hand, name) as SkinnedMesh;
+  mesh.skeleton.update();
+  const points = Array.from({ length: mesh.geometry.getAttribute("position").count }, (_, index) => mesh.getVertexPosition(index, new Vector3()).applyMatrix4(mesh.matrixWorld));
+  const indices = mesh.geometry.index!, triangles: Triangle[] = [];
+  for (let index = 0; index < indices.count; index += 3) triangles.push(new Triangle(points[indices.getX(index)]!, points[indices.getX(index + 1)]!, points[indices.getX(index + 2)]!));
+  return { points, tree: surfaceTree(triangles) };
+}
+
+/** Three independent rays avoid edge-grazing parity errors on mirrored skin. Contact stays at 50µm. */
+function insideSurface(point: Vector3, tree: SurfaceTree): boolean {
+  if (!tree.box.containsPoint(point)) return false;
+  const hit = new Vector3();
+  let votes = 0;
+  for (const direction of [[0.431, 0.293, 0.853], [0.853, 0.431, 0.293], [0.293, 0.853, 0.431]]) {
+    const ray = new Ray(point, new Vector3(...direction).normalize()), distances: number[] = [];
+    const visit = (node: SurfaceTree) => {
+      if (!ray.intersectBox(node.box, hit)) return;
+      if (node.children) { visit(node.children[0]); visit(node.children[1]); }
+      else for (const triangle of node.triangles!) if (ray.intersectTriangle(triangle.a, triangle.b, triangle.c, false, hit)) {
+        const distance = point.distanceTo(hit);
+        if (distance > 1e-7 && !distances.some((existing) => Math.abs(existing - distance) < 1e-7)) distances.push(distance);
+      }
+    };
+    visit(tree);
+    if (distances.length % 2 !== 0) votes++;
+  }
+  if (votes < 2) return false;
+  let nearest = Infinity;
+  const distance = (node: SurfaceTree) => {
+    if (node.box.distanceToPoint(point) >= nearest) return;
+    if (node.children) { distance(node.children[0]); distance(node.children[1]); }
+    else for (const triangle of node.triangles!) {
+      triangle.closestPointToPoint(point, hit);
+      nearest = Math.min(nearest, point.distanceTo(hit));
+    }
+  };
+  distance(tree);
+  return nearest > 0.00005;
+}
+
+/** The shaft radius comes from the same generated tube that the scene renders. */
+function renderedShaftRadius(): number {
+  const geometry = exteriorGeometry();
+  updateExteriorGeometry(geometry, Array.from({ length: 17 }, (_, index) => new Vector3(0, index * 0.0025, 0)));
+  const positions = geometry.getAttribute("position");
+  let radius = 0;
+  for (let vertex = 0; vertex < positions.count; vertex++) radius = Math.max(radius, Math.hypot(positions.getX(vertex), positions.getZ(vertex)));
+  geometry.dispose();
+  return radius;
+}
+
+function needleSkinIntrusion(hand: ArticulatedHand, shaftRadius: number): number {
   let intrusion = 0;
-  for (let vertex = 0; vertex < from.geometry.getAttribute("position").count; vertex++) {
-    let distalWeight = 0;
-    for (let influence = 0; influence < 4; influence++) {
-      const boneIndex = from.geometry.getAttribute("skinIndex").array[vertex * 4 + influence]!;
-      if (/(_distal|_DIP)$/.test(from.skeleton.bones[boneIndex]!.name)) distalWeight += from.geometry.getAttribute("skinWeight").array[vertex * 4 + influence]!;
+  for (const digit of ["thumb", "index", "middle", "ring", "little"]) {
+    const skin = node(hand, `${digit}_skin`) as SkinnedMesh;
+    skin.skeleton.update();
+    for (let vertex = 0; vertex < skin.geometry.getAttribute("position").count; vertex++) {
+      const point = hand.root.worldToLocal(skin.getVertexPosition(vertex, new Vector3()).applyMatrix4(skin.matrixWorld));
+      const radius = Math.abs(point.y) <= 0.0125 ? needleHandleRadiusAt(point.y) : point.y < -0.0125 && point.y >= -0.0525 ? shaftRadius : 0;
+      intrusion = Math.max(intrusion, radius - Math.hypot(point.x, point.z));
     }
-    if (distalWeight < 0.8) continue;
-    const point = from.localToWorld(from.getVertexPosition(vertex, new Vector3()));
-    const distances: number[] = [];
-    for (const hit of new Raycaster(point, direction, 0.000001, 1).intersectObject(into, false)) {
-      if (!distances.some((distance) => Math.abs(distance - hit.distance) < 1e-7)) distances.push(hit.distance);
-    }
-    if (distances.length % 2 === 0) continue;
-    let surfaceDistance = Infinity;
-    for (let index = 0; index < indices.count; index += 3) {
-      triangle.set(vertices[indices.getX(index)]!, vertices[indices.getX(index + 1)]!, vertices[indices.getX(index + 2)]!);
-      triangle.closestPointToPoint(point, nearest);
-      surfaceDistance = Math.min(surfaceDistance, point.distanceTo(nearest));
-    }
-    intrusion = Math.max(intrusion, surfaceDistance);
-    if (intrusion > 0.00005) break;
   }
-  material.side = originalSide;
   return intrusion;
 }
 
+/** A correct nail anchor still permits solid fingers to intersect; check the actual deformed distal skin. */
+function distalSkinIntrusion(hand: ArticulatedHand, fromDigit: string, intoDigit: string): number {
+  const from = node(hand, `${fromDigit}_skin`) as SkinnedMesh;
+  const into = node(hand, intoDigit === "palm_surface" ? intoDigit : `${intoDigit}_skin`) as SkinnedMesh;
+  for (const skin of [from, into]) skin.skeleton?.update();
+  const direction = new Vector3(0.431, 0.293, 0.853).normalize(), triangle = new Triangle(), nearest = new Vector3();
+  const vertices = Array.from({ length: into.geometry.getAttribute("position").count }, (_, i) => into.localToWorld(into.getVertexPosition(i, new Vector3())));
+  const indices = into.geometry.getIndex()!;
+  // Bake the actual posed target once. Raycasting a SkinnedMesh would re-skin every target
+  // triangle for every source vertex; this proxy uses the same vertices and topology in world space.
+  const geometry = new BufferGeometry().setFromPoints(vertices).setIndex(indices.clone());
+  const material = new MeshBasicMaterial({ side: DoubleSide }), proxy = new Mesh(geometry, material);
+  geometry.computeBoundingBox(); geometry.computeBoundingSphere(); proxy.updateMatrixWorld(true);
+  const raycaster = new Raycaster(new Vector3(), direction, 0.000001, 1);
+  try {
+    let intrusion = 0;
+    for (let vertex = 0; vertex < from.geometry.getAttribute("position").count; vertex++) {
+      let distalWeight = 0;
+      for (let influence = 0; influence < 4; influence++) {
+        const boneIndex = from.geometry.getAttribute("skinIndex").array[vertex * 4 + influence]!;
+        if (/(_distal|_DIP)$/.test(from.skeleton.bones[boneIndex]!.name)) distalWeight += from.geometry.getAttribute("skinWeight").array[vertex * 4 + influence]!;
+      }
+      if (distalWeight < 0.8) continue;
+      const point = from.localToWorld(from.getVertexPosition(vertex, new Vector3()));
+      const distances: number[] = [];
+      raycaster.ray.origin.copy(point);
+      for (const hit of raycaster.intersectObject(proxy, false)) {
+        if (!distances.some((distance) => Math.abs(distance - hit.distance) < 1e-7)) distances.push(hit.distance);
+      }
+      if (distances.length % 2 === 0) continue;
+      let surfaceDistance = Infinity;
+      for (let index = 0; index < indices.count; index += 3) {
+        triangle.set(vertices[indices.getX(index)]!, vertices[indices.getX(index + 1)]!, vertices[indices.getX(index + 2)]!);
+        triangle.closestPointToPoint(point, nearest);
+        surfaceDistance = Math.min(surfaceDistance, point.distanceTo(nearest));
+      }
+      intrusion = Math.max(intrusion, surfaceDistance);
+      if (intrusion > 0.00005) break;
+    }
+    return intrusion;
+  } finally {
+    geometry.dispose(); material.dispose();
+  }
+}
+
 describe("needle-handle surface grip regression", () => {
+  it("raises the real wrist and supports distinct tip and side grips on actual skin", async () => {
+    const hand = await handRig(), lengths = chainLengths(hand);
+    expect(hand.model.getObjectByName("thenar")).toBeUndefined();
+    expect(node(hand, "palm_surface").type).toBe("SkinnedMesh");
+    for (const side of ["left", "right"] as const) for (const wristElevationDeg of [35, 55, 70]) {
+      hand.setSide(side);
+      let tipDirection: Vector3 | undefined;
+      for (const gripStyle of ["tip-pinch", "side-pinch"] as const) {
+        hand.pose({ pose: "pinch", grip: 1, phase: 0, handleRadiusM: NEEDLE_HANDLE_RADIUS_M, wristElevationDeg, gripStyle });
+        const indexName = gripStyle === "side-pinch" ? "index_side_contact" : "index_pad_contact";
+        expectSurfaceContact(hand, "thumb_pad_contact", gripStyle === "side-pinch" ? 0.00025 : 0);
+        expectSurfaceContact(hand, indexName, gripStyle === "side-pinch" ? -0.00025 : 0);
+        expect(skinDistance(hand, "thumb", "thumb_pad_contact")).toBeLessThan(toleranceM);
+        expect(skinDistance(hand, "index", indexName)).toBeLessThan(toleranceM);
+        const wrist = hand.wrist().sub(hand.contact("pinch"));
+        expect(Math.atan2(wrist.y, Math.hypot(wrist.x, wrist.z)) * 180 / Math.PI).toBeCloseTo(wristElevationDeg, 2);
+        const cuff = hand.wristOrientation(new Quaternion());
+        const palm = node(hand, "palm_frame"), dorsal = palm.localToWorld(new Vector3(0, 1, 0)).sub(palm.getWorldPosition(new Vector3())).normalize();
+        expect(new Vector3(0, 1, 0).applyQuaternion(cuff).dot(dorsal)).toBeGreaterThan(0.9999);
+        const direction = point(hand, "index_tip").sub(point(hand, indexName));
+        if (gripStyle === "tip-pinch") tipDirection = direction;
+        else expect(direction.distanceTo(tipDirection!)).toBeGreaterThan(0.004);
+        for (const [name, length] of chainLengths(hand)) expect(length, name).toBeCloseTo(lengths.get(name)!, 7);
+      }
+    }
+    hand.dispose();
+  });
+
+  it("rolls real opposing pulp material and shares a fine axial stroke with the finger joints", async () => {
+    const hand = await handRig();
+    for (const side of ["left", "right"] as const) for (const gripStyle of ["tip-pinch", "side-pinch"] as const) {
+      hand.setSide(side);
+      const indexName = gripStyle === "side-pinch" ? "index_side_contact" : "index_pad_contact";
+      const poses: { thumb: Vector3; index: Vector3; material: Vector3[] }[] = [];
+      for (const rotationRad of [-1.4, 1.4]) {
+        hand.pose({ pose: "pinch", grip: 1, phase: 0.5, handleRadiusM: NEEDLE_HANDLE_RADIUS_M, gripStyle, rotationRad });
+        expectSurfaceContact(hand, "thumb_pad_contact", gripStyle === "side-pinch" ? 0.00025 : 0); expectSurfaceContact(hand, indexName, gripStyle === "side-pinch" ? -0.00025 : 0);
+        expect(skinDistance(hand, "thumb", "thumb_pad_contact")).toBeLessThan(toleranceM);
+        expect(skinDistance(hand, "index", indexName)).toBeLessThan(toleranceM);
+        poses.push({ thumb: point(hand, "thumb_tip"), index: point(hand, "index_tip"), material: [node(hand, "thumb_pad_contact").position.clone(), node(hand, indexName).position.clone()] });
+      }
+      expect((poses[1]!.thumb.x - poses[0]!.thumb.x) * (poses[1]!.index.x - poses[0]!.index.x)).toBeLessThan(0);
+      for (let index = 0; index < 2; index++) expect(poses[0]!.material[index]!.distanceTo(poses[1]!.material[index]!)).toBeGreaterThan(0.0002);
+      const axial: Quaternion[][] = [];
+      for (const axialDisplacementMm of [-3, 3]) {
+        hand.pose({ pose: "pinch", grip: 1, phase: 0.5, handleRadiusM: NEEDLE_HANDLE_RADIUS_M, gripStyle, axialDisplacementMm });
+        expectSurfaceContact(hand, "thumb_pad_contact", gripStyle === "side-pinch" ? 0.00025 : 0); expectSurfaceContact(hand, indexName, gripStyle === "side-pinch" ? -0.00025 : 0);
+        axial.push(jointRotations(hand));
+      }
+      expect(Math.max(...axial[0]!.map((rotation, index) => rotation.angleTo(axial[1]![index]!)))).toBeGreaterThan(0.01);
+    }
+    hand.dispose();
+  });
+
+  it("settles the thumb onto its real bearing continuously before either bounded turn", async () => {
+    const hand = await handRig();
+    for (const wristElevationDeg of [35, 55, 70]) for (const axialDisplacementMm of [-3, 3]) for (const sign of [-1, 1]) {
+      let previous: Quaternion[] | undefined;
+      for (let frame = 0; frame <= 30; frame++) {
+        hand.pose({ pose: "pinch", grip: 1, phase: 0.3, handleRadiusM: NEEDLE_HANDLE_RADIUS_M, wristElevationDeg, axialDisplacementMm, rotationRad: sign * frame / 100 });
+        expectSurfaceContact(hand, "thumb_pad_contact", 0); expectSurfaceContact(hand, "index_pad_contact", 0);
+        const rotations = jointRotations(hand);
+        if (previous) for (let joint = 0; joint < rotations.length; joint++) expect(rotations[joint]!.angleTo(previous[joint]!) * 180 / Math.PI).toBeLessThan(1);
+        previous = rotations;
+        if (frame % 15 === 0) expect(skinDistance(hand, "thumb", "thumb_pad_contact")).toBeLessThan(toleranceM);
+      }
+    }
+    hand.dispose();
+  });
+
+  it("continues bounded finger walking after several one-way needle turns with one pad always engaged", async () => {
+    const hand = await handRig();
+    for (const gripStyle of ["tip-pinch", "side-pinch"] as const) for (const sign of [-1, 1]) {
+      const indexName = gripStyle === "side-pinch" ? "index_side_contact" : "index_pad_contact";
+      let previous: Quaternion[] | undefined;
+      const lateTips: Vector3[] = [];
+      for (let frame = 0; frame <= 260; frame++) {
+        const rotationRad = frame * 0.04 * sign;
+        hand.pose({ pose: "pinch", grip: 1, phase: 0.3, handleRadiusM: NEEDLE_HANDLE_RADIUS_M, gripStyle, rotationRad, continuousRoll: true });
+        expect(hand.contactValid, `${gripStyle}/${rotationRad}`).toBe(true);
+        let engaged = 0;
+        for (const name of ["thumb_pad_contact", indexName]) {
+          const offset = point(hand, name).sub(hand.contactAt("handle")), axial = offset.y;
+          const radius = Math.hypot(offset.x, offset.z), surface = needleHandleRadiusAt(axial);
+          expect(radius).toBeGreaterThanOrEqual(surface - toleranceM);
+          expect(radius).toBeLessThanOrEqual(surface + 0.0006 + toleranceM);
+          if (Math.abs(radius - surface) < toleranceM) engaged++;
+        }
+        expect(engaged).toBeGreaterThanOrEqual(1);
+        const rotations = jointRotations(hand);
+        if (previous) for (let index = 0; index < rotations.length; index++) expect(rotations[index]!.angleTo(previous[index]!) * 180 / Math.PI).toBeLessThan(4);
+        previous = rotations;
+        if (Math.abs(rotationRad) >= 8 && frame % 10 === 0) lateTips.push(point(hand, "thumb_tip"));
+      }
+      expect(Math.max(...lateTips.map((tip) => tip.distanceTo(lateTips[0]!)))).toBeGreaterThan(0.0005);
+    }
+    hand.dispose();
+  });
+
+  it("keeps complete exposed finger skin clear in both idle poses, including open side grips", async () => {
+    const hand = await handRig(), digits = ["thumb", "index", "middle", "ring", "little"];
+    for (const side of ["left", "right"] as const) for (const gripStyle of ["tip-pinch", "side-pinch"] as const) {
+      hand.setSide(side);
+      for (const idleFingerPose of ["curled", "relaxed"] as const) for (const grip of [0, 1])
+        for (const motion of grip === 0 ? [{ rotationRad: 0 }] : [{ rotationRad: -6 }, { rotationRad: 0 }, { rotationRad: 0.05 }, { rotationRad: 0.15 }, { rotationRad: 0.3 }, { rotationRad: 6 }, { rotationRad: 8, continuousRoll: true }]) {
+        hand.pose({ pose: "pinch", grip, phase: 0.3, apertureMm: 12, handleRadiusM: NEEDLE_HANDLE_RADIUS_M, gripStyle, idleFingerPose, ...motion });
+        expect(hand.contactValid).toBe(true);
+        const surfaces = new Map([...digits.map((digit) => `${digit}_skin`), "palm_surface"].map((name) => [name, posedSurface(hand, name)]));
+        const palm = surfaces.get("palm_surface")!.tree;
+        for (const digit of digits) {
+          const skin = node(hand, `${digit}_skin`) as SkinnedMesh, points = surfaces.get(`${digit}_skin`)!.points;
+          const external = points.filter((p) => !insideSurface(p, palm));
+          for (const other of digits.filter((other) => other !== digit)) {
+            const collision = external.find((p) => insideSurface(p, surfaces.get(`${other}_skin`)!.tree));
+            expect(collision?.toArray(), `${side}/${gripStyle}/${idleFingerPose}/${grip}/${motion.rotationRad} exposed ${digit} into ${other}`).toBeUndefined();
+          }
+          const joints = skin.geometry.getAttribute("skinIndex"), weights = skin.geometry.getAttribute("skinWeight");
+          for (let vertex = 0; vertex < points.length; vertex++) {
+            let distalWeight = 0;
+            for (let influence = 0; influence < joints.itemSize; influence++) if (skin.skeleton.bones[joints.getComponent(vertex, influence)]?.name === `${digit}_distal`) distalWeight += weights.getComponent(vertex, influence);
+            if (distalWeight < 0.8) continue;
+            expect(insideSurface(points[vertex]!, palm), `${side}/${gripStyle}/${idleFingerPose}/${grip} ${digit} distal ${vertex} into palm`).toBe(false);
+          }
+        }
+      }
+    }
+    hand.dispose();
+  });
+
+  it("uses the bounded low-twist oblique middle-pulp support for the optional three-finger grip", async () => {
+    const hand = await handRig(), shaftRadius = renderedShaftRadius();
+    for (const side of ["left", "right"] as const) for (const wristElevationDeg of [THREE_FINGER_WRIST_BOUNDS.min, THREE_FINGER_WRIST_DEFAULT, THREE_FINGER_WRIST_BOUNDS.max]) {
+      hand.setSide(side);
+      for (const grip of [0, 0.5, 1]) for (const axialDisplacementMm of [-3, 0, 3]) for (const rotationRad of [-Math.PI / 2, 0, Math.PI / 2]) {
+        hand.pose({ pose: "tripod", grip, stabilizerGrip: 1, phase: 0.3, apertureMm: 12, handleRadiusM: NEEDLE_HANDLE_RADIUS_M, wristElevationDeg, axialDisplacementMm, rotationRad });
+        expectSurfaceContact(hand, "middle_side_contact", 0.010);
+        expect(axialJointTwistDegrees(hand, "middle", 0)).toBeLessThan(20);
+        if (grip === 1) {
+          expectSurfaceContact(hand, "thumb_pad_contact", -0.012);
+          expectSurfaceContact(hand, "index_pad_contact", -0.012);
+        }
+        expect(needleSkinIntrusion(hand, shaftRadius), `${side}/${wristElevationDeg}/${grip}/${axialDisplacementMm}/${rotationRad} real handle and shaft`).toBeLessThan(0.00005);
+      }
+    }
+    expect(skinDistance(hand, "middle", "middle_side_contact")).toBeLessThan(toleranceM);
+    hand.pose({ pose: "tripod", grip: 1, phase: 0, gripStyle: "side-pinch", handleRadiusM: NEEDLE_HANDLE_RADIUS_M });
+    expect(hand.contactValid).toBe(false);
+    hand.dispose();
+  });
+
   it("supports skin with the real volar index pulp and keeps the opposed thumb clear of adjacent fingers", async () => {
     const hand = await handRig();
     for (const side of ["left", "right"] as const) {
@@ -173,7 +430,7 @@ describe("needle-handle surface grip regression", () => {
             expect(Math.abs(line.dot(handleFrame(hand).axis))).toBeLessThan(toleranceM);
             expect(line.length()).toBeCloseTo(2 * needleHandleRadiusAt(holdingY), 5);
             expect(normal(hand, "thumb_pad_contact").dot(normal(hand, "index_pad_contact"))).toBeLessThan(-0.999);
-            if (pose === "tripod") expectSurfaceContact(hand, "middle_side_contact", 0.006);
+            if (pose === "tripod") expectSurfaceContact(hand, "middle_side_contact", 0.010);
           }
         }
       }
@@ -217,7 +474,8 @@ describe("needle-handle surface grip regression", () => {
         if (phase < 0.28 || phase === 1) expectSurfaceContact(hand, "middle_nail_edge_contact");
         if (phase === 0.5 || phase === 0.6) {
           const frame = handleFrame(hand), offset = point(hand, "middle_nail_edge_contact").sub(frame.origin);
-          expect(offset.addScaledVector(frame.axis, -offset.dot(frame.axis)).length()).toBeGreaterThan(0.005);
+          const axial = offset.dot(frame.axis);
+          expect(offset.addScaledVector(frame.axis, -axial).length()).toBeGreaterThan(needleHandleRadiusAt(axial) + 0.00012);
         }
       }
     }
@@ -231,7 +489,7 @@ describe("needle-handle surface grip regression", () => {
       let middle: Vector3 | undefined;
       for (const grip of [1, 0.5, 0, 0.5, 1]) {
         hand.pose({ pose: "tripod", grip, stabilizerGrip: 1, apertureMm: 12, phase: 0.4, handleRadiusM: NEEDLE_HANDLE_RADIUS_M });
-        const nextMiddle = expectSurfaceContact(hand, "middle_side_contact", 0.006);
+        const nextMiddle = expectSurfaceContact(hand, "middle_side_contact", 0.010);
         if (middle) expect(nextMiddle.distanceTo(middle)).toBeLessThan(toleranceM);
         middle = nextMiddle;
         if (grip === 0) expect(hand.gapMm()).toBeCloseTo(12, 3);
@@ -299,7 +557,7 @@ describe("needle-handle surface grip regression", () => {
             expect(distalSkinIntrusion(hand, primary, digit), `${side}/${grip}/${primary} into ${digit}`).toBeLessThan(0.00005);
           }
         }
-        for (const surface of ["thenar", "palm_surface"]) {
+        for (const surface of ["palm_surface"]) {
           expect(distalSkinIntrusion(hand, "middle", surface), `${side}/${grip} unused middle into ${surface}`).toBeLessThan(0.00005);
         }
       }

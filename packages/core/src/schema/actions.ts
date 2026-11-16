@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { ChartPointSchema, IdSchema, PositionSchema } from "./common.js";
-import { PerformTechniqueSchema } from "./manipulation.js";
+import { HandPresentationSettingsShape, PerformTechniqueSchema } from "./manipulation.js";
 
 /**
  * The action interface (proposal §7.3) — every actor (the practitioner or learner under test, the support agent,
@@ -42,6 +42,7 @@ export type NeedleMotionSettings = z.infer<typeof NeedleMotionSettingsSchema>;
 export const InsertionPresentationSchema = z.object({
   durationMs: z.number().int().min(400).max(8000).optional(),
   grip: z.enum(["two-finger", "three-finger"]).optional(),
+  ...HandPresentationSettingsShape,
   support: z.enum(["none", "stabilize", "stretch", "pinch", "press"]).optional(),
   hand: z.enum(["auto", "left", "right"]).optional(),
   /** Approach/release opening; the held fingers fit the actual needle handle. */

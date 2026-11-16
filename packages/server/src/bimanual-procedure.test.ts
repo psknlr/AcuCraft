@@ -1,10 +1,10 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { Group, Quaternion, Raycaster, SkinnedMesh, Triangle, Vector3 } from "three";
+import { Group, Mesh, Quaternion, Raycaster, SkinnedMesh, Texture, Triangle, Vector3, type Object3D } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { ArticulatedHand, handOrientation, surfaceHandOrientation } from "../web/stage/hand.js";
-import { NeedleProcedure, type TechniquePerformanceInput } from "../web/stage/procedure.js";
+import { NeedleProcedure, type InsertionPresentation, type TechniquePerformanceInput } from "../web/stage/procedure.js";
 import { NeedleLayer } from "../web/stage/needles.js";
 import { EncounterSession } from "@acucraft/agent";
 import { loadContentPack, requireScenario } from "@acucraft/bench";
@@ -15,31 +15,234 @@ import type { Person } from "../web/stage/cast.js";
 import type { SkinSite } from "../web/stage/sites.js";
 import { needleHandleRadiusAt } from "../web/stage/needle-shape.js";
 
-const asset = readFileSync(fileURLToPath(new URL("../../../content/world/assets/models/acu-practitioner-hand.glb", import.meta.url)));
+const asset = readFileSync(process.env.ACUCRAFT_HAND_GEOMETRY_FIXTURE ?? fileURLToPath(new URL("../../../content/world/assets/models/acu-practitioner-hand.glb", import.meta.url)));
 const site: SkinSite = { p: new Vector3(0, 0.8, 0), n: new Vector3(0, 1, 0), uDir: new Vector3(1, 0, 0), vDir: new Vector3(0, 0, 1), bare: true };
 const input = (technique: TechniquePerformanceInput["technique"], extra: Partial<TechniquePerformanceInput> = {}): TechniquePerformanceInput => ({ id: `performance-${technique}`, technique, site, ...extra });
 const makeActor = () => {
   const targets: Record<string, Vector3 | null> = {};
+  const palms: Record<string, Quaternion | null> = {};
   const actor = {
     isMoving: false, holder: new Group(),
     shoulderAt: (side: string) => new Vector3(side === "left" ? -0.2 : 0.2, 1.3, 0),
-    reach: (side: string, wrist: Vector3 | null) => { targets[side] = wrist?.clone() ?? null; return { wrist: wrist?.clone() ?? new Vector3(), elbow: new Vector3(), reachable: true }; },
+    reach: (side: string, wrist: Vector3 | null, _blend?: number, palm?: Quaternion) => {
+      targets[side] = wrist?.clone() ?? null; palms[side] = palm?.clone() ?? null;
+      return { wrist: wrist?.clone() ?? new Vector3(), elbow: new Vector3(), reachable: true };
+    },
   };
-  return { actor: actor as typeof actor & Person, targets };
+  return { actor: actor as typeof actor & Person, targets, palms };
 };
 
 beforeEach(() => vi.stubGlobal("document", { createElement: () => ({ width: 0, height: 0, getContext: () => ({ fillStyle: "", fillRect() {}, createRadialGradient: () => ({ addColorStop() {} }) }) }) }));
 afterEach(() => { vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
 async function makeScene(retained = false) {
-  const needles = new NeedleLayer(), { actor, targets } = makeActor();
+  const needles = new NeedleLayer(), { actor, targets, palms } = makeActor();
   if (retained) needles.sync([{ id: "needle-a", target: "ST36:left", site, angleDeg: 0, azimuthDeg: 0, depthCm: 2, length: 0.04 }], 0, false);
   const procedure = new NeedleProcedure(needles, () => actor, () => {});
   const gltf = await new GLTFLoader().parseAsync(Uint8Array.from(asset).buffer, "");
   vi.spyOn(GLTFLoader.prototype, "loadAsync").mockResolvedValueOnce(gltf);
   await procedure.load("/hand.glb", "#cba88a");
-  return { needles, actor, targets, procedure, dispose() { procedure.dispose(); needles.clear(); } };
+  return { needles, actor, targets, palms, procedure, dispose() { procedure.dispose(); needles.clear(); } };
 }
+
+function surfaceDistance(root: Object3D, digit: "thumb" | "index" | "middle", contactName: string): number {
+  const surface = root.getObjectByName(`${digit}_skin`) as SkinnedMesh;
+  surface.skeleton.update();
+  const point = root.getObjectByName(contactName)!.getWorldPosition(new Vector3());
+  const positions = Array.from({ length: surface.geometry.getAttribute("position").count }, (_, i) => surface.getVertexPosition(i, new Vector3()).applyMatrix4(surface.matrixWorld));
+  const indices = surface.geometry.index!, triangle = new Triangle(), closest = new Vector3();
+  let distance = Infinity;
+  for (let i = 0; i < indices.count; i += 3) {
+    triangle.set(positions[indices.getX(i)]!, positions[indices.getX(i + 1)]!, positions[indices.getX(i + 2)]!);
+    distance = Math.min(distance, triangle.closestPointToPoint(point, closest).distanceTo(point));
+  }
+  return distance;
+}
+
+function expectHeldSurfaces(root: Object3D, handle: { point: Vector3; axis: Vector3 }, indexName = "index_pad_contact", axialY = 0): void {
+  for (const [digit, name] of [["thumb", "thumb_pad_contact"], ["index", indexName]] as const) {
+    const anchor = root.getObjectByName(name)!, point = anchor.getWorldPosition(new Vector3()), delta = point.clone().sub(handle.point);
+    const axial = delta.dot(handle.axis), radial = delta.addScaledVector(handle.axis, -axial);
+    const targetY = axialY + (indexName === "index_side_contact" ? digit === "thumb" ? 0.00025 : -0.00025 : 0);
+    expect(Math.abs(axial - targetY), `${name} axial contact`).toBeLessThan(0.000025);
+    expect(Math.abs(radial.length() - needleHandleRadiusAt(targetY)), `${name} radial contact`).toBeLessThan(0.000025);
+    const normal = anchor.localToWorld(new Vector3(0, 1, 0)).sub(point).normalize();
+    expect(normal.dot(radial.normalize()), `${name} opposed surface normal`).toBeLessThan(-0.995);
+    expect(surfaceDistance(root, digit, name), `${name} actual deformed skin`).toBeLessThan(0.00005);
+  }
+}
+
+describe("reference hand scene integration", () => {
+  it("carries an already-held needle above the skin during approach, then follows the recorded insertion", async () => {
+    const s = await makeScene();
+    s.needles.sync([{ id: "needle-a", target: "ST36:left", site, angleDeg: 0, azimuthDeg: 0, depthCm: 2, length: 0.04 }], 0, true);
+    s.procedure.setInsertionPresentation("needle-a", { durationMs: 4000, hand: "right", grip: "two-finger", support: "none", gripApertureMm: 12 });
+    const initialGrip = s.needles.grip("needle-a")!.point.clone();
+    s.procedure.sync(); s.procedure.tick(0); s.procedure.tick(430);
+    const root = s.procedure.group.getObjectByName("needle-hand")!;
+    expect(root.visible).toBe(true);
+    s.procedure.group.updateMatrixWorld(true);
+    expectHeldSurfaces(root, s.needles.grip("needle-a")!);
+    const tip = s.needles.group.getObjectByName("needle-tip")!;
+    const hover = tip.getWorldPosition(new Vector3()).sub(site.p).dot(site.n);
+    expect(hover).toBeGreaterThan(0.06);
+    expect(s.needles.grip("needle-a")!.point.clone().sub(initialGrip).dot(site.n)).toBeGreaterThan(0.06);
+
+    s.procedure.tick(900); s.procedure.group.updateMatrixWorld(true);
+    expectHeldSurfaces(root, s.needles.grip("needle-a")!);
+    const beforeInsertion = tip.getWorldPosition(new Vector3()).sub(site.p).dot(site.n);
+    expect(beforeInsertion).toBeGreaterThan(0.005);
+    expect(hover - beforeInsertion).toBeGreaterThan(0.06);
+    expect(s.needles.grip("needle-a")!.point.distanceTo(initialGrip)).toBeLessThan(0.000025);
+    expect(s.needles.transitions()).toContainEqual({ id: "needle-a", kind: "insert" });
+
+    s.procedure.tick(7000);
+    expect(s.needles.transitions()).toEqual([]);
+    expect(tip.getWorldPosition(new Vector3()).sub(site.p).dot(site.n)).toBeCloseTo(-0.02, 7);
+    s.dispose();
+  });
+
+  it.each(["insertion", "preview"] as const)("routes the three public presentation controls into real %s geometry", async (mode) => {
+    const capture = async (side: "left" | "right", settings: Pick<InsertionPresentation, "wristElevationDeg" | "gripStyle" | "idleFingerPose">) => {
+      const s = await makeScene(mode === "preview");
+      if (mode === "insertion") {
+        s.needles.sync([{ id: "needle-a", target: "ST36:left", site, angleDeg: 0, azimuthDeg: 0, depthCm: 2, length: 0.04 }], 0, true);
+        s.procedure.setInsertionPresentation("needle-a", { ...settings, hand: side, grip: "two-finger", support: "none" });
+        s.procedure.sync(); s.procedure.tick(0); s.procedure.tick(430);
+      } else {
+        expect(s.procedure.preview(input("nian", { needleId: "needle-a", motion: { ...settings, hand: side, grip: "two-finger", support: "none", rotationDeg: 0 } }))).toBe(true);
+        s.procedure.setPlayback({ progress: 0.5, paused: true });
+      }
+      const root = s.procedure.group.getObjectByName("needle-hand")!;
+      expect(root.visible, `${mode}/${side}/${JSON.stringify(settings)}`).toBe(true);
+      s.procedure.group.updateMatrixWorld(true);
+      const handle = s.needles.grip("needle-a")!;
+      expectHeldSurfaces(root, handle, settings.gripStyle === "side-pinch" ? "index_side_contact" : "index_pad_contact");
+      const point = (name: string) => root.getObjectByName(name)!.getWorldPosition(new Vector3());
+      const wrist = point("wrist").sub(handle.point), height = wrist.dot(handle.axis), lateral = wrist.addScaledVector(handle.axis, -height).length();
+      const middleMcp = point("middle_MCP"), middlePip = point("middle_PIP"), middleDip = point("middle_DIP");
+      const snapshot = {
+        elevation: Math.atan2(height, lateral) * 180 / Math.PI,
+        indexTipAxial: point("index_tip").sub(handle.point).dot(handle.axis),
+        middleTip: point("middle_tip"),
+        middlePip: middlePip.clone().sub(middleMcp).angleTo(middleDip.clone().sub(middlePip)) * 180 / Math.PI,
+      };
+      s.dispose();
+      return snapshot;
+    };
+    for (const side of ["left", "right"] as const) {
+      const baseline = await capture(side, { wristElevationDeg: 55, gripStyle: "tip-pinch", idleFingerPose: "curled" });
+      const raised = await capture(side, { wristElevationDeg: 60, gripStyle: "tip-pinch", idleFingerPose: "curled" });
+      const lateral = await capture(side, { wristElevationDeg: 55, gripStyle: "side-pinch", idleFingerPose: "curled" });
+      const relaxed = await capture(side, { wristElevationDeg: 55, gripStyle: "tip-pinch", idleFingerPose: "relaxed" });
+      expect(baseline.elevation).toBeCloseTo(55, 3);
+      expect(raised.elevation).toBeCloseTo(60, 3);
+      expect(lateral.indexTipAxial).toBeLessThan(baseline.indexTipAxial - 0.005);
+      expect(relaxed.middleTip.distanceTo(baseline.middleTip)).toBeGreaterThan(0.005);
+      expect(relaxed.middlePip).toBeLessThan(baseline.middlePip - 10);
+    }
+  });
+
+  it.each(["insertion", "preview"] as const)("uses the three-finger wrist default when %s omits an explicit elevation", async (mode) => {
+    for (const hand of ["left", "right"] as const) {
+      const s = await makeScene(mode === "preview");
+      if (mode === "insertion") {
+        s.needles.sync([{ id: "needle-a", target: "ST36:left", site, angleDeg: 0, azimuthDeg: 0, depthCm: 2, length: 0.04 }], 0, true);
+        s.procedure.setInsertionPresentation("needle-a", { hand, grip: "three-finger", support: "none" });
+        s.procedure.sync(); s.procedure.tick(0); s.procedure.tick(430);
+      } else {
+        expect(s.procedure.preview(input("nian", { needleId: "needle-a", motion: { hand, grip: "three-finger", support: "none", rotationDeg: 0 } }))).toBe(true);
+        s.procedure.setPlayback({ progress: 0.5, paused: true });
+      }
+      const root = s.procedure.group.getObjectByName("needle-hand")!, handle = s.needles.grip("needle-a")!;
+      expect(root.visible).toBe(true);
+      s.procedure.group.updateMatrixWorld(true);
+      expectHeldSurfaces(root, handle, "index_pad_contact", -0.012);
+      const wrist = root.getObjectByName("wrist")!.getWorldPosition(new Vector3()).sub(handle.point.clone().addScaledVector(handle.axis, -0.012)), height = wrist.dot(handle.axis), across = wrist.addScaledVector(handle.axis, -height).length();
+      expect(Math.atan2(height, across) * 180 / Math.PI).toBeCloseTo(48, 3);
+      s.dispose();
+    }
+  });
+
+  it("reports the actual wrist and palm inspection frame and passes that cuff orientation to the arm solver", async () => {
+    const s = await makeScene(true);
+    expect(s.procedure.inspectionFrame()).toBeNull();
+    for (const side of ["left", "right"] as const) {
+      s.procedure.stopPreview();
+      expect(s.procedure.preview(input("nian", { needleId: "needle-a", motion: { hand: side, support: "none", rotationDeg: 0, wristElevationDeg: 60 } }))).toBe(true);
+      s.procedure.setPlayback({ progress: 0.5, paused: true });
+      const frame = s.procedure.inspectionFrame()!;
+      expect(frame).not.toBeNull();
+      const root = s.procedure.group.getObjectByName("needle-hand")!, wrist = root.getObjectByName("wrist")!, cuff = root.getObjectByName("wrist_frame")!, palm = root.getObjectByName("palm_frame")!;
+      const cuffOrigin = cuff.getWorldPosition(new Vector3()), palmOrigin = palm.getWorldPosition(new Vector3());
+      const x = cuff.localToWorld(new Vector3(1, 0, 0)).sub(cuffOrigin).normalize(), y = cuff.localToWorld(new Vector3(0, 1, 0)).sub(cuffOrigin).normalize();
+      expect(s.palms[side]).not.toBeNull();
+      expect(new Vector3(1, 0, 0).applyQuaternion(s.palms[side]!).distanceTo(x)).toBeLessThan(1e-7);
+      expect(new Vector3(0, 1, 0).applyQuaternion(s.palms[side]!).distanceTo(y)).toBeLessThan(1e-7);
+      expect(s.palms[side]!.angleTo(root.quaternion)).toBeGreaterThan(0.2);
+      expect(frame.wrist.distanceTo(wrist.getWorldPosition(new Vector3()))).toBeLessThan(1e-8);
+      expect(frame.wrist.distanceTo(s.targets[side]!)).toBeLessThan(1e-8);
+      expect(frame.contact.distanceTo(s.needles.grip("needle-a")!.point)).toBeLessThan(1e-8);
+      const dorsal = palm.localToWorld(new Vector3(0, 1, 0)).sub(palmOrigin).normalize();
+      expect(frame.palmNormal.clone().negate().distanceTo(dorsal)).toBeLessThan(1e-8);
+      expect(frame.surfaceNormal.distanceTo(site.n)).toBeLessThan(1e-8);
+      expect(frame.radius).toBeGreaterThan(0.04);
+      for (const node of [wrist, ...["thumb", "index", "middle", "ring", "little"].map((digit) => root.getObjectByName(`${digit}_tip`)!)]) {
+        expect(node.getWorldPosition(new Vector3()).distanceTo(frame.center)).toBeLessThan(frame.radius);
+      }
+    }
+    s.procedure.stopPreview();
+    expect(s.procedure.inspectionFrame()).toBeNull();
+    s.dispose();
+  });
+
+  it("disposes shared PBR textures and closes each real decoded bitmap once across both hand skeletons", async () => {
+    const s = await makeScene();
+    const textures = new Set<Texture>();
+    s.procedure.group.traverse((object) => {
+      if (!(object instanceof Mesh)) return;
+      for (const material of Array.isArray(object.material) ? object.material : [object.material]) for (const value of Object.values(material)) {
+        if (value instanceof Texture) textures.add(value);
+      }
+    });
+    expect(textures.size).toBeGreaterThanOrEqual(4);
+    const images = [...new Set([...textures].map((texture) => texture.source.data as { close(): void; width: number; height: number; data: Uint8ClampedArray }))];
+    expect(images.length).toBeGreaterThanOrEqual(4);
+    for (const image of images) expect(image.data.length).toBe(image.width * image.height * 4);
+    const disposed = [...textures].map((texture) => vi.spyOn(texture, "dispose")), closed = images.map((image) => vi.spyOn(image, "close"));
+    s.dispose(); s.procedure.dispose();
+    for (const spy of [...disposed, ...closed]) expect(spy).toHaveBeenCalledTimes(1);
+    for (const image of images) expect([image.width, image.height, image.data.length]).toEqual([0, 0, 0]);
+  });
+
+  it("releases actual PBR resources when a hand finishes loading after scene disposal", async () => {
+    const gltf = await new GLTFLoader().parseAsync(Uint8Array.from(asset).buffer, "");
+    const textures = new Set<Texture>();
+    gltf.scene.traverse((object) => {
+      if (!(object instanceof Mesh)) return;
+      for (const material of Array.isArray(object.material) ? object.material : [object.material]) for (const value of Object.values(material)) {
+        if (value instanceof Texture) textures.add(value);
+      }
+    });
+    expect(textures.size).toBeGreaterThanOrEqual(4);
+    const images = [...new Set([...textures].map((texture) => texture.source.data as { close(): void; width: number; height: number; data: Uint8ClampedArray }))];
+    for (const image of images) expect(image.data.length).toBeGreaterThan(0);
+    const disposed = [...textures].map((texture) => vi.spyOn(texture, "dispose")), closed = images.map((image) => vi.spyOn(image, "close"));
+    let finishLoading!: (value: typeof gltf) => void;
+    vi.spyOn(GLTFLoader.prototype, "loadAsync").mockImplementationOnce(() => new Promise((resolve) => { finishLoading = resolve; }));
+    const needles = new NeedleLayer(), { actor } = makeActor(), procedure = new NeedleProcedure(needles, () => actor, () => {});
+    const loading = procedure.load("/hand.glb", "#cba88a");
+    procedure.dispose();
+    expect(procedure.group.children).toHaveLength(0);
+    for (const spy of [...disposed, ...closed]) expect(spy).not.toHaveBeenCalled();
+    finishLoading(gltf); await loading;
+    procedure.dispose();
+    expect(procedure.group.children).toHaveLength(0);
+    for (const spy of [...disposed, ...closed]) expect(spy).toHaveBeenCalledTimes(1);
+    for (const image of images) expect([image.width, image.height, image.data.length]).toEqual([0, 0, 0]);
+    needles.clear();
+  });
+});
 
 describe("articulated anatomical hand contacts", () => {
   it("keeps runtime pad and nail anchors on the real deformed skin for both mirrored hands", async () => {
@@ -124,6 +327,29 @@ describe("articulated anatomical hand contacts", () => {
           expect(Math.abs(axial - holdY), `${hand}/${grip}/${workAt}/${digit} plane`).toBeLessThan(0.000025);
           expect(Math.abs(radial - needleHandleRadiusAt(holdY)), `${hand}/${grip}/${workAt}/${digit} surface`).toBeLessThan(0.000025);
         }
+      }
+    }
+    s.dispose();
+  });
+
+  it("uses true middle pulp support above the main pinch across the full published three-finger wrist range", async () => {
+    const s = await makeScene(true), total = 2400 + 1920;
+    for (const hand of ["left", "right"] as const) for (const wristElevationDeg of [44, 48, 51]) {
+      s.procedure.stopPreview();
+      expect(s.procedure.preview(input("nian", { needleId: "needle-a", motion: { durationMs: 2400, hand, grip: "three-finger", support: "none", wristElevationDeg, rotationDeg: 0 } }))).toBe(true);
+      for (const workAt of [0, 1200, 2400]) {
+        s.procedure.setPlayback({ progress: (1070 + workAt) / total, paused: true });
+        const root = s.procedure.group.getObjectByName("needle-hand")!, handle = s.needles.grip("needle-a")!;
+        expect(root.visible, `${hand}/${wristElevationDeg}/${workAt}`).toBe(true);
+        s.procedure.group.updateMatrixWorld(true);
+        expectHeldSurfaces(root, handle, "index_pad_contact", -0.012);
+        const contact = root.getObjectByName("middle_side_contact")!, point = contact.getWorldPosition(new Vector3()), offset = point.clone().sub(handle.point), y = offset.dot(handle.axis), radial = offset.addScaledVector(handle.axis, -y);
+        expect(Math.abs(y - 0.01)).toBeLessThan(0.000025);
+        expect(Math.abs(radial.length() - needleHandleRadiusAt(0.01))).toBeLessThan(0.000025);
+        expect(contact.localToWorld(new Vector3(0, 1, 0)).sub(point).normalize().dot(radial.normalize())).toBeLessThan(-0.995);
+        expect(surfaceDistance(root, "middle", "middle_side_contact")).toBeLessThan(0.00005);
+        const wrist = root.getObjectByName("wrist")!.getWorldPosition(new Vector3()).sub(handle.point.clone().addScaledVector(handle.axis, -0.012)), height = wrist.dot(handle.axis), across = wrist.addScaledVector(handle.axis, -height).length();
+        expect(Math.atan2(height, across) * 180 / Math.PI).toBeCloseTo(wristElevationDeg, 3);
       }
     }
     s.dispose();

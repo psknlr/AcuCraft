@@ -50,6 +50,9 @@ use continuous finger skins, independent skeletons, individual pad/nail contacts
 the actual handle with thumb/index by default; middle-finger support is optional. The opening control affects approach and release. Internal needle paths remain authoritative while exposed-shaft
 deflection is shown separately ([docs/TECHNIQUES.md](docs/TECHNIQUES.md), [docs/HANDS.md](docs/HANDS.md)).
 These profiles are illustrative choreography, without a model of their clinical efficacy or tissue loading.
+The [reference-based hand controls](docs/REFERENCE-POSES.md) add compact tip/side
+holding, wrist elevation and graduated idle-finger poses. The **手部 Grip** camera
+shows the complete hand from three angles for inspecting the actual motion.
 
 ![The workspace: the complete record of a low-back-pain encounter around a live 3D view of the treatment room — the patient face down on the couch with needles in the lower back and their labels, the practitioner beside the couch](docs/img/web-workspace.png)
 

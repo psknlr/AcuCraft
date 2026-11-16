@@ -1,6 +1,6 @@
 import { buildClinic } from "./clinic.js";
 import { Plane, Raycaster, Vector2, Vector3 } from "three";
-import { Director, type Shot } from "./director.js";
+import { Director, GRIP_VIEWS, gripShot, type Shot } from "./director.js";
 import { Engine } from "./engine.js";
 import { Hud } from "./hud.js";
 import { NeedleLayer, type NeedleSpec } from "./needles.js";
@@ -118,11 +118,31 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
   const engine = new Engine(host, options.quality ?? "auto");
   const director = new Director(engine.camera, engine.renderer.domElement);
   const needles = new NeedleLayer();
+  let gripViewIndex = 0;
+  let inspectingGrip = false;
+  const gripDirections: Vector3[] = [];
+  let activeInspectionNeedle: string | null = null;
+  const leaveGrip = () => { inspectingGrip = false; gripDirections.length = 0; delete engine.renderer.domElement.dataset.gripBlocked; delete engine.renderer.domElement.dataset.gripDetails; };
   const hud = new Hud({
-    camera: (mode: CameraMode) => director.setMode(mode),
+    camera: (mode: CameraMode) => { leaveGrip(); director.setMode(mode); },
     shot: (name) => {
+      leaveGrip();
       const shot = name === "room" ? roomShot() : name === "patient" ? patientShot() : needleShot();
       if (shot) director.cut(shot, 1100, true);
+    },
+    grip: () => {
+      const frame = procedure.inspectionFrame();
+      if (!frame) return;
+      const view = GRIP_VIEWS[gripViewIndex++ % GRIP_VIEWS.length]!;
+      director.setMode("free");
+      director.cut({ ...gripShot(frame, view, engine.camera.aspect), inspectionAvoidDirections: gripDirections.map(direction => direction.clone()) }, 650, true);
+      inspectingGrip = true;
+      engine.renderer.domElement.dataset.gripBlocked = String(director.inspectionBlocked ?? 0);
+      engine.renderer.domElement.dataset.gripDetails = JSON.stringify(director.inspectionDetails);
+      const details = director.inspectionDetails;
+      if (Array.isArray(details?.direction)) { gripDirections.push(new Vector3().fromArray(details.direction)); if (gripDirections.length > 2) gripDirections.shift(); }
+      hud.gripView(view, Number(details?.requestedAngleDifferenceDeg ?? 0) > 30);
+      engine.invalidate(3);
     },
     quality: (q) => engine.setQuality(q),
     picture: () => void savePicture(),
@@ -130,8 +150,9 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
     pick: (id) => pick(id),
   });
   host.appendChild(hud.root);
-  director.onMode = (m) => hud.setMode(m);
-  engine.onQuality = (q) => hud.setQuality(q, true);
+  director.onMode = (m) => { if (m !== "free") leaveGrip(); hud.setMode(m); };
+  director.controls.addEventListener("start", leaveGrip);
+  engine.onQuality = (q) => hud.setQuality(q, engine.automaticQuality);
   hud.setQuality(engine.currentQuality, (options.quality ?? "auto") === "auto");
 
   const modelUrl = options.modelUrl ?? ((file: string) => `/app/models/${file.split("/").pop()}`);
@@ -156,6 +177,7 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
   let speakingUntil = 0;
 
   const procedure = new NeedleProcedure(needles, () => practitioner, (id) => {
+    activeInspectionNeedle = id;
     const site = needles.siteOf(id);
     if (site) director.cut({ ...director.closeOn(site.p, site.n, 0.46), hold: 4000 }, 650);
   }, () => patient);
@@ -209,8 +231,15 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
   director.setHome(() => patientShot());
   // what a shot must see past: the room and its furniture, and the practitioner (never the patient: the subject)
   director.obstacles = () => [sets.root, ...(practitioner ? [practitioner.holder] : [])];
+  director.inspectionObstacles = () => {
+    const support = procedure.group.getObjectByName("support-hand");
+    const palm = procedure.group.getObjectByName("needle-hand")?.getObjectByName("palm_surface");
+    return [sets.root, ...(practitioner ? [practitioner.holder] : []), ...(patient ? [patient.holder] : []),
+      ...[...colleagues.values()].filter(person => person !== practitioner).map(person => person.holder), ...(support ? [support] : []), ...(palm ? [palm] : [])];
+  };
 
   function pick(id: string | null): void {
+    leaveGrip();
     picked = id;
     needles.highlight(id);
     options.onPick?.(id);
@@ -407,13 +436,20 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
     needles.tick(dt, now);
     procedure.tick(now);
     practitioner?.tick(now, dt);
-    if (practitioner?.isMoving || procedure.playback.mode !== "idle") engine.invalidate(2);
+    const playback = procedure.playback;
+    if (practitioner?.isMoving || procedure.group.visible && (playback.mode === "idle" || playback.playing)) engine.invalidate(2);
     director.update();
     // (the labels are placed with this frame's camera, not the last one's: no swimming while it moves)
     engine.camera.updateMatrixWorld();
-    engine.focus(director.focusDistance);
+    const inspection = procedure.inspectionFrame();
+    if (!inspection) leaveGrip();
+    hud.gripAvailable(!!inspection);
+    engine.focus(director.focusDistance, director.focusPoint, inspection ? { point: inspection.contact, normal: inspection.surfaceNormal ?? new Vector3(0, 1, 0) } : undefined);
     const r = host.getBoundingClientRect();
-    hud.place(needles.anchors(), engine.camera, r.width, r.height, procedure.group.visible);
+    const anchors = needles.anchors();
+    const nearContact = inspectingGrip && inspection ? anchors.reduce<(typeof anchors)[number] | null>((best, anchor) =>
+      anchor.at.distanceToSquared(inspection.contact) < Math.min(best?.at.distanceToSquared(inspection.contact) ?? Infinity, 0.12 ** 2) ? anchor : best, null) : null;
+    hud.place(anchors, engine.camera, r.width, r.height, procedure.group.visible, inspectingGrip ? activeInspectionNeedle ?? nearContact?.id : undefined);
   });
   sets.ready.then(
     () => {
@@ -446,6 +482,7 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
       if (!state || !finder || !practitioner) throw new Error("3D 场景尚未就绪 · The 3D scene is not ready.");
       const parsed = PerformTechniqueSchema.safeParse({ ...request, type: "perform_technique" });
       if (!parsed.success) throw new Error(`参数无效 · Invalid technique parameters: ${parsed.error.issues.map((issue) => issue.path.join(".") + ": " + issue.message).join("; ")}`);
+      activeInspectionNeedle = parsed.data.needleId ?? null;
       const target = previewSite(state.view, parsed.data);
       const site = finder.find(target);
       if (!site || !site.bare) throw new Error("当前图形未显示此处裸露皮肤，请选择可见标记 · Choose a site on the visible skin.");
@@ -456,6 +493,7 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
     setPlayback(playback) { procedure.setPlayback(playback); engine.invalidate(3); },
     cancelPreview() { procedure.stopPreview(); engine.invalidate(3); },
     dispose() {
+      director.controls.removeEventListener("start", leaveGrip);
       engine.dispose();
       director.dispose();
       patient?.dispose();

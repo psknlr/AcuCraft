@@ -24,18 +24,34 @@ export interface ManipulationTechnique {
   primitives: ManipulationTechniqueId[];
   phases: ManipulationPhase[];
   controls: ManipulationControl[];
+  /** Additional bounds of an authored contact variant, published to both operator and model tools. */
+  parameterBounds?: Partial<Record<ManipulationControl, { min: number; max: number }>>;
   defaults: ResolvedManipulationMotion;
   source: { id: "acucraft-authored-demonstration-v1"; review: "unreviewed"; note: string };
 }
 
 export const MANIPULATION_CATALOGUE_VERSION = "acucraft/manipulation-catalogue@1" as const;
+/** Published contact variants of the authored hand; these are visual reach bounds, not clinical limits. */
+export const HAND_PRESENTATION_PROFILES = {
+  ordinary: { wristElevationDeg: { min: 35, max: 70, default: 55 } },
+  threeFinger: { wristElevationDeg: { min: 44, max: 51, default: 48 }, gripStyles: ["tip-pinch"] },
+  nailWork: { wristElevationDeg: { min: 50, max: 60, default: 55 } },
+} as const;
+export const NAIL_WORK_WRIST_BOUNDS = HAND_PRESENTATION_PROFILES.nailWork.wristElevationDeg;
+export const THREE_FINGER_WRIST_BOUNDS = HAND_PRESENTATION_PROFILES.threeFinger.wristElevationDeg;
+export const THREE_FINGER_WRIST_DEFAULT = THREE_FINGER_WRIST_BOUNDS.default;
+export function handWristBounds(settings: { grip?: "two-finger" | "three-finger" } = {}, nailWork = false): { min: number; max: number; default: number } {
+  return nailWork ? NAIL_WORK_WRIST_BOUNDS : settings.grip === "three-finger" ? THREE_FINGER_WRIST_BOUNDS : HAND_PRESENTATION_PROFILES.ordinary.wristElevationDeg;
+}
 const BASE: ResolvedManipulationMotion = {
   durationMs: 2400, cycles: 3, strokeMm: 1.5, rotationDeg: 90, lateralMm: 2, tiltDeg: 3,
   tempoBias: 0.5, direction: "alternating", grip: "two-finger", support: "stabilize", hand: "auto",
   gripApertureMm: 2, contactIntensity: 0.45,
+  wristElevationDeg: 55, gripStyle: "tip-pinch", idleFingerPose: "curled",
 };
 const COMMON: ManipulationControl[] = ["durationMs", "cycles", "hand", "support", "contactIntensity"];
-const GRIP: ManipulationControl[] = ["grip", "gripApertureMm"];
+const REFERENCE_HAND: ManipulationControl[] = ["wristElevationDeg", "idleFingerPose"];
+const GRIP: ManipulationControl[] = ["grip", "gripApertureMm", "gripStyle"];
 /**
  * Applicable controls follow the sampled primitive and its articulated hand pose, not its broad family.
  * Fixed surface/nail-work poses have technique-specific finger roles; ordinary holding and Fei respect grip selection.
@@ -134,7 +150,8 @@ export const MANIPULATION_TECHNIQUES: readonly ManipulationTechnique[] = ENTRIES
   return {
     id, zh, label, family, context, needsNeedle: context !== "skin", description, evidence: "illustrative",
     primitives: phases.map((p) => p.primitive), phases,
-    controls: [...new Set([...COMMON, ...phases.flatMap((p) => PRIMITIVE_CONTROLS[p.primitive] ?? [])])],
+    controls: [...new Set([...COMMON, ...(context === "retained" ? REFERENCE_HAND : []), ...phases.flatMap((p) => PRIMITIVE_CONTROLS[p.primitive] ?? [])])],
+    ...(id === "gua" || id === "tan" ? { parameterBounds: { wristElevationDeg: { ...NAIL_WORK_WRIST_BOUNDS } } } : {}),
     defaults: { ...BASE, ...defaults }, source: SOURCE,
   };
 });
@@ -147,7 +164,9 @@ const finite = (v: number | undefined, fallback: number, lo: number, hi: number)
 const enumValue = <T extends string>(v: T | undefined, allowed: readonly T[], fallback: T): T => v !== undefined && allowed.includes(v) ? v : fallback;
 /** Defensive resolution also protects direct previews, which do not necessarily pass through an action parser. */
 export function resolveManipulationMotion(id: ManipulationTechniqueId, settings: ManipulationMotionSettings = {}): ResolvedManipulationMotion {
-  const base = manipulationTechnique(id)?.defaults ?? BASE;
+  const definition = manipulationTechnique(id), base = definition?.defaults ?? BASE;
+  const grip = enumValue(settings.grip, ["two-finger", "three-finger"], base.grip);
+  const wristBounds = handWristBounds({ grip }, id === "gua" || id === "tan");
   return {
     durationMs: Math.round(finite(settings.durationMs, base.durationMs, 400, 30_000)),
     cycles: Math.round(finite(settings.cycles, base.cycles, 1, 12)),
@@ -157,7 +176,10 @@ export function resolveManipulationMotion(id: ManipulationTechniqueId, settings:
     tiltDeg: finite(settings.tiltDeg, base.tiltDeg, 0, 8),
     tempoBias: finite(settings.tempoBias, base.tempoBias, 0.2, 0.8),
     direction: enumValue(settings.direction, ["alternating", "clockwise", "counterclockwise"], base.direction),
-    grip: enumValue(settings.grip, ["two-finger", "three-finger"], base.grip),
+    grip,
+    wristElevationDeg: finite(settings.wristElevationDeg, wristBounds.default, wristBounds.min, wristBounds.max),
+    gripStyle: enumValue(settings.gripStyle, ["tip-pinch", "side-pinch"], base.gripStyle),
+    idleFingerPose: enumValue(settings.idleFingerPose, ["curled", "relaxed"], base.idleFingerPose),
     support: enumValue(settings.support, ["none", "stabilize", "stretch", "pinch", "press"], base.support),
     hand: enumValue(settings.hand, ["auto", "left", "right"], base.hand),
     gripApertureMm: finite(settings.gripApertureMm, base.gripApertureMm, 0, 12),

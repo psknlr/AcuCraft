@@ -27,6 +27,7 @@ function chip(text: string, tone: Tone = "muted"): HTMLElement {
 export interface HudControls {
   camera(mode: CameraMode): void;
   shot(name: "room" | "patient" | "needle"): void;
+  grip(): void;
   quality(q: Quality | "auto"): void;
   picture(): void;
   fullscreen(): void;
@@ -65,6 +66,7 @@ export class Hud {
   private subTimer = 0;
   private capTimer = 0;
   private modeButton: HTMLButtonElement;
+  private gripButton: HTMLButtonElement;
   private qualitySelect: HTMLSelectElement;
   private last = "";
 
@@ -90,6 +92,8 @@ export class Hud {
     };
     this.modeButton = button("Auto camera", "the camera follows what happens (drag to take it)", () => this.controls.camera(this.modeButton.dataset.mode === "auto" ? "free" : "auto"));
     this.modeButton.dataset.mode = "auto";
+    this.gripButton = button("手部 Grip", "查看持针手：三分之四、侧面、掌侧 · Inspect the whole grip", () => this.controls.grip());
+    this.gripButton.disabled = true;
     this.qualitySelect = el("select", "hud-select");
     this.qualitySelect.setAttribute("aria-label", "rendering quality");
     for (const [v, t] of [["auto", "Quality: auto"], ["high", "High"], ["medium", "Medium"], ["low", "Low"]] as const) {
@@ -103,6 +107,7 @@ export class Hud {
       button("Room", "the whole room", () => this.controls.shot("room")),
       button("Patient", "the patient", () => this.controls.shot("patient")),
       button("Needle", "the latest needle", () => this.controls.shot("needle")),
+      this.gripButton,
       button("⤓", "save a picture of the view", () => this.controls.picture()),
       button("⛶", "full screen", () => this.controls.fullscreen()),
       this.qualitySelect,
@@ -112,6 +117,20 @@ export class Hud {
   ready(): void {
     this.loading.classList.add("done");
     window.setTimeout(() => this.loading.remove(), 900);
+  }
+
+  gripAvailable(available: boolean): void {
+    this.gripButton.disabled = !available;
+    this.gripButton.title = available ? this.gripButton.getAttribute("aria-label") ?? "手部 Grip"
+      : "播放或预览持针动作后查看手部 · Play or preview a needle action to inspect the hand";
+  }
+
+  gripView(view: "three-quarter" | "side" | "palmar", adjusted = false): void {
+    const labels = { "three-quarter": "三分之四 ¾", side: "侧面 Side", palmar: "掌侧 Palm" };
+    this.gripButton.textContent = `手部 ${adjusted ? "避让斜视 Oblique" : labels[view]}`;
+    const title = `手部观察：${labels[view]}${adjusted ? "；已避开身体遮挡调整 · Adjusted around occluders" : ""}；点击切换视角 · Grip inspection; click for the next view`;
+    this.gripButton.title = title;
+    this.gripButton.setAttribute("aria-label", title);
   }
 
   performance(state: TechniquePlayback): void {
@@ -203,7 +222,7 @@ export class Hud {
   }
 
   /** Put each needle's label where its handle is on the screen. */
-  place(anchors: { id: string; target: string; at: Vector3; inserted: number; highlight: boolean }[], camera: PerspectiveCamera, w: number, h: number, handsActive = false): void {
+  place(anchors: { id: string; target: string; at: Vector3; inserted: number; highlight: boolean }[], camera: PerspectiveCamera, w: number, h: number, handsActive = false, inspectionNeedle?: string | null): void {
     const keep = new Set(anchors.map((a) => a.id));
     for (const [id, e] of this.labelEls) {
       if (keep.has(id)) continue;
@@ -224,6 +243,11 @@ export class Hud {
         if (side) e.append(document.createTextNode(` ${side}`));
         this.labels.appendChild(e);
         this.labelEls.set(a.id, e);
+      }
+      if (a.id === inspectionNeedle) {
+        e.style.opacity = "0";
+        e.style.pointerEvents = "none";
+        continue;
       }
       v.copy(a.at).project(camera);
       const dist = camera.position.distanceTo(a.at);

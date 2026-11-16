@@ -68,7 +68,7 @@ import { ARM_REACH_M, CONTACT_RANGE_M, distanceToArea, fixtureReach, planWalk, s
 import { detectClaims, detectCommitment, detectTopics, questionCount, type Claim } from "./text.js";
 import { clone } from "./util.js";
 import { techniqueStimulus } from "./techniques.js";
-import { manipulationTechnique, resolveManipulationMotion } from "./performance.js";
+import { HAND_PRESENTATION_PROFILES, handWristBounds, manipulationTechnique, resolveManipulationMotion } from "./performance.js";
 
 /**
  * The encounter engine: `createEncounter` and `step`. Pure — `step` never mutates its input and returns a new state.
@@ -1434,6 +1434,15 @@ const HANDLERS: HandlerMap = {
     ctx.out.cost = 0.5;
   },
   insert_needle(ctx, a) {
+    if (a.presentation?.grip === "three-finger" && a.presentation.gripStyle !== undefined && !(HAND_PRESENTATION_PROFILES.threeFinger.gripStyles as readonly string[]).includes(a.presentation.gripStyle)) {
+      throw new Rejection("presentation-parameter", "Three-finger holding uses tip-pinch on this hand; read lookup techniques handProfiles.");
+    }
+    if (a.presentation?.wristElevationDeg !== undefined) {
+      const bounds = handWristBounds(a.presentation);
+      if (a.presentation.wristElevationDeg < bounds.min || a.presentation.wristElevationDeg > bounds.max) {
+        throw new Rejection("presentation-parameter", `Insertion wristElevationDeg must be ${bounds.min} to ${bounds.max} for the selected grip; read lookup techniques handProfiles.`);
+      }
+    }
     const { s, sc } = ctx;
     const n = s.needles[a.needleId];
     if (!n) throw new Rejection("unknown-id", `There is no needle ${a.needleId}.`);
@@ -1641,6 +1650,16 @@ const HANDLERS: HandlerMap = {
     const { s } = ctx;
     const definition = manipulationTechnique(a.technique);
     if (!definition) throw new Rejection("unknown-technique", `Unknown manipulation ${a.technique}: read lookup techniques.`);
+    if (definition.controls.includes("grip") && a.motion?.grip === "three-finger" && a.motion.gripStyle !== undefined && !(HAND_PRESENTATION_PROFILES.threeFinger.gripStyles as readonly string[]).includes(a.motion.gripStyle)) {
+      throw new Rejection("technique-parameter", "Three-finger holding uses tip-pinch on this hand; read lookup techniques handProfiles.");
+    }
+    const contactBounds = { wristElevationDeg: handWristBounds(a.motion, a.technique === "gua" || a.technique === "tan"), ...definition.parameterBounds };
+    for (const [key, bounds] of Object.entries(contactBounds)) {
+      const value = a.motion?.[key as keyof NonNullable<typeof a.motion>];
+      if (typeof value === "number" && (value < bounds.min || value > bounds.max)) {
+        throw new Rejection("technique-parameter", `${a.technique}: ${key} must be ${bounds.min} to ${bounds.max} for this authored contact pose; read lookup techniques handProfiles.`);
+      }
+    }
     const blockers: Protection[] = [];
     if (definition.context !== "removed" && s.patient.fainted) {
       addUnsafe(ctx, "continued-after-adverse-event");

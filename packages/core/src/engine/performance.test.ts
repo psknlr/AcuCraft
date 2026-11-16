@@ -4,6 +4,7 @@ import {
   type ManipulationMotionSettings,
 } from "../schema/manipulation.js";
 import { MANIPULATION_TECHNIQUES, manipulationCatalogueComplete, manipulationTechnique, resolveManipulationMotion, sampleTechnique } from "./performance.js";
+import { InsertionPresentationSchema } from "../schema/actions.js";
 
 const length = (p: { u: number; v: number }) => Math.hypot(p.u, p.v);
 
@@ -31,12 +32,37 @@ describe("the authored manipulation catalogue", () => {
       { strokeMm: -0.01 }, { strokeMm: 3.01 }, { rotationDeg: 180.1 }, { lateralMm: 4.1 }, { tiltDeg: 8.1 },
       { tempoBias: 0.19 }, { tempoBias: 0.81 }, { gripApertureMm: 12.1 }, { contactIntensity: 1.1 },
       { direction: "free" }, { hand: "both" }, { support: "force" }, { forceN: 3 }, { unsafeDepthCm: 5 },
+      { wristElevationDeg: 34.9 }, { wristElevationDeg: 70.1 }, { gripStyle: "free" }, { idleFingerPose: "rigid" },
     ]) {
       expect(PerformTechniqueSchema.safeParse({ type: "perform_technique", technique: "nian", motion }).success, JSON.stringify(motion)).toBe(false);
     }
     expect(PerformTechniqueSchema.safeParse({ type: "perform_technique", technique: "nonsense" }).success).toBe(false);
     expect(PerformTechniqueSchema.safeParse({ type: "perform_technique", technique: "nian", source: "expert-validated" }).success).toBe(false);
     expect(PerformTechniqueSchema.parse({ type: "perform_technique", technique: "tui-withdraw", needleId: "pack-a.1", motion: { hand: "right", grip: "three-finger", contactIntensity: 0 } })).toMatchObject({ technique: "tui-withdraw", motion: { contactIntensity: 0 } });
+  });
+
+  it("shares bounded reference hand controls between insertion and retained motion without changing needle movement", () => {
+    for (const settings of [
+      { wristElevationDeg: 35, gripStyle: "tip-pinch", idleFingerPose: "curled" },
+      { wristElevationDeg: 55.5, gripStyle: "side-pinch", idleFingerPose: "relaxed" },
+      { wristElevationDeg: 70, gripStyle: "side-pinch", idleFingerPose: "curled" },
+    ] as const) {
+      expect(InsertionPresentationSchema.parse(settings)).toEqual(settings);
+      expect(ManipulationMotionSettingsSchema.parse(settings)).toEqual(settings);
+      expect(resolveManipulationMotion("nian", settings)).toMatchObject(settings);
+      // These controls change the holding hand; the sampled needle trajectory stays authoritative.
+      expect(sampleTechnique("nian", 700, settings)).toEqual(sampleTechnique("nian", 700));
+    }
+    for (const settings of [{ wristElevationDeg: 34.9 }, { wristElevationDeg: 70.1 }, { gripStyle: "free" }, { idleFingerPose: "rigid" }]) {
+      expect(InsertionPresentationSchema.safeParse(settings).success).toBe(false);
+      expect(ManipulationMotionSettingsSchema.safeParse(settings).success).toBe(false);
+    }
+    expect(InsertionPresentationSchema.parse({ grip: "two-finger" })).toEqual({ grip: "two-finger" });
+    expect(resolveManipulationMotion("nian", { rotationDeg: 17 })).toMatchObject({
+      rotationDeg: 17, wristElevationDeg: 55, gripStyle: "tip-pinch", idleFingerPose: "curled",
+    });
+    expect(resolveManipulationMotion("nian", { wristElevationDeg: 120 }).wristElevationDeg).toBe(70);
+    expect(resolveManipulationMotion("nian", { wristElevationDeg: NaN }).wristElevationDeg).toBe(55);
   });
 
   it("defaults every retained technique to thumb-index holding while retaining explicit middle support", () => {
@@ -47,6 +73,24 @@ describe("the authored manipulation catalogue", () => {
       expect(resolveManipulationMotion(entry.id).grip, `${entry.id} resolved default`).toBe("two-finger");
       expect(resolveManipulationMotion(entry.id, { grip: "three-finger" }).grip, `${entry.id} explicit support`).toBe("three-finger");
     }
+  });
+
+  it("bounds direct nail-work previews to their advertised contact variant", () => {
+    for (const id of ["gua", "tan"] as const) {
+      expect(manipulationTechnique(id)?.parameterBounds).toMatchObject({ wristElevationDeg: { min: 50, max: 60 } });
+      expect(resolveManipulationMotion(id, { wristElevationDeg: 35 }).wristElevationDeg).toBe(50);
+      expect(resolveManipulationMotion(id, { wristElevationDeg: 70 }).wristElevationDeg).toBe(60);
+      expect(resolveManipulationMotion(id, { wristElevationDeg: 57.5 }).wristElevationDeg).toBe(57.5);
+      expect(resolveManipulationMotion(id).wristElevationDeg).toBe(55);
+    }
+  });
+
+  it("resolves the optional middle-support variant to its own reachable default and bounds", () => {
+    expect(resolveManipulationMotion("nian", { grip: "three-finger" })).toMatchObject({ grip: "three-finger", wristElevationDeg: 48, gripStyle: "tip-pinch" });
+    expect(resolveManipulationMotion("nian", { grip: "three-finger", wristElevationDeg: 35 }).wristElevationDeg).toBe(44);
+    expect(resolveManipulationMotion("nian", { grip: "three-finger", wristElevationDeg: 70 }).wristElevationDeg).toBe(51);
+    expect(resolveManipulationMotion("nian", { grip: "three-finger", wristElevationDeg: 49.5 }).wristElevationDeg).toBe(49.5);
+    expect(resolveManipulationMotion("gua", { grip: "three-finger" }).wristElevationDeg).toBe(55);
   });
 
   it("keeps the selected primary grip through ordinary and compound phases, including Fei", () => {
@@ -71,14 +115,21 @@ describe("the authored manipulation catalogue", () => {
   it("advertises controls consumed by each primitive and unions them for compound recipes", () => {
     const controls = (id: string) => manipulationTechnique(id)!.controls;
     expect(controls("chuai")).toEqual(["durationMs", "cycles", "hand", "support", "contactIntensity", "lateralMm", "tempoBias"]);
-    expect(controls("gua")).toEqual(["durationMs", "cycles", "hand", "support", "contactIntensity", "gripApertureMm", "lateralMm", "tempoBias"]);
-    expect(controls("tan")).toEqual(["durationMs", "cycles", "hand", "support", "contactIntensity", "lateralMm", "tiltDeg"]);
+    expect(controls("gua")).toEqual(["durationMs", "cycles", "hand", "support", "contactIntensity", "wristElevationDeg", "idleFingerPose", "gripApertureMm", "lateralMm", "tempoBias"]);
+    expect(controls("tan")).toEqual(["durationMs", "cycles", "hand", "support", "contactIntensity", "wristElevationDeg", "idleFingerPose", "lateralMm", "tiltDeg"]);
     expect(controls("nu")).not.toContain("strokeMm");
     expect(controls("nu")).toContain("grip");
     expect(controls("yao")).not.toContain("direction");
     expect(controls("pan")).toContain("direction");
     expect(controls("nian")).toContain("rotationDeg");
     expect(controls("nian")).not.toContain("strokeMm");
+    expect(controls("nian")).toContain("gripStyle");
+    expect(controls("gua")).not.toContain("gripStyle");
+    expect(controls("tan")).not.toContain("gripStyle");
+    for (const entry of MANIPULATION_TECHNIQUES.filter((t) => t.context === "retained")) {
+      expect(entry.controls).toContain("wristElevationDeg");
+      expect(entry.controls).toContain("idleFingerPose");
+    }
     expect(controls("she")).toContain("gripApertureMm");
     expect(controls("she")).not.toContain("grip");
     for (const id of ["zhua", "an", "men"]) expect(controls(id)).toEqual(["durationMs", "cycles", "hand", "support", "contactIntensity"]);

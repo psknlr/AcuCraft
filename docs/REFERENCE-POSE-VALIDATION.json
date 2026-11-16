@@ -1,0 +1,105 @@
+{
+  "scope": "Authored visual kinematics; finite sampled states, not clinical or AAA-quality validation.",
+  "asset": {
+    "sha256": "9262eb640e7668f1b051aad8e0a2ce9004a52f3da0e4d318c8e7325b9996e53c",
+    "bytes": 1144328,
+    "triangles": 13472,
+    "animations": [
+      "hand_open",
+      "hand_support",
+      "hand_three_finger",
+      "hand_scrape",
+      "hand_flick"
+    ]
+  },
+  "runtimeSha256": "7a15c102cc8cdddcb72d40efa7af0df7935a397c602f04a507124236c202fc8f",
+  "repositoryCheck": {
+    "command": "bash tools/check.sh",
+    "testFiles": 40,
+    "testsPassed": 559,
+    "typecheck": "passed",
+    "contentAndGenerator": "passed",
+    "figureFitSites": 11,
+    "scriptedLlm": "15/15",
+    "protocolBaseline": "14/15; existing slim-headache pleura outcome unchanged",
+    "testDurationSeconds": 55.43
+  },
+  "blender": {
+    "rebuilds": 2,
+    "byteIdentical": true,
+    "embeddedPngImages": 4,
+    "assetAndRealPngTestsPassed": 19
+  },
+  "independentMeshAudit": {
+    "method": "Actual loaded product GLB, actual five animation clips and runtime pose; triangle BVHs, three-direction majority parity, unchanged 50 micrometre penetration threshold. Buried anatomical proximal/palm unions are excluded; exposed digit surfaces and terminal skin into the palm are checked.",
+    "ordinary": {
+      "samples": 216,
+      "modes": [
+        false,
+        true
+      ],
+      "valid": 216,
+      "exposedCrossingsOver50Micrometres": 0
+    },
+    "threeFinger": {
+      "samples": 972,
+      "modes": [
+        false,
+        true
+      ],
+      "valid": 972,
+      "exposedCrossingsOver50Micrometres": 0
+    },
+    "ordinaryPatient": {
+      "samples": 72,
+      "patientTriangleIntersections": 0
+    },
+    "threeFingerPatient": {
+      "samples": 36,
+      "patientTriangleIntersections": 0
+    },
+    "support": {
+      "samples": 90,
+      "exposedSelfOrPatientIntersections": 0,
+      "visiblePalpationOrStretch": 60,
+      "heelPressReachHidden": 30
+    }
+  },
+  "limits": [
+    "Procedural figures and separate closed skin junctions remain stylized; no clinical motion capture or force/tissue deformation validation.",
+    "Supporting contacts use an authored local skin-plane target. Heel pressing is outside the arm reach from the recorded low-back fixture stance and is hidden with explicit reach feedback.",
+    "Offline deterministic video output frame rate is separate from actual browser rendering performance."
+  ],
+  "browserStills": {
+    "quality": "high",
+    "resolution": [
+      1280,
+      850
+    ],
+    "mainHandOnly": {
+      "support": "none",
+      "criticalOcclusions": [
+        0,
+        0,
+        0
+      ],
+      "shaftAlignment": [
+        0.517,
+        0.433,
+        0.411
+      ],
+      "pairwiseViewAnglesDeg": [
+        133.2,
+        116.6,
+        58.7
+      ]
+    },
+    "defaultBimanual": {
+      "support": "stabilize",
+      "criticalOcclusions": 0
+    },
+    "errors": [],
+    "limits": "Palmar inspection retains partial cuff occlusion of the wrist. These captures do not establish AAA or clinical fidelity.",
+    "cameraRuntimeSha256": "b21c1026ee6d7bfea2e94b3383004ec824e8afb0c9d53c233b5dd562da98e9da"
+  }
+}
