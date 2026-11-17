@@ -15,6 +15,7 @@ import { ArticulatedHand, handOrientation, surfaceHandOrientation, type HandCont
 import { alignNeedleWristAzimuth } from "./needle-hand-frame.js";
 import { NEEDLE_HANDLE_RADIUS_M } from "./needle-shape.js";
 import { PatientClearance } from "./clearance.js";
+import { handWristSurface, type HandWristSurface } from "./wrist-join.js";
 
 export type InsertionPresentation = SharedInsertionPresentation;
 export interface HandInspectionFrame {
@@ -95,6 +96,7 @@ export class NeedleProcedure {
   private readonly clearance = new PatientClearance();
   private readonly clearanceRoll = new Map<ArticulatedHand, number>();
   private readonly clearancePlan = new Map<ArticulatedHand, number>();
+  private readonly wristSurfaces = new Map<ArticulatedHand, HandWristSurface>();
   private placements: { hand: ArticulatedHand; side: "left" | "right"; desiredWrist: Vector3; orientation: Quaternion; reach: number; anchor: HandContact }[] = [];
 
   constructor(private readonly needles: NeedleLayer, private readonly practitioner: () => Person | null, private readonly focus: (id: string) => void,
@@ -157,6 +159,10 @@ export class NeedleProcedure {
     if (this.gone) { this.disposeAssets(); return; }
     this.hand = new ArticulatedHand(gltf.scene, gltf.animations, skin);
     this.supportHand = new ArticulatedHand(cloneSkeleton(gltf.scene) as Group, gltf.animations, skin);
+    for (const hand of [this.hand, this.supportHand]) {
+      const surface = handWristSurface(hand.model);
+      if (surface) this.wristSurfaces.set(hand, surface);
+    }
     this.hand.root.name = "needle-hand";
     this.supportHand.root.name = "support-hand";
     this.group.add(this.hand.root, this.supportHand.root);
@@ -488,6 +494,7 @@ export class NeedleProcedure {
       hand.root.quaternion.copy(orientation);
       const lacksSpace = hand.contactValid && this.clearance.intersects(hand.model, this.patient());
       hand.root.visible = hand.contactValid && !lacksSpace && person.holder.visible && reach > 0.02 && (result.reachable || reach < 0.99);
+      person.setDetailHand?.(side, hand.root.visible, this.wristSurfaces.get(hand));
       if (reach >= 0.99 && !result.reachable) unreachable.push(side);
       if (reach >= 0.99 && !hand.contactValid) invalidContacts.push(side);
       if (reach > 0.02 && lacksSpace) blocked.push(side);
@@ -558,6 +565,7 @@ export class NeedleProcedure {
     this.reset();
     this.hand?.dispose();
     this.supportHand?.dispose();
+    this.wristSurfaces.clear();
     this.disposeAssets();
     this.group.removeFromParent();
   }

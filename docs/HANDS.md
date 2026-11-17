@@ -6,7 +6,7 @@ and animation are CC0-1.0. It contains no downloaded meshes, external textures,
 patient data or copies of the supplied reference photographs. This is an authored
 visual simulation, without anatomical, motion-capture or clinical validation.
 
-![The revised hand engaged in the actual working needle-grasp scene](img/hand-anatomy-working-tip.png)
+![Actual operating hand and revised wrist/sleeve transition](img/wrist-join-tip-three-quarter.png)
 
 [Reference interpretation, shared controls and inspection views](REFERENCE-POSES.md)
 describes how the supplied images inform the implementation.
@@ -30,6 +30,71 @@ ignored. Its recorded SHA identifies the calibration input, not the subsequently
 rebuilt output, so the provenance does not require a circular output hash. A
 checkout can use its shipped source GLB for the next sampling run. The validation
 snapshot retains this iteration's original calibration-input identity.
+
+When anatomical geometry changes, export an isolated geometry-only calibration
+before sampling the controller. This mode consumes no older choreography and
+cannot overwrite either production artifact:
+
+```bash
+blender -b -P tools/blender/build_hand.py -- --calibration-only \
+  --output /tmp/acu-hand-calibration.glb --manifest /tmp/acu-hand-calibration.json
+npx tsx tools/blender/export_hand_poses.ts --input /tmp/acu-hand-calibration.glb
+blender -b -P tools/blender/build_hand.py
+```
+
+Normal builds reject stale anatomy, exporter or recursively imported controller
+sources. The final asset still requires all five matching clips.
+
+## Wrist and sleeve transition
+
+The detail hand declares its actual 48-point lateral palm boundary and a second
+distal row for its surface tangent. The proximal palm is cropped at canonical
+`u=104 mm`; its internal closure preserves a solid collision volume. The carpal
+joint and distal contact geometry retain their positions.
+
+At runtime, a short skin loft joins this posed, skinned boundary to the source
+figure's actual forearm ring. Endpoint positions, smooth normals, UVs and finish
+are sampled from those two surfaces. The transition blends avatar skin colour,
+roughness, warm glow and specular response into the detail hand's embedded PBR
+textures. A duplicated UV seam avoids stretched texture interpolation. Shallow
+skin microstructure and restrained nail-bed, lunula and free-edge details remain
+procedural rather than scanned tissue.
+
+The coat's flat end disk becomes an annular rolled hem with an inner cloth wall.
+Its outer edge stays at the original sleeve boundary; thickness extends inward.
+The transition removes entire explicitly tagged stock-hand, exposed-forearm and
+sleeve-cap triangles. It does not collapse stock fingers or forearm vertices.
+Each arm switches independently at the detail hand's actual visibility threshold;
+cancel, release and walking restore the original source topology. Older hand
+assets without the interface retain their source forearm and sleeve.
+
+One index buffer serves all ownership states, with a draw range for the active
+triangles. Inspection cameras respect that same draw range. Source clothing
+parts receive one limb owner from their immutable triangle connectivity, then
+retain their own per-vertex joint blending. This prevents outer-thigh trouser
+vertices near a resting hand from following the arm and stretching into sheets
+when both hands reach. No clothing faces are hidden to fix this binding error.
+The loft owns its geometry and cloned skin material; avatar materials
+and hand textures remain borrowed. Scene disposal releases these resources.
+
+Actual public bimanual views show the
+[trouser-binding defect before correction](img/wrist-join-before-trouser-binding.png)
+and the [corrected scene](img/wrist-join-bimanual.png). The same public camera
+preset remains free to adjust around visible geometry; these are not a fixed-eye
+pixel comparison. Other current views include [left side](img/wrist-join-tip-side.png),
+[right side](img/wrist-join-tip-right.png), [middle support](img/wrist-join-tripod.png)
+and [index-nail work](img/wrist-join-gua.png). The
+[approach](img/wrist-join-approach.png), [held](img/wrist-join-held.png) and
+[release](img/wrist-join-release.png) frames use one unchanged public camera.
+
+[Current wrist validation](WRIST-JOIN-VALIDATION.json) records the final source,
+asset and actual public-scene captures. The earlier anatomy validation and
+`hand-anatomy-*` gallery retain their original asset identities. The 85° authored
+forearm-roll bound remains in place. A connected visual surface does not prove
+anatomical wrist tracking, pressure, cloth simulation or AAA production quality.
+A fine circumferential shading trace remains visible in the optional three-finger
+close-up, and some chronological left-wrist poses retain small creases. The
+captures preserve these remaining limits.
 
 `tools/blender/hand_anatomy.json` is the explicit source for the carpal/palm basis,
 joint positions, fixed segment lengths, hinges and distal skin/nail directions.
@@ -293,7 +358,8 @@ or reachable from the same stance.
 Both arm targets are registered before either hand is drawn. The actual wrist
 orientation drives gradual distal-forearm pronation while bone lengths, elbow
 and wrist positions remain fixed. Two-bone reach clamps unreachable targets.
-Forearm roll is bounded at 85°, so a held pose can retain wrist/cuff mismatch.
+Forearm roll is bounded at 85°, so a target frame can retain residual wrist
+misalignment even though the sampled skin transition connects both surfaces.
 Sleeves can still obscure part of the palm in an actual inspection view.
 A temporary turn and bounded shared torso lean help reach the working area;
 feet stay at their authorized floor positions, and walking cancels the pose.

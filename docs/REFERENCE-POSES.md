@@ -181,7 +181,11 @@ The revised hand retains a reach limit in this low-back fixture: supporting
 palpation and stretching can be shown, while heel pressing is hidden with a
 move-closer warning. The model preserves arm lengths rather than displaying an
 unreachable supporting hand.
-The bounded forearm roll can also leave a wrist/cuff mismatch. Some public
+These anatomy captures precede the subsequent
+[wrist/sleeve transition](HANDS.md#wrist-and-sleeve-transition) and its
+[separate evidence](WRIST-JOIN-VALIDATION.json). That change connects actual skin
+boundaries and replaces the flat sleeve cap with a hollow hem; it preserves the
+authored forearm-roll bound and the existing hand controls. Some public
 side views preserve clear needle contacts while sleeves obscure part of the
 palm or unused fingers; the captures retain those actual scene occlusions.
 

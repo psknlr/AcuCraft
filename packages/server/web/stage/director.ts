@@ -100,6 +100,7 @@ function inspectionMeshes(objects: readonly Object3D[], material: MeshBasicMater
       for (let i = 0; i < count; i++) object.getVertexPosition(i, point).applyMatrix4(object.matrixWorld).toArray(vertices, i * 3);
       const geometry = new BufferGeometry(); geometry.setAttribute("position", new Float32BufferAttribute(vertices, 3));
       if (object.geometry.index) geometry.setIndex(object.geometry.index.clone());
+      geometry.setDrawRange(object.geometry.drawRange.start, object.geometry.drawRange.count);
       geometry.computeBoundingBox(); geometry.computeBoundingSphere();
       const mesh = new Mesh(geometry, material), names: string[] = [];
       for (let node: Object3D | null = object; node; node = node.parent) if (node.name) names.unshift(node.name);

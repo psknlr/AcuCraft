@@ -6,6 +6,7 @@ import { CONSULT, COUCH_TOP, SEAT_TOP, TREATMENT } from "./set.js";
 import type { StageInfo } from "./types.js";
 import { AvatarRig, type HandSide, type ReachResult } from "./rig.js";
 import { turnTowards } from "./kinematics.js";
+import type { HandWristSurface } from "./wrist-join.js";
 
 /**
  * The people of the encounter as the 3D world draws people (ClinicalCraft's figure kit): the patient as their case
@@ -171,6 +172,10 @@ export class Person {
     return this.animation?.reach(side, wristWorld, blend, palmQuat) ?? { wrist: this.wristAt(side), elbow: this.shoulderAt(side), reachable: false };
   }
 
+  setDetailHand(side: HandSide, visible: boolean, surface?: HandWristSurface): void {
+    this.animation?.setDetailHand(side, visible, surface);
+  }
+
   private walk(dt: number): number {
     const position = this.rig.root.position;
     let budget = Math.max(0, Math.min(100, dt)) * 0.0012;
@@ -225,6 +230,7 @@ export class Person {
   }
 
   dispose(): void {
+    this.animation?.dispose();
     this.holder.remove(this.rig.root);
     disposeRig(this.rig);
   }

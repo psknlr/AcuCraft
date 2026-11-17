@@ -320,5 +320,10 @@
     "metacarpalMarginCushionM": 0.001,
     "maximumThenarCmcWeight": 0.56,
     "description": "Authored soft-tissue volume and local CMC following; central palm and four MCP roots remain outside the influence mask. These are mesh deformation parameters, not clinical measurements."
+  },
+  "wristInterface": {
+    "canonicalU": 0.104,
+    "samples": 48,
+    "description": "Actual proximal palm ring for the runtime skin transition. The closed cap behind the join preserves a solid collision volume; all distal contacts and the carpal CMC are retained."
   }
 }

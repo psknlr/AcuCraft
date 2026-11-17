@@ -13,10 +13,13 @@ calibration or motion-capture reconstruction.
 """
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
 import math
+import re
 import struct
+import sys
 from pathlib import Path
 
 import bpy
@@ -49,6 +52,7 @@ SKIN_WEIGHTS = {}
 ANIMATED_MATERIALS = set()
 MATERIALS_BY_CLIP = {}
 MATERIAL_BIND_FRAMES = {}
+WRIST_INTERFACE_ROWS = {}
 
 
 def anatomy_point(point):
@@ -80,67 +84,140 @@ def material(name: str, color, roughness=0.62):
 def detail_textures(skin, nail):
     """Original deterministic PBR detail, packed into the GLB with the mesh UVs.
 
-    Geometry supplies the folds and contact surfaces. These fine variations add
-    pores, fingertip ridges and nail-bed detail without inventing anatomy from
-    an AI-generated reference photograph or pretending to measure contact force.
+    Geometry supplies the anatomical folds and contact surfaces. Shared palm
+    and finger UVs have different anatomical orientations and physical scales,
+    so these maps add restrained, neutral skin grain rather than false crease
+    bands, veins or measured pore sizes. No photographic pixels are embedded.
     """
     size = 512
-    albedo, normal, roughness = [], [], []
-    def height(u, v):
-        pore = math.sin(u * math.tau * 97 + math.sin(v * 71.0)) * math.sin(v * 673.0 + math.sin(u * math.tau * 13))
-        grain = math.sin(u * math.tau * 29 + v * 193.0) * 0.12 + math.sin(u * math.tau * 56 - v * 347.0) * 0.08
-        pad = math.exp(-((v - 0.90) / 0.12) ** 2) * max(0, math.cos(u * math.tau)) ** 4
-        fingerprint = math.sin(math.tau * (v * 94.0 + math.sin(u * math.tau) * 2.2)) * pad * 0.16
-        return pore * 0.15 + grain + fingerprint
+    albedo, roughness, heights = [], [], []
+
+    def noise(u, v, columns, rows, seed):
+        # Smooth, repeatable lattice noise; horizontal wrapping matches the
+        # cylindrical UV seam without a visible color or normal discontinuity.
+        x, y = u * columns, v * rows
+        ix, iy = math.floor(x), math.floor(y)
+        fx, fy = x - ix, y - iy
+        fx = fx * fx * fx * (fx * (fx * 6 - 15) + 10)
+        fy = fy * fy * fy * (fy * (fy * 6 - 15) + 10)
+        def value(a, b):
+            n = ((a % columns) * 374761393 + b * 668265263 + seed * 1442695041) & 0xffffffff
+            n = ((n ^ (n >> 13)) * 1274126177) & 0xffffffff
+            return ((n ^ (n >> 16)) & 0xffff) / 65535
+        lo = value(ix, iy) * (1 - fx) + value(ix + 1, iy) * fx
+        hi = value(ix, iy + 1) * (1 - fx) + value(ix + 1, iy + 1) * fx
+        return lo * (1 - fy) + hi * fy
+
     for y in range(size):
         v = y / (size - 1)
         for x in range(size):
             u = x / (size - 1)
-            h = height(u, v)
-            mottle = math.sin(u * math.tau * 3 + v * 13.0) * math.sin(v * 23.0 - u * math.tau)
-            albedo.extend((0.965 + h * 0.010, 0.940 + h * 0.009 - mottle * 0.006, 0.925 + h * 0.008 - mottle * 0.009, 1))
-            dx = (height(u + 1 / size, v) - height(u - 1 / size, v)) * 0.075
-            dy = (height(u, v + 1 / size) - height(u, v - 1 / size)) * 0.075
-            n = Vector((-dx, -dy, 1)).normalized()
-            normal.extend((n.x * 0.5 + 0.5, n.y * 0.5 + 0.5, n.z * 0.5 + 0.5, 1))
-            roughness.extend((1, 0.54 + h * 0.025 + mottle * 0.025, 0, 1))
+            warmth = noise(u, v, 5, 8, 11) - 0.5
+            tone = noise(u, v, 9, 14, 23) - 0.5
+            grain = noise(u, v, 67, 113, 37) - 0.5
+            fine = noise(u, v, 149, 241, 41)
+            pore = smoothstep((fine - 0.61) / 0.30)
+            # Sparse shallow pores and broken fine lines stay below the
+            # anatomical folds. Warping avoids a regular cross-hatched grid.
+            warp = noise(u, v, 17, 27, 53)
+            line = math.sin(math.tau * (u * 43 + v * 31 + warp * 0.65))
+            microcrease = max(0, line) ** 14 * (0.25 + noise(u, v, 31, 47, 59) * 0.75)
+            h = grain * 0.055 - pore * 0.065 - microcrease * 0.018
+            heights.append(h)
+            shade = tone * 0.030 + grain * 0.0015 - pore * 0.0015 - microcrease * 0.002
+            albedo.extend((0.964 + shade + warmth * 0.018,
+                           0.937 + shade - warmth * 0.026,
+                           0.918 + shade - warmth * 0.036, 1))
+            roughness.extend((1, 0.615 + tone * 0.035 + grain * 0.022 + pore * 0.018, 0, 1))
+
+    def normal_pixels(values, dimension, slope, wrap=True):
+        pixels = []
+        for y in range(dimension):
+            for x in range(dimension):
+                # The first/last columns duplicate a cylindrical seam. Use
+                # its real neighbours rather than flattening the seam normal.
+                left = (x - 1) % (dimension - 1) if wrap else max(0, x - 1)
+                right = (x + 1) % (dimension - 1) if wrap else min(dimension - 1, x + 1)
+                below, above = max(0, y - 1), min(dimension - 1, y + 1)
+                dx = (values[y * dimension + right] - values[y * dimension + left]) * slope
+                dy = (values[above * dimension + x] - values[below * dimension + x]) * slope
+                n = Vector((-dx, -dy, 1)).normalized()
+                pixels.extend((n.x * 0.5 + 0.5, n.y * 0.5 + 0.5, n.z * 0.5 + 0.5, 1))
+        return pixels
+
+    normal = normal_pixels(heights, size, 0.85)
+
     def image(name, pixels, noncolor=False, dimension=size):
         value = bpy.data.images.new(name, width=dimension, height=dimension, alpha=True)
-        if noncolor: value.colorspace_settings.name = "Non-Color"
+        if noncolor:
+            value.colorspace_settings.name = "Non-Color"
         value.pixels.foreach_set(pixels)
         value.pack()
         return value
-    nodes, links = skin.node_tree.nodes, skin.node_tree.links
-    shader = nodes.get("Principled BSDF")
-    for name, pixels, socket, noncolor in [("skin_albedo", albedo, "Base Color", False), ("skin_normal", normal, None, True), ("skin_roughness", roughness, None, True)]:
-        texture = nodes.new("ShaderNodeTexImage"); texture.image = image(name, pixels, noncolor)
-        if socket:
-            multiply = nodes.new("ShaderNodeMix"); multiply.data_type = "RGBA"; multiply.blend_type = "MULTIPLY"
-            multiply.inputs[0].default_value = 1
-            multiply.inputs[7].default_value = (0.64, 0.40, 0.27, 1)
-            links.new(texture.outputs["Color"], multiply.inputs[6]); links.new(multiply.outputs[2], shader.inputs[socket])
-        elif name == "skin_normal":
-            node = nodes.new("ShaderNodeNormalMap"); node.inputs["Strength"].default_value = 0.20
-            links.new(texture.outputs["Color"], node.inputs["Color"]); links.new(node.outputs["Normal"], shader.inputs["Normal"])
-        else:
-            node = nodes.new("ShaderNodeSeparateColor"); links.new(texture.outputs["Color"], node.inputs["Color"])
-            links.new(node.outputs["Green"], shader.inputs["Roughness"])
+
+    def texture_maps(mat, maps, dimension, normal_strength):
+        nodes, links = mat.node_tree.nodes, mat.node_tree.links
+        shader = nodes.get("Principled BSDF")
+        for name, pixels, kind in maps:
+            texture = nodes.new("ShaderNodeTexImage")
+            texture.image = image(name, pixels, kind != "color", dimension)
+            if kind == "normal":
+                node = nodes.new("ShaderNodeNormalMap")
+                node.inputs["Strength"].default_value = normal_strength
+                links.new(texture.outputs["Color"], node.inputs["Color"])
+                links.new(node.outputs["Normal"], shader.inputs["Normal"])
+            elif kind == "roughness":
+                node = nodes.new("ShaderNodeSeparateColor")
+                links.new(texture.outputs["Color"], node.inputs["Color"])
+                links.new(node.outputs["Green"], shader.inputs["Roughness"])
+            elif mat == skin:
+                multiply = nodes.new("ShaderNodeMix")
+                multiply.data_type = "RGBA"
+                multiply.blend_type = "MULTIPLY"
+                multiply.inputs[0].default_value = 1
+                multiply.inputs[7].default_value = (0.64, 0.40, 0.27, 1)
+                links.new(texture.outputs["Color"], multiply.inputs[6])
+                links.new(multiply.outputs[2], shader.inputs["Base Color"])
+            else:
+                links.new(texture.outputs["Color"], shader.inputs["Base Color"])
+        return shader
+
+    shader = texture_maps(skin, [("skin_albedo", albedo, "color"),
+                                 ("skin_normal", normal, "normal"),
+                                 ("skin_roughness", roughness, "roughness")], size, 0.38)
     shader.inputs["Base Color"].default_value = (0.64, 0.40, 0.27, 1)
-    shader.inputs["Specular IOR Level"].default_value = 0.32
-    nail_pixels = []
-    dimension = 128
+    shader.inputs["Specular IOR Level"].default_value = 0.28
+
+    nail_pixels, nail_roughness, nail_heights = [], [], []
+    dimension = 256
     for y in range(dimension):
+        v = y / (dimension - 1)
+        across = (v - 0.5) * 2
         for x in range(dimension):
-            u, v = x / (dimension - 1), y / (dimension - 1)
-            lunula = math.exp(-((u - 0.14) / 0.17) ** 2 - ((v - 0.5) / 0.40) ** 2)
-            edge = smoothstep((u - 0.90) / 0.10)
-            sheen = math.sin(v * 257.0) * 0.006
-            nail_pixels.extend((0.86 + lunula * 0.10 + edge * 0.10 + sheen, 0.68 + lunula * 0.17 + edge * 0.24 + sheen, 0.61 + lunula * 0.19 + edge * 0.28 + sheen, 1))
-    texture = nail.node_tree.nodes.new("ShaderNodeTexImage"); texture.image = image("nail_bed", nail_pixels, False, dimension)
-    shader = nail.node_tree.nodes.get("Principled BSDF")
-    nail.node_tree.links.new(texture.outputs["Color"], shader.inputs["Base Color"])
-    shader.inputs["Coat Weight"].default_value = 0.12
-    shader.inputs["Coat Roughness"].default_value = 0.22
+            u = x / (dimension - 1)
+            # The proximal moon and distal ivory rim follow curved boundaries
+            # across the nail, with soft transitions through the natural bed.
+            moon_boundary = 0.19 - across * across * 0.22
+            lunula = (1 - smoothstep((u - moon_boundary + 0.025) / 0.075)) * 0.52
+            edge_boundary = 0.915 - across * across * 0.035
+            edge = smoothstep((u - edge_boundary) / 0.050) * 0.86
+            bed = noise(u, v, 4, 6, 71) - 0.5
+            fibres = (math.sin(v * math.tau * 37 + math.sin(v * math.tau * 11) * 0.7)
+                      + math.sin(v * math.tau * 61 + u * 2.1) * 0.35)
+            color = (0.840 + bed * 0.016 + fibres * 0.0015,
+                     0.690 + bed * 0.020 + fibres * 0.0015,
+                     0.640 + bed * 0.020 + fibres * 0.0015)
+            for target, mix in [((0.91, 0.85, 0.79), lunula), ((0.94, 0.91, 0.85), edge)]:
+                color = tuple(a * (1 - mix) + b * mix for a, b in zip(color, target))
+            nail_pixels.extend((*color, 1))
+            nail_roughness.extend((1, 0.375 + bed * 0.025 + fibres * 0.006 + edge * 0.065, 0, 1))
+            nail_heights.append(fibres * 0.012 * (1 - edge * 0.55))
+    shader = texture_maps(nail, [("nail_bed", nail_pixels, "color"),
+                                 ("nail_normal", normal_pixels(nail_heights, dimension, 0.65, wrap=False), "normal"),
+                                 ("nail_roughness", nail_roughness, "roughness")], dimension, 0.22)
+    shader.inputs["Coat Weight"].default_value = 0.045
+    shader.inputs["Coat Roughness"].default_value = 0.34
+    shader.inputs["Specular IOR Level"].default_value = 0.38
 
 
 def surface_uv(ob, values):
@@ -442,10 +519,29 @@ def palm(root, skin):
             c = controls[segment + 1][coordinate]; d = controls[min(len(controls) - 1, segment + 2)][coordinate]
             out.append(.5*((2*b)+(-a+c)*f+(2*a-5*b+4*c-d)*f*f+(-a+3*b-3*c+d)*f*f*f))
         return out
-    vertices, weights, uv = [], [], []; n, rows = 48, 61
+    vertices, weights, uv = [], [], []; n, source_rows = 48, 61
     lower, upper = controls[0][0], controls[-1][0]
-    for row in range(rows):
-        u, width, back, front, fullness = section(row*(len(controls)-1)/(rows-1))
+    interface_u = SOURCE_ANATOMY["wristInterface"]["canonicalU"]
+    if SOURCE_ANATOMY["wristInterface"].get("samples") != n:
+        raise ValueError("Wrist interface must preserve the original 48-sample palm perimeter")
+    if not math.isfinite(interface_u) or not controls[-4][0] < interface_u < upper:
+        raise ValueError("Wrist interface must be a finite proximal crop inside the source palm")
+    samples = []
+    for row in range(source_rows):
+        t = row*(len(controls)-1)/(source_rows-1)
+        if section(t)[0] >= interface_u:
+            low = samples[-1] if samples else 0
+            high = t
+            for _ in range(48):
+                middle = (low+high)/2
+                if section(middle)[0] < interface_u: low = middle
+                else: high = middle
+            samples.append((low+high)/2)
+            break
+        samples.append(t)
+    rows = len(samples)
+    for row, sample_t in enumerate(samples):
+        u, width, back, front, fullness = section(sample_t)
         end_fade = smoothstep((u-lower)/.010) * smoothstep((upper-u)/.010)
         for i in range(n):
             angle = math.tau*i/n; c,s=math.cos(angle),math.sin(angle)
@@ -486,7 +582,7 @@ def palm(root, skin):
             ulna=max(0,(-r-.006)/.025)
             arch=.004*min(1.6,ulna)**2*smoothstep((.045*scale_u-u)/(.055*scale_u))
             p=origin+PALM_LONGITUDINAL*(u+arch)+PALM_DORSAL*v+PALM_RADIAL*r
-            vertices.append(tuple(p));uv.append((i/n,.15+row/(rows-1)*.5))
+            vertices.append(tuple(p));uv.append((i/n,.15+sample_t/(len(controls)-1)*.5))
             influence=.22*radial_palmar*math.exp(-((u-.059*scale_u)/(.034*scale_u))**2)*smoothstep((r-.010)/.014)*end_fade
             # The thenar follows the same metacarpal material progression as
             # the embedded thumb root. Central palm and the four MCP roots
@@ -503,10 +599,30 @@ def palm(root, skin):
     for j in range(rows-1):
         for i in range(n):
             a=j*n+i;b=j*n+(i+1)%n;faces.append((a,b,b+n,a+n))
-    faces.append(tuple(reversed(range(n))));faces.append(tuple((rows-1)*n+i for i in range(n)))
+    faces.append(tuple(reversed(range(n))))
+    # An explicit internal fan avoids long, thin n-gon ears folding when the
+    # local CMC influence bends one part of the perimeter. Its interior point
+    # follows the static carpal frame; all real lateral-ring weights are kept.
+    ring_start = (rows-1)*n
+    cap_centre = len(vertices)
+    vertices.append(tuple(sum((Vector(p) for p in vertices[ring_start:]), Vector()) / n))
+    weights.append((1, 0, 0, 0))
+    uv.append((0.5, uv[-1][1]))
+    faces += [(cap_centre, ring_start+i, ring_start+(i+1)%n) for i in range(n)]
     surface=mesh('palm_surface',vertices,faces,skin,root);surface_uv(surface,uv)
+    # A flat hidden closure must not pull the lateral skin normal into its
+    # longitudinal direction. glTF splits the cap's corner normals at the rim.
+    for polygon in surface.data.polygons[-n:]:
+        polygon.use_smooth = False
     surface['anatomicalRegions']='carpal wrist; thin central palm; proximal thenar; hypothenar; first web; MCP arch'
     surface['thenarTopology']='one closed adult palm component'
+    # Keep the collision solid closed, while the runtime transition covers
+    # this internal cap and meets the actual lateral skin at its perimeter.
+    WRIST_INTERFACE_ROWS["ring"] = vertices[ring_start:ring_start+n]
+    # A crop can land within micrometres of the previous retained row. Use
+    # a real ring at least 1 mm distal for a stable runtime tangent secant.
+    distal_row = max(i for i, t in enumerate(samples) if section(t)[0] <= interface_u - 0.001)
+    WRIST_INTERFACE_ROWS["distalRing"] = vertices[distal_row*n:(distal_row+1)*n]
     SKIN_WEIGHTS[surface.name]=('palm',vertices,weights);empty('palm_root',root)
     return surface
 
@@ -831,6 +947,51 @@ def bind_continuous_skins():
     OUT.write_bytes(struct.pack("<III", 0x46546C67, 2, total) + struct.pack("<II", len(json_bytes), 0x4E4F534A) + json_bytes + struct.pack("<II", len(binary), 0x004E4942) + binary)
 
 
+
+def bind_exported_wrist_interface():
+    """Publish real glTF lateral-skin vertex indices, excluding cap-only splits."""
+    raw = OUT.read_bytes()
+    length = struct.unpack_from('<I', raw, 12)[0]
+    gltf = json.loads(raw[20:20+length])
+    offset = 20+length
+    binary_length = struct.unpack_from('<I', raw, offset)[0]
+    binary = raw[offset+8:offset+8+binary_length]
+    node = next(node for node in gltf['nodes'] if node.get('name') == 'palm_surface')
+    primitive = gltf['meshes'][node['mesh']]['primitives'][0]
+    def read(index, width):
+        a=gltf['accessors'][index];v=gltf['bufferViews'][a['bufferView']]
+        codes={5121:('B',1),5123:('H',2),5125:('I',4),5126:('f',4)}
+        code,size=codes[a['componentType']]
+        start=v.get('byteOffset',0)+a.get('byteOffset',0);stride=v.get('byteStride',width*size)
+        return [struct.unpack_from('<'+code*width,binary,start+i*stride) for i in range(a['count'])]
+    positions=read(primitive['attributes']['POSITION'],3)
+    uv=read(primitive['attributes']['TEXCOORD_0'],2)
+    ids=[v[0] for v in read(primitive['indices'],1)]
+    origin=Vector(SOURCE_ANATOMY['anatomyOriginM']);plane=SOURCE_ANATOMY['wristInterface']['canonicalU']
+    coordinates=[(Vector(p)-origin).dot(PALM_LONGITUDINAL) for p in positions]
+    lateral=set()
+    for i in range(0,len(ids),3):
+        triangle=ids[i:i+3]
+        if not all(abs(coordinates[v]-plane)<1e-6 for v in triangle): lateral.update(triangle)
+    bindings={}
+    for name,points in WRIST_INTERFACE_ROWS.items():
+        ring=[]
+        for i,point in enumerate(points):
+            candidates=[v for v,p in enumerate(positions) if v in lateral and (Vector(p)-Vector(point)).length<1e-7]
+            if not candidates: raise ValueError(f'No actual lateral wrist vertex for {name}/{i}')
+            ring.append(min(candidates,key=lambda v:abs(uv[v][0]-i/len(points))))
+        if len(set(ring)) != len(points): raise ValueError('Wrist interface lost a material perimeter point')
+        bindings[name]=ring
+    node.setdefault('extras',{})['wristInterface']={
+        **bindings, 'canonicalU':plane, 'normalField':'actual-exported-NORMAL',
+        'internalCap':'closed collision solid; covered by runtime forearm skin',
+    }
+    encoded=json.dumps(gltf,separators=(',',':'),ensure_ascii=False).encode()
+    encoded+=b' '*((-len(encoded))%4)
+    total=12+8+len(encoded)+8+len(binary)
+    OUT.write_bytes(struct.pack('<III',0x46546C67,2,total)+struct.pack('<II',len(encoded),0x4E4F534A)+encoded+struct.pack('<II',len(binary),0x004E4942)+binary)
+
+
 def apply_preview_skin():
     """Evaluate the same standard linear skin in Blender for visual review.
 
@@ -916,12 +1077,72 @@ def align_exported_smooth_contact_fields():
     OUT.write_bytes(struct.pack('<III', 0x46546C67, 2, total) + struct.pack('<II', len(json_bytes), 0x4E4F534A) + json_bytes + struct.pack('<II', len(binary), 0x004E4942) + binary)
 
 
-def build():
+
+def validate_choreography_sources(choreography):
+    """Reject choreography sampled from stale geometry or controller code."""
+    provenance = choreography.get("provenance", {})
+    expected = {
+        "hand": "packages/server/web/stage/hand.ts",
+        "physiology": "packages/server/web/stage/hand-physiology.ts",
+        "nailWork": "packages/server/web/stage/hand-nail-work.ts",
+        "anatomy": "tools/blender/hand_anatomy.json",
+        "exporter": "tools/blender/export_hand_poses.ts",
+    }
+    if provenance.get("animationsRead") is not False or provenance.get("runtimeContactsValidAtEveryExportedFrame") is not True:
+        raise ValueError("Choreography must come from validated live controls with input animations ignored")
+    def require_hash(relative, recorded):
+        path = (REPO / relative).resolve()
+        if not path.is_relative_to(REPO) or not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != recorded:
+            raise ValueError(f"Stale choreography source: {relative}; export matching hand_poses.json first")
+    for name, relative in expected.items():
+        recorded = provenance.get("sources", {}).get(name, {})
+        if recorded.get("path") != relative:
+            raise ValueError(f"Choreography lacks expected source provenance: {name}")
+        require_hash(relative, recorded.get("sha256"))
+    # Follow the controller's local import/export graph, including re-exported
+    # core constants and future split modules. Package imports remain external.
+    aliases = {"@acucraft/core": REPO / "packages/core/src/index.ts",
+               "@clinicalcraft/core": REPO / ".deps/clinicalcraft/packages/core/src/index.ts"}
+    imported = re.compile(r"(?:\b(?:import|export)\s+(?:(?:type\s+)?[^;]*?\s+from\s*)?|\bimport\s*\()([\"'])([^\"']+)\1")
+    pending, seen = [REPO / expected["hand"]], set()
+    while pending:
+        path = pending.pop().resolve()
+        if path in seen:
+            continue
+        seen.add(path)
+        for _, specifier in imported.findall(path.read_text()):
+            candidates = []
+            if specifier.startswith("."):
+                dependency = path.parent / specifier
+                if dependency.suffix in (".js", ".mjs"):
+                    candidates = [dependency.with_suffix(".ts" if dependency.suffix == ".js" else ".mts"), dependency]
+                else:
+                    candidates = [dependency, Path(str(dependency) + ".ts"), dependency / "index.ts"]
+            elif specifier in aliases:
+                candidates = [aliases[specifier]]
+            target = next((candidate for candidate in candidates if candidate.is_file()), None)
+            if target is not None and target.resolve() not in seen:
+                pending.append(target)
+    actual = {str(path.relative_to(REPO)) for path in seen}
+    recorded = provenance.get("runtimeModules", {})
+    if set(recorded) != actual:
+        raise ValueError(f"Choreography controller dependency graph differs: missing {sorted(actual-set(recorded))}; unexpected {sorted(set(recorded)-actual)}")
+    for relative, digest in recorded.items():
+        require_hash(relative, digest)
+
+
+def build(calibration_only=False):
+    # Calibration deliberately does not consume hand_poses.json, so a changed
+    # anatomical source can be exported before the live controller is sampled.
+    choreography = {"sequences": {}} if calibration_only else json.loads(POSES.read_text())
+    if not calibration_only:
+        validate_choreography_sources(choreography)
     bpy.ops.wm.read_factory_settings(use_empty=True)
     SKIN_WEIGHTS.clear()
     ANIMATED_MATERIALS.clear()
     MATERIALS_BY_CLIP.clear()
     MATERIAL_BIND_FRAMES.clear()
+    WRIST_INTERFACE_ROWS.clear()
     scene = bpy.context.scene
     scene.render.fps = 30
     scene.frame_start, scene.frame_end = 1, 31
@@ -929,6 +1150,7 @@ def build():
     asset_root["license"] = "CC0-1.0"
     asset_root["source"] = "AcuCraft tools/blender/build_hand.py; original procedural geometry and PBR textures"
     asset_root["units"] = "metres; +Y needle axis; raised reference hold"
+    asset_root["assetPurpose"] = "geometry-calibration-only" if calibration_only else "production-articulated-hand"
     root = empty("hand_pose_frame", asset_root)
     root["runtimeContract"] = "Authored clip frame; reset before applying live operator model transform"
     skin = material("hand_skin", (0.64, 0.40, 0.27))
@@ -1125,163 +1347,165 @@ def build():
     empty("thumb_contact", root, (0, 0, -0.0007))
     empty("index_contact", root, (0, 0, 0.0007))
 
-    # The exported choreography uses the same fixed-hinge solutions and real
-    # material attachments as the runtime controls, including the index nail
-    # free edge used by scrape/flick and their distinct preparation contacts.
-    choreography = json.loads(POSES.read_text())
-    authored = choreography["poses"]
-    material_poses = choreography.get("materialPoses", {})
-    active_materials = choreography.get("activeContacts", {})
-    bpy.context.view_layer.update()
-    material_bind = {name: (node.location.copy(), node.rotation_quaternion.copy()) for name, node in anchors.items()}
-    # Match the static exporter's parent-local matrix decomposition, including
-    # its float32 rounding, instead of substituting an animation's first key.
-    for name, node in anchors.items():
-        position, rotation, _ = node.matrix_local.decompose()
-        MATERIAL_BIND_FRAMES[name] = (position.copy(), rotation.copy())
+    clips, model_clips, material_clips = {}, {}, {}
+    material_poses, active_materials, contacts_by_pose = {}, {}, {}
+    if not calibration_only:
+        # The exported choreography uses the same fixed-hinge solutions and real
+        # material attachments as the runtime controls, including the index nail
+        # free edge used by scrape/flick and their distinct preparation contacts.
+        authored = choreography["poses"]
+        material_poses = choreography.get("materialPoses", {})
+        active_materials = choreography.get("activeContacts", {})
+        bpy.context.view_layer.update()
+        material_bind = {name: (node.location.copy(), node.rotation_quaternion.copy()) for name, node in anchors.items()}
+        # Match the static exporter's parent-local matrix decomposition, including
+        # its float32 rounding, instead of substituting an animation's first key.
+        for name, node in anchors.items():
+            position, rotation, _ = node.matrix_local.decompose()
+            MATERIAL_BIND_FRAMES[name] = (position.copy(), rotation.copy())
 
-    def material_pose_name(name):
-        return "scrape_end" if name == "scrape" else name
+        def material_pose_name(name):
+            return "scrape_end" if name == "scrape" else name
 
-    def apply_material_pose(name):
-        for contact, (position, rotation) in material_bind.items():
-            anchors[contact].location = position
-            anchors[contact].rotation_quaternion = rotation
-        for contact, value in material_poses.get(material_pose_name(name), {}).items():
-            if contact not in anchors or not contact.endswith("_contact") or "surface" not in anchors[contact]:
-                raise ValueError(f"Material animation must use a real surface attachment: {contact}")
-            if value.get("parent", anchors[contact].parent.name) != anchors[contact].parent.name:
-                raise ValueError(f"{name}/{contact}: exported material parent differs from the source bone")
-            if value.get("surface", anchors[contact]["surface"]) != anchors[contact]["surface"]:
-                raise ValueError(f"{name}/{contact}: exported material surface differs from the source")
-            anchors[contact].location = value["position"]
-            anchors[contact].rotation_mode = "QUATERNION"
-            anchors[contact].rotation_quaternion = quat(value["quaternion"])
-    def quat(values):
-        x, y, z, w = values
-        return Quaternion((w, x, y, z)).normalized()
+        def apply_material_pose(name):
+            for contact, (position, rotation) in material_bind.items():
+                anchors[contact].location = position
+                anchors[contact].rotation_quaternion = rotation
+            for contact, value in material_poses.get(material_pose_name(name), {}).items():
+                if contact not in anchors or not contact.endswith("_contact") or "surface" not in anchors[contact]:
+                    raise ValueError(f"Material animation must use a real surface attachment: {contact}")
+                if value.get("parent", anchors[contact].parent.name) != anchors[contact].parent.name:
+                    raise ValueError(f"{name}/{contact}: exported material parent differs from the source bone")
+                if value.get("surface", anchors[contact]["surface"]) != anchors[contact]["surface"]:
+                    raise ValueError(f"{name}/{contact}: exported material surface differs from the source")
+                anchors[contact].location = value["position"]
+                anchors[contact].rotation_mode = "QUATERNION"
+                anchors[contact].rotation_quaternion = quat(value["quaternion"])
+        def quat(values):
+            x, y, z, w = values
+            return Quaternion((w, x, y, z)).normalized()
 
-    def authored_pose(name):
-        return {digit: [quat(authored[name][f"{digit}_{joint}"]) for joint in JOINTS] for digit in DIGITS}
+        def authored_pose(name):
+            return {digit: [quat(authored[name][f"{digit}_{joint}"]) for joint in JOINTS] for digit in DIGITS}
 
-    def authored_sequence(name, base):
-        sequence = choreography["sequences"][name]
-        frames = []
-        for frame, *rotations in sequence["frames"]:
-            pose = {digit: list(values) for digit, values in base.items()}
-            for name, values in zip(sequence["joints"], rotations):
-                digit, joint = name.rsplit("_", 1)
-                pose[digit][JOINTS.index(joint)] = quat(values)
-            frames.append((frame, pose))
-        return frames
-    neutral = authored_pose("pinch")
-    opened = authored_pose("open")
-    support = authored_pose("support")
-    tripod = authored_pose("three_finger")
-    scrape_start = authored_pose("scrape_start")
-    scrape = authored_pose("scrape_end")
-    flick_loaded = authored_pose("flick_loaded")
-    flick_release = authored_pose("flick_release")
-    flick_return = authored_pose("flick_return")
-    clips = {
-        "hand_open": authored_sequence("open", neutral),
-        "hand_support": [(1, support), (31, support)],
-        "hand_three_finger": [(1, tripod), (31, tripod)],
-        "hand_scrape": authored_sequence("scrape", scrape_start),
-        "hand_flick": authored_sequence("flick", scrape_start),
-    }
-    for name, frames in clips.items():
-        add_clip(name, nodes, frames)
-    pose_frames = choreography.get("poseFrames", {})
-    def model_pose(name):
-        if name == "scrape":
-            name = "scrape_end"
-        value = pose_frames.get(name, {})
-        return value.get("modelPosition", [0, 0, 0]), value.get("modelQuaternion", [0, 0, 0, 1])
-    model_clips = {}
-    for clip, sequence, first_pose in [("hand_open", "open", "pinch"), ("hand_support", None, "support"),
-                                       ("hand_three_finger", None, "three_finger"), ("hand_scrape", "scrape", "scrape_start"),
-                                       ("hand_flick", "flick", "flick_loaded")]:
-        frames = choreography["sequences"].get(sequence, {}).get("modelFrames") if sequence else None
-        if not frames:
-            position, rotation = model_pose(first_pose)
-            frames = [(1, position, rotation), (31, position, rotation)]
-        model_clips[clip] = frames
-        add_pose_frame_clip(clip, root, frames)
+        def authored_sequence(name, base):
+            sequence = choreography["sequences"][name]
+            frames = []
+            for frame, *rotations in sequence["frames"]:
+                pose = {digit: list(values) for digit, values in base.items()}
+                for name, values in zip(sequence["joints"], rotations):
+                    digit, joint = name.rsplit("_", 1)
+                    pose[digit][JOINTS.index(joint)] = quat(values)
+                frames.append((frame, pose))
+            return frames
+        neutral = authored_pose("pinch")
+        opened = authored_pose("open")
+        support = authored_pose("support")
+        tripod = authored_pose("three_finger")
+        scrape_start = authored_pose("scrape_start")
+        scrape = authored_pose("scrape_end")
+        flick_loaded = authored_pose("flick_loaded")
+        flick_release = authored_pose("flick_release")
+        flick_return = authored_pose("flick_return")
+        clips = {
+            "hand_open": authored_sequence("open", neutral),
+            "hand_support": [(1, support), (31, support)],
+            "hand_three_finger": [(1, tripod), (31, tripod)],
+            "hand_scrape": authored_sequence("scrape", scrape_start),
+            "hand_flick": authored_sequence("flick", scrape_start),
+        }
+        for name, frames in clips.items():
+            add_clip(name, nodes, frames)
+        pose_frames = choreography.get("poseFrames", {})
+        def model_pose(name):
+            if name == "scrape":
+                name = "scrape_end"
+            value = pose_frames.get(name, {})
+            return value.get("modelPosition", [0, 0, 0]), value.get("modelQuaternion", [0, 0, 0, 1])
+        model_clips = {}
+        for clip, sequence, first_pose in [("hand_open", "open", "pinch"), ("hand_support", None, "support"),
+                                           ("hand_three_finger", None, "three_finger"), ("hand_scrape", "scrape", "scrape_start"),
+                                           ("hand_flick", "flick", "flick_loaded")]:
+            frames = choreography["sequences"].get(sequence, {}).get("modelFrames") if sequence else None
+            if not frames:
+                position, rotation = model_pose(first_pose)
+                frames = [(1, position, rotation), (31, position, rotation)]
+            model_clips[clip] = frames
+            add_pose_frame_clip(clip, root, frames)
 
-    # A material attachment can migrate on rigid distal skin without moving
-    # any bone pivot. Bake only the active canonical *_contact aliases, using
-    # their real runtime material P/Q and explicit per-role normal provenance.
-    material_clips = {}
-    for clip, sequence, first_pose in [("hand_open", "open", "pinch"), ("hand_support", None, "support"),
-                                       ("hand_three_finger", None, "three_finger"), ("hand_scrape", "scrape", "scrape_start"),
-                                       ("hand_flick", "flick", "flick_loaded")]:
-        entries = choreography["sequences"].get(sequence, {}).get("contactFrames", {}) if sequence else {}
-        names = active_materials.get(first_pose, list(entries))
-        if entries and set(entries) != set(names):
-            raise ValueError(f"{clip}: active materials and contactFrames differ")
-        if material_poses and sequence and not entries:
-            raise ValueError(f"{clip}: matching runtime export must supply all material frames")
-        tracks = {}
-        for contact in names:
-            if contact not in anchors or not contact.endswith("_contact") or "surface" not in anchors[contact]:
-                raise ValueError(f"Cannot animate a non-surface or skeletal contact: {contact}")
-            definition = choreography["sequences"].get(sequence, {}).get("materialDefinitions", {}).get(contact, {}) if sequence else {}
-            if definition.get("parent", anchors[contact].parent.name) != anchors[contact].parent.name:
-                raise ValueError(f"{clip}/{contact}: material track parent differs from the source")
-            if definition.get("surface", anchors[contact]["surface"]) != anchors[contact]["surface"]:
-                raise ValueError(f"{clip}/{contact}: material track surface differs from the source")
-            frames = entries.get(contact)
-            if frames is None:
-                value = material_poses[first_pose][contact]
-                frames = [(1, value["position"], value["quaternion"]), (31, value["position"], value["quaternion"])]
-            if sequence:
-                expected = sorted(set([i/30 for i in range(31)] + ([.08, .28, .5, .58] if sequence == 'flick' else [])))
-                actual = [(frame - 1) / 30 for frame, _, _ in frames]
-                if len(actual) != len(expected) or any(abs(a-b) > 1e-9 for a, b in zip(actual, expected)):
-                    raise ValueError(f"{clip}/{contact}: expected the exact authored sampling clock")
-            if any(len(position) != 3 or len(rotation) != 4 or not all(math.isfinite(v) for v in (*position, *rotation))
-                   for _, position, rotation in frames):
-                raise ValueError(f"{clip}/{contact}: non-finite material frame")
-            ANIMATED_MATERIALS.add(contact)
-            add_pose_frame_clip(clip, anchors[contact], frames)
-            tracks[contact] = frames
-        material_clips[clip] = tracks
-        MATERIALS_BY_CLIP[clip] = list(tracks)
+        # A material attachment can migrate on rigid distal skin without moving
+        # any bone pivot. Bake only the active canonical *_contact aliases, using
+        # their real runtime material P/Q and explicit per-role normal provenance.
+        material_clips = {}
+        for clip, sequence, first_pose in [("hand_open", "open", "pinch"), ("hand_support", None, "support"),
+                                           ("hand_three_finger", None, "three_finger"), ("hand_scrape", "scrape", "scrape_start"),
+                                           ("hand_flick", "flick", "flick_loaded")]:
+            entries = choreography["sequences"].get(sequence, {}).get("contactFrames", {}) if sequence else {}
+            names = active_materials.get(first_pose, list(entries))
+            if entries and set(entries) != set(names):
+                raise ValueError(f"{clip}: active materials and contactFrames differ")
+            if material_poses and sequence and not entries:
+                raise ValueError(f"{clip}: matching runtime export must supply all material frames")
+            tracks = {}
+            for contact in names:
+                if contact not in anchors or not contact.endswith("_contact") or "surface" not in anchors[contact]:
+                    raise ValueError(f"Cannot animate a non-surface or skeletal contact: {contact}")
+                definition = choreography["sequences"].get(sequence, {}).get("materialDefinitions", {}).get(contact, {}) if sequence else {}
+                if definition.get("parent", anchors[contact].parent.name) != anchors[contact].parent.name:
+                    raise ValueError(f"{clip}/{contact}: material track parent differs from the source")
+                if definition.get("surface", anchors[contact]["surface"]) != anchors[contact]["surface"]:
+                    raise ValueError(f"{clip}/{contact}: material track surface differs from the source")
+                frames = entries.get(contact)
+                if frames is None:
+                    value = material_poses[first_pose][contact]
+                    frames = [(1, value["position"], value["quaternion"]), (31, value["position"], value["quaternion"])]
+                if sequence:
+                    expected = sorted(set([i/30 for i in range(31)] + ([.08, .28, .5, .58] if sequence == 'flick' else [])))
+                    actual = [(frame - 1) / 30 for frame, _, _ in frames]
+                    if len(actual) != len(expected) or any(abs(a-b) > 1e-9 for a, b in zip(actual, expected)):
+                        raise ValueError(f"{clip}/{contact}: expected the exact authored sampling clock")
+                if any(len(position) != 3 or len(rotation) != 4 or not all(math.isfinite(v) for v in (*position, *rotation))
+                       for _, position, rotation in frames):
+                    raise ValueError(f"{clip}/{contact}: non-finite material frame")
+                ANIMATED_MATERIALS.add(contact)
+                add_pose_frame_clip(clip, anchors[contact], frames)
+                tracks[contact] = frames
+            material_clips[clip] = tracks
+            MATERIALS_BY_CLIP[clip] = list(tracks)
 
-    # Measure the real contact transforms of each authored pose for both runtime attachment and tests.
-    animated_nodes = [*nodes.values(), root, *(anchors[name] for name in sorted(ANIMATED_MATERIALS))]
-    for node in animated_nodes:
-        for track in node.animation_data.nla_tracks:
-            track.mute = True
-    contacts_by_pose = {}
-    for name, pose in {"pinch": neutral, "open": opened, "support": support, "three_finger": tripod, "scrape_start": scrape_start, "scrape": scrape, "flick_loaded": flick_loaded, "flick_release": flick_release, "flick_return": flick_return}.items():
-        position, rotation = model_pose(name)
-        root.location = position
-        root.rotation_quaternion = quat(rotation)
-        for digit in DIGITS:
-            for i, joint in enumerate(JOINTS):
-                nodes[f"{digit}_{joint}"].rotation_quaternion = pose[digit][i]
-        apply_material_pose(name)
-        contacts_by_pose[name] = pose_points(anchors)
-    # Bind the static skin in the true source pose. Scrape/flick intentionally
-    # start in their own stable hold, so their first animation keys cannot also
-    # supply the common mesh bind frame.
-    scene.frame_set(0)
-    root.location = (0, 0, 0)
-    for node in [*nodes.values(), root]:
-        node.rotation_quaternion = Quaternion()
-    # The raw source material frame is immutable. Animation's key at t=0
-    # belongs to the one-second clip, never to the shared skeleton bind.
-    apply_material_pose("__source_bind__")
-    for node in animated_nodes:
-        for track in node.animation_data.nla_tracks:
-            track.mute = False
-    bpy.context.view_layer.update()
+        # Measure the real contact transforms of each authored pose for both runtime attachment and tests.
+        animated_nodes = [*nodes.values(), root, *(anchors[name] for name in sorted(ANIMATED_MATERIALS))]
+        for node in animated_nodes:
+            for track in node.animation_data.nla_tracks:
+                track.mute = True
+        contacts_by_pose = {}
+        for name, pose in {"pinch": neutral, "open": opened, "support": support, "three_finger": tripod, "scrape_start": scrape_start, "scrape": scrape, "flick_loaded": flick_loaded, "flick_release": flick_release, "flick_return": flick_return}.items():
+            position, rotation = model_pose(name)
+            root.location = position
+            root.rotation_quaternion = quat(rotation)
+            for digit in DIGITS:
+                for i, joint in enumerate(JOINTS):
+                    nodes[f"{digit}_{joint}"].rotation_quaternion = pose[digit][i]
+            apply_material_pose(name)
+            contacts_by_pose[name] = pose_points(anchors)
+        # Bind the static skin in the true source pose. Scrape/flick intentionally
+        # start in their own stable hold, so their first animation keys cannot also
+        # supply the common mesh bind frame.
+        scene.frame_set(0)
+        root.location = (0, 0, 0)
+        for node in [*nodes.values(), root]:
+            node.rotation_quaternion = Quaternion()
+        # The raw source material frame is immutable. Animation's key at t=0
+        # belongs to the one-second clip, never to the shared skeleton bind.
+        apply_material_pose("__source_bind__")
+        for node in animated_nodes:
+            for track in node.animation_data.nla_tracks:
+                track.mute = False
+        bpy.context.view_layer.update()
     OUT.parent.mkdir(parents=True, exist_ok=True)
     bpy.ops.export_scene.gltf(
         filepath=str(OUT), export_format="GLB", export_yup=False,
-        export_animations=True, export_nla_strips=True,
+        export_animations=not calibration_only, export_nla_strips=True,
         export_animation_mode="NLA_TRACKS", export_force_sampling=True,
         export_optimize_animation_keep_anim_object=True,
         export_anim_slide_to_zero=True,
@@ -1289,7 +1513,9 @@ def build():
     )
 
     bind_continuous_skins()
-    write_exact_animation_samplers(clips, model_clips, material_clips)
+    bind_exported_wrist_interface()
+    if not calibration_only:
+        write_exact_animation_samplers(clips, model_clips, material_clips)
     align_exported_smooth_contact_fields()
 
     # Manifest records the binary's actual contract, without geometry patient data.
@@ -1299,10 +1525,11 @@ def build():
     triangles = sum(gltf["accessors"][p["indices"]]["count"] // 3 for m in gltf["meshes"] for p in m["primitives"])
     exported_nodes = {node.get("name"): node for node in gltf["nodes"]}
     manifest = {
-        "file": "assets/models/acu-practitioner-hand.glb",
+        "file": str(OUT) if calibration_only else "assets/models/acu-practitioner-hand.glb",
+        "buildMode": "geometry-calibration-only" if calibration_only else "production-articulated-hand",
         "license": "CC0-1.0", "source": "tools/blender/build_hand.py",
-        "choreography": "tools/blender/hand_poses.json",
-        "choreographySha256": hashlib.sha256(POSES.read_bytes()).hexdigest(),
+        "choreography": None if calibration_only else "tools/blender/hand_poses.json",
+        "choreographySha256": None if calibration_only else hashlib.sha256(POSES.read_bytes()).hexdigest(),
         "choreographyProvenance": choreography.get("provenance", {}),
         "sha256": hashlib.sha256(raw).hexdigest(), "bytes": len(raw),
         "triangles": triangles, "root": asset_root.name, "authoredPoseFrame": root.name,
@@ -1316,6 +1543,7 @@ def build():
         "anatomicalJoints": {d: [f"{d}_{j}" for j in ANATOMICAL[d]] for d in DIGITS},
         "anatomicalMapping": {f"{d}_{j}": f"{d}_{ANATOMICAL[d][i]}" for d in DIGITS for i, j in enumerate(JOINTS)},
         "skin": {"surfaces": list(SKIN_WEIGHTS), "joints": [f"{d}_{j}" for d in DIGITS for j in JOINTS] + ["palm_root"], "weights": "smooth neighbouring-joint blend and proximal palm/MCP transition; contact-bearing distal vertices are rigid; connected palm uses static/CMC blend", "staticInfluence": "palm_root", "clone": "SkeletonUtils.clone is required for independent hands"},
+        "wristInterface": exported_nodes["palm_surface"]["extras"]["wristInterface"],
         "palm": {"surface": "palm_surface", "topology": "single closed connected skin including thenar", "thenar": {"region": "localized radial-palmar quadrant", "maximumCmcWeight": THUMB_TISSUE["maximumThenarCmcWeight"]}, "knuckles": "asymmetric MCP arch and dorsal metacarpal contours", "frame": "palm_frame", "shape": "localized thenar and hypothenar cushions with central palmar hollow; hidden thumb connector follows the true skin envelope"},
         "restAnatomy": {"thumb": {"points": {joint: list(point) for joint, point in zip((*ANATOMICAL["thumb"], "tip"), DIGITS["thumb"])},
                                   "boneLengthsMm": [(Vector(DIGITS["thumb"][i + 1]) - Vector(DIGITS["thumb"][i])).length * 1000 for i in range(3)],
@@ -1329,7 +1557,7 @@ def build():
                            for digit in ("thumb", "index")},
         "poseContacts": contacts_by_pose,
         "materialAnimation": {
-            "baked": bool(material_poses), "source": "tools/blender/hand_poses.json",
+            "baked": bool(material_poses), "source": None if calibration_only else "tools/blender/hand_poses.json",
             "provenance": choreography.get("provenance", {}),
             "bindFrame": "raw source restored at Blender frame 0 and explicitly in exported glTF; clip time zero is independent",
             "activeContacts": active_materials, "poseMaterials": material_poses,
@@ -1344,15 +1572,39 @@ def build():
         },
         "materials": ["hand_skin", "hand_nails"],
         "animations": [a["name"] for a in gltf.get("animations", [])],
-        "animation": "Every clip is 0..1 second and carries its actual whole-hand presentation frame. Source bone lengths and skeletal control translations remain fixed; bone motion uses rotations and the complete hand frame. Canonical contact aliases independently carry the actual material point positions and orientations on skin or keratin. Supporting index contact uses a real rounded volar-distal fingertip facet. Primary grip, third-finger pulp and nail-work roles use actual skin or keratin surfaces. Scrape has a 6 mm axial stroke. Live runtime resets hand_pose_frame before applying operator controls. The matching hand_poses.json supplies the final authored layouts.",
+        "animation": "Geometry calibration only; no choreography consumed and no animation clips exported." if calibration_only else "Every clip is 0..1 second and carries its actual whole-hand presentation frame. Source bone lengths and skeletal control translations remain fixed; bone motion uses rotations and the complete hand frame. Canonical contact aliases independently carry the actual material point positions and orientations on skin or keratin. Supporting index contact uses a real rounded volar-distal fingertip facet. Primary grip, third-finger pulp and nail-work roles use actual skin or keratin surfaces. Scrape has a 6 mm axial stroke. Live runtime resets hand_pose_frame before applying operator controls. The matching hand_poses.json supplies the final authored layouts.",
         "clipFrames": {name: [round((frame - 1) / 30, 9) for frame, _ in frames] for name, frames in clips.items()},
         "modelClipFrames": {name: [{"time": round((frame - 1) / 30, 9), "position": list(position), "rotation": list(rotation)} for frame, position, rotation in frames] for name, frames in model_clips.items()},
         "sourceAnatomy": {"file": "tools/blender/hand_anatomy.json", "sha256": hashlib.sha256(ANATOMY_SOURCE.read_bytes()).hexdigest(), "primaryMaterialContactNames": SOURCE_ANATOMY["materialContactNames"], "materialContactNames": [name for name, node in exported_nodes.items() if "materialSurface" in node.get("extras", {})], "thumbMetacarpalSoftTissue": THUMB_TISSUE, "wristCanonicalM": SOURCE_ANATOMY["wristCanonicalM"], "thumbCmcCanonicalMm": SOURCE_ANATOMY["thumbCmcCanonicalMm"], "wristToThumbCmcMm": SOURCE_ANATOMY["wristToThumbCmcMm"], "adultLengthsMm": SOURCE_ANATOMY["adultLengthsMm"], "sourceAnglesDeg": SOURCE_ANATOMY["sourceAnglesDeg"], "skinNailFrame": "one transported anatomical frame; true volar pulp opposite the dorsal nail"},
         "review": "authored anatomical visualization; no clinical calibration or motion-capture claim",
     }
+    if triangles >= 24000 or len(raw) >= 1600000:
+        raise ValueError(f"Hand exceeds the production asset budget: {triangles} triangles, {len(raw)} bytes")
+    expected_clips = 0 if calibration_only else 5
+    if len(manifest["animations"]) != expected_clips:
+        raise ValueError(f"Expected {expected_clips} animation clips, got {manifest['animations']}")
+    if not calibration_only:
+        validate_choreography_sources(choreography)
+    MANIFEST.parent.mkdir(parents=True, exist_ok=True)
     MANIFEST.write_text(json.dumps(manifest, indent=2) + "\n")
     print(f"Hand: {triangles} triangles; {len(raw)} bytes; clips {manifest['animations']}")
 
 
 if __name__ == "__main__":
-    build()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--calibration-only", action="store_true", help="Export geometry and source binds only, with no choreography or animation")
+    parser.add_argument("--output", type=Path, help="Explicit GLB destination; pair with --manifest")
+    parser.add_argument("--manifest", type=Path, help="Explicit manifest destination; pair with --output")
+    args = parser.parse_args(sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else [])
+    if bool(args.output) != bool(args.manifest):
+        parser.error("--output and --manifest must be supplied together")
+    if args.calibration_only and not args.output:
+        parser.error("--calibration-only requires explicit --output and --manifest destinations")
+    if args.output:
+        output, manifest = args.output.resolve(), args.manifest.resolve()
+        if output.suffix != ".glb" or manifest.suffix != ".json" or output == manifest:
+            parser.error("Use distinct .glb and .json output destinations")
+        if args.calibration_only and (output == OUT.resolve() or manifest == MANIFEST.resolve()):
+            parser.error("Calibration must not overwrite either production artifact")
+        OUT, MANIFEST = output, manifest
+    build(calibration_only=args.calibration_only)

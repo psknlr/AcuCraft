@@ -4,8 +4,8 @@
   "quaternionOrder": "xyzw",
   "provenance": {
     "calibrationInputAsset": {
-      "path": "../acu-hand-refit-crest-index-material-base.glb",
-      "sha256": "d19920c86f8ae76ef4f3c0751a66f6f05da460d613b767397c1747cdc6738669",
+      "path": "../wrist-hand-calibration.glb",
+      "sha256": "cae50e3d7e814bcb4ea5e7927261faa4c886ccd71ddfd108187491003f3c0cc7",
       "role": "immutable geometry calibration input; not the subsequently rebuilt GLB output hash"
     },
     "sources": {
@@ -23,7 +23,7 @@
       },
       "anatomy": {
         "path": "tools/blender/hand_anatomy.json",
-        "sha256": "d289ed2c9cc8d5e3eb4931dcea543d3319f2231aa311e8da2f51121d3e60212b"
+        "sha256": "aa27e079439b7674e55cc109335083900584c134047a1af742fa137e78de6952"
       },
       "exporter": {
         "path": "tools/blender/export_hand_poses.ts",

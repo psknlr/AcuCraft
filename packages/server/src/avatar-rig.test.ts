@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { Matrix4, Mesh, Quaternion, Vector3, type BufferAttribute } from "three";
+import { Color, Matrix4, Mesh, Quaternion, Vector3, type BufferAttribute } from "three";
 import { buildPerson, disposeRig, type AppearanceLike } from "@clinicalcraft/web/world/npc.js";
 import { EncounterSession } from "@acucraft/agent";
 import { loadContentPack, requireScenario } from "@acucraft/bench";
@@ -39,6 +39,46 @@ function armFixture(rotated = false) {
     return normal.transformDirection(rig.body.matrixWorld);
   };
   return { rig, positions, normals, original, originalNormals, animation, point, limb, section, dorsal };
+}
+
+/** The source paint selects the whole trouser surface independently of animation's vertex bindings. */
+function trouserSurface(mesh: Mesh) {
+  const positions = (mesh.geometry.getAttribute("position") as BufferAttribute).clone();
+  const colours = mesh.geometry.getAttribute("color"), navy = new Color("#2f3a45");
+  const vertices = Array.from({ length: positions.count }, (_, index) => index).filter((index) =>
+    Math.abs(colours.getX(index) - navy.r) < 1e-7 && Math.abs(colours.getY(index) - navy.g) < 1e-7 && Math.abs(colours.getZ(index) - navy.b) < 1e-7);
+  const selected = new Set(vertices), triangles: [number, number, number][] = [], sourceIndex = mesh.geometry.index!;
+  for (let offset = 0; offset < sourceIndex.count; offset += 3) {
+    const triangle = [sourceIndex.getX(offset), sourceIndex.getX(offset + 1), sourceIndex.getX(offset + 2)] as [number, number, number];
+    if (triangle.every((vertex) => selected.has(vertex))) triangles.push(triangle);
+  }
+  expect(vertices.length, "complete navy trouser geometry is present").toBeGreaterThan(400);
+  expect(vertices.filter((index) => positions.getX(index) > 0).length, "left trouser leg").toBeGreaterThan(200);
+  expect(vertices.filter((index) => positions.getX(index) < 0).length, "right trouser leg").toBeGreaterThan(200);
+  expect(triangles.length, "actual rendered trouser faces").toBeGreaterThan(500);
+  return { positions, vertices, triangles };
+}
+
+function expectStationaryTrousers(mesh: Mesh, source: ReturnType<typeof trouserSurface>): void {
+  const current = mesh.geometry.getAttribute("position") as BufferAttribute;
+  const point = (attribute: BufferAttribute, vertex: number) => new Vector3().fromBufferAttribute(attribute, vertex);
+  const displacement = source.vertices.map((vertex) => ({ vertex, distance: point(current, vertex).distanceTo(point(source.positions, vertex)) }))
+    .sort((a, b) => b.distance - a.distance)[0]!;
+  expect(displacement.distance, `trouser vertex ${displacement.vertex} cannot follow an arm`).toBeLessThan(3e-7);
+  const index = mesh.geometry.index!, { start, count } = mesh.geometry.drawRange;
+  const displayed = new Set<string>();
+  for (let offset = start; offset < Math.min(index.count, start + count); offset += 3) displayed.add([index.getX(offset), index.getX(offset + 1), index.getX(offset + 2)].join(","));
+  let worstEdge = 0;
+  for (const triangle of source.triangles) {
+    expect(displayed.has(triangle.join(",")), "trouser faces remain drawn during arm reach").toBe(true);
+    for (let edge = 0; edge < 3; edge++) {
+      const a = triangle[edge]!, b = triangle[(edge + 1) % 3]!;
+      const before = point(source.positions, a).distanceTo(point(source.positions, b)), after = point(current, a).distanceTo(point(current, b));
+      worstEdge = Math.max(worstEdge, Math.abs(after - before));
+    }
+  }
+  expect(worstEdge, "arm reach cannot stretch any visible trouser edge into a cloth sail").toBeLessThan(3e-7);
+  expect(mesh.visible).toBe(true);
 }
 
 describe("avatar arm kinematics", () => {
@@ -82,6 +122,57 @@ describe("avatar arm kinematics", () => {
     animation.tick(16, 0, false);
     expect(animation.wristAt("left").distanceTo(original)).toBeLessThan(1e-7);
     disposeRig(rig);
+  });
+
+  it("keeps both whole trouser legs stationary when either arm or both arms reach without walking or torso lean", () => {
+    const rig = buildPerson({ pants: "#2f3a45", build: "average", presentation: "neutral" }, practitionerPlacement("treatment", 1, 0, "practitioner:enc-17441d080d46").options);
+    rig.root.position.set(0.4, 0, -0.7); rig.root.rotation.y = 0.7;
+    const mesh = rig.body.children.find((object) => object instanceof Mesh && object.userData.figure && object !== rig.torso) as Mesh;
+    const trousers = trouserSurface(mesh), animation = new AvatarRig(rig), feet = rig.root.position.clone();
+    const shoulders = { left: animation.shoulderAt("left"), right: animation.shoulderAt("right") };
+    const restWrists = { left: animation.wristAt("left"), right: animation.wristAt("right") };
+    const targets = { left: shoulders.left.clone().add(new Vector3(0.08, -0.32, 0.16)), right: shoulders.right.clone().add(new Vector3(-0.08, -0.32, 0.16)) };
+    try {
+      for (const active of [["left"], ["right"], ["left", "right"]] as const) {
+        for (const side of ["left", "right"] as const) {
+          const result = animation.reach(side, active.some((hand) => hand === side) ? targets[side] : null, 1);
+          if (active.some((hand) => hand === side)) expect(result.reachable).toBe(true);
+        }
+        animation.tick(16, 0, false);
+        for (const side of ["left", "right"] as const) {
+          expect(animation.shoulderAt(side).distanceTo(shoulders[side]), "fixture has zero presentation lean").toBeLessThan(1e-8);
+          if (active.some((hand) => hand === side)) expect(animation.wristAt(side).distanceTo(restWrists[side]), "the tested arm actually moves").toBeGreaterThan(0.1);
+        }
+        expect(rig.root.position.distanceTo(feet)).toBe(0);
+        expectStationaryTrousers(mesh, trousers);
+      }
+    } finally { animation.dispose(); disposeRig(rig); }
+  });
+
+  it("preserves the public practitioner's trouser surfaces through full bimanual Person reach and forearm roll", () => {
+    const placement = practitionerPlacement("treatment", 1, 0, "practitioner:enc-17441d080d46");
+    placement.at = { x: 0.25, y: 0, z: -4.25, rot: -2.5324 * 180 / Math.PI };
+    const person = new Person({ skin: "#d9b48f", hair: "#24201d", hairStyle: "short", shirt: "#dfe7ea", pants: "#2f3a45", build: "average", presentation: "neutral" }, placement);
+    const mesh = person.rig.body.children.find((object) => object instanceof Mesh && object.userData.figure && object !== person.rig.torso) as Mesh;
+    const trousers = trouserSurface(mesh), feet = person.rig.root.position.clone();
+    const shoulders = { left: person.shoulderAt("left"), right: person.shoulderAt("right") };
+    const targets = { left: shoulders.left.clone().add(new Vector3(0.08, -0.32, 0.16)), right: shoulders.right.clone().add(new Vector3(-0.08, -0.32, 0.16)) };
+    try {
+      for (const angle of [-1.4, 0, 1.4]) {
+        for (const side of ["left", "right"] as const) {
+          const palm = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), side === "left" ? angle : -angle);
+          expect(person.reach(side, targets[side], 1, palm).reachable).toBe(true);
+        }
+        person.tick(100, 16);
+        expect(person.isMoving).toBe(false); expect(person.holder.visible).toBe(true);
+        expect(person.rig.root.position.distanceTo(feet)).toBe(0);
+        for (const side of ["left", "right"] as const) {
+          expect(person.shoulderAt(side).distanceTo(shoulders[side])).toBeLessThan(1e-8);
+          expect(person.wristAt(side).distanceTo(targets[side]), "both real arms reach their requested contacts").toBeLessThan(1e-7);
+        }
+        expectStationaryTrousers(mesh, trousers);
+      }
+    } finally { person.dispose(); }
   });
 
   it("reaches the low-back reference grip on the actual patient's figure with a bounded hip hinge", () => {

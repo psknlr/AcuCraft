@@ -1,4 +1,4 @@
-import { BoxGeometry, FrontSide, Mesh, MeshBasicMaterial, PerspectiveCamera, Quaternion, Raycaster, Vector3 } from "three";
+import { BoxGeometry, BufferGeometry, Float32BufferAttribute, FrontSide, Group, Mesh, MeshBasicMaterial, MeshStandardMaterial, PerspectiveCamera, Quaternion, Raycaster, Vector3 } from "three";
 import { describe, expect, it } from "vitest";
 import { GRIP_VIEWS, clearGripShot, gripShot, type HandInspectionFrame } from "../web/stage/director.js";
 
@@ -97,6 +97,60 @@ describe("whole-hand inspection views", () => {
     expect(clear.eye.distanceTo(original.eye)).toBeGreaterThan(0.07);
     expect(sleeve.material.side).toBe(FrontSide);
     sleeve.geometry.dispose(); sleeve.material.dispose();
+  });
+
+  it.each([true, false])("ignores undrawn prefix and tail triangles while respecting drawn occluders (indexed=%s)", (indexed) => {
+    const base = gripShot(frame(), "palmar");
+    const original = { ...base, inspectionPoints: [base.at], inspectionOptionalPoints: [] };
+    const along = original.at.clone().sub(original.eye).normalize();
+    const across = new Vector3().crossVectors(along, new Vector3(0, 1, 0)).normalize();
+    const up = new Vector3().crossVectors(across, along).normalize();
+    const triangle = (fraction: number, sideways = 0) => {
+      const center = original.eye.clone().lerp(original.at, fraction).addScaledVector(across, sideways);
+      return [center.clone().addScaledVector(across, -0.09).addScaledVector(up, -0.09),
+        center.clone().addScaledVector(across, 0.09).addScaledVector(up, -0.09), center.clone().addScaledVector(up, 0.09)];
+    };
+    // One fixed-capacity buffer: both ends obstruct the requested sightline; the middle is far away.
+    const vertices = [...triangle(0.4), ...triangle(0.5, 2), ...triangle(0.65)];
+    const geometry = new BufferGeometry().setAttribute("position", new Float32BufferAttribute(vertices.flatMap((point) => point.toArray()), 3));
+    if (indexed) geometry.setIndex([0, 1, 2, 3, 4, 5, 6, 7, 8]);
+    const material = new MeshBasicMaterial(), mesh = new Mesh(geometry, material);
+    mesh.name = "masked-figure-source";
+    try {
+      geometry.setDrawRange(3, 3);
+      const clear = clearGripShot(original, [mesh]);
+      expect(clear.inspectionBlocked).toBe(0);
+      expect(clear.eye.distanceTo(original.eye), "neither hidden prefix nor hidden tail may redirect the camera").toBeLessThan(1e-10);
+      for (const start of [0, 6]) {
+        geometry.setDrawRange(start, 3);
+        const avoided = clearGripShot(original, [mesh]);
+        expect(avoided.inspectionBlocked).toBe(0);
+        expect(avoided.eye.distanceTo(original.eye), `drawn triangle at ${start} still obstructs the requested sightline`).toBeGreaterThan(0.02);
+      }
+      geometry.setDrawRange(0, 0);
+      const empty = clearGripShot(original, [mesh]);
+      expect(empty.inspectionBlocked).toBe(0);
+      expect(empty.eye.distanceTo(original.eye), "zero drawn triangles cannot obstruct the camera").toBeLessThan(1e-10);
+      expect(geometry.drawRange).toEqual({ start: 0, count: 0 });
+      expect(geometry.getAttribute("position").count).toBe(9);
+      expect(geometry.index?.count ?? 9).toBe(9);
+    } finally { geometry.dispose(); material.dispose(); }
+  });
+
+  it("includes an ordinary PBR wrist join in camera clearance even when its picking is disabled", () => {
+    const original = gripShot(frame(), "side"), join = new Group(); join.name = "wrist-join";
+    const bridge = new Mesh(new BoxGeometry(0.14, 0.14, 0.14), new MeshStandardMaterial({ roughness: 0.7 }));
+    bridge.name = "wrist-skin-bridge";
+    bridge.position.copy(original.eye);
+    const disabledPicking = () => {}; bridge.raycast = disabledPicking;
+    join.add(bridge); join.updateMatrixWorld(true);
+    try {
+      const clear = clearGripShot(original, [join]);
+      expect(clear.inspectionBlocked).toBe(0);
+      expect(clear.eye.distanceTo(original.eye), "the displayed bridge's real exit wall must affect clearance").toBeGreaterThan(0.07);
+      expect(bridge.raycast).toBe(disabledPicking);
+      expect(bridge.visible).toBe(true); expect(bridge.material.visible).toBe(true);
+    } finally { bridge.geometry.dispose(); bridge.material.dispose(); }
   });
 
   it("keeps the needle visibly oblique instead of looking down its shaft", () => {
