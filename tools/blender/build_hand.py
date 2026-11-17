@@ -1131,7 +1131,21 @@ def validate_choreography_sources(choreography):
         require_hash(relative, digest)
 
 
+def validate_source_handedness():
+    """Verify the source points before advertising their anatomical side."""
+    distal = (sum((Vector(DIGITS[digit][0]) for digit in ("index", "middle", "ring", "little")), Vector()) / 4 - Vector(WRIST)).normalized()
+    radial = (Vector(DIGITS["index"][0]) - Vector(DIGITS["little"][0])).normalized()
+    triad = distal.cross(radial).dot(PALM_DORSAL.normalized())
+    # The independently authored pinned LEFT reference uses distal +Y, radial
+    # +X and dorsal +Z: (Y cross X) dot Z = -1. This source has the opposite
+    # sign; scene rotations preserve it and the runtime supplies the left mirror.
+    if SOURCE_ANATOMY.get("sourceHandedness") != "right" or triad <= 0.8:
+        raise ValueError(f"Source handedness disagrees with the actual wrist/MCP/palm triad: {triad}")
+    return triad
+
+
 def build(calibration_only=False):
+    validate_source_handedness()
     # Calibration deliberately does not consume hand_poses.json, so a changed
     # anatomical source can be exported before the live controller is sampled.
     choreography = {"sequences": {}} if calibration_only else json.loads(POSES.read_text())
@@ -1148,6 +1162,7 @@ def build(calibration_only=False):
     scene.frame_start, scene.frame_end = 1, 31
     asset_root = empty("acu_practitioner_hand")
     asset_root["license"] = "CC0-1.0"
+    asset_root["sourceHandedness"] = SOURCE_ANATOMY["sourceHandedness"]
     asset_root["source"] = "AcuCraft tools/blender/build_hand.py; original procedural geometry and PBR textures"
     asset_root["units"] = "metres; +Y needle axis; raised reference hold"
     asset_root["assetPurpose"] = "geometry-calibration-only" if calibration_only else "production-articulated-hand"
@@ -1162,6 +1177,7 @@ def build(calibration_only=False):
     palm_frame.rotation_mode = "QUATERNION"
     palm_frame.rotation_quaternion = PALM_BASIS.to_quaternion()
     palm_frame["forwardAxis"] = "-X toward fingers; -Y volar; +Z radial"
+    palm_frame["sourceHandedness"] = SOURCE_ANATOMY["sourceHandedness"]
     palm_frame["contactFrameHorizontalBranch"] = SOURCE_ANATOMY["contactFrameHorizontalBranch"]
     wrist_frame = empty("wrist_frame", root, WRIST)
     wrist_frame.rotation_mode = "QUATERNION"
@@ -1527,6 +1543,7 @@ def build(calibration_only=False):
     manifest = {
         "file": str(OUT) if calibration_only else "assets/models/acu-practitioner-hand.glb",
         "buildMode": "geometry-calibration-only" if calibration_only else "production-articulated-hand",
+        "sourceHandedness": SOURCE_ANATOMY["sourceHandedness"],
         "license": "CC0-1.0", "source": "tools/blender/build_hand.py",
         "choreography": None if calibration_only else "tools/blender/hand_poses.json",
         "choreographySha256": None if calibration_only else hashlib.sha256(POSES.read_bytes()).hexdigest(),
@@ -1575,7 +1592,7 @@ def build(calibration_only=False):
         "animation": "Geometry calibration only; no choreography consumed and no animation clips exported." if calibration_only else "Every clip is 0..1 second and carries its actual whole-hand presentation frame. Source bone lengths and skeletal control translations remain fixed; bone motion uses rotations and the complete hand frame. Canonical contact aliases independently carry the actual material point positions and orientations on skin or keratin. Supporting index contact uses a real rounded volar-distal fingertip facet. Primary grip, third-finger pulp and nail-work roles use actual skin or keratin surfaces. Scrape has a 6 mm axial stroke. Live runtime resets hand_pose_frame before applying operator controls. The matching hand_poses.json supplies the final authored layouts.",
         "clipFrames": {name: [round((frame - 1) / 30, 9) for frame, _ in frames] for name, frames in clips.items()},
         "modelClipFrames": {name: [{"time": round((frame - 1) / 30, 9), "position": list(position), "rotation": list(rotation)} for frame, position, rotation in frames] for name, frames in model_clips.items()},
-        "sourceAnatomy": {"file": "tools/blender/hand_anatomy.json", "sha256": hashlib.sha256(ANATOMY_SOURCE.read_bytes()).hexdigest(), "primaryMaterialContactNames": SOURCE_ANATOMY["materialContactNames"], "materialContactNames": [name for name, node in exported_nodes.items() if "materialSurface" in node.get("extras", {})], "thumbMetacarpalSoftTissue": THUMB_TISSUE, "wristCanonicalM": SOURCE_ANATOMY["wristCanonicalM"], "thumbCmcCanonicalMm": SOURCE_ANATOMY["thumbCmcCanonicalMm"], "wristToThumbCmcMm": SOURCE_ANATOMY["wristToThumbCmcMm"], "adultLengthsMm": SOURCE_ANATOMY["adultLengthsMm"], "sourceAnglesDeg": SOURCE_ANATOMY["sourceAnglesDeg"], "skinNailFrame": "one transported anatomical frame; true volar pulp opposite the dorsal nail"},
+        "sourceAnatomy": {"file": "tools/blender/hand_anatomy.json", "sourceHandedness": SOURCE_ANATOMY["sourceHandedness"], "sha256": hashlib.sha256(ANATOMY_SOURCE.read_bytes()).hexdigest(), "primaryMaterialContactNames": SOURCE_ANATOMY["materialContactNames"], "materialContactNames": [name for name, node in exported_nodes.items() if "materialSurface" in node.get("extras", {})], "thumbMetacarpalSoftTissue": THUMB_TISSUE, "wristCanonicalM": SOURCE_ANATOMY["wristCanonicalM"], "thumbCmcCanonicalMm": SOURCE_ANATOMY["thumbCmcCanonicalMm"], "wristToThumbCmcMm": SOURCE_ANATOMY["wristToThumbCmcMm"], "adultLengthsMm": SOURCE_ANATOMY["adultLengthsMm"], "sourceAnglesDeg": SOURCE_ANATOMY["sourceAnglesDeg"], "skinNailFrame": "one transported anatomical frame; true volar pulp opposite the dorsal nail"},
         "review": "authored anatomical visualization; no clinical calibration or motion-capture claim",
     }
     if triangles >= 24000 or len(raw) >= 1600000:

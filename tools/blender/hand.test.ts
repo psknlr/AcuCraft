@@ -785,7 +785,7 @@ describe("the Blender precision hand", () => {
         action.reset().play(); mixer.setTime(time); rig.updateMatrixWorld(true);
         if (clipName === "hand_three_finger") {
           for (const [digit, sign] of [["thumb", -1], ["index", 1]] as const) {
-            expect(point(`${digit}_pad_contact`).distanceTo(new Vector3(0, -0.006, sign * needleHandleRadiusAt(-0.006))), `${clipName} ${digit}/${frame}`).toBeLessThan(0.00001);
+            expect(point(`${digit}_pad_contact`).distanceTo(new Vector3(0, -0.005, sign * needleHandleRadiusAt(-0.005))), `${clipName} ${digit}/${frame}`).toBeLessThan(0.00001);
           }
         } else if (clipName === "hand_scrape") {
           expect(point("thumb_pad_contact").distanceTo(new Vector3(0, 0.0125, 0)), `${frame} true thumb tail brace`).toBeLessThan(0.00001);
@@ -831,7 +831,7 @@ describe("the Blender precision hand", () => {
         }
         edges.push(edge);
       }
-      if (clipName !== "hand_flick") expect(edges[0]!.y).toBeCloseTo(clipName === "hand_three_finger" ? 0.011164059024878269 : -0.008, 5);
+      if (clipName !== "hand_flick") expect(edges[0]!.y).toBeCloseTo(clipName === "hand_three_finger" ? 0.012 : -0.008, 5);
       if (clipName === "hand_scrape") expect(edges.at(-1)!.y - edges[0]!.y).toBeCloseTo(0.006, 5);
       else if (clipName === "hand_flick") {
         expect(Math.max(...edges.map((edge) => Math.hypot(edge.x, edge.z) - needleHandleRadiusAt(edge.y)))).toBeGreaterThan(0.00012);
@@ -1162,7 +1162,7 @@ describe("the Blender precision hand", () => {
     }
     expect([...names].sort()).toEqual([...manifest.animations].sort());
     const tripod = manifest.poseContacts.three_finger!.middle_side_contact!;
-    expect(tripod[1]).toBeCloseTo(0.011164059024878269, 5);
+    expect(tripod[1]).toBeCloseTo(0.012, 5);
     expect(Math.hypot(tripod[0]!, tripod[2]!)).toBeCloseTo(needleHandleRadiusAt(tripod[1]!), 5);
     const nail = manifest.poseContacts.scrape!.index_nail_edge_contact!;
     expect(nail[1]).toBeCloseTo(-0.002, 5);

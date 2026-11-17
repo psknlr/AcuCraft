@@ -1,7 +1,7 @@
 import { AnimationMixer, Group, LoopOnce, Matrix3, Matrix4, Mesh, MeshStandardMaterial, Quaternion, Ray, SkinnedMesh, Triangle, Vector3, type AnimationAction, type AnimationClip, type Object3D } from "three";
 import { needleHandleRadiusAt } from "./needle-shape.js";
 import { NAIL_WORK_WRIST_BOUNDS, THREE_FINGER_WRIST_BOUNDS, THREE_FINGER_WRIST_DEFAULT } from "@acucraft/core";
-import { RESTING_FINGER_SPREAD_AT_EXTENSION_DEG, SIDE_INDEX_WORKING_POSTURE, SIDE_THUMB_ACQUISITION_M, THREE_FINGER_WORKING_PROFILE, alignNormalAroundAxis, contactFrameAtElevation, fingerPostureReference, handOffProgress, minimumPlanarContactDistance, minimumPlanarContactRetreat, ordinaryTipPosture, restingFingerBaseRotation, restingFingerPosture, smoothPositiveDistance, tipReleasePalmarBlend } from "./hand-physiology.js";
+import { ORDINARY_THUMB_PULP_ACQUISITION, ORDINARY_TIP_HOLDING_Y_M, PRECISION_THUMB_ENVELOPE_M, RESTING_FINGER_SPREAD_AT_EXTENSION_DEG, SIDE_INDEX_WORKING_POSTURE, SIDE_THUMB_ACQUISITION_M, THREE_FINGER_WORKING_PROFILE, alignNormalAroundAxis, contactFrameAtElevation, fingerPostureReference, handOffProgress, minimumPlanarContactDistance, minimumPlanarContactRetreat, ordinaryTipPosture, restingFingerBaseRotation, restingFingerPosture, smoothPositiveDistance, tipReleasePalmarBlend } from "./hand-physiology.js";
 import { createNailWorkRig, sampleNailWork, type NailWorkRig, type NailWorkSample } from "./hand-nail-work.js";
 
 export type HandPose = "pinch" | "tripod" | "palpate" | "press" | "stretch" | "scrape" | "flick" | "release";
@@ -82,6 +82,7 @@ export class ArticulatedHand {
   private readonly sideIndexReference?: ReturnType<typeof fingerPostureReference>;
   private readonly sideIndexFrame?: { point: Vector3; normal: Vector3 };
   private readonly sideThumbPatch?: RollingPatch;
+  private readonly ordinaryThumbPatch?: RollingPatch;
   private readonly tripodIndexReference?: ReturnType<typeof fingerPostureReference>;
   private readonly tripodIndexFrame?: { point: Vector3; normal: Vector3 };
   private readonly tripodThumbPatch?: RollingPatch;
@@ -149,9 +150,8 @@ export class ArticulatedHand {
         const cap = this.projectRollingPatch(thumb, thumb.origin.clone().addScaledVector(thumb.tipAlong, SIDE_THUMB_ACQUISITION_M));
         if (cap) this.sideThumbPatch = { ...thumb, origin: cap.point, orientation: new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), cap.normal),
           sourcePoint: cap.point.clone().applyMatrix4(thumb.bindAttachment), sourceNormal: cap.normal.clone().transformDirection(thumb.bindAttachment) };
-        const front = this.rayProjectRollingPatch(thumb, thumb.origin.clone().addScaledVector(thumb.tipAlong, THREE_FINGER_WORKING_PROFILE.thumbAcquisitionM));
-        if (front) this.tripodThumbPatch = { ...thumb, origin: front.point, orientation: new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), front.normal),
-          sourcePoint: front.point.clone().applyMatrix4(thumb.bindAttachment), sourceNormal: front.normal.clone().transformDirection(thumb.bindAttachment) };
+        this.ordinaryThumbPatch = this.acquireThumbPulp(thumb, ORDINARY_THUMB_PULP_ACQUISITION.tipwardM, ORDINARY_THUMB_PULP_ACQUISITION.lateralM);
+        this.tripodThumbPatch = this.acquireThumbPulp(thumb, THREE_FINGER_WORKING_PROFILE.thumbAcquisitionM, THREE_FINGER_WORKING_PROFILE.thumbLateralAcquisitionM);
       }
       const pad = this.patches.get("index_pad_contact"), source = this.sourceIndex;
       if (pad && source && this.tripodThumbPatch) {
@@ -198,6 +198,11 @@ export class ArticulatedHand {
     this.model.quaternion.identity();
     this.indexHoldingName = settings.handleRadiusM !== undefined && ["pinch", "tripod"].includes(settings.pose) && settings.gripStyle === "side-pinch"
       ? "index_side_contact" : "index_pad_contact";
+    if (settings.handleRadiusM !== undefined && this.contactFrameHorizontalBranch !== undefined
+      && (this.usesOrdinaryReference && !this.ordinaryThumbPatch || settings.pose === "tripod" && !this.tripodThumbPatch)) {
+      this.validContacts = false;
+      return;
+    }
     const grip = clamp(settings.grip), phase = clamp(settings.phase);
     // Legacy nodes carry the Blender clips; zero-offset anatomical parents can add fine articulation.
     this.mixer.stopAllAction();
@@ -409,6 +414,7 @@ export class ArticulatedHand {
   }
 
   private holdingY(pose: HandPose): number {
+    if (this.usesOrdinaryReference && (pose === "pinch" || pose === "release")) return ORDINARY_TIP_HOLDING_Y_M;
     return this.contactFrameHorizontalBranch !== undefined && pose === "tripod" && this.tripodIndexReference ? THREE_FINGER_WORKING_PROFILE.primaryY : primaryHoldingY(pose);
   }
 
@@ -424,8 +430,20 @@ export class ArticulatedHand {
     if (name === "thumb_pad_contact") {
       if (this.indexHoldingName === "index_side_contact") return this.sideThumbPatch ?? this.patches.get(name);
       if (this.poseState?.pose === "tripod") return this.tripodThumbPatch ?? this.patches.get(name);
+      if (this.usesOrdinaryReference) return this.ordinaryThumbPatch ?? this.patches.get(name);
     }
     return this.patches.get(name);
+  }
+
+  /** Acquire actual volar skin, including its oblique normal, rather than rotating a flat contact into place. */
+  private acquireThumbPulp(patch: RollingPatch, tipwardM: number, lateralM: number): RollingPatch | undefined {
+    const volar = new Vector3(0, 1, 0).applyQuaternion(patch.orientation);
+    const lateral = volar.clone().cross(patch.tipAlong).normalize();
+    const field = this.rayProjectRollingPatch(patch, patch.origin.clone().addScaledVector(patch.tipAlong, tipwardM).addScaledVector(lateral, lateralM));
+    // Stay on the fleshy volar half. Neither the dorsal nail side nor an almost axial tip is a substitute pulp.
+    if (!field || field.normal.dot(volar) < 0.5) return undefined;
+    return { ...patch, origin: field.point, orientation: new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), field.normal),
+      sourcePoint: field.point.clone().applyMatrix4(patch.bindAttachment), sourceNormal: field.normal.clone().transformDirection(patch.bindAttachment) };
   }
 
   /** Project onto actual terminal triangles and the same normal field exported by Blender. */
@@ -807,6 +825,9 @@ export class ArticulatedHand {
     const localNormal = new Vector3(0, 1, 0).applyQuaternion(anchor.quaternion);
     const delta = modelTarget.clone().sub(base), distance = delta.length(), normal = modelOutward.normalize();
     const desiredDot = delta.dot(normal), radians = Math.PI / 180;
+    const inverseAnatomicalPalm = digit === "thumb" && this.activeIndexReference && this.indexHoldingName !== "index_side_contact"
+      ? this.palmTransform().clone().invert() : undefined;
+    const cmcInPalm = inverseAnatomicalPalm && base.clone().applyMatrix4(inverseAnatomicalPalm);
     const minA = -5 * radians, maxA = (digit === "thumb" ? 85 : 115) * radians;
     const minB = -5 * radians, maxB = 95 * radians;
     const evaluate = (alpha: number, beta: number) => {
@@ -824,8 +845,18 @@ export class ArticulatedHand {
     const naturalOpposition = (opposition: Quaternion, alpha: number, beta: number) => {
       const axis = a.clone().normalize(), projection = new Vector3(opposition.x, opposition.y, opposition.z).dot(axis);
       const raw = Math.abs(2 * Math.atan2(projection, opposition.w)), twist = Math.min(raw, 2 * Math.PI - raw);
-      if (twist > (digit === "thumb" ? 100 : 40) * radians) return null;
+      const refittedPrecision = !!this.activeIndexReference && this.indexHoldingName !== "index_side_contact";
+      const maximumTwist = refittedPrecision ? digit === "thumb" ? 30 : 20
+        : digit === "thumb" ? 100 : 40;
+      if (twist > maximumTwist * radians) return null;
       if (opposition.angleTo(new Quaternion()) > (digit === "thumb" ? 120 : 100) * radians) return null;
+      if (digit === "thumb" && inverseAnatomicalPalm && cmcInPalm) {
+        const mcp = base.clone().add(a.clone().applyQuaternion(opposition)).applyMatrix4(inverseAnatomicalPalm);
+        // Exact pad fitting alone can put the thumb knuckle behind the palm. Keep its real bone on the
+        // authored volar/radial route; no joint translation, bone scaling or reversed IP hinge repairs it.
+        if (mcp.y > PRECISION_THUMB_ENVELOPE_M.maximumMcpDorsal
+          || mcp.z - cmcInPalm.z < PRECISION_THUMB_ENVELOPE_M.minimumRadialFromCmc) return null;
+      }
       if (digit !== "thumb") {
         const result = evaluate(alpha, beta);
         const first = a.clone().applyQuaternion(opposition).normalize();
@@ -1053,9 +1084,12 @@ export class ArticulatedHand {
     const tripod = refitted && pose === "tripod" && !!this.tripodIndexReference;
     const side = refitted && this.indexHoldingName === "index_side_contact";
     const contacts: Record<string, HandMaterialContact> = {
-      thumb_pad_contact: skin("thumb_pad_contact", "thumb", { role: "primary-thumb", acquisition: tripod ? "outward-normal-ray" : side ? "closest-surface" : "flat-pulp",
-        tipwardMm: tripod ? THREE_FINGER_WORKING_PROFILE.thumbAcquisitionM * 1000 : side ? SIDE_THUMB_ACQUISITION_M * 1000 : 0 }),
-      [this.indexHoldingName]: skin(this.indexHoldingName, "index", { role: "primary-index", reference: side ? { ...SIDE_INDEX_WORKING_POSTURE } : tripod ? { ...THREE_FINGER_WORKING_PROFILE.index } : this.usesOrdinaryReference ? { ...this.ordinaryPosture } : "source-bind" }),
+      thumb_pad_contact: skin("thumb_pad_contact", "thumb", { role: "primary-thumb", acquisition: tripod || this.usesOrdinaryReference ? "oblique-volar-ray" : side ? "closest-surface" : "flat-pulp",
+        principalY: this.holdingY(pose),
+        tipwardMm: tripod ? THREE_FINGER_WORKING_PROFILE.thumbAcquisitionM * 1000 : side ? SIDE_THUMB_ACQUISITION_M * 1000 : this.usesOrdinaryReference ? ORDINARY_THUMB_PULP_ACQUISITION.tipwardM * 1000 : 0,
+        ...(tripod || this.usesOrdinaryReference ? { lateralMm: (tripod ? THREE_FINGER_WORKING_PROFILE.thumbLateralAcquisitionM : ORDINARY_THUMB_PULP_ACQUISITION.lateralM) * 1000,
+          minimumSourceVolarNormalDot: 0.5 } : {}) }),
+      [this.indexHoldingName]: skin(this.indexHoldingName, "index", { role: "primary-index", principalY: this.holdingY(pose), reference: side ? { ...SIDE_INDEX_WORKING_POSTURE } : tripod ? { ...THREE_FINGER_WORKING_PROFILE.index } : this.usesOrdinaryReference ? { ...this.ordinaryPosture } : "source-bind" }),
     };
     if (pose === "tripod") contacts.middle_side_contact = skin("middle_side_contact", "middle", { role: "third-finger-pulp-support", source: tripod ? THREE_FINGER_WORKING_PROFILE.middleContact : "legacy-middle-side", principalY: this.holdingY(pose),
       ...(tripod ? { targetY: THREE_FINGER_WORKING_PROFILE.middleY, azimuthRad: THREE_FINGER_WORKING_PROFILE.middleAzimuthRad } : {}) });

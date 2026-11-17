@@ -35,6 +35,23 @@ The `curled` choice is an authored closed-fist posture, including 95–100° PIP
 bends; `relaxed` remains a separate, milder choice. Neither the source grasp nor
 the closed-fist table should be described as a neutral or universal comfort pose.
 
+The current `d7ec9252…` export uses ordinary tip and three-finger index
+references of 50°/100°/60° and 45°/90°/40°, respectively; side pulp retains
+90°/35°/10°. Actual solved angles vary with the task. Ordinary thumb acquisition
+ray-projects a real volar point at tipward/lateral offsets 0/−3.2 mm; the
+three-finger variant uses +3.5/−3 mm. Its normal must remain on the fleshy volar
+half of the source surface. The primary holding plane is needle Y=+5 mm for
+ordinary tip and −5 mm for three-finger; the third-finger pulp meets Y=+12 mm.
+These authored offsets preserve the accepted needle axis, entry and trajectory.
+
+The full hand was not reversed: actual left/right chirality, four-finger volar
+curl and opposing nail/pulp directions were already correct. The earlier thumb
+solve could carry the knuckle dorsally into the palm. The current volar/radial
+opposition route exposes the working thumb while fitting its actual skin point
+and smooth normal. Source canonical axes remain +X wristward, +Y dorsal and +Z
+radial; `sourceHandedness: "right"` describes the unmirrored source, and the
+runtime creates the left hand by reflection.
+
 The renderer distinguishes the needle frame, the actual palm frame and the
 forearm frame. Raising the wrist preserves needle contact; it does not change
 the clinically recorded needle angle. Forearm pronation follows the actual wrist
@@ -101,8 +118,13 @@ This fragment does not supply or authorize a clinical needle site, path or depth
 ## Inspection
 
 The **手部 Grip** camera cycles between three-quarter, side and palmar views.
-It frames the complete hand, thumb origin, wrist and nearby needle, with the eye
-outside the patient's local skin plane. Use these views while previewing the
+It uses the actual anatomical palm axes after mirroring; the old side hint used
+source-model Z and was 90° away from the intended radial direction. The
+three-quarter choice begins on the opposed thumb's nail side. Framing covers
+the hand, thumb origin, wrist and nearby needle while prioritizing active
+contact sightlines, with the eye outside the patient's local skin plane.
+Occlusion adjustment can label a view **Oblique**; sleeves or the patient can
+still hide part of the hand or cuff. Use these views while previewing the
 approach, first contact, insertion, twirling, axial movement and release. A
 cropped image containing only two fingertips cannot establish the hand pose.
 
@@ -128,17 +150,30 @@ runtime checks and scene captures.
 
 ## Actual scene views
 
-The current morphology and flexion iteration is described in [HANDS.md](HANDS.md)
-and its [separate validation snapshot](HAND-ANATOMY-VALIDATION.json). The gallery
-and snapshot identify each group's exported GLB and runtime. The primary working
-image, optional grasp and new motion/nail captures use the current export; the
-retained ordinary/bimanual comparisons identify their earlier `1bb07096…` /
-`5809c719…` checkpoint. The later change calibrates the optional three-finger
-grasp's height; ordinary geometry and sampled motion are unchanged. A source-only
-fixture retaining older clips is not evidence of matching runtime choreography.
-The actual scene captures use the public controls:
+The current direction/opposition export is `d7ec9252…`, sampled from
+`hand.ts d8f681d6…` and `hand-physiology.ts 221ca74a…`. Its
+[validation record](HAND-DIRECTION-VALIDATION.json) and latest
+[tip three-quarter](img/hand-direction-tip-three-quarter.png),
+[tip side](img/hand-direction-tip-side.png),
+[three-finger](img/hand-direction-tripod.png) and supplementary
+[hand-only anatomy](img/hand-direction-anatomy.png) captures belong to this
+export. The hand-only Blender render is a supplementary geometry inspection;
+actual UI views retain the full practitioner and scene occlusions. These current
+links are separate from the retained galleries.
 
-![Current thumb/index hold at the closer working stance](img/hand-anatomy-working-tip.png)
+### Earlier anatomy and wrist captures
+
+The earlier anatomy/flexion iteration is described in [HANDS.md](HANDS.md) and
+its [historical validation snapshot](HAND-ANATOMY-VALIDATION.json). That snapshot
+pins the `8e8750a4…` export and each gallery group's original runtime. Its working,
+optional-grasp and motion/nail images belong to that anatomy iteration. The
+retained ordinary/bimanual comparisons identify the earlier `1bb07096…` /
+`5809c719…` checkpoint. The optional-height calibration preserved ordinary motion
+at that historical checkpoint; it does not describe the new opposition profile.
+A source-only fixture with older clips is not evidence of matching runtime
+choreography. Those scene captures used the public controls:
+
+![Earlier anatomy thumb/index hold at the closer working stance](img/hand-anatomy-working-tip.png)
 
 ![Retained side-pulp comparison with relaxed unused fingers, at the cart stance](img/hand-anatomy-side-relaxed.png)
 
@@ -183,9 +218,9 @@ move-closer warning. The model preserves arm lengths rather than displaying an
 unreachable supporting hand.
 These anatomy captures precede the subsequent
 [wrist/sleeve transition](HANDS.md#wrist-and-sleeve-transition) and its
-[separate evidence](WRIST-JOIN-VALIDATION.json). That change connects actual skin
-boundaries and replaces the flat sleeve cap with a hollow hem; it preserves the
-authored forearm-roll bound and the existing hand controls. Some public
+[separate evidence](WRIST-JOIN-VALIDATION.json). That historical change connects
+actual skin boundaries and replaces the flat sleeve cap with a hollow hem; it preserved the
+authored forearm-roll bound and that checkpoint's hand controls. Some public
 side views preserve clear needle contacts while sleeves obscure part of the
 palm or unused fingers; the captures retain those actual scene occlusions.
 

@@ -91,13 +91,13 @@ function surfaceDistance(root: Object3D, digit: "thumb" | "index" | "middle", co
   return distance;
 }
 
-function expectHeldSurfaces(root: Object3D, handle: { point: Vector3; axis: Vector3 }, indexName = "index_pad_contact", axialY = 0): void {
+function expectHeldSurfaces(root: Object3D, handle: { point: Vector3; axis: Vector3 }, indexName = "index_pad_contact", axialY?: number): void {
   const branch = root.getObjectByName("palm_frame")?.userData.contactFrameHorizontalBranch;
   const stagger = indexName === "index_side_contact" && branch !== -1 && branch !== 1 ? 0.00025 : 0;
   for (const [digit, name] of [["thumb", "thumb_pad_contact"], ["index", indexName]] as const) {
     const anchor = root.getObjectByName(name)!, point = anchor.getWorldPosition(new Vector3()), delta = point.clone().sub(handle.point);
     const axial = delta.dot(handle.axis), radial = delta.addScaledVector(handle.axis, -axial);
-    const targetY = axialY + (digit === "thumb" ? stagger : -stagger);
+    const targetY = (axialY ?? (indexName === "index_pad_contact" ? ordinaryHoldingY(root) : 0)) + (digit === "thumb" ? stagger : -stagger);
     expect(Math.abs(axial - targetY), `${name} axial contact`).toBeLessThan(0.000025);
     expect(Math.abs(radial.length() - needleHandleRadiusAt(targetY)), `${name} radial contact`).toBeLessThan(0.000025);
     const normal = anchor.localToWorld(new Vector3(0, 1, 0)).sub(point).normalize();
@@ -106,10 +106,15 @@ function expectHeldSurfaces(root: Object3D, handle: { point: Vector3; axis: Vect
   }
 }
 
+function ordinaryHoldingY(root: Object3D): number {
+  const branch = root.getObjectByName("palm_frame")?.userData.contactFrameHorizontalBranch;
+  return branch === -1 || branch === 1 ? 0.005 : 0;
+}
+
 function threeFingerLayout(root: Object3D): { primaryY: number; middleY: number } {
   const branch = root.getObjectByName("palm_frame")?.userData.contactFrameHorizontalBranch;
   const refitted = (branch === -1 || branch === 1) && !!root.getObjectByName("middle_volar_pulp_88_contact");
-  return refitted ? { primaryY: -0.006, middleY: 0.011164059024878269 } : { primaryY: -0.012, middleY: 0.010 };
+  return refitted ? { primaryY: -0.005, middleY: 0.012 } : { primaryY: -0.012, middleY: 0.010 };
 }
 
 function hasRefittedNailRoles(root: Object3D): boolean {
@@ -192,7 +197,8 @@ describe("reference hand scene integration", () => {
       const handle = s.needles.grip("needle-a")!;
       expectHeldSurfaces(root, handle, settings.gripStyle === "side-pinch" ? "index_side_contact" : "index_pad_contact");
       const point = (name: string) => root.getObjectByName(name)!.getWorldPosition(new Vector3());
-      const wrist = point("wrist").sub(handle.point), height = wrist.dot(handle.axis), lateral = wrist.addScaledVector(handle.axis, -height).length();
+      const holdingY = settings.gripStyle === "side-pinch" ? 0 : ordinaryHoldingY(root);
+      const wrist = point("wrist").sub(handle.point.clone().addScaledVector(handle.axis, holdingY)), height = wrist.dot(handle.axis), lateral = wrist.addScaledVector(handle.axis, -height).length();
       const middleMcp = point("middle_MCP"), middlePip = point("middle_PIP"), middleDip = point("middle_DIP");
       const snapshot = {
         elevation: Math.atan2(height, lateral) * 180 / Math.PI,
@@ -282,6 +288,41 @@ describe("reference hand scene integration", () => {
     s.dispose();
   });
 
+  it("inspects the anatomical thumb side from actual MCP landmarks under reflection and a rotated scene", async () => {
+    const s = await makeScene(true);
+    try {
+      for (const side of ["left", "right"] as const) {
+        s.procedure.group.position.set(0, 0, 0); s.procedure.group.quaternion.identity();
+        s.procedure.stopPreview();
+        expect(s.procedure.preview(input("nian", { needleId: "needle-a", motion: { hand: side, support: "none", rotationDeg: 0, wristElevationDeg: 55 } }))).toBe(true);
+        s.procedure.setPlayback({ progress: 0.5, paused: true });
+        const root = s.procedure.group.getObjectByName("needle-hand")!;
+        const model = root.children[0]!, palm = root.getObjectByName("palm_frame")!;
+        for (const rotation of [new Quaternion(), new Quaternion().setFromAxisAngle(new Vector3(0.3, 0.8, -0.2).normalize(), 0.9)]) {
+          s.procedure.group.position.set(0.21, 0.12, -0.17); s.procedure.group.quaternion.copy(rotation);
+          s.procedure.group.updateMatrixWorld(true);
+          const frame = s.procedure.inspectionFrame()!;
+          expect(frame, `${side} visible hand supplies an inspection frame`).not.toBeNull();
+          const origin = palm.getWorldPosition(new Vector3());
+          // The wrist-to-palm-centre line and actual MCP row define the thumb
+          // side independently of the source scene's rotated XYZ convention.
+          const wristward = root.getObjectByName("wrist")!.getWorldPosition(new Vector3()).sub(origin).normalize();
+          const across = root.getObjectByName("index_MCP")!.getWorldPosition(new Vector3())
+            .sub(root.getObjectByName("little_MCP")!.getWorldPosition(new Vector3()));
+          across.addScaledVector(wristward, -across.dot(wristward));
+          across.addScaledVector(frame.palmNormal, -across.dot(frame.palmNormal));
+          across.normalize();
+          expect(frame.radial.distanceTo(across), `${side} side view follows index/thumb rather than the little finger`).toBeLessThan(1e-6);
+          expect(Math.abs(frame.radial.dot(frame.palmNormal)), `${side} radial/volar orthogonality`).toBeLessThan(1e-6);
+          expect(Math.abs(frame.radial.dot(wristward)), `${side} radial/longitudinal orthogonality`).toBeLessThan(1e-6);
+          const modelOrigin = model.getWorldPosition(new Vector3());
+          const sourceZ = model.localToWorld(new Vector3(0, 0, 1)).sub(modelOrigin).normalize();
+          expect(Math.abs(sourceZ.dot(across)), "fixture exercises a nonidentity anatomical/source basis").toBeLessThan(0.1);
+        }
+      }
+    } finally { s.dispose(); }
+  });
+
   it("carries the complete grip through the full lifting and thrusting stroke without a second local finger displacement", async () => {
     const s = await makeScene(true), durationMs = 2400, totalMs = durationMs + 1920;
     for (const side of ["left", "right"] as const) for (const gripStyle of ["tip-pinch", "side-pinch"] as const) for (const wristElevationDeg of [35, 55, 70]) {
@@ -300,7 +341,8 @@ describe("reference hand scene integration", () => {
         s.procedure.group.updateMatrixWorld(true);
         expectHeldSurfaces(root, handle, gripStyle === "side-pinch" ? "index_side_contact" : "index_pad_contact");
         const wrist = root.getObjectByName("wrist")!.getWorldPosition(new Vector3());
-        const bearing = wrist.clone().sub(handle.point), height = bearing.dot(handle.axis), across = bearing.addScaledVector(handle.axis, -height).length();
+        const holdingY = gripStyle === "side-pinch" ? 0 : ordinaryHoldingY(root);
+        const bearing = wrist.clone().sub(handle.point.clone().addScaledVector(handle.axis, holdingY)), height = bearing.dot(handle.axis), across = bearing.addScaledVector(handle.axis, -height).length();
         expect(Math.atan2(height, across) * 180 / Math.PI).toBeCloseTo(wristElevationDeg, 3);
         frames.push({ handle: handle.point.clone(), axis: handle.axis.clone(), hand: root.getWorldPosition(new Vector3()), wrist,
           tip: s.needles.group.getObjectByName("needle-tip")!.getWorldPosition(new Vector3()) });
@@ -456,7 +498,7 @@ describe("articulated anatomical hand contacts", () => {
         for (const digit of ["thumb", "index"]) {
           const offset = root.getObjectByName(`${digit}_pad_contact`)!.getWorldPosition(new Vector3()).sub(handle.point);
           const axial = offset.dot(handle.axis), radial = offset.addScaledVector(handle.axis, -axial).length();
-          const holdY = grip === "three-finger" ? threeFingerLayout(root).primaryY : 0;
+          const holdY = grip === "three-finger" ? threeFingerLayout(root).primaryY : ordinaryHoldingY(root);
           expect(Math.abs(axial - holdY), `${hand}/${grip}/${workAt}/${digit} plane`).toBeLessThan(0.000025);
           expect(Math.abs(radial - needleHandleRadiusAt(holdY)), `${hand}/${grip}/${workAt}/${digit} surface`).toBeLessThan(0.000025);
         }
@@ -589,7 +631,8 @@ describe("bimanual catalogue performances", () => {
     expect(main.visible).toBe(true); expect(support.visible).toBe(true);
     const world = (root: Group, name: string) => root.getObjectByName(name)!.getWorldPosition(new Vector3());
     const pinch = world(main as Group, "index_pad_contact").add(world(main as Group, "thumb_pad_contact")).multiplyScalar(0.5);
-    expect(pinch.distanceTo(needles.grip("needle-a")!.point)).toBeLessThan(0.0001);
+    const handle = needles.grip("needle-a")!;
+    expect(pinch.distanceTo(handle.point.clone().addScaledVector(handle.axis, ordinaryHoldingY(main)))).toBeLessThan(0.0001);
     const pad = world(support as Group, "index_volar_contact").sub(contactSite.p);
     expect(pad.dot(contactSite.n)).toBeCloseTo(0.002, 3);
     expect(pad.length()).toBeLessThan(0.045);

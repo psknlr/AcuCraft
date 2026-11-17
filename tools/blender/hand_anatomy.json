@@ -1,5 +1,6 @@
 {
   "schemaVersion": 1,
+  "sourceHandedness": "right",
   "description": "Authored adult-proportioned hand with one baked anatomical palm basis. Canonical palm +X points wristward, +Y dorsal, +Z radial. Source angles describe one active needle grasp; they are not a clinical neutral or universal comfort limit.",
   "palmBasisColumns": [
     [

@@ -6,10 +6,71 @@ and animation are CC0-1.0. It contains no downloaded meshes, external textures,
 patient data or copies of the supplied reference photographs. This is an authored
 visual simulation, without anatomical, motion-capture or clinical validation.
 
-![Actual operating hand and revised wrist/sleeve transition](img/wrist-join-tip-three-quarter.png)
-
 [Reference interpretation, shared controls and inspection views](REFERENCE-POSES.md)
 describes how the supplied images inform the implementation.
+
+## Current direction and thumb opposition
+
+The current `d7ec9252…` export contains 16,990 triangles, 1,321,988 bytes, eleven
+meshes, six embedded images and five clips. It matches `hand.ts d8f681d6…` and
+`hand-physiology.ts 221ca74a…`. The [direction validation record](HAND-DIRECTION-VALIDATION.json)
+identifies its exact sources, finite checks and actual captures. The current
+[tip three-quarter](img/hand-direction-tip-three-quarter.png),
+[tip side](img/hand-direction-tip-side.png),
+[three-finger](img/hand-direction-tripod.png) and supplementary
+[hand-only anatomy](img/hand-direction-anatomy.png) images belong to this export; the older galleries below retain their original identities.
+
+![Current actual UI, with full practitioner and real scene occlusions](img/hand-direction-tip-three-quarter.png)
+
+![Supplementary actual runtime hand-only palm, back and oblique comparison](img/hand-direction-anatomy.png)
+
+The source is a right hand, recorded as `sourceHandedness: "right"` in the
+anatomy, asset root and `palm_frame`. Its actual wrist/MCP/dorsal triad measures
+`+0.984174`, opposite the independently pinned left-hand reference `−1`.
+Mirroring supplies the left hand. The four fingers already curled toward the
+palm and the nails already faced away from the volar pulp on both hands.
+
+Two separate defects affected the earlier view and thumb silhouette. The side
+camera used source-model Z instead of anatomical `palm_frame` Z, making its
+radial hint 90° wrong. The thumb solve could raise the metacarpal toward the
+dorsal palm while satisfying the pad contact, leaving much of the proximal
+thumb buried. The correction uses the actual palm axes for inspection and a
+volar/radial thumb route with a real acquired pulp point. In the measured
+three-finger working pose, thumb MCP Y changes from `+7.57 mm` dorsal to
+`−11.734 mm` palmar. These are authored fixture measurements, not clinical joint
+limits.
+
+| Working mode | Index reference MCP/PIP/DIP | Thumb acquisition, tipward / lateral | Holding planes along needle +Y |
+| --- | --- | --- | --- |
+| Ordinary tip | 50° / 100° / 60° | 0 / −3.2 mm | Thumb and index +5 mm |
+| Three-finger | 45° / 90° / 40° | +3.5 / −3.0 mm | Thumb/index −5 mm; middle +12 mm |
+| Side pulp | 90° / 35° / 10° | Existing +2 mm tipward surface acquisition | Thumb and index 0 mm |
+
+These are solver references; actual joint angles vary with contact, rolling and
+opening. The ordinary tip reference is shared across its 35–70° elevation range.
+Tipward follows the source distal phalanx. The lateral direction is
+`source volar normal × tipward`, before ray projection onto real terminal skin.
+For ordinary tip and three-finger modes, the acquired thumb normal must retain
+a dot product of at least 0.5 with the source volar normal. Their authored thumb
+envelope keeps MCP at least 5 mm into the palmar half and prevents a large ulnar
+retreat from CMC. Ordinary tip opening follows a smooth palmar route; side-pulp
+acquisition retains its separate constraints. Holding-plane changes preserve
+the accepted needle axis, body entry and clinical displacement.
+
+The supplementary hand-only image uses the actual runtime-posed mesh and PBR
+materials, with the patient and practitioner outside this technical inspection
+scene. Full scene captures retain their original occlusions. In the measured
+production default poses, 70/204 proximal thumb-skin samples still lie within
+the palm in ordinary tip and 20/204 in three-finger holding; these separate
+procedural surfaces do not form a validated anatomical tissue union.
+
+Every mesh attribute/index payload, embedded PBR image/material, raw bone and
+contact transform, and inverse-bind payload remains identical to the historical
+`0777d310…` source. The update changes runtime opposition, camera framing,
+source-side metadata and matching sampled choreography. The original 25/50 µm
+geometry, 5 µm material-attachment and 4° motion tolerances remain unchanged. Finite geometric
+checks and selected scene views do not establish tissue mechanics, a universally
+comfortable posture or clinical validity.
 
 Rebuild with Blender 4.3 or newer:
 
@@ -47,6 +108,12 @@ sources. The final asset still requires all five matching clips.
 
 ## Wrist and sleeve transition
 
+This section preserves the historical `0777d310…` wrist/sleeve checkpoint.
+The current direction export retains its mesh and material payloads, while its
+thumb posture, holding planes and inspection framing have changed.
+
+![Historical operating-hand and wrist/sleeve checkpoint](img/wrist-join-tip-three-quarter.png)
+
 The detail hand declares its actual 48-point lateral palm boundary and a second
 distal row for its surface tangent. The proximal palm is cropped at canonical
 `u=104 mm`; its internal closure preserves a solid collision volume. The carpal
@@ -77,18 +144,19 @@ when both hands reach. No clothing faces are hidden to fix this binding error.
 The loft owns its geometry and cloned skin material; avatar materials
 and hand textures remain borrowed. Scene disposal releases these resources.
 
-Actual public bimanual views show the
+Historical public bimanual views show the
 [trouser-binding defect before correction](img/wrist-join-before-trouser-binding.png)
 and the [corrected scene](img/wrist-join-bimanual.png). The same public camera
 preset remains free to adjust around visible geometry; these are not a fixed-eye
-pixel comparison. Other current views include [left side](img/wrist-join-tip-side.png),
+pixel comparison. Other views from that checkpoint include
+[left side](img/wrist-join-tip-side.png),
 [right side](img/wrist-join-tip-right.png), [middle support](img/wrist-join-tripod.png)
 and [index-nail work](img/wrist-join-gua.png). The
 [approach](img/wrist-join-approach.png), [held](img/wrist-join-held.png) and
 [release](img/wrist-join-release.png) frames use one unchanged public camera.
 
-[Current wrist validation](WRIST-JOIN-VALIDATION.json) records the final source,
-asset and actual public-scene captures. The earlier anatomy validation and
+[The historical wrist validation](WRIST-JOIN-VALIDATION.json) records that checkpoint's
+source, asset and actual public-scene captures. The earlier anatomy validation and
 `hand-anatomy-*` gallery retain their original asset identities. The 85° authored
 forearm-roll bound remains in place. A connected visual surface does not prove
 anatomical wrist tracking, pressure, cloth simulation or AAA production quality.
@@ -121,7 +189,8 @@ graduated bends.
 
 `palm_frame` and `wrist_frame` describe the actual palm, separately from the
 needle frame: -X points toward the fingers, -Y is volar and +Z is radial. This
-full anatomical basis is distinct from the wrist-elevation bearing. The actor
+unmirrored source basis has canonical +X wristward, +Y dorsal and +Z radial,
+with determinant +1. It is distinct from the wrist-elevation bearing. The actor
 uses the actual wrist azimuth to approach the shoulder. Mirroring includes the
 presentation rotation and translation as well as the skin, so a three-dimensional
 source frame remains a true opposite hand. Frame extraction uses transformed
@@ -214,8 +283,8 @@ maximum range of motion as a precision-grasp target:
 - [University of Oklahoma hand biomechanics](https://www.ouhsc.edu/bserdac/dthompso/web/namics/hand.htm)
   describes palm arches and the distinct roles of radial and ulnar metacarpals.
 
-The flexion sheet evaluates the actual GLB's skin weights with fixed-length
-MCP/PIP/DIP hinges, without interpolating animation-clip quaternions. It compares
+The historical flexion sheet evaluates its recorded GLB's skin weights with
+fixed-length MCP/PIP/DIP hinges, without interpolating animation-clip quaternions. It compares
 three explicit inspection poses—extended, half flexion and curled inspection—from
 palmar, dorsal and radial-side views. The third row is labelled **Curled
 inspection** and reads the shared closed-fist M/R/L table. Its independent index
@@ -237,7 +306,7 @@ intersect; zero intersections alone cannot establish a natural silhouette.
 Neither photographs nor passing mesh checks establish patient-specific
 physiology, tissue mechanics, clinical technique or AAA production quality.
 
-![Actual-GLB inspection of three fixed-length finger-flexion poses](img/hand-anatomy-flexion-audit.png)
+![Historical actual-GLB inspection of three fixed-length finger-flexion poses](img/hand-anatomy-flexion-audit.png)
 
 Reproduce the actual-GLB inspection with:
 
@@ -250,7 +319,7 @@ boundary intersections without rendering. The script exports the current
 runtime physiology table through the repository's `tsx`; `--physiology-table`
 accepts a saved export with a matching helper hash. Use `--asset` and
 `--expected-asset-sha256` to inspect a particular immutable source fixture.
-[The anatomy validation snapshot](HAND-ANATOMY-VALIDATION.json) records
+[The historical anatomy validation snapshot](HAND-ANATOMY-VALIDATION.json) records
 the inspected asset, measured sections, finite runtime checks and image scope.
 `hand-morphology.test.ts` measures real triangle sections and terminal surface
 axes. `hand-physiology.test.ts` measures posed bones in the palm frame for both
@@ -364,10 +433,13 @@ Sleeves can still obscure part of the palm in an actual inspection view.
 A temporary turn and bounded shared torso lean help reach the working area;
 feet stay at their authorized floor positions, and walking cancels the pose.
 
-The **手部 Grip** camera cycles three-quarter, side and palmar views and frames
-the hand, wrist and nearby needle. Local shadows and restrained depth of
-field preserve contact readability. Review continuous approach, insertion,
-rotation, axial motion and release as well as still images. Offline frame
+The **手部 Grip** camera cycles three-quarter, side and palmar views using the
+actual transformed palm axes. The three-quarter choice begins on the opposed
+thumb's nail side, and contact/active-digit sightlines receive priority during
+occlusion adjustment. A requested view can be labelled **Oblique** when adjusted;
+patient geometry and sleeves can still obscure part of the hand or cuff. Local
+shadows and restrained depth of field preserve contact readability. Review
+continuous approach, insertion, rotation, axial motion and release as well as still images. Offline frame
 exports and real-time recordings are labeled separately.
 
 Catalogue playback supports pause and speed. Local preview additionally permits

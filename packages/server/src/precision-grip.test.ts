@@ -45,10 +45,15 @@ function expectedSideStagger(hand: ArticulatedHand): number {
   return branch === -1 || branch === 1 ? 0 : 0.00025;
 }
 
+function ordinaryHoldingY(model: Object3D): number {
+  const branch = model.getObjectByName("palm_frame")?.userData.contactFrameHorizontalBranch;
+  return branch === -1 || branch === 1 ? 0.005 : 0;
+}
+
 function threeFingerLayout(model: Object3D): { primaryY: number; middleY: number } {
   const branch = model.getObjectByName("palm_frame")?.userData.contactFrameHorizontalBranch;
   const refitted = (branch === -1 || branch === 1) && !!model.getObjectByName("middle_volar_pulp_88_contact");
-  return refitted ? { primaryY: -0.006, middleY: 0.011164059024878269 } : { primaryY: -0.012, middleY: 0.010 };
+  return refitted ? { primaryY: -0.005, middleY: 0.012 } : { primaryY: -0.012, middleY: 0.010 };
 }
 
 function hasRefittedNailRoles(hand: ArticulatedHand): boolean {
@@ -295,8 +300,9 @@ describe("needle-handle surface grip regression", () => {
         hand.pose({ pose: "pinch", grip: 1, phase: 0, handleRadiusM: NEEDLE_HANDLE_RADIUS_M, wristElevationDeg, gripStyle });
         const indexName = gripStyle === "side-pinch" ? "index_side_contact" : "index_pad_contact";
         const stagger = gripStyle === "side-pinch" ? expectedSideStagger(hand) : 0;
-        expectSurfaceContact(hand, "thumb_pad_contact", stagger);
-        expectSurfaceContact(hand, indexName, -stagger);
+        const holdingY = gripStyle === "side-pinch" ? 0 : ordinaryHoldingY(hand.model);
+        expectSurfaceContact(hand, "thumb_pad_contact", holdingY + stagger);
+        expectSurfaceContact(hand, indexName, holdingY - stagger);
         expect(skinDistance(hand, "thumb", "thumb_pad_contact")).toBeLessThan(toleranceM);
         expect(skinDistance(hand, "index", indexName)).toBeLessThan(toleranceM);
         const wrist = hand.wrist().sub(hand.contact("pinch"));
@@ -319,10 +325,11 @@ describe("needle-handle surface grip regression", () => {
       hand.setSide(side);
       const indexName = gripStyle === "side-pinch" ? "index_side_contact" : "index_pad_contact";
       const stagger = gripStyle === "side-pinch" ? expectedSideStagger(hand) : 0;
+      const holdingY = gripStyle === "side-pinch" ? 0 : ordinaryHoldingY(hand.model);
       const poses: { thumb: Vector3; index: Vector3; material: Vector3[] }[] = [];
       for (const rotationRad of [-1.4, 1.4]) {
         hand.pose({ pose: "pinch", grip: 1, phase: 0.5, handleRadiusM: NEEDLE_HANDLE_RADIUS_M, gripStyle, rotationRad });
-        expectSurfaceContact(hand, "thumb_pad_contact", stagger); expectSurfaceContact(hand, indexName, -stagger);
+        expectSurfaceContact(hand, "thumb_pad_contact", holdingY + stagger); expectSurfaceContact(hand, indexName, holdingY - stagger);
         expect(skinDistance(hand, "thumb", "thumb_pad_contact")).toBeLessThan(toleranceM);
         expect(skinDistance(hand, "index", indexName)).toBeLessThan(toleranceM);
         poses.push({ thumb: point(hand, "thumb_tip"), index: point(hand, "index_tip"), material: [node(hand, "thumb_pad_contact").position.clone(), node(hand, indexName).position.clone()] });
@@ -335,7 +342,7 @@ describe("needle-handle surface grip regression", () => {
       const axial: Quaternion[][] = [], palmPositions: Vector3[] = [];
       for (const axialDisplacementMm of [-3, 3]) {
         hand.pose({ pose: "pinch", grip: 1, phase: 0.5, handleRadiusM: NEEDLE_HANDLE_RADIUS_M, gripStyle, axialDisplacementMm });
-        expectSurfaceContact(hand, "thumb_pad_contact", stagger); expectSurfaceContact(hand, indexName, -stagger);
+        expectSurfaceContact(hand, "thumb_pad_contact", holdingY + stagger); expectSurfaceContact(hand, indexName, holdingY - stagger);
         axial.push(jointRotations(hand));
         palmPositions.push(hand.model.position.clone());
       }
@@ -360,7 +367,7 @@ describe("needle-handle surface grip regression", () => {
       let previous: Quaternion[] | undefined;
       for (let frame = 0; frame <= 30; frame++) {
         hand.pose({ pose: "pinch", grip: 1, phase: 0.3, handleRadiusM: NEEDLE_HANDLE_RADIUS_M, wristElevationDeg, axialDisplacementMm, rotationRad: sign * frame / 100 });
-        expectSurfaceContact(hand, "thumb_pad_contact", 0); expectSurfaceContact(hand, "index_pad_contact", 0);
+        expectSurfaceContact(hand, "thumb_pad_contact", ordinaryHoldingY(hand.model)); expectSurfaceContact(hand, "index_pad_contact", ordinaryHoldingY(hand.model));
         const rotations = jointRotations(hand);
         if (previous) for (let joint = 0; joint < rotations.length; joint++) expect(rotations[joint]!.angleTo(previous[joint]!) * 180 / Math.PI).toBeLessThan(1);
         previous = rotations;
@@ -503,7 +510,7 @@ describe("needle-handle surface grip regression", () => {
         for (const apertureMm of [0, 2, 12]) {
           for (const rotationRad of [-Math.PI, -Math.PI / 2, 0, Math.PI / 2, Math.PI]) {
             hand.pose({ pose, apertureMm, rotationRad, grip: 1, phase: 0.35, handleRadiusM: NEEDLE_HANDLE_RADIUS_M });
-            const holdingY = pose === "tripod" ? threeFingerLayout(hand.model).primaryY : 0;
+            const holdingY = pose === "tripod" ? threeFingerLayout(hand.model).primaryY : ordinaryHoldingY(hand.model);
             const thumb = expectSurfaceContact(hand, "thumb_pad_contact", holdingY);
             const index = expectSurfaceContact(hand, "index_pad_contact", holdingY);
             const line = index.clone().sub(thumb);
@@ -653,8 +660,8 @@ describe("needle-handle surface grip regression", () => {
         unused = points;
         expect(point(hand, "middle_side_contact").distanceTo(hand.contactAt("handle"))).toBeGreaterThan(0.01);
         if (sample.gripEngagement === 1) {
-          expectSurfaceContact(hand, "thumb_pad_contact", 0);
-          expectSurfaceContact(hand, "index_pad_contact", 0);
+          expectSurfaceContact(hand, "thumb_pad_contact", ordinaryHoldingY(hand.model));
+          expectSurfaceContact(hand, "index_pad_contact", ordinaryHoldingY(hand.model));
         }
         if (sample.gripEngagement === 0) expect(hand.gapMm()).toBeCloseTo(12, 3);
       }
@@ -721,7 +728,7 @@ describe("needle-handle surface grip regression", () => {
           expect(skinDistance(hand, "index", "index_nail_edge_contact", "nail")).toBeLessThan(0.000005);
           if (hand.materialContacts().index_nail_edge_contact!.engaged) expectSurfaceContact(hand, "index_nail_edge_contact", 0);
         } else if (envelope.grip === 1) {
-          const holdingY = pose === "pinch" ? 0 : pose === "tripod" ? threeFingerLayout(hand.model).primaryY : -0.012;
+          const holdingY = pose === "pinch" ? ordinaryHoldingY(hand.model) : pose === "tripod" ? threeFingerLayout(hand.model).primaryY : -0.012;
           expectSurfaceContact(hand, "thumb_pad_contact", holdingY);
           expectSurfaceContact(hand, "index_pad_contact", holdingY);
         }

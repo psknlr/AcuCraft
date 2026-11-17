@@ -11,7 +11,7 @@ import type { Person } from "./cast.js";
 import type { NeedleLayer } from "./needles.js";
 import type { SkinSite } from "./sites.js";
 import { sampleProcedure, type ProcedureKind } from "./choreography.js";
-import { ArticulatedHand, handOrientation, surfaceHandOrientation, type HandContact, type HandPose } from "./hand.js";
+import { ArticulatedHand, handOrientation, surfaceHandOrientation, type FingerPose, type HandContact, type HandPose } from "./hand.js";
 import { alignNeedleWristAzimuth } from "./needle-hand-frame.js";
 import { NEEDLE_HANDLE_RADIUS_M } from "./needle-shape.js";
 import { PatientClearance } from "./clearance.js";
@@ -96,6 +96,7 @@ export class NeedleProcedure {
   private readonly clearance = new PatientClearance();
   private readonly clearanceRoll = new Map<ArticulatedHand, number>();
   private readonly clearancePlan = new Map<ArticulatedHand, number>();
+  private readonly fingerPoses = new Map<ArticulatedHand, FingerPose>();
   private readonly wristSurfaces = new Map<ArticulatedHand, HandWristSurface>();
   private placements: { hand: ArticulatedHand; side: "left" | "right"; desiredWrist: Vector3; orientation: Quaternion; reach: number; anchor: HandContact }[] = [];
 
@@ -119,7 +120,7 @@ export class NeedleProcedure {
       if (node) bounds.expandByPoint(node.getWorldPosition(new Vector3()));
     }
     const palm = hand.model.getObjectByName("palm_frame") ?? hand.model;
-    const palmOrigin = palm.getWorldPosition(new Vector3()), origin = hand.model.getWorldPosition(new Vector3());
+    const palmOrigin = palm.getWorldPosition(new Vector3());
     const gesture = this.active;
     const site = gesture?.kind === "performance" ? gesture.input.site : gesture ? this.needles.siteOf(gesture.id) : null;
     const visibilityPoints = [contact.clone()];
@@ -138,7 +139,7 @@ export class NeedleProcedure {
     return {
       contact, wrist, center: bounds.getCenter(new Vector3()), radius: bounds.getSize(new Vector3()).length() / 2 + 0.015,
       palmNormal: palm.localToWorld(new Vector3(0, -1, 0)).sub(palmOrigin).normalize(),
-      radial: hand.model.localToWorld(new Vector3(0, 0, 1)).sub(origin).normalize(),
+      radial: palm.localToWorld(new Vector3(0, 0, 1)).sub(palmOrigin).normalize(),
       surfaceNormal: site?.n.clone() ?? new Vector3(0, 1, 0),
       visibilityPoints,
       ...(placement.anchor === "handle" ? { needleAxis: new Vector3(0, 1, 0).applyQuaternion(hand.root.quaternion) } : {}),
@@ -359,7 +360,7 @@ export class NeedleProcedure {
       // approaches an existing needle before closing; bringing an open hand with a floating needle
       // to the patient is not the insertion gesture shown in the references.
       const carrying = gesture.kind === "insert" && now - gesture.start < sample.operationStartMs;
-      hand.pose({ pose: gesture.presentation?.grip === "three-finger" ? "tripod" : "pinch", grip: carrying ? 1 : sample.grip,
+      this.poseHand(hand, { pose: gesture.presentation?.grip === "three-finger" ? "tripod" : "pinch", grip: carrying ? 1 : sample.grip,
         apertureMm: gesture.presentation?.gripApertureMm ?? 2, handleRadiusM: NEEDLE_HANDLE_RADIUS_M,
         wristElevationDeg: gesture.presentation?.wristElevationDeg ?? handWristBounds(gesture.presentation).default,
         gripStyle: gesture.presentation?.gripStyle ?? "tip-pinch", idleFingerPose: gesture.presentation?.idleFingerPose ?? "curled",
@@ -409,7 +410,7 @@ export class NeedleProcedure {
     const grip = envelope.grip * sample.gripEngagement;
     person.faceToward?.(input.site.p, envelope.reach);
     this.placements = [];
-    this.hand?.pose({ pose: poseSample.handPose,
+    if (this.hand) this.poseHand(this.hand, { pose: poseSample.handPose,
       grip, apertureMm: motion.gripApertureMm, handleRadiusM: handle ? NEEDLE_HANDLE_RADIUS_M : undefined,
       stabilizerGrip: envelope.grip, phase: (sample.phase.progress * motion.cycles) % 1,
       wristElevationDeg: motion.wristElevationDeg, gripStyle: motion.gripStyle, idleFingerPose: motion.idleFingerPose,
@@ -425,6 +426,38 @@ export class NeedleProcedure {
         : elapsed < motion.durationMs ? sample.phase.label : envelope.complete ? "Complete" : "Release and retreat", durationMs: envelope.durationMs });
     if (envelope.complete && !gesture.preview) { this.finish(gesture); this.active = null; this.publish({ ...IDLE, speed: this.speed }); }
     else if (envelope.complete && gesture.preview) this.paused = true;
+  }
+
+  private poseHand(hand: ArticulatedHand, pose: FingerPose): void {
+    this.fingerPoses.set(hand, { ...pose });
+    hand.pose(pose);
+  }
+
+  /** Include the geometry that will close around the retained handle, before choosing a palm branch. */
+  private needleClearancePoses(hand: ArticulatedHand, current: FingerPose): FingerPose[] {
+    const poses = [current], gesture = this.active;
+    const endpoints = [current];
+    if (hand === this.hand && gesture?.kind === "performance") {
+      const motion = resolveManipulationMotion(gesture.input.technique, gesture.input.motion);
+      const steps = Math.max(32, Math.ceil(motion.cycles * 32));
+      for (let step = 0; step <= steps; step++) {
+        const elapsed = finiteClamp(motion.durationMs * step / steps, 0.001, motion.durationMs - 0.001);
+        const sample = sampleTechnique(gesture.input.technique, elapsed, motion);
+        const pose: FingerPose = { ...current, pose: sample.handPose, grip: sample.gripEngagement, stabilizerGrip: 1,
+          phase: (sample.phase.progress * motion.cycles) % 1, rotationRad: sample.rotationRad,
+          nailContact: sample.nailContact, axialDisplacementMm: sample.withdrawalMm };
+        poses.push(pose);
+        if (step === 0 || step === steps) endpoints.push(pose);
+      }
+    }
+    // A fully closed shape alone misses the wider thumb and finger geometry
+    // during acquisition and release. These are the same anatomical poses used
+    // by the renderer; no inflated proxy or altered hand scale is involved.
+    for (const endpoint of endpoints) for (let step = 0; step <= 8; step++) {
+      const grip = step / 8;
+      poses.push({ ...endpoint, grip: endpoint.grip * grip, stabilizerGrip: grip });
+    }
+    return poses;
   }
 
   private placeHand(hand: ArticulatedHand, person: Person, side: "left" | "right", contact: Vector3, axis: Vector3, reach: number, anchor: HandContact, roll = 0, surface = false): void {
@@ -444,20 +477,47 @@ export class NeedleProcedure {
       // the approach arc. A branch that only clears while hovering can force
       // a sudden palm turn when the hand arrives or starts retreating.
       const clearanceContact = anchor === "handle" && !surface ? workingContact : contact;
+      const candidates = [0, -15, -30, -45, 15, 30, 45, -60, 60, -75, 75, -90, 90].map((degrees) => degrees * Math.PI / 180);
       const fits = (angle: number) => {
         const candidate = new Quaternion().setFromAxisAngle(normal, angle).multiply(base);
         hand.root.quaternion.copy(candidate);
         hand.root.position.copy(clearanceContact).sub(contactLocal.clone().applyQuaternion(candidate));
         return !this.clearance.intersects(hand.model, patient);
       };
+      // Registration can precede the patient's first animated pose. Replan while
+      // the hand is still off screen if that first real skin pose invalidates it.
+      const plan = this.clearancePlan.get(hand);
+      if (reach <= 0.02 && plan !== undefined && !fits(plan)) {
+        this.clearancePlan.delete(hand);
+        this.clearanceRoll.delete(hand);
+      }
+      const currentPose = this.fingerPoses.get(hand);
+      if (anchor === "handle" && !surface && currentPose && !this.clearancePlan.has(hand)) {
+        const poses = this.needleClearancePoses(hand, currentPose);
+        const workingBase = handOrientation(clearanceContact, axis, person.shoulderAt(side));
+        try {
+          for (const angle of candidates) {
+            let clearsEnvelope = true;
+            for (const pose of poses) {
+              hand.pose(pose);
+              const local = hand.contact(anchor), wrist = hand.wrist();
+              const candidate = new Quaternion().setFromAxisAngle(normal, angle + Math.sin(pose.rotationRad ?? 0) * 0.04)
+                .multiply(alignNeedleWristAzimuth(workingBase, local, wrist));
+              hand.root.quaternion.copy(candidate);
+              hand.root.position.copy(clearanceContact).sub(local.applyQuaternion(candidate));
+              if (!hand.contactValid || this.clearance.intersects(hand.model, patient)) { clearsEnvelope = false; break; }
+            }
+            if (clearsEnvelope) { this.clearancePlan.set(hand, angle); break; }
+          }
+        } finally { hand.pose(currentPose); }
+      }
       const preferred = this.clearanceRoll.get(hand) ?? this.clearancePlan.get(hand) ?? 0;
       let selected: number | null = fits(preferred) ? preferred : preferred !== 0 && fits(0) ? 0 : null;
       if (selected === null) {
         // Rotate the complete hand about the needle axis, retaining every local
         // contact. Oblique needles can require a further turn to lift the ulnar
         // palm clear; keep the smaller candidates first.
-        for (const degrees of [-15, -30, -45, 15, 30, 45, -60, 60, -75, 75, -90, 90]) {
-          const end = degrees * Math.PI / 180;
+        for (const end of candidates.slice(1)) {
           if (!fits(end)) continue;
           let blocked = end - Math.sign(end) * Math.PI / 12, clear = end;
           for (let i = 0; i < 5; i++) {
@@ -513,7 +573,7 @@ export class NeedleProcedure {
       return;
     }
     const pose: HandPose = support === "stretch" ? "stretch" : support === "pinch" ? "pinch" : support === "press" ? "press" : "palpate";
-    hand.pose({ pose, grip, phase, apertureMm: support === "stretch" ? 8 : 2, intensity });
+    this.poseHand(hand, { pose, grip, phase, apertureMm: support === "stretch" ? 8 : 2, intensity });
     // Contact remains beside the entry, toward the supporting shoulder, rather than underneath the needle.
     const tangent = person.shoulderAt(side).sub(site.p);
     tangent.addScaledVector(site.n, -tangent.dot(site.n));
@@ -533,6 +593,7 @@ export class NeedleProcedure {
     this.placements = [];
     this.clearanceRoll.clear();
     this.clearancePlan.clear();
+    this.fingerPoses.clear();
     this.reachWarning = null;
     this.actor?.faceToward?.(null);
     this.actor?.reach("left", null);

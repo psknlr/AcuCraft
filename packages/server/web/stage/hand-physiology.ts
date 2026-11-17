@@ -14,27 +14,32 @@ export const RESTING_FINGER_SPREAD_AT_EXTENSION_DEG = { middle: 10, ring: 13, li
 export const SIDE_INDEX_WORKING_POSTURE = { mcpDeg: 90, pipDeg: 35, dipDeg: 10 } as const;
 /** The lateral grip acquires the thumb's real rounded pulp, rather than hyperextending its IP. */
 export const SIDE_THUMB_ACQUISITION_M = 0.002;
-/** Hold higher on the handle to clear the proximal index while preserving the three-contact layout. */
+/** A real radial-volar pulp patch gives the metacarpal a three-dimensional opposition route. */
+export const ORDINARY_THUMB_PULP_ACQUISITION = { tipwardM: 0, lateralM: -0.0032 } as const;
+/** Grasp the real handle above its centre; the accepted needle pose and body entry stay fixed. */
+export const ORDINARY_TIP_HOLDING_Y_M = 0.005;
+/** Authored skin/knuckle envelope in palm_frame, rather than a population joint-range measurement. */
+export const PRECISION_THUMB_ENVELOPE_M = { maximumMcpDorsal: -0.005, minimumRadialFromCmc: -0.001 } as const;
+/** Keep three real pulp contacts while the thumb emerges from the radial-volar palm. */
 export const THREE_FINGER_WORKING_PROFILE = {
-  index: { mcpDeg: 75, pipDeg: 90, dipDeg: 25 },
-  thumbAcquisitionM: 0.00465,
-  primaryY: -0.006,
-  middleY: 0.011164059024878269,
+  index: { mcpDeg: 45, pipDeg: 90, dipDeg: 40 },
+  thumbAcquisitionM: 0.0035,
+  thumbLateralAcquisitionM: -0.003,
+  primaryY: -0.005,
+  middleY: 0.012,
   middleAzimuthRad: 87.35860616388027 * Math.PI / 180,
   middleContact: "middle_volar_pulp_88_contact",
 } as const;
 
-/** A tighter low-wrist precision grip returns smoothly to the source posture at 70°. */
-export function ordinaryTipPosture(elevationDeg: number) {
-  const u = Math.max(0, Math.min(1, (elevationDeg - 55) / 15));
-  const blend = u * u * u * (10 - 15 * u + 6 * u * u);
-  return { mcpDeg: 60 - 15 * blend, pipDeg: 100, dipDeg: 60 };
+/** The same anatomical finger posture remains feasible throughout the supported wrist-elevation range. */
+export function ordinaryTipPosture(_elevationDeg: number) {
+  return { mcpDeg: 50, pipDeg: 100, dipDeg: 60 };
 }
 
-/** Large opening escapes the palm face; a 600 µm walking bite has no added excursion. */
-export function tipReleasePalmarBlend(openingExtraM: number, referenceMcpDeg: number): number {
+/** The oblique pulp leaves the palm on a C2 gap-based arc; a 600 µm walking bite has no added excursion. */
+export function tipReleasePalmarBlend(openingExtraM: number, _referenceMcpDeg: number): number {
   const smooth = (value: number) => { const t = Math.max(0, Math.min(1, value)); return t * t * t * (10 - 15 * t + 6 * t * t); };
-  return 0.5 * smooth((openingExtraM - 0.0006) / 0.0047) * smooth((referenceMcpDeg - 50) / 10);
+  return 0.3 * smooth((openingExtraM - 0.0006) / 0.0047);
 }
 
 /**

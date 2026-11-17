@@ -54,22 +54,13 @@ function finger(hand: ArticulatedHand, digit: string) {
 }
 
 describe("physiological presentation of free fingers", () => {
-  it("couples the low-wrist reference smoothly while leaving the small walking release unchanged", () => {
-    expect(ordinaryTipPosture(35)).toEqual({ mcpDeg: 60, pipDeg: 100, dipDeg: 60 });
-    expect(ordinaryTipPosture(55).mcpDeg).toBe(60);
-    expect(ordinaryTipPosture(70).mcpDeg).toBe(45);
-    let previous = 60;
-    for (let elevation = 55; elevation <= 70; elevation += 0.5) {
-      const value = ordinaryTipPosture(elevation);
-      expect(value.mcpDeg).toBeLessThanOrEqual(previous);
-      expect(value.pipDeg).toBe(100); expect(value.dipDeg).toBe(60);
-      previous = value.mcpDeg;
+  it("keeps the precision reference stable across wrist elevation and preserves the walking-release onset", () => {
+    for (const elevation of [35, 45, 55, 60, 65, 70]) {
+      expect(ordinaryTipPosture(elevation)).toEqual({ mcpDeg: 50, pipDeg: 100, dipDeg: 60 });
     }
-    const epsilon = 0.0001;
-    for (const boundary of [55, 70]) expect(Math.abs(ordinaryTipPosture(boundary + epsilon).mcpDeg - ordinaryTipPosture(boundary - epsilon).mcpDeg) / (2 * epsilon)).toBeLessThan(1e-6);
     expect(tipReleasePalmarBlend(0.0006, 60)).toBe(0);
-    expect(tipReleasePalmarBlend(0.0053, 45)).toBe(0);
-    expect(tipReleasePalmarBlend(0.0053, 60)).toBeCloseTo(0.5, 10);
+    expect(tipReleasePalmarBlend(0.0053, 45)).toBeCloseTo(0.3, 10);
+    expect(tipReleasePalmarBlend(0.0053, 60)).toBeCloseTo(0.3, 10);
   });
 
   it("builds a working distal frame from the actual serial MCP/PIP/DIP hinges", () => {
@@ -474,9 +465,9 @@ describe("physiological presentation of free fingers", () => {
   it("keeps the real palm and wrist continuous through roll acquisition and finger-walking resets", async () => {
     const hand = await handRig();
     const checkBearing = (elevation: number) => {
-      // The selected bearing is measured from the needle's holding axis. During a
-      // staggered release the two pad positions no longer define that axis midpoint.
-      const wrist = hand.wrist().sub(hand.contact("handle"));
+      // The selected bearing starts at the authored holding plane. During a
+      // staggered release the two pad positions no longer define that fixed point.
+      const wrist = hand.wrist().sub(hand.principalContact());
       expect(Math.atan2(wrist.y, Math.hypot(wrist.x, wrist.z)) * degrees).toBeCloseTo(elevation, 2);
       expect(hand.contactAt("handle").length()).toBeLessThan(1e-10);
       expect(hand.contactValid).toBe(true);
