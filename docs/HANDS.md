@@ -9,6 +9,32 @@ visual simulation, without anatomical, motion-capture or clinical validation.
 [Reference interpretation, shared controls and inspection views](REFERENCE-POSES.md)
 describes how the supplied images inform the implementation.
 
+## Finger shape during a grip
+
+The index through little finger now narrow along the phalanges and broaden at
+the interphalangeal joints. Additional mesh rings round the dorsal contour
+where each curled digit changes direction. The proximal nails on the middle,
+ring and little fingers follow the curved skin beneath their lateral edges.
+A small area on the back and side of the index knuckle follows a shallower
+contour, giving the joint clearance at the upper end of the three-finger wrist range.
+The changes can be inspected on the same posed hand, from the same camera,
+in the [matched Blender close-ups](img/hand-finger-shape-comparison.png).
+
+In Studio the thumb and index keep hold of the handle through ordinary rotation.
+Fei has distinct grasp, roll and release intervals. The primary hand keeps its
+own contact when the operator changes what the supporting hand does.
+
+For a three-finger hold, the arm can turn around the shaft while the selected
+wrist elevation and fingertip contacts stay fixed. The planner checks the
+patient's inhaled torso and the practitioner's shoulder in its working position.
+At the tested lumbar site, a left-handed 51° hold with a 2 mm opening could
+still meet the moving patient at some breathing phases. In those frames Studio
+shows its clearance message and hides the intersecting detail hand.
+
+[Studio insertion at 70% contact](img/studio-insertion-contact.png) ·
+[Compound movement in Studio](img/technique-compound-studio.mp4) ·
+[Motion parameters and examples](TECHNIQUES.md)
+
 ## Thumb and palm skin
 
 The palm and thumb meet at a low, broad thenar mound and a shallow
@@ -30,9 +56,9 @@ tendons toward the wrist. Colour on the knuckles, pads and thenar mound moves
 with the mesh and multiplies the practitioner's selected complexion. The nail
 bed grades into the paler free edge, with a rougher finish toward the margins.
 
-The export contains 17,788 triangles, eleven meshes, six embedded images, six
-skin corrections and five clips. Four matched views show the previous and
-current hand under the same lighting. [Geometry, contact and playback measurements](HAND-DETAIL-VALIDATION.json)
+The earlier thumb-web checkpoint contained 17,788 triangles, eleven meshes, six
+embedded images, six skin corrections and five clips. Four matched views compare
+it with the preceding hand under the same lighting. [Geometry, contact and playback measurements](HAND-DETAIL-VALIDATION.json)
 
 ![Earlier and current side grip, thumb base, fingertip and dorsal knuckles](img/hand-pinch-detail-comparison.png)
 

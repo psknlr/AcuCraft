@@ -67,12 +67,13 @@ For an LLM/MCP tool call, omit `type` and use the tool name `perform_technique`;
 |---|---|---|
 | `durationMs` | 400–30000, integer | Duration of the entire performance, not a clinical treatment duration |
 | `cycles` | 1–12, integer | Movement cycles per primitive phase; `durationMs` still covers the whole performance |
+| `phaseCycles` | One integer from 1 to 12 per compound phase | Optional repeat counts in catalogue phase order. These override `cycles` for that performance. |
 | `strokeMm` | 0–3 mm | Outward axial displacement, additionally clamped to retained depth |
-| `rotationDeg` | 0–180° | Rotation amplitude of the presentation profile |
+| `rotationDeg` | 0–180° | Peak angular excursion for Nian, Cuo, Bu and Xie |
 | `lateralMm` | 0–4 mm | Surface tracing or external shaft/handle deflection |
 | `tiltDeg` | 0–8° | External shaft/handle tilt, not internal-tip redirection |
 | `tempoBias` | 0.2–0.8 | Relative timing of the two parts of a movement cycle |
-| `direction` | `alternating`, `clockwise`, `counterclockwise` | Primary visual excursion direction in the needle's local frame; each cycle returns to rest |
+| `direction` | `alternating`, `clockwise`, `counterclockwise` | Primary excursion viewed from the handle toward the tip. Each cycle returns to rest. |
 | `grip` | `two-finger`, `three-finger` | Thumb/index holding by default; optional middle-finger support |
 | `gripStyle` | `tip-pinch`, `side-pinch` | Compact terminal-pulp holding, or a more proximal index contact with its tip extending below the grip |
 | `wristElevationDeg` | degrees, two-finger 35–70 / default 55; three-finger 44–51 / default 48; Gua/Tan 50–60 / default 55 | Actual hand/wrist elevation; use `handProfiles` and the technique's `parameterBounds`, independent of clinical insertion angle |
@@ -84,6 +85,23 @@ For an LLM/MCP tool call, omit `type` and use the tool name `perform_technique`;
 
 Defaults and relevant controls differ by technique. Read them from the catalogue rather than assuming every setting visibly affects every primitive. None of these bounds is a clinical dose or an anatomical limit.
 
+In the catalogue animation, alternating Nian and Cuo reach the requested angle on
+both sides of neutral. A directional turn reaches that angle on its chosen side
+and returns. Ti and Cha reach the requested outward excursion in each cycle,
+subject to the retained-depth limit. The authored Bu and Xie combine the same
+axial stroke with an earlier or later twist respectively. Pan follows a circle in
+the plane perpendicular to the shaft. Its diameter equals the requested lateral
+excursion before the exposed shaft's length constraint. Alternating Pan reverses
+the path on successive cycles. Fei closes the thumb/index pair, rolls the handle while
+the pads are engaged, and settles the handle before the fingers reopen.
+
+For skin contact, Zhua uses the distal edge of the index nail with the other fingers
+curled clear of the surface. She uses a short trace with that edge, following the
+nail-scraping variant in the supplied reference. Changing the supporting hand
+preserves the working digit and its path. With `support: "pinch"`, the other
+hand brings the thumb and index together on the neighboring skin. The animation
+tracks two points on the fingertips as the hand closes and the patient breathes.
+
 Ordinary retained-needle holding defaults to the thumb/index pair. Choosing three-finger support explicitly adds middle volar-pulp support beside that pair; it does not replace the index finger. Fei and ordinary compound holding phases preserve the chosen grip. The authored nail-work variants have separate roles: Gua braces the needle tail with the thumb and scrapes the handle with the index nail edge; Tan prepares the index against the thumb, releases the thumb, and makes index-nail contact followed by recoil.
 
 The reference-based hand uses a raised wrist and a curled index with a shorter,
@@ -92,7 +110,7 @@ fixed nail-work roles. The **手部 Grip** camera cycles through complete hand v
 for checking the palm, thumb origin and needle together. See
 [the reference-pose guide](REFERENCE-POSES.md) for the image groups and controls.
 
-For a compound performance, its total duration is divided among the catalogue's explicit phases and each phase receives the selected cycle count. Direction labels do not imply accumulated tissue torque or a validated one-way rolling model; rotation remains a bounded excursion that settles at the phase boundary.
+For a compound performance, the catalogue divides its total duration into stages. In **Set repeat counts by phase**, an operator can set each stage independently. For **阳中隐阴** (`yang-zhong-yin-yin`), `"motion": { "durationMs": 6000, "phaseCycles": [1, 3] }` animates one Bu cycle in the first three seconds and three Xie cycles in the last three. Omitting `phaseCycles` uses the shared `cycles` value throughout. Rotation settles at each stage boundary.
 
 ## Admission, records and replay
 
@@ -118,4 +136,6 @@ Needle axial strokes remain within the executed depth. Lateral motion and bendin
 
 These bounds describe `perform_technique` and legacy `motion` presentation settings. Explicit top-level `adjust_needle` stroke, frequency, rotation and duration parameters use the separately checked clinical envelope described in [CHARACTER-CONTROL.md](CHARACTER-CONTROL.md). The two APIs retain their own units and timing semantics, and both use the same articulated hands.
 
-Insertion remains a clinical `insert_needle` action. Its optional `presentation` field selects `durationMs` (400–8000), `grip`, `support`, `hand` and `gripApertureMm` (0–12) for the approach/grip/insertion animation. Angle, azimuth and depth remain the existing validated clinical inputs, and the renderer uses the executed result when insertion is partial.
+Insertion remains a clinical `insert_needle` action. Its optional `presentation` field selects `durationMs` (400–8000), `grip`, `support`, `hand` and `gripApertureMm` (0–12) for the approach/grip/insertion animation. Angle, azimuth and depth remain the existing validated clinical inputs, and the renderer uses the executed result when insertion is partial. The Studio **Skin contact** slider sets when the tip first touches skin during that movement (20–80%, default 45%). Models send the same value as `presentation.skinContactFraction` (0.2–0.8). The clock starts once the practitioner has approached and secured the needle. During insertion the tip meets the moving skin at the chosen fraction, then settles at the recorded endpoint. On a breathing torso, the nail used for Zhua or She follows the same point on the skin as the torso moves.
+
+[Studio insertion at 70% contact](img/studio-insertion-contact.png) · [Compound Studio playback](img/technique-compound-studio.mp4) · [Studio phase controls](img/technique-compound-controls.png) · [Validation measurements](TECHNIQUE-MOTION-VALIDATION.json)

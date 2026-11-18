@@ -1,0 +1,682 @@
+{
+  "scope": "Finite samples of authored motions on the shipped hand, accepted simulation actions, deterministic replay, and the named Studio captures.",
+  "previous": {
+    "commit": "0e1b04d6d30029c1bbc9cc12f28d22a4277d3382",
+    "handSha256": "5f63068f2c683357f9a2bc123686b5dfd1d873260873930acf802c45b0345d9f"
+  },
+  "build": {
+    "asset": {
+      "sha256": "dc73752357f00de4bba0d46a1780b06dcc0ba5ff80cdf45186819f6f8a619151",
+      "bytes": 1594620
+    },
+    "manifest": {
+      "sha256": "1cc07bcb92fd1941b9394886a2b092b3a0c27a46ff262b8017b550551d18e508",
+      "bytes": 346136
+    },
+    "calibration": {
+      "sha256": "4c516312e9b1c6f5c7668e4bb461b78f14d5d587fef12d1414ac32e6b1fba1c5",
+      "bytes": 1538508
+    },
+    "choreography": {
+      "sha256": "999b086f438e45dc4227e883dde044d8b207e19db61a32be157c2e611489c51c",
+      "bytes": 467419
+    },
+    "builder": "Blender 4.3.2",
+    "triangles": 19104,
+    "animations": [
+      "hand_open",
+      "hand_support",
+      "hand_three_finger",
+      "hand_scrape",
+      "hand_flick"
+    ],
+    "reproducedBytesExact": {
+      "phalanges.glb": true,
+      "hand_poses.json": true,
+      "acu-practitioner-hand.glb": true,
+      "hand.json": true
+    },
+    "sourceGraphModules": 93
+  },
+  "contact": {
+    "samples": 348,
+    "invalidPose": 0,
+    "maxMaterialUm": 0.0005862258002295554,
+    "maxHeldHandleRadialFitUm": 0.0047187789239218,
+    "totalAnchors": 906,
+    "engagedHandleCount": 168
+  },
+  "thumbPalmLive": {
+    "count": 360,
+    "failureCount": 0,
+    "checkedFaceCount": 7346,
+    "checkedAdjacencyCount": 11036,
+    "seamCount": 34,
+    "maxSeamGapMicrometres": 0.0,
+    "minSeamNormalDot": 0.9999999999999997,
+    "directAuditRuntime": "509d864405dad2ebf1d2a2890e7d3db4d0b5ad8145d6cc1f4a7c5501515d54ba",
+    "upperWristApertureSweep": {
+      "count": 216,
+      "failureCount": 0,
+      "checkedFaceCount": 7346,
+      "checkedAdjacencyCount": 11036,
+      "seamCount": 34,
+      "maxSeamGapMicrometres": 0.0,
+      "minSeamNormalDot": 0.9999999999999997
+    },
+    "finalIndependentSceneComparison": {
+      "asset": "dc73752357f00de4bba0d46a1780b06dcc0ba5ff80cdf45186819f6f8a619151",
+      "priorHand": "c6633d8e3b15912d4fac5df156c3b60df8fe4ddbc5dd4299518dde9ffda05238",
+      "newHand": "509d864405dad2ebf1d2a2890e7d3db4d0b5ad8145d6cc1f4a7c5501515d54ba",
+      "checkedCases": 348,
+      "checkedTransforms": 43152,
+      "checkedMorphWeights": 4176,
+      "differentTransforms": 0,
+      "differentWeights": 0,
+      "trianglePoseInputsEqual": true,
+      "matchingPoses": 348
+    }
+  },
+  "thumbPalmBaked": {
+    "count": 392,
+    "failureCount": 0,
+    "checkedFaceCount": 7346,
+    "checkedAdjacencyCount": 11036,
+    "seamCount": 34,
+    "maxSeamGapMicrometres": 0.0,
+    "minSeamNormalDot": 0.9999999999999997
+  },
+  "validator": {
+    "sha256": "dc73752357f00de4bba0d46a1780b06dcc0ba5ff80cdf45186819f6f8a619151",
+    "validatorVersion": "2.0.0-dev.3.10",
+    "numErrors": 0,
+    "numWarnings": 19026,
+    "numInfos": 15,
+    "numHints": 12,
+    "categories": {
+      "MESH_PRIMITIVE_GENERATED_TANGENT_SPACE": 11,
+      "BUFFER_VIEW_TARGET_MISSING": 12,
+      "NODE_EMPTY": 15,
+      "NODE_SKINNED_MESH_NON_ROOT": 6,
+      "ACCESSOR_JOINTS_USED_ZERO_WEIGHT": 19009
+    }
+  },
+  "fingerModel": {
+    "bindWidthMm": {
+      "index": {
+        "proximalShaft": 14.64221,
+        "PIP": 15.50997,
+        "middleShaft": 11.54142,
+        "DIP": 12.83399
+      },
+      "middle": {
+        "proximalShaft": 15.17991,
+        "PIP": 16.49468,
+        "middleShaft": 12.12109,
+        "DIP": 13.69095
+      },
+      "ring": {
+        "proximalShaft": 13.94895,
+        "PIP": 15.23072,
+        "middleShaft": 11.1689,
+        "DIP": 12.65845
+      },
+      "little": {
+        "proximalShaft": 11.72755,
+        "PIP": 12.7028,
+        "middleShaft": 9.29188,
+        "DIP": 10.59355
+      }
+    },
+    "localizedIndexKnuckleSculpt": {
+      "comparisonAsset": "14c111e3dd4ac1b87e6e25929be681d1aea2c09eee0e5d29f19f77311dbef5d4",
+      "affectedAttributes": {
+        "index_skin": [
+          "POSITION",
+          "NORMAL"
+        ]
+      },
+      "displacement": {
+        "index_skin": {
+          "maxMm": 1.1323261260986328,
+          "count": 108,
+          "maxUV": [
+            0.34375,
+            0.5458899736404419
+          ],
+          "UVrange": [
+            [
+              0.21875,
+              0.44917237758636475
+            ],
+            [
+              0.46875,
+              0.6821262836456299
+            ]
+          ]
+        }
+      }
+    },
+    "proximalNailCheck": {
+      "pose": "Right tip pinch. Each proximal nail plate sampled at 17,289 points. Positive area indicates sampled keratin below the skin.",
+      "coveredAreaMm2": {
+        "middle": {
+          "previous": 1.005,
+          "revised": 0.0
+        },
+        "ring": {
+          "previous": 0.328,
+          "revised": 0.0
+        },
+        "little": {
+          "previous": 0.08,
+          "revised": 0.0
+        },
+        "index": {
+          "previous": 0.0,
+          "revised": 0.0
+        },
+        "thumb": {
+          "previous": 0.145,
+          "revised": 0.145
+        }
+      }
+    }
+  },
+  "catalogue": {
+    "techniques": 36,
+    "sha256OfValidatedSources": {
+      "packages/core/src/engine/performance.ts": "e6dc01812269cd9602505cce077fcc2388d402070826703ff8c614092d21e1d1",
+      "packages/core/src/schema/manipulation.ts": "8126b1a2258e360ac0cf4775dbb8ee362988a7cc267b72908372af96c7e9b1d7",
+      "packages/core/src/engine/encounter.ts": "3c08172c6adf094f99a531551227f4b35554d65c2e16bd33add4df76b51dbfa7",
+      "packages/server/web/stage/procedure.ts": "8545ca80e55cdf12bfb506a1cf9bdd7b4d4603571794416871e2611d4c6cd43f",
+      "packages/server/web/stage/cast.ts": "b32f9aea472f139376fd797a6ca251aae5730ab7d2a68b8ab4b4c63a30e378e8",
+      "packages/server/web/stage/needles.ts": "96436ffc3e674e85f6a57831ad83bfe2663304fd3991187a709883403125fab7",
+      "packages/server/web/stage/hand.ts": "509d864405dad2ebf1d2a2890e7d3db4d0b5ad8145d6cc1f4a7c5501515d54ba",
+      "packages/server/web/stage/hand-nail-work.ts": "e7402ad9af73cd8a90a7f79647b81afde52d78faba6e0874a9a4cc0894580aca",
+      "packages/server/web/stage/choreography.ts": "fa9e0f18744cc8dbda66f65fb465c53b6f80ccb4d8a279402d02294508afd9e6",
+      "packages/server/web/stage/needle-shaft-material.ts": "77581f61b88970ba640b49b8c3a576be0a96ecc1f7cc271c3e3c46b09f904882",
+      "packages/server/web/stage/needle-shape.ts": "fac5a591b616d78084049513223edda478acfb7e73e12ef7b71bfdf9da47cd8e",
+      "packages/server/web/stage/sites.ts": "59744a0d44480f5f4286840e4d2ea1ce392c80b7db2022189be16997fd933cef",
+      "packages/server/web/stage/support-pinch.ts": "868adfb3671a9e122fedb86879e6774b9f3273acf7ecadfa8191f12e9f39ad0e",
+      "packages/server/web/stage/performance-target.ts": "894b620306c3dd6a1b89e6961dbd9f2a89574c431d39ba1e02f6af20c22a41d4",
+      "packages/agent/src/tools/actions.ts": "97319ec449089dd49c5fd18c1835995473d3a18c7f1709fe7ec4581fa05a9855",
+      "packages/server/web/manipulation.ts": "983bbc0896f2134b981e477e67f9aeeb357bcbd5cc28bceddfc58a7e5de05d75"
+    },
+    "compoundEditors": 10,
+    "techniqueIds": [
+      "chuai",
+      "zhua",
+      "xun",
+      "she",
+      "yao",
+      "pan",
+      "nian",
+      "cuo",
+      "jin",
+      "tui-withdraw",
+      "ti",
+      "cha",
+      "gua",
+      "tan",
+      "fei",
+      "mo",
+      "dong",
+      "tui-push",
+      "chan",
+      "nu",
+      "an",
+      "men",
+      "sou",
+      "bo",
+      "shao-shan-huo",
+      "tou-tian-liang",
+      "qing-long-bai-wei",
+      "bai-hu-yao-tou",
+      "cang-gui-tan-xue",
+      "chi-feng-ying-yuan",
+      "long-hu-jiao-zhan",
+      "zi-wu-dao-jiu",
+      "yang-zhong-yin-yin",
+      "yin-zhong-yin-yang",
+      "bu",
+      "xie"
+    ],
+    "visibleOperatorControlsMatchLookup": true,
+    "visibleParameterControlsAcrossEntries": 438,
+    "providerTransport": "scripted tool responses through the production provider/agent/record paths",
+    "submissionCount": 144,
+    "channels": [
+      "operator",
+      "mcp",
+      "openai",
+      "minimax"
+    ],
+    "sceneChecks": [
+      {
+        "scene": "Real GLB, NeedleLayer, NeedleProcedure, articulated solver and chart target validation; isolated empty environment with reachable two-shoulder wrist fixture.",
+        "samples": 228,
+        "failures": []
+      },
+      {
+        "scene": "Real GLB, NeedleLayer, NeedleProcedure, articulated solver and chart target validation; real public staged low-back-patient geometries, joint shoulders/arms and working stance.",
+        "samples": 228,
+        "failures": []
+      },
+      {
+        "scene": "Real GLB, NeedleLayer, NeedleProcedure, articulated solver and chart target validation; real public staged low-back-patient geometries, joint shoulders/arms and working stance.",
+        "samples": 57,
+        "failures": []
+      }
+    ],
+    "scriptedChecksUseLiveModelEndpoint": false
+  },
+  "operatorInsertion": {
+    "skinContactFraction": 0.7,
+    "photographedStageSha256": "444fcc65f5f15506e89105414e1644bdc30c076eb218a5d7026dc9b1e0507e08",
+    "verifiedAgainstStageSha256": "e1f093f349c1e87c093d3dea60ceaeea8d78f46f96dba4d06f1c6e8ee390de32",
+    "captureComparison": {
+      "sampleCount": 4,
+      "worldVerticesPerSample": 38914,
+      "allSamplesMatch": true
+    },
+    "photographedDurationMs": 8000,
+    "ui": {
+      "numericControlPercent": "70",
+      "sliderPercent": "70",
+      "defaultPercent": 45,
+      "rangePercent": [
+        20,
+        80
+      ],
+      "browserErrors": []
+    },
+    "persistedAndReplayed": [
+      "operator",
+      "openai",
+      "minimax"
+    ],
+    "controlRoundTripDurationMs": 1100,
+    "obliqueTipRegression": {
+      "angleDeg": 42,
+      "azimuthDeg": 120,
+      "depthCm": [
+        0.05,
+        2.5
+      ],
+      "fraction": [
+        0.2,
+        0.45,
+        0.8
+      ],
+      "path": "packages/server/src/procedure.test.ts"
+    }
+  },
+  "visualLimits": {
+    "motion": "Procedural hand/grip animation and schematic patient. No performer capture or clinical/force calibration.",
+    "firstPreviewLatencyProbe": {
+      "developmentAssetSha256": "14c111e3dd4ac1b87e6e25929be681d1aea2c09eee0e5d29f19f77311dbef5d4",
+      "scene": "One local CPU-based lumbar scene with true patient triangles, retained compound, live solver; timings vary by hardware and CPU contention. Subsequent frames can reuse the clearance plan.",
+      "buXiePhaseCycles1and3Seconds": 1.17,
+      "buXiePhaseCycles1and12Seconds": 4.02
+    }
+  },
+  "registration": {
+    "scenario": "Synthetic lumbar case with an animated 160 cm patient. One retained needle and a marked site on a breathing torso.",
+    "skinNailFrames": 244,
+    "maxRegistrationDriftBeforeMm": 0.83736,
+    "obstructedSkinNailFramesAfter": 0,
+    "insertionStartPhases": 8,
+    "insertionSamplesPerPhase": 201,
+    "requestedTouch": 0.7,
+    "firstTouchRangeBefore": [
+      0.66895,
+      0.69981
+    ],
+    "firstTouchRangeAfter": [
+      0.6999999999999984,
+      0.7000000000000024
+    ],
+    "worldTipTravelAfterSeatingMm": 0,
+    "tipDepthAtRequestedTouchAfterMm": 6.600059549181827e-14
+  },
+  "offhandPinch": {
+    "technique": "She at the tested public lumbar site, with left and right working hand.",
+    "consecutiveSamples": 202,
+    "invisibleOrIntersectingFrames": 0,
+    "maxStepRotationDeg": 3.0643,
+    "materialContactSeparationMm": 11.19,
+    "maxWorkingSkinGapMm": 0.114
+  },
+  "exteriorShaftCoverage": {
+    "physicalShaftDiameterMm": 0.25,
+    "sampledScreenshotRows": 72,
+    "rowsWithContrastBefore": 46,
+    "rowsWithContrastAfter": 72,
+    "minimumMeasuredContrastRgbLevels": 3.333,
+    "pixelContrastThresholdRgbLevels": 2,
+    "regression": "packages/server/src/needle-shaft-raster.test.ts"
+  },
+  "offlineBenchmarks": {
+    "protocolAgent": {
+      "successfulEncounters": 14,
+      "total": 15,
+      "failedCase": "sg-tension-headache/slim (simulator recorded pleura-penetration)"
+    },
+    "scriptedLlm": {
+      "successfulEncounters": 15,
+      "total": 15
+    }
+  },
+  "motionSampling": {
+    "sampleStepMs": 1,
+    "settings": {
+      "durationMs": 12000,
+      "cycles": 12,
+      "rotationDeg": 90,
+      "tempoBias": 0.5,
+      "strokeMm": 3,
+      "lateralMm": 3,
+      "direction": "alternating"
+    },
+    "buXie": {
+      "durationMs": 1000,
+      "cycles": 1,
+      "direction": "clockwise",
+      "tempoBias": 0.5
+    },
+    "baseline": {
+      "feiWorkingSamples": 912,
+      "feiDetachedWorkingSamples": 907,
+      "Nian": {
+        "minDeg": -58.4554,
+        "maxDeg": 58.4554
+      },
+      "Cuo": {
+        "minDeg": 0,
+        "maxDeg": 90
+      },
+      "tiFirstCyclePeakMm": 1.4548,
+      "tiAtSpecifiedReversalMm": 1.0399,
+      "buTwistPeakMs": 500,
+      "xieTwistPeakMs": 500,
+      "panSignedAreaTwoCyclesMm2": [
+        12.0456,
+        12.0456
+      ]
+    },
+    "current": {
+      "feiWorkingSamples": 538,
+      "feiDetachedWorkingSamples": 0,
+      "Nian": {
+        "minDeg": -90,
+        "maxDeg": 90
+      },
+      "Cuo": {
+        "minDeg": -90,
+        "maxDeg": 90
+      },
+      "tiFirstCyclePeakMm": 3,
+      "tiAtSpecifiedReversalMm": 3,
+      "buTwistPeakMs": 250,
+      "xieTwistPeakMs": 750,
+      "panSignedAreaTwoCyclesMm2": [
+        -7.0685,
+        7.0685
+      ]
+    }
+  },
+  "compoundRecording": {
+    "assetSha": "dc73752357f00de4bba0d46a1780b06dcc0ba5ff80cdf45186819f6f8a619151",
+    "stageSha": "444fcc65f5f15506e89105414e1644bdc30c076eb218a5d7026dc9b1e0507e08",
+    "sha256": "6ea2efa4c338c049da84c433d099654fc6955f9df70473856cf5f625bb20eb59",
+    "fps": 24,
+    "frames": 115,
+    "settings": {
+      "technique": "yang-zhong-yin-yin",
+      "hand": "left",
+      "grip": "two-finger",
+      "support": "none",
+      "duration": 2800,
+      "elevation": 55,
+      "style": "side-pinch",
+      "idle": "curled",
+      "rotation": 100,
+      "stroke": 3,
+      "cycles": 2,
+      "phaseCycles": [
+        1,
+        3
+      ],
+      "opening": 4
+    },
+    "phases": [
+      "Approach and grip",
+      "Bu phase",
+      "Xie phase",
+      "Release and retreat",
+      "Complete"
+    ],
+    "liveCountEdit": {
+      "before": {
+        "phase": "Bu phase · 42%",
+        "progress": "0.42",
+        "speed": "0.5",
+        "transport": "本地预览 Preview · yang-zhong-yin-yin · Bu phase · 42% · 0.5× · 暂停 Paused",
+        "counts": [
+          1,
+          2
+        ]
+      },
+      "after": {
+        "phase": "Bu phase · 42%",
+        "progress": "0.42",
+        "speed": "0.5",
+        "transport": "本地预览 Preview · yang-zhong-yin-yin · Bu phase · 42% · 0.5× · 暂停 Paused",
+        "counts": [
+          1,
+          3
+        ]
+      }
+    }
+  },
+  "recordedVsFinalScene": {
+    "assetSha256": "dc73752357f00de4bba0d46a1780b06dcc0ba5ff80cdf45186819f6f8a619151",
+    "recordedStageSha256": "444fcc65f5f15506e89105414e1644bdc30c076eb218a5d7026dc9b1e0507e08",
+    "latestStageSha256": "e1f093f349c1e87c093d3dea60ceaeea8d78f46f96dba4d06f1c6e8ee390de32",
+    "poseCount": 115,
+    "allStageMeshSamplesEqual": true,
+    "realPatientBreathingSequentialSampleCount": 115,
+    "realPatientBreathingIdenticalSamples": 115,
+    "directMovieLabelsCompared": true,
+    "case": "The selected retained two-finger compound on the actual public fixture, same phase and operator settings as the movie. Compared the full set of 11 main-hand meshes, all posed Float32 positions and normals, UV/topology and supplied PBR values, primary/support visibility, phase labels and timestamps; no geometry approximation."
+  },
+  "threeFingerContactSweep": {
+    "assetSHA256": "dc73752357f00de4bba0d46a1780b06dcc0ba5ff80cdf45186819f6f8a619151",
+    "procedureSHA256": "8545ca80e55cdf12bfb506a1cf9bdd7b4d4603571794416871e2611d4c6cd43f",
+    "numPoses": 90,
+    "validVisibleCollisionClearCount": 90,
+    "wristMinDeg": 44,
+    "wristMaxDeg": 51,
+    "wristStepDeg": 0.5,
+    "peakAndNeutralShaftAngleDeltaDegMax": 0,
+    "materialBearingContactCount": 270,
+    "maxRadialErrorMm": 1.94741089779623e-06,
+    "maxAxialErrorMm": 1.7493020773237666e-06,
+    "weakestOpposingPadNormalDot": -0.9999999999998253
+  },
+  "upperThreeFingerWrist": {
+    "case": "sg-low-back-pain/base seeded public 160 cm breathing patient, BL23:left, practitioner x .25 z -4.25, retained three-finger Nian, 90° alternating, two cycles, 2400 ms of work, 4320 ms total",
+    "method": "Live patient → needle → procedure → practitioner ticks. Stock and alternate starts tick the patient and actors before preview registration. 101 uniform time samples include approach, grasp, work, release and retreat. Count a failure if the detailed hand is unexpectedly suppressed or any reach/clearance warning is published. Wrist angle compares consecutive visible frames only.",
+    "stockFramesPassing": 606,
+    "stockFrames": 606,
+    "alternateFramesPassing": 195,
+    "alternateFrames": 202,
+    "runs": [
+      {
+        "sceneClockAtStartMs": 0,
+        "playbackRate": 1,
+        "gripApertureMm": 2,
+        "wristElevationDeg": 51,
+        "hand": "right",
+        "sampleCount": 101,
+        "visibilityOrClearanceWarningSteps": [],
+        "maxAngularIntervalDeg": 1.941528,
+        "maxAngularIntervalEndsAtProgress": 0.94
+      },
+      {
+        "sceneClockAtStartMs": 0,
+        "playbackRate": 1,
+        "gripApertureMm": 2,
+        "wristElevationDeg": 51,
+        "hand": "left",
+        "sampleCount": 101,
+        "visibilityOrClearanceWarningSteps": [],
+        "maxAngularIntervalDeg": 0.964656,
+        "maxAngularIntervalEndsAtProgress": 0.67
+      },
+      {
+        "sceneClockAtStartMs": 0,
+        "playbackRate": 1,
+        "gripApertureMm": 8,
+        "wristElevationDeg": 51,
+        "hand": "right",
+        "sampleCount": 101,
+        "visibilityOrClearanceWarningSteps": [],
+        "maxAngularIntervalDeg": 1.941528,
+        "maxAngularIntervalEndsAtProgress": 0.94
+      },
+      {
+        "sceneClockAtStartMs": 0,
+        "playbackRate": 1,
+        "gripApertureMm": 8,
+        "wristElevationDeg": 51,
+        "hand": "left",
+        "sampleCount": 101,
+        "visibilityOrClearanceWarningSteps": [],
+        "maxAngularIntervalDeg": 0.964656,
+        "maxAngularIntervalEndsAtProgress": 0.67
+      },
+      {
+        "sceneClockAtStartMs": 0,
+        "playbackRate": 1,
+        "gripApertureMm": 12,
+        "wristElevationDeg": 51,
+        "hand": "right",
+        "sampleCount": 101,
+        "visibilityOrClearanceWarningSteps": [],
+        "maxAngularIntervalDeg": 1.941528,
+        "maxAngularIntervalEndsAtProgress": 0.94
+      },
+      {
+        "sceneClockAtStartMs": 0,
+        "playbackRate": 1,
+        "gripApertureMm": 12,
+        "wristElevationDeg": 51,
+        "hand": "left",
+        "sampleCount": 101,
+        "visibilityOrClearanceWarningSteps": [],
+        "maxAngularIntervalDeg": 0.964656,
+        "maxAngularIntervalEndsAtProgress": 0.67
+      },
+      {
+        "sceneClockAtStartMs": 2440,
+        "playbackRate": 0.75,
+        "gripApertureMm": 2,
+        "wristElevationDeg": 51,
+        "hand": "right",
+        "sampleCount": 101,
+        "visibilityOrClearanceWarningSteps": [],
+        "maxAngularIntervalDeg": 3.138765,
+        "maxAngularIntervalEndsAtProgress": 0.56
+      },
+      {
+        "sceneClockAtStartMs": 2440,
+        "playbackRate": 0.75,
+        "gripApertureMm": 2,
+        "wristElevationDeg": 51,
+        "hand": "left",
+        "sampleCount": 101,
+        "visibilityOrClearanceWarningSteps": [
+          43,
+          44,
+          45,
+          46,
+          47,
+          48,
+          49
+        ],
+        "maxAngularIntervalDeg": 7.800109,
+        "maxAngularIntervalEndsAtProgress": 0.42
+      }
+    ]
+  },
+  "measuredClearanceLimit": {
+    "settings": {
+      "seed": 1,
+      "mode": "teaching",
+      "site": "BL23:left, lumbar u=3.32 v=6.91",
+      "patientHeightCm": 160,
+      "practitionerFeetXZ": [
+        0.25,
+        -4.25
+      ],
+      "technique": "nian",
+      "grip": "three-finger",
+      "gripStyle": "tip-pinch",
+      "support": "none",
+      "idleFingerPose": "curled",
+      "wristElevationDeg": 51,
+      "gripApertureMm": 2,
+      "rotationDeg": 90,
+      "cycles": 2,
+      "operationDurationMs": 2400,
+      "envelopeDurationMs": 4320,
+      "playbackRate": 0.75,
+      "startSceneClockMs": 2440
+    },
+    "hand": "left",
+    "fixedNeedle": true,
+    "scannedCriticalFrames": 14,
+    "criticalFramesWithNoClearSampledYaw": 4,
+    "progressAtThoseFrames": [
+      0.43,
+      0.45,
+      0.47,
+      0.49
+    ],
+    "depthMeasurement": {
+      "envelopeProgress": 0.46,
+      "sceneClockMs": 5089.6,
+      "actualShaftAngleDeg": -89.8446,
+      "seatedGripFraction": 1,
+      "fullCircleStepDeg": 5,
+      "refinedIntervalDeg": [
+        -105,
+        -85
+      ],
+      "refinedStepDeg": 1,
+      "sampledYawCount": 89,
+      "bestYawDeg": -95,
+      "deepestIndexPenetrationAtBestSampledYawMm": 0.1805,
+      "distanceConvention": "Approximate world millimetres from signed nearest patient-mesh triangle distances in each body mesh local frame, converted by inverse maximum scale. Negative clearance denotes overlap.",
+      "collidingMaterial": "index_skin",
+      "vertexIndex": 398,
+      "gltfUv": [
+        0.34375,
+        0.54589
+      ],
+      "boneWeights": {
+        "index_proximal": 0.5,
+        "index_middle": 0.5
+      },
+      "distanceToActualIndexPadMm": 38.06
+    },
+    "sceneBehavior": "The patient collision check hides the detail hand and reports the lack of clearance."
+  },
+  "media": {
+    "hand-finger-shape-comparison.png": "72918ac9d18d1faab964438cb5a478613e870b28064717b14edf9082b5de7c39",
+    "studio-insertion-contact.png": "517d94c2bae92d99f85751efde9c4e7a7398b53ee81b3ceff422ff47779619f9",
+    "technique-compound-controls.png": "904364639a4aabe8b8cc1d54d202bbba9cc46fe88e9ff83e583289a94f8cef82"
+  }
+}

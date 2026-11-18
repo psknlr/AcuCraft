@@ -153,8 +153,12 @@ runtime checks and scene captures.
 
 ## Actual scene views
 
-The current close-up shows the grip in the treatment room. The wound metal
-surface follows the rotation of the handle. [Side pinch](img/hand-pinch-studio.png) ·
+The compound playback follows the thumb and index through one Bu cycle and
+three Xie cycles using the Studio's per-stage controls.
+[Compound Studio playback](img/technique-compound-studio.mp4) ·
+[Matched finger and nail close-ups](img/hand-finger-shape-comparison.png)
+
+The earlier side-grip close-up shows the wound metal handle in the treatment room. [Side pinch](img/hand-pinch-studio.png) ·
 [Twirling playback](img/hand-pinch-motion.mp4) ·
 [Four fixed-angle hand comparisons](img/hand-pinch-detail-comparison.png)
 

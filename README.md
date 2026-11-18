@@ -45,7 +45,10 @@ validated action tools. A Blender-built articulated hand and length-preserving a
 pinch, insertion, manipulation, release and withdrawal. The **Technique studio / 精细手法控制** offers 24 named
 maneuvers, 10 authored compound sequences, and bu/xie through the same `perform_technique` tool used by LLMs.
 Set timing, cycles, axial/rotational/exterior-shaft motion, grip aperture, handedness and supporting-hand contact;
-preview locally, pause, scrub and change parameters live before executing an attributed action. Both Blender hands
+preview locally, pause, scrub and change parameters live before executing an attributed action. Compound techniques
+accept a repeat count for each phase. For example, set **阳中隐阴** to one Bu cycle followed by three Xie cycles
+in Studio, or send `"phaseCycles": [1, 3]` in the model's motion settings. For insertion the **Skin contact**
+slider sets when the tip reaches the skin, relative to the start of the insertion movement. Both Blender hands
 use continuous finger skins, independent skeletons, individual pad/nail contacts and arm IK. Held fingers fit
 the actual handle with thumb/index by default; middle-finger support is optional. The opening control affects approach and release. Internal needle paths remain authoritative while exposed-shaft
 deflection is shown separately ([docs/TECHNIQUES.md](docs/TECHNIQUES.md), [docs/HANDS.md](docs/HANDS.md)).
