@@ -7,7 +7,7 @@ import { ArticulatedHand, handOrientation, surfaceHandOrientation } from "../web
 import { NeedleProcedure, type InsertionPresentation, type TechniquePerformanceInput } from "../web/stage/procedure.js";
 import { NeedleLayer } from "../web/stage/needles.js";
 import { EncounterSession } from "@acucraft/agent";
-import { sampleTechnique } from "@acucraft/core";
+import { resolveManipulationMotion, sampleTechnique } from "@acucraft/core";
 import { loadContentPack, requireScenario } from "@acucraft/bench";
 import { Person as ScenePerson, practitionerPlacement } from "../web/stage/cast.js";
 import { patientFloorPlacement, practitionerFloorPlacement } from "../web/stage/navigation.js";
@@ -837,25 +837,49 @@ describe("bimanual catalogue performances", () => {
         expect(handle.point.distanceTo(baseline), "actual clinical handle remains fixed").toBeLessThan(1e-9);
         expect(handle.axis.distanceTo(axis), "actual clinical needle axis remains fixed").toBeLessThan(1e-9);
         expect(s.needles.group.getObjectByName("needle-tip")!.getWorldPosition(new Vector3()).distanceTo(tip), "actual clinical tip remains fixed").toBeLessThan(1e-9);
+        if (wristElevationDeg === 51 && rotationDeg === 90) {
+          const { durationMs, tempoBias } = resolveManipulationMotion("nian");
+          const timing = sampleProcedure("work", 0, durationMs);
+          // The central seek above falls between extrema. At both true peaks all three
+          // material contacts must still fit while the index knuckle clears the patient.
+          for (const [fraction, peak] of [[tempoBias / 4, Math.PI / 2], [(1 + tempoBias) / 4, -Math.PI / 2]] as const) {
+            const now = timing.operationStartMs + durationMs * fraction;
+            s.patient.tick(now, 16);
+            s.procedure.setPlayback({ progress: now / timing.durationMs, paused: true });
+            const current = s.needles.grip("pack-a.1")!;
+            expect(current.rotation).toBeCloseTo(peak, 9);
+            expect(root.visible, hand + " three-finger peak").toBe(true);
+            expect(new PatientClearance().intersects(root.children[0] as Group, s.patient)).toBe(false);
+            expectHeldSurfaces(root, current, "index_pad_contact", layout.primaryY);
+            const delta = middle.getWorldPosition(new Vector3()).sub(current.point), axial = delta.dot(current.axis);
+            expect(Math.abs(axial - layout.middleY)).toBeLessThan(.000025);
+            expect(Math.abs(delta.addScaledVector(current.axis, -axial).length() - needleHandleRadiusAt(layout.middleY))).toBeLessThan(.000025);
+          }
+        }
         s.procedure.stopPreview();
         expect(s.needles.grip("pack-a.1")!.point.distanceTo(baseline)).toBeLessThan(1e-9);
       } finally { s.dispose(); }
     });
 
-  it.each(["left", "right"] as const)("keeps public %s three-finger approach, work and retreat continuous while the actual patient breathes", async (hand) => {
+  it.each((["left", "right"] as const).flatMap((hand) => [
+    { hand, wristElevationDeg: 48, gripApertureMm: 2, realtime: false },
+    ...[2, 8, 12].map((gripApertureMm) => ({ hand, wristElevationDeg: 51, gripApertureMm, realtime: true })),
+  ]))("keeps $hand three-finger approach, work and retreat continuous at $wristElevationDeg° and $gripApertureMm mm on the breathing patient", async ({ hand, wristElevationDeg, gripApertureMm, realtime }) => {
     const s = await makePublicWorkingScene(), feet = s.actor.rig.root.position.clone();
     const baseline = s.needles.grip("pack-a.1")!, point = baseline.point.clone(), axis = baseline.axis.clone();
     const tip = s.needles.group.getObjectByName("needle-tip")!.getWorldPosition(new Vector3()), clearance = new PatientClearance();
     try {
+      if (realtime) { s.patient.tick(0, 0); s.actor.tick(0, 0); s.procedure.tick(0); }
       expect(s.procedure.preview({ id: "public-three-finger-sequential-seeks", technique: "nian", needleId: "pack-a.1", site: s.site,
-        motion: { hand, grip: "three-finger", gripStyle: "tip-pinch", wristElevationDeg: 48, idleFingerPose: "curled", support: "none", rotationDeg: 90, cycles: 2, durationMs: 2400 } })).toBe(true);
+        motion: { hand, grip: "three-finger", gripStyle: "tip-pinch", wristElevationDeg, gripApertureMm, idleFingerPose: "curled", support: "none", rotationDeg: 90, cycles: 2, durationMs: 2400 } })).toBe(true);
+      if (realtime) s.procedure.setPlayback({ progress: 0, paused: false });
       let previous: Quaternion | undefined;
       for (let step = 0; step <= 120; step++) {
         const progress = step / 120, now = progress * 4320, dt = step ? 36 : 0, envelope = sampleProcedure("work", now, 2400);
         // Match the real animation loop. The clinical site remains the point
         // found at registration; breathing never triggers a new ray or needle.
         s.patient.tick(now, dt); s.needles.tick(dt, now);
-        s.procedure.setPlayback({ progress, paused: true });
+        if (realtime) s.procedure.tick(now); else s.procedure.setPlayback({ progress, paused: true });
         s.actor.tick(now, dt);
         const root = s.procedure.group.getObjectByName("needle-hand")!, current = root.quaternion.clone().normalize();
         expect(root.visible, `${hand}/${progress} real breathing patient: ${s.procedure.playback.reachWarning ?? "no warning"}`).toBe(envelope.reach > 0.02);

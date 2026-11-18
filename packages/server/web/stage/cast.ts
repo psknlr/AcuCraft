@@ -200,6 +200,24 @@ export class Person {
     return travelled;
   }
 
+  private breathing() {
+    const { posture, cover } = this.placement.options;
+    return { breathing: "both" as const, posture, cover: cover ?? "clothes" } as Parameters<typeof breathOf>[0];
+  }
+
+  /** Probe the same fully inhaled torso at any playback speed, without advancing the scene clock. */
+  atFullInhalation<T>(evaluate: () => T): T {
+    const scale = this.rig.torso.scale.clone();
+    try {
+      // The figure's breathOf reaches full inspiration one third of the way through a breath.
+      setBreath(this.rig, ...breathOf(this.breathing(), 0, 1 / 3));
+      return evaluate();
+    } finally {
+      this.rig.torso.scale.copy(scale);
+      this.rig.torso.updateWorldMatrix(true, true);
+    }
+  }
+
   tick(now: number, dt: number): void {
     const travelled = this.walk(dt);
     this.animation?.tick(dt, travelled, this.isMoving);
@@ -208,10 +226,7 @@ export class Person {
       const yaw = Math.max(-0.45, Math.min(0.45, Math.atan2(local.x, local.z)));
       this.rig.head.rotation.y += (yaw - this.rig.head.rotation.y) * Math.min(1, dt / 180);
     }
-    const o = this.placement.options;
-    const breathing = { breathing: "both" as const, posture: o.posture, cover: o.cover ?? "clothes" };
-    const [depth, rise] = breathOf(breathing as Parameters<typeof breathOf>[0], now, this.breathPhase);
-    setBreath(this.rig, depth, rise);
+    setBreath(this.rig, ...breathOf(this.breathing(), now, this.breathPhase));
     // blinking: every few seconds, a little more often when speaking
     if (this.blinkPhase < 0 && now >= this.blinkAt) this.blinkPhase = 0;
     if (this.blinkPhase >= 0) {

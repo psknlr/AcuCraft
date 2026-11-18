@@ -507,25 +507,45 @@ export class NeedleProcedure {
       // the approach arc. A branch that only clears while hovering can force
       // a sudden palm turn when the hand arrives or starts retreating.
       const clearanceContact = anchor === "handle" && !surface ? workingContact : contact;
-      const candidates = [0, -15, -30, -45, 15, 30, 45, -60, 60, -75, 75, -90, 90].map((degrees) => degrees * Math.PI / 180);
+      const currentPose = this.fingerPoses.get(hand);
+      const tripod = anchor === "handle" && currentPose?.pose === "tripod";
+      const turns = [0, -15, -30, -45, 15, 30, 45, -60, 60, -75, 75, -90, 90];
+      if (tripod) turns.push(-105, 105, -120, 120);
+      const candidates = turns.map((degrees) => degrees * Math.PI / 180);
+      if (tripod) {
+        // Turn the tripod outward first so the proximal index joint stays away from the moving trunk.
+        const outward = side === "right" ? 1 : -1;
+        candidates.sort((a, b) => Number(outward * a < 0) - Number(outward * b < 0) || Math.abs(a) - Math.abs(b));
+      }
       const fits = (angle: number) => {
         const candidate = new Quaternion().setFromAxisAngle(normal, angle).multiply(base);
         hand.root.quaternion.copy(candidate);
-        hand.root.position.copy(clearanceContact).sub(contactLocal.clone().applyQuaternion(candidate));
+        // Once a working branch is planned, judge the opening hand at its actual approach height.
+        const frameContact = tripod && reach > 0.02 && reach < 1 && this.clearancePlan.has(hand) ? contact : clearanceContact;
+        hand.root.position.copy(frameContact).sub(contactLocal.clone().applyQuaternion(candidate));
         return !this.clearance.intersects(hand.model, patient);
       };
       // Registration can precede the patient's first animated pose. Replan while
       // the hand is still off screen if that first real skin pose invalidates it.
       const plan = this.clearancePlan.get(hand);
-      if (reach <= 0.02 && plan !== undefined && !fits(plan)) {
+      // During a tripod approach the facing shoulder is still turning. Its resting wrist
+      // cannot invalidate a plan measured in the eventual working frame while hidden.
+      const detachedTripod = tripod && !!gesture && reach <= 0.02;
+      if (!detachedTripod && reach <= 0.02 && plan !== undefined && !fits(plan)) {
         this.clearancePlan.delete(hand);
         this.clearanceRoll.delete(hand);
       }
-      const currentPose = this.fingerPoses.get(hand);
       if (anchor === "handle" && !surface && currentPose && !this.clearancePlan.has(hand)) {
         const poses = this.needleClearancePoses(hand, currentPose);
-        const workingBase = handOrientation(clearanceContact, axis, person.shoulderAt(side));
-        try {
+        const workingShoulder = person.shoulderAt(side);
+        if (tripod && site && person.faceToward) {
+          try {
+            person.faceToward(site.p, 1);
+            workingShoulder.copy(person.shoulderAt(side));
+          } finally { person.faceToward(site.p, reach); }
+        }
+        const workingBase = handOrientation(clearanceContact, axis, workingShoulder);
+        const planEnvelope = () => {
           for (const angle of candidates) {
             let clearsEnvelope = true;
             for (const pose of poses) {
@@ -537,19 +557,31 @@ export class NeedleProcedure {
               hand.root.position.copy(clearanceContact).sub(local.applyQuaternion(candidate));
               if (!hand.contactValid || this.clearance.intersects(hand.model, patient)) { clearsEnvelope = false; break; }
             }
-            if (clearsEnvelope) { this.clearancePlan.set(hand, angle); break; }
+            if (clearsEnvelope) return angle;
           }
+          return undefined;
+        };
+        try {
+          let planned = (tripod && patient.atFullInhalation ? patient.atFullInhalation(planEnvelope) : undefined) ?? planEnvelope();
+          if (planned === undefined && tripod) {
+            // A fully open tripod tested at the seated handle may rule out every working
+            // branch. Start the raised acquisition laterally, with the index knuckle turned
+            // away from the torso. Every visible frame still checks the current mesh.
+            planned = (side === "right" ? 1 : -1) * Math.PI / 2;
+          }
+          if (planned !== undefined) this.clearancePlan.set(hand, planned);
         } finally { hand.pose(currentPose); }
       }
       const preferred = this.clearanceRoll.get(hand) ?? this.clearancePlan.get(hand) ?? 0;
-      let selected: number | null = fits(preferred) ? preferred : preferred !== 0 && fits(0) ? 0 : null;
+      let selected: number | null = (detachedTripod && this.clearancePlan.has(hand)) || fits(preferred) ? preferred
+        : !tripod && preferred !== 0 && fits(0) ? 0 : null;
       if (selected === null) {
-        // Rotate the complete hand about the needle axis, retaining every local
-        // contact. Oblique needles can require a further turn to lift the ulnar
-        // palm clear; keep the smaller candidates first.
-        for (const end of candidates.slice(1)) {
+        // Stay on the previous side of the shaft whenever an adjacent cleared wrist angle exists.
+        const nearest = tripod ? candidates.filter((angle) => angle !== preferred)
+          .sort((a, b) => Math.abs(a - preferred) - Math.abs(b - preferred)) : candidates.slice(1);
+        for (const end of nearest) {
           if (!fits(end)) continue;
-          let blocked = end - Math.sign(end) * Math.PI / 12, clear = end;
+          let blocked = tripod ? preferred : end - Math.sign(end) * Math.PI / 12, clear = end;
           for (let i = 0; i < 5; i++) {
             const middle = (blocked + clear) / 2;
             if (fits(middle)) clear = middle; else blocked = middle;

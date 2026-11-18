@@ -5,7 +5,7 @@
   "provenance": {
     "calibrationInputAsset": {
       "path": "runs/hand-calibration/phalanges.glb",
-      "sha256": "7557aa621114eda67c68c093258657ab3ebce8e99a83cf082efa411aeede700f",
+      "sha256": "4c516312e9b1c6f5c7668e4bb461b78f14d5d587fef12d1414ac32e6b1fba1c5",
       "role": "immutable geometry calibration input; not the subsequently rebuilt GLB output hash"
     },
     "sources": {
@@ -27,7 +27,7 @@
       },
       "builder": {
         "path": "tools/blender/build_hand.py",
-        "sha256": "b123b97e57378fc666e95083ad15825df31175dacaac2bc711acff4d02c364ff"
+        "sha256": "52bee3d500f1fa3193a468e50122f47be213cd0726058499a1ff066d655f283e"
       },
       "correctives": {
         "path": "tools/blender/hand_thumb_web_correctives.json",

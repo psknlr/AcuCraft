@@ -564,6 +564,10 @@ def continuous_finger(digit, mat, parent):
         pip = math.exp(-((along - cumulative[1]) / .0068)**2)
         dip = math.exp(-((along - cumulative[2]) / .0046)**2)
         neck = math.sin(math.pi * min(t, 1.0))**2 if segment < 2 else 0.0
+        # A flatter radial shoulder of the index PIP glides past the patient in tripod flexion.
+        # Keep the condylar breadth and the upper dorsal hood away from this contact side.
+        finger_fraction = along / (total + .0025)
+        pip_shoulder = smoothstep((finger_fraction - .31) / .09) * (1 - smoothstep((finger_fraction - .49) / .065)) if digit == "index" else 0
         for angle in angles:
             signed_angle = angle if angle <= math.pi else angle - math.tau
             absolute = abs(signed_angle)
@@ -591,10 +595,13 @@ def continuous_finger(digit, mat, parent):
                 # articulated head stays broad as the intervening shaft tapers.
                 knuckle = .082 * pip + .050 * dip
                 width = knuckle * (.65 + .35 * back) - neck * (.082 if segment == 0 else .12)
-                transverse *= 1 + sculpt * (width + .20 * back * (1 - back))
+                u = angle / math.tau
+                radial_shoulder = smoothstep((u - .1875) / .09375) * (1 - smoothstep((u - .40625) / .09375))
+                surface_weight = sculpt * (1 - pip_shoulder * radial_shoulder)
+                transverse *= 1 + surface_weight * (width + .20 * back * (1 - back))
                 # The extensor hood spans the two condyles and falls away over the shaft.
                 hood = (.195 * pip + .12 * dip) * (.80 + .55 * flank * flank)
-                depth -= sculpt * dorsal_depth * back * (hood + .20 * (1 - back) - .080 * neck)
+                depth -= surface_weight * dorsal_depth * back * (hood + .20 * (1 - back) - .080 * neck)
             vertices.append(tuple(centre + lateral*transverse + normal*depth))
             weights.append(weighting)
             uv.append((angle/math.tau, along/(total + 0.0025)))

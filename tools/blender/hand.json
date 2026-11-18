@@ -5,13 +5,13 @@
   "license": "CC0-1.0",
   "source": "tools/blender/build_hand.py",
   "choreography": "tools/blender/hand_poses.json",
-  "builderSourceSha256": "b123b97e57378fc666e95083ad15825df31175dacaac2bc711acff4d02c364ff",
+  "builderSourceSha256": "52bee3d500f1fa3193a468e50122f47be213cd0726058499a1ff066d655f283e",
   "anatomySourceSha256": "c1f0041ffea660c2fb6634ac7ad61c9b3e393ab4e8a5700a3b601f24ef7d34da",
-  "choreographySha256": "1c89d45bdb3d839e36a384e7e3aa95ef70b777cc4bc00ec5b86a661cc910a79f",
+  "choreographySha256": "999b086f438e45dc4227e883dde044d8b207e19db61a32be157c2e611489c51c",
   "choreographyProvenance": {
     "calibrationInputAsset": {
       "path": "runs/hand-calibration/phalanges.glb",
-      "sha256": "7557aa621114eda67c68c093258657ab3ebce8e99a83cf082efa411aeede700f",
+      "sha256": "4c516312e9b1c6f5c7668e4bb461b78f14d5d587fef12d1414ac32e6b1fba1c5",
       "role": "immutable geometry calibration input; not the subsequently rebuilt GLB output hash"
     },
     "sources": {
@@ -33,7 +33,7 @@
       },
       "builder": {
         "path": "tools/blender/build_hand.py",
-        "sha256": "b123b97e57378fc666e95083ad15825df31175dacaac2bc711acff4d02c364ff"
+        "sha256": "52bee3d500f1fa3193a468e50122f47be213cd0726058499a1ff066d655f283e"
       },
       "correctives": {
         "path": "tools/blender/hand_thumb_web_correctives.json",
@@ -142,7 +142,7 @@
     "animationsRead": false,
     "runtimeContactsValidAtEveryExportedFrame": true
   },
-  "sha256": "14c111e3dd4ac1b87e6e25929be681d1aea2c09eee0e5d29f19f77311dbef5d4",
+  "sha256": "dc73752357f00de4bba0d46a1780b06dcc0ba5ff80cdf45186819f6f8a619151",
   "bytes": 1594620,
   "triangles": 19104,
   "root": "acu_practitioner_hand",
@@ -5683,7 +5683,7 @@
     "provenance": {
       "calibrationInputAsset": {
         "path": "runs/hand-calibration/phalanges.glb",
-        "sha256": "7557aa621114eda67c68c093258657ab3ebce8e99a83cf082efa411aeede700f",
+        "sha256": "4c516312e9b1c6f5c7668e4bb461b78f14d5d587fef12d1414ac32e6b1fba1c5",
         "role": "immutable geometry calibration input; not the subsequently rebuilt GLB output hash"
       },
       "sources": {
@@ -5705,7 +5705,7 @@
         },
         "builder": {
           "path": "tools/blender/build_hand.py",
-          "sha256": "b123b97e57378fc666e95083ad15825df31175dacaac2bc711acff4d02c364ff"
+          "sha256": "52bee3d500f1fa3193a468e50122f47be213cd0726058499a1ff066d655f283e"
         },
         "correctives": {
           "path": "tools/blender/hand_thumb_web_correctives.json",
