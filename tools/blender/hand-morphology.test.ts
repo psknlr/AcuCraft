@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 import { Matrix4, Object3D, Quaternion, Ray, SkinnedMesh, Triangle, Vector3 } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { beforeAll, describe, expect, it } from "vitest";
+import { ArticulatedHand } from "../../packages/server/web/stage/hand.js";
 import { createHandSkinCorrectives } from "../../packages/server/web/stage/hand-skin-correctives.js";
 import { collectCompositeSkin, compositeFaceNormalAlignment, findCompositeCrossings, sampleCompositeSkin, type CompositeSkin, type CompositeSkinMember } from "../test/hand-composite-skin.js";
 
@@ -260,6 +261,29 @@ describe("the authored hand's soft-tissue morphology", () => {
       const error = offset.addScaledVector(tangent, -offset.dot(tangent)).length();
       expect(error, "terminal surface centreline must not kink inside the bearing/dome").toBeLessThan(0.0005);
     }
+  });
+
+  it("keeps a rounded, full first web in a loaded lateral pinch on either hand", async () => {
+    const gltf = await new GLTFLoader().parseAsync(Uint8Array.from(readFileSync(asset)).buffer, "");
+    const hand = new ArticulatedHand(gltf.scene, gltf.animations, "#d9b48f");
+    const skin = collectCompositeSkin(hand.model);
+    const sections = thumbRootMaterialSections(hand.model, skin);
+    const web = new Set(sections.flatMap((section) => section.physicalIds));
+    const edges = skin.edges.filter((edge) => edge.vertices.every((id) => web.has(id)));
+    const middle = sections[Math.floor(sections.length / 2)]!;
+    for (const side of ["right", "left"] as const) {
+      hand.setSide(side);
+      hand.pose({ pose: "pinch", gripStyle: "side-pinch", grip: 1, phase: 0.3, handleRadiusM: 0.0007, wristElevationDeg: 55 });
+      sampleCompositeSkin(skin);
+      const faceNormals = skin.triangles.map((triangle) => triangle.getNormal(new Vector3()));
+      const maxBend = Math.max(...edges.map(({ faces: [a, b] }) => faceNormals[a!]!.angleTo(faceNormals[b!]!)));
+      const width = Math.max(...middle.points.flatMap((p) => middle.points.map((q) => p.distanceTo(q))));
+      // Geometry regression against the former 86° blade-like crease and
+      // 14.2 mm constriction, measured on the posed skin under the same grip.
+      expect(maxBend * 180 / Math.PI, `${side} adjacent facets throughout the first web`).toBeLessThan(40);
+      expect(width, `${side} actual mid-web tissue span`).toBeGreaterThan(0.016);
+    }
+    hand.dispose();
   });
 
   it("keeps the actual shared thumb-palm junction smooth when the thumb abducts, without a stretched triangular spur", () => {

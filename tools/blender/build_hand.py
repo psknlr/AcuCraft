@@ -311,15 +311,20 @@ def detail_textures(skin, nail):
             edge_boundary = 0.915 - across * across * 0.035
             edge = smoothstep((u - edge_boundary) / 0.050) * 0.86
             bed = noise(u, v, 4, 6, 71) - 0.5
+            # The attached bed shows through the plate. Soft lateral folds and
+            # a narrow pink band frame it before the opaque keratin free edge.
+            shoulder = smoothstep((abs(across) - 0.55) / 0.43)
+            distal_band = math.exp(-((u - edge_boundary + 0.030) / 0.032) ** 2)
             fibres = (math.sin(v * math.tau * 37 + math.sin(v * math.tau * 11) * 0.7)
                       + math.sin(v * math.tau * 61 + u * 2.1) * 0.35)
-            color = (0.840 + bed * 0.016 + fibres * 0.0015,
-                     0.690 + bed * 0.020 + fibres * 0.0015,
-                     0.640 + bed * 0.020 + fibres * 0.0015)
+            color = (0.805 + bed * 0.018 - shoulder * 0.032,
+                     0.622 + bed * 0.022 - shoulder * 0.040 - distal_band * 0.035,
+                     0.592 + bed * 0.022 - shoulder * 0.040 - distal_band * 0.027)
             for target, mix in [((0.91, 0.85, 0.79), lunula), ((0.94, 0.91, 0.85), edge)]:
                 color = tuple(a * (1 - mix) + b * mix for a, b in zip(color, target))
             nail_pixels.extend((*color, 1))
-            nail_roughness.extend((1, 0.375 + bed * 0.025 + fibres * 0.006 + edge * 0.065, 0, 1))
+            nail_roughness.extend((1, 0.32 + bed * 0.025 + fibres * 0.006
+                                   + shoulder * 0.08 + edge * 0.12 + lunula * 0.04, 0, 1))
             nail_heights.append(fibres * 0.012 * (1 - edge * 0.55))
     shader = texture_maps(nail, [("nail_bed", nail_pixels, "color"),
                                  ("nail_normal", normal_pixels(nail_heights, dimension, 0.65, wrap=False), "normal"),
@@ -1014,6 +1019,9 @@ def palm(root, skin):
         (.092, .022, .008, .009, .003), (.098, .001, .001, .001, 0),
     ]
     controls = [(u * scale_u, w, back, front, fullness) for u, w, back, front, fullness in controls]
+    # Extensor paths fan from the carpus to the four actual MCP heads.
+    heads = [PALM_BASIS.transposed() @ (Vector(DIGITS[digit][0]) - origin)
+             for digit in ("index", "middle", "ring", "little")]
     def section(t):
         segment = min(len(controls) - 2, int(t)); f = t - segment
         out = []
@@ -1084,12 +1092,29 @@ def palm(root, skin):
             v += .0010*knuckle*max(0,c)**3
             ridges = sum(math.exp(-((r-z)/.006)**2) for z in [.025,.005,-.015,-.031])
             v += .00065*ridges*max(0,c)**4*math.exp(-((u-.030*scale_u)/(.032*scale_u))**2)*end_fade
+            dorsal = smoothstep((c - .50) / .42) * smoothstep((u + .012) / .012) * smoothstep((.082 - u) / .020)
+            # The first dorsal web already follows the moving thumb. Blend these
+            # metacarpal forms into that separately posed soft tissue.
+            radial_limit = .006 + .035 * (1 - smoothstep((u + .002) / .020))
+            dorsal *= smoothstep((radial_limit - r) / .010)
+            knuckle_overhang = 0.0
+            if dorsal > 0:
+                for head, prominence in zip(heads, (1.0, 1.15, .90, .68)):
+                    distance = u - head.x
+                    fan = smoothstep(distance / .095)
+                    track = head.z * (1 - .62 * fan)
+                    offset = r - track
+                    # Each broad knuckle narrows into the tendon across the dorsum.
+                    shoulder = math.exp(-(distance / .011)**2 - (offset / .009)**2)
+                    tendon = math.exp(-((distance - .034) / .027)**2 - (offset / .0048)**2)
+                    v += dorsal * prominence * (.0035 * shoulder + .00175 * tendon)
+                    knuckle_overhang += .0027 * dorsal * prominence * shoulder
             crease=.00018*math.exp(-((u-.026*scale_u-r*.20)/.0013)**2)+.00013*math.exp(-((u-.047*scale_u+r*.18)/.0012)**2)
             v += crease*max(0,-c)**6*end_fade
             # A small asymmetric distal boundary blends the ulnar MCP roots.
             ulna=max(0,(-r-.006)/.025)
             arch=.004*min(1.6,ulna)**2*smoothstep((.045*scale_u-u)/(.055*scale_u))
-            p=origin+PALM_LONGITUDINAL*(u+arch)+PALM_DORSAL*v+PALM_RADIAL*r
+            p=origin+PALM_LONGITUDINAL*(u+arch-knuckle_overhang)+PALM_DORSAL*v+PALM_RADIAL*r
             vertices.append(tuple(p));uv.append((i/n,.15+sample_t/(len(controls)-1)*.5))
             influence=.22*radial_palmar*math.exp(-((u-.059*scale_u)/(.034*scale_u))**2)*smoothstep((r-.010)/.014)*end_fade
             # The thenar follows the same metacarpal material progression as
@@ -1288,16 +1313,22 @@ def write_exact_animation_samplers(clips, model_clips, material_clips, correctiv
     binary_length = struct.unpack_from('<I', raw, binary_header)[0]
     binary = bytearray(raw[binary_header + 8:binary_header + 8 + binary_length])
     nodes = {node.get('name'): i for i, node in enumerate(gltf['nodes'])}
+    sample_accessors = {}
 
     def accessor(values, kind, bounds=False):
         width = {'SCALAR': 1, 'VEC3': 3, 'VEC4': 4}[kind]
         flat = [component for value in values for component in value] if width > 1 else list(values)
         if not all(math.isfinite(value) for value in flat):
             raise ValueError('Non-finite authored animation accessor')
+        payload = struct.pack(f'<{len(flat)}f', *flat)
+        # The two skin charts share their exact tissue samples. Static joints
+        # and repeated clip clocks can also reference one immutable accessor.
+        key = (kind, bounds, payload)
+        if key in sample_accessors:
+            return sample_accessors[key]
         while len(binary) % 4:
             binary.append(0)
         offset = len(binary)
-        payload = struct.pack(f'<{len(flat)}f', *flat)
         binary.extend(payload)
         view = len(gltf['bufferViews'])
         gltf['bufferViews'].append({'buffer': 0, 'byteOffset': offset, 'byteLength': len(payload)})
@@ -1306,6 +1337,7 @@ def write_exact_animation_samplers(clips, model_clips, material_clips, correctiv
         if bounds:
             value.update(min=[min(flat)], max=[max(flat)])
         gltf['accessors'].append(value)
+        sample_accessors[key] = index
         return index
 
     animations = []
@@ -2079,12 +2111,94 @@ def apply_preview_skin():
         ob.data.update()
 
 
+def publish_skin_colour(gltf, binary, accessor):
+    """Bake broad regional skin colour in the anatomical bind frame (metres).
+
+    The palm and each digit use the same physical landmarks on either side
+    of their roots. Distal warmth follows its own digit through animation.
+    These linear RGB multipliers leave the operator's base complexion and
+    the shared fine-grain maps available to a standard glTF material.
+    """
+    basis = PALM_BASIS.transposed()
+    origin = Vector(SOURCE_ANATOMY["anatomyOriginM"])
+    wrist = SOURCE_ANATOMY["wristInterface"]["canonicalU"]
+    bones = {name: [Vector(p) for p in points] for name, points in DIGITS.items()}
+    knuckles = [basis @ (bones[name][0] - origin) for name in ("index", "middle", "ring", "little")]
+
+    def gaussian(x, width):
+        return math.exp(-(x / width) ** 2)
+
+    def palm_fields(p):
+        u, dorsal, radial = basis @ (p - origin)
+        volar = smoothstep((.006 - dorsal) / .018)
+        thenar = gaussian(u - .065, .031) * gaussian(radial - .023, .017)
+        hypothenar = gaussian(u - .055, .040) * gaussian(radial + .025, .014)
+        pads = max(gaussian(u - joint.x - .007, .013) * gaussian(radial - joint.z, .009) for joint in knuckles)
+        dorsal_knuckles = max(gaussian(u - joint.x, .010) * gaussian(radial - joint.z, .009) for joint in knuckles)
+        warmth = volar * (.73 * thenar + .54 * hypothenar + .47 * pads) + (1 - volar) * .67 * dorsal_knuckles
+        # Broad cooler intermetacarpal intervals are strongest on the dorsum.
+        # The underlying smooth grain texture supplies detail below this scale.
+        interval = max(gaussian(radial - (a.z + b.z) * .5 - u * .05, .0065)
+                       for a, b in zip(knuckles, knuckles[1:]))
+        cool = (1 - volar) * gaussian(u - .040, .033) * interval
+        fade = smoothstep((wrist - .005 - u) / .017)
+        return warmth * fade, cool * fade
+
+    def digit_fields(name, p, uv, palm_warmth, palm_cool):
+        chain = bones[name]
+        lengths = [(b - a).length for a, b in zip(chain, chain[1:])]
+        # Ring UV v tracks arc length and u=0 is the true volar crest.
+        # The exported glTF flips Blender's UV vertical axis.
+        along = (1 - uv[1]) * (sum(lengths) + .0025)
+        facing = .5 + .5 * math.cos(math.tau * uv[0])
+        joint1 = gaussian(along - lengths[0], .0075)
+        joint2 = gaussian(along - sum(lengths[:2]), .0055)
+        end = sum(lengths)
+        pad = gaussian(along - end + CAP_OFFSETS[name], .009)
+        periungual = gaussian(along - end + .006, .008)
+        warmth = (.20 + .60 * (1 - facing)) * (.85 * joint1 + .66 * joint2)
+        warmth += pad * (.37 + .63 * facing) + periungual * .27 * (1 - facing)
+        if name == "thumb":
+            # The new collar gradually leaves the palm chart. Its entire
+            # shared boundary is wristward of the MCP in this frame.
+            influence = smoothstep((chain[1] - p).dot(PALM_LONGITUDINAL) / .014)
+        else:
+            influence = smoothstep(along / .014)
+        return (palm_warmth * (1 - influence) + warmth * influence, palm_cool * (1 - influence))
+
+    for node in gltf["nodes"]:
+        name = node.get("name", "")
+        if name != "palm_surface" and not (name.endswith("_skin") and name[:-5] in bones):
+            continue
+        primitive = gltf["meshes"][node["mesh"]]["primitives"][0]
+        attributes = primitive["attributes"]
+        positions = accessor(attributes["POSITION"])
+        uvs = accessor(attributes["TEXCOORD_0"])
+        offset = len(binary)
+        for point, uv in zip(positions, uvs):
+            p = Vector(point)
+            warm, cool = palm_fields(p)
+            if name != "palm_surface":
+                warm, cool = digit_fields(name[:-5], p, uv, warm, cool)
+            warm = min(warm, 1)
+            rgb = (1 - .027 * warm - .075 * cool, 1 - .234 * warm - .041 * cool,
+                   1 - .188 * warm - .018 * cool)
+            # Unsigned normalized VEC3 has a four-byte GPU vertex stride.
+            binary.extend((*[round(channel * 255) for channel in rgb], 0))
+        view = len(gltf["bufferViews"])
+        gltf["bufferViews"].append({"buffer": 0, "byteOffset": offset, "byteLength": len(positions) * 4,
+                                    "byteStride": 4, "target": 34962})
+        attributes["COLOR_0"] = len(gltf["accessors"])
+        gltf["accessors"].append({"bufferView": view, "componentType": 5121, "count": len(positions),
+                                  "type": "VEC3", "normalized": True})
+    gltf["buffers"][0]["byteLength"] = len(binary)
+
+
 def align_exported_smooth_contact_fields():
     """Sample real exported NORMAL data so material motion starts continuously.
 
     Blender's exporter may triangulate/split its smooth corner normals. The
     runtime samples that exported field, so attachment frames use it as well.
-    This changes no mesh, point, bone, or texture bytes.
     """
     from mathutils.geometry import barycentric_transform
     raw = OUT.read_bytes()
@@ -2092,7 +2206,7 @@ def align_exported_smooth_contact_fields():
     gltf = json.loads(raw[20:20 + json_length])
     binary_header = 20 + json_length
     binary_length = struct.unpack_from('<I', raw, binary_header)[0]
-    binary = raw[binary_header + 8:binary_header + 8 + binary_length]
+    binary = bytearray(raw[binary_header + 8:binary_header + 8 + binary_length])
     node_ids = {node.get('name'): i for i, node in enumerate(gltf['nodes'])}
     parents = {child: i for i, node in enumerate(gltf['nodes']) for child in node.get('children', [])}
     def world_matrix(index):
@@ -2136,6 +2250,7 @@ def align_exported_smooth_contact_fields():
             'surfaceDistanceM': distance,
             'normalField': 'barycentric-exported-smooth-vertex-normals',
         }
+    publish_skin_colour(gltf, binary, accessor)
     json_bytes = json.dumps(gltf, separators=(',', ':'), ensure_ascii=False).encode()
     json_bytes += b' ' * ((-len(json_bytes)) % 4)
     total = 12 + 8 + len(json_bytes) + 8 + len(binary)

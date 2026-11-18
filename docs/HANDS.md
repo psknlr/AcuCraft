@@ -23,14 +23,21 @@ around the first web and thenar skin. The live pose controller computes the same
 weights that the exporter samples for the five glTF clips. The shape targets
 keep distal thumb skin and wrist interface vertices fixed relative to their bones.
 
-The production export contains 17,788 triangles, eleven meshes, six embedded
-images and five clips. The validation record ties the mesh and the sampled motions
-to the renderer and build inputs. [Thumb and palm validation](THUMB-PALM-VALIDATION.json)
+The side-pulp pose has its own corrective. As the thumb moves across the palm,
+the base of the thumb broadens and the fold spreads over several rows of skin.
+The dorsal palm follows the four metacarpal heads and the paths of the extensor
+tendons toward the wrist. Colour on the knuckles, pads and thenar mound moves
+with the mesh and multiplies the practitioner's selected complexion. The nail
+bed grades into the paler free edge, with a rougher finish toward the margins.
 
-![Actual runtime hand viewed from the palm, back and oblique angles](img/thumb-web-junction.png)
+The export contains 17,788 triangles, eleven meshes, six embedded images, six
+skin corrections and five clips. Four matched views show the previous and
+current hand under the same lighting. [Geometry, contact and playback measurements](HAND-DETAIL-VALIDATION.json)
 
-Both views use the same cameras, lighting and runtime pose settings. Side pulp
-still produces a tight crease at the base of the thumb. [Previous mesh at the same angles](img/thumb-web-junction-before.png)
+![Earlier and current side grip, thumb base, fingertip and dorsal knuckles](img/hand-pinch-detail-comparison.png)
+
+The first continuous thumb and palm export used five skin corrections. Its
+side grip retained a sharp fold at the thumb root. [Earlier render](img/thumb-web-junction.png) · [Earlier validation](THUMB-PALM-VALIDATION.json)
 
 ## Earlier direction and thumb opposition checkpoint
 
@@ -257,6 +264,12 @@ these same weights in Blender for review. Independent hands **must use
 Two recolorable PBR materials, `hand_skin` and `hand_nails`, use embedded original
 albedo, normal, packed roughness and nail-bed maps. Nail plates follow the dorsal
 side through the finger bend; their free edge continues the nail-bed tangent.
+Each skin vertex carries a linear RGB multiplier for the practitioner's chosen
+complexion. The thenar and hypothenar pads, dorsal knuckles and finger pads
+have regional colour tied to the bind anatomy. Both sides of the thumb–palm
+boundary share colour, and it fades to neutral along the wrist join.
+The central nail bed has a smoother finish than the lateral margins and free
+edge. A narrow pink transition follows the curved border of the attached bed.
 The Node test image adapter decodes the actual embedded PNG pixels, so tests
 exercise the shipped textured GLB rather than substituting empty textures.
 

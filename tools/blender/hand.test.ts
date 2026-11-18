@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { AnimationMixer, BufferAttribute, BufferGeometry, DoubleSide, LoopOnce, Mesh, MeshBasicMaterial, Object3D, Quaternion, Ray, Raycaster, SkinnedMesh, Triangle, Vector3 } from "three";
+import { AnimationMixer, BufferAttribute, BufferGeometry, DoubleSide, LoopOnce, Mesh, MeshBasicMaterial, MeshStandardMaterial, Object3D, Quaternion, Ray, Raycaster, SkinnedMesh, Triangle, Vector3 } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { clone } from "three/examples/jsm/utils/SkeletonUtils.js";
 import { describe, expect, it } from "vitest";
@@ -439,6 +439,37 @@ function expectPalmSurface(skin: CompositeSkin, context: string): void {
 
 
 describe("the Blender precision hand", () => {
+  it("retains regional skin colour under practitioner recolouring and across both skin joins", async () => {
+    const gltf = await new GLTFLoader().parseAsync(Uint8Array.from(bytes).buffer, "");
+    const hand = new ArticulatedHand(gltf.scene, gltf.animations, "#8d604c");
+    const meshes = ["palm_surface", "thumb_skin", "index_skin", "middle_skin", "ring_skin", "little_skin"];
+    for (const name of meshes) {
+      const mesh = gltf.scene.getObjectByName(name) as SkinnedMesh;
+      const colour = mesh.geometry.getAttribute("color");
+      expect(colour, name).toBeDefined();
+      expect(colour.count).toBe(mesh.geometry.getAttribute("position").count);
+      const material = mesh.material as MeshStandardMaterial;
+      expect(material.vertexColors).toBe(true);
+      expect(material.color.getHexString()).toBe("8d604c");
+      const green = Array.from({ length: colour.count }, (_, i) => colour.getY(i));
+      expect(Math.max(...green) - Math.min(...green)).toBeGreaterThan(.10);
+    }
+    const palm = gltf.scene.getObjectByName("palm_surface") as SkinnedMesh;
+    const colour = palm.geometry.getAttribute("color");
+    const wrist = palm.userData.wristInterface as { ring: number[]; distalRing: number[] };
+    for (const i of [...wrist.ring, ...wrist.distalRing]) {
+      expect([colour.getX(i), colour.getY(i), colour.getZ(i)]).toEqual([1, 1, 1]);
+    }
+    const skin = collectCompositeSkin(gltf.scene);
+    const shared = skin.vertices.filter(({ members }) => new Set(members.map(({ mesh }) => mesh)).size > 1);
+    expect(shared.length).toBeGreaterThan(0);
+    for (const { members } of shared) {
+      const colours = members.map(({ mesh, index }) => new Vector3().fromBufferAttribute(mesh.geometry.getAttribute("color"), index));
+      expect(colours.every((value) => value.equals(colours[0]!))).toBe(true);
+    }
+    hand.dispose();
+  });
+
   it("uses a raised compact C-shaped pinch with a short broad thumb on a single continuous palm", async () => {
     const gltf = await new GLTFLoader().parseAsync(Uint8Array.from(bytes).buffer, "");
     const rig = gltf.scene, point = (name: string) => rig.getObjectByName(name)!.getWorldPosition(new Vector3());

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { Group, Mesh, Vector3 } from "three";
+import { DataTexture, Group, Mesh, MeshStandardMaterial, Vector3 } from "three";
 import { MANIPULATION_TECHNIQUES } from "@acucraft/core";
 import { exteriorGeometry, exteriorShape, updateExteriorGeometry } from "../web/stage/needle-shape.js";
 import { NeedleLayer, type NeedleSpec } from "../web/stage/needles.js";
@@ -12,6 +12,22 @@ afterEach(() => vi.unstubAllGlobals());
 const spec = (): NeedleSpec => ({ id: "n1", target: "BL23:left", site: { p: new Vector3(0, 0.85, 0), n: new Vector3(0, 1, 0), uDir: new Vector3(1, 0, 0), vDir: new Vector3(0, 0, -1), bare: true }, angleDeg: 25, azimuthDeg: 75, depthCm: 2, length: 0.04 });
 
 describe("exterior-only needle choreography", () => {
+  it("advances the wire crown along the handle as it turns around the shaft", () => {
+    const layer = new NeedleLayer();
+    layer.sync([spec()], 0, false);
+    const handle = layer.group.getObjectByName("needle-handle")!.children[0] as Mesh;
+    const map = (handle.material as MeshStandardMaterial).normalMap;
+    expect(map).toBeInstanceOf(DataTexture);
+    const { data, width, height } = (map as DataTexture).image;
+    const axial = (u: number, v: number) => data[4 * (v * height * width + u * width) + 1]!;
+    // At a fixed height, opposite sides of the winding reflect in different directions.
+    expect(Math.abs(axial(0, .25) - axial(.5, .25))).toBeGreaterThan(80);
+    // A quarter revolution advances by a quarter pitch on the same wire flank.
+    expect(axial(.25, .5)).toBe(axial(0, .25));
+    expect(map!.generateMipmaps).toBe(true);
+    layer.clear();
+  });
+
   it("preserves shaft length at zero, tiny, and normal exposed lengths without moving the entry", () => {
     for (const length of [0, 1e-7, 0.002, 0.02, 0.1]) for (const lateral of [0, 0.004, -0.004]) {
       const shape = exteriorShape(length, { x: lateral, z: -lateral }, { x: 8 * Math.PI / 180, z: -8 * Math.PI / 180 });

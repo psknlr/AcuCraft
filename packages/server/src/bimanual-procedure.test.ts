@@ -253,6 +253,16 @@ describe("reference hand scene integration", () => {
       const frame = s.procedure.inspectionFrame()!;
       expect(frame).not.toBeNull();
       const root = s.procedure.group.getObjectByName("needle-hand")!, wrist = root.getObjectByName("wrist")!, cuff = root.getObjectByName("wrist_frame")!, palm = root.getObjectByName("palm_frame")!;
+      const subjects = s.procedure.inspectionFrame(true)!.gripSubjects!;
+      expect(subjects.hand).toBe(root);
+      expect(subjects.digits.map(target => target.digit)).toEqual(["thumb", "index"]);
+      for (const target of subjects.digits) {
+        const tip = root.getObjectByName(`${target.digit}_nail_contact`)!.getWorldPosition(new Vector3());
+        expect(target.points.some(point => point.distanceTo(tip) < 1e-8)).toBe(true);
+      }
+      const handle = s.needles.grip("needle-a")!;
+      expect(subjects.handlePoints[0]!.clone().lerp(subjects.handlePoints[1]!, 0.5).distanceTo(handle.point)).toBeLessThan(1e-8);
+      expect(subjects.handlePoints[1]!.clone().sub(handle.point).normalize().dot(handle.axis)).toBeCloseTo(1, 7);
       const cuffOrigin = cuff.getWorldPosition(new Vector3()), palmOrigin = palm.getWorldPosition(new Vector3());
       const x = cuff.localToWorld(new Vector3(1, 0, 0)).sub(cuffOrigin).normalize(), y = cuff.localToWorld(new Vector3(0, 1, 0)).sub(cuffOrigin).normalize();
       expect(s.palms[side]).not.toBeNull();

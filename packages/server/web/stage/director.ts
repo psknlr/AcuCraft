@@ -1,6 +1,15 @@
-import { BufferGeometry, DoubleSide, Float32BufferAttribute, Mesh, MeshBasicMaterial, PerspectiveCamera, Raycaster, SkinnedMesh, Triangle, Vector3, type Object3D } from "three";
+import { Box3, BufferGeometry, DoubleSide, Float32BufferAttribute, Mesh, MeshBasicMaterial, PerspectiveCamera, Raycaster, SkinnedMesh, Triangle, Vector3, type Object3D } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { NEEDLE_HANDLE_RADIUS_M } from "./needle-shape.js";
 import type { CameraMode } from "./types.js";
+
+/** Posed parts the operator needs to distinguish in the grip close-up. */
+export interface GripSubjects {
+  hand: Object3D;
+  digits: { digit: string; points: Vector3[] }[];
+  handlePoints: Vector3[];
+  thenar?: { landmarks: Vector3[]; outward: Vector3 };
+}
 
 /**
  * The camera. In `auto` it is directed: a shot of the room when the patient moves, the patient's face while they
@@ -23,6 +32,7 @@ export interface Shot {
   inspectionPoints?: Vector3[];
   inspectionBlocked?: number;
   inspectionOptionalPoints?: Vector3[];
+  gripSubjects?: GripSubjects;
   needleAxis?: Vector3;
   inspectionAvoidDirections?: Vector3[];
   inspectionDetails?: Record<string, unknown>;
@@ -38,6 +48,7 @@ export interface HandInspectionFrame {
   center?: Vector3;
   radius: number;
   visibilityPoints?: Vector3[];
+  gripSubjects?: GripSubjects;
   needleAxis?: Vector3;
 }
 export const GRIP_VIEWS = ["three-quarter", "side", "palmar"] as const;
@@ -81,7 +92,31 @@ export function gripShot(frame: HandInspectionFrame, view: GripView, aspect = 16
     exterior: { point: frame.contact.clone(), normal },
     inspectionPoints: (frame.visibilityPoints?.slice(0, 3) ?? [frame.contact]).map(p => p.clone()),
     inspectionOptionalPoints: [...(frame.visibilityPoints?.slice(3) ?? []), at].map(p => p.clone()),
-    needleAxis: frame.needleAxis?.clone() };
+    gripSubjects: frame.gripSubjects, needleAxis: frame.needleAxis?.clone() };
+}
+
+/** Restrict exact Three.js raycasts to nearby runs of triangles in the disposable world-space snapshot. */
+function partitionInspectionMesh(mesh: Mesh): void {
+  const geometry = mesh.geometry, position = geometry.getAttribute("position"), index = geometry.index;
+  const { start, count } = geometry.drawRange, end = Math.min(index?.count ?? position.count, start + count);
+  const blockSize = 64 * 3;
+  if (end - start < blockSize * 2) return;
+  const blocks: { start: number; count: number; box: Box3 }[] = [], point = new Vector3();
+  for (let first = start; first < end; first += blockSize) {
+    const last = Math.min(end, first + blockSize), box = new Box3();
+    for (let i = first; i < last; i++) box.expandByPoint(point.fromBufferAttribute(position, index ? index.getX(i) : i));
+    blocks.push({ start: first, count: last - first, box });
+  }
+  mesh.raycast = (ray, hits) => {
+    if (!ray.ray.intersectsBox(geometry.boundingBox!)) return;
+    try {
+      for (const block of blocks) {
+        if (!ray.ray.intersectsBox(block.box) || block.box.distanceToPoint(ray.ray.origin) > ray.far) continue;
+        geometry.setDrawRange(block.start, block.count);
+        Mesh.prototype.raycast.call(mesh, ray, hits);
+      }
+    } finally { geometry.setDrawRange(start, count); }
+  };
 }
 
 /** Bake posed world triangles once: figure picking is disabled and skinning per ray is expensive. */
@@ -104,7 +139,7 @@ function inspectionMeshes(objects: readonly Object3D[], material: MeshBasicMater
       geometry.computeBoundingBox(); geometry.computeBoundingSphere();
       const mesh = new Mesh(geometry, material), names: string[] = [];
       for (let node: Object3D | null = object; node; node = node.parent) if (node.name) names.unshift(node.name);
-      mesh.name = names.join("/") || object.type; mesh.updateMatrixWorld(true); meshes.push(mesh);
+      mesh.name = names.join("/") || object.type; mesh.userData.source = object; mesh.updateMatrixWorld(true); partitionInspectionMesh(mesh); meshes.push(mesh);
     });
   }
   return meshes;
@@ -113,12 +148,46 @@ function inspectionMeshes(objects: readonly Object3D[], material: MeshBasicMater
 /** Keep critical pulp/needle sightlines clear; cuff and centre landmarks are optional composition hints. */
 export function clearGripShot(shot: Shot, objects: readonly Object3D[]): Shot {
   const started = performance.now(), points = shot.inspectionPoints ?? [shot.at], optional = shot.inspectionOptionalPoints ?? [];
-  const material = new MeshBasicMaterial({ side: DoubleSide }), meshes = inspectionMeshes(objects, material), ray = new Raycaster();
+  const subjects = shot.gripSubjects, working = new Set<Object3D>();
+  subjects?.hand.traverse(part => working.add(part));
+  const material = new MeshBasicMaterial({ side: DoubleSide }), ray = new Raycaster();
+  const meshes = inspectionMeshes(subjects ? [...objects, subjects.hand] : objects, material);
+  // Opposed pads hide their common contact by design. Keep its exterior sightlines
+  // separate from whether the viewer can actually see the fingers holding it.
+  const obstacles = meshes.filter(mesh => !working.has(mesh.userData.source) || mesh.userData.source.name === "palm_surface");
+  // Project the anatomical landmarks onto the actual palmward skin once.
+  // The other side of the same thin palm can otherwise pass a joint-centre ray.
+  const palmSkin = meshes.filter(mesh => working.has(mesh.userData.source) && mesh.userData.source.name === "palm_surface");
+  const thenar = subjects?.thenar;
+  const palmPoints = thenar?.landmarks.flatMap(landmark => {
+    ray.set(landmark.clone().addScaledVector(thenar.outward, 0.05), thenar.outward.clone().negate());
+    ray.near = 0; ray.far = 0.08;
+    return ray.intersectObjects(palmSkin, false)[0]?.point ?? [];
+  }) ?? [];
+  const visibleParts = (eye: Vector3) => {
+    if (!subjects) return [];
+    const hit = (point: Vector3, part?: string) => {
+      const direction = point.clone().sub(eye), distance = direction.length();
+      if (distance < 0.004) return false;
+      ray.set(eye, direction.divideScalar(distance)); ray.near = 0.002;
+      ray.far = part ? distance + 0.001 : distance - NEEDLE_HANDLE_RADIUS_M;
+      const first = ray.intersectObjects(meshes, false)[0];
+      if (!part) return !first;
+      const source = first?.object.userData.source;
+      if (!first || !working.has(source)) return false;
+      if (part === "palm") return source.name === "palm_surface" && distance - first.distance < 0.001;
+      // A nearer section of the same curled digit can also hide its tip.
+      return (source.name === `${part}_skin` || source.name === `${part}_nail`) && distance - first.distance < 0.012;
+    };
+    return [...subjects.digits.map(({ digit, points }) => ({ part: digit, seen: points.filter(point => hit(point, digit)).length, total: points.length })),
+      { part: "handle", seen: subjects.handlePoints.filter(point => hit(point)).length, total: subjects.handlePoints.length },
+      ...(palmPoints.length ? [{ part: "palm", seen: palmPoints.filter(point => hit(point, "palm")).length, total: palmPoints.length }] : [])];
+  };
   const trace = (eye: Vector3, probes: Vector3[]) => probes.map(point => {
     const direction = point.clone().sub(eye), distance = direction.length(), blockers: string[] = [];
     if (distance > 0.004) {
       ray.set(eye, direction.multiplyScalar(1 / distance)); ray.near = 0.002; ray.far = distance - 0.001;
-      for (const mesh of meshes) if (ray.intersectObject(mesh).length) blockers.push(mesh.name);
+      for (const mesh of obstacles) if (ray.intersectObject(mesh).length) blockers.push(mesh.name);
     }
     return { point: point.toArray(), blockers };
   });
@@ -139,11 +208,17 @@ export function clearGripShot(shot: Shot, objects: readonly Object3D[]): Shot {
     }
     const preference = (candidate: { eye: Vector3; angle: number }) => candidate.angle + ((shot.inspectionAvoidDirections ?? []).some(direction => candidate.eye.clone().sub(shot.at).normalize().angleTo(direction) < 15 * Math.PI / 180) ? 2.5 : 0);
     candidates.sort((a, b) => preference(a) - preference(b));
-    let best = shot.eye, bestBlocked = Infinity;
+    let best = shot.eye, bestBlocked = Infinity, bestParts = -1, bestSamples = -1;
     for (const candidate of candidates) {
       const count = trace(candidate.eye, points).filter(p => p.blockers.length).length;
-      if (count < bestBlocked) { best = candidate.eye; bestBlocked = count; }
-      if (!count) break;
+      if (count > bestBlocked) continue;
+      const visibility = visibleParts(candidate.eye);
+      const parts = visibility.filter(part => part.part !== "palm" && part.seen > 0).length;
+      const samples = visibility.reduce((sum, part) => sum + part.seen, 0);
+      if (count < bestBlocked || parts > bestParts || (parts === bestParts && samples > bestSamples)) {
+        best = candidate.eye; bestBlocked = count; bestParts = parts; bestSamples = samples;
+      }
+      if (!count && visibility.every(part => part.seen === part.total)) break;
     }
     const insideSupport = points.map((point, probe) => {
       const containing: { mesh: string; depthMm: number }[] = [];
@@ -166,7 +241,7 @@ export function clearGripShot(shot: Shot, objects: readonly Object3D[]): Shot {
       return { probe, containing };
     });
     return { ...shot, eye: best.clone(), inspectionBlocked: bestBlocked,
-      inspectionDetails: { cpuMs: performance.now() - started, eye: best.toArray(), direction: best.clone().sub(shot.at).normalize().toArray(), requestedAngleDifferenceDeg: best.clone().sub(shot.at).angleTo(initial) * 180 / Math.PI, shaftAlignment: axis ? Math.abs(best.clone().sub(contact).normalize().dot(axis)) : null, critical: trace(best, points), optional: trace(best, optional), insideSupport } };
+      inspectionDetails: { cpuMs: performance.now() - started, eye: best.toArray(), direction: best.clone().sub(shot.at).normalize().toArray(), requestedAngleDifferenceDeg: best.clone().sub(shot.at).angleTo(initial) * 180 / Math.PI, shaftAlignment: axis ? Math.abs(best.clone().sub(contact).normalize().dot(axis)) : null, requestedVisibleParts: visibleParts(shot.eye), visibleParts: visibleParts(best), critical: trace(best, points), optional: trace(best, optional), insideSupport } };
   } finally { for (const mesh of meshes) mesh.geometry.dispose(); material.dispose(); }
 }
 

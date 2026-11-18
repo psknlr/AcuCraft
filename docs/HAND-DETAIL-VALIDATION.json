@@ -1,0 +1,289 @@
+{
+  "scope": "Previous and current production hand, matched rendered views, finite live and embedded animation samples.",
+  "previous": {
+    "commit": "3847d5ccb08f00bd0140b14a4ad3460ba133bd9f",
+    "assetSha256": "d5845f8167042906c161437d9c388db582230897576d9216a77aad639f7a9a53"
+  },
+  "current": {
+    "blenderVersion": "4.3.2",
+    "assetSha256": "5f63068f2c683357f9a2bc123686b5dfd1d873260873930acf802c45b0345d9f",
+    "manifestSha256": "d7ce150254c3debe1d41f703e37c98232974f31bd0e3b411607374c9c729bfd7",
+    "calibrationSha256": "91161f92355627836c932e3459aaccfd2e910583f00429bda0cf18d2abd2dc52",
+    "choreographySha256": "b505df915bc3070e18189f3d8e644a4c6bd0b62aff7229cb3db9aa4b9d7fea68",
+    "twoByteIdenticalBuilds": true,
+    "bytes": 1598052,
+    "triangles": 17788,
+    "meshes": 11,
+    "embeddedTextures": 6,
+    "clips": 5,
+    "correctives": 6,
+    "nodeCount": 123,
+    "rawNodeTransformsAndChildOrderEqual": true,
+    "paletteAndInverseBindsEqual": true,
+    "priorAnimationTracksChecked": 157
+  },
+  "sidePinch": {
+    "measurement": "Right side-pulp grip at 55 degrees. Width and thickness follow the first two principal axes of the same middle material ring. Fold angles use the concave dihedral between neighbouring posed triangles on the proximal collar.",
+    "previous": {
+      "materialEdges": 2512,
+      "maxConcaveDihedralDeg": 86.4449,
+      "p95ConcaveDihedralDeg": 22.1198,
+      "concaveEdgeLengthAbove45DegMm": 25.2373,
+      "midSectionPcaMajorMm": 14.1456,
+      "midSectionPcaMinorMm": 12.6653
+    },
+    "current": {
+      "materialEdges": 2512,
+      "maxConcaveDihedralDeg": 30.4601,
+      "p95ConcaveDihedralDeg": 28.3162,
+      "concaveEdgeLengthAbove45DegMm": 0.0,
+      "midSectionPcaMajorMm": 17.1036,
+      "midSectionPcaMinorMm": 14.2019
+    }
+  },
+  "dorsalPalm": {
+    "units": "millimetres",
+    "measurement": "Maximum dorsal lift and fingertipward projection of matched palm texel coordinates within 9 mm longitudinally and 6 mm transversely of each MCP in the bind hand.",
+    "metacarpalHeads": {
+      "index": {
+        "dorsalMm": 2.9155440685733804,
+        "distalMm": 2.05461677084237
+      },
+      "middle": {
+        "dorsalMm": 4.291106987067497,
+        "distalMm": 2.9135735424559046
+      },
+      "ring": {
+        "dorsalMm": 3.5406645127046996,
+        "distalMm": 2.474189528834498
+      },
+      "little": {
+        "dorsalMm": 1.618082411688265,
+        "distalMm": 1.2096320628281259
+      }
+    }
+  },
+  "material": {
+    "skinCharts": [
+      "index_skin",
+      "little_skin",
+      "middle_skin",
+      "palm_surface",
+      "ring_skin",
+      "thumb_skin"
+    ],
+    "sharedThumbPalmSites": {
+      "physicalSites": 34,
+      "maxDifference8bit": 0
+    },
+    "wristRingMinimumRgb8": [
+      255,
+      255,
+      255
+    ],
+    "wristDistalRingMinimumRgb8": [
+      255,
+      255,
+      255
+    ],
+    "nailMidBedSrgb8": [
+      204,
+      157,
+      149
+    ],
+    "nailFreeEdgeSrgb8": [
+      235,
+      222,
+      208
+    ]
+  },
+  "geometry": {
+    "thresholds": {
+      "crossingPlaneMarginM": 5e-05,
+      "maxSeamGapM": 5e-06,
+      "minSeamNormalDot": 0.99999,
+      "minFaceAreaM2": 1e-10,
+      "minFacetNormalDot": 0,
+      "minAdjacentFacetDot": -0.1
+    },
+    "live": {
+      "samples": 3621,
+      "failures": 0,
+      "groupCounts": {
+        "bind": 1,
+        "tip-pinch": 39,
+        "tripod": 37,
+        "side-pinch": 37,
+        "flick": 182,
+        "palpate": 3,
+        "stretch": 3,
+        "press": 3,
+        "free35palmar40radial5hinges": 1,
+        "scrape": 54,
+        "dense_release": 1212,
+        "dense_roll": 1446,
+        "dense_tan": 603
+      },
+      "maxSeamGapM": 0,
+      "minFaceAreaM2": 1.0865888835656926e-09,
+      "sampleSetSha256": "e5a96f79165559779fe3062b7c224d93cdd8dd941c2c002f481f84a6c4e3e25b"
+    },
+    "sideMotion": {
+      "samples": 792,
+      "failures": 0,
+      "groupCounts": {
+        "dense_side_release": 198,
+        "dense_side_squeeze_turn": 198,
+        "dense_side_bounded": 198,
+        "dense_side_walking": 198
+      },
+      "maxSeamGapM": 0,
+      "minFaceAreaM2": 1.086588883564399e-09,
+      "sampleSetSha256": "27e8d6cf05c73528be308a7a398e0b94011d671d5d59e51462a7f407eb5a85b8"
+    },
+    "bakedClips": {
+      "samples": 392,
+      "failures": 0,
+      "groupCounts": {
+        "hand_open": 89,
+        "hand_support": 61,
+        "hand_three_finger": 61,
+        "hand_scrape": 89,
+        "hand_flick": 92
+      },
+      "maxSeamGapM": 0,
+      "minFaceAreaM2": 1.0865888652490034e-09,
+      "sampleSetSha256": "e5a96f79165559779fe3062b7c224d93cdd8dd941c2c002f481f84a6c4e3e25b"
+    },
+    "scope": "Sampled finite noncoplanar triangle crossings and boundary correspondence. Side-motion evaluations include some postures also present in the general grid."
+  },
+  "contact": {
+    "samples": 348,
+    "invalidPose": 0,
+    "totalAnchors": 906,
+    "engagedHandleCount": 168,
+    "maxMaterialUm": 0.0005862258002295554,
+    "maxHeldHandleRadialFitUm": 0.0047187789239218,
+    "priorPositionsAndNormalsExact": true
+  },
+  "studio": {
+    "stageBundleSha256": "1abe4dbfb92e26f41564f3150425f860c270c94f0cb1023200edc0d1c14f72be",
+    "resourcesMatched": true,
+    "hand": {
+      "手腕抬高角 Wrist elevation (°)": "55",
+      "持针接触 Grip style": "side-pinch",
+      "闲置手指 Idle fingers": "curled",
+      "持针方式 Grip": "two-finger"
+    },
+    "externalBlockerCount": 0,
+    "requestedVisibleParts": [
+      {
+        "part": "thumb",
+        "seen": 0,
+        "total": 2
+      },
+      {
+        "part": "index",
+        "seen": 0,
+        "total": 2
+      },
+      {
+        "part": "handle",
+        "seen": 0,
+        "total": 2
+      },
+      {
+        "part": "palm",
+        "seen": 0,
+        "total": 3
+      }
+    ],
+    "visibleParts": [
+      {
+        "part": "thumb",
+        "seen": 2,
+        "total": 2
+      },
+      {
+        "part": "index",
+        "seen": 2,
+        "total": 2
+      },
+      {
+        "part": "handle",
+        "seen": 2,
+        "total": 2
+      },
+      {
+        "part": "palm",
+        "seen": 1,
+        "total": 3
+      }
+    ],
+    "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+    "browserErrors": [],
+    "networkErrors": [],
+    "recordMutations": [],
+    "clip": {
+      "settings": {
+        "technique": "nian",
+        "hand": "left",
+        "grip": "two-finger",
+        "support": "none",
+        "duration": 2400,
+        "elevation": 55,
+        "style": "side-pinch",
+        "idle": "curled",
+        "rotation": 120,
+        "cycles": 2,
+        "opening": 4
+      },
+      "frames": 105,
+      "encodedFps": 24,
+      "dimensions": [
+        800,
+        600
+      ],
+      "sampling": "One production Engine tick per output frame. Software WebGL fixed-step export."
+    }
+  },
+  "fixedCameraComparison": {
+    "renderer": "Blender Cycles",
+    "samplesPerPixelMax": 192,
+    "panelSizePixels": 600,
+    "views": [
+      "side-grip",
+      "thenar",
+      "tip-pinch",
+      "dorsal"
+    ],
+    "scope": "Actual posed mesh, normals, skin colour and original PBR maps. Identical cameras, scale, lighting and sampling for each pair."
+  },
+  "mediaSha256": {
+    "hand-pinch-detail-comparison.png": "981b00e7049abe257e85bfbb14422ae686ab2a5d3bbce07ce6db41c3987f2d87",
+    "hand-pinch-studio.png": "9f5e0f225447ea684e8bca214c070a6f3c36d3c750ba593e4ebeaac761595c6e",
+    "hand-pinch-motion.mp4": "ad114edcc98e20f0e06635c5ca24570040359e58af30d272b58d2c7793899077"
+  },
+  "repositoryChecks": {
+    "suite": "tools/check.sh",
+    "testFiles": 49,
+    "testsPassed": 680,
+    "figureFitSites": 11,
+    "offlineScriptedLlm": {
+      "passed": 15,
+      "total": 15
+    },
+    "protocolBaseline": {
+      "passed": 14,
+      "total": 15
+    }
+  },
+  "khronosValidator": {
+    "errors": 0,
+    "warnings": 17423
+  },
+  "visibleLimits": [
+    "The proximal thumb and curled digits retain smooth tubular areas. A small notch remains on the middle nail in the tip view. The measured fold reduction applies to the lateral grip.",
+    "The volume and colour are authored. Clinical tissue mechanics and motion capture have not been validated."
+  ]
+}

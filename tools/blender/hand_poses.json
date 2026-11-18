@@ -5,7 +5,7 @@
   "provenance": {
     "calibrationInputAsset": {
       "path": "runs/hand-calibration/thumb-palm.glb",
-      "sha256": "793f89a8d4b659279fd0cc9ca7e2fa90a395ea6a495edb9054bc34d394f18d7b",
+      "sha256": "91161f92355627836c932e3459aaccfd2e910583f00429bda0cf18d2abd2dc52",
       "role": "immutable geometry calibration input; not the subsequently rebuilt GLB output hash"
     },
     "sources": {
@@ -23,15 +23,15 @@
       },
       "anatomy": {
         "path": "tools/blender/hand_anatomy.json",
-        "sha256": "9bda9eefba56e70e9671516d6c5502fd370b4af4503e11c3c168355a28935547"
+        "sha256": "c1f0041ffea660c2fb6634ac7ad61c9b3e393ab4e8a5700a3b601f24ef7d34da"
       },
       "builder": {
         "path": "tools/blender/build_hand.py",
-        "sha256": "9142bfc8ea931c3960632b9682ec81755a19d0d3ed8e41b29a5733d6013168ed"
+        "sha256": "b543f8376dc279509dd987bb62b51ee567b87de533b388423a9c8561b5c08287"
       },
       "correctives": {
         "path": "tools/blender/hand_thumb_web_correctives.json",
-        "sha256": "47e6188c84601047b47f321dc8169cba1b79eaa50ce9b3f4e7ee949e91fb1781"
+        "sha256": "cbd574792d554a04663d793fa19147787b19833474b3a2feced6d49878e7334e"
       },
       "exporter": {
         "path": "tools/blender/export_hand_poses.ts",
@@ -1817,6 +1817,7 @@
   "correctivePoses": {
     "pinch": {
       "thumb_web_tip": 1,
+      "thumb_web_side": 0,
       "thumb_web_tan": 0,
       "thumb_web_tan_prepare": 0,
       "thumb_web_tripod_release": 0,
@@ -1824,6 +1825,7 @@
     },
     "open": {
       "thumb_web_tip": -0.0000034812057301053083,
+      "thumb_web_side": 1.7680352722700272e-16,
       "thumb_web_tan": 8.23160832882736e-7,
       "thumb_web_tan_prepare": -5.40725825731119e-7,
       "thumb_web_tripod_release": -6.162232832032191e-8,
@@ -1831,6 +1833,7 @@
     },
     "support": {
       "thumb_web_tip": 0,
+      "thumb_web_side": 0,
       "thumb_web_tan": 0,
       "thumb_web_tan_prepare": 0,
       "thumb_web_tripod_release": 0,
@@ -1838,6 +1841,7 @@
     },
     "three_finger": {
       "thumb_web_tip": 0,
+      "thumb_web_side": 0,
       "thumb_web_tan": 0,
       "thumb_web_tan_prepare": 0,
       "thumb_web_tripod_release": 0,
@@ -1845,6 +1849,7 @@
     },
     "scrape_start": {
       "thumb_web_tip": 0,
+      "thumb_web_side": 0,
       "thumb_web_tan": 0,
       "thumb_web_tan_prepare": 0,
       "thumb_web_tripod_release": 0,
@@ -1852,6 +1857,7 @@
     },
     "scrape_end": {
       "thumb_web_tip": 0,
+      "thumb_web_side": 0,
       "thumb_web_tan": 0,
       "thumb_web_tan_prepare": 0,
       "thumb_web_tripod_release": 0,
@@ -1859,6 +1865,7 @@
     },
     "flick_loaded": {
       "thumb_web_tip": 0,
+      "thumb_web_side": 0,
       "thumb_web_tan": 1,
       "thumb_web_tan_prepare": 0,
       "thumb_web_tripod_release": 0,
@@ -1866,6 +1873,7 @@
     },
     "flick_release": {
       "thumb_web_tip": 0,
+      "thumb_web_side": 0,
       "thumb_web_tan": 1,
       "thumb_web_tan_prepare": 0,
       "thumb_web_tripod_release": 0,
@@ -1873,6 +1881,7 @@
     },
     "flick_return": {
       "thumb_web_tip": 0,
+      "thumb_web_side": 0,
       "thumb_web_tan": 0,
       "thumb_web_tan_prepare": 1,
       "thumb_web_tripod_release": 0,
@@ -6317,6 +6326,132 @@
           [
             31,
             5.699169210167151e-9
+          ]
+        ],
+        "thumb_web_side": [
+          [
+            1,
+            -3.721377982290122e-15
+          ],
+          [
+            2,
+            -9.899315928512039e-12
+          ],
+          [
+            3,
+            -1.9356734792197768e-11
+          ],
+          [
+            4,
+            -2.8262566665511696e-11
+          ],
+          [
+            5,
+            -3.651366232044698e-11
+          ],
+          [
+            6,
+            -4.401898398357e-11
+          ],
+          [
+            7,
+            -5.070115304489748e-11
+          ],
+          [
+            8,
+            -5.649766181800903e-11
+          ],
+          [
+            9,
+            -6.13617256814475e-11
+          ],
+          [
+            10,
+            -6.526276302595876e-11
+          ],
+          [
+            11,
+            -6.818650159349566e-11
+          ],
+          [
+            12,
+            -7.013472061640724e-11
+          ],
+          [
+            13,
+            -7.112464827196502e-11
+          ],
+          [
+            14,
+            -7.118804302729952e-11
+          ],
+          [
+            15,
+            -7.036999518863473e-11
+          ],
+          [
+            16,
+            -6.872749117848171e-11
+          ],
+          [
+            17,
+            -6.632778760882146e-11
+          ],
+          [
+            18,
+            -6.324664503372412e-11
+          ],
+          [
+            19,
+            -5.956647235888494e-11
+          ],
+          [
+            20,
+            -5.5374432331628984e-11
+          ],
+          [
+            21,
+            -5.0760556464206236e-11
+          ],
+          [
+            22,
+            -4.58159143349643e-11
+          ],
+          [
+            23,
+            -4.063087768190687e-11
+          ],
+          [
+            24,
+            -3.529351429128783e-11
+          ],
+          [
+            25,
+            -2.988814064291689e-11
+          ],
+          [
+            26,
+            -2.4494055856721874e-11
+          ],
+          [
+            27,
+            -1.9184472935702985e-11
+          ],
+          [
+            28,
+            -1.4025656843529545e-11
+          ],
+          [
+            29,
+            -9.076272790331234e-12
+          ],
+          [
+            30,
+            -4.386942396165735e-12
+          ],
+          [
+            31,
+            -2.929006187146204e-19
           ]
         ],
         "thumb_web_tan": [
@@ -11918,6 +12053,132 @@
       },
       "correctiveFrames": {
         "thumb_web_tip": [
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            3,
+            0
+          ],
+          [
+            4,
+            0
+          ],
+          [
+            5,
+            0
+          ],
+          [
+            6,
+            0
+          ],
+          [
+            7,
+            0
+          ],
+          [
+            8,
+            0
+          ],
+          [
+            9,
+            0
+          ],
+          [
+            10,
+            0
+          ],
+          [
+            11,
+            0
+          ],
+          [
+            12,
+            0
+          ],
+          [
+            13,
+            0
+          ],
+          [
+            14,
+            0
+          ],
+          [
+            15,
+            0
+          ],
+          [
+            16,
+            0
+          ],
+          [
+            17,
+            0
+          ],
+          [
+            18,
+            0
+          ],
+          [
+            19,
+            0
+          ],
+          [
+            20,
+            0
+          ],
+          [
+            21,
+            0
+          ],
+          [
+            22,
+            0
+          ],
+          [
+            23,
+            0
+          ],
+          [
+            24,
+            0
+          ],
+          [
+            25,
+            0
+          ],
+          [
+            26,
+            0
+          ],
+          [
+            27,
+            0
+          ],
+          [
+            28,
+            0
+          ],
+          [
+            29,
+            0
+          ],
+          [
+            30,
+            0
+          ],
+          [
+            31,
+            0
+          ]
+        ],
+        "thumb_web_side": [
           [
             1,
             0
@@ -17989,6 +18250,144 @@
           [
             18,
             0.012210899803954331
+          ],
+          [
+            18.4,
+            0
+          ],
+          [
+            19,
+            0
+          ],
+          [
+            20,
+            0
+          ],
+          [
+            21,
+            0
+          ],
+          [
+            22,
+            0
+          ],
+          [
+            23,
+            0
+          ],
+          [
+            24,
+            0
+          ],
+          [
+            25,
+            0
+          ],
+          [
+            26,
+            0
+          ],
+          [
+            27,
+            0
+          ],
+          [
+            28,
+            0
+          ],
+          [
+            29,
+            0
+          ],
+          [
+            30,
+            0
+          ],
+          [
+            31,
+            0
+          ]
+        ],
+        "thumb_web_side": [
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            -6.460726933143699e-12
+          ],
+          [
+            3,
+            -1.0622828142141313e-12
+          ],
+          [
+            3.4,
+            0
+          ],
+          [
+            4,
+            0
+          ],
+          [
+            5,
+            0
+          ],
+          [
+            6,
+            0
+          ],
+          [
+            7,
+            0
+          ],
+          [
+            8,
+            0
+          ],
+          [
+            9,
+            0
+          ],
+          [
+            9.4,
+            0
+          ],
+          [
+            10,
+            0
+          ],
+          [
+            11,
+            0
+          ],
+          [
+            12,
+            0
+          ],
+          [
+            13,
+            0
+          ],
+          [
+            14,
+            0
+          ],
+          [
+            15,
+            0
+          ],
+          [
+            16,
+            0
+          ],
+          [
+            17,
+            -6.943983153332668e-12
+          ],
+          [
+            18,
+            -8.57197174974283e-13
           ],
           [
             18.4,

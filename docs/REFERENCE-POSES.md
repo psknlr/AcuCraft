@@ -123,16 +123,13 @@ This fragment does not supply or authorize a clinical needle site, path or depth
 
 ## Inspection
 
-The **手部 Grip** camera cycles between three-quarter, side and palmar views.
-It uses the actual anatomical palm axes after mirroring; the old side hint used
-source-model Z and was 90° away from the intended radial direction. The
-three-quarter choice begins on the opposed thumb's nail side. Framing covers
-the hand, thumb origin, wrist and nearby needle while prioritizing active
-contact sightlines, with the eye outside the patient's local skin plane.
-Occlusion adjustment can label a view **Oblique**; sleeves or the patient can
-still hide part of the hand or cuff. Use these views while previewing the
-approach, first contact, insertion, twirling, axial movement and release. A
-cropped image containing only two fingertips cannot establish the hand pose.
+The **手部 Grip** camera cycles between three-quarter, side and palmar views
+using the anatomical axes of the posed hand. For held grips, the camera checks
+the working fingers, exposed handle and palm against the rendered hand and
+nearby scene geometry. The eye stays outside the patient's local skin plane.
+An adjusted camera angle is labelled **Oblique**. The operator can still drag
+to orbit the hand during approach, insertion, twirling, axial movement and
+release.
 
 Close views use the asset's embedded skin/nail materials and a local shadow
 frustum that can resolve small contact relationships. Scene lighting and depth
@@ -156,8 +153,13 @@ runtime checks and scene captures.
 
 ## Actual scene views
 
-Studio views show the practitioner using the rebuilt thumb and palm skin in
-the scene. [Tip three-quarter](img/thumb-web-tip-three-quarter.png) ·
+The current close-up shows the grip in the treatment room. The wound metal
+surface follows the rotation of the handle. [Side pinch](img/hand-pinch-studio.png) ·
+[Twirling playback](img/hand-pinch-motion.mp4) ·
+[Four fixed-angle hand comparisons](img/hand-pinch-detail-comparison.png)
+
+The first continuous thumb and palm export is shown in these earlier Studio
+captures. [Tip three-quarter](img/thumb-web-tip-three-quarter.png) ·
 [Side pulp](img/thumb-web-side-pinch.png) · [Tan](img/thumb-web-tan.png) ·
 [12 mm release](img/thumb-web-release.png)
 

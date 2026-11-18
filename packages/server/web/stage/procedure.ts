@@ -13,7 +13,8 @@ import type { SkinSite } from "./sites.js";
 import { sampleProcedure, type ProcedureKind } from "./choreography.js";
 import { ArticulatedHand, handOrientation, surfaceHandOrientation, type FingerPose, type HandContact, type HandPose } from "./hand.js";
 import { alignNeedleWristAzimuth } from "./needle-hand-frame.js";
-import { NEEDLE_HANDLE_RADIUS_M } from "./needle-shape.js";
+import type { GripSubjects } from "./director.js";
+import { NEEDLE_HANDLE_GRIP_Y_M, NEEDLE_HANDLE_RADIUS_M } from "./needle-shape.js";
 import { PatientClearance } from "./clearance.js";
 import { handWristSurface, type HandWristSurface } from "./wrist-join.js";
 
@@ -29,6 +30,7 @@ export interface HandInspectionFrame {
   radius: number;
   /** Real working contacts and joint landmarks used to keep inspection views clear of sleeves and bodies. */
   visibilityPoints: Vector3[];
+  gripSubjects?: GripSubjects;
   /** Actual shaft direction, for avoiding inspection views that visually collapse the needle. */
   needleAxis?: Vector3;
 }
@@ -109,7 +111,7 @@ export class NeedleProcedure {
   get playback(): ProcedurePlayback { return { ...this.playbackState }; }
 
   /** A complete hand frame for inspection, without rescanning every deformed mesh each display frame. */
-  inspectionFrame(): HandInspectionFrame | null {
+  inspectionFrame(forCamera = false): HandInspectionFrame | null {
     const hand = this.hand, placement = this.placements.find((p) => p.hand === hand);
     if (!hand?.root.visible || !placement) return null;
     hand.root.updateWorldMatrix(true, true);
@@ -124,12 +126,29 @@ export class NeedleProcedure {
     const gesture = this.active;
     const site = gesture?.kind === "performance" ? gesture.input.site : gesture ? this.needles.siteOf(gesture.id) : null;
     const visibilityPoints = [contact.clone()];
+    let gripSubjects: GripSubjects | undefined;
     if (placement.anchor === "handle") {
       // Inspect the real participating materials: side pulp, third-finger
       // support and nail work do not share one inferred thumb/index midpoint.
-      for (const name of Object.keys(hand.materialContacts())) {
+      const contacts = hand.materialContacts();
+      for (const name of Object.keys(contacts)) {
         const material = hand.model.getObjectByName(name);
         if (material) visibilityPoints.push(material.getWorldPosition(new Vector3()));
+      }
+      if (forCamera) {
+        const id = gesture?.kind === "performance" ? gesture.input.needleId : gesture?.id;
+        const handle = id ? this.needles.grip(id) : null;
+        if (handle) {
+          const digits = [...new Set(Object.values(contacts).map(contact => contact.surface.split("_")[0]))]
+            .filter((digit): digit is string => !!digit && digit !== "palm")
+            .map(digit => ({ digit, points: [`${digit}_nail_contact`, digit === "thumb" ? "thumb_IP" : `${digit}_DIP`]
+              .flatMap(name => hand.model.getObjectByName(name)?.getWorldPosition(new Vector3()) ?? []) }))
+            .filter(target => target.points.length > 0);
+          gripSubjects = { hand: hand.root, digits,
+            thenar: { landmarks: ["palm_frame", "thumb_CMC", "index_MCP"].flatMap(name => hand.model.getObjectByName(name)?.getWorldPosition(new Vector3()) ?? []),
+              outward: palm.localToWorld(new Vector3(0, -1, 0)).sub(palmOrigin).normalize() },
+            handlePoints: [-1, 1].map(sign => handle.point.clone().addScaledVector(handle.axis, sign * NEEDLE_HANDLE_GRIP_Y_M * 0.85)) };
+        }
       }
       for (const name of ["thumb_MCP", "index_PIP"]) {
         const joint = hand.model.getObjectByName(name);
@@ -141,7 +160,7 @@ export class NeedleProcedure {
       palmNormal: palm.localToWorld(new Vector3(0, -1, 0)).sub(palmOrigin).normalize(),
       radial: palm.localToWorld(new Vector3(0, 0, 1)).sub(palmOrigin).normalize(),
       surfaceNormal: site?.n.clone() ?? new Vector3(0, 1, 0),
-      visibilityPoints,
+      visibilityPoints, gripSubjects,
       ...(placement.anchor === "handle" ? { needleAxis: new Vector3(0, 1, 0).applyQuaternion(hand.root.quaternion) } : {}),
     };
   }

@@ -131,7 +131,7 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
       if (shot) director.cut(shot, 1100, true);
     },
     grip: () => {
-      const frame = procedure.inspectionFrame();
+      const frame = procedure.inspectionFrame(true);
       if (!frame) return;
       const view = GRIP_VIEWS[gripViewIndex++ % GRIP_VIEWS.length]!;
       director.setMode("free");

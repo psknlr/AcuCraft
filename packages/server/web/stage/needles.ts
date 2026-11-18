@@ -4,8 +4,11 @@ import {
   CircleGeometry,
   Color,
   CylinderGeometry,
+  DataTexture,
   DoubleSide,
   Group,
+  LinearFilter,
+  LinearMipmapLinearFilter,
   Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
@@ -19,12 +22,12 @@ import {
 } from "three";
 import type { SkinSite } from "./sites.js";
 import { ActionSchema, hasClinicalNeedleMotion, needleMotion, sampleNeedleMotion, sampleTechnique, techniqueMotion, type ManipulationMotionSettings, type ManipulationTechniqueId, type NeedleMotion, type NeedleTechnique, type NeedleMotionSettings, type TechniqueMotionSample } from "@acucraft/core";
-import { exteriorGeometry, exteriorShape, updateExteriorGeometry, NEEDLE_HANDLE_GRIP_Y_M, NEEDLE_HANDLE_LENGTH_M, needleHandleRadiusAt } from "./needle-shape.js";
+import { exteriorGeometry, exteriorShape, updateExteriorGeometry, NEEDLE_HANDLE_GRIP_Y_M, NEEDLE_HANDLE_LENGTH_M, NEEDLE_HANDLE_RADIUS_M, needleHandleRadiusAt } from "./needle-shape.js";
 
 /**
  * The needles in the patient and the practitioner's ink marks, drawn where the record has them: a needle of the
  * pack's length, its tip at the recorded depth along the recorded angle and direction (`insert_needle`'s angleDeg
- * from the perpendicular, azimuthDeg round the chart from +v), a steel shaft and a coiled copper handle. A needle
+ * from the perpendicular, azimuthDeg round the chart from +v), a steel shaft and a wound steel handle. A needle
  * slides in when it is inserted and out when it is withdrawn; lift-thrust moves it along its shaft, rotation
  * turns it; a response on record (deqi) glows once round it.
  */
@@ -53,22 +56,35 @@ const smooth = (t: number) => {
   return x * x * (3 - 2 * x);
 };
 
-/** A coiled handle's wire, as a texture: one turn of the coil per stripe. */
-function coilTexture(): CanvasTexture {
-  const c = document.createElement("canvas");
-  c.width = 16;
-  c.height = 64;
-  const g = c.getContext("2d")!;
-  for (let y = 0; y < 64; y++) {
-    const k = 0.5 + 0.5 * Math.cos((y / 8) * Math.PI * 2);
-    const l = Math.round(150 + 105 * k);
-    g.fillStyle = `rgb(${l},${l},${l})`;
-    g.fillRect(0, y, 16, 1);
+/** One continuous winding. Its tangent normal follows the rounded wire across the cylinder UV seam. */
+function coilNormalMap(): DataTexture {
+  const size = 64, turns = 80;
+  const pitch = NEEDLE_HANDLE_LENGTH_M / turns;
+  const circumference = 2 * Math.PI * NEEDLE_HANDLE_RADIUS_M;
+  const relief = 0.000033;
+  const data = new Uint8Array(size * size * 4);
+  const normal = new Vector3();
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const phase = 2 * Math.PI * (y - x) / size;
+      // Derivative of a broad wire crown with a narrower groove, in metres per turn.
+      const slope = 2 * Math.PI * relief * (-Math.sin(phase) + 0.4 * Math.sin(2 * phase));
+      normal.set(slope / circumference, -slope / pitch, 1).normalize();
+      const index = 4 * (y * size + x);
+      data[index] = Math.round((normal.x + 1) * 127.5);
+      data[index + 1] = Math.round((normal.y + 1) * 127.5);
+      data[index + 2] = Math.round((normal.z + 1) * 127.5);
+      data[index + 3] = 255;
+    }
   }
-  const t = new CanvasTexture(c);
-  t.wrapS = t.wrapT = RepeatWrapping;
-  t.colorSpace = SRGBColorSpace;
-  return t;
+  const texture = new DataTexture(data, size, size);
+  texture.wrapS = texture.wrapT = RepeatWrapping;
+  texture.repeat.y = turns;
+  texture.magFilter = LinearFilter;
+  texture.minFilter = LinearMipmapLinearFilter;
+  texture.generateMipmaps = true;
+  texture.needsUpdate = true;
+  return texture;
 }
 
 /** A soft round dot (an ink mark's edge, a glow). */
@@ -144,10 +160,7 @@ export class NeedleLayer {
     this.tailGeo = new SphereGeometry(0.00095, 14, 10);
     this.hitGeo = new CylinderGeometry(0.004, 0.004, 1, 6, 1);
     this.hitGeo.translate(0, 0.5, 0);
-    const coil = coilTexture();
-    coil.repeat.set(1, 26);
-    // a stainless spiral handle, as most single-use needles have
-    this.handleMat = new MeshStandardMaterial({ color: 0xd4d9de, metalness: 1, roughness: 0.26, map: coil, bumpMap: coil, bumpScale: 0.8, envMapIntensity: 1.5 });
+    this.handleMat = new MeshStandardMaterial({ color: 0xd4d9de, metalness: 1, roughness: 0.3, normalMap: coilNormalMap(), envMapIntensity: 1.5 });
     this.markMat = new MeshStandardMaterial({ color: 0x35104f, roughness: 0.62, metalness: 0, transparent: true, opacity: 0.9, alphaMap: this.dot, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4 });
     this.staleMarkMat = this.markMat.clone();
     this.staleMarkMat.color = new Color(0x8b8597);

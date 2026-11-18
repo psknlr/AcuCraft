@@ -68,7 +68,7 @@ describe("whole-hand inspection views", () => {
 
   it("sees the real moved sleeve triangles despite disabled picking and stale rest bounds", () => {
     const input = frame(); input.visibilityPoints = [input.contact, input.wrist];
-    const original = gripShot(input, "palmar"), geometry = new BoxGeometry(0.12, 0.12, 0.12);
+    const original = gripShot(input, "palmar"), geometry = new BoxGeometry(0.12, 0.12, 0.12, 6, 6, 6);
     geometry.computeBoundingSphere(); geometry.computeBoundingBox();
     const midpoint = original.eye.clone().lerp(original.at, 0.5), position = geometry.getAttribute("position");
     for (let i = 0; i < position.count; i++) position.setXYZ(i, position.getX(i) + midpoint.x, position.getY(i) + midpoint.y, position.getZ(i) + midpoint.z);
@@ -87,6 +87,28 @@ describe("whole-hand inspection views", () => {
       expect(hits).toHaveLength(0);
     }
     geometry.dispose(); sleeve.material.dispose(); aim.geometry.dispose(); aim.material.dispose();
+  });
+
+  it("sees the posed holding fingers past an idle finger even when the external contact rays are clear", () => {
+    const shot = gripShot(frame(), "three-quarter"), hand = new Group();
+    const material = new MeshBasicMaterial(), skin = new BoxGeometry(0.01, 0.01, 0.01);
+    const sideways = new Vector3().crossVectors(shot.eye.clone().sub(shot.at), new Vector3(0, 1, 0)).normalize();
+    const digits = ["thumb", "index"].map((digit, i) => {
+      const mesh = new Mesh(skin, material);
+      mesh.name = `${digit}_skin`; mesh.position.copy(shot.at).addScaledVector(sideways, i ? 0.009 : -0.009);
+      hand.add(mesh);
+      return { digit, points: [mesh.position.clone()] };
+    });
+    const ring = new Mesh(new BoxGeometry(0.045, 0.045, 0.045), material);
+    ring.name = "ring_skin"; ring.position.copy(shot.at).lerp(shot.eye, 0.3); hand.add(ring);
+    try {
+      const clear = clearGripShot({ ...shot, gripSubjects: { hand, digits, handlePoints: [shot.at] } }, []);
+      expect(clear.inspectionBlocked).toBe(0);
+      expect(clear.eye.distanceTo(shot.eye)).toBeGreaterThan(0.03);
+      expect(clear.inspectionDetails?.visibleParts).toEqual([
+        { part: "thumb", seen: 1, total: 1 }, { part: "index", seen: 1, total: 1 }, { part: "handle", seen: 1, total: 1 },
+      ]);
+    } finally { skin.dispose(); ring.geometry.dispose(); material.dispose(); }
   });
 
   it("moves an eye out of a sleeve instead of missing the sleeve's back-facing exit wall", () => {
