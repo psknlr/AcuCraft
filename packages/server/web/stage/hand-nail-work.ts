@@ -154,14 +154,19 @@ export function createNailWorkRig(model: Group): NailWorkRig | undefined {
   if (!palmNode || ![-1, 1].includes(Number(palmNode.userData.contactFrameHorizontalBranch)) || !model.getObjectByName("index_nail_edge_contact")) return undefined;
   model.updateMatrixWorld(true);
   const inverseModel = model.matrixWorld.clone().invert(), palm = inverseModel.clone().multiply(palmNode.matrixWorld), index = digit(model, "index", palm), thumb = digit(model, "thumb", palm);
-  const indexFlat = projectSkin(skinTriangles(model, "index"), node(model, "index_pad_contact").position), thumbTriangles = skinTriangles(model, "thumb"), thumbAlias = node(model, "thumb_pad_contact"), thumbFlat = projectSkin(thumbTriangles, thumbAlias.position);
+  const indexFlat = projectSkin(skinTriangles(model, "index"), node(model, "index_pad_contact").position);
+  const thumbTriangles = skinTriangles(model, "thumb"), thumbAlias = node(model, "thumb_pad_contact");
   const rawThumbNormal = Y.clone().applyQuaternion(thumbAlias.quaternion).normalize(), along = thumb.c.clone().addScaledVector(rawThumbNormal, -thumb.c.dot(rawThumbNormal)).normalize();
+  // Tan prepares on the rounded volar pulp, so opposition keeps the thumb knuckle palmward.
+  const across = rawThumbNormal.clone().cross(along).normalize();
+  const thumbFlat = projectSkin(thumbTriangles, thumbAlias.position.clone().addScaledVector(along, -0.002).addScaledVector(across, -0.0032), rawThumbNormal);
+  if (thumbFlat.normal.dot(rawThumbNormal) < 0.5) throw new Error("Tan preparation must stay on the volar thumb pulp");
   const thumbTail = projectSkin(thumbTriangles, thumbAlias.position.clone().addScaledVector(along, 0.00465), rawThumbNormal);
   const nail = node(model, "index_nail"); if (!(nail instanceof Mesh) || !nail.geometry.index || nail.geometry.attributes.position!.count <= 97) throw new Error("Nail work requires an exported closed keratin mesh");
   const local = node(model, "index_distal").matrixWorld.clone().invert().multiply(nail.matrixWorld), vertices = Array.from({ length: nail.geometry.attributes.position!.count }, (_, i) => nail.getVertexPosition(i, new Vector3()).applyMatrix4(local)), point = vertices[97]!.clone(), facets: Facet[] = [];
   for (let i = 0; i < nail.geometry.index.count; i += 3) { const ids = [0, 1, 2].map((j) => nail.geometry.index!.getX(i + j)); if (ids.includes(97)) facets.push({ index: i / 3, normal: new Triangle(vertices[ids[0]!]!, vertices[ids[1]!]!, vertices[ids[2]!]!).getNormal(new Vector3()) }); }
   const front = balanced(facets, 432, 479, index.h), top = balanced(facets, 168, 214, index.h);
-  const tanPrepIndex = [...fingerPostureReference(index.base, index.a, index.b, index.c, palm, { mcpDeg: 60, pipDeg: 100, dipDeg: 60 }).rotations] as Rotations;
+  const tanPrepIndex = [...fingerPostureReference(index.base, index.a, index.b, index.c, palm, { mcpDeg: 50, pipDeg: 95, dipDeg: 55 }).rotations] as Rotations;
   const tanContactIndex = [...fingerPostureReference(index.base, index.a, index.b, index.c, palm, { mcpDeg: 60, pipDeg: 85, dipDeg: 45 }).rotations] as Rotations;
   const prep = transported(index, indexFlat, tanPrepIndex), tanPrepareThumb = solveThumb(thumb, thumbFlat, prep.point, prep.normal.clone().negate()), tanClearThumb = solveThumb(thumb, thumbFlat, prep.point.clone().addScaledVector(prep.normal, 0.003), prep.normal.clone().negate());
   if (!tanPrepareThumb || !tanClearThumb) throw new Error("True skin-to-skin Tan preparation is outside the fixed hand workspace");

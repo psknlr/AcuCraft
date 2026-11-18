@@ -1,13 +1,14 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { AnimationMixer, BufferAttribute, BufferGeometry, DoubleSide, LoopOnce, Matrix3, Mesh, MeshBasicMaterial, Object3D, Quaternion, Raycaster, SkinnedMesh, Triangle, Vector3 } from "three";
+import { AnimationMixer, BufferAttribute, BufferGeometry, DoubleSide, LoopOnce, Mesh, MeshBasicMaterial, Object3D, Quaternion, Ray, Raycaster, SkinnedMesh, Triangle, Vector3 } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { clone } from "three/examples/jsm/utils/SkeletonUtils.js";
 import { describe, expect, it } from "vitest";
 import { ArticulatedHand } from "../../packages/server/web/stage/hand.js";
 import { needleHandleRadiusAt } from "../../packages/server/web/stage/needle-shape.js";
 import { parseGlb } from "@clinicalcraft/core";
+import { collectCompositeSkin, createSkinnedVertexSampler, compositeFaceNormalAlignment, findCompositeCrossings, sampleCompositeSkin, type CompositeSkin } from "../test/hand-composite-skin.js";
 
 const here = (path: string) => fileURLToPath(new URL(path, import.meta.url));
 const candidate = process.env.ACUCRAFT_HAND_ASSET_FIXTURE;
@@ -17,6 +18,9 @@ type MaterialPose = MaterialDefinition & { position: number[]; quaternion: numbe
 const manifest = JSON.parse(readFileSync(candidate ? candidate.replace(/\.glb$/, ".json") : here("./hand.json"), "utf8")) as {
   sha256: string;
   bytes: number;
+  builderSourceSha256: string;
+  anatomySourceSha256: string;
+  correctiveSourceSha256: string;
   triangles: number;
   license: string;
   wrist: number[];
@@ -24,7 +28,8 @@ const manifest = JSON.parse(readFileSync(candidate ? candidate.replace(/\.glb$/,
   animations: string[];
   clipFrames: Record<string, number[]>;
   baselineElevationDeg: number;
-  palm: { surface: string; topology: string };
+  palm: { surface: string; topology: string; skinParts?: string[] };
+  thumbWebCorrectives?: Record<string, unknown>;
   rollingPatches: Record<string, { samples: { node: string; offsetMm: number }[] }>;
   anatomicalJoints: Record<string, string[]>;
   anatomicalMapping: Record<string, string>;
@@ -57,6 +62,81 @@ const flickCriticalTimes = [0.08, 0.28, 0.5, 0.58];
 const expectedClipTimes = (clip: string): number[] => ["hand_support", "hand_three_finger"].includes(clip) ? [0, 1]
   : [...new Set([...Array.from({ length: 31 }, (_, i) => i / 30), ...(clip === "hand_flick" ? flickCriticalTimes : [])])].sort((a, b) => a - b);
 
+const correctiveSurfaces = ["palm_surface", "thumb_skin"] as const;
+let declaredCorrectiveNames: string[] | undefined;
+function sourceCorrectiveNames(): string[] {
+  if (declaredCorrectiveNames) return declaredCorrectiveNames;
+  const document = JSON.parse(bytes.subarray(20, 20 + bytes.readUInt32LE(12)).toString("utf8")) as {
+    nodes: { name?: string; extras?: { thumbWebCorrectives?: { centres?: { name: unknown }[] } } }[];
+  };
+  const metadata = document.nodes.find((node) => node.name === "acu_practitioner_hand")?.extras?.thumbWebCorrectives;
+  expect(metadata, "the actual GLB declares its pose-space corrective driver").toBeDefined();
+  expect(manifest.thumbWebCorrectives, "the manifest identifies the actual exported driver").toEqual(metadata);
+  expect(Array.isArray(metadata?.centres), "actual quaternion-space centres").toBe(true);
+  if (!Array.isArray(metadata?.centres)) throw new Error("Missing source corrective centres");
+  const names = metadata.centres.flatMap(({ name }) => {
+    if (name === null) return [];
+    expect(typeof name === "string" && name.length > 0, "named actual morph target").toBe(true);
+    if (typeof name !== "string") throw new Error("Invalid corrective name");
+    return [name];
+  });
+  expect(names.length, "real POSITION/NORMAL correctives rather than a metadata-only declaration").toBeGreaterThan(0);
+  expect(new Set(names).size).toBe(names.length);
+  declaredCorrectiveNames = names;
+  return names;
+}
+
+function expectCorrectiveMeshes(rig: Object3D): SkinnedMesh[] {
+  const names = sourceCorrectiveNames();
+  const parts = correctiveSurfaces.map((name) => {
+    const mesh = rig.getObjectByName(name) as SkinnedMesh;
+    expect(mesh?.isSkinnedMesh, `${name} actual skin`).toBe(true);
+    expect(Object.keys(mesh.morphTargetDictionary ?? {}).sort(), `${name} actual named target dictionary`).toEqual([...names].sort());
+    expect(mesh.geometry.morphAttributes.position, `${name} actual POSITION targets`).toHaveLength(names.length);
+    expect(mesh.geometry.morphAttributes.normal, `${name} actual NORMAL targets`).toHaveLength(names.length);
+    expect(mesh.morphTargetInfluences, `${name} actual target weights`).toHaveLength(names.length);
+    expect(mesh.geometry.morphTargetsRelative, `${name} standard glTF target deltas`).toBe(true);
+    expect(names.map((target) => mesh.morphTargetDictionary![target]).sort((a, b) => a! - b!), `${name} one index for every target`).toEqual(names.map((_, index) => index));
+    return mesh;
+  });
+  rig.traverse((node) => {
+    if (!(node instanceof Mesh) || parts.includes(node as SkinnedMesh)) return;
+    expect(node.geometry.morphAttributes.position?.length ?? 0, `${node.name} no unrelated position corrective`).toBe(0);
+    expect(node.geometry.morphAttributes.normal?.length ?? 0, `${node.name} no unrelated normal corrective`).toBe(0);
+  });
+  return parts;
+}
+
+function expectedCorrectiveSamples(clipName: string): { time: number; weights: Record<string, number> }[] {
+  const source = JSON.parse(readFileSync(here("./hand_poses.json"), "utf8")) as {
+    correctivePoses?: Record<string, Record<string, number>>;
+    sequences?: Record<string, { correctiveFrames?: Record<string, [number, number][]> }>;
+  };
+  const names = sourceCorrectiveNames(), times = expectedClipTimes(clipName);
+  const sequenceName = ({ hand_open: "open", hand_scrape: "scrape", hand_flick: "flick" } as Record<string, string>)[clipName];
+  if (sequenceName) {
+    const tracks = source.sequences?.[sequenceName]?.correctiveFrames;
+    expect(tracks, `${clipName} actual runtime-sampled corrective frames`).toBeDefined();
+    if (!tracks) throw new Error(`Missing corrective frames for ${clipName}`);
+    expect(Object.keys(tracks).sort()).toEqual([...names].sort());
+    for (const name of names) expect(tracks[name], `${clipName}/${name} complete authored clock`).toHaveLength(times.length);
+    return times.map((time, frame) => ({ time, weights: Object.fromEntries(names.map((name) => {
+      const key = tracks[name]![frame]!;
+      expect(key[0], `${clipName}/${name}/${frame} actual source clock`).toBeCloseTo(1 + 30 * time, 7);
+      expect(Number.isFinite(key[1]), `${clipName}/${name}/${frame} finite source weight`).toBe(true);
+      return [name, key[1]];
+    })) }));
+  }
+  const poseName = ({ hand_support: "support", hand_three_finger: "three_finger" } as Record<string, string>)[clipName];
+  expect(poseName, `${clipName} declared static corrective pose`).toBeDefined();
+  const weights = source.correctivePoses?.[poseName!];
+  expect(weights, `${clipName} actual runtime-sampled corrective pose`).toBeDefined();
+  if (!weights) throw new Error(`Missing corrective pose for ${clipName}`);
+  expect(Object.keys(weights).sort()).toEqual([...names].sort());
+  expect(Object.values(weights).every(Number.isFinite)).toBe(true);
+  return times.map((time) => ({ time, weights }));
+}
+
 function expectDeclaredClipTracks(clip: { name: string; tracks: { name: string; getValueSize(): number }[] }): string[] {
   const declared = manifest.materialAnimation?.clipContacts[clip.name] ?? [];
   expect(new Set(declared).size, `${clip.name} unique material declarations`).toBe(declared.length);
@@ -67,16 +147,23 @@ function expectDeclaredClipTracks(clip: { name: string; tracks: { name: string; 
       expect(clip.tracks.some((track) => track.name === `${name}.${property}`), `${clip.name}/${name} baked material ${property}`).toBe(true);
     }
   }
+  const correctives = sourceCorrectiveNames();
+  const weightTracks = correctiveSurfaces.map((name) => `${name}.morphTargetInfluences`);
+  expect(clip.tracks.filter((track) => track.name.endsWith(".morphTargetInfluences")).map((track) => track.name).sort(),
+    `${clip.name} both actual skin partitions carry their corrective weights`).toEqual([...weightTracks].sort());
   const rotations = new Set([...legacyBoneNames, "hand_pose_frame", ...declared]);
   const translations = new Set(["hand_pose_frame", ...declared]);
   expect(new Set(clip.tracks.map((track) => track.name)).size).toBe(clip.tracks.length);
   expect(clip.tracks.filter((track) => legacyBoneNames.some((name) => track.name === `${name}.quaternion`))).toHaveLength(15);
-  expect(clip.tracks.length, `${clip.name} skeletal/frame/material track budget`).toBeLessThanOrEqual(15 + 2 + 2 * declared.length);
+  expect(clip.tracks.length, `${clip.name} skeletal/frame/material track budget`).toBeLessThanOrEqual(15 + 2 + 2 * declared.length + weightTracks.length);
   for (const track of clip.tracks) {
     const split = track.name.lastIndexOf("."), name = track.name.slice(0, split), property = track.name.slice(split + 1);
     if (property === "quaternion") {
       expect(rotations.has(name), `${clip.name}/${track.name} declared rotation`).toBe(true);
       expect(track.getValueSize()).toBe(4);
+    } else if (property === "morphTargetInfluences") {
+      expect(weightTracks.includes(track.name), `${clip.name}/${track.name} actual declared skin corrective`).toBe(true);
+      expect(track.getValueSize(), `${clip.name}/${track.name} exact target count`).toBe(correctives.length);
     } else {
       expect(property, `${clip.name}/${track.name} no scale or other object animation`).toBe("position");
       expect(translations.has(name), `${clip.name}/${track.name} cannot translate a bone`).toBe(true);
@@ -91,8 +178,10 @@ function distalSkinIntrusion(rig: Object3D, fromDigit: string, intoDigit: string
   const into = (rig.getObjectByName(intoDigit) ?? rig.getObjectByName(`${intoDigit}_skin`)) as Mesh;
   for (const surface of [from, into]) if (surface instanceof SkinnedMesh) surface.skeleton.update();
   const direction = new Vector3(0.431, 0.293, 0.853).normalize(), triangle = new Triangle(), nearest = new Vector3();
-  const vertices = Array.from({ length: into.geometry.getAttribute("position").count }, (_, i) => into.localToWorld(into.getVertexPosition(i, new Vector3())));
-  const indices = into.geometry.getIndex()!;
+  const composite = intoDigit === "thumb" || intoDigit === "palm_surface" ? collectCompositeSkin(rig) : undefined;
+  const vertices = composite ? composite.triangles.flatMap((triangle) => [triangle.a.clone(), triangle.b.clone(), triangle.c.clone()])
+    : Array.from({ length: into.geometry.getAttribute("position").count }, (_, i) => into.localToWorld(into.getVertexPosition(i, new Vector3())));
+  const indices = composite ? new BufferAttribute(Uint32Array.from(vertices.map((_, index) => index)), 1) : into.geometry.getIndex()!;
   // Snapshot the actual posed skin once. Raycasting the live SkinnedMesh would
   // reapply its bone matrices to every target triangle for every source vertex.
   // This CPU-only proxy retains the world vertices' double precision.
@@ -136,20 +225,6 @@ function distalSkinIntrusion(rig: Object3D, fromDigit: string, intoDigit: string
   }
 }
 
-function inside(mesh: Mesh, point: Vector3): boolean {
-  const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
-  const sides = materials.map((material) => material.side);
-  for (const material of materials) material.side = DoubleSide;
-  const axis = new Vector3(0.431, 0.293, 0.853).normalize();
-  const distances: number[] = [];
-  for (const hit of new Raycaster(point, axis, 0.00000001, 1).intersectObject(mesh, false)) {
-    if (!distances.some((distance) => Math.abs(distance - hit.distance) < 1e-7)) distances.push(hit.distance);
-  }
-  const result = distances.length % 2 === 1;
-  materials.forEach((material, i) => { material.side = sides[i]!; });
-  return result;
-}
-
 function surfaceDistance(mesh: Mesh, point: Vector3): number {
   if (mesh instanceof SkinnedMesh) { mesh.skeleton.update(); mesh.computeBoundingBox(); mesh.computeBoundingSphere(); }
   const vertices = Array.from({ length: mesh.geometry.getAttribute("position").count }, (_, i) => mesh.localToWorld(mesh.getVertexPosition(i, new Vector3())));
@@ -165,18 +240,16 @@ function surfaceDistance(mesh: Mesh, point: Vector3): number {
 /** Compare with the rendered normal field rather than trusting an attachment's own quaternion. */
 function surfaceNormalAgreement(mesh: Mesh, point: Vector3, normal: Vector3, field: string, definition: Record<string, unknown>): number {
   if (mesh instanceof SkinnedMesh) mesh.skeleton.update();
-  const positions = mesh.geometry.getAttribute("position"), sourceNormals = mesh.geometry.getAttribute("normal"), indices = mesh.geometry.index!;
-  const worldNormal = new Matrix3().getNormalMatrix(mesh.matrixWorld), triangle = new Triangle(), closest = new Vector3(), barycentric = new Vector3();
+  const positions = mesh.geometry.getAttribute("position"), indices = mesh.geometry.index!;
+  const triangle = new Triangle(), closest = new Vector3(), barycentric = new Vector3();
   const vertices: Vector3[] = [], normals: Vector3[] = [];
+  // Use the actual shader order: POSITION/NORMAL morphs, then the same affine
+  // LBS map, then the object's world normal matrix. Base P + base N is wrong
+  // when getVertexPosition already contains a position corrective.
+  const sampler = createSkinnedVertexSampler(mesh); sampler.refresh();
   for (let i = 0; i < positions.count; i++) {
-    const posed = mesh.getVertexPosition(i, new Vector3()), sourceNormal = new Vector3().fromBufferAttribute(sourceNormals, i);
-    if (mesh instanceof SkinnedMesh) {
-      const endpoint = new Vector3().fromBufferAttribute(positions, i).add(sourceNormal);
-      mesh.applyBoneTransform(i, endpoint);
-      sourceNormal.copy(endpoint.sub(posed));
-    }
-    vertices.push(posed.applyMatrix4(mesh.matrixWorld));
-    normals.push(sourceNormal.applyMatrix3(worldNormal).normalize());
+    const point = new Vector3(), normal = new Vector3(); sampler.sample(i, point, normal);
+    vertices.push(point); normals.push(normal);
   }
   const samples: { distance: number; smooth: number; facet: number }[] = [];
   let distance = Infinity;
@@ -245,24 +318,35 @@ function surfaceNormalAgreement(mesh: Mesh, point: Vector3, normal: Vector3, fie
   throw new Error(`Unsupported material normal provenance: ${field}`);
 }
 
-function closedPalmEdges(skin: SkinnedMesh): Map<string, number[]> {
-  const positions = skin.geometry.getAttribute("position"), indices = skin.geometry.index!;
-  const unique = new Map<string, number>(), welded: number[] = [], edges = new Map<string, number[]>();
-  for (let i = 0; i < positions.count; i++) {
-    const key = [positions.getX(i), positions.getY(i), positions.getZ(i)].map((value) => value.toFixed(7)).join(",");
-    if (!unique.has(key)) unique.set(key, unique.size);
-    welded.push(unique.get(key)!);
-  }
-  for (let i = 0; i < indices.count; i += 3) {
-    const row = [welded[indices.getX(i)]!, welded[indices.getX(i + 1)]!, welded[indices.getX(i + 2)]!];
-    expect(new Set(row).size).toBe(3);
-    for (const [a, b] of [[row[0]!, row[1]!], [row[1]!, row[2]!], [row[2]!, row[0]!]]) {
-      const key = `${Math.min(a, b)},${Math.max(a, b)}`, faces = edges.get(key) ?? [];
-      faces.push(i / 3); edges.set(key, faces);
+function expectClosedPalmSkin(skin: CompositeSkin): void {
+  expect(skin.meshes.every((mesh) => mesh.visible), "both actual outer-skin partitions remain visible").toBe(true);
+  expect(skin.topology.boundaryEdgeCount, "the actual assembly has no invented closure faces").toBe(0);
+  expect(skin.topology.nonManifoldEdgeCount).toBe(0);
+  expect(skin.topology.windingConflictCount).toBe(0);
+  expect(skin.topology.connectedComponentCount, "palm and thumb form one real connected outer surface").toBe(1);
+  expect(skin.topology.eulerCharacteristic).toBe(2);
+  expect(skin.topology.bindDegenerateFaceCount).toBe(0);
+  expect(skin.topology.negativeWeightVertexCount).toBe(0);
+  expect(skin.topology.invalidWeightVertexCount).toBe(0);
+  expect(skin.topology.maxRawWeightSumError).toBeLessThan(1e-6);
+  expect(skin.seamVertices.length, "bind positions AND named skin weights identify a physical shared boundary").toBeGreaterThanOrEqual(16);
+  expect(Math.max(...skin.seamVertices.map((seam) => seam.maxBindGapM))).toBeLessThan(1e-8);
+  expect(Math.max(...skin.seamVertices.map((seam) => seam.maxInfluenceDelta))).toBeLessThan(1e-7);
+}
+
+function insidePalmSkin(skin: CompositeSkin, point: Vector3): boolean {
+  let votes = 0;
+  const hit = new Vector3();
+  for (const axis of [new Vector3(0.431, 0.293, 0.853), new Vector3(0.853, 0.431, 0.293), new Vector3(0.293, 0.853, 0.431)]) {
+    const ray = new Ray(point, axis.normalize()), distances: number[] = [];
+    for (const triangle of skin.triangles) {
+      if (!ray.intersectTriangle(triangle.a, triangle.b, triangle.c, false, hit)) continue;
+      const distance = hit.distanceTo(point);
+      if (distance > 1e-8 && !distances.some((previous) => Math.abs(previous - distance) < 1e-7)) distances.push(distance);
     }
+    if (distances.length % 2) votes++;
   }
-  for (const faces of edges.values()) expect(faces).toHaveLength(2);
-  return edges;
+  return votes >= 2;
 }
 
 /** A convex triangle crosses a finite needle frustum after an inward erosion. */
@@ -307,26 +391,52 @@ function triangleEntersNeedle(vertices: Vector3[], part: { lo: number; hi: numbe
   return false;
 }
 
-function expectPalmSurface(skin: SkinnedMesh, edges: Map<string, number[]>, context: string): void {
-  skin.skeleton.update();
-  const positions = skin.geometry.getAttribute("position"), indices = skin.geometry.index!, triangle = new Triangle();
-  const vertices = Array.from({ length: positions.count }, (_, i) => skin.localToWorld(skin.getVertexPosition(i, new Vector3()))), normals: Vector3[] = [];
-  let minimumArea = Infinity, minimumDot = 1, worstFace = -1, worstEdge = "";
-  for (let i = 0; i < indices.count; i += 3) {
-    triangle.set(vertices[indices.getX(i)]!, vertices[indices.getX(i + 1)]!, vertices[indices.getX(i + 2)]!);
-    const area = triangle.getArea();
-    if (area < minimumArea) { minimumArea = area; worstFace = i / 3; }
-    normals.push(triangle.getNormal(new Vector3()));
+const compositeQualityFaces = new WeakMap<CompositeSkin, Set<number>>();
+function expectPalmSurface(skin: CompositeSkin, context: string): void {
+  sampleCompositeSkin(skin);
+  expect(skin.topology.posedDegenerateFaceCount, `${context} all actual outer faces`).toBe(0);
+  expect(skin.maxSeamPositionGapM, `${context} actual material seam gap`).toBeLessThan(0.000005);
+  expect(skin.minSeamNormalDot, `${context} shared deformed outer-skin normal field`).toBeGreaterThan(0.99999);
+  let checked = compositeQualityFaces.get(skin);
+  if (!checked) {
+    const seamIds = new Set(skin.seamVertices.map((seam) => seam.id));
+    const rigidThumb = skin.vertices.map((vertex) => vertex.influences.reduce((sum, influence) => sum + (influence.bone === "thumb_distal" ? influence.weight : 0), 0) >= 0.9999);
+    checked = new Set(skin.triangleVertexIds.flatMap((ids, index) => {
+      const surface = skin.triangleSources[index]!.meshName;
+      return surface === "palm_surface" || surface === "thumb_skin" && ids.some((id) => !rigidThumb[id])
+        || ids.some((id) => seamIds.has(id)) ? [index] : [];
+    }));
+    compositeQualityFaces.set(skin, checked);
   }
-  for (const [edge, [a, b]] of edges) {
+  const checkedFaces = checked;
+  const normals = skin.triangles.map((triangle) => triangle.getNormal(new Vector3()));
+  let minimumArea = Infinity, minimumDot = 1, minimumFieldDot = 1, worstFace = -1, worstFieldFace = -1, worstEdge: number[] = [];
+  for (const face of checkedFaces) {
+    const area = skin.triangles[face]!.getArea();
+    if (area < minimumArea) { minimumArea = area; worstFace = face; }
+    // This helper uses each actual source corner's normal, including sharp UV
+    // splits, and accounts for a left hand's negative world determinant.
+    const fieldDot = compositeFaceNormalAlignment(skin, face);
+    if (fieldDot < minimumFieldDot) { minimumFieldDot = fieldDot; worstFieldFace = face; }
+  }
+  for (const edge of skin.edges) {
+    if (!edge.faces.some((face) => checkedFaces.has(face))) continue;
+    const [a, b] = edge.faces;
     const dot = normals[a!]!.dot(normals[b!]!);
-    if (dot < minimumDot) { minimumDot = dot; worstEdge = edge; }
+    if (dot < minimumDot) { minimumDot = dot; worstEdge = edge.vertices; }
   }
-  // Every face and adjacency contributes to these minima; aggregation preserves
-  // the physical bounds while avoiding hundreds of thousands of matcher calls.
-  expect(minimumArea, `${context} non-degenerate palm face ${worstFace}`).toBeGreaterThan(1e-10);
-  expect(minimumDot, `${context} continuous palm edge ${worstEdge}`).toBeGreaterThan(-0.1);
+  // Retain the original palm quality bounds over the whole constructed collar
+  // and every non-rigid proximal thumb face, including the transition to the
+  // protected rigid distal skin. The tiny rigid terminal cap has its separate
+  // morphology contract and cannot use a palm-scale minimum face area.
+  expect(minimumArea, `${context} non-degenerate palm/junction face ${worstFace}`).toBeGreaterThan(1e-10);
+  expect(minimumDot, `${context} continuous palm/junction edge ${worstEdge}`).toBeGreaterThan(-0.1);
+  expect(minimumFieldDot, `${context} outward palm/junction facet vs actual deformed normal field ${worstFieldFace}`).toBeGreaterThan(0);
+  const crossings = findCompositeCrossings(skin, { toleranceM: 0.00005, maxCrossings: 1 });
+  expect(crossings.map((crossing) => ({ faces: crossing.faces.map((face) => skin.triangleSources[face]), edge: crossing.edge,
+    planeMarginM: crossing.planeMarginM })), `${context} non-adjacent actual outer-skin crossing beyond 50µm`).toEqual([]);
 }
+
 
 describe("the Blender precision hand", () => {
   it("uses a raised compact C-shaped pinch with a short broad thumb on a single continuous palm", async () => {
@@ -335,7 +445,9 @@ describe("the Blender precision hand", () => {
     const palm = rig.getObjectByName("palm_surface") as SkinnedMesh;
     expect(palm.isSkinnedMesh).toBe(true);
     expect(rig.getObjectByName("thenar")).toBeUndefined();
-    expect(manifest.palm).toMatchObject({ surface: "palm_surface", topology: "single closed connected skin including thenar" });
+    expect(manifest.palm).toMatchObject({ surface: "palm_surface", topology: "closed palm-thumb composite", skinParts: ["palm_surface", "thumb_skin"] });
+    const outerSkin = collectCompositeSkin(rig); expectClosedPalmSkin(outerSkin);
+    expectPalmSurface(outerSkin, "authored bind outer skin");
     expect(rig.getObjectByName("palm_frame")).toBeDefined();
     expect(rig.getObjectByName("wrist_frame")).toBeDefined();
     for (const mirror of [1, -1]) {
@@ -348,7 +460,7 @@ describe("the Blender precision hand", () => {
       for (const [a, b] of [["index", "middle"], ["middle", "ring"], ["ring", "little"]])
         expect(point(`${a}_MCP`).sub(point(`${b}_MCP`)).dot(radial)).toBeGreaterThan(0.015);
       expect(cmc.clone().sub(point("middle_MCP")).dot(radial), "CMC lies on the radial carpal side").toBeGreaterThan(0.015);
-      expect(inside(palm, cmc)).toBe(true);
+      sampleCompositeSkin(outerSkin); expect(insidePalmSkin(outerSkin, cmc)).toBe(true);
       const wrist = point("wrist"), elevation = Math.atan2(wrist.y, Math.hypot(wrist.x, wrist.z)) * 180 / Math.PI;
       expect(cmc.distanceTo(wrist), "CMC belongs at the carpal end of the palm").toBeGreaterThan(0.015);
       expect(cmc.distanceTo(wrist)).toBeLessThan(0.045);
@@ -368,42 +480,15 @@ describe("the Blender precision hand", () => {
     }
   });
 
-  it("buries the entire CMC cap and proximal metacarpal surface inside the real deformed palm", async () => {
+  it("joins the thumb to the actual closed outer palm skin and keeps the other MCP base caps internal", async () => {
     const gltf = await new GLTFLoader().parseAsync(Uint8Array.from(bytes).buffer, "");
     const rig = gltf.scene; rig.updateMatrixWorld(true);
-    const skin = rig.getObjectByName("thumb_skin") as SkinnedMesh, palm = rig.getObjectByName("palm_surface") as SkinnedMesh;
-    const cmc = rig.getObjectByName("thumb_CMC")!.getWorldPosition(new Vector3());
-    const mcp = rig.getObjectByName("thumb_MCP")!.getWorldPosition(new Vector3());
-    const positions = skin.geometry.getAttribute("position"), uv = skin.geometry.getAttribute("uv"), cap: number[] = [], buried: number[] = [];
-    // The embedded skin connector can curve away from its straight metacarpal
-    // bone. Identify complete longitudinal rings using the actual surface UVs,
-    // then locate the MCP ring by the strip's authored arc-length parameter.
-    // A bone-axis projection would omit part of that curved circumference;
-    // a flesh ring's geometric centre need not coincide with its bone pivot.
-    const rings = new Map<number, Map<string, Vector3>>();
-    for (let i = 0; i < positions.count; i++) {
-      const v = Math.round(uv.getY(i) * 1e7), point = new Vector3().fromBufferAttribute(positions, i);
-      if (!rings.has(v)) rings.set(v, new Map());
-      rings.get(v)!.set(point.toArray().map((value) => value.toFixed(8)).join(","), point);
-    }
-    const centres = [...rings].map(([v, points]) => ({ v, centre: [...points.values()].reduce((sum, point) => sum.add(point), new Vector3()).divideScalar(points.size) }));
-    const endpoints = [centres.reduce((a, b) => a.v < b.v ? a : b), centres.reduce((a, b) => a.v > b.v ? a : b)];
-    const base = endpoints.reduce((a, b) => a.centre.distanceTo(cmc) < b.centre.distanceTo(cmc) ? a : b);
-    const ip = rig.getObjectByName("thumb_IP")!.getWorldPosition(new Vector3()), tip = rig.getObjectByName("thumb_tip")!.getWorldPosition(new Vector3());
-    const chainLength = cmc.distanceTo(mcp) + mcp.distanceTo(ip) + ip.distanceTo(tip);
-    // The generated strip stores along/(full bone chain + 2.5 mm cap extension)
-    // before glTF's V flip. This selects the complete actual MCP ring even when
-    // asymmetric pulp/crest shaping offsets its skin centre from the bone.
-    const distal = endpoints.find((endpoint) => endpoint !== base)!;
-    const mcpV = base.v + Math.sign(distal.v - base.v) * 1e7 * cmc.distanceTo(mcp) / (chainLength + 0.0025);
-    const metacarpal = centres.reduce((a, b) => Math.abs(a.v - mcpV) < Math.abs(b.v - mcpV) ? a : b);
-    expect(Math.abs(metacarpal.v - mcpV), "complete longitudinal MCP ring").toBeLessThan(3);
-    for (let i = 0; i < positions.count; i++) {
-      const v = Math.round(uv.getY(i) * 1e7), fraction = (v - base.v) / (metacarpal.v - base.v);
-      if (v === base.v) cap.push(i);
-      if (fraction >= -0.00001 && fraction < 0.701) buried.push(i);
-    }
-    expect(cap.length).toBeGreaterThanOrEqual(20); expect(buried.length).toBeGreaterThan(cap.length * 3);
+    const outerSkin = collectCompositeSkin(rig); expectClosedPalmSkin(outerSkin);
+    // A continuous outer junction has no closed CMC tube hidden inside another
+    // skin shell. Its two real partitions are individually open and close only
+    // through their matching material boundary.
+    for (const mesh of outerSkin.meshes) expect(collectCompositeSkin(rig, [mesh.name]).topology.boundaryEdgeCount,
+      `${mesh.name} must be a real outer partition, not a duplicate closed shell`).toBeGreaterThan(0);
     const otherCaps = ["index", "middle", "ring", "little"].map((digit) => {
       const mesh = rig.getObjectByName(`${digit}_skin`) as SkinnedMesh;
       const start = rig.getObjectByName(`${digit}_proximal`)!.getWorldPosition(new Vector3());
@@ -417,63 +502,61 @@ describe("the Blender precision hand", () => {
     for (const [pose, grip, gripStyle, rotationRad] of [["pinch", 1, "tip-pinch", 0], ["pinch", 0, "tip-pinch", 0], ["pinch", 1, "side-pinch", 0], ["pinch", 1, "tip-pinch", 1.4], ["pinch", 1, "tip-pinch", -1.4], ["palpate", 1, "tip-pinch", 0], ["stretch", 1, "tip-pinch", 0], ["press", 1, "tip-pinch", 0]] as const) {
       hand.pose({ pose, grip, gripStyle, rotationRad, phase: 0.35, apertureMm: 12,
         handleRadiusM: pose === "pinch" ? 0.0007 : undefined, wristElevationDeg: 55 });
-      hand.model.updateMatrixWorld(true); skin.skeleton.update(); palm.skeleton.update(); palm.computeBoundingBox(); palm.computeBoundingSphere();
-      for (const vertex of buried) {
-        const point = skin.localToWorld(skin.getVertexPosition(vertex, new Vector3()));
-        expect(inside(palm, point), `${pose}/grip=${grip}/${gripStyle}/${rotationRad} vertex ${vertex}${cap.includes(vertex) ? " CMC cap" : " proximal metacarpal"}`).toBe(true);
-      }
+      expectPalmSurface(outerSkin, `${pose}/${grip}/${gripStyle}/${rotationRad}`);
+      const cmc = rig.getObjectByName("thumb_CMC")!.getWorldPosition(new Vector3());
+      expect(insidePalmSkin(outerSkin, cmc), "the actual carpal CMC remains inside the real continuous skin").toBe(true);
       for (const { digit, mesh, vertices } of otherCaps) {
         mesh.skeleton.update();
-        for (const vertex of vertices) expect(inside(palm, mesh.localToWorld(mesh.getVertexPosition(vertex, new Vector3()))), `${digit} whole MCP cap ${vertex}/${grip}/${gripStyle}/${rotationRad}`).toBe(true);
+        for (const vertex of vertices) expect(insidePalmSkin(outerSkin, mesh.localToWorld(mesh.getVertexPosition(vertex, new Vector3()))), `${digit} whole MCP cap ${vertex}/${grip}/${gripStyle}/${rotationRad}`).toBe(true);
       }
     }
     hand.dispose();
   });
 
-  it("keeps the actual UV-welded palm closed and free of paper-like opposing adjacent faces", async () => {
+  it("keeps the actual welded palm-thumb skin closed and free of paper-like opposing adjacent faces", async () => {
     const gltf = await new GLTFLoader().parseAsync(Uint8Array.from(bytes).buffer, "");
-    const rig = gltf.scene, skin = rig.getObjectByName("palm_surface") as SkinnedMesh;
-    const edges = closedPalmEdges(skin), mixer = new AnimationMixer(rig);
+    const rig = gltf.scene, skin = collectCompositeSkin(rig); expectClosedPalmSkin(skin);
+    const mixer = new AnimationMixer(rig);
     for (const clip of gltf.animations) {
       mixer.stopAllAction();
       const action = mixer.clipAction(clip).setLoop(LoopOnce, 1); action.clampWhenFinished = true;
       for (const t of [...new Set([0, 0.5, 1, ...(clip.name === "hand_flick" ? flickCriticalTimes : [])])]) {
         action.reset().play(); mixer.setTime(t); rig.updateMatrixWorld(true);
-        expectPalmSurface(skin, edges, `${clip.name}/${t}`);
+        expectPalmSurface(skin, `${clip.name}/${t}`);
       }
     }
     mixer.stopAllAction(); mixer.uncacheRoot(rig);
   });
 
-  it("keeps the runtime palm continuous in both grip styles, openings, wrist bounds and supporting poses", async () => {
+  it.each(["left", "right"] as const)("keeps the runtime %s palm continuous in both grip styles, openings, wrist bounds and supporting poses", async (side) => {
     const gltf = await new GLTFLoader().parseAsync(Uint8Array.from(bytes).buffer, "");
     const hand = new ArticulatedHand(gltf.scene, gltf.animations, "#cba88a");
-    const skin = hand.model.getObjectByName("palm_surface") as SkinnedMesh, edges = closedPalmEdges(skin);
-    for (const side of ["left", "right"] as const) for (const gripStyle of ["tip-pinch", "side-pinch"] as const)
+    const skin = collectCompositeSkin(hand.model); expectClosedPalmSkin(skin);
+    for (const gripStyle of ["tip-pinch", "side-pinch"] as const)
       for (const wristElevationDeg of [35, 55, 70]) for (const grip of [0, 1]) for (const rotationRad of [-1.4, 0, 1.4]) {
         hand.setSide(side);
         hand.pose({ pose: "pinch", gripStyle, wristElevationDeg, grip, rotationRad, phase: 0.3, apertureMm: 12, handleRadiusM: 0.0007 });
         expect(hand.contactValid).toBe(true);
-        expectPalmSurface(skin, edges, `${side}/${gripStyle}/${wristElevationDeg}/${grip}/${rotationRad}`);
+        expectPalmSurface(skin, `${side}/${gripStyle}/${wristElevationDeg}/${grip}/${rotationRad}`);
       }
-    for (const side of ["left", "right"] as const) for (const pose of ["palpate", "stretch", "press"] as const) {
+    for (const pose of ["palpate", "stretch", "press"] as const) {
       hand.setSide(side); hand.pose({ pose, grip: 1, phase: 0.25, intensity: 1 });
-      expectPalmSurface(skin, edges, `${side}/${pose}`);
+      expectPalmSurface(skin, `${side}/${pose}`);
     }
-    for (const side of ["left", "right"] as const) for (const wristElevationDeg of [44, 48, 51])
+    for (const wristElevationDeg of [44, 48, 51])
       for (const grip of [0, 1]) for (const rotationRad of [-1.4, 0, 1.4]) {
         hand.setSide(side);
         hand.pose({ pose: "tripod", wristElevationDeg, grip, stabilizerGrip: 1, rotationRad, phase: 0.3, apertureMm: 12, handleRadiusM: 0.0007 });
         expect(hand.contactValid, `${side}/tripod/${wristElevationDeg}/${grip}/${rotationRad}`).toBe(true);
-        expectPalmSurface(skin, edges, `${side}/tripod/${wristElevationDeg}/${grip}/${rotationRad}`);
+        expectPalmSurface(skin, `${side}/tripod/${wristElevationDeg}/${grip}/${rotationRad}`);
       }
-    for (const side of ["left", "right"] as const) for (const pose of ["scrape", "flick"] as const)
+    for (const pose of ["scrape", "flick"] as const)
       for (const wristElevationDeg of [50, 55, 60]) for (const grip of [0, 0.5, 1])
         for (const phase of pose === "scrape" ? [0, 0.5, 1] : [0, 0.04, 0.08, 0.18, 0.28, 0.39, 0.5, 0.54, 0.58, 1]) {
           hand.setSide(side);
           hand.pose({ pose, wristElevationDeg, grip, phase, nailContact: phase, apertureMm: 12, handleRadiusM: 0.0007 });
           expect(hand.contactValid, `${side}/${pose}/${wristElevationDeg}/${grip}/${phase} native nail work`).toBe(true);
-          expectPalmSurface(skin, edges, `${side}/${pose}/${wristElevationDeg}/${grip}/${phase}`);
+          expectPalmSurface(skin, `${side}/${pose}/${wristElevationDeg}/${grip}/${phase}`);
         }
     hand.dispose();
   });
@@ -751,7 +834,7 @@ describe("the Blender precision hand", () => {
         }
         const palm = rig.getObjectByName("palm_surface") as SkinnedMesh;
         palm.skeleton.update(); palm.computeBoundingBox(); palm.computeBoundingSphere();
-        expect(inside(palm, nodes[0]!)).toBe(true);
+        expect(insidePalmSkin(collectCompositeSkin(rig), nodes[0]!)).toBe(true);
       }
       if (clipName === "hand_support") {
         expect(rig.getObjectByName("thumb_proximal")!.quaternion.angleTo(new Quaternion())).toBeLessThan(100 * Math.PI / 180);
@@ -882,10 +965,28 @@ describe("the Blender precision hand", () => {
       }
       expect(blended, digit).toBeGreaterThan(20);
       expect(left.getObjectByName(`${digit}_middle_knuckle`)).toBeUndefined();
-      const vertex = skin.geometry.getAttribute("position").count - 1;
+      const joint = left.getObjectByName(`${digit}_${digit === "thumb" ? "IP" : "DIP"}`)!;
+      const distalBone = skin.skeleton.bones.findIndex((bone) => bone.name === `${digit}_distal`);
+      const joints = skin.geometry.getAttribute("skinIndex");
+      const origin = joint.getWorldPosition(new Vector3());
+      const axis = new Vector3(0, 0, 1).transformDirection(joint.matrixWorld);
+      // Choose a real distal material point clear of the rotation axis. Export
+      // vertex order varies with the thumb collar, UV and normal splits.
+      let vertex = -1, radiusSquared = 0;
+      for (let i = 0; i < weights.count; i++) {
+        let distalInfluence = 0;
+        for (let channel = 0; channel < weights.itemSize; channel++) {
+          if (joints.getComponent(i, channel) === distalBone) distalInfluence += weights.getComponent(i, channel);
+        }
+        if (distalInfluence < 0.9999) continue;
+        const delta = skin.getVertexPosition(i, new Vector3()).applyMatrix4(skin.matrixWorld).sub(origin);
+        const radius = delta.clone().cross(axis).lengthSq();
+        if (radius > radiusSquared) { vertex = i; radiusSquared = radius; }
+      }
+      expect(vertex, `${digit} distal rigid surface`).toBeGreaterThanOrEqual(0);
       const original = skin.getVertexPosition(vertex, new Vector3());
       const originalCopy = copied.getVertexPosition(vertex, new Vector3());
-      left.getObjectByName(`${digit}_${digit === "thumb" ? "IP" : "DIP"}`)!.rotateZ(0.25);
+      joint.rotateZ(0.25);
       left.updateMatrixWorld(true); skin.skeleton.update();
       expect(skin.getVertexPosition(vertex, new Vector3()).distanceTo(original)).toBeGreaterThan(0.001);
       expect(copied.getVertexPosition(vertex, new Vector3()).distanceTo(originalCopy)).toBeLessThan(1e-8);
@@ -1075,7 +1176,83 @@ describe("the Blender precision hand", () => {
     } finally { mixer.stopAllAction(); mixer.uncacheRoot(rig); }
   });
 
-  it("records a material bake from the current hand controller, anatomy and exporter", () => {
+  it("keeps every corrective POSITION/NORMAL delta exactly zero on the true distal thumb and both wrist rings", async () => {
+    const gltf = await new GLTFLoader().parseAsync(Uint8Array.from(bytes).buffer, ""), rig = gltf.scene;
+    rig.updateMatrixWorld(true);
+    const parts = expectCorrectiveMeshes(rig), thumb = parts.find((mesh) => mesh.name === "thumb_skin")!, palm = parts.find((mesh) => mesh.name === "palm_surface")!;
+    const start = rig.getObjectByName("thumb_IP")!.getWorldPosition(new Vector3());
+    const axis = rig.getObjectByName("thumb_tip")!.getWorldPosition(new Vector3()).sub(start).normalize();
+    const indices = thumb.geometry.getAttribute("skinIndex"), weights = thumb.geometry.getAttribute("skinWeight"), positions = thumb.geometry.getAttribute("position");
+    const distal = thumb.skeleton.bones.findIndex((bone) => bone.name === "thumb_distal"), protectedThumb: number[] = [];
+    expect(distal).toBeGreaterThanOrEqual(0);
+    for (let vertex = 0; vertex < positions.count; vertex++) {
+      let influence = 0;
+      for (let channel = 0; channel < 4; channel++) if (indices.getComponent(vertex, channel) === distal) influence += weights.getComponent(vertex, channel);
+      const point = new Vector3().fromBufferAttribute(positions, vertex).applyMatrix4(thumb.matrixWorld);
+      if (influence >= 0.9999 && point.sub(start).dot(axis) >= 0.0045 - 1e-7) protectedThumb.push(vertex);
+    }
+    expect(protectedThumb, "the actual preserved IP+4.5mm terminal source region").toHaveLength(666);
+    const wrist = palm.userData.wristInterface as { ring?: number[]; distalRing?: number[] };
+    expect(wrist?.ring).toHaveLength(48); expect(wrist?.distalRing).toHaveLength(48);
+    const wristRows = [...wrist.ring!, ...wrist.distalRing!];
+    expect(new Set(wristRows).size, "both actual source-interface rows").toBe(96);
+    const protectedWrist = new Set(wristRows);
+    const composite = collectCompositeSkin(rig);
+    // Protect normal/UV splits of those same physical wrist points too; the
+    // internal cap and visible lateral rim must not diverge under a morph.
+    for (const vertex of composite.vertices) if (vertex.members.some((member) => member.mesh === palm && protectedWrist.has(member.index)))
+      vertex.members.filter((member) => member.mesh === palm).forEach((member) => protectedWrist.add(member.index));
+    for (const [mesh, protectedVertices] of [[thumb, protectedThumb], [palm, [...protectedWrist]]] as const) {
+      createSkinnedVertexSampler(mesh).refresh();
+      for (const kind of ["position", "normal"] as const) {
+        let maximum = 0, worst = "";
+        for (let target = 0; target < mesh.geometry.morphAttributes[kind]!.length; target++) {
+          const field = mesh.geometry.morphAttributes[kind]![target]!, base = mesh.geometry.getAttribute(kind);
+          for (const vertex of protectedVertices) for (let component = 0; component < 3; component++) {
+            const delta = field.getComponent(vertex, component) - (mesh.geometry.morphTargetsRelative ? 0 : base.getComponent(vertex, component));
+            expect(Number.isFinite(delta), `${mesh.name}/${kind}/${target}/${vertex}/${component} finite actual target`).toBe(true);
+            if (Math.abs(delta) > maximum) { maximum = Math.abs(delta); worst = `${target}/${vertex}/${component}`; }
+          }
+        }
+        expect(maximum, `${mesh.name} actual protected ${kind} morph delta ${worst}`).toBe(0);
+      }
+    }
+  });
+
+  it("replays the actual runtime-sampled corrective weights on both skin partitions in every authored clip", async () => {
+    const targetNames = sourceCorrectiveNames();
+    for (const clipName of manifest.animations) {
+      const gltf = await new GLTFLoader().parseAsync(Uint8Array.from(bytes).buffer, ""), rig = gltf.scene;
+      const parts = expectCorrectiveMeshes(rig);
+      for (const mesh of parts) expect(mesh.morphTargetInfluences!.every((weight) => weight === 0), "source bind has zero initial corrective weights").toBe(true);
+      const clip = gltf.animations.find((animation) => animation.name === clipName)!;
+      expectDeclaredClipTracks(clip);
+      const samples = expectedCorrectiveSamples(clipName);
+      const tracks = parts.map((mesh) => clip.tracks.find((track) => track.name === `${mesh.name}.morphTargetInfluences`)!);
+      for (const track of tracks) {
+        expect(Array.from(track.times), `${clipName} real corrective clock`).toHaveLength(samples.length);
+        expect(track.values.length, `${clipName} SCALAR output is key count times target count`).toBe(samples.length * targetNames.length);
+      }
+      expect(Array.from(tracks[0]!.times), `${clipName} identical authored clocks on both partitions`).toEqual(Array.from(tracks[1]!.times));
+      const mixer = new AnimationMixer(rig), action = mixer.clipAction(clip).setLoop(LoopOnce, 1);
+      action.clampWhenFinished = true;
+      try {
+        for (let frame = 0; frame < samples.length; frame++) {
+          const sample = samples[frame]!;
+          expect(tracks[0]!.times[frame], `${clipName}/${frame} sampled source time`).toBeCloseTo(sample.time, 7);
+          action.reset().play(); mixer.setTime(tracks[0]!.times[frame]!); rig.updateMatrixWorld(true);
+          for (let part = 0; part < parts.length; part++) for (const name of targetNames) {
+            const mesh = parts[part]!, index = mesh.morphTargetDictionary![name]!;
+            const expected = Math.fround(sample.weights[name]!);
+            expect(tracks[part]!.values[frame * targetNames.length + index], `${clipName}/${frame}/${mesh.name}/${name} actual serialized source weight`).toBe(expected);
+            expect(mesh.morphTargetInfluences![index], `${clipName}/${frame}/${mesh.name}/${name} actual mixer weight`).toBeCloseTo(expected, 12);
+          }
+        }
+      } finally { mixer.stopAllAction(); mixer.uncacheRoot(rig); }
+    }
+  });
+
+  it("records a material bake from the current hand controller, anatomy, builder and exporter", () => {
     const provenance = manifest.materialAnimation?.provenance;
     expect(manifest.materialAnimation?.baked, "stale calibration clips cannot certify the final asset").toBe(true);
     expect(provenance, "matching source hashes accompany every final bake").toBeDefined();
@@ -1083,8 +1260,24 @@ describe("the Blender precision hand", () => {
     const paths = {
       hand: "packages/server/web/stage/hand.ts", physiology: "packages/server/web/stage/hand-physiology.ts",
       nailWork: "packages/server/web/stage/hand-nail-work.ts",
-      anatomy: "tools/blender/hand_anatomy.json", exporter: "tools/blender/export_hand_poses.ts",
+      anatomy: "tools/blender/hand_anatomy.json", builder: "tools/blender/build_hand.py",
+      correctives: "tools/blender/hand_thumb_web_correctives.json", exporter: "tools/blender/export_hand_poses.ts",
     };
+    const builderHash = createHash("sha256").update(readFileSync(here("./build_hand.py"))).digest("hex");
+    expect(manifest.builderSourceSha256, "the production manifest identifies its actual geometry algorithm").toBe(builderHash);
+    const anatomyHash = createHash("sha256").update(readFileSync(here("./hand_anatomy.json"))).digest("hex");
+    expect(manifest.anatomySourceSha256, "the production manifest identifies its actual anatomical construction data").toBe(anatomyHash);
+    const correctiveHash = createHash("sha256").update(readFileSync(here("./hand_thumb_web_correctives.json"))).digest("hex");
+    expect(manifest.correctiveSourceSha256, "the production manifest identifies its actual authored corrective data").toBe(correctiveHash);
+    const document = JSON.parse(bytes.subarray(20, 20 + bytes.readUInt32LE(12)).toString("utf8")) as {
+      nodes: { name?: string; extras?: { builderSourceSha256?: string; anatomySourceSha256?: string; correctiveSourceSha256?: string } }[];
+    };
+    expect(document.nodes.find((node) => node.name === "acu_practitioner_hand")?.extras?.builderSourceSha256,
+      "the actual GLB identifies the builder that produced its source geometry").toBe(builderHash);
+    expect(document.nodes.find((node) => node.name === "acu_practitioner_hand")?.extras?.anatomySourceSha256,
+      "the actual GLB identifies the anatomy used for calibration and baking").toBe(anatomyHash);
+    expect(document.nodes.find((node) => node.name === "acu_practitioner_hand")?.extras?.correctiveSourceSha256,
+      "the actual GLB identifies the corrective source used for calibration and baking").toBe(correctiveHash);
     expect(Object.keys(provenance.sources).sort()).toEqual(Object.keys(paths).sort());
     for (const [name, path] of Object.entries(paths)) {
       expect(provenance.sources[name]?.path, `${name} exact source path`).toBe(path);

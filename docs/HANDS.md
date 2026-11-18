@@ -9,18 +9,41 @@ visual simulation, without anatomical, motion-capture or clinical validation.
 [Reference interpretation, shared controls and inspection views](REFERENCE-POSES.md)
 describes how the supplied images inform the implementation.
 
-## Current direction and thumb opposition
+## Thumb and palm skin
 
-The current `d7ec9252…` export contains 16,990 triangles, 1,321,988 bytes, eleven
+The palm and thumb meet at a low, broad thenar mound and a shallow
+first web. The generated `palm_surface` and `thumb_skin` meshes are two charts
+of one closed surface. Their shared vertices carry the same positions, normals,
+texture coordinates and named bone weights. The thumb collar narrows into the
+metacarpal and blends into the thenar mound. The UV field extends the palm chart
+across the join so that the normal map follows the same direction on both sides.
+
+During posing, local thumb joint rotations drive position and normal corrections
+around the first web and thenar skin. The live pose controller computes the same
+weights that the exporter samples for the five glTF clips. The shape targets
+keep distal thumb skin and wrist interface vertices fixed relative to their bones.
+
+The production export contains 17,788 triangles, eleven meshes, six embedded
+images and five clips. The validation record ties the mesh and the sampled motions
+to the renderer and build inputs. [Thumb and palm validation](THUMB-PALM-VALIDATION.json)
+
+![Actual runtime hand viewed from the palm, back and oblique angles](img/thumb-web-junction.png)
+
+Both views use the same cameras, lighting and runtime pose settings. Side pulp
+still produces a tight crease at the base of the thumb. [Previous mesh at the same angles](img/thumb-web-junction-before.png)
+
+## Earlier direction and thumb opposition checkpoint
+
+The `d7ec9252…` export contains 16,990 triangles, 1,321,988 bytes, eleven
 meshes, six embedded images and five clips. It matches `hand.ts d8f681d6…` and
 `hand-physiology.ts 221ca74a…`. The [direction validation record](HAND-DIRECTION-VALIDATION.json)
-identifies its exact sources, finite checks and actual captures. The current
+identifies its exact sources, finite checks and actual captures. The recorded
 [tip three-quarter](img/hand-direction-tip-three-quarter.png),
 [tip side](img/hand-direction-tip-side.png),
 [three-finger](img/hand-direction-tripod.png) and supplementary
 [hand-only anatomy](img/hand-direction-anatomy.png) images belong to this export; the older galleries below retain their original identities.
 
-![Current actual UI, with full practitioner and real scene occlusions](img/hand-direction-tip-three-quarter.png)
+![Earlier opposition in the production UI](img/hand-direction-tip-three-quarter.png)
 
 ![Supplementary actual runtime hand-only palm, back and oblique comparison](img/hand-direction-anatomy.png)
 
@@ -103,14 +126,16 @@ npx tsx tools/blender/export_hand_poses.ts --input /tmp/acu-hand-calibration.glb
 blender -b -P tools/blender/build_hand.py
 ```
 
-Normal builds reject stale anatomy, exporter or recursively imported controller
-sources. The final asset still requires all five matching clips.
+The anatomy records the hash of the authored correction data. The exporter
+checks the calibration's builder, anatomy and correction hashes. Normal builds
+check those hashes and the exporter and recursively imported controller sources
+before creating the matching five clips.
 
 ## Wrist and sleeve transition
 
 This section preserves the historical `0777d310…` wrist/sleeve checkpoint.
-The current direction export retains its mesh and material payloads, while its
-thumb posture, holding planes and inspection framing have changed.
+The current asset uses the same wrist interface to join the new palm skin to
+the practitioner arm.
 
 ![Historical operating-hand and wrist/sleeve checkpoint](img/wrist-join-tip-three-quarter.png)
 
@@ -196,17 +221,11 @@ presentation rotation and translation as well as the skin, so a three-dimensiona
 source frame remains a true opposite hand. Frame extraction uses transformed
 axes to preserve the actual dorsal side.
 
-`palm_surface` is one closed connected skin including the thenar region, palm
-arch, MCP roots and wrist taper. The thumb CMC lies near the carpus; its buried
-metacarpal transition meets the thenar region, and its two exposed phalanges
-supply the external thumb silhouette. Tests check entire root-cap circumferences
-against the actual palm. The metacarpal is not a third exposed thumb phalanx.
-
-Each digit is one closed `SkinnedMesh`, without separate knuckle balls or capped
-phalanx pieces. Cross-section frames transport a stable lateral axis through the
-bend. Neighboring controls blend their weights around joints, while the terminal
-contact-bearing surfaces remain rigidly attached to the distal control. The
-connected palm blends static and local CMC influence to follow opposition.
+The palm chart includes the thenar region, palm arch, MCP roots and wrist taper.
+The thumb CMC lies near the carpus, and the skin over its metacarpal continues
+into the palm arch. Cross-section frames transport a stable lateral axis
+through the bend. Neighboring controls blend their weights around the joints.
+The terminal contact-bearing surfaces follow the distal controls rigidly.
 
 The palm has a proximal radial thenar cushion, an ulnar hypothenar cushion, a
 shallow central hollow and a first-web recess. The carpal origin, index flexion

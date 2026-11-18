@@ -3,6 +3,7 @@ import { needleHandleRadiusAt } from "./needle-shape.js";
 import { NAIL_WORK_WRIST_BOUNDS, THREE_FINGER_WRIST_BOUNDS, THREE_FINGER_WRIST_DEFAULT } from "@acucraft/core";
 import { ORDINARY_THUMB_PULP_ACQUISITION, ORDINARY_TIP_HOLDING_Y_M, PRECISION_THUMB_ENVELOPE_M, RESTING_FINGER_SPREAD_AT_EXTENSION_DEG, SIDE_INDEX_WORKING_POSTURE, SIDE_THUMB_ACQUISITION_M, THREE_FINGER_WORKING_PROFILE, alignNormalAroundAxis, contactFrameAtElevation, fingerPostureReference, handOffProgress, minimumPlanarContactDistance, minimumPlanarContactRetreat, ordinaryTipPosture, restingFingerBaseRotation, restingFingerPosture, smoothPositiveDistance, tipReleasePalmarBlend } from "./hand-physiology.js";
 import { createNailWorkRig, sampleNailWork, type NailWorkRig, type NailWorkSample } from "./hand-nail-work.js";
+import { createHandSkinCorrectives } from "./hand-skin-correctives.js";
 
 export type HandPose = "pinch" | "tripod" | "palpate" | "press" | "stretch" | "scrape" | "flick" | "release";
 export type HandContact = "pinch" | "index" | "nail" | "palm" | "handle";
@@ -88,6 +89,7 @@ export class ArticulatedHand {
   private readonly tripodThumbPatch?: RollingPatch;
   private readonly tripodMiddleContact?: { point: Vector3; orientation: Quaternion };
   private readonly nailWorkRig?: NailWorkRig;
+  private readonly skinCorrectives: ReturnType<typeof createHandSkinCorrectives>;
   private nailWorkSample?: NailWorkSample;
   private readonly sourceIndex?: { base: Vector3; a: Vector3; b: Vector3; c: Vector3; palm: Matrix4 };
   private ordinaryIndexReference?: ReturnType<typeof fingerPostureReference>;
@@ -166,6 +168,7 @@ export class ArticulatedHand {
     // Capture actual skin and keratin in the immutable source frame, after the
     // authored pose frame is cleared and before any animation or role is sampled.
     this.nailWorkRig = createNailWorkRig(model);
+    this.skinCorrectives = createHandSkinCorrectives(model);
   }
 
   setSide(side: "left" | "right"): void {
@@ -186,8 +189,12 @@ export class ArticulatedHand {
 
   get contactValid(): boolean { return this.validContacts; }
 
+  /** Standard glTF morph weights, driven by the final anatomical joint rotations. */
+  skinCorrectiveWeights(): Record<string, number> { return this.skinCorrectives?.weights() ?? {}; }
+
   pose(settings: FingerPose): void {
     this.validContacts = true;
+    this.skinCorrectives?.reset();
     this.poseState = { ...settings };
     this.materialEngagement.clear();
     this.rollingEngagement.clear();
@@ -217,6 +224,9 @@ export class ArticulatedHand {
         : clip === "hand_open" || !this.actions.has(clip) ? 1 - grip : grip;
       this.mixer.update(0);
     }
+    // A baked clip can contain corrective channels. The operator's final joint
+    // solution below supplies the live weights, independently of the last clip.
+    this.skinCorrectives?.reset();
     if (this.authoredPoseFrame) { this.authoredPoseFrame.position.set(0, 0, 0); this.authoredPoseFrame.quaternion.identity(); }
     // Material channels in baked clips must not leak from a preceding role into
     // support/no-handle poses. Only contact aliases are restored; no bone is translated.
@@ -277,6 +287,7 @@ export class ArticulatedHand {
     // All joint solutions use the same canonical source frame. Reflect the complete final
     // presentation so a left hand preserves the source azimuth and actual wrist elevation.
     if (this.model.scale.z < 0) this.mirrorPresentation();
+    this.skinCorrectives?.apply();
     this.model.updateMatrixWorld(true);
   }
 

@@ -41,6 +41,7 @@ interface Sample {
   modelPosition: Vec3;
   modelQuaternion: Quat;
   materials: Record<string, MaterialAttachment>;
+  correctives: Record<string, number>;
 }
 interface MaterialDefinitionKey { frame: number; definition: unknown; engaged?: boolean; engagedWith?: string }
 interface MaterialTrackDefinition { parent: string; surface: string; normalField: string; keys: MaterialDefinitionKey[] }
@@ -67,13 +68,15 @@ const sourcePaths = {
   physiology: resolve(repo, "packages/server/web/stage/hand-physiology.ts"),
   nailWork: resolve(repo, "packages/server/web/stage/hand-nail-work.ts"),
   anatomy: resolve(repo, "tools/blender/hand_anatomy.json"),
+  builder: resolve(repo, "tools/blender/build_hand.py"),
+  correctives: resolve(repo, "tools/blender/hand_thumb_web_correctives.json"),
   exporter: fileURLToPath(import.meta.url),
 };
 const hash = (bytes: Uint8Array) => createHash("sha256").update(bytes).digest("hex");
 const hashFile = (path: string) => hash(readFileSync(path));
 const sourceHashes = Object.fromEntries(Object.entries(sourcePaths).map(([name, path]) => [name, hashFile(path)]));
-// Follow the real controller imports, including a future split nail module;
-// an explicit four-file list must not miss newly extracted motion logic.
+// Follow the real controller imports; a short explicit list must not miss
+// extracted motion logic or the live corrective evaluator.
 function controllerSources(entry: string): string[] {
   const seen = new Set<string>(), pending = [entry];
   const aliases: Record<string, string> = {
@@ -107,6 +110,12 @@ const sourcesStable = () => Object.entries(sourcePaths).every(([name, path]) => 
   && runtimeModules.every(path => hashFile(path) === runtimeModuleHashes[relative(repo, path)]);
 if (!sourcesStable()) throw new Error("Hand source changed while loading the pose exporter");
 const gltf = await new GLTFLoader().parseAsync(Uint8Array.from(inputBytes).buffer, "");
+const source = gltf.scene.getObjectByName("acu_practitioner_hand");
+if (source?.userData.builderSourceSha256 !== sourceHashes.builder
+  || source?.userData.anatomySourceSha256 !== sourceHashes.anatomy
+  || source?.userData.correctiveSourceSha256 !== sourceHashes.correctives) {
+  throw new Error("Calibration geometry does not match the current hand builder/anatomy/correctives; export a fresh --calibration-only GLB before sampling poses");
+}
 if (!gltf.scene.getObjectByName("index_nail_edge_contact")) {
   throw new Error("Calibration GLB lacks the actual index free-edge source attachment; rebuild the current hand source first");
 }
@@ -187,8 +196,10 @@ function sample(pose: HandPose, grip = 1, phase = 0, nailContact = phase): Sampl
       definition: JSON.parse(JSON.stringify(role.definition)) as unknown, ...(role.engaged === undefined ? {} : { engaged: role.engaged }),
       ...(role.engagedWith === undefined ? {} : { engagedWith: role.engagedWith }) };
   }
+  const correctives = hand.skinCorrectiveWeights();
+  requirePlainData(correctives, `${pose}/skinCorrectives`);
   return { rotations, modelPosition: hand.model.position.toArray() as Vec3,
-    modelQuaternion: hand.model.quaternion.toArray() as Quat, materials };
+    modelQuaternion: hand.model.quaternion.toArray() as Quat, materials, correctives };
 }
 
 const requests: Record<string, [HandPose, number, number, number?]> = {
@@ -198,12 +209,15 @@ const requests: Record<string, [HandPose, number, number, number?]> = {
 };
 const poses: Record<string, Record<string, Quat>> = {}, poseFrames: Record<string, Pick<Sample, "modelPosition" | "modelQuaternion">> = {};
 const materialPoses: Record<string, Record<string, MaterialAttachment>> = {}, activeContacts: Record<string, string[]> = {};
+const correctivePoses: Record<string, Record<string, number>> = {};
 const sequences: Record<string, { samplingTimes: number[]; joints: string[]; frames: [number, ...Quat[]][]; modelFrames: [number, Vec3, Quat][];
-  contactFrames: Record<string, [number, Vec3, Quat][]>; materialDefinitions: Record<string, MaterialTrackDefinition> }> = {};
+  contactFrames: Record<string, [number, Vec3, Quat][]>; materialDefinitions: Record<string, MaterialTrackDefinition>;
+  correctiveFrames: Record<string, [number, number][]> }> = {};
 try {
   for (const [name, args] of Object.entries(requests)) {
     const value = sample(...args);
     poses[name] = value.rotations; poseFrames[name] = { modelPosition: value.modelPosition, modelQuaternion: value.modelQuaternion };
+    correctivePoses[name] = value.correctives;
     materialPoses[name] = value.materials; activeContacts[name] = Object.keys(value.materials);
   }
   for (const name of ["open", "scrape", "flick"] as const) {
@@ -211,8 +225,10 @@ try {
     // events. Uniform 30 fps alone misses the .28 strike and .58 preparation.
     const samplingTimes = [...new Set([...Array.from({ length: 31 }, (_, i) => i / 30), ...(name === "flick" ? [0.08, 0.28, 0.5, 0.58] : [])])].sort((a, b) => a - b);
     const sequence = { samplingTimes, joints: names, frames: [] as [number, ...Quat[]][], modelFrames: [] as [number, Vec3, Quat][],
-      contactFrames: {} as Record<string, [number, Vec3, Quat][]>, materialDefinitions: {} as Record<string, MaterialTrackDefinition> };
+      contactFrames: {} as Record<string, [number, Vec3, Quat][]>, materialDefinitions: {} as Record<string, MaterialTrackDefinition>,
+      correctiveFrames: {} as Record<string, [number, number][]> };
     let expected: string[] | undefined;
+    let expectedCorrectives: string[] | undefined;
     for (const time of samplingTimes) {
       const frame = 1 + 30 * time;
       const value = name === "open" ? sample("pinch", 1 - time, 0) : sample(name, 1, time, time);
@@ -221,6 +237,10 @@ try {
       if (JSON.stringify(current) !== JSON.stringify(expected)) throw new Error(`${name}: active material channels changed during the clip`);
       sequence.frames.push([frame, ...names.map(joint => value.rotations[joint]!)]);
       sequence.modelFrames.push([frame, value.modelPosition, value.modelQuaternion]);
+      const correctiveNames = Object.keys(value.correctives).sort();
+      expectedCorrectives ??= correctiveNames;
+      if (JSON.stringify(correctiveNames) !== JSON.stringify(expectedCorrectives)) throw new Error(`${name}: corrective target channels changed during the clip`);
+      for (const [target, weight] of Object.entries(value.correctives)) (sequence.correctiveFrames[target] ??= []).push([frame, weight]);
       for (const [contact, material] of Object.entries(value.materials)) {
         (sequence.contactFrames[contact] ??= []).push([frame, material.position, material.quaternion]);
         const definition = sequence.materialDefinitions[contact] ??= { parent: material.parent, surface: material.surface, normalField: material.normalField, keys: [] };
@@ -247,7 +267,7 @@ try {
       runtimeModules: runtimeModuleHashes,
       animationsRead: false, runtimeContactsValidAtEveryExportedFrame: true,
     },
-    poses, poseFrames, materialPoses, activeContacts, sequences,
+    poses, poseFrames, materialPoses, activeContacts, correctivePoses, sequences,
   };
   mkdirSync(dirname(output), { recursive: true });
   const temporary = `${output}.tmp-${process.pid}`;

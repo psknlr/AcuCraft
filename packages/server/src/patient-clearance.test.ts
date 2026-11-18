@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { Box3, BoxGeometry, BufferGeometry, Float32BufferAttribute, Group, Mesh, MeshBasicMaterial, SphereGeometry, Vector3, type BufferAttribute } from "three";
+import { Bone, Box3, BoxGeometry, BufferGeometry, Float32BufferAttribute, Group, Mesh, MeshBasicMaterial, Skeleton, SkinnedMesh, SphereGeometry, Uint16BufferAttribute, Vector3, type BufferAttribute } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { afterEach, describe, expect, it } from "vitest";
 import type { Person } from "../web/stage/cast.js";
@@ -79,6 +79,26 @@ describe("actual patient surface clearance", () => {
     expect(guard.intersects(model, subject)).toBe(true);
   });
 
+  it("uses both real skin charts as one volume at a shared-edge patient crossing", () => {
+    const subject = patient(mesh(new BoxGeometry(0.02, 0.2, 0.02))), model = new Group();
+    const source = geometry(new BoxGeometry(0.2, 0.02, 0.02)), indices = Array.from(source.index!.array);
+    for (const [index, name] of ["palm_surface", "thumb_skin"].entries()) {
+      // Separate the two crossing Y faces from the rest of the closed surface.
+      const chart = source.clone(); chart.setIndex(index ? [...indices.slice(0, 12), ...indices.slice(24)] : indices.slice(12, 24));
+      const part = mesh(chart); part.name = name;
+      part.userData.skinUnion = { schema: "acucraft.skin-union@1", id: "thumb-palm", individualClosed: false, parts: ["palm_surface", "thumb_skin"] };
+      model.add(part);
+    }
+    const guard = new PatientClearance();
+    expect(guard.intersects(model, subject)).toBe(true);
+    subject.holder.position.x = 0.11;
+    expect(guard.intersects(model, subject)).toBe(false);
+    subject.holder.position.x -= 0.0002;
+    expect(guard.intersects(model, subject)).toBe(true);
+    model.scale.z = -1; model.rotation.x = Math.PI;
+    expect(guard.intersects(model, subject)).toBe(true);
+  });
+
   it("rebuilds the patient surface after position data changes in the same attribute", () => {
     const body = mesh(new BoxGeometry(2, 2, 2)), subject = patient(body);
     const { model, surface } = probe(), guard = new PatientClearance();
@@ -131,6 +151,39 @@ describe("actual patient surface clearance", () => {
     expect(guard.intersects(model, subject)).toBe(true);
     surface.geometry.translate(3, 0, 0);
     expect(guard.intersects(model, subject)).toBe(false);
+  });
+
+  it("refreshes clearance for morph-only skin changes while the mesh and bones stay fixed", () => {
+    const subject = patient(mesh(new BoxGeometry(2, 2, 2))), model = new Group(), bone = new Bone();
+    const shape = geometry(new BoxGeometry(0.01, 0.01, 0.01)); shape.translate(1.02, 0, 0);
+    const count = shape.getAttribute("position").count;
+    shape.setAttribute("skinIndex", new Uint16BufferAttribute(Array(count * 4).fill(0), 4));
+    shape.setAttribute("skinWeight", new Float32BufferAttribute(Array.from({ length: count }, () => [1, 0, 0, 0]).flat(), 4));
+    const target = (x: number) => new Float32BufferAttribute(Array.from({ length: count }, () => [x, 0, 0]).flat(), 3);
+    shape.morphTargetsRelative = true; shape.morphAttributes.position = [target(-0.04)];
+    const surface = new SkinnedMesh(shape), guard = new PatientClearance();
+    cleanups.push(() => { for (const material of Array.isArray(surface.material) ? surface.material : [surface.material]) material.dispose(); surface.skeleton.dispose(); });
+    model.add(bone, surface); model.updateMatrixWorld(true); surface.bind(new Skeleton([bone]));
+    const fixedBone = bone.matrixWorld.clone(), fixedMesh = surface.matrixWorld.clone();
+    surface.morphTargetInfluences![0] = 0;
+    expect(guard.intersects(model, subject)).toBe(false);
+    surface.morphTargetInfluences![0] = 1;
+    expect(guard.intersects(model, subject)).toBe(true);
+    surface.morphTargetInfluences![0] = 0;
+    expect(guard.intersects(model, subject)).toBe(false);
+    surface.morphTargetInfluences![0] = 1;
+    expect(guard.intersects(model, subject)).toBe(true);
+    const first = shape.morphAttributes.position[0]!;
+    for (let i = 0; i < count; i++) first.setX(i, 0.04);
+    first.needsUpdate = true;
+    expect(guard.intersects(model, subject)).toBe(false);
+    // Replacing a target with the same version must also invalidate cached points.
+    shape.morphAttributes.position = [target(0.04)];
+    expect(guard.intersects(model, subject)).toBe(false);
+    shape.morphAttributes.position = [target(-0.04)];
+    expect(guard.intersects(model, subject)).toBe(true);
+    expect(bone.matrixWorld.equals(fixedBone)).toBe(true);
+    expect(surface.matrixWorld.equals(fixedMesh)).toBe(true);
   });
 
   it("keeps the actual skinned hand in the same space as its contacts after group and wrist transforms", async () => {

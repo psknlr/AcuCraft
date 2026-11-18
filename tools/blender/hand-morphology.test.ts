@@ -3,6 +3,8 @@ import { fileURLToPath } from "node:url";
 import { Matrix4, Object3D, Quaternion, Ray, SkinnedMesh, Triangle, Vector3 } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { beforeAll, describe, expect, it } from "vitest";
+import { createHandSkinCorrectives } from "../../packages/server/web/stage/hand-skin-correctives.js";
+import { collectCompositeSkin, compositeFaceNormalAlignment, findCompositeCrossings, sampleCompositeSkin, type CompositeSkin, type CompositeSkinMember } from "../test/hand-composite-skin.js";
 
 const here = (path: string) => fileURLToPath(new URL(path, import.meta.url));
 const asset = process.env.ACUCRAFT_HAND_ASSET_FIXTURE ?? here("../../content/world/assets/models/acu-practitioner-hand.glb");
@@ -41,6 +43,107 @@ function skinRings(rig: Object3D, name: string): { v: number; points: Vector3[];
   }).sort((a, b) => a.v - b.v);
 }
 
+/** The real rounded thumb end, independent of UVs added while remeshing the thenar junction. */
+function thumbTerminalRim(rig: Object3D): Vector3[] {
+  const mesh = rig.getObjectByName("thumb_skin") as SkinnedMesh;
+  const start = rig.getObjectByName("thumb_IP")!.getWorldPosition(new Vector3());
+  const tip = rig.getObjectByName("thumb_tip")!.getWorldPosition(new Vector3()), axis = tip.clone().sub(start).normalize();
+  const distal = mesh.skeleton.bones.findIndex((bone) => bone.name === "thumb_distal");
+  expect(distal, "actual thumb terminal skin influence").toBeGreaterThanOrEqual(0);
+  const indices = mesh.geometry.getAttribute("skinIndex"), weights = mesh.geometry.getAttribute("skinWeight");
+  mesh.skeleton.update();
+  const samples: { point: Vector3; along: number }[] = [];
+  for (let vertex = 0; vertex < mesh.geometry.getAttribute("position").count; vertex++) {
+    let influence = 0;
+    for (let channel = 0; channel < 4; channel++) if (indices.getComponent(vertex, channel) === distal) influence += weights.getComponent(vertex, channel);
+    if (influence < 0.9999) continue;
+    const point = mesh.localToWorld(mesh.getVertexPosition(vertex, new Vector3()));
+    if (point.distanceTo(tip) <= 0.005) samples.push({ point, along: point.clone().sub(start).dot(axis) });
+  }
+  expect(samples.length, "actual rigid terminal surface near the bone end").toBeGreaterThan(30);
+  const end = Math.max(...samples.map((sample) => sample.along)), rim: Vector3[] = [];
+  for (const { point, along } of samples) if (end - along < 1e-7 && !rim.some((previous) => previous.distanceToSquared(point) < 1e-18)) rim.push(point);
+  expect(rim.length, "actual end-plane skin and its closing fan").toBeGreaterThanOrEqual(3);
+  return rim;
+}
+
+interface MaterialSection {
+  id: string;
+  physicalIds: number[];
+  points: Vector3[];
+  sourceCentre: Vector3;
+  sourceMetacarpalFraction: number;
+}
+
+/** Validate real complete material bands; metadata identifies vertices, never supplies measurements. */
+function thumbRootMaterialSections(rig: Object3D, skin: CompositeSkin): MaterialSection[] {
+  const declaration = rig.getObjectByName("palm_surface")!.userData.skinUnion as {
+    materialSections?: { id: string; vertices: { surface: string; index: number }[] }[];
+  } | undefined;
+  expect(declaration && typeof declaration === "object", "actual continuous-skin material chart").toBeTruthy();
+  expect(Array.isArray(declaration?.materialSections), "registered complete material sections, not partial UV rows").toBe(true);
+  if (!Array.isArray(declaration?.materialSections)) throw new Error("Missing actual thumb-root material sections");
+  const references = new Map<string, { id: number; member: CompositeSkinMember }>();
+  for (const vertex of skin.vertices) for (const member of vertex.members) references.set(`${member.mesh.name}/${member.index}`, { id: vertex.id, member });
+  const edgeKey = (a: number, b: number) => `${Math.min(a, b)}/${Math.max(a, b)}`;
+  const physicalEdges = new Set(skin.edges.map((edge) => edgeKey(...edge.vertices)));
+  const cmc = rig.getObjectByName("thumb_CMC")!.getWorldPosition(new Vector3());
+  const metacarpal = rig.getObjectByName("thumb_MCP")!.getWorldPosition(new Vector3()).sub(cmc);
+  const sections = declaration.materialSections.map((section) => {
+    expect(typeof section.id === "string" && section.id.length > 0, "named actual material section").toBe(true);
+    expect(Array.isArray(section.vertices), `${section.id} actual vertex references`).toBe(true);
+    if (!Array.isArray(section.vertices)) throw new Error(`Missing material vertices in ${section.id}`);
+    const samples = section.vertices.map(({ surface, index }) => {
+      expect(skin.meshes.some((mesh) => mesh.name === surface), `${section.id} real outer-skin partition`).toBe(true);
+      expect(Number.isInteger(index) && index >= 0, `${section.id} actual exported vertex index`).toBe(true);
+      const sample = references.get(`${surface}/${index}`);
+      expect(sample, `${section.id}/${surface}/${index} actual skin vertex`).toBeDefined();
+      if (!sample) throw new Error(`Unknown material vertex ${surface}/${index}`);
+      return sample;
+    });
+    const physicalIds = samples.map((sample) => sample.id);
+    expect(new Set(physicalIds).size, `${section.id} one sample per physical point, excluding UV/normal duplicates`).toBe(physicalIds.length);
+    expect(physicalIds.length, `${section.id} complete tissue circumference`).toBeGreaterThanOrEqual(20);
+    for (let i = 0; i < physicalIds.length; i++) expect(physicalEdges.has(edgeKey(physicalIds[i]!, physicalIds[(i + 1) % physicalIds.length]!)),
+      `${section.id} ordered closed cycle follows actual skin edges`).toBe(true);
+    const points = samples.map((sample) => sample.member.position);
+    const sourceCentre = points.reduce((sum, point) => sum.add(point), new Vector3()).divideScalar(points.length);
+    return { id: section.id, physicalIds, points, sourceCentre,
+      sourceMetacarpalFraction: sourceCentre.clone().sub(cmc).dot(metacarpal) / metacarpal.lengthSq() };
+  });
+  expect(new Set(sections.map((section) => section.id)).size, "unique material section identities").toBe(sections.length);
+  expect(sections.length).toBeGreaterThanOrEqual(6);
+  // Every consecutive pair must bound the actual triangulated annulus. Omitting
+  // an intermediate construction ring leaves missing strip faces/boundaries.
+  for (let index = 0; index + 1 < sections.length; index++) {
+    const a = sections[index]!, b = sections[index + 1]!, ids = new Set([...a.physicalIds, ...b.physicalIds]);
+    expect(ids.size, `${a.id}/${b.id} distinct material sections`).toBe(a.physicalIds.length + b.physicalIds.length);
+    const faces = skin.triangleVertexIds.filter((face) => face.every((id) => ids.has(id)));
+    const edges = new Map<string, number>();
+    for (const face of faces) for (const [from, to] of [[face[0], face[1]], [face[1], face[2]], [face[2], face[0]]]) {
+      const key = edgeKey(from!, to!); edges.set(key, (edges.get(key) ?? 0) + 1);
+    }
+    expect(faces.length, `${a.id}/${b.id} real annular skin faces`).toBeGreaterThan(0);
+    expect(ids.size - edges.size + faces.length, `${a.id}/${b.id} actual annulus Euler characteristic`).toBe(0);
+    expect([...edges.values()].every((count) => count === 1 || count === 2), `${a.id}/${b.id} manifold skin strip`).toBe(true);
+    const boundary = [...edges].filter(([, count]) => count === 1).map(([key]) => key).sort();
+    const expected = [a, b].flatMap((section) => section.physicalIds.map((id, i) => edgeKey(id, section.physicalIds[(i + 1) % section.physicalIds.length]!))).sort();
+    expect(boundary, `${a.id}/${b.id} only the two declared material cycles bound this real strip`).toEqual(expected);
+  }
+  expect(sections[0]!.sourceMetacarpalFraction, "material chart starts before the measured root region").toBeLessThan(0.55);
+  expect(sections.at(-1)!.sourceMetacarpalFraction, "material chart continues beyond the measured root region").toBeGreaterThan(0.95);
+  const selected = sections.flatMap((section, index) => section.sourceMetacarpalFraction >= 0.55 && section.sourceMetacarpalFraction <= 0.95 ? [index] : []);
+  expect(selected.length, "all actual material bands in the original anatomical 55–95% metacarpal region").toBeGreaterThanOrEqual(4);
+  const first = selected[0]!, last = selected.at(-1)!;
+  expect(first).toBeGreaterThan(0); expect(last).toBeLessThan(sections.length - 1);
+  expect(selected).toEqual(Array.from({ length: last - first + 1 }, (_, index) => first + index));
+  // A proximal flare can project back slightly before the 55% region. Only the
+  // measured anatomical bands and their immediate neighbors must be ordered.
+  for (let index = first; index <= last + 1; index++) expect(sections[index]!.sourceMetacarpalFraction,
+    `${sections[index - 1]!.id}/${sections[index]!.id} anatomical longitudinal order`).toBeGreaterThan(sections[index - 1]!.sourceMetacarpalFraction);
+  return sections;
+}
+
 /** Intersect the surface itself, rather than treating its world bounding box as palm thickness. */
 function palmarSection(triangles: Triangle[], xMm: number, zMm: number): { volar: number; dorsal: number; thickness: number } {
   const ray = new Ray(new Vector3(xMm / 1000, -0.15, zMm / 1000), new Vector3(0, 1, 0));
@@ -66,7 +169,7 @@ describe("the authored hand's soft-tissue morphology", () => {
     rig.updateMatrixWorld(true);
     const frame = rig.getObjectByName("palm_frame")!;
     const inverse = frame.matrixWorld.clone().invert();
-    palm = skinTriangles(rig, "palm_surface", inverse);
+    palm = [...skinTriangles(rig, "palm_surface", inverse), ...skinTriangles(rig, "thumb_skin", inverse)];
     const point = (name: string) => rig.getObjectByName(name)!.getWorldPosition(new Vector3()).applyMatrix4(inverse);
     wristU = point("wrist").x;
     knuckleU = (point("middle_MCP").x + point("ring_MCP").x) / 2;
@@ -108,9 +211,10 @@ describe("the authored hand's soft-tissue morphology", () => {
   });
 
   it("closes the thumb's rounded terminal surface without a broad flat cut face", () => {
-    // Find the actual terminal UV ring, regardless of its orientation. Inspect
-    // skin rather than a raised nail plate or a marker placed beyond the mesh.
-    const rim = skinRings(rig, "thumb_skin").at(-1)!.points;
+    // Find the actual rigid terminal end plane. Newly filleted junction faces
+    // may have unrelated UV maxima, so UV row order cannot identify this cap.
+    // Inspect real skin rather than a raised nail or a marker beyond the mesh.
+    const rim = thumbTerminalRim(rig);
     const onEnd = (point: Vector3) => rim.some((sample) => sample.distanceToSquared(point) < 1e-18);
     const diameter = Math.max(...rim.flatMap((a) => rim.map((b) => a.distanceTo(b))));
     const flatArea = thumb.filter((triangle) => [triangle.a, triangle.b, triangle.c].every(onEnd))
@@ -158,16 +262,22 @@ describe("the authored hand's soft-tissue morphology", () => {
     }
   });
 
-  it("keeps the actual thumb-root skin bridge smooth when the thumb abducts, without a stretched triangular spur", () => {
-    const source = skinRings(rig, "thumb_skin");
+  it("keeps the actual shared thumb-palm junction smooth when the thumb abducts, without a stretched triangular spur", () => {
+    const skin = collectCompositeSkin(rig);
+    expect(skin.topology.boundaryEdgeCount).toBe(0); expect(skin.topology.nonManifoldEdgeCount).toBe(0);
+    expect(skin.topology.windingConflictCount).toBe(0); expect(skin.topology.connectedComponentCount).toBe(1);
+    expect(skin.topology.eulerCharacteristic).toBe(2);
+    const sections = thumbRootMaterialSections(rig, skin);
+    const selected = sections.flatMap((section, index) => section.sourceMetacarpalFraction >= 0.55 && section.sourceMetacarpalFraction <= 0.95 ? [index] : []);
+    const junction = new Set(skin.seamVertices.map((vertex) => vertex.id));
+    const rigidThumb = skin.vertices.map((vertex) => vertex.influences.reduce((sum, influence) => sum + (influence.bone === "thumb_distal" ? influence.weight : 0), 0) >= 0.9999);
+    const faces = new Set(skin.triangleVertexIds.flatMap((ids, face) => {
+      const surface = skin.triangleSources[face]!.meshName;
+      return surface === "palm_surface" || surface === "thumb_skin" && ids.some((id) => !rigidThumb[id])
+        || ids.some((id) => junction.has(id)) ? [face] : [];
+    }));
     const cmc = rig.getObjectByName("thumb_CMC")!, mcp = rig.getObjectByName("thumb_MCP")!, ip = rig.getObjectByName("thumb_IP")!;
     const tip = rig.getObjectByName("thumb_tip")!;
-    const origin = cmc.getWorldPosition(new Vector3()), metacarpal = mcp.getWorldPosition(new Vector3()).sub(origin);
-    const selected = source.flatMap((ring, index) => {
-      const fraction = ring.centre.clone().sub(origin).dot(metacarpal) / metacarpal.lengthSq();
-      return fraction >= 0.55 && fraction <= 0.95 ? [index] : [];
-    });
-    expect(selected.length, "real metacarpal material rings, excluding either pole cap").toBeGreaterThanOrEqual(4);
     const a = mcp.position.clone(), b = ip.position.clone(), c = tip.position.clone();
     const hingeA = a.clone().cross(b).normalize(), hingeB = b.clone().cross(c).normalize();
     if (hingeB.dot(hingeA) < 0) hingeB.negate();
@@ -180,33 +290,49 @@ describe("the authored hand's soft-tissue morphology", () => {
       new Quaternion().setFromAxisAngle(hingeA, 5 * radians - signed(a, b, hingeA)),
       new Quaternion().setFromAxisAngle(hingeB, 5 * radians - signed(b, c, hingeB))];
     const controls = [cmc, mcp, ip], saved = controls.map((control) => control.quaternion.clone());
+    const correctives = createHandSkinCorrectives(rig);
+    if (skin.meshes.some((mesh) => mesh.geometry.morphAttributes.position?.length))
+      expect(correctives, "an actual morph asset needs its registered pose-space driver").toBeDefined();
     try {
       controls.forEach((control, index) => control.quaternion.copy(rotations[index]!)
         .multiply(rig.getObjectByName(`thumb_${["proximal", "middle", "distal"][index]}`)!.quaternion.clone().invert()));
+      correctives?.apply();
       rig.updateMatrixWorld(true);
-      const posed = skinRings(rig, "thumb_skin");
+      sampleCompositeSkin(skin);
+      expect(skin.topology.posedDegenerateFaceCount).toBe(0);
+      expect(skin.maxSeamPositionGapM, "shared material boundary does not open under opposition").toBeLessThan(0.000005);
+      expect(skin.minSeamNormalDot, "both actual partitions retain the same deformed normal field").toBeGreaterThan(0.99999);
+      const centres = sections.map((section) => section.points.reduce((sum, point) => sum.add(point), new Vector3()).divideScalar(section.points.length));
       for (const index of selected) {
-        // A connector designed as a tiny hidden tube can become an exposed
-        // skin flap during opposition even after its weights are smoothed.
-        // This adult asset needs an actual soft-tissue envelope at the root.
-        const circumference = posed[index]!.points.reduce((sum, point, vertex, points) =>
-          sum + point.distanceTo(points[(vertex + 1) % points.length]!), 0);
-        expect(circumference, `thumb root tissue envelope ${source[index]!.v}`).toBeGreaterThan(0.020);
+        const section = sections[index]!;
+        const circumference = section.points.reduce((sum, point, vertex, points) => sum + point.distanceTo(points[(vertex + 1) % points.length]!), 0);
+        expect(circumference, `actual root material envelope ${section.id}`).toBeGreaterThan(0.020);
         if (selected.includes(index + 1)) {
-          const before = source[index]!.centre.distanceTo(source[index + 1]!.centre);
-          const after = posed[index]!.centre.distanceTo(posed[index + 1]!.centre);
-          // Engineering smoothness bounds for this identified connector. The
-          // previous abrupt weight transition stretched one band 4.65 times.
-          expect(after / before, `thumb root band ${source[index]!.v}`).toBeLessThan(2);
+          const before = section.sourceCentre.distanceTo(sections[index + 1]!.sourceCentre);
+          const after = centres[index]!.distanceTo(centres[index + 1]!);
+          expect(after / before, `actual longitudinal material-band centre strain ${section.id}`).toBeLessThan(2);
         }
-        if (index > 0 && index < posed.length - 1) {
-          const before = posed[index]!.centre.clone().sub(posed[index - 1]!.centre);
-          const after = posed[index + 1]!.centre.clone().sub(posed[index]!.centre);
-          expect(before.angleTo(after) / radians, `thumb root turn ${source[index]!.v}`).toBeLessThan(35);
-        }
+        const before = centres[index]!.clone().sub(centres[index - 1]!);
+        const after = centres[index + 1]!.clone().sub(centres[index]!);
+        expect(before.angleTo(after) / radians, `actual material centreline turn ${section.id}`).toBeLessThan(35);
       }
+      for (const face of faces) {
+        expect(skin.triangles[face]!.getArea(), `actual junction face ${face} tissue envelope`).toBeGreaterThan(1e-10);
+        expect(compositeFaceNormalAlignment(skin, face), `actual junction face ${face} outward normal field`).toBeGreaterThan(0);
+      }
+      const normals = skin.triangles.map((triangle) => triangle.getNormal(new Vector3()));
+      let minimumAdjacentDot = 1, worstAdjacentEdge: number[] = [];
+      for (const edge of skin.edges) {
+        if (!edge.faces.some((face) => faces.has(face))) continue;
+        const [a, b] = edge.faces, dot = normals[a!]!.dot(normals[b!]!);
+        if (dot < minimumAdjacentDot) { minimumAdjacentDot = dot; worstAdjacentEdge = edge.vertices; }
+      }
+      expect(minimumAdjacentDot, `free-thumb palm/junction adjacent facet continuity ${worstAdjacentEdge}`).toBeGreaterThan(-0.1);
+      expect(findCompositeCrossings(skin, { toleranceM: 0.00005, maxCrossings: 1 }).map((crossing) => crossing.faces),
+        "the real free-thumb inspection has no non-adjacent skin crossing beyond 50µm").toEqual([]);
     } finally {
       controls.forEach((control, index) => control.quaternion.copy(saved[index]!));
+      correctives?.reset();
       rig.updateMatrixWorld(true);
     }
   });

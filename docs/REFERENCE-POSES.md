@@ -35,14 +35,20 @@ The `curled` choice is an authored closed-fist posture, including 95–100° PIP
 bends; `relaxed` remains a separate, milder choice. Neither the source grasp nor
 the closed-fist table should be described as a neutral or universal comfort pose.
 
-The current `d7ec9252…` export uses ordinary tip and three-finger index
-references of 50°/100°/60° and 45°/90°/40°, respectively; side pulp retains
-90°/35°/10°. Actual solved angles vary with the task. Ordinary thumb acquisition
+The ordinary tip and three-finger index references are 50°/100°/60° and
+45°/90°/40°, respectively. Side pulp uses 90°/35°/10°. Actual solved angles vary
+with the task. Ordinary thumb acquisition
 ray-projects a real volar point at tipward/lateral offsets 0/−3.2 mm; the
 three-finger variant uses +3.5/−3 mm. Its normal must remain on the fleshy volar
 half of the source surface. The primary holding plane is needle Y=+5 mm for
 ordinary tip and −5 mm for three-finger; the third-finger pulp meets Y=+12 mm.
 These authored offsets preserve the accepted needle axis, entry and trajectory.
+
+Tan preparation uses a 50°/95°/55° index reference and an acquired point on the
+rounded volar thumb pad. The thumb knuckle stays palmward as the pads meet and
+then separate. The index reaches the handle with its nail at the existing 0.28
+phase. The skin around the thumb root changes shape with the joints through
+preparation, clearance and return.
 
 The full hand was not reversed: actual left/right chirality, four-finger volar
 curl and opposing nail/pulp directions were already correct. The earlier thumb
@@ -150,16 +156,17 @@ runtime checks and scene captures.
 
 ## Actual scene views
 
-The current direction/opposition export is `d7ec9252…`, sampled from
-`hand.ts d8f681d6…` and `hand-physiology.ts 221ca74a…`. Its
-[validation record](HAND-DIRECTION-VALIDATION.json) and latest
-[tip three-quarter](img/hand-direction-tip-three-quarter.png),
-[tip side](img/hand-direction-tip-side.png),
-[three-finger](img/hand-direction-tripod.png) and supplementary
-[hand-only anatomy](img/hand-direction-anatomy.png) captures belong to this
-export. The hand-only Blender render is a supplementary geometry inspection;
-actual UI views retain the full practitioner and scene occlusions. These current
-links are separate from the retained galleries.
+Studio views show the practitioner using the rebuilt thumb and palm skin in
+the scene. [Tip three-quarter](img/thumb-web-tip-three-quarter.png) ·
+[Side pulp](img/thumb-web-side-pinch.png) · [Tan](img/thumb-web-tan.png) ·
+[12 mm release](img/thumb-web-release.png)
+
+The hand-only Blender sheet shows the actual posed surface from fixed palm,
+back and oblique angles. [Hand-only view](img/thumb-web-junction.png) ·
+[Validation record](THUMB-PALM-VALIDATION.json)
+
+The earlier `d7ec9252…` export and its camera and opposition checks remain
+documented with their original images. [Direction checkpoint](HAND-DIRECTION-VALIDATION.json)
 
 ### Earlier anatomy and wrist captures
 

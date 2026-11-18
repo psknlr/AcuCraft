@@ -33,6 +33,7 @@ OUT = REPO / "content/world/assets/models/acu-practitioner-hand.glb"
 MANIFEST = Path(__file__).with_name("hand.json")
 SOURCE_ANATOMY = json.loads(ANATOMY_SOURCE.read_text())
 THUMB_TISSUE = SOURCE_ANATOMY["thumbMetacarpalSoftTissue"]
+THUMB_PALM_SKIN = SOURCE_ANATOMY["thumbPalmSkin"]
 DIGITS = {digit: SOURCE_ANATOMY["digits"][digit] for digit in ("thumb", "index", "middle", "ring", "little")}
 WRIST = tuple(SOURCE_ANATOMY["wristM"])
 PALM_CENTRE = tuple(SOURCE_ANATOMY["palmCentreM"])
@@ -53,6 +54,114 @@ ANIMATED_MATERIALS = set()
 MATERIALS_BY_CLIP = {}
 MATERIAL_BIND_FRAMES = {}
 WRIST_INTERFACE_ROWS = {}
+THUMB_COLLAR_CONSTRUCTION_SECTIONS = []
+
+
+PROTECTED_SKIN_NORMALS = {}
+
+
+def register_protected_skin_normals(surface, digit):
+    """Record the untouched real corner field before junction surgery.
+
+    Blender stores custom normals relative to a changing local loop basis.
+    Even an explicitly unchanged protected vector can be requantized when a
+    neighboring junction moves. These float32 values restore its original
+    exported field, rather than recomputing a replacement from the cap.
+    """
+    surface.data.update()
+    surface.data.calc_loop_triangles()
+    if digit == 'palm':
+        references = [Vector(point) for name in ('ring', 'distalRing')
+                      for point in WRIST_INTERFACE_ROWS[name]]
+        selected = {vertex.index for vertex in surface.data.vertices
+                    if any((vertex.co - point).length_squared < 1e-16 for point in references)}
+    else:
+        ip = Vector(DIGITS['thumb'][2])
+        axis = (Vector(DIGITS['thumb'][3]) - ip).normalized()
+        selected = {vertex.index for vertex in surface.data.vertices
+                    if (vertex.co - ip).dot(axis) >= .0045 - 1e-8}
+    records = []
+    uv = surface.data.uv_layers.active
+    for polygon in surface.data.polygons:
+        for loop in polygon.loop_indices:
+            vertex = surface.data.loops[loop].vertex_index
+            if vertex not in selected:
+                continue
+            texture = uv.data[loop].uv
+            normal = surface.data.corner_normals[loop].vector.copy()
+            records.append((tuple(surface.data.vertices[vertex].co),
+                            (float(texture.x), 1 - float(texture.y)), tuple(normal)))
+    # Match the actual glTF exporter field: Blender ships NumPy and its
+    # exporter rounds loop normals to four digits before float32 normalization.
+    # Replaying that source conversion avoids introducing a new normal field.
+    import numpy as np
+    values = np.round(np.array([record[2] for record in records], dtype=np.float32), 4)
+    norms = np.linalg.norm(values, axis=1, keepdims=True)
+    np.divide(values, norms, out=values, where=norms != 0)
+    PROTECTED_SKIN_NORMALS[surface.name] = [(record[0], record[1], tuple(float(value) for value in normal))
+        for record, normal in zip(records, values)]
+
+
+def restore_exported_protected_skin_normals():
+    """Restore only recorded protected NORMAL float32 values, leaving P/UV/W untouched."""
+    raw = OUT.read_bytes()
+    json_length = struct.unpack_from('<I', raw, 12)[0]
+    gltf = json.loads(raw[20:20 + json_length])
+    header = 20 + json_length
+    binary_length = struct.unpack_from('<I', raw, header)[0]
+    binary = bytearray(raw[header + 8:header + 8 + binary_length])
+
+    def records(index):
+        value = gltf['accessors'][index]
+        view = gltf['bufferViews'][value['bufferView']]
+        width = {'VEC2': 2, 'VEC3': 3}[value['type']]
+        if value['componentType'] != 5126:
+            raise ValueError('Protected skin field requires uncompressed float32 attributes')
+        start = view.get('byteOffset', 0) + value.get('byteOffset', 0)
+        stride = view.get('byteStride', width * 4)
+        return [struct.unpack_from('<' + 'f' * width, binary, start + i * stride)
+                for i in range(value['count'])], start, stride
+
+    def float32(value):
+        return struct.unpack('<f', struct.pack('<f', value))[0]
+
+    def key(point, uv):
+        return tuple(round(float32(value), 8) for value in (*point, *uv))
+
+    restored = {}
+    for name, source_records in PROTECTED_SKIN_NORMALS.items():
+        node = next(node for node in gltf['nodes'] if node.get('name') == name)
+        primitive = gltf['meshes'][node['mesh']]['primitives'][0]
+        points, _, _ = records(primitive['attributes']['POSITION'])
+        texture, _, _ = records(primitive['attributes']['TEXCOORD_0'])
+        normals, start, stride = records(primitive['attributes']['NORMAL'])
+        lookup = {}
+        for point, uv, normal in source_records:
+            lookup.setdefault(key(point, uv), set()).add(tuple(float32(value) for value in normal))
+        count, maximum_change = 0, 0.0
+        for vertex, (point, uv, old) in enumerate(zip(points, texture, normals)):
+            candidates = lookup.get(key(point, uv))
+            if not candidates:
+                continue
+            # Flat-cap and lateral corners can share P and UV. Their actual
+            # source directions remain distinct and are matched independently.
+            normal = min(candidates, key=lambda candidate: sum((a - b) ** 2 for a, b in zip(candidate, old)))
+            maximum_change = max(maximum_change, math.sqrt(sum((a - b) ** 2 for a, b in zip(normal, old))))
+            struct.pack_into('<3f', binary, start + vertex * stride, *normal)
+            count += 1
+        if not count:
+            raise ValueError(f'Protected source normal field is absent from {name}')
+        restored[name] = {'vertices': count, 'maximumEncodingCorrection': maximum_change}
+    encoded = json.dumps(gltf, separators=(',', ':'), ensure_ascii=False).encode()
+    encoded += b' ' * ((-len(encoded)) % 4)
+    total = 12 + 8 + len(encoded) + 8 + len(binary)
+    OUT.write_bytes(struct.pack('<III', 0x46546C67, 2, total)
+        + struct.pack('<II', len(encoded), 0x4E4F534A) + encoded
+        + struct.pack('<II', len(binary), 0x004E4942) + binary)
+    print('PROTECTED_NORMAL_PUBLICATION ' + json.dumps(restored))
+    return restored
+
+
 
 
 def anatomy_point(point):
@@ -493,6 +602,400 @@ def continuous_finger(digit, mat, parent):
     return ob
 
 
+def round_palm_aperture(points, faces, texture, corner_normals, smooth, kept, boundary,
+                        row0, row1, col0, col1, source_object, exponent=2.0):
+    """Round the actual skin aperture and its retained material annulus.
+
+    The old rectangular grid perimeter is reparameterized onto a smooth oval
+    of the source loft. A Dirichlet displacement extension moves the real
+    retained skin too, so there is no separate oval trim or hidden overlap.
+    Protected carpal skin and central/ulnar palm stay in their source frame.
+    """
+    from heapq import heappush, heappop
+    count = len(points)
+    original = [point.copy() for point in points]
+    columns = 48
+    centre_row, centre_col = (row0 + row1) / 2, (col0 + col1) / 2
+    half_rows, half_cols = (row1 - row0) / 2, (col1 - col0) / 2
+
+    def loft_point(row, column):
+        a, b = int(math.floor(row)), int(math.floor(column))
+        x, y = row - a, column - b
+        lo = original[a * columns + b].lerp(original[a * columns + b + 1], y)
+        hi = original[(a + 1) * columns + b].lerp(original[(a + 1) * columns + b + 1], y)
+        return lo.lerp(hi, x)
+
+    target = {}
+    for vertex in boundary:
+        row, column = divmod(vertex, columns)
+        x, y = (row - centre_row) / half_rows, (column - centre_col) / half_cols
+        angle = math.atan2(y, x)
+        c, s = math.cos(angle), math.sin(angle)
+        radial = (abs(c) ** exponent + abs(s) ** exponent) ** (-1 / exponent)
+        target[vertex] = loft_point(centre_row + half_rows * c * radial,
+                                    centre_col + half_cols * s * radial)
+    adjacency = [set() for _ in points]
+    source_object.data.calc_loop_triangles()
+    retained = set(kept)
+    for triangle in source_object.data.loop_triangles:
+        if triangle.polygon_index not in retained:
+            continue
+        ids = tuple(triangle.vertices)
+        for a, b in zip(ids, ids[1:] + ids[:1]):
+            adjacency[a].add(b)
+            adjacency[b].add(a)
+    distance = [float('inf')] * count
+    queue = []
+    for vertex in boundary:
+        distance[vertex] = 0
+        heappush(queue, (0, vertex))
+    while queue:
+        value, vertex = heappop(queue)
+        if value > distance[vertex]:
+            continue
+        for neighbor in adjacency[vertex]:
+            trial = value + (original[vertex] - original[neighbor]).length
+            if trial < distance[neighbor]:
+                distance[neighbor] = trial
+                heappush(queue, (trial, neighbor))
+    origin = Vector(SOURCE_ANATOMY['anatomyOriginM'])
+    basis = PALM_BASIS.transposed()
+    canonical = [basis @ (point - origin) for point in original]
+    lock_u = SOURCE_ANATOMY['wristInterface']['canonicalU'] - .003
+    carpal_points = [Vector(point) for name in ('ring', 'distalRing')
+                     for point in WRIST_INTERFACE_ROWS[name]]
+    protected_ids = {vertex for vertex, point in enumerate(original)
+                     if any((point - reference).length_squared < 1e-16 for reference in carpal_points)}
+    radius = THUMB_PALM_SKIN["aperture"]["retainedAnnulusM"]
+    free = [vertex for vertex, d in enumerate(distance)
+            if d < radius and vertex not in target and canonical[vertex].x < lock_u
+            and canonical[vertex].z > 0 and adjacency[vertex] and vertex not in protected_ids]
+    displacement = [Vector() for _ in points]
+    for vertex, point in target.items():
+        displacement[vertex] = point - original[vertex]
+    stencil = {}
+    for vertex in free:
+        values = [(neighbor, 1 / max((original[vertex] - original[neighbor]).length, .00005) ** 2)
+                  for neighbor in sorted(adjacency[vertex])]
+        total = sum(weight for _, weight in values)
+        stencil[vertex] = [(neighbor, weight / total) for neighbor, weight in values]
+    for _ in range(320):
+        updated = {}
+        for vertex in free:
+            average = sum((displacement[neighbor] * weight for neighbor, weight in stencil[vertex]), Vector())
+            updated[vertex] = displacement[vertex].lerp(average, .8)
+        for vertex, value in updated.items():
+            displacement[vertex] = value
+    def quintic(value):
+        t = max(0, min(1, value))
+        return t * t * t * (10 - 15 * t + 6 * t * t)
+    minimum_radial = min(canonical[vertex].z for vertex in boundary)
+    moved = set()
+    for vertex in free:
+        p = canonical[vertex]
+        carpal_fade = 1 - quintic((p.x - .092) / max(.001, lock_u - .092))
+        central_fade = quintic(p.z / max(.001, minimum_radial))
+        delta = displacement[vertex] * carpal_fade * central_fade
+        if delta.length > 1e-9:
+            points[vertex] = original[vertex] + delta
+            moved.add(vertex)
+    for vertex, point in target.items():
+        points[vertex] = point
+        if (point - original[vertex]).length > 1e-9:
+            moved.add(vertex)
+    # Compute the actual retained skin's new corner field. Far source corners,
+    # including the split carpal cap/lateral rim, remain byte-identical.
+    temporary = mesh('rounded_aperture_retained_skin', [tuple(p) for p in points],
+                     [faces[index] for index in kept], source_object.data.materials[0], source_object.parent)
+    for polygon, index in zip(temporary.data.polygons, kept):
+        polygon.use_smooth = smooth[index]
+    temporary.data.update()
+    temporary.data.calc_loop_triangles()
+    affected = set(moved)
+    for index in kept:
+        if any(vertex in moved for vertex in faces[index]):
+            affected.update(faces[index])
+    for polygon, index in zip(temporary.data.polygons, kept):
+        for local, loop in enumerate(polygon.loop_indices):
+            vertex = temporary.data.loops[loop].vertex_index
+            if vertex in affected and canonical[vertex].x < lock_u and canonical[vertex].z > 0 and vertex not in protected_ids:
+                corner_normals[index][local] = temporary.data.corner_normals[loop].vector.copy()
+    data = temporary.data
+    bpy.data.objects.remove(temporary, do_unlink=True)
+    if data.users == 0:
+        bpy.data.meshes.remove(data)
+    print('ROUNDED_APERTURE_REPORT ' + json.dumps({
+        'perimeterVertices': len(boundary), 'retainedAnnulusVertices': len(free),
+        'movedVertices': len(moved), 'exponent': exponent,
+        'maximumDisplacementM': max((a - b).length for a, b in zip(points, original)),
+        'protectedCarpalU': lock_u, 'centralAndUlnarFixed': True,
+    }))
+    return points, corner_normals
+
+
+def integrate_thumb_palm(palm_surface, thumb_surface):
+    """A real open palm aperture and regular skin collar; no intersecting shell or internal cap."""
+    aperture = THUMB_PALM_SKIN["aperture"]
+    collar = THUMB_PALM_SKIN["collar"]
+    def capture(ob, palm=False):
+        ob.data.update();ob.data.calc_loop_triangles()
+        points=[v.co.copy() for v in ob.data.vertices]
+        raw=SKIN_WEIGHTS[ob.name][2]
+        weights=[Vector((w[1],0,0,w[0])) if palm else Vector(w) for w in raw]
+        faces=[tuple(p.vertices) for p in ob.data.polygons]
+        uv=[[tuple(ob.data.uv_layers.active.data[l].uv) for l in p.loop_indices]for p in ob.data.polygons]
+        normals=[[ob.data.corner_normals[l].vector.copy() for l in p.loop_indices]for p in ob.data.polygons]
+        smooth=[p.use_smooth for p in ob.data.polygons]
+        return points,weights,faces,uv,normals,smooth
+    pp,pw,pf,pu,pn,ps=capture(palm_surface,True)
+    tp,tw,tf,tu,tn,ts=capture(thumb_surface)
+    basis=PALM_BASIS.transposed();origin=Vector(SOURCE_ANATOMY['anatomyOriginM'])
+    columns=48;rows=(len(pp)-1)//columns
+    us=[(basis@(pp[j*columns+12]-origin)).x for j in range(rows)]
+    row0=min(range(rows),key=lambda j:abs(us[j]-aperture['canonicalUM'][0]))
+    row1=min(range(rows),key=lambda j:abs(us[j]-aperture['canonicalUM'][1]))
+    col0=aperture['angularColumns'][0];col1=aperture['angularColumns'][1]
+    removed=[];kept=[]
+    for i,face in enumerate(pf):
+        hole=(len(face)==4 and all(v<rows*columns for v in face)
+              and all(row0<=v//columns<=row1 and col0<=v%columns<=col1 for v in face))
+        (removed if hole else kept).append(i)
+    edges={}
+    for fi in kept:
+        face=pf[fi]
+        for a,b in zip(face,face[1:]+face[:1]):edges.setdefault(tuple(sorted((a,b))),[]).append((a,b))
+    boundary=[value[0]for value in edges.values()if len(value)==1]
+    forward={a:b for a,b in boundary};loop=[min(forward)]
+    while forward[loop[-1]]!=loop[0]:
+        loop.append(forward[loop[-1]])
+        if len(loop)>len(boundary):raise ValueError('Aperture boundary is not one regular loop')
+    outer=list(reversed(loop))
+    if len(outer)<20:raise ValueError('Aperture boundary is too small')
+    pp,pn=round_palm_aperture(pp,pf,pu,pn,ps,kept,outer,row0,row1,col0,col1,palm_surface,exponent=aperture["ellipseExponent"])
+    ring_size=34;ring_count=(len(tp)-2)//ring_size
+    thumb_lengths=[(Vector(DIGITS['thumb'][i+1])-Vector(DIGITS['thumb'][i])).length for i in range(3)]
+    cmc=Vector(DIGITS['thumb'][0]);mcp=Vector(DIGITS['thumb'][1]);mc_axis=(mcp-cmc).normalized()
+    fractions=[((sum((tp[i*ring_size+j]for j in range(ring_size)),Vector())/ring_size-cmc).dot(mc_axis)/thumb_lengths[0]) for i in range(ring_count)]
+    fraction=collar['thumbCutMetacarpalFraction']
+    cut=min(range(ring_count-2),key=lambda i:abs(fractions[i]-fraction));cut_start=cut*ring_size
+    cut_indices=[cut_start+i for i in range(ring_size)]
+    thumb_kept=[i for i,face in enumerate(tf)if all(v>=cut_start and v!=ring_count*ring_size for v in face)]
+    def vertex_fields(points,faces,uv,normals):
+        vv=[Vector()for p in points];tex=[[]for p in points]
+        for face,tt,nn in zip(faces,uv,normals):
+            for i,t,n in zip(face,tt,nn):vv[i]+=n;tex[i].append(t)
+        uu=[]
+        for values in tex:
+            if not values:uu.append(Vector((0,0)));continue
+            u=math.atan2(sum(math.sin(t[0]*math.tau)for t in values),sum(math.cos(t[0]*math.tau)for t in values))/math.tau%1.0
+            if u>1-1e-7:u=0.0
+            uu.append(Vector((u,sum(t[1]for t in values)/len(values))))
+        return [v.normalized()if v.length_squared else Vector((0,1,0))for v in vv],uu
+    pnv,puv=vertex_fields(pp,[pf[i]for i in kept],[pu[i]for i in kept],[pn[i]for i in kept]);tnv,tuv=vertex_fields(tp,tf,tu,tn)
+    def parameters(indices,points):
+        lengths=[(points[indices[(i+1)%len(indices)]]-points[indices[i]]).length for i in range(len(indices))]
+        total=sum(lengths);values=[0.0]
+        for length in lengths:values.append(values[-1]+length/total)
+        return values[:-1]
+    def locate(values,u):
+        u=u%1.0
+        for i,start in enumerate(values):
+            end=values[i+1]if i+1<len(values)else 1.0
+            if u<=end+1e-12:return i,(u-start)/max(1e-12,end-start)
+        return len(values)-1,1.0
+    outer_u=parameters(outer,pp)
+    # Extend the retained palm's real texture Jacobian into the first collar
+    # rows before transitioning to the thumb chart. Matching UV values alone
+    # leaves a reflected tangent frame at a closed aperture boundary.
+    gradients_u = [Vector() for point in pp]
+    gradients_v = [Vector() for point in pp]
+    gradient_areas = [0.0 for point in pp]
+    chart = bpy.data.meshes.new('retained_palm_texture_chart')
+    chart.from_pydata([tuple(point) for point in pp],[],[pf[index] for index in kept])
+    chart.calc_loop_triangles()
+    for triangle in chart.loop_triangles:
+        polygon = triangle.polygon_index
+        original_face = pf[kept[polygon]]
+        texture = {vertex:Vector(uv) for vertex,uv in zip(original_face,pu[kept[polygon]])}
+        a,b,c = triangle.vertices
+        e1,e2 = pp[b]-pp[a],pp[c]-pp[a]
+        d1,d2 = texture[b]-texture[a],texture[c]-texture[a]
+        g11,g12,g22 = e1.dot(e1),e1.dot(e2),e2.dot(e2)
+        determinant = g11*g22-g12*g12
+        if determinant <= 1e-24:
+            continue
+        gu = (e1*(d1.x*g22-d2.x*g12)+e2*(d2.x*g11-d1.x*g12))/determinant
+        gv = (e1*(d1.y*g22-d2.y*g12)+e2*(d2.y*g11-d1.y*g12))/determinant
+        area = e1.cross(e2).length
+        for vertex in triangle.vertices:
+            gradients_u[vertex] += gu*area
+            gradients_v[vertex] += gv*area
+            gradient_areas[vertex] += area
+    bpy.data.meshes.remove(chart)
+    for vertex in outer:
+        gradients_u[vertex] /= gradient_areas[vertex]
+        gradients_v[vertex] /= gradient_areas[vertex]
+
+    def extended_palm_texture(u,origin,point,texture):
+        index,fraction = locate(outer_u,u)
+        a,b = outer[index],outer[(index+1)%len(outer)]
+        gu = gradients_u[a].lerp(gradients_u[b],fraction)
+        gv = gradients_v[a].lerp(gradients_v[b],fraction)
+        displacement = point-origin
+        return texture+Vector((gu.dot(displacement),gv.dot(displacement)))
+    def sample_outer(u):
+        i,t=locate(outer_u,u);k=(i+1)%len(outer);a,b=outer[i],outer[k]
+        n=pnv[a].lerp(pnv[b],t).normalized()
+        ta=(pp[outer[(i+1)%len(outer)]]-pp[outer[(i-1)%len(outer)]]).normalized()
+        tb=(pp[outer[(k+1)%len(outer)]]-pp[outer[(k-1)%len(outer)]]).normalized()
+        return pp[a].lerp(pp[b],t),n,ta.lerp(tb,t).normalized(),pw[a].lerp(pw[b],t),puv[a].lerp(puv[b],t)
+    def trial_inner(shift):
+        ids=[cut_indices[(i+shift)%ring_size]for i in range(ring_size)]
+        return ids,parameters(ids,tp)
+    def inner_point(ids,values,u):
+        i,t=locate(values,u);return tp[ids[i]].lerp(tp[ids[(i+1)%ring_size]],t)
+    centre0=sum((pp[i]for i in outer),Vector())/len(outer)
+    centre1=sum((tp[i]for i in cut_indices),Vector())/len(cut_indices)
+    axis0=sum(((pp[outer[i]]-centre0).cross(pp[outer[(i+1)%len(outer)]]-centre0)for i in range(len(outer))),Vector()).normalized()
+    axis1=sum(((tp[cut_indices[i]]-centre1).cross(tp[cut_indices[(i+1)%ring_size]]-centre1)for i in range(ring_size)),Vector()).normalized()
+    across=PALM_LONGITUDINAL-axis0*PALM_LONGITUDINAL.dot(axis0)
+    across.normalize();side=axis0.cross(across).normalized()
+    frame0=Matrix((across,side,axis0)).transposed();inverse0=frame0.transposed()
+    transport=axis0.rotation_difference(axis1)
+    across1=transport@across;side1=axis1.cross(across1).normalized()
+    frame1=Matrix((across1,side1,axis1)).transposed();inverse1=frame1.transposed()
+    quat0=frame0.to_quaternion();quat1=frame1.to_quaternion()
+    if quat0.dot(quat1)<0:quat1.negate()
+    def angular_cost(shift):
+        ids,values=trial_inner(shift);cost=0
+        for i,u in enumerate(outer_u):
+            a=inverse0@(pp[outer[i]]-centre0);b=inverse1@(inner_point(ids,values,u)-centre1)
+            aa=Vector((a.x,a.y));bb=Vector((b.x,b.y))
+            cost+=(aa.normalized()-bb.normalized()).length_squared
+        return cost
+    best=min(range(ring_size),key=angular_cost)
+    inner,inner_u=trial_inner(best)
+    def sample_inner(u):
+        i,t=locate(inner_u,u);a,b=inner[i],inner[(i+1)%ring_size]
+        tube_a=(tp[a+ring_size]-tp[a-ring_size]).normalized();tube_b=(tp[b+ring_size]-tp[b-ring_size]).normalized()
+        ua=tuv[a].copy();ub=tuv[b].copy()
+        if ub.x-ua.x>.5:ub.x-=1
+        if ub.x-ua.x<-.5:ub.x+=1
+        return tp[a].lerp(tp[b],t),tnv[a].lerp(tnv[b],t).normalized(),tube_a.lerp(tube_b,t).normalized(),tw[a].lerp(tw[b],t),ua.lerp(ub,t)
+    vertices=[p.copy()for p in pp]+[p.copy()for p in tp];weights=[w.copy()for w in pw]+[w.copy()for w in tw]
+    thumb_offset=len(pp)
+    faces=[];uvs=[];normals=[];smooth=[];regions=[]
+    for fi in kept:faces.append(pf[fi]);uvs.append(pu[fi]);normals.append(pn[fi]);smooth.append(ps[fi]);regions.append(0)
+    for fi in thumb_kept:faces.append(tuple(thumb_offset+i for i in tf[fi]));uvs.append(tu[fi]);normals.append(tn[fi]);smooth.append(ts[fi]);regions.append(1)
+    centre=sum((pp[i]for i in outer),Vector())/len(outer)
+    outward=-PALM_DORSAL
+    segments=collar['longitudinalSegments'];columns_new=collar['angularSamples']
+    bulge=collar['palmarBulgeM']
+    rings=[outer];ring_u=[outer_u];ring_uv=[[puv[i].copy()for i in outer]]
+    for j in range(1,segments):
+        t=j/segments;q=t*t*(3-2*t);indices=[];tex=[];values=[i/columns_new for i in range(columns_new)]
+        for u in values:
+            a,na,tangent,wa,ua=sample_outer(u);b,nb,tube,wb,ub=sample_inner(u)
+            enter=na.cross(tangent).normalized()
+            if enter.dot(centre-a)<0:enter=-enter
+            span=(b-a).length;scale0=min(.025,max(.008,span))*.85;scale1=min(.025,max(.008,span))*.85
+            h0=1-10*t**3+15*t**4-6*t**5;h1=10*t**3-15*t**4+6*t**5
+            d0=t-6*t**3+8*t**4-3*t**5;d1=-4*t**3+7*t**4-3*t**5
+            local0=inverse0@(a-centre0);local1=inverse1@(b-centre1)
+            radial=2*t-2*t**3+t**4
+            rotation=quat0.slerp(quat1,h1).to_matrix()
+            longitudinal=min(.040,max(.012,(centre1-centre0).length))
+            curve=(centre0*h0+centre1*h1+axis1*longitudinal*d1
+                   +axis0*(.10*.5*t*t*(1-t)**3)
+                   +outward*(bulge*64*t**3*(1-t)**3))
+            correction0=enter*scale0-frame0@(local1-local0)
+            correction1=tube*scale1-axis1*longitudinal
+            point=(curve+rotation@local0.lerp(local1,radial)
+                   +correction0*d0+correction1*d1)
+            indices.append(len(vertices));vertices.append(point);weights.append(wa.lerp(wb,q))
+            if ub.x-ua.x>.5:ub.x-=1
+            if ub.x-ua.x<-.5:ub.x+=1
+            target_texture = ua.lerp(ub,q)
+            source_extension = extended_palm_texture(u,a,point,ua)
+            blend_chart = smoothstep((t-.10)/.32)
+            tex.append(source_extension.lerp(target_texture,blend_chart))
+        rings.append(indices);ring_u.append(values);ring_uv.append(tex)
+    rings.append([thumb_offset+i for i in inner]);ring_u.append(inner_u);ring_uv.append([tuv[i].copy()for i in inner])
+    collar_start=len(faces)
+    def add_triangle(ids,tex):
+        values=[Vector(t)for t in tex]
+        if max(t.x for t in values)-min(t.x for t in values)>.5:
+            for t in values:
+                if t.x<.5:t.x+=1
+        faces.append(tuple(ids));uvs.append([tuple(t)for t in values]);normals.append(None);smooth.append(True);regions.append(1)
+    def zipper(a,au,auv,b,bu,buv):
+        i=j=0;na=len(a);nb=len(b)
+        while i<na or j<nb:
+            an=au[i+1]if i+1<na else 1.0;bn=bu[j+1]if j+1<nb else 1.0
+            ai=i%na;bj=j%nb
+            if i<na and j<nb and abs(an-bn)<1e-10:
+                add_triangle([a[ai],a[(i+1)%na],b[(j+1)%nb]],[auv[ai],auv[(i+1)%na],buv[(j+1)%nb]])
+                add_triangle([a[ai],b[(j+1)%nb],b[bj]],[auv[ai],buv[(j+1)%nb],buv[bj]])
+                i+=1;j+=1
+            elif i<na and (j>=nb or an<bn):
+                add_triangle([a[ai],a[(i+1)%na],b[bj]],[auv[ai],auv[(i+1)%na],buv[bj]]);i+=1
+            else:
+                add_triangle([a[ai],b[(j+1)%nb],b[bj]],[auv[ai],buv[(j+1)%nb],buv[bj]]);j+=1
+    for j in range(segments):zipper(rings[j],ring_u[j],ring_uv[j],rings[j+1],ring_u[j+1],ring_uv[j+1])
+    # Place after final skin-field solve, while unified topology/global IDs still exist.
+    # Store actual full closed cycles, never inferred centreline samples.
+    global THUMB_COLLAR_CONSTRUCTION_SECTIONS
+    THUMB_COLLAR_CONSTRUCTION_SECTIONS=[]
+    section_rings=[('collar-%02d'%j,ring)for j,ring in enumerate(rings)]
+    section_rings.extend(('retained-thumb-%02d'%j,[thumb_offset+j*ring_size+k for k in range(ring_size)])
+                         for j in range(cut+1,ring_count))
+    for section_id,ring in section_rings:
+        points=[vertices[i]for i in ring]
+        centre=sum(points,Vector())/len(points)
+        THUMB_COLLAR_CONSTRUCTION_SECTIONS.append({
+            'id':section_id,
+            'sourceVertexIndices':list(ring),
+            'positionsM':[list(p)for p in points],
+            'namedWeights':[{bone:float(w)for bone,w in zip(
+                ('thumb_proximal','thumb_middle','thumb_distal','palm_root'),weights[i])if w>0}
+                for i in ring],
+            'canonicalCentreM':list(basis@(centre-origin)),
+            'metacarpalFraction':float((centre-cmc).dot(mc_axis)/thumb_lengths[0]),
+        })
+
+    skin=palm_surface.data.materials[0]
+    unified=mesh('actual_thumb_collar',vertices,faces,skin,palm_surface.parent);unified.data.update()
+    for fi in range(collar_start,len(faces)):
+        normals[fi]=[]
+        for vertex in faces[fi]:
+            if vertex in outer:n=pnv[vertex]
+            elif vertex>=thumb_offset and vertex-thumb_offset in inner:n=tnv[vertex-thumb_offset]
+            else:n=unified.data.vertices[vertex].normal.copy()
+            normals[fi].append(n)
+    original={0:palm_surface,1:thumb_surface};objects={}
+    for region,name in [(0,'palm_surface'),(1,'thumb_skin')]:
+        selected=[i for i,r in enumerate(regions)if r==region]
+        used=sorted(set(v for fi in selected for v in faces[fi]));mapping={v:i for i,v in enumerate(used)}
+        positions=[tuple(vertices[i])for i in used]
+        ob=mesh(name+'_continuous',positions,[tuple(mapping[i]for i in faces[fi])for fi in selected],skin,palm_surface.parent)
+        uv=ob.data.uv_layers.new(name='UVMap');corner=[]
+        for poly,fi in zip(ob.data.polygons,selected):
+            poly.use_smooth=smooth[fi]
+            for li,t,n in zip(poly.loop_indices,uvs[fi],normals[fi]):uv.data[li].uv=t;corner.append(tuple(n))
+        ob.data.normals_split_custom_set(corner)
+        for k,v in original[region].items():ob[k]=v
+        ob['skinUnion']='thumb-palm-explicit-collar-v1';ob['unionPartner']='thumb_skin'if region==0 else'palm_surface';ob['unionSeamVertices']=34
+        ob['unionTopology']='one closed connected physical outer skin; open semantic partitions; no invisible CMC cap'
+        SKIN_WEIGHTS[name]=('thumb',positions,[tuple(weights[i])for i in used]);objects[name]=ob
+    for ob in [palm_surface,thumb_surface,unified]:
+        data=ob.data;bpy.data.objects.remove(ob,do_unlink=True)
+        if data.users==0:bpy.data.meshes.remove(data)
+    for name,ob in objects.items():ob.name=name;ob.data.name=name
+    print('THUMB_COLLAR_REPORT '+json.dumps({'rows':[row0,row1],'uMm':[us[row0]*1000,us[row1]*1000],'columns':[col0,col1],'removedPalmFaces':len(removed),'boundaryVertices':len(outer),'cutRing':cut,'cutMetacarpalFraction':fractions[cut],'segments':segments,'bulgeMm':bulge*1000,'phase':best,'regularColumns':columns_new,'transportTurnDeg':axis0.angle(axis1)*180/math.pi,'phaseAngularCost':angular_cost(best)}))
+    return objects['palm_surface'],objects['thumb_skin']
+
+
+
 def palm(root, skin):
     """One closed adult palm in the same full basis as its bones and nails.
 
@@ -563,6 +1066,11 @@ def palm(root, skin):
             # the proximal thenar mass. It does not cover the free thumb IP.
             web_recess=.0065*math.exp(-((u-.020*scale_u)/(.020*scale_u))**2-((r-.025)/.012)**2)*max(0,-c)**2*end_fade
             v += web_recess
+            # Free the proximal thumb from the first-web bulk rather than
+            # welding the palm to the phalanx near its IP joint.
+            recess = THUMB_PALM_SKIN["firstWebRecess"]
+            web_window = smoothstep((u-recess["canonicalUBeginM"])/recess["onsetM"]) * (1-smoothstep((u-recess["canonicalUEndM"])/recess["offsetM"]))
+            v += recess["depthM"]*web_window*math.exp(-((r-recess["radialCentreM"])/recess["radialSpreadM"])**2)*max(0,-c)**2
             # Give the moving metacarpal soft tissue a positive embedded
             # margin; this localized radial cushion leaves the central palm
             # and four MCP roots unchanged.
@@ -615,7 +1123,7 @@ def palm(root, skin):
     for polygon in surface.data.polygons[-n:]:
         polygon.use_smooth = False
     surface['anatomicalRegions']='carpal wrist; thin central palm; proximal thenar; hypothenar; first web; MCP arch'
-    surface['thenarTopology']='one closed adult palm component'
+    surface['thenarTopology']='connected palm region of closed palm-thumb composite'
     # Keep the collision solid closed, while the runtime transition covers
     # this internal cap and meets the actual lateral skin at its perimeter.
     WRIST_INTERFACE_ROWS["ring"] = vertices[ring_start:ring_start+n]
@@ -765,7 +1273,7 @@ def pose_points(anchors):
     return {name: [round(v, 9) for v in node.matrix_world.translation] for name, node in anchors.items()}
 
 
-def write_exact_animation_samplers(clips, model_clips, material_clips):
+def write_exact_animation_samplers(clips, model_clips, material_clips, corrective_clips):
     """Write runtime samples directly as standard glTF LINEAR samplers.
 
     Blender's forced 30 fps sampling discards fractional Tan strike/recovery
@@ -826,6 +1334,27 @@ def write_exact_animation_samplers(clips, model_clips, material_clips):
             material_clock = [(frame - 1) / 30 for frame, _, _ in material_frames]
             channel(contact, 'translation', [position for _, position, _ in material_frames], material_clock)
             channel(contact, 'rotation', [rotation for _, _, rotation in material_frames], material_clock)
+        corrective_frames = corrective_clips.get(name, [])
+        if corrective_frames:
+            corrective_clock = [(frame-1)/30 for frame,_ in corrective_frames]
+            if len(corrective_clock) != len(times) or any(abs(a-b)>1e-9 for a,b in zip(times,corrective_clock)):
+                raise ValueError(f'{name}: skeletal and tissue-corrective sampling clocks differ')
+            target_names = None
+            for surface in ('palm_surface','thumb_skin'):
+                node = gltf['nodes'][nodes[surface]]
+                mesh = gltf['meshes'][node['mesh']]
+                names = mesh.get('extras',{}).get('targetNames',[])
+                if target_names is None:
+                    target_names = names
+                elif names != target_names:
+                    raise ValueError('Palm/thumb corrective target ordering differs')
+                if not names:
+                    raise ValueError('Authored tissue track has no actual morph targets')
+                values = [weights[target] for _,weights in corrective_frames for target in names]
+                output = accessor(values,'SCALAR')
+                sampler = len(animation['samplers'])
+                animation['samplers'].append({'input':input_accessor,'output':output,'interpolation':'LINEAR'})
+                animation['channels'].append({'sampler':sampler,'target':{'node':nodes[surface],'path':'weights'}})
         animations.append(animation)
     gltf['animations'] = animations
     gltf['buffers'][0]['byteLength'] = len(binary)
@@ -833,6 +1362,542 @@ def write_exact_animation_samplers(clips, model_clips, material_clips):
     encoded += b' ' * ((-len(encoded)) % 4)
     total = 12 + 8 + len(encoded) + 8 + len(binary)
     OUT.write_bytes(struct.pack('<III', 0x46546C67, 2, total) + struct.pack('<II', len(encoded), 0x4E4F534A) + encoded + struct.pack('<II', len(binary), 0x004E4942) + binary)
+
+
+def solve_exported_thumb_web_weights():
+    """Solve the real final-triangle material graph, retaining fixed source skin.
+
+    The positive Dirichlet system uses physical edge lengths, including actual
+    glTF triangulation diagonals. It cannot jump across a short exporter edge
+    or depend on a finite number of graph-smoothing passes.
+    """
+    import heapq
+    from math import dist, fsum, sqrt
+    raw = OUT.read_bytes()
+    json_length = struct.unpack_from('<I', raw, 12)[0]
+    gltf = json.loads(raw[20:20 + json_length])
+    binary_length = struct.unpack_from('<I', raw, 20 + json_length)[0]
+    binary = bytearray(raw[28 + json_length:28 + json_length + binary_length])
+
+    def accessor(index):
+        value = gltf['accessors'][index]
+        view = gltf['bufferViews'][value['bufferView']]
+        width = {'SCALAR': 1, 'VEC3': 3, 'VEC4': 4}[value['type']]
+        code, size = {5121: ('B', 1), 5123: ('H', 2), 5125: ('I', 4), 5126: ('f', 4)}[value['componentType']]
+        offset = view.get('byteOffset', 0) + value.get('byteOffset', 0)
+        stride = view.get('byteStride', width * size)
+        return [struct.unpack_from('<' + code * width, binary, offset + i * stride)
+                for i in range(value['count'])], offset, stride
+
+    parameters = THUMB_PALM_SKIN['weights']
+    palette = [gltf['nodes'][index]['name'] for index in gltf['skins'][0]['joints']]
+    names = ['thumb_proximal', 'thumb_middle', 'thumb_distal', 'palm_root']
+    slots = [palette.index(name) for name in names]
+    points, source_weights, members, part_names, faces, parts = [], [], [], [], [], []
+    lookup = {}
+    for name in ('palm_surface', 'thumb_skin'):
+        node = next(node for node in gltf['nodes'] if node.get('name') == name)
+        primitive = gltf['meshes'][node['mesh']]['primitives'][0]
+        positions, _, _ = accessor(primitive['attributes']['POSITION'])
+        joints, joint_offset, joint_stride = accessor(primitive['attributes']['JOINTS_0'])
+        weights, weight_offset, weight_stride = accessor(primitive['attributes']['WEIGHTS_0'])
+        indices, _, _ = accessor(primitive['indices'])
+        mapping = []
+        for vertex, (point, js, ws) in enumerate(zip(positions, joints, weights)):
+            value = [0.0] * 4
+            for joint, weight in zip(js, ws):
+                if weight > 1e-12:
+                    value[slots.index(joint)] += weight
+            total = sum(value)
+            value = [weight / total for weight in value]
+            if point not in lookup:
+                lookup[point] = len(points)
+                points.append(point)
+                source_weights.append(value)
+                members.append([])
+                part_names.append(set())
+            physical = lookup[point]
+            if max(abs(a-b) for a, b in zip(source_weights[physical], value)) > 1e-7:
+                raise ValueError('Same physical skin position has different source influences')
+            mapping.append(physical)
+            members[physical].append((name, vertex))
+            part_names[physical].add(name)
+        flat = [mapping[index[0]] for index in indices]
+        faces.extend(tuple(flat[index:index+3]) for index in range(0, len(flat), 3))
+        parts.append((mapping, joint_offset, joint_stride, weight_offset, weight_stride))
+    adjacency = [dict() for point in points]
+    for face in faces:
+        for a, b in zip(face, face[1:] + face[:1]):
+            length = dist(points[a], points[b])
+            adjacency[a][b] = length
+            adjacency[b][a] = length
+    distances = [math.inf] * len(points)
+    queue = []
+    for vertex, names_at_point in enumerate(part_names):
+        if len(names_at_point) == 2:
+            distances[vertex] = 0.0
+            queue.append((0.0, vertex))
+    heapq.heapify(queue)
+    while queue:
+        distance, vertex = heapq.heappop(queue)
+        if distance != distances[vertex]:
+            continue
+        for neighbor, edge in adjacency[vertex].items():
+            if distance + edge < distances[neighbor]:
+                distances[neighbor] = distance + edge
+                heapq.heappush(queue, (distance + edge, neighbor))
+    origin = SOURCE_ANATOMY['anatomyOriginM']
+    columns = SOURCE_ANATOMY['palmBasisColumns']
+    ip = DIGITS['thumb'][2]
+    end = DIGITS['thumb'][3]
+    axis_length = dist(ip, end)
+    axis = [(b-a)/axis_length for a,b in zip(ip,end)]
+    fixed = []
+    for vertex, point in enumerate(points):
+        canonical = [sum((point[k]-origin[k])*column[k] for k in range(3)) for column in columns]
+        along = sum((point[k]-ip[k])*axis[k] for k in range(3))
+        fixed.append(canonical[0] >= parameters['fixedCarpalUFromM']
+                     or canonical[2] < parameters['fixedCentralRadialBelowM']
+                     or 'thumb_skin' in part_names[vertex] and along >= parameters['fixedDistalThumbAfterIpM'])
+    free = [vertex for vertex in range(len(points))
+            if distances[vertex] < parameters['radiusM'] and not fixed[vertex]]
+    local = {vertex: index for index, vertex in enumerate(free)}
+    diagonal, unknown, rhs = [], [], []
+    for vertex in free:
+        row, known, total = [], [0.0] * 4, 0.0
+        for neighbor in sorted(adjacency[vertex]):
+            length = max(adjacency[vertex][neighbor], parameters['minimumEdgeM'])
+            conductance = 1.0 / length ** parameters['conductancePower']
+            total += conductance
+            if neighbor in local:
+                row.append((local[neighbor], conductance))
+            else:
+                for channel in range(4):
+                    known[channel] += source_weights[neighbor][channel] * conductance
+        diagonal.append(total)
+        unknown.append(row)
+        rhs.append(known)
+
+    def multiply(values):
+        return [values[index]*diagonal[index] - fsum(values[j]*weight for j,weight in row)
+                for index,row in enumerate(unknown)]
+
+    def inner(a,b):
+        return fsum(x*y for x,y in zip(a,b))
+
+    result = [list(weights) for weights in source_weights]
+    records = []
+    for channel in range(4):
+        values = [source_weights[vertex][channel] for vertex in free]
+        known = [weights[channel] for weights in rhs]
+        residual = [a-b for a,b in zip(known,multiply(values))]
+        preconditioned = [r/d for r,d in zip(residual,diagonal)]
+        direction = preconditioned.copy()
+        rz = inner(residual,preconditioned)
+        initial = max(rz,1e-300)
+        for iteration in range(1600):
+            if rz <= initial * parameters['relativeTolerance']**2:
+                break
+            product = multiply(direction)
+            denominator = inner(direction,product)
+            if denominator <= 0:
+                raise ValueError('Skin Dirichlet graph is not positive definite')
+            alpha = rz/denominator
+            values = [a+alpha*b for a,b in zip(values,direction)]
+            residual = [a-alpha*b for a,b in zip(residual,product)]
+            preconditioned = [r/d for r,d in zip(residual,diagonal)]
+            next_rz = inner(residual,preconditioned)
+            beta = next_rz/rz
+            direction = [a+beta*b for a,b in zip(preconditioned,direction)]
+            rz = next_rz
+        else:
+            raise ValueError('Skin Dirichlet field failed to converge')
+        for vertex,value in zip(free,values):
+            result[vertex][channel] = value
+        records.append({'channel':channel,'iterations':iteration,'relativeResidual':sqrt(rz/initial)})
+    for vertex in free:
+        if min(result[vertex]) < -1e-6:
+            raise ValueError('Skin field violated the positive maximum principle')
+        result[vertex] = [max(0,min(1,weight)) for weight in result[vertex]]
+        total = sum(result[vertex])
+        result[vertex] = [weight/total for weight in result[vertex]]
+    for mapping, jo, js, wo, ws in parts:
+        for vertex,physical in enumerate(mapping):
+            if physical in local:
+                struct.pack_into('<4B',binary,jo+vertex*js,*slots)
+                struct.pack_into('<4f',binary,wo+vertex*ws,*result[physical])
+    actual_maximum = {name:max(weights[channel] for weights in result) for channel,name in enumerate(names)}
+    for node in gltf['nodes']:
+        if node.get('name') in ('palm_surface','thumb_skin'):
+            node.setdefault('extras',{})['skinWeightField'] = {
+                'method':parameters['method'],'palette':names,'maximumInfluences':actual_maximum,
+                'domainRadiusM':parameters['radiusM'],'conductancePower':parameters['conductancePower'],
+                'fixedDistalThumbAfterIpM':parameters['fixedDistalThumbAfterIpM'],
+            }
+    encoded = json.dumps(gltf,separators=(',',':'),ensure_ascii=False).encode()
+    encoded += b' '*((-len(encoded))%4)
+    total = 12+8+len(encoded)+8+len(binary)
+    OUT.write_bytes(struct.pack('<III',0x46546C67,2,total)
+        +struct.pack('<II',len(encoded),0x4E4F534A)+encoded
+        +struct.pack('<II',len(binary),0x004E4942)+binary)
+    print('THUMB_WEB_DIRICHLET_FIELD '+json.dumps({'freeVertices':len(free),'channels':records,'maximumInfluences':actual_maximum}))
+
+
+
+def bind_exported_skin_union():
+    """Publish only real shared boundary indices of the closed outer skin.
+
+    The semantic palm and thumb primitives are open partitions. They are never
+    closed by invisible caps; their actual exported, weighted vertices close
+    one visible manifold surface together.
+    """
+    raw = OUT.read_bytes()
+    json_length = struct.unpack_from('<I', raw, 12)[0]
+    gltf = json.loads(raw[20:20 + json_length])
+    header = 20 + json_length
+    binary_length = struct.unpack_from('<I', raw, header)[0]
+    binary = bytearray(raw[header + 8:header + 8 + binary_length])
+
+    def accessor(index):
+        value = gltf['accessors'][index]
+        view = gltf['bufferViews'][value['bufferView']]
+        width = {'SCALAR': 1, 'VEC2': 2, 'VEC3': 3, 'VEC4': 4}[value['type']]
+        code, size = {5121: ('B', 1), 5123: ('H', 2), 5125: ('I', 4), 5126: ('f', 4)}[value['componentType']]
+        offset = view.get('byteOffset', 0) + value.get('byteOffset', 0)
+        stride = view.get('byteStride', width * size)
+        return [struct.unpack_from('<' + code * width, binary, offset + i * stride)
+                for i in range(value['count'])]
+
+    names = ['palm_surface', 'thumb_skin']
+    parts = {}
+    all_faces = []
+    for name in names:
+        node = next(node for node in gltf['nodes'] if node.get('name') == name)
+        primitive = gltf['meshes'][node['mesh']]['primitives'][0]
+        points = accessor(primitive['attributes']['POSITION'])
+        normals = accessor(primitive['attributes']['NORMAL'])
+        joints = accessor(primitive['attributes']['JOINTS_0'])
+        weights = accessor(primitive['attributes']['WEIGHTS_0'])
+        texture = accessor(primitive['attributes']['TEXCOORD_0'])
+        normal_accessor = gltf['accessors'][primitive['attributes']['NORMAL']]
+        normal_view = gltf['bufferViews'][normal_accessor['bufferView']]
+        normal_offset = normal_view.get('byteOffset',0)+normal_accessor.get('byteOffset',0)
+        normal_stride = normal_view.get('byteStride',12)
+        indices = [value[0] for value in accessor(primitive['indices'])]
+        # Float32 glTF values are the actual material endpoints being joined.
+        keys = [tuple(round(component, 8) for component in point) for point in points]
+        point_vertices = {}
+        for vertex, key in enumerate(keys):
+            point_vertices.setdefault(key, []).append(vertex)
+        edges = {}
+        for triangle in range(0, len(indices), 3):
+            face = tuple(keys[vertex] for vertex in indices[triangle:triangle + 3])
+            if len(set(face)) != 3:
+                raise ValueError('Skin union contains an exported zero-area material triangle')
+            all_faces.append(face)
+            for a, b in zip(face, face[1:] + face[:1]):
+                edge = tuple(sorted((a, b)))
+                edges[edge] = edges.get(edge, 0) + 1
+        boundary = {edge for edge, count in edges.items() if count == 1}
+        parts[name] = dict(node=node, points=points, normals=normals,
+                           joints=joints, weights=weights, texture=texture,
+                           normal_offset=normal_offset,normal_stride=normal_stride,
+                           point_vertices=point_vertices, boundary=boundary)
+    if parts[names[0]]['boundary'] != parts[names[1]]['boundary']:
+        raise ValueError('Actual exported palm/thumb boundary edges do not match')
+    shared_keys = sorted({key for edge in parts[names[0]]['boundary'] for key in edge})
+    if len(shared_keys) < 16:
+        raise ValueError('Actual skin union is missing a closed shared material perimeter')
+    assembled_edges = {}
+    for face in all_faces:
+        for a, b in zip(face, face[1:] + face[:1]):
+            edge = tuple(sorted((a, b)))
+            assembled_edges.setdefault(edge, []).append(1 if a < b else -1)
+    if any(len(directions) != 2 or sum(directions) != 0
+           for directions in assembled_edges.values()):
+        raise ValueError('Palm/thumb outer assembly is not a closed consistently wound manifold')
+    # The two glTF primitives share one physical smooth normal, derived from
+    # the actual combined outer triangles. Blender independently quantizes
+    # custom corner vectors per primitive; publishing this physical field once
+    # removes that encoding difference without moving or hiding any skin.
+    physical_points = {}
+    for part in parts.values():
+        for key, indices in part['point_vertices'].items():
+            physical_points.setdefault(key,part['points'][indices[0]])
+    smooth_normals = {key:Vector() for key in shared_keys}
+    for face in all_faces:
+        a,b,c = (Vector(physical_points[key]) for key in face)
+        area_normal = (b-a).cross(c-a)
+        for key in face:
+            if key in smooth_normals:
+                smooth_normals[key] += area_normal
+    max_uv_gap = 0.0
+    for key, normal in smooth_normals.items():
+        if normal.length_squared < 1e-20:
+            raise ValueError('Actual composite seam has no defined physical smooth normal')
+        normal.normalize()
+        texture_at_point = []
+        for part in parts.values():
+            for vertex in part['point_vertices'][key]:
+                texture_at_point.append(part['texture'][vertex])
+                struct.pack_into('<3f',binary,part['normal_offset']+vertex*part['normal_stride'],*normal)
+                part['normals'][vertex] = tuple(normal)
+        for a in texture_at_point:
+            for b in texture_at_point:
+                # The authored skin detail maps repeat horizontally.
+                du = a[0]-b[0]
+                du -= round(du)
+                max_uv_gap = max(max_uv_gap,math.hypot(du,a[1]-b[1]))
+    if max_uv_gap > 1e-8:
+        raise ValueError(f'Physical skin boundary has a discontinuous texture chart: {max_uv_gap}')
+    max_gap, min_dot, max_weight_delta = 0.0, 1.0, 0.0
+    for key in shared_keys:
+        for a in parts[names[0]]['point_vertices'][key]:
+            for b in parts[names[1]]['point_vertices'][key]:
+                left, right = parts[names[0]], parts[names[1]]
+                max_gap = max(max_gap, (Vector(left['points'][a]) - Vector(right['points'][b])).length)
+                min_dot = min(min_dot, Vector(left['normals'][a]).normalized().dot(Vector(right['normals'][b]).normalized()))
+                influences = []
+                for part, vertex in ((left, a), (right, b)):
+                    values = {}
+                    for joint, weight in zip(part['joints'][vertex], part['weights'][vertex]):
+                        values[joint] = values.get(joint, 0) + weight
+                    influences.append(values)
+                max_weight_delta = max(max_weight_delta, max(abs(influences[0].get(joint, 0) - influences[1].get(joint, 0))
+                    for joint in set(influences[0]) | set(influences[1])))
+    if max_gap > 1e-8 or min_dot < 0.99999 or max_weight_delta > 1e-7:
+        raise ValueError(f'Actual skin junction differs across partitions: P={max_gap}, N={min_dot}, W={max_weight_delta}')
+    section_references = []
+    material_lookup = {}
+    for name, part in parts.items():
+        for key, indices in part['point_vertices'].items():
+            material_lookup.setdefault(key, (name, indices[0]))
+    # Keep the contiguous proximal construction chart through its first two
+    # real sections beyond the measured metacarpal region.
+    beyond_region = 0
+    for section in THUMB_COLLAR_CONSTRUCTION_SECTIONS:
+        references = []
+        for point in section['positionsM']:
+            key = tuple(round(struct.unpack('<f',struct.pack('<f',value))[0],8) for value in point)
+            if key not in material_lookup:
+                raise ValueError(f"Material section {section['id']} is absent from actual exported outer skin")
+            surface, index = material_lookup[key]
+            references.append({'surface':surface,'index':index})
+        section_references.append({'id':section['id'],'vertices':references})
+        if section['metacarpalFraction'] > .95:
+            beyond_region += 1
+            if beyond_region == 2:
+                break
+    for name, part in parts.items():
+        part['node'].setdefault('extras', {})['skinUnion'] = {
+            'schema': 'acucraft.skin-union@1',
+            'id': 'thumb-palm',
+            'parts': names,
+            'individualClosed': False,
+            'compositeTopology': 'one connected closed visible outer skin',
+            'sharedBoundary': [{'id': index, 'vertices': part['point_vertices'][key]}
+                               for index, key in enumerate(shared_keys)],
+            'maxBindPositionGapM': max_gap,
+            'minBindNormalDot': min_dot,
+            'maxBindInfluenceDelta': max_weight_delta,
+            'maxBindTextureDelta': max_uv_gap,
+            'sharedNormalField': 'area-weighted actual composite triangles',
+            'internalSeamCaps': False,
+            **({'materialSections':section_references} if name == 'palm_surface' else {}),
+        }
+    encoded = json.dumps(gltf, separators=(',', ':'), ensure_ascii=False).encode()
+    encoded += b' ' * ((-len(encoded)) % 4)
+    total = 12 + 8 + len(encoded) + 8 + len(binary)
+    OUT.write_bytes(struct.pack('<III', 0x46546C67, 2, total)
+        + struct.pack('<II', len(encoded), 0x4E4F534A) + encoded
+        + struct.pack('<II', len(binary), 0x004E4942) + binary)
+
+
+
+def authored_thumb_web_correctives():
+    """Load immutable authored targets bound transitively by the anatomy hash."""
+    reference = THUMB_PALM_SKIN.get('correctives')
+    if not reference:
+        return {}
+    source = ANATOMY_SOURCE.with_name(reference['source'])
+    payload = source.read_bytes()
+    if hashlib.sha256(payload).hexdigest() != reference['sha256']:
+        raise ValueError('Authored thumb-web targets differ from their anatomy source fingerprint')
+    data = json.loads(payload)
+    if data.get('schemaVersion') != 1:
+        raise ValueError('Unsupported authored thumb-web target schema')
+    if data.get('driver',{}).get('method') != 'quaternion-gaussian-rbf':
+        raise ValueError('Thumb-web targets require the matching quaternion Gaussian driver')
+    return data
+
+
+def publish_exported_thumb_web_correctives():
+    """Publish actual sparse POSITION/NORMAL tissue targets as standard glTF.
+
+    Every physical source record resolves against real final skin P/influences.
+    UV and normal duplicates receive the same material delta. Shared boundaries
+    therefore remain one skin under every target mixture; protected distal pulp
+    and the original carpal join are required to have exactly zero deltas.
+    """
+    authored = authored_thumb_web_correctives()
+    if not authored:
+        return
+    raw = OUT.read_bytes()
+    json_length = struct.unpack_from('<I',raw,12)[0]
+    gltf = json.loads(raw[20:20+json_length])
+    binary_length = struct.unpack_from('<I',raw,20+json_length)[0]
+    binary = bytearray(raw[28+json_length:28+json_length+binary_length])
+
+    def accessor(index):
+        value = gltf['accessors'][index]
+        view = gltf['bufferViews'][value['bufferView']]
+        width = {'SCALAR':1,'VEC2':2,'VEC3':3,'VEC4':4}[value['type']]
+        code,size = {5121:('B',1),5123:('H',2),5125:('I',4),5126:('f',4)}[value['componentType']]
+        offset = view.get('byteOffset',0)+value.get('byteOffset',0)
+        stride = view.get('byteStride',width*size)
+        return [struct.unpack_from('<'+code*width,binary,offset+index*stride)
+                for index in range(value['count'])]
+
+    def float32(value):
+        return struct.unpack('<f',struct.pack('<f',value))[0]
+
+    def point_key(point):
+        return tuple(round(float32(value),8) for value in point)
+
+    def append_view(payload):
+        binary.extend(b'\x00'*((-len(binary))%4))
+        offset = len(binary)
+        binary.extend(payload)
+        index = len(gltf['bufferViews'])
+        gltf['bufferViews'].append({'buffer':0,'byteOffset':offset,'byteLength':len(payload)})
+        return index
+
+    def sparse_vec3(values):
+        active = [(index,value) for index,value in enumerate(values) if any(component != 0 for component in value)]
+        result = {'componentType':5126,'count':len(values),'type':'VEC3'}
+        if active:
+            component_type,code = (5123,'H') if len(values)<=65536 else (5125,'I')
+            index_view = append_view(struct.pack('<'+code*len(active),*(index for index,_ in active)))
+            value_view = append_view(struct.pack('<'+'f'*(3*len(active)),*(component for _,value in active for component in value)))
+            result['sparse'] = {'count':len(active),'indices':{'bufferView':index_view,'componentType':component_type},
+                                'values':{'bufferView':value_view}}
+        index = len(gltf['accessors'])
+        gltf['accessors'].append(result)
+        return index
+
+    palette = [gltf['nodes'][index]['name'] for index in gltf['skins'][0]['joints']]
+    parts, physical = {}, {}
+    fingerprint = {}
+    for name in ('palm_surface','thumb_skin'):
+        node = next(node for node in gltf['nodes'] if node.get('name')==name)
+        mesh = gltf['meshes'][node['mesh']]
+        primitive = mesh['primitives'][0]
+        fields = {attribute:accessor(index) for attribute,index in primitive['attributes'].items()}
+        positions = fields['POSITION']
+        named_weights = []
+        for joints,weights in zip(fields['JOINTS_0'],fields['WEIGHTS_0']):
+            influences = {}
+            for joint,weight in zip(joints,weights):
+                if weight>0:
+                    bone = palette[joint]
+                    influences[bone] = influences.get(bone,0.0)+weight
+            total = sum(influences.values())
+            named_weights.append({bone:weight/total for bone,weight in influences.items()})
+        for index,(point,weights) in enumerate(zip(positions,named_weights)):
+            key = point_key(point)
+            physical.setdefault(key,[]).append((name,index,weights))
+        fingerprint[name] = {**fields,'indices':accessor(primitive['indices'])}
+        parts[name] = {'node':node,'mesh':mesh,'primitive':primitive,'positions':positions,'weights':named_weights}
+    actual_fingerprint = hashlib.sha256(json.dumps(fingerprint,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+    if authored.get('sourceBindSha256') != actual_fingerprint:
+        raise ValueError('Authored thumb-web targets do not match actual final P/N/UV/influences/topology')
+    source_normals = {name:{point_key(record[0]) for record in records}
+                      for name,records in PROTECTED_SKIN_NORMALS.items()}
+    driver = authored['driver']
+    if driver.get('schemaVersion') != 1 or not math.isfinite(driver.get('sigma',math.nan)) or driver['sigma'] <= 0:
+        raise ValueError('Invalid thumb-web Gaussian driver schema or radius')
+    source_nodes = {node.get('name') for node in gltf['nodes']}
+    if not driver.get('joints') or any(joint.get('bone') not in source_nodes or joint.get('control') not in source_nodes for joint in driver['joints']):
+        raise ValueError('Thumb-web driver does not reference actual source bone/control pairs')
+    features = []
+    for centre in driver.get('centres',[]):
+        rotations = centre.get('rotations',[])
+        if len(rotations) != len(driver['joints']):
+            raise ValueError('Thumb-web driver centre has the wrong joint dimension')
+        feature = []
+        for rotation in rotations:
+            if len(rotation)!=4 or not all(math.isfinite(value) for value in rotation) or sum(value*value for value in rotation)<1e-20:
+                raise ValueError('Invalid source quaternion in a thumb-web driver centre')
+            x,y,z,w = rotation
+            matrix = Quaternion((w,x,y,z)).normalized().to_matrix()
+            feature.extend(matrix[row][column] for column in range(3) for row in range(3))
+        if any(sum((a-b)**2 for a,b in zip(feature,previous))<1e-14 for previous in features):
+            raise ValueError('Duplicate physical quaternion feature in authored corrective centres')
+        features.append(feature)
+    targets = authored.get('targets',[])
+    target_names = [target['name'] for target in targets]
+    driver_names = [centre['name'] for centre in driver['centres'] if centre['name'] is not None]
+    if len(set(target_names)) != len(target_names) or driver_names != target_names:
+        raise ValueError('Authored target names/order differ from the runtime quaternion driver centres')
+    if not targets:
+        raise ValueError('Thumb-web corrective source is missing actual physical targets')
+    for part in parts.values():
+        part['primitive']['targets'] = []
+        part['mesh'].setdefault('extras',{})['targetNames'] = target_names
+        part['mesh']['weights'] = [0.0]*len(targets)
+    diagnostics = []
+    for target in targets:
+        deltas = {name:{'POSITION':[(0.0,0.0,0.0)]*len(part['positions']),
+                        'NORMAL':[(0.0,0.0,0.0)]*len(part['positions'])} for name,part in parts.items()}
+        seen = set()
+        for record in target['vertices']:
+            point = record['position']
+            weights = record['influences']
+            delta_position = tuple(float32(value) for value in record['deltaPosition'])
+            delta_normal = tuple(float32(value) for value in record['deltaNormal'])
+            if any(len(values)!=3 for values in (point,delta_position,delta_normal)):
+                raise ValueError('A tissue target contains an invalid material vector')
+            if not all(math.isfinite(value) for value in (*point,*delta_position,*delta_normal,*weights.values())):
+                raise ValueError('A tissue target contains a non-finite value')
+            key = point_key(point)
+            if key in seen:
+                raise ValueError('A tissue target contains a duplicated physical vertex record')
+            seen.add(key)
+            members = physical.get(key,[])
+            if not members:
+                raise ValueError(f'Authored tissue point is absent from actual skin: {point}')
+            normalized = {bone:value/sum(weights.values()) for bone,value in weights.items() if value>0}
+            for surface,index,actual in members:
+                if max(abs(actual.get(bone,0)-normalized.get(bone,0)) for bone in set(actual)|set(normalized))>1e-7:
+                    raise ValueError('Authored tissue influence differs from actual skin material')
+                if key in source_normals.get(surface,set()) and any(value!=0 for value in (*delta_position,*delta_normal)):
+                    raise ValueError('A tissue corrective moves protected distal bearing or original wrist material')
+                deltas[surface]['POSITION'][index] = delta_position
+                deltas[surface]['NORMAL'][index] = delta_normal
+        count = 0
+        max_delta = 0.0
+        for surface,part in parts.items():
+            attributes = {kind:sparse_vec3(values) for kind,values in deltas[surface].items()}
+            position_accessor = gltf['accessors'][attributes['POSITION']]
+            position_accessor['min'] = [min(value[axis] for value in deltas[surface]['POSITION']) for axis in range(3)]
+            position_accessor['max'] = [max(value[axis] for value in deltas[surface]['POSITION']) for axis in range(3)]
+            part['primitive']['targets'].append(attributes)
+            count += sum(any(component!=0 for component in value) for value in deltas[surface]['POSITION'])
+            max_delta = max(max_delta,max(Vector(value).length for value in deltas[surface]['POSITION']))
+        diagnostics.append({'name':target['name'],'positionRenderVertices':count,'maximumBindDeltaM':max_delta})
+    root = next(node for node in gltf['nodes'] if node.get('name')=='acu_practitioner_hand')
+    root.setdefault('extras',{})['thumbWebCorrectives'] = driver
+    root['extras']['thumbWebCorrectivesSourceSha256'] = THUMB_PALM_SKIN['correctives']['sha256']
+    root['extras']['correctiveSourceSha256'] = THUMB_PALM_SKIN['correctives']['sha256']
+    gltf['buffers'][0]['byteLength'] = len(binary)
+    encoded = json.dumps(gltf,separators=(',',':'),ensure_ascii=False).encode()
+    encoded += b' '*((-len(encoded))%4)
+    total = 12+8+len(encoded)+8+len(binary)
+    OUT.write_bytes(struct.pack('<III',0x46546C67,2,total)
+        +struct.pack('<II',len(encoded),0x4E4F534A)+encoded
+        +struct.pack('<II',len(binary),0x004E4942)+binary)
+    print('THUMB_WEB_CORRECTIVE_PUBLICATION '+json.dumps({'sourceBindSha256':actual_fingerprint,'targets':diagnostics}))
+
 
 
 def bind_continuous_skins():
@@ -1082,6 +2147,8 @@ def validate_choreography_sources(choreography):
     """Reject choreography sampled from stale geometry or controller code."""
     provenance = choreography.get("provenance", {})
     expected = {
+        "builder": "tools/blender/build_hand.py",
+        "correctives": "tools/blender/hand_thumb_web_correctives.json",
         "hand": "packages/server/web/stage/hand.ts",
         "physiology": "packages/server/web/stage/hand-physiology.ts",
         "nailWork": "packages/server/web/stage/hand-nail-work.ts",
@@ -1157,11 +2224,15 @@ def build(calibration_only=False):
     MATERIALS_BY_CLIP.clear()
     MATERIAL_BIND_FRAMES.clear()
     WRIST_INTERFACE_ROWS.clear()
+    PROTECTED_SKIN_NORMALS.clear()
+    THUMB_COLLAR_CONSTRUCTION_SECTIONS.clear()
     scene = bpy.context.scene
     scene.render.fps = 30
     scene.frame_start, scene.frame_end = 1, 31
     asset_root = empty("acu_practitioner_hand")
     asset_root["license"] = "CC0-1.0"
+    asset_root["builderSourceSha256"] = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
+    asset_root["anatomySourceSha256"] = hashlib.sha256(ANATOMY_SOURCE.read_bytes()).hexdigest()
     asset_root["sourceHandedness"] = SOURCE_ANATOMY["sourceHandedness"]
     asset_root["source"] = "AcuCraft tools/blender/build_hand.py; original procedural geometry and PBR textures"
     asset_root["units"] = "metres; +Y needle axis; raised reference hold"
@@ -1205,6 +2276,10 @@ def build(calibration_only=False):
     for digit, points in DIGITS.items():
         radius = {"thumb": 0.0090, "index": 0.0075, "middle": 0.0080, "ring": 0.0075, "little": 0.0064}[digit]
         surface = continuous_finger(digit, skin, root)
+        if digit == "thumb":
+            register_protected_skin_normals(palm_surface, "palm")
+            register_protected_skin_normals(surface, "thumb")
+            palm_surface, surface = integrate_thumb_palm(palm_surface, surface)
         parent = root
         for i, joint in enumerate(JOINTS):
             start, end = Vector(points[i]), Vector(points[i + 1])
@@ -1363,7 +2438,7 @@ def build(calibration_only=False):
     empty("thumb_contact", root, (0, 0, -0.0007))
     empty("index_contact", root, (0, 0, 0.0007))
 
-    clips, model_clips, material_clips = {}, {}, {}
+    clips, model_clips, material_clips, corrective_clips = {}, {}, {}, {}
     material_poses, active_materials, contacts_by_pose = {}, {}, {}
     if not calibration_only:
         # The exported choreography uses the same fixed-hinge solutions and real
@@ -1489,6 +2564,34 @@ def build(calibration_only=False):
             material_clips[clip] = tracks
             MATERIALS_BY_CLIP[clip] = list(tracks)
 
+        # Tissue weights are sampled by the same live quaternion driver as
+        # the bones. Standard glTF channels preserve that clock for clip-only
+        # playback; no procedural controller is needed to play the asset.
+        target_names = [target['name'] for target in authored_thumb_web_correctives().get('targets',[])]
+        if target_names:
+            pose_weights = choreography.get('correctivePoses',{})
+            for clip,sequence,first_pose in [
+                ('hand_open','open','pinch'),('hand_support',None,'support'),
+                ('hand_three_finger',None,'three_finger'),('hand_scrape','scrape','scrape_start'),
+                ('hand_flick','flick','flick_loaded')]:
+                entries = choreography['sequences'].get(sequence,{}).get('correctiveFrames',{}) if sequence else {}
+                if sequence:
+                    if set(entries) != set(target_names):
+                        raise ValueError(f'{clip}: runtime corrective tracks and actual morph target names differ')
+                    reference = entries[target_names[0]]
+                    clocks = [[entry[0] for entry in entries[target]] for target in target_names]
+                    if any(clock != clocks[0] for clock in clocks[1:]):
+                        raise ValueError(f'{clip}: corrective target sampling clocks differ')
+                    frames = [(frame,{target:entries[target][index][1] for target in target_names})
+                              for index,(frame,_) in enumerate(reference)]
+                else:
+                    if set(pose_weights.get(first_pose,{})) != set(target_names):
+                        raise ValueError(f'{clip}: runtime corrective pose is missing actual target weights')
+                    frames = [(1,pose_weights[first_pose]),(31,pose_weights[first_pose])]
+                if any(not all(math.isfinite(value) for value in weights.values()) for _,weights in frames):
+                    raise ValueError(f'{clip}: non-finite tissue-corrective weights')
+                corrective_clips[clip] = frames
+
         # Measure the real contact transforms of each authored pose for both runtime attachment and tests.
         animated_nodes = [*nodes.values(), root, *(anchors[name] for name in sorted(ANIMATED_MATERIALS))]
         for node in animated_nodes:
@@ -1529,9 +2632,13 @@ def build(calibration_only=False):
     )
 
     bind_continuous_skins()
+    solve_exported_thumb_web_weights()
     bind_exported_wrist_interface()
+    restore_exported_protected_skin_normals()
+    bind_exported_skin_union()
+    publish_exported_thumb_web_correctives()
     if not calibration_only:
-        write_exact_animation_samplers(clips, model_clips, material_clips)
+        write_exact_animation_samplers(clips, model_clips, material_clips, corrective_clips)
     align_exported_smooth_contact_fields()
 
     # Manifest records the binary's actual contract, without geometry patient data.
@@ -1546,6 +2653,8 @@ def build(calibration_only=False):
         "sourceHandedness": SOURCE_ANATOMY["sourceHandedness"],
         "license": "CC0-1.0", "source": "tools/blender/build_hand.py",
         "choreography": None if calibration_only else "tools/blender/hand_poses.json",
+        "builderSourceSha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+        "anatomySourceSha256": hashlib.sha256(ANATOMY_SOURCE.read_bytes()).hexdigest(),
         "choreographySha256": None if calibration_only else hashlib.sha256(POSES.read_bytes()).hexdigest(),
         "choreographyProvenance": choreography.get("provenance", {}),
         "sha256": hashlib.sha256(raw).hexdigest(), "bytes": len(raw),
@@ -1559,9 +2668,13 @@ def build(calibration_only=False):
         "joints": {d: [f"{d}_{j}" for j in JOINTS] for d in DIGITS},
         "anatomicalJoints": {d: [f"{d}_{j}" for j in ANATOMICAL[d]] for d in DIGITS},
         "anatomicalMapping": {f"{d}_{j}": f"{d}_{ANATOMICAL[d][i]}" for d in DIGITS for i, j in enumerate(JOINTS)},
-        "skin": {"surfaces": list(SKIN_WEIGHTS), "joints": [f"{d}_{j}" for d in DIGITS for j in JOINTS] + ["palm_root"], "weights": "smooth neighbouring-joint blend and proximal palm/MCP transition; contact-bearing distal vertices are rigid; connected palm uses static/CMC blend", "staticInfluence": "palm_root", "clone": "SkeletonUtils.clone is required for independent hands"},
+        "skin": {"surfaces": list(SKIN_WEIGHTS), "joints": [f"{d}_{j}" for d in DIGITS for j in JOINTS] + ["palm_root"], "weights": "smooth neighbouring-joint blend and proximal palm/MCP transition; contact-bearing distal vertices are rigid; closed palm-thumb composite uses a positive final-triangle CMC/MCP/IP/static Dirichlet field", "staticInfluence": "palm_root", "clone": "SkeletonUtils.clone is required for independent hands"},
         "wristInterface": exported_nodes["palm_surface"]["extras"]["wristInterface"],
-        "palm": {"surface": "palm_surface", "topology": "single closed connected skin including thenar", "thenar": {"region": "localized radial-palmar quadrant", "maximumCmcWeight": THUMB_TISSUE["maximumThenarCmcWeight"]}, "knuckles": "asymmetric MCP arch and dorsal metacarpal contours", "frame": "palm_frame", "shape": "localized thenar and hypothenar cushions with central palmar hollow; hidden thumb connector follows the true skin envelope"},
+        "thumbWebCorrectives": exported_nodes["acu_practitioner_hand"].get("extras",{}).get("thumbWebCorrectives"),
+        "thumbWebCorrectivesSourceSha256": THUMB_PALM_SKIN.get("correctives",{}).get("sha256"),
+        "correctiveSourceSha256": THUMB_PALM_SKIN.get("correctives",{}).get("sha256"),
+        "thumbWebCorrectivesBindSha256": authored_thumb_web_correctives().get("sourceBindSha256"),
+        "palm": {"surface": "palm_surface", "topology": "closed palm-thumb composite", "skinParts": ["palm_surface", "thumb_skin"], "thenar": {"region": "localized radial-palmar quadrant", "inputSeedMaximumCmcWeight": THUMB_TISSUE["maximumThenarCmcWeight"], "weightField": exported_nodes["palm_surface"]["extras"]["skinWeightField"]}, "knuckles": "asymmetric MCP arch and dorsal metacarpal contours", "frame": "palm_frame", "shape": "localized thenar and hypothenar cushions with central palmar hollow; rounded first-web aperture and regular continuous thenar collar"},
         "restAnatomy": {"thumb": {"points": {joint: list(point) for joint, point in zip((*ANATOMICAL["thumb"], "tip"), DIGITS["thumb"])},
                                   "boneLengthsMm": [(Vector(DIGITS["thumb"][i + 1]) - Vector(DIGITS["thumb"][i])).length * 1000 for i in range(3)],
                                   "flexionDeg": [(Vector(DIGITS["thumb"][i]) - Vector(DIGITS["thumb"][i - 1])).angle(Vector(DIGITS["thumb"][i + 1]) - Vector(DIGITS["thumb"][i])) * 180 / math.pi for i in (1, 2)],

@@ -326,5 +326,55 @@
     "canonicalU": 0.104,
     "samples": 48,
     "description": "Actual proximal palm ring for the runtime skin transition. The closed cap behind the join preserves a solid collision volume; all distal contacts and the carpal CMC are retained."
+  },
+  "thumbPalmSkin": {
+    "topology": "closed palm-thumb composite",
+    "aperture": {
+      "canonicalUM": [
+        0.058,
+        0.091
+      ],
+      "angularColumns": [
+        15,
+        22
+      ],
+      "ellipseExponent": 2.0,
+      "retainedAnnulusM": 0.016
+    },
+    "collar": {
+      "thumbCutMetacarpalFraction": 1.0,
+      "longitudinalSegments": 12,
+      "angularSamples": 72,
+      "palmarBulgeM": 0.004,
+      "textureChartTransition": {
+        "sourceDerivativeThroughFraction": 0.1,
+        "transitionFraction": 0.32,
+        "method": "area-weighted retained-palm UV Jacobian extension"
+      }
+    },
+    "firstWebRecess": {
+      "depthM": 0.017,
+      "canonicalUBeginM": 0.004,
+      "onsetM": 0.012,
+      "canonicalUEndM": 0.05,
+      "offsetM": 0.015,
+      "radialCentreM": 0.026,
+      "radialSpreadM": 0.013
+    },
+    "weights": {
+      "method": "positive Dirichlet field on final exported physical triangle graph",
+      "radiusM": 0.032,
+      "conductancePower": 2,
+      "minimumEdgeM": 5e-05,
+      "fixedCentralRadialBelowM": 0.01,
+      "fixedCarpalUFromM": 0.101,
+      "fixedDistalThumbAfterIpM": 0.0045,
+      "relativeTolerance": 1e-11
+    },
+    "description": "One visible closed outer skin, with a rounded aperture and regular parallel-transported collar; semantic palm/thumb partitions share positions, normals and influences. Source bones and rigid distal bearing remain unchanged.",
+    "correctives": {
+      "source": "hand_thumb_web_correctives.json",
+      "sha256": "47e6188c84601047b47f321dc8169cba1b79eaa50ce9b3f4e7ee949e91fb1781"
+    }
   }
 }

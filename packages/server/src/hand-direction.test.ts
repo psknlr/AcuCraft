@@ -1,9 +1,10 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { Mesh, Object3D, Ray, SkinnedMesh, Triangle, Vector3 } from "three";
+import { Mesh, Object3D, SkinnedMesh, Vector3 } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { describe, expect, it } from "vitest";
 import { ArticulatedHand, type FingerPose } from "../web/stage/hand.js";
+import { collectCompositeSkin, sampleCompositeSkin } from "../../../tools/test/hand-composite-skin.js";
 
 const asset = process.env.ACUCRAFT_HAND_ASSET_FIXTURE
   ?? fileURLToPath(new URL("../../../content/world/assets/models/acu-practitioner-hand.glb", import.meta.url));
@@ -42,58 +43,6 @@ function direction(object: Object3D, local: Vector3): Vector3 {
 function pose(hand: ArticulatedHand, side: "left" | "right", role: FingerPose): void {
   hand.setSide(side); hand.pose(role); hand.root.updateMatrixWorld(true);
   expect(hand.contactValid, `${side}/${role.pose}/${role.gripStyle} real contact solve`).toBe(true);
-}
-
-/** Actual posed closed-palm triangles; no bounding-box or marker occupancy substitute. */
-function palmSurface(hand: ArticulatedHand): Triangle[] {
-  const mesh = node(hand, "palm_surface") as SkinnedMesh;
-  expect(mesh.isSkinnedMesh).toBe(true);
-  mesh.updateMatrixWorld(true); mesh.skeleton.update();
-  const count = mesh.geometry.getAttribute("position").count, indices = mesh.geometry.index!;
-  const points = Array.from({ length: count }, (_, index) => mesh.localToWorld(mesh.getVertexPosition(index, new Vector3())));
-  return Array.from({ length: indices.count / 3 }, (_, index) => new Triangle(
-    points[indices.getX(index * 3)]!, points[indices.getX(index * 3 + 1)]!, points[indices.getX(index * 3 + 2)]!,
-  ));
-}
-
-/** Three-ray majority plus distance excludes contacts within the existing 50 µm surface tolerance. */
-function insidePalmBeyondTolerance(point: Vector3, triangles: readonly Triangle[]): boolean {
-  const hit = new Vector3(); let votes = 0;
-  for (const direction of [new Vector3(0.431, 0.293, 0.853), new Vector3(0.853, 0.431, 0.293), new Vector3(0.293, 0.853, 0.431)]) {
-    const ray = new Ray(point, direction.normalize()), distances: number[] = [];
-    for (const triangle of triangles) {
-      if (!ray.intersectTriangle(triangle.a, triangle.b, triangle.c, false, hit)) continue;
-      const distance = hit.distanceTo(point);
-      if (distance > 1e-8 && !distances.some((previous) => Math.abs(previous - distance) < 1e-7)) distances.push(distance);
-    }
-    if (distances.length % 2) votes++;
-  }
-  if (votes < 2) return false;
-  let nearest = Infinity;
-  for (const triangle of triangles) nearest = Math.min(nearest, triangle.closestPointToPoint(point, hit).distanceTo(point));
-  return nearest > 0.00005;
-}
-
-/** Whole real skin rings 2 mm past MCP to 2 mm before IP; the buried metacarpal is intentionally excluded. */
-function proximalThumbSurface(hand: ArticulatedHand): Vector3[] {
-  const skin = node(hand, "thumb_skin") as SkinnedMesh;
-  expect(skin.isSkinnedMesh).toBe(true); expect(skin.visible).toBe(true);
-  skin.updateMatrixWorld(true); skin.skeleton.update();
-  const metacarpal = node(hand, "thumb_MCP").position.length();
-  const proximal = node(hand, "thumb_IP").position.length(), distal = node(hand, "thumb_tip").position.length();
-  const uv = skin.geometry.getAttribute("uv"), rings = new Map<number, Vector3[]>();
-  for (let index = 0; index < uv.count; index++) {
-    // The source strip uses along/(total+2.5 mm); glTF flips the V coordinate.
-    const v = 1 - uv.getY(index), along = v * (metacarpal + proximal + distal + 0.0025) - metacarpal;
-    if (along < 0.002 || along > proximal - 0.002) continue;
-    const point = skin.localToWorld(skin.getVertexPosition(index, new Vector3())), ring = rings.get(v) ?? [];
-    if (!ring.some((previous) => previous.distanceToSquared(point) < 1e-18)) ring.push(point);
-    rings.set(v, ring);
-  }
-  expect(rings.size, "complete proximal skin sections rather than selected visible points").toBeGreaterThanOrEqual(5);
-  const points = [...rings.values()].flat();
-  expect(points.length, "full physical circumferences, deduplicating only UV seams").toBeGreaterThanOrEqual(160);
-  return points;
 }
 
 describe("anatomical thumb and four-finger directions", () => {
@@ -167,23 +116,27 @@ describe("anatomical thumb and four-finger directions", () => {
     } finally { hand.dispose(); }
   });
 
-  it("keeps the working thumb MCP palmar and exposes its proximal phalanx in the authored default needle grips", async () => {
+  it("keeps the working thumb MCP palmar and the actual palm/thumb skin joined under reflection and a rotated scene", async () => {
     const hand = await detailHand();
-    // These depict the authored needle holds. They are not population ROM limits
-    // or a demand that the carpal/metacarpal thumb root sit outside its thenar tissue.
-    const working = [
-      { role: roles[0]!, maximumBuriedFraction: 0.4 },
-      { role: roles[2]!, maximumBuriedFraction: 0.15 },
-    ];
+    // The outer skin is one physical assembly split into material charts. A
+    // thumb vertex is now on that assembly itself, so testing its occupancy
+    // against a separately closed palm would no longer measure the junction.
+    const skin = collectCompositeSkin(hand.model);
     try {
-      for (const side of ["left", "right"] as const) for (const { role, maximumBuriedFraction } of working) {
+      expect(skin.topology.connectedComponentCount).toBe(1);
+      expect(skin.topology.eulerCharacteristic).toBe(2);
+      expect(skin.topology.boundaryEdgeCount).toBe(0);
+      expect(skin.topology.nonManifoldEdgeCount).toBe(0);
+      expect(skin.topology.windingConflictCount).toBe(0);
+      expect(skin.seamVertices.length, "real shared palm/thumb vertices, rather than two overlapping closed shells").toBeGreaterThan(20);
+      for (const side of ["left", "right"] as const) for (const role of roles) {
         pose(hand, side, role);
         const palm = node(hand, "palm_frame"), mcp = palm.worldToLocal(point(hand, "thumb_MCP"));
         expect(mcp.y, `${side}/${role.pose} working thumb knuckle stays in the palmar half`).toBeLessThan(-0.004);
-        const triangles = palmSurface(hand), surface = proximalThumbSurface(hand);
-        const buried = surface.filter((point) => insidePalmBeyondTolerance(point, triangles)).length;
-        expect(buried / surface.length, `${side}/${role.pose} actual proximal skin swallowed by the palm: ${buried}/${surface.length}`)
-          .toBeLessThan(maximumBuriedFraction);
+        sampleCompositeSkin(skin);
+        expect(skin.maxSeamPositionGapM, `${side}/${role.pose} actual skin position at the junction`).toBeLessThan(0.000005);
+        expect(skin.minSeamNormalDot, `${side}/${role.pose} actual deformed normal field across the junction`).toBeGreaterThan(0.99999);
+        expect(skin.topology.posedDegenerateFaceCount).toBe(0);
       }
     } finally { hand.dispose(); }
   });

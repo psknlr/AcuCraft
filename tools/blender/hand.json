@@ -5,17 +5,19 @@
   "license": "CC0-1.0",
   "source": "tools/blender/build_hand.py",
   "choreography": "tools/blender/hand_poses.json",
-  "choreographySha256": "89be0a8687aa5833b8f91a53524665ac5a2f1f6a56bb525efd7e213a78195bc4",
+  "builderSourceSha256": "9142bfc8ea931c3960632b9682ec81755a19d0d3ed8e41b29a5733d6013168ed",
+  "anatomySourceSha256": "9bda9eefba56e70e9671516d6c5502fd370b4af4503e11c3c168355a28935547",
+  "choreographySha256": "2ec68627157a812b9776a9e66499577152d4bc2d49fc59b060b075590b8e35a9",
   "choreographyProvenance": {
     "calibrationInputAsset": {
-      "path": "../hand-direction-calibration.glb",
-      "sha256": "947b7faebcd2d0736cafa3f9e3816a623b6f360cc32d7457b7357c7c886a1427",
+      "path": "runs/hand-calibration/thumb-palm.glb",
+      "sha256": "793f89a8d4b659279fd0cc9ca7e2fa90a395ea6a495edb9054bc34d394f18d7b",
       "role": "immutable geometry calibration input; not the subsequently rebuilt GLB output hash"
     },
     "sources": {
       "hand": {
         "path": "packages/server/web/stage/hand.ts",
-        "sha256": "d8f681d63941e39398a2fb5a947d1ed692615500c2e1904aaacd9e7d79e8d4cd"
+        "sha256": "c6633d8e3b15912d4fac5df156c3b60df8fe4ddbc5dd4299518dde9ffda05238"
       },
       "physiology": {
         "path": "packages/server/web/stage/hand-physiology.ts",
@@ -23,15 +25,23 @@
       },
       "nailWork": {
         "path": "packages/server/web/stage/hand-nail-work.ts",
-        "sha256": "d3a78366d06f500284e0e7ef788be5039eed3a40112fccdaab48933b0d1c115f"
+        "sha256": "e7402ad9af73cd8a90a7f79647b81afde52d78faba6e0874a9a4cc0894580aca"
       },
       "anatomy": {
         "path": "tools/blender/hand_anatomy.json",
-        "sha256": "5b12977e94c2b228e15dcac085d617c9f2e6ff2035de8460ef54ee6f067ee279"
+        "sha256": "9bda9eefba56e70e9671516d6c5502fd370b4af4503e11c3c168355a28935547"
+      },
+      "builder": {
+        "path": "tools/blender/build_hand.py",
+        "sha256": "9142bfc8ea931c3960632b9682ec81755a19d0d3ed8e41b29a5733d6013168ed"
+      },
+      "correctives": {
+        "path": "tools/blender/hand_thumb_web_correctives.json",
+        "sha256": "47e6188c84601047b47f321dc8169cba1b79eaa50ce9b3f4e7ee949e91fb1781"
       },
       "exporter": {
         "path": "tools/blender/export_hand_poses.ts",
-        "sha256": "c3ca27bb3f71bf9f9068379472a0a3c4f3cde26cb131307ac9b12672a641303a"
+        "sha256": "364bfc0d695e0b594e18874e90b159d3b01a507754827a55d95308863a3f740b"
       }
     },
     "runtimeModules": {
@@ -123,17 +133,18 @@
       "packages/core/src/schema/knowledge.ts": "d595af9aaf0b991d2f3de4a1ffe84485a70411b26280486bce951b1ec7dcdd82",
       "packages/core/src/schema/manipulation.ts": "d4495df547a77b2b57b7d18bee365b06592e7c4b606137eb06df468a32dacc05",
       "packages/core/src/schema/state.ts": "98e00f7c184064888929b8c9769477df7cde4c509c9a424b18e0771cc505ccb4",
-      "packages/server/web/stage/hand-nail-work.ts": "d3a78366d06f500284e0e7ef788be5039eed3a40112fccdaab48933b0d1c115f",
+      "packages/server/web/stage/hand-nail-work.ts": "e7402ad9af73cd8a90a7f79647b81afde52d78faba6e0874a9a4cc0894580aca",
       "packages/server/web/stage/hand-physiology.ts": "221ca74afde3847f9237af22f18f5de4356e319c478185a9c5ce5348958e917b",
-      "packages/server/web/stage/hand.ts": "d8f681d63941e39398a2fb5a947d1ed692615500c2e1904aaacd9e7d79e8d4cd",
+      "packages/server/web/stage/hand-skin-correctives.ts": "78d0aa72b412cbf73bb1a8e23a5f0b68d9221ca823ba9ad998ef530ddd41b572",
+      "packages/server/web/stage/hand.ts": "c6633d8e3b15912d4fac5df156c3b60df8fe4ddbc5dd4299518dde9ffda05238",
       "packages/server/web/stage/needle-shape.ts": "6cc6b8dbb8801ab76d3c7290b81799da1881a8b14c661e58cf57cd572e580574"
     },
     "animationsRead": false,
     "runtimeContactsValidAtEveryExportedFrame": true
   },
-  "sha256": "d7ec9252dfbbc11e55828c83b988003a7de3d1436ca6fb3d9362348518a32276",
-  "bytes": 1321988,
-  "triangles": 16990,
+  "sha256": "d5845f8167042906c161437d9c388db582230897576d9216a77aad639f7a9a53",
+  "bytes": 1541148,
+  "triangles": 17788,
   "root": "acu_practitioner_hand",
   "authoredPoseFrame": "hand_pose_frame",
   "coordinates": "metres; +Y along needle; complete baked model-space palm basis; opposed true-volar rest pinch",
@@ -310,125 +321,470 @@
       "little_distal",
       "palm_root"
     ],
-    "weights": "smooth neighbouring-joint blend and proximal palm/MCP transition; contact-bearing distal vertices are rigid; connected palm uses static/CMC blend",
+    "weights": "smooth neighbouring-joint blend and proximal palm/MCP transition; contact-bearing distal vertices are rigid; closed palm-thumb composite uses a positive final-triangle CMC/MCP/IP/static Dirichlet field",
     "staticInfluence": "palm_root",
     "clone": "SkeletonUtils.clone is required for independent hands"
   },
   "wristInterface": {
     "ring": [
+      2517,
+      2521,
+      2523,
+      2526,
+      2530,
+      2532,
+      2534,
+      2536,
+      2539,
+      2542,
+      2544,
+      2546,
+      2548,
+      2550,
+      2553,
+      2555,
+      2558,
+      2561,
+      2564,
+      2565,
+      2568,
       2571,
-      2575,
-      2577,
-      2580,
+      2573,
+      2576,
+      2579,
+      2581,
       2584,
-      2586,
-      2588,
-      2590,
-      2593,
-      2596,
-      2598,
-      2600,
-      2602,
-      2604,
-      2607,
+      2587,
+      2589,
+      2592,
+      2595,
+      2599,
+      2601,
+      2603,
+      2606,
       2609,
       2612,
       2615,
-      2618,
-      2619,
-      2622,
-      2625,
-      2627,
-      2630,
-      2633,
+      2617,
+      2620,
+      2623,
+      2626,
+      2629,
+      2632,
+      2634,
       2635,
-      2638,
-      2641,
-      2643,
-      2646,
-      2649,
-      2653,
-      2655,
-      2657,
-      2660,
-      2663,
-      2666,
-      2669,
-      2671,
-      2674,
-      2677,
-      2680,
-      2683,
-      2686,
-      2688,
-      2689,
-      2691,
-      2693
+      2637,
+      2639
     ],
     "distalRing": [
-      2473,
-      2475,
-      2476,
-      2477,
-      2478,
-      2479,
-      2480,
-      2481,
-      2482,
-      2483,
-      2484,
-      2485,
-      2486,
-      2487,
-      2488,
-      2489,
-      2490,
-      2491,
-      2492,
-      2493,
-      2494,
-      2495,
-      2496,
-      2497,
-      2498,
-      2499,
-      2500,
-      2501,
-      2502,
-      2503,
-      2504,
-      2505,
-      2506,
-      2507,
-      2508,
-      2509,
-      2510,
-      2511,
-      2512,
-      2513,
-      2514,
-      2515,
-      2516,
-      2517,
-      2518,
-      2519,
-      2520,
-      2521
+      2419,
+      2421,
+      2422,
+      2423,
+      2424,
+      2425,
+      2426,
+      2427,
+      2428,
+      2429,
+      2430,
+      2431,
+      2432,
+      2433,
+      2434,
+      2435,
+      2436,
+      2437,
+      2438,
+      2439,
+      2440,
+      2441,
+      2442,
+      2443,
+      2444,
+      2445,
+      2446,
+      2447,
+      2448,
+      2449,
+      2450,
+      2451,
+      2452,
+      2453,
+      2454,
+      2455,
+      2456,
+      2457,
+      2458,
+      2459,
+      2460,
+      2461,
+      2462,
+      2463,
+      2464,
+      2465,
+      2466,
+      2467
     ],
     "canonicalU": 0.104,
     "normalField": "actual-exported-NORMAL",
     "internalCap": "closed collision solid; covered by runtime forearm skin"
   },
+  "thumbWebCorrectives": {
+    "schemaVersion": 1,
+    "method": "quaternion-gaussian-rbf",
+    "sigma": 0.25,
+    "joints": [
+      {
+        "bone": "thumb_proximal",
+        "control": "thumb_CMC"
+      },
+      {
+        "bone": "thumb_middle",
+        "control": "thumb_MCP"
+      },
+      {
+        "bone": "thumb_distal",
+        "control": "thumb_IP"
+      }
+    ],
+    "centres": [
+      {
+        "name": null,
+        "rotations": [
+          [
+            0,
+            0,
+            0,
+            1
+          ],
+          [
+            0,
+            0,
+            0,
+            1
+          ],
+          [
+            0,
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      {
+        "name": "thumb_web_tip",
+        "rotations": [
+          [
+            0.113540686699469,
+            0.1912878652305519,
+            0.08168217052561029,
+            0.9715171064358963
+          ],
+          [
+            -0.06295057592802368,
+            0.022912129744014655,
+            1.4281376742712708e-08,
+            0.9977536065086026
+          ],
+          [
+            -0.0411698159453754,
+            0.014984587615462506,
+            -1.157589527896013e-09,
+            0.9990397931959559
+          ]
+        ]
+      },
+      {
+        "name": null,
+        "rotations": [
+          [
+            0.05639166019737561,
+            0.16886787063315445,
+            0.051926854486950336,
+            0.9826531558546479
+          ],
+          [
+            -0.07516035091548633,
+            0.027356123218797657,
+            1.7051365642243636e-08,
+            0.9967961497581632
+          ],
+          [
+            -0.10769899216167704,
+            0.03919922756722793,
+            -3.028219160773694e-09,
+            0.9934104628226399
+          ]
+        ]
+      },
+      {
+        "name": null,
+        "rotations": [
+          [
+            0.168231107492015,
+            0.7010664955262232,
+            -0.04410249950700016,
+            0.6915627468710449
+          ],
+          [
+            -0.174512473095519,
+            0.06351732873874168,
+            3.959103372508044e-08,
+            0.9826041653097033
+          ],
+          [
+            0.028107932501502675,
+            -0.010230450819044402,
+            7.903228996145757e-10,
+            0.999552540893439
+          ]
+        ]
+      },
+      {
+        "name": null,
+        "rotations": [
+          [
+            0.06284141819917112,
+            0.20286415609227257,
+            0.101546188256623,
+            0.9718978660241194
+          ],
+          [
+            0.04073784999208264,
+            -0.014827360842226807,
+            -9.242053386298754e-09,
+            0.9990598465299648
+          ],
+          [
+            0.06220668699083935,
+            -0.022641382529342863,
+            1.7490923331123035e-09,
+            0.9978064420972556
+          ]
+        ]
+      },
+      {
+        "name": "thumb_web_tan",
+        "rotations": [
+          [
+            0.10731517058716455,
+            0.17415681900865512,
+            0.0702549045407805,
+            0.9763283796666983
+          ],
+          [
+            -0.1527171329826319,
+            0.05558447581214774,
+            3.4646401228888575e-08,
+            0.9867055504770674
+          ],
+          [
+            0.13898585662064353,
+            -0.050586715000266735,
+            3.9079254656659765e-09,
+            0.9890014741773178
+          ]
+        ]
+      },
+      {
+        "name": "thumb_web_tan_prepare",
+        "rotations": [
+          [
+            0.1056239322067186,
+            0.17488904535674757,
+            0.06349516901630839,
+            0.9768448035747472
+          ],
+          [
+            -0.19494325835584142,
+            0.0709535244487196,
+            4.422609443978686e-08,
+            0.9782447154929643
+          ],
+          [
+            0.1845428313831933,
+            -0.06716809784469316,
+            5.188870636218151e-09,
+            0.980526588123443
+          ]
+        ]
+      },
+      {
+        "name": null,
+        "rotations": [
+          [
+            0,
+            0,
+            0,
+            1
+          ],
+          [
+            -0.0818996168732553,
+            0.029809014772647358,
+            1.8580279312903025e-08,
+            0.9961946975337189
+          ],
+          [
+            4.712067266767491e-09,
+            -1.715052233959813e-09,
+            1.3249123411163453e-16,
+            1
+          ]
+        ]
+      },
+      {
+        "name": null,
+        "rotations": [
+          [
+            -0.2807393861831985,
+            0.26003028173083614,
+            -0.25691509569519483,
+            0.88744818622407
+          ],
+          [
+            0.04098881170111833,
+            -0.014918703409843343,
+            -9.298988190498667e-09,
+            0.9990482218611368
+          ],
+          [
+            0.12265450426169004,
+            -0.04464258883204621,
+            3.448729765296857e-09,
+            0.9914448607192898
+          ]
+        ]
+      },
+      {
+        "name": null,
+        "rotations": [
+          [
+            0,
+            0,
+            0,
+            1
+          ],
+          [
+            -0.09010598789031454,
+            0.03279588875590317,
+            2.0442029971373627e-08,
+            0.9953920537290925
+          ],
+          [
+            0.04098882111843102,
+            -0.01491871088562985,
+            1.1525004180357173e-09,
+            0.9990482213631293
+          ]
+        ]
+      },
+      {
+        "name": null,
+        "rotations": [
+          [
+            0.011483167774112393,
+            -0.004179642637634592,
+            4.055319571856867e-07,
+            0.9999253309348297
+          ],
+          [
+            -0.09010598789031454,
+            0.03279588875590317,
+            2.0442029971373627e-08,
+            0.9953920537290925
+          ],
+          [
+            0.04098882111843102,
+            -0.01491871088562985,
+            1.1525004180357173e-09,
+            0.9990482213631293
+          ]
+        ]
+      },
+      {
+        "name": "thumb_web_tripod_release",
+        "rotations": [
+          [
+            0.09915785351919083,
+            0.15221247483386616,
+            0.05396300491602425,
+            0.9818793595400859
+          ],
+          [
+            -0.10056650520551275,
+            0.03660320467608426,
+            2.281517090773019e-08,
+            0.9942567995433522
+          ],
+          [
+            -0.13229970743598526,
+            0.04815315570526048,
+            -3.719928116142234e-09,
+            0.9900394239665296
+          ]
+        ]
+      },
+      {
+        "name": "thumb_web_tip_roll_positive",
+        "rotations": [
+          [
+            0.11555401251273036,
+            0.1852441876891519,
+            0.0789435329150655,
+            0.9726766059335866
+          ],
+          [
+            -0.07221838385729772,
+            0.026285335065613702,
+            1.638393187689284e-08,
+            0.9970424194554253
+          ],
+          [
+            -0.03439227342679308,
+            0.012517763867161847,
+            -9.670224324591396e-10,
+            0.99933001411761
+          ]
+        ]
+      }
+    ]
+  },
+  "thumbWebCorrectivesSourceSha256": "47e6188c84601047b47f321dc8169cba1b79eaa50ce9b3f4e7ee949e91fb1781",
+  "correctiveSourceSha256": "47e6188c84601047b47f321dc8169cba1b79eaa50ce9b3f4e7ee949e91fb1781",
+  "thumbWebCorrectivesBindSha256": "1b1d16e3f96059b08d171c9d607a2d9dadc120355456d997311265ce450ec8ab",
   "palm": {
     "surface": "palm_surface",
-    "topology": "single closed connected skin including thenar",
+    "topology": "closed palm-thumb composite",
+    "skinParts": [
+      "palm_surface",
+      "thumb_skin"
+    ],
     "thenar": {
       "region": "localized radial-palmar quadrant",
-      "maximumCmcWeight": 0.56
+      "inputSeedMaximumCmcWeight": 0.56,
+      "weightField": {
+        "method": "positive Dirichlet field on final exported physical triangle graph",
+        "palette": [
+          "thumb_proximal",
+          "thumb_middle",
+          "thumb_distal",
+          "palm_root"
+        ],
+        "maximumInfluences": {
+          "thumb_proximal": 0.5,
+          "thumb_middle": 1.0,
+          "thumb_distal": 1.0,
+          "palm_root": 1.0
+        },
+        "domainRadiusM": 0.032,
+        "conductancePower": 2,
+        "fixedDistalThumbAfterIpM": 0.0045
+      }
     },
     "knuckles": "asymmetric MCP arch and dorsal metacarpal contours",
     "frame": "palm_frame",
-    "shape": "localized thenar and hypothenar cushions with central palmar hollow; hidden thumb connector follows the true skin envelope"
+    "shape": "localized thenar and hypothenar cushions with central palmar hollow; rounded first-web aperture and regular continuous thenar collar"
   },
   "restAnatomy": {
     "thumb": {
@@ -492,11 +848,11 @@
       "materialSurface": {
         "mesh": "thumb_skin",
         "primitive": 0,
-        "triangle": 1973,
+        "triangle": 1293,
         "vertices": [
-          1015,
-          1052,
-          1050
+          699,
+          736,
+          734
         ],
         "barycentric": [
           0.9999936819076538,
@@ -527,11 +883,11 @@
       "materialSurface": {
         "mesh": "thumb_skin",
         "primitive": 0,
-        "triangle": 1971,
+        "triangle": 1291,
         "vertices": [
-          1014,
-          1016,
-          1049
+          698,
+          700,
+          733
         ],
         "barycentric": [
           0.47882547974586487,
@@ -562,11 +918,11 @@
       "materialSurface": {
         "mesh": "thumb_skin",
         "primitive": 0,
-        "triangle": 1971,
+        "triangle": 1291,
         "vertices": [
-          1014,
-          1016,
-          1049
+          698,
+          700,
+          733
         ],
         "barycentric": [
           0.3192158043384552,
@@ -597,11 +953,11 @@
       "materialSurface": {
         "mesh": "thumb_skin",
         "primitive": 0,
-        "triangle": 1971,
+        "triangle": 1291,
         "vertices": [
-          1014,
-          1016,
-          1049
+          698,
+          700,
+          733
         ],
         "barycentric": [
           0.15960615873336792,
@@ -632,11 +988,11 @@
       "materialSurface": {
         "mesh": "thumb_skin",
         "primitive": 0,
-        "triangle": 1973,
+        "triangle": 1293,
         "vertices": [
-          1015,
-          1052,
-          1050
+          699,
+          736,
+          734
         ],
         "barycentric": [
           0.9999936819076538,
@@ -667,11 +1023,11 @@
       "materialSurface": {
         "mesh": "thumb_skin",
         "primitive": 0,
-        "triangle": 1972,
+        "triangle": 1292,
         "vertices": [
-          1015,
-          1017,
-          1052
+          699,
+          701,
+          736
         ],
         "barycentric": [
           0.707650899887085,
@@ -702,11 +1058,11 @@
       "materialSurface": {
         "mesh": "thumb_skin",
         "primitive": 0,
-        "triangle": 1972,
+        "triangle": 1292,
         "vertices": [
-          1015,
-          1017,
-          1052
+          699,
+          701,
+          736
         ],
         "barycentric": [
           0.41530153155326843,
@@ -737,11 +1093,11 @@
       "materialSurface": {
         "mesh": "thumb_skin",
         "primitive": 0,
-        "triangle": 1972,
+        "triangle": 1292,
         "vertices": [
-          1015,
-          1017,
-          1052
+          699,
+          701,
+          736
         ],
         "barycentric": [
           0.12295334786176682,
@@ -4381,109 +4737,109 @@
         0.00283959
       ],
       "thumb_pad_contact": [
-        0.001039052,
-        0.000824059,
-        0.026131067
+        -0.00237585,
+        -0.002012871,
+        0.022931883
       ],
       "thumb_pad_roll_m3_contact": [
-        0.00079916,
-        0.001480125,
-        0.026176117
+        -0.005722762,
+        0.000338979,
+        0.024167545
       ],
       "thumb_pad_roll_m2_contact": [
-        0.000879124,
-        0.001261436,
-        0.026161101
+        -0.00569276,
+        0.000118256,
+        0.02409808
       ],
       "thumb_pad_roll_m1_contact": [
-        0.000959088,
-        0.001042748,
-        0.026146084
+        -0.005662757,
+        -0.000102467,
+        0.024028612
       ],
       "thumb_pad_roll_c0_contact": [
-        0.001039052,
-        0.000824059,
-        0.026131067
+        -0.005632754,
+        -0.00032319,
+        0.023959147
       ],
       "thumb_pad_roll_p1_contact": [
-        0.001119017,
-        0.000605371,
-        0.026116051
+        -0.005602751,
+        -0.000543914,
+        0.023889679
       ],
       "thumb_pad_roll_p2_contact": [
-        0.001198981,
-        0.000386681,
-        0.026101034
+        -0.005572748,
+        -0.000764637,
+        0.023820214
       ],
       "thumb_pad_roll_p3_contact": [
-        0.001278945,
-        0.000167994,
-        0.026086019
+        -0.005542746,
+        -0.00098536,
+        0.023750747
       ],
       "thumb_nail_contact": [
-        -0.002976485,
-        -0.002531864,
-        0.034880105
+        -0.005487422,
+        -0.004504333,
+        0.033255883
       ],
       "index_pad_contact": [
-        0.000648951,
-        0.000517916,
-        0.014558973
+        -0.001217039,
+        -0.001033387,
+        0.013516092
       ],
       "index_pad_roll_m3_contact": [
-        0.000888443,
-        -0.00013862,
-        0.014599031
+        -0.000972942,
+        -0.001686131,
+        0.013581985
       ],
       "index_pad_roll_m2_contact": [
-        0.000808612,
-        8.0225e-05,
-        0.014585678
+        -0.001054307,
+        -0.001468549,
+        0.01356002
       ],
       "index_pad_roll_m1_contact": [
-        0.000728782,
-        0.00029907,
-        0.014572325
+        -0.001135673,
+        -0.001250968,
+        0.013538056
       ],
       "index_pad_roll_c0_contact": [
-        0.000648951,
-        0.000517916,
-        0.014558973
+        -0.001217039,
+        -0.001033387,
+        0.013516092
       ],
       "index_pad_roll_p1_contact": [
-        0.000569121,
-        0.000736762,
-        0.014545619
+        -0.001298404,
+        -0.000815805,
+        0.013494127
       ],
       "index_pad_roll_p2_contact": [
-        0.000489291,
-        0.000955606,
-        0.014532268
+        -0.00137977,
+        -0.000598224,
+        0.013472162
       ],
       "index_pad_roll_p3_contact": [
-        0.000409461,
-        0.001174452,
-        0.014518915
+        -0.001461136,
+        -0.000380642,
+        0.013450198
       ],
       "index_side_contact": [
-        0.000146475,
-        -0.007009106,
-        0.010074346
+        -0.002075128,
+        -0.008857328,
+        0.009634081
       ],
       "index_volar_contact": [
-        0.003379866,
-        0.002587114,
-        0.012288136
+        0.00130446,
+        0.000862108,
+        0.010880694
       ],
       "index_nail_contact": [
-        0.002048319,
-        0.001697903,
-        0.004955114
+        -0.000642704,
+        -0.000539803,
+        0.003768723
       ],
       "index_nail_edge_contact": [
-        0.002346233,
-        0.001945933,
-        0.004898591
+        -0.000351455,
+        -0.00029725,
+        0.003669679
       ],
       "middle_pad_contact": [
         -0.000245956,
@@ -4698,109 +5054,109 @@
         0.00283959
       ],
       "thumb_pad_contact": [
-        0.001039052,
-        0.000824059,
-        0.026131067
+        -0.00237585,
+        -0.002012871,
+        0.022931883
       ],
       "thumb_pad_roll_m3_contact": [
-        0.00079916,
-        0.001480125,
-        0.026176117
+        -0.005722762,
+        0.000338979,
+        0.024167545
       ],
       "thumb_pad_roll_m2_contact": [
-        0.000879124,
-        0.001261436,
-        0.026161101
+        -0.00569276,
+        0.000118256,
+        0.02409808
       ],
       "thumb_pad_roll_m1_contact": [
-        0.000959088,
-        0.001042748,
-        0.026146084
+        -0.005662757,
+        -0.000102467,
+        0.024028612
       ],
       "thumb_pad_roll_c0_contact": [
-        0.001039052,
-        0.000824059,
-        0.026131067
+        -0.005632754,
+        -0.00032319,
+        0.023959147
       ],
       "thumb_pad_roll_p1_contact": [
-        0.001119017,
-        0.000605371,
-        0.026116051
+        -0.005602751,
+        -0.000543914,
+        0.023889679
       ],
       "thumb_pad_roll_p2_contact": [
-        0.001198981,
-        0.000386681,
-        0.026101034
+        -0.005572748,
+        -0.000764637,
+        0.023820214
       ],
       "thumb_pad_roll_p3_contact": [
-        0.001278945,
-        0.000167994,
-        0.026086019
+        -0.005542746,
+        -0.00098536,
+        0.023750747
       ],
       "thumb_nail_contact": [
-        -0.002976485,
-        -0.002531864,
-        0.034880105
+        -0.005487422,
+        -0.004504333,
+        0.033255883
       ],
       "index_pad_contact": [
-        0.001462824,
-        0.00118146,
-        0.023182739
+        -0.002752859,
+        -0.0023219,
+        0.019971756
       ],
       "index_pad_roll_m3_contact": [
-        0.001702717,
-        0.000525394,
-        0.023137689
+        -0.002513625,
+        -0.002978646,
+        0.020009849
       ],
       "index_pad_roll_m2_contact": [
-        0.001622752,
-        0.000744083,
-        0.023152705
+        -0.002593369,
+        -0.002759731,
+        0.019997152
       ],
       "index_pad_roll_m1_contact": [
-        0.001542788,
-        0.000962771,
-        0.023167722
+        -0.002673114,
+        -0.002540816,
+        0.019984454
       ],
       "index_pad_roll_c0_contact": [
-        0.001462824,
-        0.00118146,
-        0.023182739
+        -0.002752859,
+        -0.0023219,
+        0.019971756
       ],
       "index_pad_roll_p1_contact": [
-        0.001382859,
-        0.001400148,
-        0.023197755
+        -0.002832605,
+        -0.002102984,
+        0.019959059
       ],
       "index_pad_roll_p2_contact": [
-        0.001302895,
-        0.001618837,
-        0.023212772
+        -0.002912349,
+        -0.001884068,
+        0.019946361
       ],
       "index_pad_roll_p3_contact": [
-        0.001222931,
-        0.001837526,
-        0.023227787
+        -0.002992094,
+        -0.001665154,
+        0.019933663
       ],
       "index_side_contact": [
-        0.0024158,
-        -0.005131804,
-        0.01716153
+        -0.003226591,
+        -0.009824929,
+        0.015444004
       ],
       "index_volar_contact": [
-        0.004639112,
-        0.003619174,
-        0.022252737
+        -7.492e-06,
+        -0.000240717,
+        0.017729482
       ],
       "index_nail_contact": [
-        0.005356644,
-        0.004435456,
-        0.014826044
+        -0.001292102,
+        -0.001090845,
+        0.010383463
       ],
       "index_nail_edge_contact": [
-        0.00565104,
-        0.004680336,
-        0.014908702
+        -0.000993831,
+        -0.000842527,
+        0.010330168
       ],
       "middle_pad_contact": [
         -0.000245956,
@@ -5015,109 +5371,109 @@
         0.00283959
       ],
       "thumb_pad_contact": [
-        0.001462826,
-        0.001181461,
-        0.023182731
+        -0.002752867,
+        -0.0023219,
+        0.019971751
       ],
       "thumb_pad_roll_m3_contact": [
-        0.001222933,
-        0.001837526,
-        0.023227779
+        -0.006132886,
+        -2.3143e-05,
+        0.021217171
       ],
       "thumb_pad_roll_m2_contact": [
-        0.001302897,
-        0.001618838,
-        0.023212763
+        -0.006099669,
+        -0.000243256,
+        0.021147233
       ],
       "thumb_pad_roll_m1_contact": [
-        0.001382861,
-        0.001400149,
-        0.023197748
+        -0.006066453,
+        -0.000463368,
+        0.021077294
       ],
       "thumb_pad_roll_c0_contact": [
-        0.001462826,
-        0.001181461,
-        0.023182731
+        -0.006033237,
+        -0.000683481,
+        0.021007353
       ],
       "thumb_pad_roll_p1_contact": [
-        0.00154279,
-        0.000962772,
-        0.023167714
+        -0.006000021,
+        -0.000903593,
+        0.020937415
       ],
       "thumb_pad_roll_p2_contact": [
-        0.001622754,
-        0.000744083,
-        0.023152698
+        -0.005966804,
+        -0.001123707,
+        0.020867474
       ],
       "thumb_pad_roll_p3_contact": [
-        0.001702718,
-        0.000525395,
-        0.023137681
+        -0.005933587,
+        -0.001343818,
+        0.020797536
       ],
       "thumb_nail_contact": [
-        -0.002552711,
-        -0.002174461,
-        0.031931765
+        -0.005810127,
+        -0.00487969,
+        0.030295758
       ],
       "index_pad_contact": [
-        0.001462824,
-        0.00118146,
-        0.023182739
+        -0.002752859,
+        -0.0023219,
+        0.019971756
       ],
       "index_pad_roll_m3_contact": [
-        0.001702717,
-        0.000525394,
-        0.023137689
+        -0.002513625,
+        -0.002978646,
+        0.020009849
       ],
       "index_pad_roll_m2_contact": [
-        0.001622752,
-        0.000744083,
-        0.023152705
+        -0.002593369,
+        -0.002759731,
+        0.019997152
       ],
       "index_pad_roll_m1_contact": [
-        0.001542788,
-        0.000962771,
-        0.023167722
+        -0.002673114,
+        -0.002540816,
+        0.019984454
       ],
       "index_pad_roll_c0_contact": [
-        0.001462824,
-        0.00118146,
-        0.023182739
+        -0.002752859,
+        -0.0023219,
+        0.019971756
       ],
       "index_pad_roll_p1_contact": [
-        0.001382859,
-        0.001400148,
-        0.023197755
+        -0.002832605,
+        -0.002102984,
+        0.019959059
       ],
       "index_pad_roll_p2_contact": [
-        0.001302895,
-        0.001618837,
-        0.023212772
+        -0.002912349,
+        -0.001884068,
+        0.019946361
       ],
       "index_pad_roll_p3_contact": [
-        0.001222931,
-        0.001837526,
-        0.023227787
+        -0.002992094,
+        -0.001665154,
+        0.019933663
       ],
       "index_side_contact": [
-        0.0024158,
-        -0.005131804,
-        0.01716153
+        -0.003226591,
+        -0.009824929,
+        0.015444004
       ],
       "index_volar_contact": [
-        0.004639112,
-        0.003619174,
-        0.022252737
+        -7.492e-06,
+        -0.000240717,
+        0.017729482
       ],
       "index_nail_contact": [
-        0.005356644,
-        0.004435456,
-        0.014826044
+        -0.001292102,
+        -0.001090845,
+        0.010383463
       ],
       "index_nail_edge_contact": [
-        0.00565104,
-        0.004680336,
-        0.014908702
+        -0.000993831,
+        -0.000842527,
+        0.010330168
       ],
       "middle_pad_contact": [
         -0.000245956,
@@ -5326,14 +5682,14 @@
     "source": "tools/blender/hand_poses.json",
     "provenance": {
       "calibrationInputAsset": {
-        "path": "../hand-direction-calibration.glb",
-        "sha256": "947b7faebcd2d0736cafa3f9e3816a623b6f360cc32d7457b7357c7c886a1427",
+        "path": "runs/hand-calibration/thumb-palm.glb",
+        "sha256": "793f89a8d4b659279fd0cc9ca7e2fa90a395ea6a495edb9054bc34d394f18d7b",
         "role": "immutable geometry calibration input; not the subsequently rebuilt GLB output hash"
       },
       "sources": {
         "hand": {
           "path": "packages/server/web/stage/hand.ts",
-          "sha256": "d8f681d63941e39398a2fb5a947d1ed692615500c2e1904aaacd9e7d79e8d4cd"
+          "sha256": "c6633d8e3b15912d4fac5df156c3b60df8fe4ddbc5dd4299518dde9ffda05238"
         },
         "physiology": {
           "path": "packages/server/web/stage/hand-physiology.ts",
@@ -5341,15 +5697,23 @@
         },
         "nailWork": {
           "path": "packages/server/web/stage/hand-nail-work.ts",
-          "sha256": "d3a78366d06f500284e0e7ef788be5039eed3a40112fccdaab48933b0d1c115f"
+          "sha256": "e7402ad9af73cd8a90a7f79647b81afde52d78faba6e0874a9a4cc0894580aca"
         },
         "anatomy": {
           "path": "tools/blender/hand_anatomy.json",
-          "sha256": "5b12977e94c2b228e15dcac085d617c9f2e6ff2035de8460ef54ee6f067ee279"
+          "sha256": "9bda9eefba56e70e9671516d6c5502fd370b4af4503e11c3c168355a28935547"
+        },
+        "builder": {
+          "path": "tools/blender/build_hand.py",
+          "sha256": "9142bfc8ea931c3960632b9682ec81755a19d0d3ed8e41b29a5733d6013168ed"
+        },
+        "correctives": {
+          "path": "tools/blender/hand_thumb_web_correctives.json",
+          "sha256": "47e6188c84601047b47f321dc8169cba1b79eaa50ce9b3f4e7ee949e91fb1781"
         },
         "exporter": {
           "path": "tools/blender/export_hand_poses.ts",
-          "sha256": "c3ca27bb3f71bf9f9068379472a0a3c4f3cde26cb131307ac9b12672a641303a"
+          "sha256": "364bfc0d695e0b594e18874e90b159d3b01a507754827a55d95308863a3f740b"
         }
       },
       "runtimeModules": {
@@ -5441,9 +5805,10 @@
         "packages/core/src/schema/knowledge.ts": "d595af9aaf0b991d2f3de4a1ffe84485a70411b26280486bce951b1ec7dcdd82",
         "packages/core/src/schema/manipulation.ts": "d4495df547a77b2b57b7d18bee365b06592e7c4b606137eb06df468a32dacc05",
         "packages/core/src/schema/state.ts": "98e00f7c184064888929b8c9769477df7cde4c509c9a424b18e0771cc505ccb4",
-        "packages/server/web/stage/hand-nail-work.ts": "d3a78366d06f500284e0e7ef788be5039eed3a40112fccdaab48933b0d1c115f",
+        "packages/server/web/stage/hand-nail-work.ts": "e7402ad9af73cd8a90a7f79647b81afde52d78faba6e0874a9a4cc0894580aca",
         "packages/server/web/stage/hand-physiology.ts": "221ca74afde3847f9237af22f18f5de4356e319c478185a9c5ce5348958e917b",
-        "packages/server/web/stage/hand.ts": "d8f681d63941e39398a2fb5a947d1ed692615500c2e1904aaacd9e7d79e8d4cd",
+        "packages/server/web/stage/hand-skin-correctives.ts": "78d0aa72b412cbf73bb1a8e23a5f0b68d9221ca823ba9ad998ef530ddd41b572",
+        "packages/server/web/stage/hand.ts": "c6633d8e3b15912d4fac5df156c3b60df8fe4ddbc5dd4299518dde9ffda05238",
         "packages/server/web/stage/needle-shape.ts": "6cc6b8dbb8801ab76d3c7290b81799da1881a8b14c661e58cf57cd572e580574"
       },
       "animationsRead": false,
@@ -5754,11 +6119,11 @@
           "normalField": "skin-bary",
           "definition": {
             "primitive": 0,
-            "triangleIndex": 2514,
+            "triangleIndex": 1834,
             "vertexIndices": [
-              1294,
-              1261,
-              1296
+              978,
+              945,
+              980
             ],
             "barycentric": [
               2.6141965148163138e-08,
@@ -5831,11 +6196,11 @@
           "normalField": "skin-bary",
           "definition": {
             "primitive": 0,
-            "triangleIndex": 2514,
+            "triangleIndex": 1834,
             "vertexIndices": [
-              1294,
-              1261,
-              1296
+              978,
+              945,
+              980
             ],
             "barycentric": [
               2.6141965148163138e-08,
@@ -5927,33 +6292,33 @@
         },
         "thumb_pad_contact": {
           "position": [
-            -0.0058347685262560844,
-            -0.016030894592404366,
-            0.0052999998442828655
+            -0.008157744624393112,
+            -0.013057044818340588,
+            0.004773021846367478
           ],
           "quaternion": [
-            0.7071067817131305,
+            0.610035940473211,
             0,
-            -2.915012601520086e-09,
-            0.7071067806599647
+            0.24931974661986206,
+            0.752127525939832
           ],
           "parent": "thumb_distal",
           "surface": "thumb_skin",
           "normalField": "skin-bary",
           "definition": {
             "primitive": 0,
-            "triangleIndex": 2038,
+            "triangleIndex": 1094,
             "vertexIndices": [
-              1049,
-              1016,
-              1051
+              598,
+              599,
+              634
             ],
             "barycentric": [
-              2.659740586663517e-07,
-              0.999993368795583,
-              6.365230358318714e-06
+              0.27979514853849285,
+              0.7202036635543531,
+              1.187907154065005e-06
             ],
-            "acquisition": "closest-surface",
+            "acquisition": "outward-normal-ray",
             "role": "thumb-index-prepare"
           },
           "engaged": false,
@@ -6036,33 +6401,33 @@
         },
         "thumb_pad_contact": {
           "position": [
-            -0.0058347685262560844,
-            -0.016030894592404366,
-            0.0052999998442828655
+            -0.008157744624393112,
+            -0.013057044818340588,
+            0.004773021846367478
           ],
           "quaternion": [
-            0.7071067817131305,
+            0.610035940473211,
             0,
-            -2.915012601520086e-09,
-            0.7071067806599647
+            0.24931974661986206,
+            0.752127525939832
           ],
           "parent": "thumb_distal",
           "surface": "thumb_skin",
           "normalField": "skin-bary",
           "definition": {
             "primitive": 0,
-            "triangleIndex": 2038,
+            "triangleIndex": 1094,
             "vertexIndices": [
-              1049,
-              1016,
-              1051
+              598,
+              599,
+              634
             ],
             "barycentric": [
-              2.659740586663517e-07,
-              0.999993368795583,
-              6.365230358318714e-06
+              0.27979514853849285,
+              0.7202036635543531,
+              1.187907154065005e-06
             ],
-            "acquisition": "closest-surface",
+            "acquisition": "outward-normal-ray",
             "role": "thumb-index-prepare"
           },
           "engaged": false,
@@ -6145,33 +6510,33 @@
         },
         "thumb_pad_contact": {
           "position": [
-            -0.0058347685262560844,
-            -0.016030894592404366,
-            0.0052999998442828655
+            -0.008157744624393112,
+            -0.013057044818340588,
+            0.004773021846367478
           ],
           "quaternion": [
-            0.7071067817131305,
+            0.610035940473211,
             0,
-            -2.915012601520086e-09,
-            0.7071067806599647
+            0.24931974661986206,
+            0.752127525939832
           ],
           "parent": "thumb_distal",
           "surface": "thumb_skin",
           "normalField": "skin-bary",
           "definition": {
             "primitive": 0,
-            "triangleIndex": 2038,
+            "triangleIndex": 1094,
             "vertexIndices": [
-              1049,
-              1016,
-              1051
+              598,
+              599,
+              634
             ],
             "barycentric": [
-              2.659740586663517e-07,
-              0.999993368795583,
-              6.365230358318714e-06
+              0.27979514853849285,
+              0.7202036635543531,
+              1.187907154065005e-06
             ],
-            "acquisition": "closest-surface",
+            "acquisition": "outward-normal-ray",
             "role": "thumb-index-prepare"
           },
           "engaged": true,
@@ -9036,477 +9401,477 @@
           {
             "time": 0.0,
             "position": [
-              -0.0058347685262560844,
-              -0.016030894592404366,
-              0.0052999998442828655
+              -0.008157744624393112,
+              -0.013057044818340588,
+              0.004773021846367478
             ],
             "rotation": [
-              0.7071067817131305,
+              0.610035940473211,
               0,
-              -2.915012601520086e-09,
-              0.7071067806599647
+              0.24931974661986206,
+              0.752127525939832
             ]
           },
           {
             "time": 0.03333333333333333,
             "position": [
-              -0.0058347685262560844,
-              -0.016030894592404366,
-              0.0052999998442828655
+              -0.008157744624393112,
+              -0.013057044818340588,
+              0.004773021846367478
             ],
             "rotation": [
-              0.7071067817131305,
+              0.610035940473211,
               0,
-              -2.915012601520086e-09,
-              0.7071067806599647
+              0.24931974661986206,
+              0.752127525939832
             ]
           },
           {
             "time": 0.06666666666666667,
             "position": [
-              -0.0058347685262560844,
-              -0.016030894592404366,
-              0.0052999998442828655
+              -0.008157744624393112,
+              -0.013057044818340588,
+              0.004773021846367478
             ],
             "rotation": [
-              0.7071067817131305,
+              0.610035940473211,
               0,
-              -2.915012601520086e-09,
-              0.7071067806599647
+              0.24931974661986206,
+              0.752127525939832
             ]
           },
           {
             "time": 0.08,
             "position": [
-              -0.0058347685262560844,
-              -0.016030894592404366,
-              0.0052999998442828655
+              -0.008157744624393112,
+              -0.013057044818340588,
+              0.004773021846367478
             ],
             "rotation": [
-              0.7071067817131305,
+              0.610035940473211,
               0,
-              -2.915012601520086e-09,
-              0.7071067806599647
+              0.24931974661986206,
+              0.752127525939832
             ]
           },
           {
             "time": 0.1,
             "position": [
-              -0.0058347685262560844,
-              -0.016030894592404366,
-              0.0052999998442828655
+              -0.008157744624393112,
+              -0.013057044818340588,
+              0.004773021846367478
             ],
             "rotation": [
-              0.7071067817131305,
+              0.610035940473211,
               0,
-              -2.915012601520086e-09,
-              0.7071067806599647
+              0.24931974661986206,
+              0.752127525939832
             ]
           },
           {
             "time": 0.13333333333333333,
             "position": [
-              -0.0058347685262560844,
-              -0.016030894592404366,
-              0.0052999998442828655
+              -0.008157744624393112,
+              -0.013057044818340588,
+              0.004773021846367478
             ],
             "rotation": [
-              0.7071067817131305,
+              0.610035940473211,
               0,
-              -2.915012601520086e-09,
-              0.7071067806599647
+              0.24931974661986206,
+              0.752127525939832
             ]
           },
           {
             "time": 0.16666666666666666,
             "position": [
-              -0.0058347685262560844,
-              -0.016030894592404366,
-              0.0052999998442828655
+              -0.008157744624393112,
+              -0.013057044818340588,
+              0.004773021846367478
             ],
             "rotation": [
-              0.7071067817131305,
+              0.610035940473211,
               0,
-              -2.915012601520086e-09,
-              0.7071067806599647
+              0.24931974661986206,
+              0.752127525939832
             ]
           },
           {
             "time": 0.2,
             "position": [
-              -0.0058347685262560844,
-              -0.016030894592404366,
-              0.0052999998442828655
+              -0.008157744624393112,
+              -0.013057044818340588,
+              0.004773021846367478
             ],
             "rotation": [
-              0.7071067817131305,
+              0.610035940473211,
               0,
-              -2.915012601520086e-09,
-              0.7071067806599647
+              0.24931974661986206,
+              0.752127525939832
             ]
           },
           {
             "time": 0.23333333333333334,
             "position": [
-              -0.0058347685262560844,
-              -0.016030894592404366,
-              0.0052999998442828655
+              -0.008157744624393112,
+              -0.013057044818340588,
+              0.004773021846367478
             ],
             "rotation": [
-              0.7071067817131305,
+              0.610035940473211,
               0,
-              -2.915012601520086e-09,
-              0.7071067806599647
+              0.24931974661986206,
+              0.752127525939832
             ]
           },
           {
             "time": 0.26666666666666666,
             "position": [
-              -0.0058347685262560844,
-              -0.016030894592404366,
-              0.0052999998442828655
+              -0.008157744624393112,
+              -0.013057044818340588,
+              0.004773021846367478
             ],
             "rotation": [
-              0.7071067817131305,
+              0.610035940473211,
               0,
-              -2.915012601520086e-09,
-              0.7071067806599647
+              0.24931974661986206,
+              0.752127525939832
             ]
           },
           {
             "time": 0.28,
             "position": [
-              -0.0058347685262560844,
-              -0.016030894592404366,
-              0.0052999998442828655
+              -0.008157744624393112,
+              -0.013057044818340588,
+              0.004773021846367478
             ],
             "rotation": [
-              0.7071067817131305,
+              0.610035940473211,
               0,
-              -2.915012601520086e-09,
-              0.7071067806599647
+              0.24931974661986206,
+              0.752127525939832
             ]
           },
           {
             "time": 0.3,
             "position": [
-              -0.0058347685262560844,
-              -0.016030894592404366,
-              0.0052999998442828655
+              -0.008157744624393112,
+              -0.013057044818340588,
+              0.004773021846367478
             ],
             "rotation": [
-              0.7071067817131305,
+              0.610035940473211,
               0,
-              -2.915012601520086e-09,
-              0.7071067806599647
+              0.24931974661986206,
+              0.752127525939832
             ]
           },
           {
             "time": 0.3333333333333333,
             "position": [
-              -0.0058347685262560844,
-              -0.016030894592404366,
-              0.0052999998442828655
+              -0.008157744624393112,
+              -0.013057044818340588,
+              0.004773021846367478
             ],
             "rotation": [
-              0.7071067817131305,
+              0.610035940473211,
               0,
-              -2.915012601520086e-09,
-              0.7071067806599647
+              0.24931974661986206,
+              0.752127525939832
             ]
           },
           {
             "time": 0.36666666666666664,
             "position": [
-              -0.0058347685262560844,
-              -0.016030894592404366,
-              0.0052999998442828655
+              -0.008157744624393112,
+              -0.013057044818340588,
+              0.004773021846367478
             ],
             "rotation": [
-              0.7071067817131305,
+              0.610035940473211,
               0,
-              -2.915012601520086e-09,
-              0.7071067806599647
+              0.24931974661986206,
+              0.752127525939832
             ]
           },
           {
             "time": 0.4,
             "position": [
-              -0.0058347685262560844,
-              -0.016030894592404366,
-              0.0052999998442828655
+              -0.008157744624393112,
+              -0.013057044818340588,
+              0.004773021846367478
             ],
             "rotation": [
-              0.7071067817131305,
+              0.610035940473211,
               0,
-              -2.915012601520086e-09,
-              0.7071067806599647
+              0.24931974661986206,
+              0.752127525939832
             ]
           },
           {
             "time": 0.43333333333333335,
             "position": [
-              -0.0058347685262560844,
-              -0.016030894592404366,
-              0.0052999998442828655
+              -0.008157744624393112,
+              -0.013057044818340588,
+              0.004773021846367478
             ],
             "rotation": [
-              0.7071067817131305,
+              0.610035940473211,
               0,
-              -2.915012601520086e-09,
-              0.7071067806599647
+              0.24931974661986206,
+              0.752127525939832
             ]
           },
           {
             "time": 0.4666666666666667,
             "position": [
-              -0.0058347685262560844,
-              -0.016030894592404366,
-              0.0052999998442828655
+              -0.008157744624393112,
+              -0.013057044818340588,
+              0.004773021846367478
             ],
             "rotation": [
-              0.7071067817131305,
+              0.610035940473211,
               0,
-              -2.915012601520086e-09,
-              0.7071067806599647
+              0.24931974661986206,
+              0.752127525939832
             ]
           },
           {
             "time": 0.5,
             "position": [
-              -0.0058347685262560844,
-              -0.016030894592404366,
-              0.0052999998442828655
+              -0.008157744624393112,
+              -0.013057044818340588,
+              0.004773021846367478
             ],
             "rotation": [
-              0.7071067817131305,
+              0.610035940473211,
               0,
-              -2.915012601520086e-09,
-              0.7071067806599647
+              0.24931974661986206,
+              0.752127525939832
             ]
           },
           {
             "time": 0.5333333333333333,
             "position": [
-              -0.0058347685262560844,
-              -0.016030894592404366,
-              0.0052999998442828655
+              -0.008157744624393112,
+              -0.013057044818340588,
+              0.004773021846367478
             ],
             "rotation": [
-              0.7071067817131305,
+              0.610035940473211,
               0,
-              -2.915012601520086e-09,
-              0.7071067806599647
+              0.24931974661986206,
+              0.752127525939832
             ]
           },
           {
             "time": 0.5666666666666667,
             "position": [
-              -0.0058347685262560844,
-              -0.016030894592404366,
-              0.0052999998442828655
+              -0.008157744624393112,
+              -0.013057044818340588,
+              0.004773021846367478
             ],
             "rotation": [
-              0.7071067817131305,
+              0.610035940473211,
               0,
-              -2.915012601520086e-09,
-              0.7071067806599647
+              0.24931974661986206,
+              0.752127525939832
             ]
           },
           {
             "time": 0.58,
             "position": [
-              -0.0058347685262560844,
-              -0.016030894592404366,
-              0.0052999998442828655
+              -0.008157744624393112,
+              -0.013057044818340588,
+              0.004773021846367478
             ],
             "rotation": [
-              0.7071067817131305,
+              0.610035940473211,
               0,
-              -2.915012601520086e-09,
-              0.7071067806599647
+              0.24931974661986206,
+              0.752127525939832
             ]
           },
           {
             "time": 0.6,
             "position": [
-              -0.0058347685262560844,
-              -0.016030894592404366,
-              0.0052999998442828655
+              -0.008157744624393112,
+              -0.013057044818340588,
+              0.004773021846367478
             ],
             "rotation": [
-              0.7071067817131305,
+              0.610035940473211,
               0,
-              -2.915012601520086e-09,
-              0.7071067806599647
+              0.24931974661986206,
+              0.752127525939832
             ]
           },
           {
             "time": 0.6333333333333333,
             "position": [
-              -0.0058347685262560844,
-              -0.016030894592404366,
-              0.0052999998442828655
+              -0.008157744624393112,
+              -0.013057044818340588,
+              0.004773021846367478
             ],
             "rotation": [
-              0.7071067817131305,
+              0.610035940473211,
               0,
-              -2.915012601520086e-09,
-              0.7071067806599647
+              0.24931974661986206,
+              0.752127525939832
             ]
           },
           {
             "time": 0.6666666666666666,
             "position": [
-              -0.0058347685262560844,
-              -0.016030894592404366,
-              0.0052999998442828655
+              -0.008157744624393112,
+              -0.013057044818340588,
+              0.004773021846367478
             ],
             "rotation": [
-              0.7071067817131305,
+              0.610035940473211,
               0,
-              -2.915012601520086e-09,
-              0.7071067806599647
+              0.24931974661986206,
+              0.752127525939832
             ]
           },
           {
             "time": 0.7,
             "position": [
-              -0.0058347685262560844,
-              -0.016030894592404366,
-              0.0052999998442828655
+              -0.008157744624393112,
+              -0.013057044818340588,
+              0.004773021846367478
             ],
             "rotation": [
-              0.7071067817131305,
+              0.610035940473211,
               0,
-              -2.915012601520086e-09,
-              0.7071067806599647
+              0.24931974661986206,
+              0.752127525939832
             ]
           },
           {
             "time": 0.7333333333333333,
             "position": [
-              -0.0058347685262560844,
-              -0.016030894592404366,
-              0.0052999998442828655
+              -0.008157744624393112,
+              -0.013057044818340588,
+              0.004773021846367478
             ],
             "rotation": [
-              0.7071067817131305,
+              0.610035940473211,
               0,
-              -2.915012601520086e-09,
-              0.7071067806599647
+              0.24931974661986206,
+              0.752127525939832
             ]
           },
           {
             "time": 0.7666666666666667,
             "position": [
-              -0.0058347685262560844,
-              -0.016030894592404366,
-              0.0052999998442828655
+              -0.008157744624393112,
+              -0.013057044818340588,
+              0.004773021846367478
             ],
             "rotation": [
-              0.7071067817131305,
+              0.610035940473211,
               0,
-              -2.915012601520086e-09,
-              0.7071067806599647
+              0.24931974661986206,
+              0.752127525939832
             ]
           },
           {
             "time": 0.8,
             "position": [
-              -0.0058347685262560844,
-              -0.016030894592404366,
-              0.0052999998442828655
+              -0.008157744624393112,
+              -0.013057044818340588,
+              0.004773021846367478
             ],
             "rotation": [
-              0.7071067817131305,
+              0.610035940473211,
               0,
-              -2.915012601520086e-09,
-              0.7071067806599647
+              0.24931974661986206,
+              0.752127525939832
             ]
           },
           {
             "time": 0.8333333333333334,
             "position": [
-              -0.0058347685262560844,
-              -0.016030894592404366,
-              0.0052999998442828655
+              -0.008157744624393112,
+              -0.013057044818340588,
+              0.004773021846367478
             ],
             "rotation": [
-              0.7071067817131305,
+              0.610035940473211,
               0,
-              -2.915012601520086e-09,
-              0.7071067806599647
+              0.24931974661986206,
+              0.752127525939832
             ]
           },
           {
             "time": 0.8666666666666667,
             "position": [
-              -0.0058347685262560844,
-              -0.016030894592404366,
-              0.0052999998442828655
+              -0.008157744624393112,
+              -0.013057044818340588,
+              0.004773021846367478
             ],
             "rotation": [
-              0.7071067817131305,
+              0.610035940473211,
               0,
-              -2.915012601520086e-09,
-              0.7071067806599647
+              0.24931974661986206,
+              0.752127525939832
             ]
           },
           {
             "time": 0.9,
             "position": [
-              -0.0058347685262560844,
-              -0.016030894592404366,
-              0.0052999998442828655
+              -0.008157744624393112,
+              -0.013057044818340588,
+              0.004773021846367478
             ],
             "rotation": [
-              0.7071067817131305,
+              0.610035940473211,
               0,
-              -2.915012601520086e-09,
-              0.7071067806599647
+              0.24931974661986206,
+              0.752127525939832
             ]
           },
           {
             "time": 0.9333333333333333,
             "position": [
-              -0.0058347685262560844,
-              -0.016030894592404366,
-              0.0052999998442828655
+              -0.008157744624393112,
+              -0.013057044818340588,
+              0.004773021846367478
             ],
             "rotation": [
-              0.7071067817131305,
+              0.610035940473211,
               0,
-              -2.915012601520086e-09,
-              0.7071067806599647
+              0.24931974661986206,
+              0.752127525939832
             ]
           },
           {
             "time": 0.9666666666666667,
             "position": [
-              -0.0058347685262560844,
-              -0.016030894592404366,
-              0.0052999998442828655
+              -0.008157744624393112,
+              -0.013057044818340588,
+              0.004773021846367478
             ],
             "rotation": [
-              0.7071067817131305,
+              0.610035940473211,
               0,
-              -2.915012601520086e-09,
-              0.7071067806599647
+              0.24931974661986206,
+              0.752127525939832
             ]
           },
           {
             "time": 1.0,
             "position": [
-              -0.0058347685262560844,
-              -0.016030894592404366,
-              0.0052999998442828655
+              -0.008157744624393112,
+              -0.013057044818340588,
+              0.004773021846367478
             ],
             "rotation": [
-              0.7071067817131305,
+              0.610035940473211,
               0,
-              -2.915012601520086e-09,
-              0.7071067806599647
+              0.24931974661986206,
+              0.752127525939832
             ]
           }
         ]
@@ -10402,11 +10767,11 @@
               "frame": 1,
               "definition": {
                 "primitive": 0,
-                "triangleIndex": 2514,
+                "triangleIndex": 1834,
                 "vertexIndices": [
-                  1294,
-                  1261,
-                  1296
+                  978,
+                  945,
+                  980
                 ],
                 "barycentric": [
                   2.6141965148163138e-08,
@@ -10589,18 +10954,18 @@
               "frame": 1,
               "definition": {
                 "primitive": 0,
-                "triangleIndex": 2038,
+                "triangleIndex": 1094,
                 "vertexIndices": [
-                  1049,
-                  1016,
-                  1051
+                  598,
+                  599,
+                  634
                 ],
                 "barycentric": [
-                  2.659740586663517e-07,
-                  0.999993368795583,
-                  6.365230358318714e-06
+                  0.27979514853849285,
+                  0.7202036635543531,
+                  1.187907154065005e-06
                 ],
-                "acquisition": "closest-surface",
+                "acquisition": "outward-normal-ray",
                 "role": "thumb-index-prepare"
               },
               "engaged": true,
@@ -10610,18 +10975,18 @@
               "frame": 2,
               "definition": {
                 "primitive": 0,
-                "triangleIndex": 2038,
+                "triangleIndex": 1094,
                 "vertexIndices": [
-                  1049,
-                  1016,
-                  1051
+                  598,
+                  599,
+                  634
                 ],
                 "barycentric": [
-                  2.659740586663517e-07,
-                  0.999993368795583,
-                  6.365230358318714e-06
+                  0.27979514853849285,
+                  0.7202036635543531,
+                  1.187907154065005e-06
                 ],
-                "acquisition": "closest-surface",
+                "acquisition": "outward-normal-ray",
                 "role": "thumb-index-prepare"
               },
               "engaged": false,
@@ -10631,18 +10996,18 @@
               "frame": 18.4,
               "definition": {
                 "primitive": 0,
-                "triangleIndex": 2038,
+                "triangleIndex": 1094,
                 "vertexIndices": [
-                  1049,
-                  1016,
-                  1051
+                  598,
+                  599,
+                  634
                 ],
                 "barycentric": [
-                  2.659740586663517e-07,
-                  0.999993368795583,
-                  6.365230358318714e-06
+                  0.27979514853849285,
+                  0.7202036635543531,
+                  1.187907154065005e-06
                 ],
-                "acquisition": "closest-surface",
+                "acquisition": "outward-normal-ray",
                 "role": "thumb-index-prepare"
               },
               "engaged": true,
@@ -12269,7 +12634,7 @@
   "sourceAnatomy": {
     "file": "tools/blender/hand_anatomy.json",
     "sourceHandedness": "right",
-    "sha256": "5b12977e94c2b228e15dcac085d617c9f2e6ff2035de8460ef54ee6f067ee279",
+    "sha256": "9bda9eefba56e70e9671516d6c5502fd370b4af4503e11c3c168355a28935547",
     "primaryMaterialContactNames": [
       "thumb_pad_contact",
       "index_pad_contact",

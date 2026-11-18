@@ -9,8 +9,10 @@ interface HandSurface {
   geometry: BufferGeometry; positions: object;
   indices: object | null; weights: object | null;
   topology: object | null;
-  results: WeakMap<Mesh, { hand: number; body: number; intersects: boolean }>;
+  morphPositions: object[];
+  results: WeakMap<Mesh, { hand: number; body: number; partner?: HandSurface; partnerRevision?: number; intersects: boolean }>;
 }
+interface HandPart { mesh: Mesh; surface: HandSurface }
 const tolerance = 0.00005;
 const direction = new Vector3(0.431, 0.293, 0.853).normalize();
 const same = (a: number[], b: number[]) => a.length === b.length && a.every((v, i) => Math.abs(v - b[i]!) < 1e-10);
@@ -42,14 +44,26 @@ export class PatientClearance {
     // updateWorldMatrix). Candidate wrist rotations must deform and transform skin exactly once.
     model.updateMatrixWorld(true);
     const bodies = [...new Set(patient.rig.skin.map((skin) => skin.mesh))];
+    // The visible palm/thumb charts together bound one volume. Use their real
+    // triangles for ambiguous shared-edge crossings, without adding closing caps.
+    const palm = model.getObjectByName("palm_surface"), thumb = model.getObjectByName("thumb_skin");
+    const declared = (mesh: Mesh) => {
+      const union = mesh.userData.skinUnion;
+      return union?.schema === "acucraft.skin-union@1" && union.id === "thumb-palm" && union.individualClosed === false
+        && Array.isArray(union.parts) && union.parts.length === 2 && union.parts[0] === "palm_surface" && union.parts[1] === "thumb_skin";
+    };
+    const joined: HandPart[] = palm instanceof Mesh && thumb instanceof Mesh && declared(palm) && declared(thumb)
+      ? [palm, thumb].map((mesh) => ({ mesh, surface: this.handSurface(mesh) })) : [];
     let intersects = false;
     model.traverse((object) => {
       if (intersects || !(object instanceof Mesh)) return;
-      const hand = this.handSurface(object);
+      const part = joined.find((entry) => entry.mesh === object);
+      const hand = part?.surface ?? this.handSurface(object);
+      const partner = part ? joined.find((entry) => entry !== part)?.surface : undefined;
       for (const mesh of bodies) {
         const body = this.bodySurface(mesh);
         const cached = hand.results.get(mesh);
-        if (cached?.hand === hand.revision && cached.body === body.revision) {
+        if (cached?.hand === hand.revision && cached.body === body.revision && cached.partner === partner && cached.partnerRevision === partner?.revision) {
           if (cached.intersects) { intersects = true; break; }
           continue;
         }
@@ -59,8 +73,8 @@ export class PatientClearance {
           if (!worldBox.containsPoint(point)) return false;
           local.copy(point).applyMatrix4(body.inverse);
           return this.inside(local, body.root, body.inverse.getMaxScaleOnAxis() * tolerance);
-        }) || this.crossesSurface(object, hand, body));
-        hand.results.set(mesh, { hand: hand.revision, body: body.revision, intersects: hit });
+        }) || this.crossesSurface(object, hand, body, part ? joined : undefined));
+        hand.results.set(mesh, { hand: hand.revision, body: body.revision, partner, partnerRevision: partner?.revision, intersects: hit });
         if (hit) { intersects = true; break; }
       }
     });
@@ -92,6 +106,9 @@ export class PatientClearance {
     if (mesh instanceof SkinnedMesh) mesh.skeleton.update();
     const positions = mesh.geometry.getAttribute("position");
     const signature = [...mesh.matrixWorld.elements, attributeVersion(positions), mesh.geometry.index?.version ?? 0];
+    const morphPositions = mesh.geometry.morphAttributes.position ?? [];
+    signature.push(mesh.geometry.morphTargetsRelative ? 1 : 0, morphPositions.length,
+      ...morphPositions.map(attributeVersion), ...(mesh.morphTargetInfluences ?? []));
     let skinIndices: object | null = null, skinWeights: object | null = null;
     if (mesh instanceof SkinnedMesh) {
       const indices = mesh.geometry.getAttribute("skinIndex"), weights = mesh.geometry.getAttribute("skinWeight");
@@ -109,13 +126,16 @@ export class PatientClearance {
       for (const bone of mapping.bones) for (let i = 0; i < 16; i++) signature.push(mesh.skeleton.boneMatrices[bone * 16 + i]!);
     }
     let surface = this.hands.get(mesh);
-    if (surface && surface.geometry === mesh.geometry && surface.positions === positions && surface.indices === skinIndices && surface.weights === skinWeights && surface.topology === mesh.geometry.index && same(surface.signature, signature)) return surface;
+    if (surface && surface.geometry === mesh.geometry && surface.positions === positions && surface.indices === skinIndices && surface.weights === skinWeights && surface.topology === mesh.geometry.index
+      && surface.morphPositions.length === morphPositions.length && surface.morphPositions.every((attribute, i) => attribute === morphPositions[i])
+      && same(surface.signature, signature)) return surface;
     const count = positions.count;
-    surface ??= { signature: [], points: [], box: new Box3(), revision: 0, geometry: mesh.geometry, positions, indices: skinIndices, weights: skinWeights, topology: mesh.geometry.index, results: new WeakMap() };
+    surface ??= { signature: [], points: [], box: new Box3(), revision: 0, geometry: mesh.geometry, positions, indices: skinIndices, weights: skinWeights, topology: mesh.geometry.index, morphPositions: [], results: new WeakMap() };
     if (surface.points.length !== count) surface.points = Array.from({ length: count }, () => new Vector3());
     surface.geometry = mesh.geometry; surface.positions = positions;
     surface.indices = skinIndices; surface.weights = skinWeights;
     surface.topology = mesh.geometry.index;
+    surface.morphPositions = [...morphPositions];
     surface.box.makeEmpty();
     for (let i = 0; i < count; i++) {
       mesh.getVertexPosition(i, surface.points[i]!).applyMatrix4(mesh.matrixWorld);
@@ -151,7 +171,7 @@ export class PatientClearance {
   }
 
   /** A small body part can cross the interior of a skin triangle without containing its vertices. */
-  private crossesSurface(mesh: Mesh, hand: HandSurface, body: Surface): boolean {
+  private crossesSurface(mesh: Mesh, hand: HandSurface, body: Surface, volume?: HandPart[]): boolean {
     const epsilon = body.inverse.getMaxScaleOnAxis() * tolerance;
     for (let i = 0; i < hand.points.length; i++) {
       this.localPoints[i] ??= new Vector3();
@@ -162,10 +182,13 @@ export class PatientClearance {
     let handTree: Node | undefined;
     const overlapAtEdge = (point: Vector3): boolean => {
       if (!handTree) {
-        const indices = mesh.geometry.index, triangles: Triangle[] = [];
-        for (let i = 0, count = indices?.count ?? hand.points.length; i < count; i += 3) {
-          const vertex = (j: number) => this.localPoints[indices ? indices.getX(i + j) : i + j]!.clone();
-          triangles.push(new Triangle(vertex(0), vertex(1), vertex(2)));
+        const triangles: Triangle[] = [];
+        for (const part of volume ?? [{ mesh, surface: hand }]) {
+          const indices = part.mesh.geometry.index;
+          for (let i = 0, count = indices?.count ?? part.surface.points.length; i < count; i += 3) {
+            const vertex = (j: number) => part.surface.points[indices ? indices.getX(i + j) : i + j]!.clone().applyMatrix4(body.inverse);
+            triangles.push(new Triangle(vertex(0), vertex(1), vertex(2)));
+          }
         }
         handTree = build(triangles);
       }
