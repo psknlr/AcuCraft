@@ -75,6 +75,7 @@ describe("one parameter contract for operators, models and MCP", () => {
     const answer = hub.act(id, "lookup", { topic: "techniques" }, by);
     expect(answer.body).toMatchObject({ ok: true });
     const catalogue = (answer.body as { output: { techniques: { id: string; evidence: string }[] } }).output;
+    expect(catalogue).toMatchObject({ parameters: { phaseCycles: { type: "array", item: { type: "integer", minimum: 1, maximum: 12 } } } });
     expect(catalogue.techniques.map((entry) => entry.id)).toEqual([...MANIPULATION_TECHNIQUE_IDS]);
     expect(catalogue.techniques).toHaveLength(36);
     expect(catalogue.techniques.every((entry) => entry.evidence === "illustrative")).toBe(true);
@@ -116,6 +117,7 @@ describe("one parameter contract for operators, models and MCP", () => {
     for (const motion of [{ cycles: 13 }, { cycles: 1.5 }, { durationMs: 399 }, { durationMs: 30001 }, { lateralMm: 4.1 },
       { tiltDeg: 8.1 }, { strokeMm: -0.1 }, { rotationDeg: 181 }, { tempoBias: 0.1 }, { gripApertureMm: 12.1 },
       { contactIntensity: 1.1 }, { durationMs: Infinity }, { lateralMm: NaN }, { tiltDeg: -Infinity },
+      { phaseCycles: [2] }, { phaseCycles: [1, 13] }, { phaseCycles: [1.5, 2] },
       { hand: "either" }, { forceN: 20 }, { unsafeDepthCm: 8 }]) {
       const input = { technique: "nian", needleId: prepared.needle, motion };
       expect(act(hub, id, input).ok, JSON.stringify(motion)).toBe(false);
@@ -135,7 +137,7 @@ describe("one parameter contract for operators, models and MCP", () => {
   it("attributes identical resolved parameters to an operator and an MCP model on the same record", async () => {
     const hub = new RecordHub({ pack });
     const id = start(hub);
-    const input = { technique: "nian", needleId: prepared.needle, motion: { durationMs: 3200, cycles: 5, rotationDeg: 70,
+    const input = { technique: "yang-zhong-yin-yin", needleId: prepared.needle, motion: { durationMs: 3200, cycles: 5, phaseCycles: [1, 3], rotationDeg: 70,
       direction: "counterclockwise", grip: "three-finger", hand: "right", support: "none", gripApertureMm: 3 } };
     expect(act(hub, id, input).ok).toBe(true);
     const client = new McpServer({ pack, store: hub.mcpStore(), connection: "qa-attribution", log: () => {} });
@@ -144,12 +146,14 @@ describe("one parameter contract for operators, models and MCP", () => {
     const snapshot = hub.snapshot(id)!;
     const [first, second] = snapshot.view.performances!;
     expect(first!.motion).toEqual(second!.motion);
+    expect(second!.motion.phaseCycles).toEqual([1, 3]);
+    expect(replayLog(scenario, hub.logOf(id)!).state.performances?.at(-1)?.motion.phaseCycles).toEqual([1, 3]);
     expect(snapshot.timeline.slice(-2).map((entry) => entry.by.kind)).toEqual(["operator", "mcp"]);
     expect(snapshot.timeline.at(-1)!.by.name).toBe("parameter-llm");
   });
 
   it.each(["openai", "minimax"] as const)("lets a %s practitioner discover and execute the same schema through the server loop", async (provider) => {
-    const input = { technique: "long-hu-jiao-zhan", needleId: prepared.needle, motion: { durationMs: 4800, cycles: 2,
+    const input = { technique: "long-hu-jiao-zhan", needleId: prepared.needle, motion: { durationMs: 4800, cycles: 2, phaseCycles: [1, 3, 2],
       rotationDeg: 45, support: "none", hand: "left", grip: "three-finger" } };
     const model = scriptedProvider([{ calls: [{ name: "lookup", input: { topic: "techniques" } }] },
       { calls: [{ name: "perform_technique", input }] }]);
@@ -166,6 +170,16 @@ describe("one parameter contract for operators, models and MCP", () => {
 });
 
 describe("performance refusal, provenance and replay", () => {
+  it("refuses stage counts for a single primitive or an incompatible compound length", () => {
+    const hub = new RecordHub({ pack });
+    const id = start(hub);
+    for (const technique of ["nian", "long-hu-jiao-zhan"]) {
+      const answer = act(hub, id, { technique, needleId: prepared.needle, motion: { phaseCycles: [1, 2] } });
+      expect(answer.ok, technique).toBe(false);
+      expect(hub.snapshot(id)!.view.performances).toBeUndefined();
+    }
+  });
+
   it("does not record a retained gesture after removal, or a post-removal gesture before withdrawal", () => {
     const hub = new RecordHub({ pack });
     const retained = start(hub);

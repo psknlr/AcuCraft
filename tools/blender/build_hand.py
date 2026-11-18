@@ -449,6 +449,10 @@ def continuous_finger(digit, mat, parent):
         samples = [0, 0.12, 0.25, 0.40, 0.55, 0.70, 0.84, 0.94]
         if digit == "thumb" and segment == 0:
             samples += [0.76, 0.88]
+        elif digit != "thumb":
+            # Around a bent knuckle the outward arc is longer than the
+            # centreline. Sample its shoulders and the turn at the joint.
+            samples += [.77, .89, .975] if segment == 0 else [.055, .19, .89, .975]
         along_samples += [cumulative[segment] + lengths[segment]*t for t in samples]
     distal_samples = [0.0, 0.0015, 0.003, 0.0045, cap_start*0.45,
                        cap_start*0.66, cap_start*0.84, cap_start]
@@ -554,6 +558,12 @@ def continuous_finger(digit, mat, parent):
                      for joint in cumulative[1:])*0.00014
         section_centres.append(centre)
         section_weights.append(weighting)
+        # The extensor side of an interphalangeal joint has two shoulders.
+        # Between joints the bone narrows and the tendon lies close to skin.
+        sculpt = 0.0 if digit == "thumb" else smoothstep(along / .010) * (1 - smoothstep((along - cumulative[2]) / .003))
+        pip = math.exp(-((along - cumulative[1]) / .0068)**2)
+        dip = math.exp(-((along - cumulative[2]) / .0046)**2)
+        neck = math.sin(math.pi * min(t, 1.0))**2 if segment < 2 else 0.0
         for angle in angles:
             signed_angle = angle if angle <= math.pi else angle - math.tau
             absolute = abs(signed_angle)
@@ -574,6 +584,17 @@ def continuous_finger(digit, mat, parent):
                 transverse = half_width*math.sin(angle)
                 depth = ((volar_depth if math.cos(angle) >= 0 else dorsal_depth)*math.cos(angle)
                          - crease*max(0, math.cos(angle))**6)
+            if sculpt:
+                back = max(0.0, -math.cos(angle))
+                flank = abs(math.sin(angle))
+                # Round the dorsolateral transitions into a flattened back. The
+                # articulated head stays broad as the intervening shaft tapers.
+                knuckle = .082 * pip + .050 * dip
+                width = knuckle * (.65 + .35 * back) - neck * (.082 if segment == 0 else .12)
+                transverse *= 1 + sculpt * (width + .20 * back * (1 - back))
+                # The extensor hood spans the two condyles and falls away over the shaft.
+                hood = (.195 * pip + .12 * dip) * (.80 + .55 * flank * flank)
+                depth -= sculpt * dorsal_depth * back * (hood + .20 * (1 - back) - .080 * neck)
             vertices.append(tuple(centre + lateral*transverse + normal*depth))
             weights.append(weighting)
             uv.append((angle/math.tau, along/(total + 0.0025)))
@@ -1233,7 +1254,14 @@ def nail_plate(name, parent, skin_surface, centre, dorsal, axis, half_length, ha
         height = hit.dot(n) * (1 - free_edge) + bed_height * free_edge
         hit = plane + n * (height - plane.dot(n))
         # Thin, seated cuticles; only the free edge projects beyond its bed.
-        top.append(tuple(hit + n * (0.00004 + 0.00009 * (1 - radius*radius))))
+        # The flat faces of a thin plate span a curved nail bed. Give the
+        # proximal plate enough keratin for its upper surface to clear the
+        # tissue between fitted vertices. Keep the distal working rim intact.
+        thickness = .00004 + .00009 * (1 - radius * radius)
+        if name in ("middle_nail", "ring_nail", "little_nail"):
+            proximal = 1 - smoothstep((longitudinal + .16) / .18)
+            thickness += .00012 * proximal
+        top.append(tuple(hit + n * thickness))
         bottom.append(tuple(hit + n * 0.00002))
     faces = [(0, 1 + i, 1 + (i + 1) % steps) for i in range(steps)]
     for ring in range(len(rings) - 1):
@@ -2739,10 +2767,9 @@ def build(calibration_only=False):
     OUT.parent.mkdir(parents=True, exist_ok=True)
     bpy.ops.export_scene.gltf(
         filepath=str(OUT), export_format="GLB", export_yup=False,
-        export_animations=not calibration_only, export_nla_strips=True,
-        export_animation_mode="NLA_TRACKS", export_force_sampling=True,
-        export_optimize_animation_keep_anim_object=True,
-        export_anim_slide_to_zero=True,
+        # The exact authored clip samplers are written after binding below.
+        # Exporting Blender's resampled tracks here also packs their unused data.
+        export_animations=False,
         export_extras=True, export_cameras=False, export_lights=False,
     )
 

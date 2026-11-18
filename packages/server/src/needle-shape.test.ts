@@ -12,6 +12,34 @@ afterEach(() => vi.unstubAllGlobals());
 const spec = (): NeedleSpec => ({ id: "n1", target: "BL23:left", site: { p: new Vector3(0, 0.85, 0), n: new Vector3(0, 1, 0), uDir: new Vector3(1, 0, 0), vDir: new Vector3(0, 0, -1), bare: true }, angleDeg: 25, azimuthDeg: 75, depthCm: 2, length: 0.04 });
 
 describe("exterior-only needle choreography", () => {
+  it("turns the visible handle in the commanded direction and carries the grip around Pan's shaft plane", () => {
+    for (const mirrored of [false, true]) {
+      const layer = new NeedleLayer(), needle = { ...spec(), angleDeg: 65 };
+      if (mirrored) needle.site.uDir.negate();
+      layer.sync([needle], 0, false);
+      const root = layer.group.getObjectByName("needle:n1")!, handle = root.getObjectByName("needle-handle")!;
+      const axis = layer.grip("n1")!.axis, tip = root.getObjectByName("needle-tip")!;
+      const tipAtRest = tip.getWorldPosition(new Vector3()), gripAtRest = layer.grip("n1")!.point;
+      const rim = () => handle.localToWorld(new Vector3(.0007, 0, 0)).sub(handle.getWorldPosition(new Vector3())).normalize();
+      const restRim = rim();
+      for (const direction of ["clockwise", "counterclockwise"] as const) {
+        layer.poseTechnique("n1", "cuo", 750, { durationMs: 3000, cycles: 2, direction, rotationDeg: 90 });
+        const signedTurn = restRim.clone().cross(rim()).dot(axis);
+        expect(signedTurn).toBeCloseTo(direction === "clockwise" ? -1 : 1, 6);
+      }
+      const offset = (ms: number) => {
+        layer.poseTechnique("n1", "pan", ms, { durationMs: 2000, cycles: 2, lateralMm: 2, tiltDeg: 0, direction: "alternating" });
+        return layer.grip("n1")!.point.sub(gripAtRest).projectOnPlane(axis);
+      };
+      const far = offset(500);
+      expect(far.length()).toBeCloseTo(.002, 4);
+      expect(offset(250).clone().cross(far).dot(axis)).toBeLessThan(0);
+      expect(offset(1250).clone().cross(far).dot(axis)).toBeGreaterThan(0);
+      expect(tip.getWorldPosition(new Vector3()).distanceTo(tipAtRest)).toBeLessThan(1e-9);
+      layer.clear();
+    }
+  });
+
   it("advances the wire crown along the handle as it turns around the shaft", () => {
     const layer = new NeedleLayer();
     layer.sync([spec()], 0, false);

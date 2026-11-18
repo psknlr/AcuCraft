@@ -20,8 +20,10 @@ import {
   Vector3,
   type Raycaster,
 } from "three";
+import { exteriorShaftMaterial } from "./needle-shaft-material.js";
 import type { SkinSite } from "./sites.js";
-import { ActionSchema, hasClinicalNeedleMotion, needleMotion, sampleNeedleMotion, sampleTechnique, techniqueMotion, type ManipulationMotionSettings, type ManipulationTechniqueId, type NeedleMotion, type NeedleTechnique, type NeedleMotionSettings, type TechniqueMotionSample } from "@acucraft/core";
+import { insertionDepth, INSERTION_HOVER_M } from "./choreography.js";
+import { INSERTION_SKIN_CONTACT, ActionSchema, hasClinicalNeedleMotion, needleMotion, sampleNeedleMotion, sampleTechnique, techniqueMotion, type ManipulationMotionSettings, type ManipulationTechniqueId, type NeedleMotion, type NeedleTechnique, type NeedleMotionSettings, type TechniqueMotionSample } from "@acucraft/core";
 import { exteriorGeometry, exteriorShape, updateExteriorGeometry, NEEDLE_HANDLE_GRIP_Y_M, NEEDLE_HANDLE_LENGTH_M, NEEDLE_HANDLE_RADIUS_M, needleHandleRadiusAt } from "./needle-shape.js";
 
 /**
@@ -46,6 +48,7 @@ export interface NeedleSpec {
 }
 
 type NeedlePose = Pick<TechniqueMotionSample, "withdrawalMm" | "rotationRad" | "lateralMm" | "tiltRad"> & {
+  phase?: TechniqueMotionSample["phase"];
   /** An executed adjust_needle envelope, sampled by the shared clinical-motion implementation. */
   depthM?: number;
 };
@@ -125,7 +128,7 @@ interface Live {
   controlled: boolean;
   needsInsertion: boolean;
   needsRemoval: boolean;
-  clearance: number;
+  skinContactFraction: number;
   glow: { ring: Mesh; start: number } | null;
   highlight: boolean;
 }
@@ -141,6 +144,7 @@ export class NeedleLayer {
   private readonly markGeo = new CircleGeometry(0.0019, 20);
   private readonly ringGeo = new RingGeometry(0.75, 1, 48);
   private readonly shaftMat = new MeshStandardMaterial({ color: 0xdde2e8, metalness: 1, roughness: 0.16, envMapIntensity: 1.4 });
+  private readonly exteriorMat = exteriorShaftMaterial(this.shaftMat);
   private readonly handleMat: MeshStandardMaterial;
   private readonly tailMat = new MeshStandardMaterial({ color: 0xe6e9ec, metalness: 1, roughness: 0.22, envMapIntensity: 1.5 });
   private readonly hitMat = new MeshBasicMaterial({ visible: false });
@@ -218,7 +222,7 @@ export class NeedleLayer {
   }
 
   /** Drive the insertion/withdrawal only while the practitioner's pinch has reached the handle. */
-  progress(id: string, kind: "insert" | "remove", fraction: number): void {
+  progress(id: string, kind: "insert" | "remove", fraction: number, skinContactFraction?: number): void {
     const l = this.live.get(id);
     if (!l) return;
     const t = Math.min(1, Math.max(0, fraction));
@@ -226,13 +230,12 @@ export class NeedleLayer {
     l.root.visible = true;
     this.place(l);
     l.inserted = kind === "insert" ? t : 1 - t;
-    l.clearance = 0.012 * (1 - smooth(l.inserted));
+    if (kind === "insert" && skinContactFraction !== undefined) l.skinContactFraction = skinContactFraction;
     this.applyPose(l);
     if (t >= 1) {
       if (kind === "remove") return this.drop(l);
       l.needsInsertion = false;
       l.controlled = l.needsRemoval;
-      l.clearance = 0;
     }
   }
 
@@ -436,7 +439,7 @@ export class NeedleLayer {
     tip.scale.set(diameterScale, 1, diameterScale);
     const exterior = new Group();
     exterior.name = "external-shaft";
-    const exteriorShaft = new Mesh(exteriorGeometry(), this.shaftMat);
+    const exteriorShaft = new Mesh(exteriorGeometry(), this.exteriorMat);
     exteriorShaft.frustumCulled = false;
     const handleRoot = new Group();
     handleRoot.name = "needle-handle";
@@ -456,7 +459,7 @@ export class NeedleLayer {
     body.add(shaft, tip, exterior, hit);
     root.add(body);
     const pending = inserted === 0;
-    const l: Live = { spec, root, body, interior: shaft, exterior, exteriorShaft, handleRoot, handle, hit, inserted, depth: spec.depthCm / 100, targetDepth: spec.depthCm / 100, leaving: false, wiggle: null, performance: null, controlled: pending, needsInsertion: pending, needsRemoval: false, clearance: pending ? 0.012 : 0, glow: null, highlight: false };
+    const l: Live = { spec, root, body, interior: shaft, exterior, exteriorShaft, handleRoot, handle, hit, inserted, depth: spec.depthCm / 100, targetDepth: spec.depthCm / 100, leaving: false, wiggle: null, performance: null, controlled: pending, needsInsertion: pending, needsRemoval: false, skinContactFraction: INSERTION_SKIN_CONTACT.default, glow: null, highlight: false };
     root.visible = !pending;
     this.place(l);
     this.live.set(spec.id, l);
@@ -477,11 +480,25 @@ export class NeedleLayer {
 
   private applyPose(l: Live, motion?: NeedlePose): void {
     const baseDepth = motion?.depthM === undefined ? Math.min(l.depth, l.targetDepth) : Math.max(0, Math.min(l.spec.length, motion.depthM));
-    const retained = baseDepth * smooth(l.inserted);
-    const outward = Math.min(retained, Math.max(0, motion?.withdrawalMm ?? 0) / 1000);
-    const depth = retained - outward - l.clearance;
+    const retained = l.needsInsertion ? insertionDepth(l.inserted, baseDepth, l.skinContactFraction)
+      : baseDepth * smooth(l.inserted) - (l.needsRemoval && l.controlled ? INSERTION_HOVER_M * (1 - smooth(l.inserted)) : 0);
+    const outward = Math.min(Math.max(0, retained), Math.max(0, motion?.withdrawalMm ?? 0) / 1000);
+    const depth = retained - outward;
     const spin = motion?.rotationRad ?? 0;
     l.body.position.set(0, -depth, 0);
+    if (l.needsInsertion && l.inserted > 0 && l.inserted < 1 && l.spec.site.currentSurface) {
+      const skin = l.spec.site.currentSurface(), axis = new Vector3(0, 1, 0).applyQuaternion(l.root.quaternion);
+      const incidence = axis.dot(skin.n), rise = skin.p.clone().sub(l.spec.site.p).dot(skin.n);
+      // Measure both fixed endpoints against the breathing skin so its normal-distance curve
+      // crosses zero exactly at the chosen time and keeps both the hover and final depth.
+      const liveDepth = insertionDepth(l.inserted, rise + baseDepth * incidence, l.skinContactFraction, INSERTION_HOVER_M * incidence - rise);
+      const correction = rise + depth * incidence - liveDepth;
+      // Follow the registered shaft at ordinary angles. Near tangency use the skin normal
+      // to avoid magnifying millimetres of breathing into centimetres of sideways travel.
+      const along = smooth((incidence - .15) / .35);
+      const direction = skin.n.clone().multiplyScalar(1 - along).addScaledVector(axis, along / Math.max(.15, incidence));
+      l.body.position.addScaledVector(direction.applyQuaternion(l.root.quaternion.clone().invert()), correction);
+    }
     l.body.rotation.y = spin;
     const interiorLength = Math.max(0, Math.min(l.spec.length, depth));
     const diameterScale = shaftDiameterMm(l.spec) / 0.48;
@@ -489,8 +506,12 @@ export class NeedleLayer {
     l.body.getObjectByName("needle-tip")?.scale.set(diameterScale, 1, diameterScale);
     l.interior.visible = interiorLength > 1e-7;
     l.exterior.position.set(0, interiorLength, 0);
-    const toLocal = (u: number, v: number) => l.spec.site.uDir.clone().multiplyScalar(u).addScaledVector(l.spec.site.vDir, v)
-      .applyQuaternion(l.root.quaternion.clone().invert()).applyAxisAngle(new Vector3(0, 1, 0), -spin);
+    const toLocal = (u: number, v: number) => {
+      // Pan orbits the shaft in its perpendicular plane, including at oblique sites and mirrored chart frames.
+      if (motion?.phase?.primitive === "pan") return new Vector3(u, 0, -v);
+      return l.spec.site.uDir.clone().multiplyScalar(u).addScaledVector(l.spec.site.vDir, v)
+        .applyQuaternion(l.root.quaternion.clone().invert()).applyAxisAngle(new Vector3(0, 1, 0), -spin);
+    };
     const lateral = toLocal((motion?.lateralMm.u ?? 0) / 1000, (motion?.lateralMm.v ?? 0) / 1000);
     const tilt = toLocal(motion?.tiltRad.u ?? 0, motion?.tiltRad.v ?? 0);
     const shape = exteriorShape(l.spec.length - interiorLength, lateral, tilt);

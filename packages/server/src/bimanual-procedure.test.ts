@@ -1,12 +1,13 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { Box3, Group, Mesh, Quaternion, Ray, Raycaster, SkinnedMesh, Texture, Triangle, Vector3, type Object3D } from "three";
+import { Box3, Group, Matrix3, Mesh, Quaternion, Ray, Raycaster, SkinnedMesh, Texture, Triangle, Vector3, type Object3D } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { ArticulatedHand, handOrientation, surfaceHandOrientation } from "../web/stage/hand.js";
 import { NeedleProcedure, type InsertionPresentation, type TechniquePerformanceInput } from "../web/stage/procedure.js";
 import { NeedleLayer } from "../web/stage/needles.js";
 import { EncounterSession } from "@acucraft/agent";
+import { sampleTechnique } from "@acucraft/core";
 import { loadContentPack, requireScenario } from "@acucraft/bench";
 import { Person as ScenePerson, practitionerPlacement } from "../web/stage/cast.js";
 import { patientFloorPlacement, practitionerFloorPlacement } from "../web/stage/navigation.js";
@@ -389,6 +390,27 @@ describe("reference hand scene integration", () => {
     for (const image of images) expect([image.width, image.height, image.data.length]).toEqual([0, 0, 0]);
   });
 
+  it("restores the requested handedness and paused frame when the model arrives during preview", async () => {
+    const gltf = await new GLTFLoader().parseAsync(Uint8Array.from(asset).buffer, "");
+    let finishLoading!: (value: typeof gltf) => void;
+    vi.spyOn(GLTFLoader.prototype, "loadAsync").mockImplementationOnce(() => new Promise(resolve => { finishLoading = resolve; }));
+    const needles = new NeedleLayer(), { actor } = makeActor();
+    needles.sync([{ id: "needle-a", target: "ST36:left", site, angleDeg: 0, azimuthDeg: 0, depthCm: 2, length: 0.04 }], 0, false);
+    const procedure = new NeedleProcedure(needles, () => actor, () => {});
+    const loading = procedure.load("/hand.glb", "#cba88a");
+    expect(procedure.preview(input("nian", { needleId: "needle-a", motion: { hand: "left", support: "press" } }))).toBe(true);
+    procedure.setPlayback({ progress: 0.5, paused: true });
+    finishLoading(gltf); await loading;
+    const main = procedure.group.getObjectByName("needle-hand")!, support = procedure.group.getObjectByName("support-hand")!;
+    expect(main.visible && support.visible).toBe(true);
+    expect(Math.sign(main.children[0]!.scale.z)).toBe(-1);
+    expect(Math.sign(support.children[0]!.scale.z)).toBe(1);
+    procedure.group.updateMatrixWorld(true);
+    expectHeldSurfaces(main, needles.grip("needle-a")!);
+    expect(procedure.playback).toMatchObject({ progress: 0.5, playing: false });
+    procedure.dispose(); needles.clear();
+  });
+
   it("releases actual PBR resources when a hand finishes loading after scene disposal", async () => {
     const gltf = await new GLTFLoader().parseAsync(Uint8Array.from(asset).buffer, "");
     const textures = new Set<Texture>();
@@ -601,6 +623,38 @@ describe("articulated anatomical hand contacts", () => {
 });
 
 describe("bimanual catalogue performances", () => {
+  it("keeps each working skin landmark on its trajectory when the supporting hand changes role", async () => {
+    const s = await makeScene();
+    const durationMs = 1800, elapsed = 630;
+    const timing = sampleProcedure("work", 0, durationMs);
+    const progress = (timing.operationStartMs + elapsed) / timing.durationMs;
+    const supportingPoint = site.p.clone().addScaledVector(site.uDir, .035).addScaledVector(site.n, .002);
+    try {
+      for (const [technique, landmark] of [
+        ["chuai", "index_volar_contact"], ["xun", "index_volar_contact"],
+        ["zhua", "index_nail_contact"], ["she", "index_nail_contact"],
+        ["an", "palm_contact"], ["men", "palm_contact"],
+      ] as const) {
+        const sample = sampleTechnique(technique, elapsed, { durationMs });
+        const expected = site.p.clone().addScaledVector(site.uDir, sample.lateralMm.u / 1000)
+          .addScaledVector(site.vDir, sample.lateralMm.v / 1000).addScaledVector(site.n, landmark === "index_nail_contact" ? 0 : .0015);
+        for (const support of ["none", "stretch", "press"] as const) {
+          expect(s.procedure.preview(input(technique, { motion: { support, hand: "left", durationMs } }))).toBe(true);
+          s.procedure.setPlayback({ progress, paused: true });
+          const main = s.procedure.group.getObjectByName("needle-hand")!;
+          const other = s.procedure.group.getObjectByName("support-hand")!;
+          const actual = main.getObjectByName(landmark)!.getWorldPosition(new Vector3());
+          expect(actual.distanceTo(expected), `${technique}/${support}: working ${landmark}`).toBeLessThan(1e-6);
+          expect(other.visible).toBe(support !== "none");
+          if (other.visible) {
+            const anchor = other.getObjectByName(support === "press" ? "palm_contact" : "index_volar_contact")!;
+            expect(anchor.getWorldPosition(new Vector3()).distanceTo(supportingPoint)).toBeLessThan(1e-6);
+          }
+        }
+      }
+    } finally { s.dispose(); }
+  });
+
   it("animates separate skin-contact hands without inventing a needle or changing the selected site", async () => {
     const s = await makeScene();
     const before = site.p.clone();
@@ -614,6 +668,109 @@ describe("bimanual catalogue performances", () => {
     expect(s.needles.group.children).toHaveLength(0);
     expect(site.p.equals(before)).toBe(true);
     s.dispose();
+  });
+
+  it("places the working index nail on the actual public skin for pressure and tracing with either hand", async () => {
+    const s = await makePublicWorkingScene();
+    try {
+      const hand = s.procedure.group.getObjectByName("needle-hand")!, nail = hand.getObjectByName("index_nail") as Mesh;
+      const landmark = hand.getObjectByName("index_nail_contact")!, clearance = new PatientClearance();
+      const durationMs = 2400, timing = sampleProcedure("work", 0, durationMs);
+      const bind = s.patient.rig.torso.matrixWorld.clone().invert();
+      let greatestSkinTravel = 0;
+      for (const technique of ["zhua", "she"] as const) for (const side of ["left", "right"] as const) {
+        const motion = { hand: side, support: "none" as const, durationMs, cycles: 3, contactIntensity: 1, lateralMm: 2 };
+        expect(s.procedure.preview({ id: "public-surface-nail", technique, site: s.site, motion })).toBe(true);
+        const rotations: Quaternion[] = [];
+        for (const fraction of [.17, .38, .64, .83]) {
+          const elapsed = durationMs * fraction, sample = sampleTechnique(technique, elapsed, motion);
+          s.patient.tick(10000 + elapsed, 16);
+          s.procedure.setPlayback({ paused: true, progress: (timing.operationStartMs + elapsed) / timing.durationMs });
+          const label = `${technique}/${side}/${fraction}`;
+          expect(hand.visible, label).toBe(true);
+          expect(s.procedure.playback.reachWarning, label).toBeNull();
+          expect(clearance.intersects(hand.children[0] as Group, s.patient), label).toBe(false);
+          const contact = landmark.getWorldPosition(new Vector3());
+          // The lumbar surface moves with the actual torso mesh. Track that material independently
+          // of the stage's visual contact sampler and leave the original chart point fixed.
+          const relative = s.patient.rig.torso.matrixWorld.clone().multiply(bind);
+          const skin = s.site.p.clone().applyMatrix4(relative);
+          greatestSkinTravel = Math.max(greatestSkinTravel, skin.distanceTo(s.site.p));
+          const expected = skin.addScaledVector(s.site.uDir.clone().transformDirection(relative), sample.lateralMm.u / 1000)
+            .addScaledVector(s.site.vDir.clone().transformDirection(relative), sample.lateralMm.v / 1000);
+          expect(contact.distanceTo(expected), label).toBeLessThan(1e-6);
+          const normal = landmark.localToWorld(new Vector3(0, 1, 0)).sub(contact).normalize();
+          expect(normal.dot(s.site.n.clone().applyNormalMatrix(new Matrix3().getNormalMatrix(relative))), label).toBeLessThan(-0.999);
+          const nearest = Math.min(...Array.from({ length: nail.geometry.getAttribute("position").count }, (_, i) =>
+            nail.localToWorld(nail.getVertexPosition(i, new Vector3())).distanceTo(contact)));
+          expect(nearest, label).toBeLessThan(1e-7);
+          rotations.push(hand.getObjectByName("index_DIP")!.quaternion.clone());
+        }
+        expect(Math.max(...rotations.map(q => q.angleTo(rotations[0]!))), "the nail pressure articulates the working distal joint").toBeGreaterThan(0.003);
+        s.procedure.stopPreview();
+      }
+      expect(greatestSkinTravel).toBeGreaterThan(.0001);
+    } finally { s.dispose(); }
+  });
+
+  it("supports the breathing lumbar skin on both actual distal finger surfaces during a default She performance", async () => {
+    const s = await makePublicWorkingScene(), clearance = new PatientClearance(), durationMs = 2400;
+    const timing = sampleProcedure("work", 0, durationMs);
+    const root = s.procedure.group.getObjectByName("support-hand")!;
+    const patientMeshes = [...new Set(s.patient.rig.skin.map(skin => skin.mesh))];
+    const skinHit = (point: Vector3, normal: Vector3) => {
+      const ray = new Raycaster(point.clone().addScaledVector(normal, .025), normal.clone().negate(), 0, .05);
+      const hits: import("three").Intersection[] = [];
+      for (const mesh of patientMeshes) Mesh.prototype.raycast.call(mesh, ray, hits);
+      return hits.sort((a, b) => a.distance - b.distance)[0]!;
+    };
+    try {
+      for (const hand of ["left", "right"] as const) {
+        expect(s.procedure.preview({ id: "surface-support-pinch", technique: "she", site: s.site, motion: { hand, durationMs } })).toBe(true);
+        let previous: Quaternion | undefined;
+        for (const progress of [.18, .20, .22, .23, .24, .25, .26, .28]) {
+          s.patient.tick(progress * timing.durationMs, 32);
+          s.procedure.setPlayback({ progress, paused: true });
+          expect(root.visible, hand + " supporting approach").toBe(true);
+          if (previous) expect(previous.angleTo(root.quaternion), hand + " continuous supporting wrist").toBeLessThan(.22);
+          previous = root.quaternion.clone();
+        }
+        for (const fraction of [.22, .55, .85]) {
+          const elapsed = timing.operationStartMs + durationMs * fraction;
+          s.patient.tick(elapsed, 32);
+          s.procedure.setPlayback({ progress: elapsed / timing.durationMs, paused: true });
+          const label = `${hand}/${fraction}`;
+          expect(s.procedure.group.getObjectByName("needle-hand")!.visible, label).toBe(true);
+          expect(root.visible, label).toBe(true);
+          expect(s.procedure.playback.reachWarning, label).toBeNull();
+          expect(clearance.intersects(root.children[0] as Group, s.patient), label).toBe(false);
+          const midpoint = root.getObjectByName("thumb_tip")!.getWorldPosition(new Vector3())
+            .lerp(root.getObjectByName("index_tip")!.getWorldPosition(new Vector3()), .5);
+          const face = skinHit(midpoint, s.site.n);
+          const normal = face.face!.normal.clone().transformDirection(face.object.matrixWorld);
+          const contacts = ["thumb", "index"].map(digit => {
+            const mesh = root.getObjectByName(digit + "_skin") as SkinnedMesh;
+            const tip = root.getObjectByName(digit + "_tip")!.getWorldPosition(new Vector3());
+            mesh.skeleton.update();
+            let distance = Infinity;
+            const candidate = new Vector3(), leading = new Vector3();
+            for (let i = 0; i < mesh.geometry.getAttribute("position").count; i++) {
+              mesh.getVertexPosition(i, candidate).applyMatrix4(mesh.matrixWorld);
+              if (candidate.distanceToSquared(tip) > .012 ** 2) continue;
+              const height = candidate.dot(normal);
+              if (height < distance) { distance = height; leading.copy(candidate); }
+            }
+            const gap = skinHit(leading, normal).distance - .025;
+            expect(gap, label + "/" + digit).toBeGreaterThan(-.00005);
+            expect(gap, label + "/" + digit).toBeLessThan(.00025);
+            return leading;
+          });
+          expect(contacts[0]!.distanceTo(contacts[1]!), label).toBeGreaterThan(.005);
+          expect(contacts[0]!.distanceTo(contacts[1]!), label).toBeLessThan(.02);
+        }
+        s.procedure.stopPreview();
+      }
+    } finally { s.dispose(); }
   });
 
   it("reaches both reference contacts on the actual 160 cm low-back patient without moving the feet", async () => {

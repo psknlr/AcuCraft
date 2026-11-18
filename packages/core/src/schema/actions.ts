@@ -38,8 +38,12 @@ export const NeedleMotionSettingsSchema = z.object({
 }).strict();
 export type NeedleMotionSettings = z.infer<typeof NeedleMotionSettingsSchema>;
 
+export const INSERTION_SKIN_CONTACT = { min: 0.2, max: 0.8, default: 0.45 } as const;
+
 /** Optional presentation controls; they neither alter the needle path nor prescribe clinical dosing. */
 export const InsertionPresentationSchema = z.object({
+  /** Fraction of the insertion movement elapsed when the displayed tip reaches the skin. */
+  skinContactFraction: z.number().min(INSERTION_SKIN_CONTACT.min).max(INSERTION_SKIN_CONTACT.max).optional(),
   durationMs: z.number().int().min(400).max(8000).optional(),
   grip: z.enum(["two-finger", "three-finger"]).optional(),
   ...HandPresentationSettingsShape,

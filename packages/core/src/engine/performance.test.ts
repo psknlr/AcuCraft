@@ -21,7 +21,10 @@ describe("the authored manipulation catalogue", () => {
       expect(technique).toMatchObject({ evidence: "illustrative", source: { review: "unreviewed" } });
       for (const phase of technique.phases) expect(manipulationTechnique(phase.primitive)).not.toBeNull();
       expect(ManipulationMotionSettingsSchema.safeParse(technique.defaults).success).toBe(true);
-      for (const key of technique.controls) expect(Object.hasOwn(technique.defaults, key)).toBe(true);
+      for (const key of technique.controls) {
+        // Compound stages inherit the shared cycle count until the operator or model overrides them.
+        expect(Object.hasOwn(technique.defaults, key)).toBe(key !== "phaseCycles");
+      }
     }
     expect(manipulationTechnique("not-a-technique")).toBeNull();
   });
@@ -29,6 +32,8 @@ describe("the authored manipulation catalogue", () => {
   it("rejects unbounded or invented control values at the shared operator/LLM action boundary", () => {
     for (const motion of [
       { durationMs: 399 }, { durationMs: 30_001 }, { durationMs: 500.5 }, { cycles: 0 }, { cycles: 13 }, { cycles: 1.5 },
+      { phaseCycles: [2] }, { phaseCycles: [1, 0] }, { phaseCycles: [1, 13] }, { phaseCycles: [1, 2.5] },
+      { phaseCycles: [1, 2, 3, 4, 5] },
       { strokeMm: -0.01 }, { strokeMm: 3.01 }, { rotationDeg: 180.1 }, { lateralMm: 4.1 }, { tiltDeg: 8.1 },
       { tempoBias: 0.19 }, { tempoBias: 0.81 }, { gripApertureMm: 12.1 }, { contactIntensity: 1.1 },
       { direction: "free" }, { hand: "both" }, { support: "force" }, { forceN: 3 }, { unsafeDepthCm: 5 },
@@ -72,6 +77,22 @@ describe("the authored manipulation catalogue", () => {
       expect(entry.defaults.grip, `${entry.id} catalogue default`).toBe("two-finger");
       expect(resolveManipulationMotion(entry.id).grip, `${entry.id} resolved default`).toBe("two-finger");
       expect(resolveManipulationMotion(entry.id, { grip: "three-finger" }).grip, `${entry.id} explicit support`).toBe("three-finger");
+    }
+  });
+
+  it("preserves the main surface action when the other hand changes support", () => {
+    for (const [id, handPose] of [
+      ["chuai", "palpate"], ["xun", "palpate"], ["zhua", "skin-nail"],
+      ["she", "skin-nail"], ["an", "press"], ["men", "press"],
+    ] as const) {
+      const solo = sampleTechnique(id, 777, { support: "none" });
+      expect(solo.supportContact, id).toBe(0);
+      for (const support of ["none", "stretch", "press", "pinch", "stabilize"] as const) {
+        const sample = sampleTechnique(id, 777, { support });
+        expect(sample.handPose, `${id}/${support}`).toBe(handPose);
+        expect(sample.lateralMm).toEqual(solo.lateralMm);
+        expect(sample.nailContact).toBe(solo.nailContact);
+      }
     }
   });
 
@@ -132,9 +153,10 @@ describe("the authored manipulation catalogue", () => {
     }
     expect(controls("she")).toContain("gripApertureMm");
     expect(controls("she")).not.toContain("grip");
-    for (const id of ["zhua", "an", "men"]) expect(controls(id)).toEqual(["durationMs", "cycles", "hand", "support", "contactIntensity"]);
+    expect(controls("zhua")).toContain("tempoBias");
+    for (const id of ["an", "men"]) expect(controls(id)).toEqual(["durationMs", "cycles", "hand", "support", "contactIntensity"]);
     for (const entry of MANIPULATION_TECHNIQUES.filter((t) => t.family === "compound")) {
-      const expected = [...new Set(entry.phases.flatMap((phase) => controls(phase.primitive)))];
+      const expected = ["phaseCycles", ...entry.phases.flatMap((phase) => controls(phase.primitive))];
       expect(new Set(entry.controls), entry.id).toEqual(new Set(expected));
     }
     // A scraping phase's timing control really changes nail engagement, although its grip pose stays fixed.
@@ -199,6 +221,14 @@ describe("presentation motion primitives", () => {
 
   it("releases only the intentional Fei engagement and rejoins contact at compound boundaries", () => {
     const settings = { durationMs: 3000, cycles: 3 };
+    let activeRollSamples = 0;
+    for (let t = 0; t <= settings.durationMs; t += 10) {
+      const frame = sampleTechnique("fei", t, settings);
+      if (Math.abs(frame.rotationRad) <= 1e-8) continue;
+      activeRollSamples++;
+      expect(frame.gripEngagement, `detached Fei turn at ${t} ms`).toBe(1);
+    }
+    expect(activeRollSamples).toBeGreaterThan(100);
     expect(sampleTechnique("fei", 350, settings).gripEngagement).toBeCloseTo(1, 7);
     expect(sampleTechnique("fei", 1000, settings).gripEngagement).toBeCloseTo(0, 7);
     expect(sampleTechnique("fei", 1350, settings).gripEngagement).toBeCloseTo(1, 7);
@@ -236,11 +266,56 @@ describe("presentation motion primitives", () => {
 
   it("honors direction and asymmetric timing independently of the technique label", () => {
     const settings = { durationMs: 1000, cycles: 1 };
-    expect(sampleTechnique("nian", 350, { ...settings, direction: "clockwise" }).rotationRad).toBeGreaterThan(0);
-    expect(sampleTechnique("nian", 350, { ...settings, direction: "counterclockwise" }).rotationRad).toBeLessThan(0);
+    expect(sampleTechnique("nian", 350, { ...settings, direction: "clockwise" }).rotationRad).toBeLessThan(0);
+    expect(sampleTechnique("nian", 350, { ...settings, direction: "counterclockwise" }).rotationRad).toBeGreaterThan(0);
     expect(sampleTechnique("nian", 250, { ...settings, tempoBias: 0.2 }).rotationRad).not.toBeCloseTo(sampleTechnique("nian", 250, { ...settings, tempoBias: 0.8 }).rotationRad, 4);
     expect(sampleTechnique("ti", 300, { ...settings, tempoBias: 0.3 }).withdrawalMm).toBeGreaterThan(sampleTechnique("ti", 300, { ...settings, tempoBias: 0.7 }).withdrawalMm);
     expect(sampleTechnique("bu", 300, settings).withdrawalMm).not.toBeCloseTo(sampleTechnique("xie", 300, settings).withdrawalMm, 4);
+  });
+
+  it("reaches the commanded stroke and both signed rotation peaks even in the first and last cycles", () => {
+    const settings = { durationMs: 12000, cycles: 12, rotationDeg: 120, strokeMm: 3, tempoBias: 0.3 };
+    for (const n of [0, 1, 11]) {
+      const start = n * 1000;
+      for (const id of ["ti", "cha", "bu", "xie"] as const) {
+        expect(sampleTechnique(id, start + 300, settings).withdrawalMm, id).toBeCloseTo(3, 10);
+      }
+      for (const id of ["nian", "cuo"] as const) {
+        const options = { ...settings, direction: "alternating" as const };
+        expect(sampleTechnique(id, start + 150, options).rotationRad, id).toBeCloseTo(2 * Math.PI / 3, 10);
+        expect(sampleTechnique(id, start + 650, options).rotationRad, id).toBeCloseTo(-2 * Math.PI / 3, 10);
+        for (const t of [start + .01, start + 999.99]) {
+          expect(Math.abs(sampleTechnique(id, t, options).rotationRad)).toBeLessThan(1e-9);
+        }
+      }
+    }
+  });
+
+  it("distinguishes axial and twist timing in Bu and Xie with identical operator inputs", () => {
+    const settings = { durationMs: 1000, cycles: 1, strokeMm: 2, rotationDeg: 90, tempoBias: 0.4, direction: "clockwise" as const };
+    expect(sampleTechnique("bu", 400, settings).withdrawalMm).toBeCloseTo(2, 10);
+    expect(sampleTechnique("xie", 400, settings).withdrawalMm).toBeCloseTo(2, 10);
+    expect(sampleTechnique("bu", 200, settings).rotationRad).toBeCloseTo(-Math.PI / 2, 10);
+    expect(sampleTechnique("xie", 700, settings).rotationRad).toBeCloseTo(-Math.PI / 2, 10);
+    expect(Math.abs(sampleTechnique("xie", 200, settings).rotationRad)).toBeLessThan(Math.PI / 4);
+    expect(Math.abs(sampleTechnique("bu", 700, settings).rotationRad)).toBeLessThan(Math.PI / 4);
+  });
+
+  it("draws a circular Pan orbit and reverses only successive alternating passes", () => {
+    const settings = { durationMs: 2000, cycles: 2, lateralMm: 3, tiltDeg: 6, tempoBias: 0.4 };
+    for (const direction of ["clockwise", "counterclockwise", "alternating"] as const) {
+      const sample = (ms: number) => sampleTechnique("pan", ms, { ...settings, direction });
+      for (let t = 0; t <= 2000; t += 25) {
+        const { lateralMm, tiltRad } = sample(t);
+        expect(Math.hypot(lateralMm.u - 1.5, lateralMm.v)).toBeCloseTo(1.5, 10);
+        expect(tiltRad.u).toBeCloseTo(lateralMm.u * Math.PI / 90, 10);
+        expect(tiltRad.v).toBeCloseTo(lateralMm.v * Math.PI / 90, 10);
+      }
+      const sign = direction === "counterclockwise" ? -1 : 1;
+      expect(Math.sign(sample(200).lateralMm.v)).toBe(sign);
+      expect(Math.sign(sample(1200).lateralMm.v)).toBe(direction === "alternating" ? -sign : sign);
+      expect(sample(400).lateralMm.u).toBeCloseTo(3, 10);
+    }
   });
 
   it("uses the requested exact cycle count within each compound phase", () => {
@@ -252,6 +327,22 @@ describe("presentation motion primitives", () => {
       expect(sampleTechnique("shao-shan-huo", offset + 850, settings).withdrawalMm).toBeCloseTo(3, 7);
     }
     expect(sampleTechnique("shao-shan-huo", 1001, settings).phase.index).toBe(1);
+  });
+
+  it("uses each compound stage's own repeat count for the needle and hand while preserving its time window", () => {
+    for (const technique of MANIPULATION_TECHNIQUES.filter(entry => entry.family === "compound")) {
+      const phaseCycles = technique.phases.map((_, i) => i + 1);
+      const durationMs = 12000;
+      const options = { durationMs, cycles: 7, phaseCycles };
+      for (const elapsed of [0, 379, 1293, 2999, 3001, 5107, 6000, 7011, 8773, 9123, 11257, durationMs]) {
+        const sample = sampleTechnique(technique.id, elapsed, options);
+        const perStage = sampleTechnique(technique.id, elapsed, { durationMs, cycles: phaseCycles[sample.phase.index] });
+        expect(sample, `${technique.id} at ${elapsed}ms`).toEqual(perStage);
+        expect(sample.phase.cycleProgress).toBeCloseTo(sample.phase.progress * phaseCycles[sample.phase.index]! % 1);
+      }
+      expect(resolveManipulationMotion(technique.id, options).phaseCycles).not.toBe(phaseCycles);
+      expect(resolveManipulationMotion(technique.id, { cycles: 7 })).not.toHaveProperty("phaseCycles");
+    }
   });
 
   it("resolves direct preview inputs defensively without modifying caller settings or catalogue defaults", () => {

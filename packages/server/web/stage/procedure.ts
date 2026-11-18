@@ -9,7 +9,8 @@ import {
 } from "@acucraft/core";
 import type { Person } from "./cast.js";
 import type { NeedleLayer } from "./needles.js";
-import type { SkinSite } from "./sites.js";
+import { SiteFinder, type SkinSite } from "./sites.js";
+import { poseSupportPinch, type SupportPinchFrame } from "./support-pinch.js";
 import { sampleProcedure, type ProcedureKind } from "./choreography.js";
 import { ArticulatedHand, handOrientation, surfaceHandOrientation, type FingerPose, type HandContact, type HandPose } from "./hand.js";
 import { alignNeedleWristAzimuth } from "./needle-hand-frame.js";
@@ -96,6 +97,7 @@ export class NeedleProcedure {
   private reachWarning: string | null = null;
   private playbackState: ProcedurePlayback = { ...IDLE };
   private readonly clearance = new PatientClearance();
+  private readonly supportSites = new WeakMap<Person, SiteFinder>();
   private readonly clearanceRoll = new Map<ArticulatedHand, number>();
   private readonly clearancePlan = new Map<ArticulatedHand, number>();
   private readonly fingerPoses = new Map<ArticulatedHand, FingerPose>();
@@ -186,6 +188,10 @@ export class NeedleProcedure {
     this.hand.root.name = "needle-hand";
     this.supportHand.root.name = "support-hand";
     this.group.add(this.hand.root, this.supportHand.root);
+    if (this.active) {
+      this.setHandSides(this.active.side);
+      if (this.active.kind === "performance") this.renderPerformance(this.active, this.actor);
+    }
   }
 
   setInsertionPresentation(id: string, presentation: InsertionPresentation): void {
@@ -316,8 +322,7 @@ export class NeedleProcedure {
     const side = requested !== "auto" ? requested : person.shoulderAt("left").distanceToSquared(point) < person.shoulderAt("right").distanceToSquared(point) ? "left" : "right";
     this.active = { ...next, start: now, side, worked: false, finished: false, grip: point.clone(), axis: axis.clone(), initialGrip: point.clone(), elapsed: 0, lastNow: now, primeClock: next.kind === "performance" && next.preview };
     this.actor = person;
-    this.hand?.setSide(side);
-    this.supportHand?.setSide(side === "left" ? "right" : "left");
+    this.setHandSides(side);
     const needleId = next.kind === "performance" ? next.input.needleId : next.id;
     if (needleId) this.focus(needleId);
     return true;
@@ -348,6 +353,11 @@ export class NeedleProcedure {
     } else this.renderLegacy(gesture, person, this.lastNow);
   }
 
+  private setHandSides(side: "left" | "right"): void {
+    this.hand?.setSide(side);
+    this.supportHand?.setSide(side === "left" ? "right" : "left");
+  }
+
   private renderLegacy(gesture: ActiveGesture & LegacyGesture, person: Person, now: number): void {
     const duration = gesture.workDurationMs ?? resolveNeedleMotion(gesture.technique ?? "none", gesture.motion).durationMs;
     const insertionMs = gesture.kind === "insert" && gesture.presentation?.durationMs !== undefined ? finiteClamp(gesture.presentation.durationMs, 400, 8000) : undefined;
@@ -360,7 +370,7 @@ export class NeedleProcedure {
       }
     }
     if (gesture.kind !== "work" && gesture.worked && !gesture.finished) {
-      this.needles.progress(gesture.id, gesture.kind, Math.min(0.99999, sample.operation));
+      this.needles.progress(gesture.id, gesture.kind, Math.min(0.99999, sample.operation), gesture.presentation?.skinContactFraction);
       if (sample.operation === 1 && sample.grip < 0.01) {
         this.needles.progress(gesture.id, gesture.kind, 1);
         gesture.finished = true;
@@ -420,23 +430,24 @@ export class NeedleProcedure {
       this.needles.poseTechnique(input.needleId, input.technique, elapsed, motion);
     }
     const handle = definition.context === "retained" && input.needleId ? this.needles.grip(input.needleId) : null;
-    const contact = handle?.point.clone() ?? input.site.p.clone().addScaledVector(input.site.uDir, sample.lateralMm.u / 1000).addScaledVector(input.site.vDir, sample.lateralMm.v / 1000);
-    const axis = handle?.axis.clone() ?? input.site.n.clone();
+    const site = handle ? input.site : input.site.currentSurface?.() ?? input.site;
+    const contact = handle?.point.clone() ?? site.p.clone().addScaledVector(site.uDir, sample.lateralMm.u / 1000).addScaledVector(site.vDir, sample.lateralMm.v / 1000);
+    const axis = handle?.axis.clone() ?? site.n.clone();
     let anchor: HandContact = handle ? "handle" : "index";
-    if (!handle && ["zhua", "she"].includes(poseSample.phase.primitive)) anchor = "nail";
-    else if (!handle && (poseSample.handPose === "press" || motion.support === "press")) anchor = "palm";
-    if (!handle) contact.addScaledVector(input.site.n, 0.0015);
+    if (!handle && poseSample.handPose === "skin-nail") anchor = "nail";
+    else if (!handle && poseSample.handPose === "press") anchor = "palm";
+    if (!handle && anchor !== "nail") contact.addScaledVector(site.n, 0.0015);
     const grip = envelope.grip * sample.gripEngagement;
-    person.faceToward?.(input.site.p, envelope.reach);
+    person.faceToward?.(site.p, envelope.reach);
     this.placements = [];
     if (this.hand) this.poseHand(this.hand, { pose: poseSample.handPose,
       grip, apertureMm: motion.gripApertureMm, handleRadiusM: handle ? NEEDLE_HANDLE_RADIUS_M : undefined,
-      stabilizerGrip: envelope.grip, phase: (sample.phase.progress * motion.cycles) % 1,
+      stabilizerGrip: envelope.grip, phase: sample.phase.cycleProgress,
       wristElevationDeg: motion.wristElevationDeg, gripStyle: motion.gripStyle, idleFingerPose: motion.idleFingerPose,
       axialDisplacementMm: handle && sample.withdrawalMm > 0 ? Math.max(0, contact.clone().sub(gesture.initialGrip).dot(gesture.axis) * 1000) : 0,
       rotationRad: sample.rotationRad, nailContact: sample.nailContact, intensity: motion.contactIntensity });
     if (this.hand) this.placeHand(this.hand, person, gesture.side, contact, axis, envelope.reach, anchor, Math.sin(handle?.rotation ?? 0) * 0.04, !handle);
-    this.placeSupport(person, gesture.side, input.site, motion.support, envelope.reach, envelope.grip, sample.phase.progress, motion.contactIntensity);
+    this.placeSupport(person, gesture.side, site, motion.support, envelope.reach, envelope.grip, sample.phase.progress, motion.contactIntensity);
     this.settleHands(person);
     this.group.visible = !!this.hand?.root.visible || !!this.supportHand?.root.visible;
     this.publish({ reachWarning: this.reachWarning, mode: gesture.preview ? "preview" : "record", playing: !this.paused && !envelope.complete,
@@ -458,12 +469,12 @@ export class NeedleProcedure {
     const endpoints = [current];
     if (hand === this.hand && gesture?.kind === "performance") {
       const motion = resolveManipulationMotion(gesture.input.technique, gesture.input.motion);
-      const steps = Math.max(32, Math.ceil(motion.cycles * 32));
+      const steps = Math.max(...(motion.phaseCycles ?? [motion.cycles])) * 32;
       for (let step = 0; step <= steps; step++) {
         const elapsed = finiteClamp(motion.durationMs * step / steps, 0.001, motion.durationMs - 0.001);
         const sample = sampleTechnique(gesture.input.technique, elapsed, motion);
         const pose: FingerPose = { ...current, pose: sample.handPose, grip: sample.gripEngagement, stabilizerGrip: 1,
-          phase: (sample.phase.progress * motion.cycles) % 1, rotationRad: sample.rotationRad,
+          phase: sample.phase.cycleProgress, rotationRad: sample.rotationRad,
           nailContact: sample.nailContact, axialDisplacementMm: sample.withdrawalMm };
         poses.push(pose);
         if (step === 0 || step === steps) endpoints.push(pose);
@@ -479,15 +490,15 @@ export class NeedleProcedure {
     return poses;
   }
 
-  private placeHand(hand: ArticulatedHand, person: Person, side: "left" | "right", contact: Vector3, axis: Vector3, reach: number, anchor: HandContact, roll = 0, surface = false): void {
+  private placeHand(hand: ArticulatedHand, person: Person, side: "left" | "right", contact: Vector3, axis: Vector3, reach: number, anchor: HandContact, roll = 0, surface = false, pinch?: SupportPinchFrame | null): void {
     const gesture = this.active;
     const site = gesture?.kind === "performance" ? gesture.input.site : gesture ? this.needles.siteOf(gesture.id) : null;
     const workingContact = contact;
     // Approach and retreat above the local skin plane rather than cutting diagonally through the
     // patient with the carried needle. The arc vanishes before any recorded insertion takes place.
     if (site && reach > 0 && reach < 1) contact = contact.clone().addScaledVector(site.n, Math.sin(Math.PI * reach) * 0.08);
-    const contactLocal = hand.contact(anchor), wristLocal = hand.wrist();
-    let orientation = surface ? surfaceHandOrientation(contactLocal, wristLocal, hand.contactNormal(anchor), contact, axis, person.shoulderAt(side))
+    const contactLocal = pinch?.point ?? hand.contact(anchor), wristLocal = hand.wrist();
+    let orientation = surface ? surfaceHandOrientation(contactLocal, wristLocal, pinch?.normal ?? hand.contactNormal(anchor), contact, axis, person.shoulderAt(side))
       : alignNeedleWristAzimuth(handOrientation(contact, axis, person.shoulderAt(side), roll), contactLocal, wristLocal);
     const patient = this.patient();
     if (patient && hand.contactValid) {
@@ -591,15 +602,28 @@ export class NeedleProcedure {
       person.reach(side, null);
       return;
     }
+    site = site.currentSurface?.() ?? site;
     const pose: HandPose = support === "stretch" ? "stretch" : support === "pinch" ? "pinch" : support === "press" ? "press" : "palpate";
-    this.poseHand(hand, { pose, grip, phase, apertureMm: support === "stretch" ? 8 : 2, intensity });
+    const pinch = support === "pinch" ? poseSupportPinch(hand, grip) : null;
+    if (!pinch) this.poseHand(hand, { pose, grip, phase, apertureMm: support === "stretch" ? 8 : 2, intensity });
     // Contact remains beside the entry, toward the supporting shoulder, rather than underneath the needle.
     const tangent = person.shoulderAt(side).sub(site.p);
     tangent.addScaledVector(site.n, -tangent.dot(site.n));
     if (tangent.lengthSq() < 1e-10) tangent.copy(site.uDir);
     tangent.normalize();
-    const contact = site.p.clone().addScaledVector(tangent, 0.035).addScaledVector(site.n, 0.002);
-    this.placeHand(hand, person, side, contact, site.n, reach, support === "press" ? "palm" : support === "pinch" ? "pinch" : "index", 0, true);
+    const contact = site.p.clone().addScaledVector(tangent, 0.035);
+    let normal = site.n;
+    const patient = pinch && this.patient();
+    if (patient) {
+      let finder = this.supportSites.get(patient);
+      if (!finder) { finder = new SiteFinder(patient.rig); this.supportSites.set(patient, finder); }
+      const skin = finder.nearbySkin(contact, normal);
+      if (skin) { contact.copy(skin.p); normal = skin.n; }
+    }
+    // An open pair approaches with both rounded tips just above the patch,
+    // then settles its bearing surfaces as the thumb and index close.
+    contact.addScaledVector(normal, pinch ? 0.00012 + 0.0004 * (1 - grip) : 0.002);
+    this.placeHand(hand, person, side, contact, normal, reach, support === "press" ? "palm" : support === "pinch" ? "pinch" : "index", 0, true, pinch);
   }
 
   private finish(gesture: ActiveGesture): void {

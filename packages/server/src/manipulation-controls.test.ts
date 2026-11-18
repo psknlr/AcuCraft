@@ -102,7 +102,7 @@ describe("the operator's shared technique parameters", () => {
   });
 
   it("loads accepted historical records and raw omitted controls with the correct grip default while preserving explicit accepted controls", () => {
-    const oldMotion: Record<string, string | number> = { ...library.defaults.nian!, grip: "three-finger" };
+    const oldMotion: Record<string, unknown> = { ...library.defaults.nian!, grip: "three-finger" };
     for (const key of ["wristElevationDeg", "gripStyle", "idleFingerPose"]) delete oldMotion[key];
     expect(historicalTechniqueMotion(library, "nian", oldMotion, { grip: "two-finger", wristElevationDeg: 68 }))
       .toMatchObject({ grip: "three-finger", wristElevationDeg: 48, gripStyle: "tip-pinch", idleFingerPose: "curled" });
@@ -113,6 +113,22 @@ describe("the operator's shared technique parameters", () => {
     const accepted = { ...oldMotion, wristElevationDeg: 51, gripStyle: "tip-pinch", idleFingerPose: "relaxed" };
     expect(historicalTechniqueMotion(library, "nian", accepted, { wristElevationDeg: 55, idleFingerPose: "curled" }))
       .toMatchObject({ wristElevationDeg: 51, gripStyle: "tip-pinch", idleFingerPose: "relaxed" });
+  });
+
+  it("loads, validates and submits explicit stage repeats for the selected recipe", () => {
+    const entry = library.techniques.find(e => e.id === "yang-zhong-yin-yin")!;
+    const draft = techniqueDraft(library, entry.id);
+    draft.needleId = "pack-a.1";
+    const phaseCycles = [1, 12];
+    draft.motion = historicalTechniqueMotion(library, entry.id, { phaseCycles });
+    expect(draft.motion.phaseCycles).not.toBe(phaseCycles);
+    expect(motionErrors(draft.motion, library.motionSchema, entry)).toEqual([]);
+    expect(PerformTechniqueSchema.parse({ type: "perform_technique", ...techniqueInput(draft, entry) }).motion?.phaseCycles).toEqual([1, 12]);
+    for (const invalid of [[1], [1, 2, 3], [0, 1], [1, 13], [1.5, 2], [NaN, 1]]) {
+      expect(motionErrors({ phaseCycles: invalid }, library.motionSchema, entry)[0]).toMatch(/phaseCycles/);
+    }
+    expect(motionErrors({ phaseCycles }, library.motionSchema, library.techniques.find(e => e.id === "bu"))[0]).toMatch(/compound/);
+    expect(historicalTechniqueMotion(library, entry.id, { cycles: 4 })).not.toHaveProperty("phaseCycles");
   });
 
   it("submits the operator's reference grip, wrist and unused-finger choices with the shared action schema", () => {

@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { Matrix4, Object3D, Quaternion, Ray, SkinnedMesh, Triangle, Vector3 } from "three";
+import { Matrix4, Mesh, Object3D, Quaternion, Ray, SkinnedMesh, Triangle, Vector3 } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { beforeAll, describe, expect, it } from "vitest";
 import { ArticulatedHand } from "../../packages/server/web/stage/hand.js";
@@ -225,6 +225,69 @@ describe("the authored hand's soft-tissue morphology", () => {
     expect(diameter * 1000).toBeLessThan(0.5);
     expect(flatArea, "the terminal rim must have a real closing cap").toBeGreaterThan(0);
     expect(flatArea * 1e6).toBeLessThan(0.1);
+  });
+
+  it("keeps the proximal nail plate visible over the curved bed in a working grip", async () => {
+    const gltf = await new GLTFLoader().parseAsync(Uint8Array.from(readFileSync(asset)).buffer, "");
+    const hand = new ArticulatedHand(gltf.scene, gltf.animations, "#d9b48f");
+    hand.pose({ pose: "pinch", grip: 1, phase: 0, gripStyle: "tip-pinch", idleFingerPose: "curled" });
+    hand.root.updateWorldMatrix(true, true);
+    for (const digit of ["middle", "ring", "little"]) {
+      const plate = hand.model.getObjectByName(`${digit}_nail`) as Mesh;
+      const anchor = hand.model.getObjectByName(`${digit}_nail_contact`)!;
+      const dorsal = new Vector3(0, 1, 0).transformDirection(anchor.matrixWorld);
+      const skin = skinTriangles(hand.model, `${digit}_skin`, new Matrix4());
+      const uv = plate.geometry.getAttribute("uv"), index = plate.geometry.getIndex()!;
+      const ray = new Ray(), hit = new Vector3(), probe = new Vector3();
+      let samples = 0, buried = 0;
+      for (let face = 0; face < index.count; face += 3) {
+        const ids = [index.getX(face), index.getX(face + 1), index.getX(face + 2)];
+        if (ids.some(i => uv.getX(i) > .50)) continue;
+        const [a, b, c] = ids.map(i => plate.localToWorld(plate.getVertexPosition(i, new Vector3()))) as [Vector3, Vector3, Vector3];
+        if (new Triangle(a, b, c).getNormal(new Vector3()).dot(dorsal) < .55) continue;
+        // Skin can emerge through the interior of a keratin triangle even
+        // when its three corners sit above the bed.
+        for (let i = 0; i <= 6; i++) for (let j = 0; j <= 6 - i; j++) {
+          probe.copy(a).multiplyScalar(i / 6).addScaledVector(b, j / 6).addScaledVector(c, (6 - i - j) / 6);
+          ray.origin.copy(probe).addScaledVector(dorsal, .001);
+          ray.direction.copy(dorsal).negate();
+          if (skin.some(t => ray.intersectTriangle(t.a, t.b, t.c, true, hit) && hit.distanceTo(ray.origin) < .001 - 1e-8)) buried++;
+          samples++;
+        }
+      }
+      expect(samples, `${digit} actual cuticle and bed samples`).toBeGreaterThan(1000);
+      expect(buried, `${digit} keratin hidden by overlying dorsal skin`).toBe(0);
+    }
+    hand.dispose();
+  });
+
+  it("retains the knuckle contour between the narrower phalanges during a working pinch", async () => {
+    const gltf = await new GLTFLoader().parseAsync(Uint8Array.from(readFileSync(asset)).buffer, "");
+    const hand = new ArticulatedHand(gltf.scene, gltf.animations, "#d9b48f");
+    for (const gripStyle of ["tip-pinch", "side-pinch"] as const) {
+      hand.pose({ pose: "pinch", grip: 1, phase: 0, wristElevationDeg: 55, idleFingerPose: "curled", gripStyle });
+      hand.root.updateWorldMatrix(true, true);
+      expect(hand.contactValid).toBe(true);
+      for (const digit of ["index", "middle", "ring", "little"]) {
+        const position = (name: string) => hand.model.getObjectByName(`${digit}_${name}`)!.getWorldPosition(new Vector3());
+        const mcp = position("MCP"), pip = position("PIP"), dip = position("DIP");
+        const hinge = pip.clone().sub(mcp).cross(dip.clone().sub(pip)).normalize();
+        const rings = skinRings(hand.model, `${digit}_skin`);
+        const breadth = (point: Vector3) => {
+          const ring = rings.reduce((nearest, next) =>
+            nearest.centre.distanceToSquared(point) <= next.centre.distanceToSquared(point) ? nearest : next);
+          const transverse = ring.points.map(sample => sample.dot(hinge));
+          return Math.max(...transverse) - Math.min(...transverse);
+        };
+        // Measure joint heads and neighbouring shafts on the actual posed skin.
+        const proximal = breadth(mcp.clone().lerp(pip, 0.5)), middle = breadth(pip.clone().lerp(dip, 0.5));
+        for (const [label, ratio] of [["PIP", breadth(pip) / proximal], ["DIP", breadth(dip) / middle]] as const) {
+          expect(ratio, `${gripStyle}/${digit} ${label} to shaft width`).toBeGreaterThan(1.03);
+          expect(ratio).toBeLessThan(1.25);
+        }
+      }
+    }
+    hand.dispose();
   });
 
   it("continues the index's terminal bearing and rounded tip along its distal axis instead of turning into a transverse cap", () => {

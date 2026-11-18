@@ -426,6 +426,9 @@ html { scroll-behavior: smooth; }
 .manipulation-targets { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0 16px; }
 .manipulation-site-grid { grid-column: 1 / -1; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 10px; }
 .manipulation-parameters, .manipulation-insertion { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 18px; }
+.manipulation-phase-cycles { grid-column: 1 / -1; }
+.manipulation-phase-cycles input[type="checkbox"] { accent-color: #83d2af; }
+.manipulation-phase-counts { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px 14px; margin-top: 8px; }
 .manipulation-number-pair { display: grid; grid-template-columns: minmax(40px, 1fr) 64px 20px; align-items: center; gap: 6px; }
 .manipulation-number-pair input[type="number"] { width: 64px; box-sizing: border-box; padding: 6px 4px; text-align: right; }
 .manipulation-studio input[type="range"] { min-width: 0; width: 100%; accent-color: #83d2af; cursor: pointer; }

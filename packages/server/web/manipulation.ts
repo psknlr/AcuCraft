@@ -12,16 +12,20 @@ export interface TechniqueDefinition {
   description: string;
   evidence: string;
   controls?: readonly string[];
+  phases?: readonly { primitive: string; label: string }[];
   parameterBounds?: Record<string, { min: number; max: number }>;
   source?: { id: string; review: string; note: string };
 }
 export interface TechniqueLibrary {
   techniques: readonly TechniqueDefinition[];
-  defaults: Record<string, Record<string, string | number>>;
+  defaults: Record<string, TechniqueParameters>;
   motionSchema: JsonSchema;
+  insertionPresentationSchema?: JsonSchema;
+  insertionSkinContactDefault?: number;
   handProfiles?: Record<"ordinary" | "threeFinger" | "nailWork", { wristElevationDeg: { min: number; max: number; default: number }; gripStyles?: readonly string[] }>;
   note: string;
 }
+type TechniqueParameters = Record<string, string | number | number[]>;
 
 /** Lookup supplies contact-specific wrist ranges to both insertion and retained-needle controls. */
 export function wristControlProfile(library: Pick<TechniqueLibrary, "handProfiles" | "motionSchema" | "defaults">, motion: Record<string, unknown>, definition?: TechniqueDefinition): { min: number; max: number; default: number } {
@@ -38,7 +42,7 @@ export interface TechniquePreview {
   region?: string;
   side?: string;
   at?: { u: number; v: number };
-  motion?: Record<string, string | number>;
+  motion?: TechniqueParameters;
 }
 export interface TechniquePlayback {
   mode: "record" | "preview" | "idle";
@@ -52,7 +56,7 @@ export interface TechniquePlayback {
 }
 export interface TechniqueDraft {
   technique: string;
-  motion: Record<string, string | number>;
+  motion: TechniqueParameters;
   needleId: string;
   mark: string;
   region: string;
@@ -71,9 +75,12 @@ export function techniqueDraft(library: TechniqueLibrary, id: string, previous?:
 }
 
 /** Accepted records take priority; historical 13-field records resolve their current presentation defaults. */
-export function historicalTechniqueMotion(library: TechniqueLibrary, id: string, accepted?: Record<string, unknown>, requested?: Record<string, unknown>): Record<string, string | number> {
+export function historicalTechniqueMotion(library: TechniqueLibrary, id: string, accepted?: Record<string, unknown>, requested?: Record<string, unknown>): TechniqueParameters {
   const source = accepted ?? requested, motion = { ...library.defaults[id] };
-  for (const [key, value] of Object.entries(source ?? {})) if (typeof value === "string" || typeof value === "number") motion[key] = value;
+  for (const [key, value] of Object.entries(source ?? {})) {
+    if (typeof value === "string" || typeof value === "number") motion[key] = value;
+    else if (key === "phaseCycles" && Array.isArray(value) && value.every(n => typeof n === "number")) motion[key] = [...value];
+  }
   if (source?.wristElevationDeg === undefined) motion.wristElevationDeg = wristControlProfile(library, motion, library.techniques.find((entry) => entry.id === id)).default;
   return motion;
 }
@@ -86,7 +93,14 @@ export function motionErrors(motion: Record<string, unknown>, schema: JsonSchema
       ? wristControlProfile({ handProfiles, motionSchema: schema, defaults: {} }, motion, definition) : definition?.parameterBounds?.[key];
     const rule = base && bounds ? { ...base, minimum: bounds.min, maximum: bounds.max } : base;
     if (!rule) { errors.push(`Unknown parameter: ${key}`); continue; }
-    if (rule.enum) {
+    if (key === "phaseCycles") {
+      const { minimum, maximum } = rule.items ?? {};
+      if (definition?.family !== "compound" || !Array.isArray(value) || value.length !== definition.phases?.length) {
+        errors.push("phaseCycles: provide one repeat count for each stage of a compound technique");
+      } else if (!value.every(n => Number.isInteger(n) && (minimum === undefined || n >= minimum) && (maximum === undefined || n <= maximum))) {
+        errors.push(`phaseCycles: use whole numbers from ${minimum} to ${maximum}`);
+      }
+    } else if (rule.enum) {
       if (!rule.enum.includes(value as string)) errors.push(`${key}: choose one of ${rule.enum.join(", ")}`);
     } else if (rule.type === "number" || rule.type === "integer") {
       if (typeof value !== "number" || !Number.isFinite(value)) errors.push(`${key}: enter a finite number`);
@@ -243,6 +257,7 @@ export function manipulationControls(id: string, hooks: Hooks): ManipulationCont
     angleDeg: numberPair("与皮肤法线夹角 Angle", "°", 0, 90, 1, 0),
     azimuthDeg: numberPair("区域方向 Azimuth", "°", 0, 360, 1, 0),
     durationMs: numberPair("插入动画时长 Duration", "ms", 400, 8000, 100, 1100),
+    skinContactPercent: numberPair("针尖触肤时刻 Skin contact", "%", 20, 80, 1, 45),
     gripApertureMm: numberPair("进针接近与释放开口 Insertion opening", "mm", 0, 12, 0.1, 2),
     wristElevationDeg: numberPair("进针手腕抬高角 Insertion wrist elevation", "°", 0, 1, 0.1, 0),
   };
@@ -375,14 +390,47 @@ export function manipulationControls(id: string, hooks: Hooks): ManipulationCont
     description.textContent = insertionMode ? "深度与方向由模拟引擎核验；持针和辅助手参数控制插入动画。Depth and direction are checked by the encounter engine." : entry?.description ?? "";
     provenance.textContent = insertionMode ? "动画参数不改变核准针路 · Animation settings do not change the approved path." : "示意动作，尚未实测校准 · Illustrative choreography, not measurement-calibrated.";
     const controls = entry?.controls;
-    for (const [key, field] of parameterFields) field.el.hidden = !!controls?.length && !controls.includes(key);
+    for (const [key, field] of parameterFields) field.el.hidden =
+      !!controls?.length && !controls.includes(key) || key === "cycles" && Array.isArray(draft?.motion.phaseCycles);
   }
   function drawParameters(): void {
     if (!library || !draft) return;
     parameterFields.clear(); replace(parameters);
+    const entry = definition(), techniques = library.techniques;
     for (const [key, schema] of Object.entries(library.motionSchema.properties ?? {})) {
       const [label, unit = ""] = LABELS[key] ?? [key];
-      if (schema.enum) {
+      if (key === "phaseCycles" && entry?.family === "compound" && entry.phases && schema.items) {
+        const { minimum, maximum } = schema.items;
+        const sharedCycles = draft.motion.cycles;
+        const custom = h("input", { type: "checkbox", checked: Array.isArray(draft.motion.phaseCycles) });
+        const group = h("div", { class: "manipulation-phase-cycles" },
+          h("label", null, custom, " 各阶段分别设定循环次数 · Set repeat counts by phase"));
+        const counts = h("div", { class: "manipulation-phase-counts", hidden: !custom.checked });
+        const saved = draft.motion.phaseCycles;
+        const inputs = entry.phases.map((phase, index) => {
+          const zh = techniques.find(t => t.id === phase.primitive)?.zh ?? phase.primitive;
+          const label = `${index + 1}. ${zh} · ${phase.label}`;
+          const control = h("input", { type: "number", min: minimum, max: maximum, step: 1,
+            value: Array.isArray(saved) ? saved[index] : sharedCycles, "aria-label": label });
+          counts.append(field(label, control));
+          return control;
+        });
+        const update = () => {
+          if (!draft) return;
+          if (custom.checked) draft.motion.phaseCycles = inputs.map(input => input.valueAsNumber);
+          else delete draft.motion.phaseCycles;
+          counts.hidden = !custom.checked;
+          motionChanged();
+        };
+        custom.addEventListener("change", () => {
+          if (custom.checked && draft) for (const input of inputs) input.value = String(draft.motion.cycles);
+          update();
+        });
+        for (const input of inputs) input.addEventListener("input", update);
+        group.append(counts);
+        parameters.append(group);
+        parameterFields.set(key, { el: group, inputs: [custom, ...inputs] });
+      } else if (schema.enum) {
         const control = choice(label, schema.enum.map(String), String(draft.motion[key] ?? schema.default ?? schema.enum[0]));
         control.input.addEventListener("change", () => { if (draft) draft.motion[key] = control.input.value; motionChanged(); });
         parameters.append(control.el); parameterFields.set(key, { el: control.el, inputs: [control.input] });
@@ -428,11 +476,12 @@ export function manipulationControls(id: string, hooks: Hooks): ManipulationCont
     if (!needle.value || !mark.value) throw new Error("请选择手中未使用针具和有效定位标记 · Choose a held unused needle and a valid mark.");
     const values = Object.fromEntries(Object.entries(insertionNumbers).map(([key, pair]) => [key, pair.number.valueAsNumber]));
     const presentation = {
+      ...(library?.insertionPresentationSchema?.properties?.skinContactFraction ? { skinContactFraction: values.skinContactPercent / 100 } : {}),
       durationMs: values.durationMs, gripApertureMm: values.gripApertureMm, wristElevationDeg: values.wristElevationDeg,
       ...Object.fromEntries(Object.entries(insertionChoices).map(([key, c]) => [key, c.input.value])),
     };
     if (library) {
-      const errors = motionErrors(presentation, library.motionSchema, undefined, library.handProfiles);
+      const errors = motionErrors(presentation, library.insertionPresentationSchema ?? library.motionSchema, undefined, library.handProfiles);
       if (errors.length) throw new Error(errors[0]);
     }
     for (const pair of Object.values(insertionNumbers)) if (!pair.number.checkValidity() || !Number.isFinite(pair.number.valueAsNumber)) throw new Error("请检查进针参数范围 · Check the insertion parameter bounds.");
@@ -455,7 +504,7 @@ export function manipulationControls(id: string, hooks: Hooks): ManipulationCont
     if (!library || !draft) return;
     cancelLocalPreview(); draft = techniqueDraft(library, draft.technique, draft); drawParameters();
     insertionChoices.grip.input.value = "two-finger";
-    for (const [key, value] of Object.entries({ depthCm: 1, angleDeg: 0, azimuthDeg: 0, durationMs: 1100, gripApertureMm: 2, wristElevationDeg: wristControlProfile(library, { grip: insertionChoices.grip.input.value }).default })) {
+    for (const [key, value] of Object.entries({ depthCm: 1, angleDeg: 0, azimuthDeg: 0, durationMs: 1100, skinContactPercent: 100 * (library.insertionSkinContactDefault ?? 0.45), gripApertureMm: 2, wristElevationDeg: wristControlProfile(library, { grip: insertionChoices.grip.input.value }).default })) {
       const pair = insertionNumbers[key as keyof typeof insertionNumbers]; pair.number.value = pair.range.value = String(value);
     }
     insertionChoices.grip.input.value = "two-finger"; insertionChoices.support.input.value = "stabilize"; insertionChoices.hand.input.value = "auto";
@@ -510,6 +559,15 @@ export function manipulationControls(id: string, hooks: Hooks): ManipulationCont
     const value = answer.output as TechniqueLibrary;
     if (!Array.isArray(value?.techniques) || !value.motionSchema?.properties || !value.defaults) throw new Error("无法读取手法参数目录 · Technique parameters could not be read.");
     library = value;
+    const contact = value.insertionPresentationSchema?.properties?.skinContactFraction;
+    const contactField = insertionNumbers.skinContactPercent;
+    contactField.el.hidden = !contact;
+    if (contact) for (const control of [contactField.number, contactField.range]) {
+      control.min = String(100 * (contact.minimum ?? 0.2));
+      control.max = String(100 * (contact.maximum ?? 0.8));
+      control.value = String(100 * (value.insertionSkinContactDefault ?? 0.45));
+      control.title = "从持稳到到达目标深度期间，针尖首次接触皮肤的时刻。 · First tip contact during the insertion movement, after approach and grasp.";
+    }
     const initialWrist = wristControlProfile(library, { grip: insertionChoices.grip.input.value });
     insertionNumbers.wristElevationDeg.number.value = String(initialWrist.default);
     const families = new Map<string, HTMLOptGroupElement>();

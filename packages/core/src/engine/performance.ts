@@ -59,8 +59,7 @@ const GRIP: ManipulationControl[] = ["grip", "gripApertureMm", "gripStyle"];
  */
 const PRIMITIVE_CONTROLS: Partial<Record<ManipulationTechniqueId, ManipulationControl[]>> = {
   chuai: ["lateralMm", "tempoBias"],
-  // Zhua's sampled nail intensity is not used by its fixed press pose, so no timing knob is exposed.
-  zhua: [],
+  zhua: ["tempoBias"],
   xun: ["lateralMm", "tempoBias"],
   she: ["gripApertureMm", "lateralMm", "tempoBias"],
   yao: [...GRIP, "lateralMm", "tiltDeg", "tempoBias"],
@@ -97,7 +96,7 @@ const ENTRIES: Entry[] = [
   ["chuai", "揣", "Chuai · palpation", "contact", "skin", "Fingertip contact and a small palpation path; illustrative contact, without measured pressure.", { support: "none" }],
   ["zhua", "爪", "Zhua · nail contact", "contact", "skin", "Localized nail contact with a stabilized finger. Contact intensity is a visual fraction, not force.", { lateralMm: 0.5, support: "none" }],
   ["xun", "循", "Xun · tracing", "contact", "skin", "Sequential surface contact along the chart's longitudinal direction. Procedural timing is variant-dependent.", { support: "none", lateralMm: 4 }],
-  ["she", "摄", "She · contact variant", "contact", "skin", "An illustrative nail-contact and pinch pattern. The source-dependent traditional definition remains unverified.", { support: "pinch", lateralMm: 1 }],
+  ["she", "摄", "She · contact variant", "contact", "skin", "An illustrative index-nail tracing variant. The source-dependent traditional definition remains unverified.", { support: "pinch", lateralMm: 1 }],
   ["yao", "摇", "Yao · oscillation", "orientation", "retained", "Lateral handle oscillation. Deflection affects only the visible external shaft; the approved internal path stays fixed."],
   ["pan", "盘", "Pan · circular motion", "orientation", "retained", "A circumferential handle trajectory about the fixed skin entry, without redirecting the internal needle tip."],
   ["nian", "捻", "Nian · twirling", "rotation", "retained", "Thumb-index rolling and alternating rotation about the needle's longitudinal axis."],
@@ -150,7 +149,7 @@ export const MANIPULATION_TECHNIQUES: readonly ManipulationTechnique[] = ENTRIES
   return {
     id, zh, label, family, context, needsNeedle: context !== "skin", description, evidence: "illustrative",
     primitives: phases.map((p) => p.primitive), phases,
-    controls: [...new Set([...COMMON, ...(context === "retained" ? REFERENCE_HAND : []), ...phases.flatMap((p) => PRIMITIVE_CONTROLS[p.primitive] ?? [])])],
+    controls: [...new Set<ManipulationControl>([...COMMON, ...(family === "compound" ? ["phaseCycles" as const] : []), ...(context === "retained" ? REFERENCE_HAND : []), ...phases.flatMap((p) => PRIMITIVE_CONTROLS[p.primitive] ?? [])])],
     ...(id === "gua" || id === "tan" ? { parameterBounds: { wristElevationDeg: { ...NAIL_WORK_WRIST_BOUNDS } } } : {}),
     defaults: { ...BASE, ...defaults }, source: SOURCE,
   };
@@ -158,6 +157,14 @@ export const MANIPULATION_TECHNIQUES: readonly ManipulationTechnique[] = ENTRIES
 const BY_ID = new Map(MANIPULATION_TECHNIQUES.map((t) => [t.id, t]));
 export function manipulationTechnique(id: string): ManipulationTechnique | null {
   return BY_ID.get(id as ManipulationTechniqueId) ?? null;
+}
+
+/** The action schema bounds each count; the catalogue determines how many stages it needs. */
+export function phaseCyclesError(definition: ManipulationTechnique, counts?: number[]): string | null {
+  if (counts === undefined) return null;
+  if (definition.family !== "compound") return "phaseCycles applies only to compound techniques.";
+  return counts.length === definition.phases.length ? null
+    : `phaseCycles needs ${definition.phases.length} counts in catalogue phase order for ${definition.id}.`;
 }
 
 const finite = (v: number | undefined, fallback: number, lo: number, hi: number): number => v === undefined || !Number.isFinite(v) ? fallback : Math.min(hi, Math.max(lo, v));
@@ -170,6 +177,8 @@ export function resolveManipulationMotion(id: ManipulationTechniqueId, settings:
   return {
     durationMs: Math.round(finite(settings.durationMs, base.durationMs, 400, 30_000)),
     cycles: Math.round(finite(settings.cycles, base.cycles, 1, 12)),
+    ...(Array.isArray(settings.phaseCycles) && definition && !phaseCyclesError(definition, settings.phaseCycles)
+      ? { phaseCycles: settings.phaseCycles.map(count => Math.round(finite(count, base.cycles, 1, 12))) } : {}),
     strokeMm: finite(settings.strokeMm, base.strokeMm, 0, 3),
     rotationDeg: finite(settings.rotationDeg, base.rotationDeg, 0, 180),
     lateralMm: finite(settings.lateralMm, base.lateralMm, 0, 4),
@@ -201,8 +210,8 @@ export interface TechniqueMotionSample {
   contact: "none" | "skin" | "handle" | "nail-handle";
   nailContact: number;
   supportContact: number;
-  handPose: "pinch" | "tripod" | "palpate" | "press" | "stretch" | "scrape" | "flick" | "release";
-  phase: { index: number; id: string; label: string; primitive: ManipulationTechniqueId; progress: number };
+  handPose: "pinch" | "tripod" | "palpate" | "press" | "skin-nail" | "stretch" | "scrape" | "flick" | "release";
+  phase: { index: number; id: string; label: string; primitive: ManipulationTechniqueId; progress: number; cycleProgress: number };
   complete: boolean;
   durationMs: number;
 }
@@ -210,6 +219,15 @@ const clamp = (x: number) => Math.min(1, Math.max(0, x));
 const smooth = (x: number) => { const t = clamp(x); return t * t * t * (t * (t * 6 - 15) + 10); };
 const pulse = (t: number, split: number) => t < split ? smooth(t / split) : 1 - smooth((t - split) / (1 - split));
 const rad = (deg: number) => deg * Math.PI / 180;
+
+/** Signed excursion about the outward shaft axis. Consecutive quintic strokes meet with zero speed and acceleration. */
+function twistExcursion(cycle: number, bias: number, direction: ResolvedManipulationMotion["direction"]): number {
+  if (direction !== "alternating") return (direction === "clockwise" ? -1 : 1) * pulse(cycle, bias);
+  const firstPeak = bias / 2, secondPeak = (1 + bias) / 2;
+  if (cycle < firstPeak) return smooth(cycle / firstPeak);
+  if (cycle < secondPeak) return 1 - 2 * smooth((cycle - firstPeak) / (secondPeak - firstPeak));
+  return -1 + smooth((cycle - secondPeak) / (1 - secondPeak));
+}
 
 /**
  * Pure, deterministic presentation sampler. Return values contain no clinical force estimate, tissue reaction,
@@ -231,14 +249,14 @@ export function sampleTechnique(id: ManipulationTechniqueId, elapsedMs: number, 
   const phase = entry.phases[index]!;
   const local = clamp((progress - start) / span);
   const primitive = phase.primitive;
+  const cycles = motion.phaseCycles?.[index] ?? motion.cycles;
+  const cycle = (local * cycles) % 1;
   const out: TechniqueMotionSample = {
     withdrawalMm: 0, rotationRad: 0, lateralMm: { u: 0, v: 0 }, tiltRad: { u: 0, v: 0 },
     grip: 0, gripEngagement: 1, contact: "none", nailContact: 0, supportContact: 0, handPose: "release",
-    phase: { index, id: phase.id, label: phase.label, primitive, progress: local }, complete, durationMs: motion.durationMs,
+    phase: { index, id: phase.id, label: phase.label, primitive, progress: local, cycleProgress: cycle }, complete, durationMs: motion.durationMs,
   };
   if (complete || elapsed === 0 || !Number.isFinite(progress)) return out;
-  const cycles = motion.cycles;
-  const cycle = (local * cycles) % 1;
   // Edges bring each primitive to rest at compound phase transitions.
   const phaseEnvelope = smooth(Math.min(1, local * 10)) * smooth(Math.min(1, (1 - local) * 10));
   const gripEnvelope = smooth(Math.min(1, progress * 12)) * smooth(Math.min(1, (1 - progress) * 12));
@@ -247,9 +265,8 @@ export function sampleTechnique(id: ManipulationTechniqueId, elapsedMs: number, 
   const rhythmicPhase = cycle < bias ? smooth(cycle / bias) * 0.5 : 0.5 + smooth((cycle - bias) / (1 - bias)) * 0.5;
   const wave = Math.sin(rhythmicPhase * Math.PI * 2);
   const envelope = Math.sin(Math.PI * rhythmicPhase) ** 2;
-  const axialPulse = pulse(cycle, bias) * phaseEnvelope;
+  const axialPulse = pulse(cycle, bias);
   const swing = wave * envelope * phaseEnvelope;
-  const rotation = motion.direction === "alternating" ? swing : envelope * phaseEnvelope * (motion.direction === "clockwise" ? 1 : -1);
   out.grip = gripEnvelope;
   out.contact = entry.context === "skin" || entry.context === "removed" ? "skin" : "handle";
   out.handPose = motion.grip === "three-finger" ? "tripod" : "pinch";
@@ -262,8 +279,8 @@ export function sampleTechnique(id: ManipulationTechniqueId, elapsedMs: number, 
       out.lateralMm.v = motion.lateralMm * 0.4 * envelope * phaseEnvelope;
       break;
     case "zhua": case "she":
-      out.handPose = primitive === "she" ? "pinch" : "press";
-      out.nailContact = axialPulse * motion.contactIntensity;
+      out.handPose = "skin-nail";
+      out.nailContact = axialPulse * phaseEnvelope * motion.contactIntensity;
       out.lateralMm.v = primitive === "she" ? motion.lateralMm * swing : 0;
       break;
     case "xun":
@@ -272,24 +289,29 @@ export function sampleTechnique(id: ManipulationTechniqueId, elapsedMs: number, 
       break;
     case "an": case "men":
       out.handPose = "press";
-      out.supportContact = gripEnvelope * motion.contactIntensity;
+      out.supportContact *= motion.contactIntensity;
       break;
     case "jin": case "tui-withdraw": case "ti": case "cha":
       out.withdrawalMm = motion.strokeMm * axialPulse;
       break;
     case "nian": case "cuo":
-      out.rotationRad = rad(motion.rotationDeg) * (primitive === "cuo" && motion.direction === "alternating" ? envelope * phaseEnvelope : rotation);
+      out.rotationRad = rad(motion.rotationDeg) * twistExcursion(cycle, bias, motion.direction);
       break;
     case "yao":
       out.lateralMm.u = motion.lateralMm * swing;
       out.tiltRad.u = rad(motion.tiltDeg) * swing;
       break;
     case "pan": {
-      const direction = motion.direction === "counterclockwise" ? -1 : 1;
-      out.lateralMm.u = motion.lateralMm * Math.cos(cycle * Math.PI * 2) * envelope * phaseEnvelope;
-      out.lateralMm.v = motion.lateralMm * Math.sin(cycle * Math.PI * 2) * envelope * phaseEnvelope * direction;
-      out.tiltRad.u = rad(motion.tiltDeg) * Math.cos(cycle * Math.PI * 2) * envelope * phaseEnvelope;
-      out.tiltRad.v = rad(motion.tiltDeg) * Math.sin(cycle * Math.PI * 2) * envelope * phaseEnvelope * direction;
+      // A loop tangent to the resting axis. Its diameter is the maximum excursion.
+      const reverse = motion.direction === "counterclockwise" || (motion.direction === "alternating" && Math.floor(local * cycles) % 2 === 1);
+      // Warp the clock so the far side lands at the requested split while the handle keeps moving around the arc.
+      const outbound = cycle * (1 - bias);
+      const angle = 2 * Math.PI * smooth(outbound / (outbound + (1 - cycle) * bias));
+      const u = (1 - Math.cos(angle)) / 2, v = (reverse ? -1 : 1) * Math.sin(angle) / 2;
+      out.lateralMm.u = motion.lateralMm * u;
+      out.lateralMm.v = motion.lateralMm * v;
+      out.tiltRad.u = rad(motion.tiltDeg) * u;
+      out.tiltRad.v = rad(motion.tiltDeg) * v;
       break;
     }
     case "gua":
@@ -308,14 +330,16 @@ export function sampleTechnique(id: ManipulationTechniqueId, elapsedMs: number, 
       out.tiltRad.u = rad(motion.tiltDeg) * impulse * phaseEnvelope;
       break;
     }
-    case "fei":
-      // Keep the requested thumb-index grip. A third supporting contact is opt-in, including in compound phases.
-      // Only the active thumb/index pair releases; explicitly selected middle support remains a separate contact.
-      // Returning to 1 at phase edges lets the renderer apply its approach/release envelope exactly once.
-      out.gripEngagement = 1 - phaseEnvelope * (1 - pulse(cycle, 0.35));
+    case "fei": {
+      // The thumb and index have to close before the handle can roll. Middle-finger support has its own contact.
+      const acquireEnd = 0.2, releaseStart = 0.74;
+      const closed = smooth(cycle / acquireEnd) * smooth((1 - cycle) / (1 - releaseStart));
+      out.gripEngagement = 1 - phaseEnvelope * (1 - closed);
       out.grip *= out.gripEngagement;
-      out.rotationRad = rad(motion.rotationDeg) * swing * 0.5;
+      const heldProgress = clamp((cycle - acquireEnd) / (releaseStart - acquireEnd));
+      out.rotationRad = rad(motion.rotationDeg) * 0.5 * twistExcursion(heldProgress, bias, "alternating");
       break;
+    }
     case "mo":
       out.lateralMm.v = motion.lateralMm * swing;
       out.rotationRad = rad(motion.rotationDeg) * swing * 0.3;
@@ -351,10 +375,11 @@ export function sampleTechnique(id: ManipulationTechniqueId, elapsedMs: number, 
       break;
     case "bu": case "xie":
       out.withdrawalMm = motion.strokeMm * axialPulse;
-      out.rotationRad = rad(motion.rotationDeg) * rotation;
+      // Give the two authored demonstrations a different coordination of hand roll and axial reversal.
+      out.rotationRad = rad(motion.rotationDeg) * twistExcursion(cycle,
+        primitive === "bu" ? bias / 2 : (1 + bias) / 2, motion.direction);
       break;
   }
-  if (motion.support === "stretch" && out.contact === "skin") out.handPose = "stretch";
   return out;
 }
 

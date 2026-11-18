@@ -4,14 +4,14 @@
   "quaternionOrder": "xyzw",
   "provenance": {
     "calibrationInputAsset": {
-      "path": "runs/hand-calibration/thumb-palm.glb",
-      "sha256": "91161f92355627836c932e3459aaccfd2e910583f00429bda0cf18d2abd2dc52",
+      "path": "runs/hand-calibration/phalanges.glb",
+      "sha256": "7557aa621114eda67c68c093258657ab3ebce8e99a83cf082efa411aeede700f",
       "role": "immutable geometry calibration input; not the subsequently rebuilt GLB output hash"
     },
     "sources": {
       "hand": {
         "path": "packages/server/web/stage/hand.ts",
-        "sha256": "c6633d8e3b15912d4fac5df156c3b60df8fe4ddbc5dd4299518dde9ffda05238"
+        "sha256": "509d864405dad2ebf1d2a2890e7d3db4d0b5ad8145d6cc1f4a7c5501515d54ba"
       },
       "physiology": {
         "path": "packages/server/web/stage/hand-physiology.ts",
@@ -27,7 +27,7 @@
       },
       "builder": {
         "path": "tools/blender/build_hand.py",
-        "sha256": "b543f8376dc279509dd987bb62b51ee567b87de533b388423a9c8561b5c08287"
+        "sha256": "b123b97e57378fc666e95083ad15825df31175dacaac2bc711acff4d02c364ff"
       },
       "correctives": {
         "path": "tools/blender/hand_thumb_web_correctives.json",
@@ -100,14 +100,14 @@
       ".deps/clinicalcraft/packages/core/src/schema/team.ts": "10bfa07aa1e1e71b3d4b5ee26360fef3227538bd4022b83b87bb595b032d59cc",
       "packages/core/src/engine/anatomy.ts": "a766926fbf14f86b6bc755c2313d43afabe81f2c493a867f076558d585c8784d",
       "packages/core/src/engine/conditions.ts": "af27dc51db7a27dd6c167dd121243ae44f2326e06e27d47293a6271c847ef01f",
-      "packages/core/src/engine/encounter.ts": "d5bc515d8a4ee1d22dc64b089254bc17d0109b1d34f761b56075f2e2a926b26d",
+      "packages/core/src/engine/encounter.ts": "3c08172c6adf094f99a531551227f4b35554d65c2e16bd33add4df76b51dbfa7",
       "packages/core/src/engine/evidence.ts": "beb4ebef23248d24104d1b0c9d4776d0d877877e60df734dc6938cd96cf11ae1",
       "packages/core/src/engine/index.ts": "e468bbef456deaef45a496d63c7729223653fc3e44da23cc5afbc590c1749600",
       "packages/core/src/engine/invariants.ts": "9e4c1e87e422c2e168ca6a5ee5e45db113b380aeefb5d821d678e580ad31baf0",
       "packages/core/src/engine/manipulation.ts": "a7538877d20ac0ffd3c880a06313e778a5646f8037b47603a7b612bd274a6a99",
       "packages/core/src/engine/npc.ts": "674a617d1cd419fe833da123b8e5ed3f537e27473fddf681eddc89f0cefbbb95",
       "packages/core/src/engine/observe.ts": "f3c15206632032d0ae23b25f44f3b87b8d01b5b11f6371549d1966d8e99d468a",
-      "packages/core/src/engine/performance.ts": "23ffe84c79cf2ac136dbda879b53e212837aa42c04621eb06856f653b98b750a",
+      "packages/core/src/engine/performance.ts": "e6dc01812269cd9602505cce077fcc2388d402070826703ff8c614092d21e1d1",
       "packages/core/src/engine/queries.ts": "f0cb25c2dc2a7f613f5c7e4013e65c9232b4cfc7edd18a718931274452e894b1",
       "packages/core/src/engine/rules.ts": "fd20d815375d2f26312d5d29fd026b8925b3c117d53f95cb9b03ebf47eb58bef",
       "packages/core/src/engine/runtime.ts": "5aec2b9c60b0bc81009b3924d71f5f3363bc1691d7a6b31ac1740cf7d5a4cf7e",
@@ -118,20 +118,20 @@
       "packages/core/src/engine/util.ts": "100d5cffb226724644f4a6ff597d1a4e98a4810f8a53e8daa5e5eda6f9e4504e",
       "packages/core/src/engine/world.ts": "b10aad22396fd2afbba01f4806d44614be4c00282c1e238d714fc44d750225f5",
       "packages/core/src/index.ts": "7e2e3caf1aa5f20413a74311df519d8920e7251e3fbdc661faf027426d8a54cf",
-      "packages/core/src/schema/actions.ts": "c9591c562486c4c49a433aee5f72f60a8127381b49ef7cd591a569ddd14ad2b2",
+      "packages/core/src/schema/actions.ts": "4bf089fcd750cf107b1230dbe56d0c35ced07b0967e40a34c79aad66a5c79da4",
       "packages/core/src/schema/anatomy.ts": "3a7d26aa6754c2bd128a29bff92f2dfbf21f6a99c956d3b74ee370d6db46fc9f",
       "packages/core/src/schema/common.ts": "7992a472c00c8e8a3c8ff71699027ee4ca649af0a7eda41a9e62593cea0de057",
       "packages/core/src/schema/field.ts": "fe9b7d01f73b0505ff50c9a98b11f3726009db75dc491a92fabe8bf9a2bca548",
       "packages/core/src/schema/governance.ts": "9cd792dc69c80a7406100c3fb3482fd4f99d143f514676776fa6cb3991df5901",
       "packages/core/src/schema/index.ts": "830a65ff660010ca9155762d75f1e2491d298af726a34e3e48cadab356da7701",
       "packages/core/src/schema/knowledge.ts": "d595af9aaf0b991d2f3de4a1ffe84485a70411b26280486bce951b1ec7dcdd82",
-      "packages/core/src/schema/manipulation.ts": "d4495df547a77b2b57b7d18bee365b06592e7c4b606137eb06df468a32dacc05",
+      "packages/core/src/schema/manipulation.ts": "8126b1a2258e360ac0cf4775dbb8ee362988a7cc267b72908372af96c7e9b1d7",
       "packages/core/src/schema/state.ts": "98e00f7c184064888929b8c9769477df7cde4c509c9a424b18e0771cc505ccb4",
       "packages/server/web/stage/hand-nail-work.ts": "e7402ad9af73cd8a90a7f79647b81afde52d78faba6e0874a9a4cc0894580aca",
       "packages/server/web/stage/hand-physiology.ts": "221ca74afde3847f9237af22f18f5de4356e319c478185a9c5ce5348958e917b",
       "packages/server/web/stage/hand-skin-correctives.ts": "78d0aa72b412cbf73bb1a8e23a5f0b68d9221ca823ba9ad998ef530ddd41b572",
-      "packages/server/web/stage/hand.ts": "c6633d8e3b15912d4fac5df156c3b60df8fe4ddbc5dd4299518dde9ffda05238",
-      "packages/server/web/stage/needle-shape.ts": "6cc6b8dbb8801ab76d3c7290b81799da1881a8b14c661e58cf57cd572e580574"
+      "packages/server/web/stage/hand.ts": "509d864405dad2ebf1d2a2890e7d3db4d0b5ad8145d6cc1f4a7c5501515d54ba",
+      "packages/server/web/stage/needle-shape.ts": "fac5a591b616d78084049513223edda478acfb7e73e12ef7b71bfdf9da47cd8e"
     },
     "animationsRead": false,
     "runtimeContactsValidAtEveryExportedFrame": true
@@ -1502,11 +1502,11 @@
         "normalField": "skin-bary",
         "definition": {
           "primitive": 0,
-          "triangleIndex": 1837,
+          "triangleIndex": 2313,
           "vertexIndices": [
-            945,
-            982,
-            980
+            1190,
+            1227,
+            1225
           ],
           "barycentric": [
             0.999989259014307,
@@ -1611,11 +1611,11 @@
         "normalField": "skin-bary",
         "definition": {
           "primitive": 0,
-          "triangleIndex": 1837,
+          "triangleIndex": 2313,
           "vertexIndices": [
-            945,
-            982,
-            980
+            1190,
+            1227,
+            1225
           ],
           "barycentric": [
             0.999989259014307,
@@ -1720,11 +1720,11 @@
         "normalField": "skin-bary",
         "definition": {
           "primitive": 0,
-          "triangleIndex": 1837,
+          "triangleIndex": 2313,
           "vertexIndices": [
-            945,
-            982,
-            980
+            1190,
+            1227,
+            1225
           ],
           "barycentric": [
             0.999989259014307,
@@ -18037,11 +18037,11 @@
               "frame": 1,
               "definition": {
                 "primitive": 0,
-                "triangleIndex": 1837,
+                "triangleIndex": 2313,
                 "vertexIndices": [
-                  945,
-                  982,
-                  980
+                  1190,
+                  1227,
+                  1225
                 ],
                 "barycentric": [
                   0.999989259014307,
@@ -18058,11 +18058,11 @@
               "frame": 2,
               "definition": {
                 "primitive": 0,
-                "triangleIndex": 1837,
+                "triangleIndex": 2313,
                 "vertexIndices": [
-                  945,
-                  982,
-                  980
+                  1190,
+                  1227,
+                  1225
                 ],
                 "barycentric": [
                   0.999989259014307,
@@ -18079,11 +18079,11 @@
               "frame": 18.4,
               "definition": {
                 "primitive": 0,
-                "triangleIndex": 1837,
+                "triangleIndex": 2313,
                 "vertexIndices": [
-                  945,
-                  982,
-                  980
+                  1190,
+                  1227,
+                  1225
                 ],
                 "barycentric": [
                   0.999989259014307,

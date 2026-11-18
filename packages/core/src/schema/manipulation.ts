@@ -28,6 +28,8 @@ export const ManipulationMotionSettingsSchema = z.object({
   durationMs: z.number().int().min(400).max(30_000).optional(),
   /** Each primitive phase repeats this many times; durationMs is the complete performance duration. */
   cycles: z.number().int().min(1).max(12).optional(),
+  /** For a compound, one repeat count per catalogue phase, in order. Omission uses cycles throughout. */
+  phaseCycles: z.array(z.number().int().min(1).max(12)).min(2).max(4).optional(),
   strokeMm: z.number().min(0).max(3).optional(),
   rotationDeg: z.number().min(0).max(180).optional(),
   lateralMm: z.number().min(0).max(4).optional(),
@@ -44,7 +46,8 @@ export const ManipulationMotionSettingsSchema = z.object({
   contactIntensity: z.number().min(0).max(1).optional(),
 }).strict();
 export type ManipulationMotionSettings = z.infer<typeof ManipulationMotionSettingsSchema>;
-export type ResolvedManipulationMotion = Required<ManipulationMotionSettings>;
+export type ResolvedManipulationMotion = Required<Omit<ManipulationMotionSettings, "phaseCycles">>
+  & Pick<ManipulationMotionSettings, "phaseCycles">;
 /** Historical records keep their original 13 resolved fields unless the request uses new hand controls. */
 export type RecordedManipulationMotion = Omit<ResolvedManipulationMotion, keyof typeof HandPresentationSettingsShape>
   & Pick<ManipulationMotionSettings, keyof typeof HandPresentationSettingsShape>;

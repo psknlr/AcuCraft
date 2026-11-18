@@ -68,7 +68,7 @@ import { ARM_REACH_M, CONTACT_RANGE_M, distanceToArea, fixtureReach, planWalk, s
 import { detectClaims, detectCommitment, detectTopics, questionCount, type Claim } from "./text.js";
 import { clone } from "./util.js";
 import { techniqueStimulus } from "./techniques.js";
-import { HAND_PRESENTATION_PROFILES, handWristBounds, manipulationTechnique, resolveManipulationMotion } from "./performance.js";
+import { HAND_PRESENTATION_PROFILES, handWristBounds, manipulationTechnique, phaseCyclesError, resolveManipulationMotion } from "./performance.js";
 
 /**
  * The encounter engine: `createEncounter` and `step`. Pure — `step` never mutates its input and returns a new state.
@@ -1650,6 +1650,8 @@ const HANDLERS: HandlerMap = {
     const { s } = ctx;
     const definition = manipulationTechnique(a.technique);
     if (!definition) throw new Rejection("unknown-technique", `Unknown manipulation ${a.technique}: read lookup techniques.`);
+    const phaseError = phaseCyclesError(definition, a.motion?.phaseCycles);
+    if (phaseError) throw new Rejection("technique-parameter", phaseError);
     if (definition.controls.includes("grip") && a.motion?.grip === "three-finger" && a.motion.gripStyle !== undefined && !(HAND_PRESENTATION_PROFILES.threeFinger.gripStyles as readonly string[]).includes(a.motion.gripStyle)) {
       throw new Rejection("technique-parameter", "Three-finger holding uses tip-pinch on this hand; read lookup techniques handProfiles.");
     }
@@ -1741,7 +1743,8 @@ const HANDLERS: HandlerMap = {
     };
     (s.performances ??= []).push(performance);
     ctx.out.target = needleId ? `needle:${needleId}` : `${region}:${side}`;
-    ctx.out.detail = `${definition.zh} (${definition.label}) at ${region} ${side}; ${motion.durationMs} ms, ${motion.cycles} cycle(s); illustrative choreography`;
+    const repeats = motion.phaseCycles ? `${motion.phaseCycles.join("/")} cycles by phase` : `${motion.cycles} cycle(s)`;
+    ctx.out.detail = `${definition.zh} (${definition.label}) at ${region} ${side}; ${motion.durationMs} ms, ${repeats}; illustrative choreography`;
     observe(ctx, `Recorded ${performance.id}: ${ctx.out.detail}. Needle depth and clinical response are unchanged; displayed contact intensity is not measured force.`);
     // Presentation time is independent of the clinical clock; no invented treatment dose or physiological effect.
     ctx.out.cost = 0;

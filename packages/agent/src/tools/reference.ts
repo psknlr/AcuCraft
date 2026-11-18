@@ -1,5 +1,5 @@
 import type { AgentView } from "@acucraft/core";
-import { HAND_PRESENTATION_PROFILES, MANIPULATION_TECHNIQUES, ManipulationMotionSettingsSchema, resolveManipulationMotion } from "@acucraft/core";
+import { HAND_PRESENTATION_PROFILES, INSERTION_SKIN_CONTACT, InsertionPresentationSchema, MANIPULATION_TECHNIQUES, ManipulationMotionSettingsSchema, resolveManipulationMotion } from "@acucraft/core";
 import { objectSchemaOf } from "./schema.js";
 import { constructPoint, requirements, type Observed } from "../localise.js";
 import type { Library, ReadTool, ToolContext } from "./types.js";
@@ -94,6 +94,7 @@ export function lookup(lib: Library, input: { topic?: string; id?: string }): un
         ...(schema.enum ? { options: schema.enum } : {}),
         ...(schema.type === "number" || schema.type === "integer" ? { step: schema.type === "integer" ? 1 : name === "tempoBias" || name === "contactIntensity" ? 0.01 : 0.1 } : {}),
         unit: units[name] ?? "", type: schema.type,
+        ...(name === "phaseCycles" ? { unit: "cycles per phase", item: schema.items, description: "Compound stages in phases order. Supply one repeat count per stage to override cycles." } : {}),
         ...(name === "gripApertureMm" ? { description: "Approach/release opening; held fingers fit the actual handle. Letting go preserves minimum clearance even at zero. For Gua this sets index-nail clearance from the handle; the thumb separately clears the needle tail." } : {}),
         ...(name === "grip" ? { description: "Default two-finger means thumb-index holding. Explicit three-finger adds middle-pulp support; the thumb and index remain the primary holders. Gua uses a thumb tail brace and index nail edge; Tan uses thumb-assisted preparation and index nail contact/release." } : {}),
         ...(name === "wristElevationDeg" ? { description: "Authored wrist/hand elevation, distinct from the clinical needle angle. Use handProfiles.threeFinger for explicit three-finger support and handProfiles.ordinary for two-finger holding; omission uses the selected profile's default. Technique parameterBounds take precedence; Gua/Tan use handProfiles.nailWork." } : {}),
@@ -103,7 +104,8 @@ export function lookup(lib: Library, input: { topic?: string; id?: string }): un
       return {
         techniques: techniques.map((definition) => ({ ...definition, defaults: resolveManipulationMotion(definition.id) })),
         defaults: Object.fromEntries(techniques.map((definition) => [definition.id, resolveManipulationMotion(definition.id)])),
-        parameters, motionSchema, handProfiles: HAND_PRESENTATION_PROFILES,
+        parameters, motionSchema, insertionPresentationSchema: objectSchemaOf(InsertionPresentationSchema),
+        insertionSkinContactDefault: INSERTION_SKIN_CONTACT.default, handProfiles: HAND_PRESENTATION_PROFILES,
         note: "Authored illustrative choreography. No technique here establishes a verified standard, measured force, therapeutic effect or safe clinical dose. Needle depth changes use insert_needle/adjust_needle and their anatomy guard, not performance parameters.",
       };
     }

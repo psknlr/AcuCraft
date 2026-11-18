@@ -54,6 +54,79 @@ describe("continuous needling choreography", () => {
     }
   });
 
+  it.each([0.2, 0.45, 0.8])("passes the skin at fraction %s with continuous velocity on an oblique shaft", (contact) => {
+    for (const depthCm of [0.05, 2.5]) {
+      const layer = new NeedleLayer(), actor = practitioner();
+      const needle = { ...spec("timed", depthCm), angleDeg: 42, azimuthDeg: 120 };
+      const duration = 4000, start = sampleProcedure("insert", 0).operationStartMs;
+      layer.sync([needle], 0, true);
+      const procedure = new NeedleProcedure(layer, () => actor, () => {});
+      // Omit the new control for the default to cover a recorded action from an older version.
+      procedure.setInsertionPresentation(needle.id, { durationMs: duration, ...(contact === 0.45 ? {} : { skinContactFraction: contact }) });
+      procedure.sync(); procedure.tick(0);
+      const inward = layer.grip(needle.id)!.axis.negate();
+      const tip = layer.group.getObjectByName("needle-tip")!;
+      const depthAt = (fraction: number) => {
+        procedure.tick(start + fraction * duration);
+        const displacement = tip.getWorldPosition(new Vector3()).sub(needle.site.p);
+        const depth = displacement.dot(inward);
+        expect(displacement.addScaledVector(inward, -depth).length()).toBeLessThan(1e-9);
+        return depth;
+      };
+      const delta = 0.0001;
+      const times = [0, contact / 2, contact - delta, contact, contact + delta, (1 + contact) / 2, 1];
+      const depths = times.map(depthAt);
+      expect(depths).toEqual([...depths].sort((a, b) => a - b));
+      expect(depths[0]).toBeCloseTo(-0.012, 9);
+      expect(depths[2]).toBeLessThan(0);
+      expect(depths[3]).toBeCloseTo(0, 10);
+      expect(depths[4]).toBeGreaterThan(0);
+      expect((depths[3]! - depths[2]!) / delta).toBeCloseTo((depths[4]! - depths[3]!) / delta, 6);
+      expect(depths[6]).toBeCloseTo(depthCm / 100, 9);
+      procedure.dispose(); layer.clear();
+    }
+  });
+
+  it("registers the tip against moving skin and seats at the original clinical endpoint even at grazing angles", () => {
+    const contact = .7, durationMs = 2400, start = sampleProcedure("insert", 0).operationStartMs;
+    for (const angleDeg of [0, 42, 75, 89.99, 90]) for (const depthCm of [.01, 1.8]) for (const phase of [0, Math.PI]) {
+      const needle = { ...spec("breathing", depthCm), angleDeg, azimuthDeg: 120 };
+      let fraction = 0;
+      const s = needle.site;
+      s.currentSurface = () => ({ ...s, currentSurface: undefined,
+        p: s.p.clone().addScaledVector(s.n, .001 * Math.sin(phase + .5 + 2 * fraction)) });
+      const layer = new NeedleLayer(), actor = practitioner(), procedure = new NeedleProcedure(layer, () => actor, () => {});
+      layer.sync([needle], 0, true);
+      procedure.setInsertionPresentation(needle.id, { durationMs, skinContactFraction: contact });
+      procedure.sync(); procedure.tick(0);
+      const tip = layer.group.getObjectByName("needle-tip")!, axis = layer.grip(needle.id)!.axis;
+      const hover = s.p.clone().addScaledVector(axis, .012), seat = s.p.clone().addScaledVector(axis, -depthCm / 100);
+      const depthAt = (t: number) => {
+        fraction = t;
+        procedure.tick(start + durationMs * t);
+        const visible = s.currentSurface!(), point = tip.getWorldPosition(new Vector3());
+        const signed = (p: Vector3) => visible.p.clone().sub(p).dot(visible.n);
+        const from = t < contact ? signed(hover) : 0, to = t < contact ? 0 : signed(seat);
+        expect(signed(point)).toBeGreaterThanOrEqual(Math.min(from, to) - 1e-9);
+        expect(signed(point)).toBeLessThanOrEqual(Math.max(from, to) + 1e-9);
+        // The grazing fallback stays close to the registered line instead of dividing by its vanishing incidence.
+        const offset = point.clone().sub(s.p);
+        expect(offset.addScaledVector(axis, -offset.dot(axis)).length()).toBeLessThan(.004);
+        return signed(point);
+      };
+      try {
+        for (const t of [0, .15, .43, .68]) depthAt(t);
+        const dt = 1e-5, before = depthAt(contact - dt), on = depthAt(contact), after = depthAt(contact + dt);
+        expect(on).toBeCloseTo(0, 10);
+        expect((on - before) / dt).toBeCloseTo((after - on) / dt, 5);
+        for (const t of [.75, .85, .95, 1]) depthAt(t);
+        procedure.tick(start + durationMs + 300);
+        expect(tip.getWorldPosition(new Vector3()).distanceTo(seat)).toBeLessThan(1e-9);
+        expect(layer.grip(needle.id)!.axis.distanceTo(axis)).toBeLessThan(1e-9);
+      } finally { procedure.dispose(); layer.clear(); }
+    }
+  });
+
   it("draws insertion before a manipulation received immediately after it", () => {
     const needles = new NeedleLayer();
     const actor = practitioner();
@@ -66,7 +139,7 @@ describe("continuous needling choreography", () => {
     procedure.sync();
     procedure.tick(0);
     procedure.tick(1200);
-    expect(progress).toHaveBeenCalledWith("needle-a", "insert", expect.any(Number));
+    expect(progress).toHaveBeenCalledWith("needle-a", "insert", expect.any(Number), undefined);
     expect(work).not.toHaveBeenCalled();
     expect(needles.group.getObjectByName("needle:needle-a")?.visible).toBe(true);
     procedure.dispose();

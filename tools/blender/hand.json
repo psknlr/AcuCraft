@@ -5,19 +5,19 @@
   "license": "CC0-1.0",
   "source": "tools/blender/build_hand.py",
   "choreography": "tools/blender/hand_poses.json",
-  "builderSourceSha256": "b543f8376dc279509dd987bb62b51ee567b87de533b388423a9c8561b5c08287",
+  "builderSourceSha256": "b123b97e57378fc666e95083ad15825df31175dacaac2bc711acff4d02c364ff",
   "anatomySourceSha256": "c1f0041ffea660c2fb6634ac7ad61c9b3e393ab4e8a5700a3b601f24ef7d34da",
-  "choreographySha256": "b505df915bc3070e18189f3d8e644a4c6bd0b62aff7229cb3db9aa4b9d7fea68",
+  "choreographySha256": "1c89d45bdb3d839e36a384e7e3aa95ef70b777cc4bc00ec5b86a661cc910a79f",
   "choreographyProvenance": {
     "calibrationInputAsset": {
-      "path": "runs/hand-calibration/thumb-palm.glb",
-      "sha256": "91161f92355627836c932e3459aaccfd2e910583f00429bda0cf18d2abd2dc52",
+      "path": "runs/hand-calibration/phalanges.glb",
+      "sha256": "7557aa621114eda67c68c093258657ab3ebce8e99a83cf082efa411aeede700f",
       "role": "immutable geometry calibration input; not the subsequently rebuilt GLB output hash"
     },
     "sources": {
       "hand": {
         "path": "packages/server/web/stage/hand.ts",
-        "sha256": "c6633d8e3b15912d4fac5df156c3b60df8fe4ddbc5dd4299518dde9ffda05238"
+        "sha256": "509d864405dad2ebf1d2a2890e7d3db4d0b5ad8145d6cc1f4a7c5501515d54ba"
       },
       "physiology": {
         "path": "packages/server/web/stage/hand-physiology.ts",
@@ -33,7 +33,7 @@
       },
       "builder": {
         "path": "tools/blender/build_hand.py",
-        "sha256": "b543f8376dc279509dd987bb62b51ee567b87de533b388423a9c8561b5c08287"
+        "sha256": "b123b97e57378fc666e95083ad15825df31175dacaac2bc711acff4d02c364ff"
       },
       "correctives": {
         "path": "tools/blender/hand_thumb_web_correctives.json",
@@ -106,14 +106,14 @@
       ".deps/clinicalcraft/packages/core/src/schema/team.ts": "10bfa07aa1e1e71b3d4b5ee26360fef3227538bd4022b83b87bb595b032d59cc",
       "packages/core/src/engine/anatomy.ts": "a766926fbf14f86b6bc755c2313d43afabe81f2c493a867f076558d585c8784d",
       "packages/core/src/engine/conditions.ts": "af27dc51db7a27dd6c167dd121243ae44f2326e06e27d47293a6271c847ef01f",
-      "packages/core/src/engine/encounter.ts": "d5bc515d8a4ee1d22dc64b089254bc17d0109b1d34f761b56075f2e2a926b26d",
+      "packages/core/src/engine/encounter.ts": "3c08172c6adf094f99a531551227f4b35554d65c2e16bd33add4df76b51dbfa7",
       "packages/core/src/engine/evidence.ts": "beb4ebef23248d24104d1b0c9d4776d0d877877e60df734dc6938cd96cf11ae1",
       "packages/core/src/engine/index.ts": "e468bbef456deaef45a496d63c7729223653fc3e44da23cc5afbc590c1749600",
       "packages/core/src/engine/invariants.ts": "9e4c1e87e422c2e168ca6a5ee5e45db113b380aeefb5d821d678e580ad31baf0",
       "packages/core/src/engine/manipulation.ts": "a7538877d20ac0ffd3c880a06313e778a5646f8037b47603a7b612bd274a6a99",
       "packages/core/src/engine/npc.ts": "674a617d1cd419fe833da123b8e5ed3f537e27473fddf681eddc89f0cefbbb95",
       "packages/core/src/engine/observe.ts": "f3c15206632032d0ae23b25f44f3b87b8d01b5b11f6371549d1966d8e99d468a",
-      "packages/core/src/engine/performance.ts": "23ffe84c79cf2ac136dbda879b53e212837aa42c04621eb06856f653b98b750a",
+      "packages/core/src/engine/performance.ts": "e6dc01812269cd9602505cce077fcc2388d402070826703ff8c614092d21e1d1",
       "packages/core/src/engine/queries.ts": "f0cb25c2dc2a7f613f5c7e4013e65c9232b4cfc7edd18a718931274452e894b1",
       "packages/core/src/engine/rules.ts": "fd20d815375d2f26312d5d29fd026b8925b3c117d53f95cb9b03ebf47eb58bef",
       "packages/core/src/engine/runtime.ts": "5aec2b9c60b0bc81009b3924d71f5f3363bc1691d7a6b31ac1740cf7d5a4cf7e",
@@ -124,27 +124,27 @@
       "packages/core/src/engine/util.ts": "100d5cffb226724644f4a6ff597d1a4e98a4810f8a53e8daa5e5eda6f9e4504e",
       "packages/core/src/engine/world.ts": "b10aad22396fd2afbba01f4806d44614be4c00282c1e238d714fc44d750225f5",
       "packages/core/src/index.ts": "7e2e3caf1aa5f20413a74311df519d8920e7251e3fbdc661faf027426d8a54cf",
-      "packages/core/src/schema/actions.ts": "c9591c562486c4c49a433aee5f72f60a8127381b49ef7cd591a569ddd14ad2b2",
+      "packages/core/src/schema/actions.ts": "4bf089fcd750cf107b1230dbe56d0c35ced07b0967e40a34c79aad66a5c79da4",
       "packages/core/src/schema/anatomy.ts": "3a7d26aa6754c2bd128a29bff92f2dfbf21f6a99c956d3b74ee370d6db46fc9f",
       "packages/core/src/schema/common.ts": "7992a472c00c8e8a3c8ff71699027ee4ca649af0a7eda41a9e62593cea0de057",
       "packages/core/src/schema/field.ts": "fe9b7d01f73b0505ff50c9a98b11f3726009db75dc491a92fabe8bf9a2bca548",
       "packages/core/src/schema/governance.ts": "9cd792dc69c80a7406100c3fb3482fd4f99d143f514676776fa6cb3991df5901",
       "packages/core/src/schema/index.ts": "830a65ff660010ca9155762d75f1e2491d298af726a34e3e48cadab356da7701",
       "packages/core/src/schema/knowledge.ts": "d595af9aaf0b991d2f3de4a1ffe84485a70411b26280486bce951b1ec7dcdd82",
-      "packages/core/src/schema/manipulation.ts": "d4495df547a77b2b57b7d18bee365b06592e7c4b606137eb06df468a32dacc05",
+      "packages/core/src/schema/manipulation.ts": "8126b1a2258e360ac0cf4775dbb8ee362988a7cc267b72908372af96c7e9b1d7",
       "packages/core/src/schema/state.ts": "98e00f7c184064888929b8c9769477df7cde4c509c9a424b18e0771cc505ccb4",
       "packages/server/web/stage/hand-nail-work.ts": "e7402ad9af73cd8a90a7f79647b81afde52d78faba6e0874a9a4cc0894580aca",
       "packages/server/web/stage/hand-physiology.ts": "221ca74afde3847f9237af22f18f5de4356e319c478185a9c5ce5348958e917b",
       "packages/server/web/stage/hand-skin-correctives.ts": "78d0aa72b412cbf73bb1a8e23a5f0b68d9221ca823ba9ad998ef530ddd41b572",
-      "packages/server/web/stage/hand.ts": "c6633d8e3b15912d4fac5df156c3b60df8fe4ddbc5dd4299518dde9ffda05238",
-      "packages/server/web/stage/needle-shape.ts": "6cc6b8dbb8801ab76d3c7290b81799da1881a8b14c661e58cf57cd572e580574"
+      "packages/server/web/stage/hand.ts": "509d864405dad2ebf1d2a2890e7d3db4d0b5ad8145d6cc1f4a7c5501515d54ba",
+      "packages/server/web/stage/needle-shape.ts": "fac5a591b616d78084049513223edda478acfb7e73e12ef7b71bfdf9da47cd8e"
     },
     "animationsRead": false,
     "runtimeContactsValidAtEveryExportedFrame": true
   },
-  "sha256": "5f63068f2c683357f9a2bc123686b5dfd1d873260873930acf802c45b0345d9f",
-  "bytes": 1598052,
-  "triangles": 17788,
+  "sha256": "14c111e3dd4ac1b87e6e25929be681d1aea2c09eee0e5d29f19f77311dbef5d4",
+  "bytes": 1594620,
+  "triangles": 19104,
   "root": "acu_practitioner_hand",
   "authoredPoseFrame": "hand_pose_frame",
   "coordinates": "metres; +Y along needle; complete baked model-space palm basis; opposed true-volar rest pinch",
@@ -1134,11 +1134,11 @@
       "materialSurface": {
         "mesh": "index_skin",
         "primitive": 0,
-        "triangle": 1837,
+        "triangle": 2313,
         "vertices": [
-          945,
-          982,
-          980
+          1190,
+          1227,
+          1225
         ],
         "barycentric": [
           0.9999877214431763,
@@ -1169,11 +1169,11 @@
       "materialSurface": {
         "mesh": "index_skin",
         "primitive": 0,
-        "triangle": 1768,
+        "triangle": 2244,
         "vertices": [
-          910,
-          912,
-          947
+          1155,
+          1157,
+          1192
         ],
         "barycentric": [
           0.12295209616422653,
@@ -1204,11 +1204,11 @@
       "materialSurface": {
         "mesh": "index_skin",
         "primitive": 0,
-        "triangle": 1769,
+        "triangle": 2245,
         "vertices": [
-          910,
-          947,
-          945
+          1155,
+          1192,
+          1190
         ],
         "barycentric": [
           0.31921136379241943,
@@ -1239,11 +1239,11 @@
       "materialSurface": {
         "mesh": "index_skin",
         "primitive": 0,
-        "triangle": 1769,
+        "triangle": 2245,
         "vertices": [
-          910,
-          947,
-          945
+          1155,
+          1192,
+          1190
         ],
         "barycentric": [
           0.15960219502449036,
@@ -1274,11 +1274,11 @@
       "materialSurface": {
         "mesh": "index_skin",
         "primitive": 0,
-        "triangle": 1837,
+        "triangle": 2313,
         "vertices": [
-          945,
-          982,
-          980
+          1190,
+          1227,
+          1225
         ],
         "barycentric": [
           0.9999877214431763,
@@ -1309,11 +1309,11 @@
       "materialSurface": {
         "mesh": "index_skin",
         "primitive": 0,
-        "triangle": 1902,
+        "triangle": 2378,
         "vertices": [
-          979,
-          946,
-          981
+          1224,
+          1191,
+          1226
         ],
         "barycentric": [
           0.29234811663627625,
@@ -1344,11 +1344,11 @@
       "materialSurface": {
         "mesh": "index_skin",
         "primitive": 0,
-        "triangle": 1903,
+        "triangle": 2379,
         "vertices": [
-          979,
-          981,
-          1014
+          1224,
+          1226,
+          1259
         ],
         "barycentric": [
           0.4679607152938843,
@@ -1379,11 +1379,11 @@
       "materialSurface": {
         "mesh": "index_skin",
         "primitive": 0,
-        "triangle": 1903,
+        "triangle": 2379,
         "vertices": [
-          979,
-          981,
-          1014
+          1224,
+          1226,
+          1259
         ],
         "barycentric": [
           0.20194397866725922,
@@ -1414,11 +1414,11 @@
       "materialSurface": {
         "mesh": "index_skin",
         "primitive": 0,
-        "triangle": 1447,
+        "triangle": 1923,
         "vertices": [
-          745,
-          781,
-          780
+          990,
+          1026,
+          1025
         ],
         "barycentric": [
           0.4218069314956665,
@@ -1471,11 +1471,11 @@
       "materialSurface": {
         "mesh": "middle_skin",
         "primitive": 0,
-        "triangle": 1118,
+        "triangle": 1398,
         "vertices": [
-          587,
-          568,
-          589
+          734,
+          715,
+          736
         ],
         "barycentric": [
           0.0032402954529970884,
@@ -1506,11 +1506,11 @@
       "materialSurface": {
         "mesh": "middle_skin",
         "primitive": 0,
-        "triangle": 1011,
+        "triangle": 1291,
         "vertices": [
-          531,
-          553,
-          552
+          678,
+          700,
+          699
         ],
         "barycentric": [
           0.4058193564414978,
@@ -1541,11 +1541,11 @@
       "materialSurface": {
         "mesh": "middle_skin",
         "primitive": 0,
-        "triangle": 1008,
+        "triangle": 1288,
         "vertices": [
-          530,
-          531,
-          552
+          677,
+          678,
+          699
         ],
         "barycentric": [
           2.3912647861834557e-07,
@@ -1576,11 +1576,11 @@
       "materialSurface": {
         "mesh": "middle_skin",
         "primitive": 0,
-        "triangle": 868,
+        "triangle": 1148,
         "vertices": [
-          456,
-          457,
-          478
+          603,
+          604,
+          625
         ],
         "barycentric": [
           3.032577069461695e-07,
@@ -1611,11 +1611,11 @@
       "materialSurface": {
         "mesh": "middle_skin",
         "primitive": 0,
-        "triangle": 868,
+        "triangle": 1148,
         "vertices": [
-          456,
-          457,
-          478
+          603,
+          604,
+          625
         ],
         "barycentric": [
           -2.495455362350185e-07,
@@ -1646,11 +1646,11 @@
       "materialSurface": {
         "mesh": "middle_skin",
         "primitive": 0,
-        "triangle": 988,
+        "triangle": 1268,
         "vertices": [
-          519,
-          520,
-          541
+          666,
+          667,
+          688
         ],
         "barycentric": [
           -5.073471811556374e-07,
@@ -1681,11 +1681,11 @@
       "materialSurface": {
         "mesh": "middle_skin",
         "primitive": 0,
-        "triangle": 1028,
+        "triangle": 1308,
         "vertices": [
-          540,
-          541,
-          562
+          687,
+          688,
+          709
         ],
         "barycentric": [
           1.4102880641075899e-08,
@@ -1716,11 +1716,11 @@
       "materialSurface": {
         "mesh": "middle_skin",
         "primitive": 0,
-        "triangle": 1111,
+        "triangle": 1391,
         "vertices": [
-          583,
-          605,
-          604
+          730,
+          752,
+          751
         ],
         "barycentric": [
           0.7379928827285767,
@@ -1751,11 +1751,11 @@
       "materialSurface": {
         "mesh": "middle_skin",
         "primitive": 0,
-        "triangle": 1148,
+        "triangle": 1428,
         "vertices": [
-          603,
-          604,
-          625
+          750,
+          751,
+          772
         ],
         "barycentric": [
           6.729025017193635e-07,
@@ -1786,11 +1786,11 @@
       "materialSurface": {
         "mesh": "middle_skin",
         "primitive": 0,
-        "triangle": 1188,
+        "triangle": 1468,
         "vertices": [
-          624,
-          625,
-          646
+          771,
+          772,
+          793
         ],
         "barycentric": [
           -8.951014933700208e-07,
@@ -1821,11 +1821,11 @@
       "materialSurface": {
         "mesh": "middle_skin",
         "primitive": 0,
-        "triangle": 851,
+        "triangle": 1131,
         "vertices": [
-          447,
-          469,
-          468
+          594,
+          616,
+          615
         ],
         "barycentric": [
           0.8320797085762024,
@@ -1856,11 +1856,11 @@
       "materialSurface": {
         "mesh": "middle_skin",
         "primitive": 0,
-        "triangle": 848,
+        "triangle": 1128,
         "vertices": [
-          446,
-          447,
-          468
+          593,
+          594,
+          615
         ],
         "barycentric": [
           6.660599183305749e-07,
@@ -1891,11 +1891,11 @@
       "materialSurface": {
         "mesh": "middle_skin",
         "primitive": 0,
-        "triangle": 968,
+        "triangle": 1248,
         "vertices": [
-          509,
-          510,
-          531
+          656,
+          657,
+          678
         ],
         "barycentric": [
           2.039960946831343e-07,
@@ -1926,11 +1926,11 @@
       "materialSurface": {
         "mesh": "middle_skin",
         "primitive": 0,
-        "triangle": 1011,
+        "triangle": 1291,
         "vertices": [
-          531,
-          553,
-          552
+          678,
+          700,
+          699
         ],
         "barycentric": [
           0.4058193564414978,
@@ -1961,11 +1961,11 @@
       "materialSurface": {
         "mesh": "middle_skin",
         "primitive": 0,
-        "triangle": 1091,
+        "triangle": 1371,
         "vertices": [
-          573,
-          595,
-          594
+          720,
+          742,
+          741
         ],
         "barycentric": [
           0.7379957437515259,
@@ -1996,11 +1996,11 @@
       "materialSurface": {
         "mesh": "middle_skin",
         "primitive": 0,
-        "triangle": 1131,
+        "triangle": 1411,
         "vertices": [
-          594,
-          616,
-          615
+          741,
+          763,
+          762
         ],
         "barycentric": [
           0.4523794651031494,
@@ -2031,11 +2031,11 @@
       "materialSurface": {
         "mesh": "middle_skin",
         "primitive": 0,
-        "triangle": 1168,
+        "triangle": 1448,
         "vertices": [
-          614,
-          615,
-          636
+          761,
+          762,
+          783
         ],
         "barycentric": [
           7.837334692339937e-08,
@@ -2066,11 +2066,11 @@
       "materialSurface": {
         "mesh": "middle_skin",
         "primitive": 0,
-        "triangle": 841,
+        "triangle": 1121,
         "vertices": [
-          441,
-          464,
-          462
+          588,
+          611,
+          609
         ],
         "barycentric": [
           0.8034355044364929,
@@ -2101,11 +2101,11 @@
       "materialSurface": {
         "mesh": "middle_skin",
         "primitive": 0,
-        "triangle": 844,
+        "triangle": 1124,
         "vertices": [
-          444,
-          445,
-          466
+          591,
+          592,
+          613
         ],
         "barycentric": [
           0.6386409401893616,
@@ -2136,11 +2136,11 @@
       "materialSurface": {
         "mesh": "middle_skin",
         "primitive": 0,
-        "triangle": 918,
+        "triangle": 1198,
         "vertices": [
-          482,
-          463,
-          484
+          629,
+          610,
+          631
         ],
         "barycentric": [
           8.247937444139097e-07,
@@ -2171,11 +2171,11 @@
       "materialSurface": {
         "mesh": "middle_skin",
         "primitive": 0,
-        "triangle": 845,
+        "triangle": 1125,
         "vertices": [
-          444,
-          466,
-          465
+          591,
+          613,
+          612
         ],
         "barycentric": [
           1.4636174228144228e-07,
@@ -2206,11 +2206,11 @@
       "materialSurface": {
         "mesh": "middle_skin",
         "primitive": 0,
-        "triangle": 998,
+        "triangle": 1278,
         "vertices": [
-          524,
-          505,
-          526
+          671,
+          652,
+          673
         ],
         "barycentric": [
           3.42683250664777e-08,
@@ -2241,11 +2241,11 @@
       "materialSurface": {
         "mesh": "middle_skin",
         "primitive": 0,
-        "triangle": 964,
+        "triangle": 1244,
         "vertices": [
-          507,
-          508,
-          529
+          654,
+          655,
+          676
         ],
         "barycentric": [
           0.5625156164169312,
@@ -2276,11 +2276,11 @@
       "materialSurface": {
         "mesh": "middle_skin",
         "primitive": 0,
-        "triangle": 1038,
+        "triangle": 1318,
         "vertices": [
-          545,
-          526,
-          547
+          692,
+          673,
+          694
         ],
         "barycentric": [
           -2.171080950574833e-07,
@@ -2311,11 +2311,11 @@
       "materialSurface": {
         "mesh": "middle_skin",
         "primitive": 0,
-        "triangle": 1005,
+        "triangle": 1285,
         "vertices": [
-          528,
-          550,
-          549
+          675,
+          697,
+          696
         ],
         "barycentric": [
           0.3989422917366028,
@@ -2346,11 +2346,11 @@
       "materialSurface": {
         "mesh": "middle_skin",
         "primitive": 0,
-        "triangle": 1118,
+        "triangle": 1398,
         "vertices": [
-          587,
-          568,
-          589
+          734,
+          715,
+          736
         ],
         "barycentric": [
           -6.01909775355125e-08,
@@ -2381,11 +2381,11 @@
       "materialSurface": {
         "mesh": "middle_skin",
         "primitive": 0,
-        "triangle": 1084,
+        "triangle": 1364,
         "vertices": [
-          570,
-          571,
-          592
+          717,
+          718,
+          739
         ],
         "barycentric": [
           0.530689001083374,
@@ -2416,11 +2416,11 @@
       "materialSurface": {
         "mesh": "middle_skin",
         "primitive": 0,
-        "triangle": 1121,
+        "triangle": 1401,
         "vertices": [
-          588,
-          611,
-          609
+          735,
+          758,
+          756
         ],
         "barycentric": [
           0.1933981478214264,
@@ -2451,11 +2451,11 @@
       "materialSurface": {
         "mesh": "middle_skin",
         "primitive": 0,
-        "triangle": 1125,
+        "triangle": 1405,
         "vertices": [
-          591,
-          613,
-          612
+          738,
+          760,
+          759
         ],
         "barycentric": [
           0.1827564388513565,
@@ -2534,11 +2534,11 @@
       "materialSurface": {
         "mesh": "ring_skin",
         "primitive": 0,
-        "triangle": 1081,
+        "triangle": 1361,
         "vertices": [
-          567,
-          590,
-          588
+          714,
+          737,
+          735
         ],
         "barycentric": [
           0.36749371886253357,
@@ -2575,11 +2575,11 @@
       "materialSurface": {
         "mesh": "little_skin",
         "primitive": 0,
-        "triangle": 1081,
+        "triangle": 1361,
         "vertices": [
-          567,
-          590,
-          588
+          714,
+          737,
+          735
         ],
         "barycentric": [
           0.00167607213370502,
@@ -3090,9 +3090,9 @@
         0.016831411
       ],
       "middle_nail_lateral_contact": [
-        0.002780414,
-        0.03481704,
-        0.017161336
+        0.002779963,
+        0.034817401,
+        0.017162576
       ],
       "middle_nail_edge_contact": [
         -0.004612553,
@@ -3100,9 +3100,9 @@
         0.016700231
       ],
       "middle_nail_oblique_10_contact": [
-        0.002780414,
-        0.03481704,
-        0.017161336
+        0.002779963,
+        0.034817401,
+        0.017162576
       ],
       "middle_nail_oblique_20_contact": [
         0.001518351,
@@ -3407,9 +3407,9 @@
         0.016831411
       ],
       "middle_nail_lateral_contact": [
-        0.002780414,
-        0.03481704,
-        0.017161336
+        0.002779963,
+        0.034817401,
+        0.017162576
       ],
       "middle_nail_edge_contact": [
         -0.004612553,
@@ -3417,9 +3417,9 @@
         0.016700231
       ],
       "middle_nail_oblique_10_contact": [
-        0.002780414,
-        0.03481704,
-        0.017161336
+        0.002779963,
+        0.034817401,
+        0.017162576
       ],
       "middle_nail_oblique_20_contact": [
         0.001518351,
@@ -3724,9 +3724,9 @@
         -0.074171014
       ],
       "middle_nail_lateral_contact": [
-        0.015033651,
-        -0.071594812,
-        -0.069686711
+        0.015033849,
+        -0.071594268,
+        -0.069687955
       ],
       "middle_nail_edge_contact": [
         0.010137008,
@@ -3734,9 +3734,9 @@
         -0.074246213
       ],
       "middle_nail_oblique_10_contact": [
-        0.015033651,
-        -0.071594812,
-        -0.069686711
+        0.015033849,
+        -0.071594268,
+        -0.069687955
       ],
       "middle_nail_oblique_20_contact": [
         0.014605233,
@@ -4041,9 +4041,9 @@
         0.008877452
       ],
       "middle_nail_lateral_contact": [
-        0.002418248,
-        0.016501233,
-        0.008622127
+        0.002417802,
+        0.016501434,
+        0.008623406
       ],
       "middle_nail_edge_contact": [
         -0.004737804,
@@ -4051,9 +4051,9 @@
         0.008750249
       ],
       "middle_nail_oblique_10_contact": [
-        0.002418248,
-        0.016501233,
-        0.008622127
+        0.002417802,
+        0.016501434,
+        0.008623406
       ],
       "middle_nail_oblique_20_contact": [
         0.000965982,
@@ -4358,9 +4358,9 @@
         -0.007185482
       ],
       "middle_nail_lateral_contact": [
-        0.030462267,
-        0.032319359,
-        -0.012491249
+        0.030463502,
+        0.032319471,
+        -0.01249066
       ],
       "middle_nail_edge_contact": [
         0.030003723,
@@ -4368,9 +4368,9 @@
         -0.007585396
       ],
       "middle_nail_oblique_10_contact": [
-        0.030462267,
-        0.032319359,
-        -0.012491249
+        0.030463502,
+        0.032319471,
+        -0.01249066
       ],
       "middle_nail_oblique_20_contact": [
         0.030547703,
@@ -4675,9 +4675,9 @@
         -0.007185482
       ],
       "middle_nail_lateral_contact": [
-        0.030462267,
-        0.032319359,
-        -0.012491249
+        0.030463502,
+        0.032319471,
+        -0.01249066
       ],
       "middle_nail_edge_contact": [
         0.030003723,
@@ -4685,9 +4685,9 @@
         -0.007585396
       ],
       "middle_nail_oblique_10_contact": [
-        0.030462267,
-        0.032319359,
-        -0.012491249
+        0.030463502,
+        0.032319471,
+        -0.01249066
       ],
       "middle_nail_oblique_20_contact": [
         0.030547703,
@@ -4992,9 +4992,9 @@
         0.008238244
       ],
       "middle_nail_lateral_contact": [
-        -0.00307781,
-        0.028307814,
-        0.007852581
+        -0.003077329,
+        0.028308164,
+        0.007851346
       ],
       "middle_nail_edge_contact": [
         0.004327047,
@@ -5002,9 +5002,9 @@
         0.008373
       ],
       "middle_nail_oblique_10_contact": [
-        -0.00307781,
-        0.028307814,
-        0.007852581
+        -0.003077329,
+        0.028308164,
+        0.007851346
       ],
       "middle_nail_oblique_20_contact": [
         -0.001779649,
@@ -5309,9 +5309,9 @@
         0.008238244
       ],
       "middle_nail_lateral_contact": [
-        -0.00307781,
-        0.028307814,
-        0.007852581
+        -0.003077329,
+        0.028308164,
+        0.007851346
       ],
       "middle_nail_edge_contact": [
         0.004327047,
@@ -5319,9 +5319,9 @@
         0.008373
       ],
       "middle_nail_oblique_10_contact": [
-        -0.00307781,
-        0.028307814,
-        0.007852581
+        -0.003077329,
+        0.028308164,
+        0.007851346
       ],
       "middle_nail_oblique_20_contact": [
         -0.001779649,
@@ -5626,9 +5626,9 @@
         0.008238244
       ],
       "middle_nail_lateral_contact": [
-        -0.00307781,
-        0.028307814,
-        0.007852581
+        -0.003077329,
+        0.028308164,
+        0.007851346
       ],
       "middle_nail_edge_contact": [
         0.004327047,
@@ -5636,9 +5636,9 @@
         0.008373
       ],
       "middle_nail_oblique_10_contact": [
-        -0.00307781,
-        0.028307814,
-        0.007852581
+        -0.003077329,
+        0.028308164,
+        0.007851346
       ],
       "middle_nail_oblique_20_contact": [
         -0.001779649,
@@ -5682,14 +5682,14 @@
     "source": "tools/blender/hand_poses.json",
     "provenance": {
       "calibrationInputAsset": {
-        "path": "runs/hand-calibration/thumb-palm.glb",
-        "sha256": "91161f92355627836c932e3459aaccfd2e910583f00429bda0cf18d2abd2dc52",
+        "path": "runs/hand-calibration/phalanges.glb",
+        "sha256": "7557aa621114eda67c68c093258657ab3ebce8e99a83cf082efa411aeede700f",
         "role": "immutable geometry calibration input; not the subsequently rebuilt GLB output hash"
       },
       "sources": {
         "hand": {
           "path": "packages/server/web/stage/hand.ts",
-          "sha256": "c6633d8e3b15912d4fac5df156c3b60df8fe4ddbc5dd4299518dde9ffda05238"
+          "sha256": "509d864405dad2ebf1d2a2890e7d3db4d0b5ad8145d6cc1f4a7c5501515d54ba"
         },
         "physiology": {
           "path": "packages/server/web/stage/hand-physiology.ts",
@@ -5705,7 +5705,7 @@
         },
         "builder": {
           "path": "tools/blender/build_hand.py",
-          "sha256": "b543f8376dc279509dd987bb62b51ee567b87de533b388423a9c8561b5c08287"
+          "sha256": "b123b97e57378fc666e95083ad15825df31175dacaac2bc711acff4d02c364ff"
         },
         "correctives": {
           "path": "tools/blender/hand_thumb_web_correctives.json",
@@ -5778,14 +5778,14 @@
         ".deps/clinicalcraft/packages/core/src/schema/team.ts": "10bfa07aa1e1e71b3d4b5ee26360fef3227538bd4022b83b87bb595b032d59cc",
         "packages/core/src/engine/anatomy.ts": "a766926fbf14f86b6bc755c2313d43afabe81f2c493a867f076558d585c8784d",
         "packages/core/src/engine/conditions.ts": "af27dc51db7a27dd6c167dd121243ae44f2326e06e27d47293a6271c847ef01f",
-        "packages/core/src/engine/encounter.ts": "d5bc515d8a4ee1d22dc64b089254bc17d0109b1d34f761b56075f2e2a926b26d",
+        "packages/core/src/engine/encounter.ts": "3c08172c6adf094f99a531551227f4b35554d65c2e16bd33add4df76b51dbfa7",
         "packages/core/src/engine/evidence.ts": "beb4ebef23248d24104d1b0c9d4776d0d877877e60df734dc6938cd96cf11ae1",
         "packages/core/src/engine/index.ts": "e468bbef456deaef45a496d63c7729223653fc3e44da23cc5afbc590c1749600",
         "packages/core/src/engine/invariants.ts": "9e4c1e87e422c2e168ca6a5ee5e45db113b380aeefb5d821d678e580ad31baf0",
         "packages/core/src/engine/manipulation.ts": "a7538877d20ac0ffd3c880a06313e778a5646f8037b47603a7b612bd274a6a99",
         "packages/core/src/engine/npc.ts": "674a617d1cd419fe833da123b8e5ed3f537e27473fddf681eddc89f0cefbbb95",
         "packages/core/src/engine/observe.ts": "f3c15206632032d0ae23b25f44f3b87b8d01b5b11f6371549d1966d8e99d468a",
-        "packages/core/src/engine/performance.ts": "23ffe84c79cf2ac136dbda879b53e212837aa42c04621eb06856f653b98b750a",
+        "packages/core/src/engine/performance.ts": "e6dc01812269cd9602505cce077fcc2388d402070826703ff8c614092d21e1d1",
         "packages/core/src/engine/queries.ts": "f0cb25c2dc2a7f613f5c7e4013e65c9232b4cfc7edd18a718931274452e894b1",
         "packages/core/src/engine/rules.ts": "fd20d815375d2f26312d5d29fd026b8925b3c117d53f95cb9b03ebf47eb58bef",
         "packages/core/src/engine/runtime.ts": "5aec2b9c60b0bc81009b3924d71f5f3363bc1691d7a6b31ac1740cf7d5a4cf7e",
@@ -5796,20 +5796,20 @@
         "packages/core/src/engine/util.ts": "100d5cffb226724644f4a6ff597d1a4e98a4810f8a53e8daa5e5eda6f9e4504e",
         "packages/core/src/engine/world.ts": "b10aad22396fd2afbba01f4806d44614be4c00282c1e238d714fc44d750225f5",
         "packages/core/src/index.ts": "7e2e3caf1aa5f20413a74311df519d8920e7251e3fbdc661faf027426d8a54cf",
-        "packages/core/src/schema/actions.ts": "c9591c562486c4c49a433aee5f72f60a8127381b49ef7cd591a569ddd14ad2b2",
+        "packages/core/src/schema/actions.ts": "4bf089fcd750cf107b1230dbe56d0c35ced07b0967e40a34c79aad66a5c79da4",
         "packages/core/src/schema/anatomy.ts": "3a7d26aa6754c2bd128a29bff92f2dfbf21f6a99c956d3b74ee370d6db46fc9f",
         "packages/core/src/schema/common.ts": "7992a472c00c8e8a3c8ff71699027ee4ca649af0a7eda41a9e62593cea0de057",
         "packages/core/src/schema/field.ts": "fe9b7d01f73b0505ff50c9a98b11f3726009db75dc491a92fabe8bf9a2bca548",
         "packages/core/src/schema/governance.ts": "9cd792dc69c80a7406100c3fb3482fd4f99d143f514676776fa6cb3991df5901",
         "packages/core/src/schema/index.ts": "830a65ff660010ca9155762d75f1e2491d298af726a34e3e48cadab356da7701",
         "packages/core/src/schema/knowledge.ts": "d595af9aaf0b991d2f3de4a1ffe84485a70411b26280486bce951b1ec7dcdd82",
-        "packages/core/src/schema/manipulation.ts": "d4495df547a77b2b57b7d18bee365b06592e7c4b606137eb06df468a32dacc05",
+        "packages/core/src/schema/manipulation.ts": "8126b1a2258e360ac0cf4775dbb8ee362988a7cc267b72908372af96c7e9b1d7",
         "packages/core/src/schema/state.ts": "98e00f7c184064888929b8c9769477df7cde4c509c9a424b18e0771cc505ccb4",
         "packages/server/web/stage/hand-nail-work.ts": "e7402ad9af73cd8a90a7f79647b81afde52d78faba6e0874a9a4cc0894580aca",
         "packages/server/web/stage/hand-physiology.ts": "221ca74afde3847f9237af22f18f5de4356e319c478185a9c5ce5348958e917b",
         "packages/server/web/stage/hand-skin-correctives.ts": "78d0aa72b412cbf73bb1a8e23a5f0b68d9221ca823ba9ad998ef530ddd41b572",
-        "packages/server/web/stage/hand.ts": "c6633d8e3b15912d4fac5df156c3b60df8fe4ddbc5dd4299518dde9ffda05238",
-        "packages/server/web/stage/needle-shape.ts": "6cc6b8dbb8801ab76d3c7290b81799da1881a8b14c661e58cf57cd572e580574"
+        "packages/server/web/stage/hand.ts": "509d864405dad2ebf1d2a2890e7d3db4d0b5ad8145d6cc1f4a7c5501515d54ba",
+        "packages/server/web/stage/needle-shape.ts": "fac5a591b616d78084049513223edda478acfb7e73e12ef7b71bfdf9da47cd8e"
       },
       "animationsRead": false,
       "runtimeContactsValidAtEveryExportedFrame": true
@@ -6273,11 +6273,11 @@
           "normalField": "skin-bary",
           "definition": {
             "primitive": 0,
-            "triangleIndex": 1837,
+            "triangleIndex": 2313,
             "vertexIndices": [
-              945,
-              982,
-              980
+              1190,
+              1227,
+              1225
             ],
             "barycentric": [
               0.999989259014307,
@@ -6382,11 +6382,11 @@
           "normalField": "skin-bary",
           "definition": {
             "primitive": 0,
-            "triangleIndex": 1837,
+            "triangleIndex": 2313,
             "vertexIndices": [
-              945,
-              982,
-              980
+              1190,
+              1227,
+              1225
             ],
             "barycentric": [
               0.999989259014307,
@@ -6491,11 +6491,11 @@
           "normalField": "skin-bary",
           "definition": {
             "primitive": 0,
-            "triangleIndex": 1837,
+            "triangleIndex": 2313,
             "vertexIndices": [
-              945,
-              982,
-              980
+              1190,
+              1227,
+              1225
             ],
             "barycentric": [
               0.999989259014307,
@@ -10884,11 +10884,11 @@
               "frame": 1,
               "definition": {
                 "primitive": 0,
-                "triangleIndex": 1837,
+                "triangleIndex": 2313,
                 "vertexIndices": [
-                  945,
-                  982,
-                  980
+                  1190,
+                  1227,
+                  1225
                 ],
                 "barycentric": [
                   0.999989259014307,
@@ -10905,11 +10905,11 @@
               "frame": 2,
               "definition": {
                 "primitive": 0,
-                "triangleIndex": 1837,
+                "triangleIndex": 2313,
                 "vertexIndices": [
-                  945,
-                  982,
-                  980
+                  1190,
+                  1227,
+                  1225
                 ],
                 "barycentric": [
                   0.999989259014307,
@@ -10926,11 +10926,11 @@
               "frame": 18.4,
               "definition": {
                 "primitive": 0,
-                "triangleIndex": 1837,
+                "triangleIndex": 2313,
                 "vertexIndices": [
-                  945,
-                  982,
-                  980
+                  1190,
+                  1227,
+                  1225
                 ],
                 "barycentric": [
                   0.999989259014307,

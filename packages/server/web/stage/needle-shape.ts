@@ -41,6 +41,7 @@ export function exteriorGeometry(): BufferGeometry {
   const count = (SEGMENTS + 1) * (SIDES + 1);
   geometry.setAttribute("position", new BufferAttribute(new Float32Array(count * 3), 3));
   geometry.setAttribute("normal", new BufferAttribute(new Float32Array(count * 3), 3));
+  geometry.setAttribute("shaftAxisRadius", new BufferAttribute(new Float32Array(count * 3), 3));
   const indices: number[] = [];
   for (let i = 0; i < SEGMENTS; i++) for (let side = 0; side < SIDES; side++) {
     const a = i * (SIDES + 1) + side, b = a + SIDES + 1;
@@ -53,6 +54,7 @@ export function exteriorGeometry(): BufferGeometry {
 export function updateExteriorGeometry(geometry: BufferGeometry, points: Vector3[], radiusM = RADIUS): void {
   const positions = geometry.getAttribute("position") as BufferAttribute;
   const normals = geometry.getAttribute("normal") as BufferAttribute;
+  const axes = geometry.getAttribute("shaftAxisRadius") as BufferAttribute;
   const tangent = new Vector3(), normal = new Vector3(), turn = new Quaternion();
   const radius = Number.isFinite(radiusM) && radiusM > 0 ? radiusM : RADIUS;
   for (let i = 0; i <= SEGMENTS; i++) {
@@ -67,7 +69,8 @@ export function updateExteriorGeometry(geometry: BufferGeometry, points: Vector3
       const index = i * (SIDES + 1) + side;
       positions.setXYZ(index, centre.x + normal.x * radius, centre.y + normal.y * radius, centre.z + normal.z * radius);
       normals.setXYZ(index, normal.x, normal.y, normal.z);
+      axes.setXYZ(index, tangent.x * radius, tangent.y * radius, tangent.z * radius);
     }
   }
-  positions.needsUpdate = normals.needsUpdate = true;
+  positions.needsUpdate = normals.needsUpdate = axes.needsUpdate = true;
 }

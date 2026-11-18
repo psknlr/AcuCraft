@@ -97,6 +97,17 @@ describe("action tools", () => {
     }
   });
 
+  it("exposes the same bounded skin-contact timing to models and insertion playback", () => {
+    const tool = actionTool("insert_needle");
+    const field = tool.inputSchema.properties.presentation!.properties!.skinContactFraction!;
+    expect(field).toMatchObject({ type: "number", minimum: 0.2, maximum: 0.8 });
+    for (const skinContactFraction of [0.19, 0.2, 0.7, 0.8, 0.81]) {
+      const parsed = tool.toAction({ needleId: "pack-a.1", depthCm: 1.8, presentation: { skinContactFraction } });
+      if (skinContactFraction >= 0.2 && skinContactFraction <= 0.8) expect(parsed).toMatchObject({ ok: true, action: { presentation: { skinContactFraction } } });
+      else expect(parsed.ok).toBe(false);
+    }
+  });
+
   it("documents the selected wrist profile and preserves an omitted three-finger wrist for the engine default", () => {
     for (const type of ["insert_needle", "perform_technique"] as const) {
       const tool = actionTool(type), key = type === "insert_needle" ? "presentation" : "motion";

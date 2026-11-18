@@ -5,7 +5,7 @@ import { ORDINARY_THUMB_PULP_ACQUISITION, ORDINARY_TIP_HOLDING_Y_M, PRECISION_TH
 import { createNailWorkRig, sampleNailWork, type NailWorkRig, type NailWorkSample } from "./hand-nail-work.js";
 import { createHandSkinCorrectives } from "./hand-skin-correctives.js";
 
-export type HandPose = "pinch" | "tripod" | "palpate" | "press" | "stretch" | "scrape" | "flick" | "release";
+export type HandPose = "pinch" | "tripod" | "palpate" | "press" | "skin-nail" | "stretch" | "scrape" | "flick" | "release";
 export type HandContact = "pinch" | "index" | "nail" | "palm" | "handle";
 export interface FingerPose {
   pose: HandPose;
@@ -213,7 +213,7 @@ export class ArticulatedHand {
     const grip = clamp(settings.grip), phase = clamp(settings.phase);
     // Legacy nodes carry the Blender clips; zero-offset anatomical parents can add fine articulation.
     this.mixer.stopAllAction();
-    const clip = settings.pose === "press" || settings.pose === "stretch" || settings.pose === "palpate" ? "hand_support"
+    const clip = ["press", "stretch", "palpate", "skin-nail"].includes(settings.pose) ? "hand_support"
       : settings.pose === "scrape" ? "hand_scrape" : settings.pose === "flick" ? "hand_flick"
       : settings.pose === "tripod" ? "hand_three_finger" : "hand_open";
     const action = this.actions.get(clip) ?? this.actions.get("hand_open");
@@ -278,9 +278,14 @@ export class ArticulatedHand {
       }
     }
     else {
-      if (["palpate", "press", "stretch"].includes(settings.pose)) {
-        if (this.palmFrame) this.relaxSurfaceFingers(settings);
+      if (["palpate", "press", "stretch", "skin-nail"].includes(settings.pose)) {
+        if (this.palmFrame || settings.pose === "skin-nail") this.relaxSurfaceFingers(settings);
         this.relaxSurfaceThumb();
+      }
+      if (settings.pose === "skin-nail") {
+        // The nail works on the skin while the remaining long fingers rest clear of it.
+        this.relaxUnusedFingers({ ...settings, idleFingerPose: "relaxed" });
+        if (aperture > 0 && grip < 1) this.solveAperture(this.gapMm() / 1000 + aperture * (1 - grip), true);
       }
       if (settings.pose === "pinch" || settings.pose === "tripod" || settings.pose === "scrape") this.solveAperture(aperture);
     }
@@ -642,7 +647,9 @@ export class ArticulatedHand {
   private relaxSurfaceFingers(settings: FingerPose): void {
     const palm = this.palmTransform(), pulse = Math.sin(clamp(settings.phase) * Math.PI * 2) * clamp(settings.intensity ?? 0.5);
     const roundedVolarTip = this.model.getObjectByName("index_volar_contact")?.userData.feature === "true-volar-distal-tip";
+    const nail = settings.pose === "skin-nail";
     for (const digit of ["index", "middle", "ring", "little"] as const) {
+      if (nail && digit !== "index") continue;
       const joints = ["MCP", "PIP", "DIP"].map((label) => this.controls.get(`${digit}_${label}`));
       const legacy = ["proximal", "middle", "distal"].map((label) => this.model.getObjectByName(`${digit}_${label}`));
       const tip = this.model.getObjectByName(`${digit}_tip`);
@@ -651,19 +658,26 @@ export class ArticulatedHand {
       const hingeA = a.clone().cross(b).normalize(), hingeB = b.clone().cross(c).normalize();
       if (hingeB.dot(hingeA) < 0) hingeB.negate();
       const signed = (x: Vector3, y: Vector3, hinge: Vector3) => Math.atan2(x.clone().cross(y).dot(hinge), x.dot(y));
-      if (roundedVolarTip) {
+      if (roundedVolarTip || nail) {
         // Palpation uses the rounded forward pulp, with a lightly flexed index.
         // Keep the other fingers above that contact instead of retaining the
         // source needle-grasp C or rotating the entire palm through the skin.
         const ordinal = digit === "index" ? -1 : ["middle", "ring", "little"].indexOf(digit);
         const pressing = settings.pose === "press";
-        const mcpDeg = pressing ? 0 : digit === "index" ? 5 : [-10, -7, -4][ordinal]!;
-        const pipDeg = digit === "index" ? pressing ? 5 : 10 : [5, 7, 9][ordinal]!;
-        const dipDeg = pressing ? 0 : 5;
+        let mcpDeg: number, pipDeg: number, dipDeg: number;
+        if (nail) {
+          // A bent index presents the distal edge of the nail while the palm stays above the skin.
+          const contact = clamp(settings.nailContact ?? 0);
+          mcpDeg = 14 + 4 * contact; pipDeg = 43 + 5 * contact; dipDeg = 36 + 6 * contact;
+        } else {
+          mcpDeg = pressing ? 0 : digit === "index" ? 5 : [-10, -7, -4][ordinal]!;
+          pipDeg = (digit === "index" ? pressing ? 5 : 10 : [5, 7, 9][ordinal]!) + pulse * 0.5;
+          dipDeg = pressing ? 0 : 5;
+        }
         const spreadDeg = digit === "index" ? settings.pose === "stretch" ? -5 * clamp(settings.grip) : 0
           : RESTING_FINGER_SPREAD_AT_EXTENSION_DEG[digit] * (0.2 + 0.8 * Math.cos(mcpDeg * Math.PI / 180) ** 2);
         const rotations = [restingFingerBaseRotation(a, hingeA, palm, mcpDeg, spreadDeg),
-          new Quaternion().setFromAxisAngle(hingeA, (pipDeg + pulse * 0.5) * Math.PI / 180 - signed(a, b, hingeA)),
+          new Quaternion().setFromAxisAngle(hingeA, pipDeg * Math.PI / 180 - signed(a, b, hingeA)),
           new Quaternion().setFromAxisAngle(hingeB, dipDeg * Math.PI / 180 - signed(b, c, hingeB))];
         for (let i = 0; i < 3; i++) joints[i]!.quaternion.copy(rotations[i]!).multiply(legacy[i]!.quaternion.clone().invert());
         continue;
@@ -1016,10 +1030,10 @@ export class ArticulatedHand {
       .distanceTo(this.anchor(["thumb_pad_contact", "thumb_pad", "thumb_tip"], new Vector3(0, 0, -0.001))) * 1000;
   }
 
-  private solveAperture(targetMetres: number): void {
+  private solveAperture(targetMetres: number, thumbOnly = false): void {
     const index = this.model.getObjectByName("index_pad_contact") ?? this.model.getObjectByName("index_tip");
     const thumb = this.model.getObjectByName("thumb_pad_contact") ?? this.model.getObjectByName("thumb_tip");
-    const joints = [this.controls.get("thumb_CMC"), this.controls.get("index_MCP")];
+    const joints = thumbOnly ? [this.controls.get("thumb_CMC")] : [this.controls.get("thumb_CMC"), this.controls.get("index_MCP")];
     if (!index || !thumb || joints.some((joint) => !joint)) return;
     // Solve before mirroring so the same anatomically articulated pose works for either hand.
     const mirror = this.model.scale.z;
@@ -1070,6 +1084,7 @@ export class ArticulatedHand {
       return reference;
     }
     const pose = this.poseState?.pose ?? "pinch";
+    if (pose === "skin-nail") return this.contact("nail");
     if (pose === "press") return this.contact("palm");
     if (pose === "palpate" || pose === "stretch") return this.contact("index");
     return new Vector3(0, this.holdingY(pose), 0);
@@ -1086,6 +1101,9 @@ export class ArticulatedHand {
       const engagement = this.materialEngagement.get(name);
       return { surface: `${digit}_skin`, normalField: refitted ? "skin-bary" : "legacy-authored", definition,
         ...(engagement === undefined ? {} : { engaged: engagement >= 0.999999 }) };
+    };
+    if (pose === "skin-nail") return {
+      index_nail_contact: { surface: "index_nail", normalField: "area-weighted-nail-bed", definition: { role: "surface-index-nail" } },
     };
     if (["palpate", "stretch", "press"].includes(pose)) return {
       [pose === "press" ? "palm_contact" : "index_volar_contact"]: pose === "press"
