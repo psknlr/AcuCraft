@@ -1,0 +1,101 @@
+{
+  "scope": "Authored outer skin of the practitioner hand. All distances refer to the real deformed GLB surface under the named poses.",
+  "asset": "content/world/assets/models/acu-practitioner-hand.glb",
+  "previous": {
+    "sha256": "dc73752357f00de4bba0d46a1780b06dcc0ba5ff80cdf45186819f6f8a619151",
+    "physicalComponents": 5,
+    "sharedBoundaryVerticesByDigit": {
+      "thumb": 34,
+      "index": 0,
+      "middle": 0,
+      "ring": 0,
+      "little": 0
+    },
+    "openPoseCrossingTrianglePairsByFinger": {
+      "middle": 86,
+      "index": 114,
+      "ring": 70,
+      "little": 74
+    }
+  },
+  "release": {
+    "sha256": "e9e7ce69914ab8603f8d168491b74c6c525e8fe87cecc4ce11c42a1c8348c889",
+    "visibleSkinPatches": 6,
+    "physicalTopology": {
+      "vertexCount": 8145,
+      "edgeCount": 24429,
+      "faceCount": 16286,
+      "connectedComponentCount": 1,
+      "eulerCharacteristic": 2,
+      "boundaryEdgeCount": 0,
+      "nonManifoldEdgeCount": 0,
+      "windingConflictCount": 0
+    },
+    "sharedBoundaryVerticesByDigit": {
+      "thumb": 34,
+      "index": 34,
+      "middle": 20,
+      "ring": 20,
+      "little": 20
+    },
+    "directComparison": {
+      "poseOrder": ["open", "hold", "side", "tripod", "nail", "support"],
+      "allSkinCrossingPairsByPose": [0, 0, 0, 0, 0, 0]
+    }
+  },
+  "interdigitalWebs": {
+    "method": "Tip pinch at phase 0.30. At the midpoint between adjacent MCP joint centres, offset 3 mm toward the palm. Measure the furthest distal intersection along the bisector of their proximal phalanges, perpendicular to the line between MCPs.",
+    "columns": ["digitPair", "priorExtensionMm", "releaseExtensionMm", "releasePercentOfMeanProximalPhalanxLength"],
+    "rows": [
+      ["index-middle", 9.904, 10.785, 27.12],
+      ["middle-ring", 10.137, 11.426, 29.3],
+      ["ring-little", 8.018, 10.301, 30.75]
+    ],
+    "transverseProfile": {
+      "method": "Repeat the ray 20% of MCP spacing toward each adjacent digit on the same section.",
+      "columns": ["digitPair", "priorTowardFirstMm", "priorTowardSecondMm", "releaseTowardFirstMm", "releaseTowardSecondMm"],
+      "rows": [
+        ["index-middle", 9.257, 10.299, 10.015, 14.646],
+        ["middle-ring", 10.397, 9.835, 11.079, 12.248],
+        ["ring-little", 8.562, 7.382, 10.906, 10.532]
+      ]
+    }
+  },
+  "deformation": {
+    "runtimeSamples": {
+      "left": 182,
+      "right": 182
+    },
+    "nativeClipSamples": {
+      "hand_open": 31,
+      "hand_support": 31,
+      "hand_three_finger": 31,
+      "hand_scrape": 31,
+      "hand_flick": 34
+    },
+    "runtimeCoverage": "Tip and side pinch, open aperture, wrist and roll limits, tripod, nail scrape and flick, palpation, stretch and press. Support cases include the operator path with no handle radius supplied.",
+    "limits": {
+      "crossingPlaneMarginMicrometres": 50,
+      "minimumFaceAreaSquareMetres": 1e-10,
+      "minimumOutwardDot": 0,
+      "minimumAdjacentFaceDot": -0.1
+    },
+    "violationsAcross522Samples": {
+      "degenerateSkinFaces": 0,
+      "rootOrPalmCrossingPairs": 0,
+      "rootOrPalmFacingOrAreaFailures": 0,
+      "opposingAdjacentRootOrPalmFacets": 0
+    },
+    "maximumSharedSeamGapMicrometres": 0.0,
+    "minimumSharedShadingNormalDot": 0.9999999999999997,
+    "additionalApertureSweep": {
+      "poses": 80,
+      "apertureMm": [0, 2, 8, 12],
+      "grip": [0, 0.25, 0.5, 0.75, 1],
+      "styles": ["tip-pinch", "side-pinch"],
+      "hands": ["left", "right"],
+      "palmCrossingPairs": 0
+    }
+  },
+  "regressionTests": ["tools/blender/hand-morphology.test.ts", "tools/blender/hand.test.ts", "packages/server/src/precision-grip.test.ts", "packages/server/src/hand-direction.test.ts"]
+}
