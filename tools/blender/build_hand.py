@@ -1274,6 +1274,7 @@ def integrate_finger_roots(palm, digits):
     cuff_src = [indices[tuple(p)] for p in DIGIT_PALM_ROWS["ring"]]
     cuff_next = [Vector(p) for p in DIGIT_PALM_ROWS["wristward"]]
     cuff_v = DIGIT_PALM_ROWS["v"]
+    cuff_vertices = set(cuff_src)
     kept_faces = [
         p for p in old.polygons if min(old.uv_layers.active.data[l].uv.y for l in p.loop_indices) >= cuff_v - 1e-6
     ]
@@ -1286,7 +1287,10 @@ def integrate_finger_roots(palm, digits):
         face(
             [retained[i] for i in p.vertices],
             [old.uv_layers.active.data[l].uv[:] for l in p.loop_indices],
-            [old.corner_normals[l].vector.copy() for l in p.loop_indices],
+            # Compute a common smooth normal on both sides of the retained
+            # palm ring. Its old corner field included the removed distal cap.
+            [(0, 0, 0) if i in cuff_vertices else old.corner_normals[l].vector.copy()
+             for i, l in zip(p.vertices, p.loop_indices)],
             p.use_smooth,
         )
 
@@ -1566,6 +1570,19 @@ def integrate_finger_roots(palm, digits):
                 hood_edges[a].add(b)
             if b in hood_edges:
                 hood_edges[b].add(a)
+    # The opened thumb glides past the volar slope of the index MCP.
+    # Relieve the pad locally along its surface normal, leaving the index
+    # pulp, the adjoining web crest and the phalange boundary unchanged.
+    topology.update()
+    volar_slope = (PALM_LONGITUDINAL * .55 - PALM_DORSAL * .835).normalized()
+    for i in neighbors:
+        x, y, z = inverse @ (positions[i] - origin)
+        radius = ((x + .0005) / .0067)**2 + ((y + .010) / .0056)**2 + ((z - .025) / .0095)**2
+        if radius >= 9:
+            continue
+        normal_fraction = smoothstep((topology.vertices[i].normal.dot(volar_slope) - .10) / .65)
+        local = math.exp(-radius) * (1 - smoothstep((radius - 4) / 5))
+        positions[i] -= volar_slope * (.0007 * local * normal_fraction)
     bpy.data.meshes.remove(topology)
     active = {i for i in neighbors if 1e-7 < sum(w for j, w in weights[i].items() if j != palm_joint) < 0.99999}
     for _ in range(6):
@@ -2757,17 +2774,33 @@ def publish_skin_colour(gltf, binary, accessor):
 
 def compact_hand_buffer_views(gltf, binary):
     """Share byte-identical nail UVs, animation clocks and other equal views."""
+    # glTF requires a stride for a view referenced by more than one vertex
+    # attribute accessor, even when they represent the very same UV bytes.
+    # Include effective packed layout in the key before coalescing a view.
+    attribute_strides = {}
+    component_width = {5120: 1, 5121: 1, 5122: 2, 5123: 2, 5125: 4, 5126: 4}
+    dimensions = {"SCALAR": 1, "VEC2": 2, "VEC3": 3, "VEC4": 4}
+    for mesh in gltf["meshes"]:
+        for primitive in mesh["primitives"]:
+            for index in primitive["attributes"].values():
+                accessor = gltf["accessors"][index]
+                view = accessor["bufferView"]
+                packed = component_width[accessor["componentType"]] * dimensions[accessor["type"]]
+                attribute_strides[view] = gltf["bufferViews"][view].get("byteStride", packed)
     unique_views, by_content, remap, result = [], {}, {}, bytearray()
     for index, view in enumerate(gltf["bufferViews"]):
         start = view.get("byteOffset", 0)
         data = bytes(binary[start:start + view["byteLength"]])
         metadata = {key: value for key, value in view.items() if key != "byteOffset"}
-        signature = (json.dumps(metadata, sort_keys=True), data)
+        stride = attribute_strides.get(index)
+        signature = (json.dumps(metadata, sort_keys=True), stride, data)
         if signature not in by_content:
             result.extend(bytes(-len(result) % 4))
             by_content[signature] = len(unique_views)
             unique_views.append({**metadata, "byteOffset": len(result)})
             result.extend(data)
+        elif stride is not None:
+            unique_views[by_content[signature]]["byteStride"] = stride
         remap[index] = by_content[signature]
     for accessor in gltf["accessors"]:
         if "bufferView" in accessor:

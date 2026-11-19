@@ -374,7 +374,7 @@
     "description": "One visible closed outer skin, with a rounded aperture and regular parallel-transported collar; semantic palm/thumb partitions share positions, normals and influences. Source bones and rigid distal bearing remain unchanged.",
     "correctives": {
       "source": "hand_thumb_web_correctives.json",
-      "sha256": "edf8972279e279d7feb74880b56d5e0870a23a1a9f0f2b12e59b717dea475c11"
+      "sha256": "9e31820060de001ed845c70fc20caa1ef8ea34f9be438b726459c7c2bee90737"
     }
   }
 }

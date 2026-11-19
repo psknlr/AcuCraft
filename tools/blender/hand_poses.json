@@ -5,7 +5,7 @@
   "provenance": {
     "calibrationInputAsset": {
       "path": "runs/hand-calibration/junctions.glb",
-      "sha256": "e1cf07120d2a8bb558c2af46a45b2f6d05dd5794321ea98b1a669e9ce57b1eea",
+      "sha256": "7227a16e2fc73eeb426328de39f024fc1cab56413cdd856fe6ea5cdfa59e481f",
       "role": "immutable geometry calibration input; not the subsequently rebuilt GLB output hash"
     },
     "sources": {
@@ -23,15 +23,15 @@
       },
       "anatomy": {
         "path": "tools/blender/hand_anatomy.json",
-        "sha256": "a53ab76650e468656be5f6f48d2ceab8074b8aa534b4c5097ffda87b51bbb26f"
+        "sha256": "255d0009ffdb661ecb3bac2972779d95d204ce8c5ed92dd6c8a6de3f1b6129dc"
       },
       "builder": {
         "path": "tools/blender/build_hand.py",
-        "sha256": "e6784de9a11b128b39b088a0d03f9f797965733666cb25535851f97cd9451b4f"
+        "sha256": "fe80d0566346101a3e453db051145e0e06a5e05bc719733e2a3c15d1a6524520"
       },
       "correctives": {
         "path": "tools/blender/hand_thumb_web_correctives.json",
-        "sha256": "edf8972279e279d7feb74880b56d5e0870a23a1a9f0f2b12e59b717dea475c11"
+        "sha256": "9e31820060de001ed845c70fc20caa1ef8ea34f9be438b726459c7c2bee90737"
       },
       "exporter": {
         "path": "tools/blender/export_hand_poses.ts",
