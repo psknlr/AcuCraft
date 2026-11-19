@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import { AnimationMixer, LoopOnce, Mesh, MeshStandardMaterial, Object3D, Quaternion, Ray, Raycaster, SkinnedMesh, Triangle, Vector3 } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { clone } from "three/examples/jsm/utils/SkeletonUtils.js";
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { ArticulatedHand } from "../../packages/server/web/stage/hand.js";
 import { needleHandleRadiusAt } from "../../packages/server/web/stage/needle-shape.js";
 import { parseGlb } from "@clinicalcraft/core";
@@ -508,37 +508,51 @@ describe("the Blender precision hand", () => {
     mixer.stopAllAction(); mixer.uncacheRoot(rig);
   });
 
-  it.each(["left", "right"] as const)("keeps the runtime %s palm continuous in both grip styles, openings, wrist bounds and supporting poses", async (side) => {
-    const gltf = await new GLTFLoader().parseAsync(Uint8Array.from(bytes).buffer, "");
-    const hand = new ArticulatedHand(gltf.scene, gltf.animations, "#cba88a");
-    const skin = collectCompositeSkin(hand.model, handSkinParts); expectClosedPalmSkin(skin);
-    for (const gripStyle of ["tip-pinch", "side-pinch"] as const)
+  describe.each(["left", "right"] as const)("runtime %s palm continuity", (side) => {
+    let hand: ArticulatedHand;
+    let skin: CompositeSkin;
+    beforeEach(async () => {
+      const gltf = await new GLTFLoader().parseAsync(Uint8Array.from(bytes).buffer, "");
+      hand = new ArticulatedHand(gltf.scene, gltf.animations, "#cba88a");
+      skin = collectCompositeSkin(hand.model, handSkinParts);
+      expectClosedPalmSkin(skin);
+      hand.setSide(side);
+    });
+    afterEach(() => { hand.dispose(); });
+
+    it.each(["tip-pinch", "side-pinch"] as const)("closes and opens a %s across the wrist and rolling bounds", (gripStyle) => {
       for (const wristElevationDeg of [35, 55, 70]) for (const grip of [0, 1]) for (const rotationRad of [-1.4, 0, 1.4]) {
-        hand.setSide(side);
         hand.pose({ pose: "pinch", gripStyle, wristElevationDeg, grip, rotationRad, phase: 0.3, apertureMm: 12, handleRadiusM: 0.0007 });
         expect(hand.contactValid).toBe(true);
         expectPalmSurface(skin, `${side}/${gripStyle}/${wristElevationDeg}/${grip}/${rotationRad}`);
       }
-    for (const pose of ["palpate", "stretch", "press"] as const) {
-      hand.setSide(side); hand.pose({ pose, grip: 1, phase: 0.25, intensity: 1 });
-      expectPalmSurface(skin, `${side}/${pose}`);
-    }
-    for (const wristElevationDeg of [44, 48, 51])
-      for (const grip of [0, 1]) for (const rotationRad of [-1.4, 0, 1.4]) {
-        hand.setSide(side);
+    });
+
+    it("preserves the web in palpation, stretch and pressure", () => {
+      for (const pose of ["palpate", "stretch", "press"] as const) {
+        hand.pose({ pose, grip: 1, phase: 0.25, intensity: 1 });
+        expectPalmSurface(skin, `${side}/${pose}`);
+      }
+    });
+
+    it("keeps the tripod continuous across its wrist and rolling bounds", () => {
+      for (const wristElevationDeg of [44, 48, 51]) for (const grip of [0, 1]) for (const rotationRad of [-1.4, 0, 1.4]) {
         hand.pose({ pose: "tripod", wristElevationDeg, grip, stabilizerGrip: 1, rotationRad, phase: 0.3, apertureMm: 12, handleRadiusM: 0.0007 });
         expect(hand.contactValid, `${side}/tripod/${wristElevationDeg}/${grip}/${rotationRad}`).toBe(true);
         expectPalmSurface(skin, `${side}/tripod/${wristElevationDeg}/${grip}/${rotationRad}`);
       }
-    for (const pose of ["scrape", "flick"] as const)
-      for (const wristElevationDeg of [50, 55, 60]) for (const grip of [0, 0.5, 1])
-        for (const phase of pose === "scrape" ? [0, 0.5, 1] : [0, 0.04, 0.08, 0.18, 0.28, 0.39, 0.5, 0.54, 0.58, 1]) {
-          hand.setSide(side);
+    });
+
+    describe.each(["scrape", "flick"] as const)("%s", (pose) => {
+      it.each([50, 55, 60])("retains the nail-work web at %i degrees of wrist elevation", (wristElevationDeg) => {
+        const phases = pose === "scrape" ? [0, 0.5, 1] : [0, 0.04, 0.08, 0.18, 0.28, 0.39, 0.5, 0.54, 0.58, 1];
+        for (const grip of [0, 0.5, 1]) for (const phase of phases) {
           hand.pose({ pose, wristElevationDeg, grip, phase, nailContact: phase, apertureMm: 12, handleRadiusM: 0.0007 });
           expect(hand.contactValid, `${side}/${pose}/${wristElevationDeg}/${grip}/${phase} native nail work`).toBe(true);
           expectPalmSurface(skin, `${side}/${pose}/${wristElevationDeg}/${grip}/${phase}`);
         }
-    hand.dispose();
+      });
+    });
   });
 
   it("uses a true distal nail free edge instead of the middle nail-bed side rim", async () => {
