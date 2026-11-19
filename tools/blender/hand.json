@@ -5,13 +5,13 @@
   "license": "CC0-1.0",
   "source": "tools/blender/build_hand.py",
   "choreography": "tools/blender/hand_poses.json",
-  "builderSourceSha256": "fe80d0566346101a3e453db051145e0e06a5e05bc719733e2a3c15d1a6524520",
-  "anatomySourceSha256": "255d0009ffdb661ecb3bac2972779d95d204ce8c5ed92dd6c8a6de3f1b6129dc",
-  "choreographySha256": "2e6fa4e9ba13f2e6e0b5d8be9c596cc9e3d6747f8633923f069cac749193c9d8",
+  "builderSourceSha256": "bf38510898c888b3597129b6cb443a3ff41fb92ea137a4d25957579a5bc2d18a",
+  "anatomySourceSha256": "161e6b7d2e939ad0006680d0caa5b94cf76b2f535b2c8fe45bbafed617c98a3a",
+  "choreographySha256": "e4c281ce4c7d94aaa182cfe4ad586431246a31facca705d12eb065d45c65bdd6",
   "choreographyProvenance": {
     "calibrationInputAsset": {
       "path": "runs/hand-calibration/junctions.glb",
-      "sha256": "7227a16e2fc73eeb426328de39f024fc1cab56413cdd856fe6ea5cdfa59e481f",
+      "sha256": "d892796bc15a3b400892aa3a974f764c318d60c4e3af194d1207c744d5dfc7c5",
       "role": "immutable geometry calibration input; not the subsequently rebuilt GLB output hash"
     },
     "sources": {
@@ -29,15 +29,15 @@
       },
       "anatomy": {
         "path": "tools/blender/hand_anatomy.json",
-        "sha256": "255d0009ffdb661ecb3bac2972779d95d204ce8c5ed92dd6c8a6de3f1b6129dc"
+        "sha256": "161e6b7d2e939ad0006680d0caa5b94cf76b2f535b2c8fe45bbafed617c98a3a"
       },
       "builder": {
         "path": "tools/blender/build_hand.py",
-        "sha256": "fe80d0566346101a3e453db051145e0e06a5e05bc719733e2a3c15d1a6524520"
+        "sha256": "bf38510898c888b3597129b6cb443a3ff41fb92ea137a4d25957579a5bc2d18a"
       },
       "correctives": {
         "path": "tools/blender/hand_thumb_web_correctives.json",
-        "sha256": "9e31820060de001ed845c70fc20caa1ef8ea34f9be438b726459c7c2bee90737"
+        "sha256": "b6787c52e415484f650339e8661da7fda02faa40f4723f328e54939d1b9507d5"
       },
       "exporter": {
         "path": "tools/blender/export_hand_poses.ts",
@@ -142,7 +142,7 @@
     "animationsRead": false,
     "runtimeContactsValidAtEveryExportedFrame": true
   },
-  "sha256": "97022280972a97470ae18fe529a31f9d442ed4771e57fca17c09ccb86d345b36",
+  "sha256": "e9e7ce69914ab8603f8d168491b74c6c525e8fe87cecc4ce11c42a1c8348c889",
   "bytes": 1592436,
   "triangles": 18686,
   "root": "acu_practitioner_hand",
@@ -750,9 +750,9 @@
       }
     ]
   },
-  "thumbWebCorrectivesSourceSha256": "9e31820060de001ed845c70fc20caa1ef8ea34f9be438b726459c7c2bee90737",
-  "correctiveSourceSha256": "9e31820060de001ed845c70fc20caa1ef8ea34f9be438b726459c7c2bee90737",
-  "thumbWebCorrectivesBindSha256": "45d24a0f76d965737b6e6c31a3aa01efdfcc80d2163a2bb9afc16cccbb36f1a6",
+  "thumbWebCorrectivesSourceSha256": "b6787c52e415484f650339e8661da7fda02faa40f4723f328e54939d1b9507d5",
+  "correctiveSourceSha256": "b6787c52e415484f650339e8661da7fda02faa40f4723f328e54939d1b9507d5",
+  "thumbWebCorrectivesBindSha256": "81273a31394fcfc079bff8a22c70058fea241ecd2946acab00e165e4e32dbc32",
   "palm": {
     "surface": "palm_surface",
     "topology": "closed palm and five-digit composite",
@@ -5687,7 +5687,7 @@
     "provenance": {
       "calibrationInputAsset": {
         "path": "runs/hand-calibration/junctions.glb",
-        "sha256": "7227a16e2fc73eeb426328de39f024fc1cab56413cdd856fe6ea5cdfa59e481f",
+        "sha256": "d892796bc15a3b400892aa3a974f764c318d60c4e3af194d1207c744d5dfc7c5",
         "role": "immutable geometry calibration input; not the subsequently rebuilt GLB output hash"
       },
       "sources": {
@@ -5705,15 +5705,15 @@
         },
         "anatomy": {
           "path": "tools/blender/hand_anatomy.json",
-          "sha256": "255d0009ffdb661ecb3bac2972779d95d204ce8c5ed92dd6c8a6de3f1b6129dc"
+          "sha256": "161e6b7d2e939ad0006680d0caa5b94cf76b2f535b2c8fe45bbafed617c98a3a"
         },
         "builder": {
           "path": "tools/blender/build_hand.py",
-          "sha256": "fe80d0566346101a3e453db051145e0e06a5e05bc719733e2a3c15d1a6524520"
+          "sha256": "bf38510898c888b3597129b6cb443a3ff41fb92ea137a4d25957579a5bc2d18a"
         },
         "correctives": {
           "path": "tools/blender/hand_thumb_web_correctives.json",
-          "sha256": "9e31820060de001ed845c70fc20caa1ef8ea34f9be438b726459c7c2bee90737"
+          "sha256": "b6787c52e415484f650339e8661da7fda02faa40f4723f328e54939d1b9507d5"
         },
         "exporter": {
           "path": "tools/blender/export_hand_poses.ts",
@@ -12638,7 +12638,7 @@
   "sourceAnatomy": {
     "file": "tools/blender/hand_anatomy.json",
     "sourceHandedness": "right",
-    "sha256": "255d0009ffdb661ecb3bac2972779d95d204ce8c5ed92dd6c8a6de3f1b6129dc",
+    "sha256": "161e6b7d2e939ad0006680d0caa5b94cf76b2f535b2c8fe45bbafed617c98a3a",
     "primaryMaterialContactNames": [
       "thumb_pad_contact",
       "index_pad_contact",

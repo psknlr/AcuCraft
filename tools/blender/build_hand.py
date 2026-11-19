@@ -1600,6 +1600,29 @@ def integrate_finger_roots(palm, digits):
         weights[i] = {j: w * amount / old for j, w in material.items() if j != palm_joint}
         weights[i][palm_joint] = 1 - amount
 
+    # The oblique little-finger MCP sits farther back than the ring MCP.
+    # As the palm leans into palpation their shared volar web must distribute
+    # tension across both proximal bones instead of hinging on one triangle.
+    web_blend = {}
+    for i in neighbors:
+        if weights[i].get(12, 0) < 1e-6 or weights[i].get(palm_joint, 0) < 1e-5:
+            continue
+        x, y, z = inverse @ (positions[i] - origin)
+        radius = ((x - .0058) / .0054)**2 + ((y + .0158) / .0046)**2 + ((z + .0249) / .0056)**2
+        if radius < 9:
+            web_blend[i] = .55 * math.exp(-radius) * min(1, (9 - radius) / 5)
+    for _ in range(5):
+        updated = {}
+        for i, blend in web_blend.items():
+            adjacent = hood_edges[i]
+            average = {}
+            for j in adjacent:
+                for joint, weight in weights[j].items():
+                    average[joint] = average.get(joint, 0) + weight / len(adjacent)
+            updated[i] = blend_weights(weights[i], average, blend)
+        for i, values in updated.items():
+            weights[i] = values
+
     def replace(source, pts, polygons, texcoords, normals, smooth_flags):
         name = source.name
         mat = source.data.materials[0]
