@@ -289,7 +289,10 @@ For example, after inserting a needle and while its site is within reach:
 }
 ```
 
-`durationMs` spans the whole presentation; `cycles` applies within each primitive phase. A skin maneuver instead
+`durationMs` spans the whole presentation. For compounds, the model may send
+`motion.phaseCycles` in the catalogue's `phases` order, with one integer from 1 to 12 per stage.
+For example, `[1, 3]` on `yang-zhong-yin-yin` gives one Bu cycle followed by three Xie cycles.
+The stage durations stay fixed. Omission uses `cycles` in each stage. A skin maneuver
 uses a current `mark`, explicit `region`/`side`/`at`, or a needle's executed site. Men (`men`) requires a needle
 actually withdrawn in the current visit. Treatment gestures require consent to the current plan, a patient able
 to continue, permission and reach; Men follows post-removal aftercare semantics and remains available after
@@ -302,7 +305,34 @@ illustrative provenance; the public view keeps the latest 64. Refused gestures c
 optional state history is created only when this new action is used, preserving historical replay digests.
 Presentation time is independent of the simulated clinical clock, and replay makes no model call.
 
+Requests without the new hand-presentation fields retain the original 13-field
+recorded motion payload. The viewer resolves current hand defaults from
+`handProfiles` when loading those records. Supplying any new hand field records
+all three resolved hand fields as well. Strict replay checks remain unchanged.
+
 `insert_needle` also accepts optional `presentation` fields: `durationMs`, `grip`, `support`, `hand` and
-`gripApertureMm`. These control the hand animation; anatomy checks and the executed depth remain those of the
+`gripApertureMm`, plus shared `wristElevationDeg`, `gripStyle` and `idleFingerPose` hand settings.
+Set `presentation.skinContactFraction` to choose when the tip first touches skin during insertion.
+For example, `0.7` matches 70% in Studio. The range is 0.2–0.8, with a default of 0.45.
+Opening controls approach/release; held fingers fit the rendered handle instead of floating at
+the requested opening. These control the hand animation; anatomy checks and the executed depth remain those of the
 original insertion action. Actual needle-depth changes still use `adjust_needle`; a visual performance does not
 authorize them. See [TECHNIQUES.md](TECHNIQUES.md) for the catalogue and modeling limits.
+
+The default primary grip is thumb/index for insertion and ordinary retained-needle holding.
+Explicit `three-finger` adds middle volar-pulp support to that pair. Fei and ordinary compound
+holding stages preserve the chosen grip. Gua uses a thumb tail brace and an active index nail
+edge; its aperture sets the index nail's release gap while the thumb separately clears the tail.
+Tan uses thumb-assisted skin-to-skin preparation, followed by index-nail contact and recoil.
+Use the selected technique's advertised controls; Tan does not advertise an aperture control.
+
+`wristElevationDeg` normally accepts 35–70° with default 55°. The optional
+three-finger variant uses tip contact at 44–51°, default 48°, as published in
+`handProfiles.threeFinger`. Gua/Tan advertise 50–60° in their `parameterBounds`.
+The engine rejects requests outside these bounds and incompatible side/three-finger
+combinations. This changes the visible hand
+frame independently of the clinical needle angle. `gripStyle` selects compact
+`tip-pinch` or a more proximal `side-pinch` contact with a naturally extending
+index tip. `idleFingerPose` selects graduated `curled` or `relaxed` unused digits.
+Use only settings advertised by the selected technique; active nail-work roles
+take precedence. See [REFERENCE-POSES.md](REFERENCE-POSES.md) for the pose groups.

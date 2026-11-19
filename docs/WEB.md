@@ -4,6 +4,8 @@
 
 ![A paused twirling preview: independently articulated holding and supporting hands, with the needle's label moved clear of the grip](img/technique-bimanual-preview.png)
 
+![A side view of the live precision pinch: continuous finger skins meet opposite surfaces of the needle handle, with the supporting hand still present](img/technique-grip-closeup.png)
+
 `npm run acu -- serve` opens a workspace in the browser where a person and a language model keep the same
 acupuncture patient records at the same time. Every record is a simulated encounter run by the AcuCraft engine: the
 operator works it from the page, a language model run by the server works it from the same page, and any MCP client
@@ -164,21 +166,22 @@ The view draws the encounter as the record has it, in step with it:
 
 - **The set** is the clinic's own: the treatment couch, the needle trolley with its sharps box, the heat lamp, the
   herb cabinet, the meridian chart and the bronze meridian figure, the patient's chairs and the pulse cushion —
-  the pack's models, built in Blender (docs/MODELS.md), loaded from `content/world/assets/models` — in a treatment
-  room and a consultation room with a window, blinds, a privacy curtain and a desk.
+  the pack's models, built in Blender (docs/MODELS.md), loaded from `content/world/assets/models` throughout the
+  clinic's floor-plan rooms. The scene and the movement map use the same world coordinates.
 - **The people** are drawn with ClinicalCraft's figure kit — the same figures as its 3D world — from the
   bundle of the pinned engine: the patient as their case describes them (skin, hair, build, clothes; a variant may
   change how they look, never say its name) and built to their height, in the position on the record — seated at
   the desk, standing, or on the couch on their back, face down or on one side, bare under towels; the practitioner
-  in a white coat, at the actor's actual floor position. Click-to-walk, the focused map's arrow/WASD controls, and
-  Shift-click on the 3D floor all submit the same `move` tool; the practitioner follows the world's planned
+  in a white coat, at the actor's actual floor position. Choose a character, then click the map, use the step controls or
+  Shift-click on the 3D floor to submit the same `move` tool; the character follows the world's planned
   corners with continuous gait and turning. Pose changes use the existing patient positioning tool. They breathe and blink; the
   patient's lips move while they speak; a patient who feels faint is drawn pale and clammy.
 - **The practitioner's marks and the needles** are placed on the skin from the record: a mark at its chart
   coordinates, a needle at its mark (or at the place given with it) at the recorded angle, direction and depth,
   of each needle's own pack length, with a steel shaft and spiral handle. The geometry uses executed depth,
-  including a shorter partial insertion. An articulated Blender hand approaches and pinches its handle, guided
-  by a length-preserving arm solve and bounded torso lean. Its fingers carry the needle in, track the full
+  including a shorter partial insertion. Articulated Blender hands with continuous finger skins and independent
+  skeletons approach the handle, guided by a length-preserving arm solve and bounded torso lean. The holding
+  pads fit opposite handle surfaces; the opening control affects approach/release. The fingers carry the needle in, track the full
   insertion or manipulation, open, and retreat; withdrawal keeps the shaft's full size. Needle movements queue
   when actions arrive quickly, and an old record opens directly at its retained state. `lift`, `thrust`,
   `lift-thrust`, `twist`, `rotate`, `bu` and `xie` use bounded, deterministic profiles; outward strokes never

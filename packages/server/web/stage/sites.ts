@@ -1,4 +1,4 @@
-import { Mesh, Raycaster, Vector3, type Intersection } from "three";
+import { Matrix3, Mesh, Raycaster, Vector3, type Intersection } from "three";
 import type { PersonRig } from "@clinicalcraft/web/world/npc.js";
 import { placedHeadPoint, placedPoint } from "@clinicalcraft/web/world/manikin.js";
 import { armRadii, legRadii, limbPoint, trunkPoint } from "@clinicalcraft/web/world/figure/body.js";
@@ -27,6 +27,8 @@ export interface SkinSite {
   uDir: Vector3;
   /** False when what the ray met first was cloth or hair (the needle still goes to the skin under it, when found). */
   bare: boolean;
+  /** Current visual material frame for a hand in contact with the animated patient. */
+  currentSurface?: () => SkinSite;
 }
 
 /* the figure's own frame (an average adult 1.74 m tall; feet at the origin, +Y up, +Z the front, +X their left) */
@@ -102,10 +104,21 @@ export class SiteFinder {
     const worldUp = new Vector3(0, 1, 0);
     const vDir = tangent(up, worldUp);
     const uDir = tangent(right, new Vector3().crossVectors(at.n, vDir));
-    return { ...at, vDir, uDir };
+    // The clinical chart/needle retains its recorded frame. A surface hand follows the
+    // material on the patient that the locating ray actually hit, including torso breathing.
+    const { mesh, p, n, bare } = at, inverse = mesh.matrixWorld.clone().invert();
+    const localPoint = p.clone().applyMatrix4(inverse);
+    const localNormal = n.clone().applyNormalMatrix(new Matrix3().getNormalMatrix(inverse));
+    const localU = uDir.clone().transformDirection(inverse), localV = vDir.clone().transformDirection(inverse);
+    return { p, n, uDir, vDir, bare, currentSurface: () => {
+      mesh.updateWorldMatrix(true, false);
+      const frame = mesh.matrixWorld;
+      return { p: localPoint.clone().applyMatrix4(frame), n: localNormal.clone().applyNormalMatrix(new Matrix3().getNormalMatrix(frame)),
+        uDir: localU.clone().transformDirection(frame), vDir: localV.clone().transformDirection(frame), bare };
+    } };
   }
 
-  private locate(site: ChartSite): SkinSite | null {
+  private locate(site: ChartSite): (SkinSite & { mesh: Mesh }) | null {
     const aim = this.aim(site);
     if (!aim) return null;
     const toWorld = (p: V3) => (aim.head ? placedHeadPoint(this.rig, p) : placedPoint(this.rig, p));
@@ -126,11 +139,18 @@ export class SiteFinder {
     if (a && b && c && e) n = new Vector3().crossVectors(a.p.clone().sub(b.p), c.p.clone().sub(e.p)).normalize();
     else n = hit.n.clone();
     if (n.dot(dir) > 0) n.negate();
-    return { p: hit.p, n, vDir: new Vector3(), uDir: new Vector3(), bare: hit.bare };
+    return { p: hit.p, n, vDir: new Vector3(), uDir: new Vector3(), bare: hit.bare, mesh: hit.mesh };
+  }
+
+  /** Reproject an adjacent support contact onto the local, currently drawn skin facet. */
+  nearbySkin(point: Vector3, normal: Vector3): { p: Vector3; n: Vector3 } | null {
+    const depth = 0.03;
+    this.rig.root.updateWorldMatrix(true, true);
+    return this.cast(point.clone().addScaledVector(normal, depth), normal.clone().negate(), depth * 2, true);
   }
 
   /** The first skin a ray meets (through cloth or hair over it), else the first surface. */
-  private cast(origin: Vector3, dir: Vector3, far: number): { p: Vector3; n: Vector3; bare: boolean } | null {
+  private cast(origin: Vector3, dir: Vector3, far: number, skinOnly = false): { p: Vector3; n: Vector3; bare: boolean; mesh: Mesh } | null {
     this.ray.set(origin, dir);
     this.ray.far = far;
     const hits: Intersection[] = [];
@@ -141,10 +161,11 @@ export class SiteFinder {
     const first = hits[0];
     if (!first) return null;
     const skin = skinOf(first) ? first : hits.find((h) => h.distance - first.distance < 0.05 && skinOf(h));
+    if (skinOnly && !skin) return null;
     const h = skin ?? first;
     const n = h.face ? h.face.normal.clone().transformDirection(h.object.matrixWorld) : dir.clone().negate();
     if (n.dot(dir) > 0) n.negate();
-    return { p: h.point.clone(), n, bare: h === first && skin === first };
+    return { p: h.point.clone(), n, bare: h === first && skin === first, mesh: h.object as Mesh };
   }
 
   /** Where to look from for a place on a chart: figure-frame (or head-frame) points. */

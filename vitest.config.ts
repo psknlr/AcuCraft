@@ -32,6 +32,7 @@ export default defineConfig({
     include: ["packages/*/src/**/*.test.ts", "tools/**/*.test.ts"],
     exclude: ["**/node_modules/**", "**/dist/**", ".deps/**"],
     environment: "node",
+    setupFiles: [here("./tools/test/browser-images.ts")],
     testTimeout: 30000,
   },
 });

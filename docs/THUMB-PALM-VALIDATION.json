@@ -1,0 +1,1189 @@
+{
+  "scope": "AcuCraft hand asset and finite rendering and geometry checks.",
+  "asset": {
+    "path": "content/world/assets/models/acu-practitioner-hand.glb",
+    "sha256": "d5845f8167042906c161437d9c388db582230897576d9216a77aad639f7a9a53",
+    "bytes": 1541148,
+    "triangles": 17788,
+    "animations": [
+      "hand_open",
+      "hand_support",
+      "hand_three_finger",
+      "hand_scrape",
+      "hand_flick"
+    ],
+    "meshes": 11,
+    "embeddedImages": 6
+  },
+  "rebuild": {
+    "matchingIndependentBuilds": 2,
+    "manifestSha256": "5f0e7d867326f127dd0221fc8f5fdb0a5abd60f9edcc64f7f140290ed7558b82",
+    "posesSha256": "2ec68627157a812b9776a9e66499577152d4bc2d49fc59b060b075590b8e35a9",
+    "provenance": {
+      "calibrationInputAsset": {
+        "path": "runs/hand-calibration/thumb-palm.glb",
+        "sha256": "793f89a8d4b659279fd0cc9ca7e2fa90a395ea6a495edb9054bc34d394f18d7b",
+        "role": "immutable geometry calibration input; not the subsequently rebuilt GLB output hash"
+      },
+      "sources": {
+        "hand": {
+          "path": "packages/server/web/stage/hand.ts",
+          "sha256": "c6633d8e3b15912d4fac5df156c3b60df8fe4ddbc5dd4299518dde9ffda05238"
+        },
+        "physiology": {
+          "path": "packages/server/web/stage/hand-physiology.ts",
+          "sha256": "221ca74afde3847f9237af22f18f5de4356e319c478185a9c5ce5348958e917b"
+        },
+        "nailWork": {
+          "path": "packages/server/web/stage/hand-nail-work.ts",
+          "sha256": "e7402ad9af73cd8a90a7f79647b81afde52d78faba6e0874a9a4cc0894580aca"
+        },
+        "anatomy": {
+          "path": "tools/blender/hand_anatomy.json",
+          "sha256": "9bda9eefba56e70e9671516d6c5502fd370b4af4503e11c3c168355a28935547"
+        },
+        "builder": {
+          "path": "tools/blender/build_hand.py",
+          "sha256": "9142bfc8ea931c3960632b9682ec81755a19d0d3ed8e41b29a5733d6013168ed"
+        },
+        "correctives": {
+          "path": "tools/blender/hand_thumb_web_correctives.json",
+          "sha256": "47e6188c84601047b47f321dc8169cba1b79eaa50ce9b3f4e7ee949e91fb1781"
+        },
+        "exporter": {
+          "path": "tools/blender/export_hand_poses.ts",
+          "sha256": "364bfc0d695e0b594e18874e90b159d3b01a507754827a55d95308863a3f740b"
+        }
+      },
+      "runtimeModules": {
+        ".deps/clinicalcraft/packages/core/src/engine/alarm.ts": "545ea03d1cc4c101894867964b321d909f975680e7e342420971475c9412b5af",
+        ".deps/clinicalcraft/packages/core/src/engine/anaesthesia.ts": "9bcdcd78a58730a4bc3f9ad10b8123153ff962831bfcc1dfe19744d2f3905705",
+        ".deps/clinicalcraft/packages/core/src/engine/arrest.ts": "7cbf166f531bacae6a31e16a7be79ddf98f2662a0ad278f380f225a28164fe1c",
+        ".deps/clinicalcraft/packages/core/src/engine/assessment.ts": "88eb1f985e444dd392b7bd1a2d9a744e1cc6f28118ab85a1b50b0db0f74d0b62",
+        ".deps/clinicalcraft/packages/core/src/engine/conditions.ts": "e85b965064d862843da9d3f41300d6a8eeec468fe242eaad5000d011498b971e",
+        ".deps/clinicalcraft/packages/core/src/engine/content-standard.ts": "6d5c7a1427d9a0a6d3388bc744a0ce85771f26de31c605018cda5ceedbde23b6",
+        ".deps/clinicalcraft/packages/core/src/engine/corrections.ts": "eb502efb468fcb9f2a1b48fee3aca4e03235e71f23171d01fc86826425280f54",
+        ".deps/clinicalcraft/packages/core/src/engine/count.ts": "0b24eb254ff5cb66e8143bbcdb18ce8e6de1df0a062ecc9b644d2facf56a8138",
+        ".deps/clinicalcraft/packages/core/src/engine/cues.ts": "ed54a16c8ae288c0b756abe67316240ad99a0e1ba6e28b093942d131f237c638",
+        ".deps/clinicalcraft/packages/core/src/engine/datum.ts": "a247087385af1a3d31b0b8aae618776bd07ff1879e9f8b2d6273ea49f9846ef0",
+        ".deps/clinicalcraft/packages/core/src/engine/explain.ts": "11b1edb568ed6887cda166b1c2ccfbe1546c8cad0717e4bc695d44a45802f6ba",
+        ".deps/clinicalcraft/packages/core/src/engine/facility.ts": "adcebae0cb93f3fd86fdbd1ad9debcfd31fc6e76d542ff36a7480ccc9d386115",
+        ".deps/clinicalcraft/packages/core/src/engine/glb.ts": "c5fbdb611abf9e4d4c42f287bd26d9dbb22a291943baf29fff0682eda770a322",
+        ".deps/clinicalcraft/packages/core/src/engine/index.ts": "6f25baad6669b0b267c2a30a02096144ffd0f86210e3e1b7d36620d30568b09a",
+        ".deps/clinicalcraft/packages/core/src/engine/integrity.ts": "2ae0b9466aa39ac8bad2959dc93bfb8291e94d40cec37d0ca7618e11dc9e4bbf",
+        ".deps/clinicalcraft/packages/core/src/engine/looks.ts": "ea6ad2427c05f6c3f91ad8c677b105fe3af62b211ea77da1d8ec206149e186dc",
+        ".deps/clinicalcraft/packages/core/src/engine/matcher.ts": "9c68da682616de6967e9b8d7c5f4e24c8df8fc0399026086cc141b4e007bb27c",
+        ".deps/clinicalcraft/packages/core/src/engine/monitor.ts": "c51ef1a1951ee739b4aa9236bf0f14498925bba242b92bd331a0ccc5dce1badc",
+        ".deps/clinicalcraft/packages/core/src/engine/negation.ts": "b035ceae68f82c15d128976702450acf6a8dc9c5f5bdfa633eb4a11382e6257b",
+        ".deps/clinicalcraft/packages/core/src/engine/next-event.ts": "d5bfa565ac79b1c35ea5feb86bca37f332300afbe87c9a6251b321d78c5e1b79",
+        ".deps/clinicalcraft/packages/core/src/engine/parse.ts": "66e90aadd65398f6826fdf5f3865d0de41edb9e752205feaea97c5f9251e25ad",
+        ".deps/clinicalcraft/packages/core/src/engine/physiology.ts": "d64e358164982fc58489e601005eda08a566a97b0224823de4bdf75e03298831",
+        ".deps/clinicalcraft/packages/core/src/engine/procedure/check.ts": "1fd68676840c95a28339583679bd214cc3162a8a661e6fc129da33724ad3e15b",
+        ".deps/clinicalcraft/packages/core/src/engine/procedure/claims.ts": "e70d9f734667cfe82669bd0fc8e3ab57d6ab271207c0892a41deb1c7a9cdf43f",
+        ".deps/clinicalcraft/packages/core/src/engine/procedure/field.ts": "efb5a4cef8ae0de793d8f9db6459cb366f59d735b0a7271e7f65626cd62078c1",
+        ".deps/clinicalcraft/packages/core/src/engine/procedure/geometry.ts": "af4a035421520f75ebdc2b676f0db7d0412fac2e5937daae90285e27c9047a28",
+        ".deps/clinicalcraft/packages/core/src/engine/procedure/index.ts": "1a26c116e53f00f9479b62af92af01d51553beff148386f65c930875fa69d8b4",
+        ".deps/clinicalcraft/packages/core/src/engine/procedure/observe.ts": "1da25c57e1a4c149202963e4d34c652d5708e5aa00d28885efec149c2ef147ed",
+        ".deps/clinicalcraft/packages/core/src/engine/procedure/predicates.ts": "baa868f2926caab50f9d0b862803ade0f0a47d7642879a9e7cf7b186bf7605a2",
+        ".deps/clinicalcraft/packages/core/src/engine/procedure/reduce.ts": "428065f29ee4f1e4f6017aba8b17a8f928b209322017ab5e849adb8198c1a03a",
+        ".deps/clinicalcraft/packages/core/src/engine/procedure/state.ts": "dd3b054245097eac98f02a3bfac7f6fc8f2b367bad046253166ec4d7944fe65f",
+        ".deps/clinicalcraft/packages/core/src/engine/procedure/variant.ts": "f34ce6f1e49860d7bcf3fa80f4cedad3ace39c44cfc6195634df427465f25e82",
+        ".deps/clinicalcraft/packages/core/src/engine/queries.ts": "6581ef77b2e013c46a4b836a9217c886c5641d5289e4619545b9b0bc946f51ff",
+        ".deps/clinicalcraft/packages/core/src/engine/random.ts": "77c7f70990824c65e35da1a422598003ca0a89a8e5c7c09f2fef36bb952f103e",
+        ".deps/clinicalcraft/packages/core/src/engine/records.ts": "7e86250098644c899a8a1d6053b34e2a41f44633da95b0b33a5d3c7dec199f6d",
+        ".deps/clinicalcraft/packages/core/src/engine/reducer.ts": "e6ed33b744aa95bdc61fecf686c1a1aaf88518d850aa0a4b738352ff1a9611b4",
+        ".deps/clinicalcraft/packages/core/src/engine/signal.ts": "d2824a184c207a10c825677ab10976c938e0ed3162df6d276ae112001be72920",
+        ".deps/clinicalcraft/packages/core/src/engine/speech.ts": "4f45585dcadee54969c6954913f46503b65beff78dfa1d8b45700c77afe3d050",
+        ".deps/clinicalcraft/packages/core/src/engine/study.ts": "975a22236aaf449518edb396e2b35616972ca0f80a94351e9377716e60c45330",
+        ".deps/clinicalcraft/packages/core/src/engine/team.ts": "56550f68db6d79d43fec210be8b6851a1b46fd37ca42ba30ce3fadc1d6a3fa76",
+        ".deps/clinicalcraft/packages/core/src/engine/templates.ts": "701ec430f1ce54482db8b4aec0e42c6fc4ea483b5b261c96e7d0296820764218",
+        ".deps/clinicalcraft/packages/core/src/engine/text.ts": "b5330c31e0a598e3de35618fdd3939f57e2345b071c098a6bd9709f26af26a5d",
+        ".deps/clinicalcraft/packages/core/src/engine/timeline.ts": "3b944f0a189b954f04a6c211220751fe696b3a8f1154fc4dc87fb17389f26fad",
+        ".deps/clinicalcraft/packages/core/src/engine/twins.ts": "ce19f40ae5724947e9d7c896c4aa7e92c26fcab62fab6592d38bcdf33f1354cd",
+        ".deps/clinicalcraft/packages/core/src/engine/types.ts": "d6f153352c58cd8f89d0c3bfcd1a3677359eb3271f4e1b84479bbebb1b47ac8a",
+        ".deps/clinicalcraft/packages/core/src/engine/verify.ts": "a3faada76481c4ff37834256572408eb1b91f056295f7129db3ba6393c70920f",
+        ".deps/clinicalcraft/packages/core/src/engine/version.ts": "cac65e0ff42c960e8714e7c00607c547a6b1ead959c36b9dacd277c7a580a7db",
+        ".deps/clinicalcraft/packages/core/src/i18n.ts": "fb02765bba1b67ff2a1f5a3976bc7c40f520ad944c7b4bddd11396398dc0f288",
+        ".deps/clinicalcraft/packages/core/src/index.ts": "149eebc5754d8d675af88a7636f7cb88be11fef13e855867518bb5dd6653fdbd",
+        ".deps/clinicalcraft/packages/core/src/schema/alarm.ts": "d98a9a3bbff95492932f956b4468b3d6e5ccce2753ad3eafc2e3430c7f204681",
+        ".deps/clinicalcraft/packages/core/src/schema/anaesthesia.ts": "80e07cdc92933a86817911b578c02a89b34c733315f719cc04403b3bfccbbb07",
+        ".deps/clinicalcraft/packages/core/src/schema/case.ts": "a195c61c194dc34531fba77c41e6c26659b31d4b6836690e06e96f0147f190b9",
+        ".deps/clinicalcraft/packages/core/src/schema/common.ts": "7d582f109a7a93f609c1b29da8d182817cc930d345d7fa23299b234ab347c0e1",
+        ".deps/clinicalcraft/packages/core/src/schema/facility.ts": "85eb310c217ae87bfcda179885ed82259ecda9bae879dce6363618bcb38d324c",
+        ".deps/clinicalcraft/packages/core/src/schema/index.ts": "3c78b5cc6a4eed6cab6319d68113f280c17f9b2b6bec023e2d28db77ffe22062",
+        ".deps/clinicalcraft/packages/core/src/schema/procedure.ts": "1e2f26f484afc82a08bad0baf63a4368ef8d4f5b2570c21d849f5e015739361b",
+        ".deps/clinicalcraft/packages/core/src/schema/session.ts": "6fd196fdd3adca7fabf43a9f4a19d02e1671bb9d7a79895b74ec4ba2c5ef6e07",
+        ".deps/clinicalcraft/packages/core/src/schema/study.ts": "4847c5752d30f9d93fb0fdb3353694934591d01e985cc4a96325611df2faefb9",
+        ".deps/clinicalcraft/packages/core/src/schema/team.ts": "10bfa07aa1e1e71b3d4b5ee26360fef3227538bd4022b83b87bb595b032d59cc",
+        "packages/core/src/engine/anatomy.ts": "a766926fbf14f86b6bc755c2313d43afabe81f2c493a867f076558d585c8784d",
+        "packages/core/src/engine/conditions.ts": "af27dc51db7a27dd6c167dd121243ae44f2326e06e27d47293a6271c847ef01f",
+        "packages/core/src/engine/encounter.ts": "d5bc515d8a4ee1d22dc64b089254bc17d0109b1d34f761b56075f2e2a926b26d",
+        "packages/core/src/engine/evidence.ts": "beb4ebef23248d24104d1b0c9d4776d0d877877e60df734dc6938cd96cf11ae1",
+        "packages/core/src/engine/index.ts": "e468bbef456deaef45a496d63c7729223653fc3e44da23cc5afbc590c1749600",
+        "packages/core/src/engine/invariants.ts": "9e4c1e87e422c2e168ca6a5ee5e45db113b380aeefb5d821d678e580ad31baf0",
+        "packages/core/src/engine/manipulation.ts": "a7538877d20ac0ffd3c880a06313e778a5646f8037b47603a7b612bd274a6a99",
+        "packages/core/src/engine/npc.ts": "674a617d1cd419fe833da123b8e5ed3f537e27473fddf681eddc89f0cefbbb95",
+        "packages/core/src/engine/observe.ts": "f3c15206632032d0ae23b25f44f3b87b8d01b5b11f6371549d1966d8e99d468a",
+        "packages/core/src/engine/performance.ts": "23ffe84c79cf2ac136dbda879b53e212837aa42c04621eb06856f653b98b750a",
+        "packages/core/src/engine/queries.ts": "f0cb25c2dc2a7f613f5c7e4013e65c9232b4cfc7edd18a718931274452e894b1",
+        "packages/core/src/engine/rules.ts": "fd20d815375d2f26312d5d29fd026b8925b3c117d53f95cb9b03ebf47eb58bef",
+        "packages/core/src/engine/runtime.ts": "5aec2b9c60b0bc81009b3924d71f5f3363bc1691d7a6b31ac1740cf7d5a4cf7e",
+        "packages/core/src/engine/scenario.ts": "198bf61ef77ed61727bd48812eb7bb2e1d641e312f60178a6c6fe904164b521d",
+        "packages/core/src/engine/space.ts": "8957fd0fdd431c63a518a906b0edb057aaa6cbf485d500cc8a9418f38925647e",
+        "packages/core/src/engine/techniques.ts": "8db0aca9c8a3743862a9c2ecab853d22bb193ad78ae6a7924f0cd5b01bdbe793",
+        "packages/core/src/engine/text.ts": "13e4935bb7a0d79226b0f71d7250e095782c4b354fd695b15e3d110cb600c622",
+        "packages/core/src/engine/util.ts": "100d5cffb226724644f4a6ff597d1a4e98a4810f8a53e8daa5e5eda6f9e4504e",
+        "packages/core/src/engine/world.ts": "b10aad22396fd2afbba01f4806d44614be4c00282c1e238d714fc44d750225f5",
+        "packages/core/src/index.ts": "7e2e3caf1aa5f20413a74311df519d8920e7251e3fbdc661faf027426d8a54cf",
+        "packages/core/src/schema/actions.ts": "c9591c562486c4c49a433aee5f72f60a8127381b49ef7cd591a569ddd14ad2b2",
+        "packages/core/src/schema/anatomy.ts": "3a7d26aa6754c2bd128a29bff92f2dfbf21f6a99c956d3b74ee370d6db46fc9f",
+        "packages/core/src/schema/common.ts": "7992a472c00c8e8a3c8ff71699027ee4ca649af0a7eda41a9e62593cea0de057",
+        "packages/core/src/schema/field.ts": "fe9b7d01f73b0505ff50c9a98b11f3726009db75dc491a92fabe8bf9a2bca548",
+        "packages/core/src/schema/governance.ts": "9cd792dc69c80a7406100c3fb3482fd4f99d143f514676776fa6cb3991df5901",
+        "packages/core/src/schema/index.ts": "830a65ff660010ca9155762d75f1e2491d298af726a34e3e48cadab356da7701",
+        "packages/core/src/schema/knowledge.ts": "d595af9aaf0b991d2f3de4a1ffe84485a70411b26280486bce951b1ec7dcdd82",
+        "packages/core/src/schema/manipulation.ts": "d4495df547a77b2b57b7d18bee365b06592e7c4b606137eb06df468a32dacc05",
+        "packages/core/src/schema/state.ts": "98e00f7c184064888929b8c9769477df7cde4c509c9a424b18e0771cc505ccb4",
+        "packages/server/web/stage/hand-nail-work.ts": "e7402ad9af73cd8a90a7f79647b81afde52d78faba6e0874a9a4cc0894580aca",
+        "packages/server/web/stage/hand-physiology.ts": "221ca74afde3847f9237af22f18f5de4356e319c478185a9c5ce5348958e917b",
+        "packages/server/web/stage/hand-skin-correctives.ts": "78d0aa72b412cbf73bb1a8e23a5f0b68d9221ca823ba9ad998ef530ddd41b572",
+        "packages/server/web/stage/hand.ts": "c6633d8e3b15912d4fac5df156c3b60df8fe4ddbc5dd4299518dde9ffda05238",
+        "packages/server/web/stage/needle-shape.ts": "6cc6b8dbb8801ab76d3c7290b81799da1881a8b14c661e58cf57cd572e580574"
+      },
+      "animationsRead": false,
+      "runtimeContactsValidAtEveryExportedFrame": true
+    },
+    "sampledClipFrames": {
+      "open": 31,
+      "scrape": 31,
+      "flick": 34
+    }
+  },
+  "protected": {
+    "beforeSha": "d7ec9252dfbbc11e55828c83b988003a7de3d1436ca6fb3d9362348518a32276",
+    "afterSha": "d5845f8167042906c161437d9c388db582230897576d9216a77aad639f7a9a53",
+    "meshes": {
+      "index_nail": {
+        "sameAttributes": true,
+        "sameIndices": true,
+        "attributes": {
+          "POSITION": true,
+          "NORMAL": true,
+          "TEXCOORD_0": true
+        }
+      },
+      "index_skin": {
+        "sameAttributes": true,
+        "sameIndices": true,
+        "attributes": {
+          "POSITION": true,
+          "NORMAL": true,
+          "TEXCOORD_0": true,
+          "JOINTS_0": true,
+          "WEIGHTS_0": true
+        }
+      },
+      "little_nail": {
+        "sameAttributes": true,
+        "sameIndices": true,
+        "attributes": {
+          "POSITION": true,
+          "NORMAL": true,
+          "TEXCOORD_0": true
+        }
+      },
+      "little_skin": {
+        "sameAttributes": true,
+        "sameIndices": true,
+        "attributes": {
+          "POSITION": true,
+          "NORMAL": true,
+          "TEXCOORD_0": true,
+          "JOINTS_0": true,
+          "WEIGHTS_0": true
+        }
+      },
+      "middle_nail": {
+        "sameAttributes": true,
+        "sameIndices": true,
+        "attributes": {
+          "POSITION": true,
+          "NORMAL": true,
+          "TEXCOORD_0": true
+        }
+      },
+      "middle_skin": {
+        "sameAttributes": true,
+        "sameIndices": true,
+        "attributes": {
+          "POSITION": true,
+          "NORMAL": true,
+          "TEXCOORD_0": true,
+          "JOINTS_0": true,
+          "WEIGHTS_0": true
+        }
+      },
+      "ring_nail": {
+        "sameAttributes": true,
+        "sameIndices": true,
+        "attributes": {
+          "POSITION": true,
+          "NORMAL": true,
+          "TEXCOORD_0": true
+        }
+      },
+      "ring_skin": {
+        "sameAttributes": true,
+        "sameIndices": true,
+        "attributes": {
+          "POSITION": true,
+          "NORMAL": true,
+          "TEXCOORD_0": true,
+          "JOINTS_0": true,
+          "WEIGHTS_0": true
+        }
+      },
+      "thumb_nail": {
+        "sameAttributes": true,
+        "sameIndices": true,
+        "attributes": {
+          "POSITION": true,
+          "NORMAL": true,
+          "TEXCOORD_0": true
+        }
+      }
+    },
+    "thumbTerminal": {
+      "selectedVertices": 666,
+      "exactPositionUvMatches": 666,
+      "missing": [],
+      "exactNormalMatches": 666,
+      "maxNormalVectorDelta": 0,
+      "exactNamedWeightMatches": 666,
+      "maxNamedWeightDelta": 0,
+      "protectedTriangles": 1258,
+      "missingDirectedTriangles": 0
+    },
+    "wristInterface": {
+      "selectedVertices": 96,
+      "exactPositionUvMatches": 96,
+      "missing": [],
+      "exactNormalMatches": 96,
+      "maxNormalVectorDelta": 0,
+      "exactNamedWeightMatches": 96,
+      "maxNamedWeightDelta": 0,
+      "protectedTriangles": 0,
+      "missingDirectedTriangles": 0
+    }
+  },
+  "rigAndMaterials": {
+    "baselineSha256": "d7ec9252dfbbc11e55828c83b988003a7de3d1436ca6fb3d9362348518a32276",
+    "assetSha256": "d5845f8167042906c161437d9c388db582230897576d9216a77aad639f7a9a53",
+    "rawNodeTransformAndChildOrderEqual": true,
+    "changedNodes": [],
+    "rigNodeCount": 123,
+    "bonePaletteAndInverseBindBufferEqual": true,
+    "boneCount": 16,
+    "embeddedImageBytesAndMimesEqual": true,
+    "embeddedImageCount": 6,
+    "materialDescriptorsEqual": true
+  },
+  "textureJoin": {
+    "sharedEdges": 34,
+    "maximumTangentAngleDeg": 8.884239689149101,
+    "meanTangentAngleDeg": 1.782747412927046,
+    "opposedHandednessEdges": 0
+  },
+  "thumbPalmComparison": {
+    "scope": "Actual posed triangles of both charts. Finite noncoplanar intersection segments over 10 nm.",
+    "previousReportSha256": "c98e40934f5b47cbb8a2a98d67cb4fce8df828e5b475886eb92a2f9887cad4f1",
+    "currentReportSha256": "ddbb4ae4ba270daa47770b3ab45318d84da3caf9442c4ee7df9dd45f9997ecb8",
+    "beforeImage": "img/thumb-web-junction-before.png",
+    "beforeImageSha256": "6ed1e0ba825bdde7ad62f613b3088814879444bb4af8a914286756182633d7c7",
+    "currentImage": "img/thumb-web-junction.png",
+    "currentImageSha256": "0ac6f659860ec1309dd1cad21a4fbd6807e7c30f9f348531211ecc4d4174ed6b",
+    "snapshots": [
+      {
+        "view": "right-tip",
+        "sharedEdges": 34,
+        "maxSeamGapM": 0.0,
+        "maxNormalJumpDeg": 0.0,
+        "previousNonSeamLengthMm": 94.06869700307995,
+        "currentNonSeamLengthMm": 0,
+        "currentAdjacentFanOverlapMm": 0
+      },
+      {
+        "view": "right-tripod",
+        "sharedEdges": 34,
+        "maxSeamGapM": 0.0,
+        "maxNormalJumpDeg": 0.0,
+        "previousNonSeamLengthMm": 67.84105750552827,
+        "currentNonSeamLengthMm": 0,
+        "currentAdjacentFanOverlapMm": 0
+      },
+      {
+        "view": "right-side",
+        "sharedEdges": 34,
+        "maxSeamGapM": 0.0,
+        "maxNormalJumpDeg": 0.0,
+        "previousNonSeamLengthMm": 31.87224824856575,
+        "currentNonSeamLengthMm": 0,
+        "currentAdjacentFanOverlapMm": 0
+      },
+      {
+        "view": "right-release",
+        "sharedEdges": 34,
+        "maxSeamGapM": 0.0,
+        "maxNormalJumpDeg": 0.0,
+        "previousNonSeamLengthMm": 86.18681123056722,
+        "currentNonSeamLengthMm": 0,
+        "currentAdjacentFanOverlapMm": 0
+      },
+      {
+        "view": "left-tip",
+        "sharedEdges": 34,
+        "maxSeamGapM": 0.0,
+        "maxNormalJumpDeg": 0.0,
+        "previousNonSeamLengthMm": 94.06869700307993,
+        "currentNonSeamLengthMm": 0,
+        "currentAdjacentFanOverlapMm": 0
+      },
+      {
+        "view": "left-tripod",
+        "sharedEdges": 34,
+        "maxSeamGapM": 0.0,
+        "maxNormalJumpDeg": 0.0,
+        "previousNonSeamLengthMm": 67.84105750552825,
+        "currentNonSeamLengthMm": 0,
+        "currentAdjacentFanOverlapMm": 0
+      },
+      {
+        "view": "left-side",
+        "sharedEdges": 34,
+        "maxSeamGapM": 0.0,
+        "maxNormalJumpDeg": 0.0,
+        "previousNonSeamLengthMm": 31.872248248565757,
+        "currentNonSeamLengthMm": 0,
+        "currentAdjacentFanOverlapMm": 0
+      },
+      {
+        "view": "left-release",
+        "sharedEdges": 34,
+        "maxSeamGapM": 0.0,
+        "maxNormalJumpDeg": 0.0,
+        "previousNonSeamLengthMm": 86.18681123056723,
+        "currentNonSeamLengthMm": 0,
+        "currentAdjacentFanOverlapMm": 0
+      }
+    ]
+  },
+  "live": {
+    "count": 3621,
+    "operatorCount": 348,
+    "anchorCount": 12,
+    "bakedCount": 0,
+    "thresholds": {
+      "crossingPlaneMarginM": 5e-05,
+      "maxSeamGapM": 5e-06,
+      "minSeamNormalDot": 0.99999,
+      "minFaceAreaM2": 1e-10,
+      "minFacetNormalDot": 0,
+      "minAdjacentFacetDot": -0.1
+    },
+    "source": {
+      "vertexCount": 4304,
+      "edgeCount": 12906,
+      "faceCount": 8604,
+      "boundaryEdgeCount": 0,
+      "nonManifoldEdgeCount": 0,
+      "windingConflictCount": 0,
+      "connectedComponentCount": 1,
+      "eulerCharacteristic": 2,
+      "bindDegenerateFaceCount": 0,
+      "posedDegenerateFaceCount": 0,
+      "negativeWeightVertexCount": 0,
+      "invalidWeightVertexCount": 0,
+      "maxRawWeightSumError": 3.725290298461914e-08
+    },
+    "seamCount": 34,
+    "checkedFaceCount": 7346,
+    "checkedAdjacencyCount": 11036,
+    "failureCount": 0,
+    "groups": {
+      "bind": {
+        "count": 1,
+        "invalid": 0,
+        "crossing": 0,
+        "faceArea": 0,
+        "facetNormal": 0,
+        "adjacency": 0,
+        "seam": 0,
+        "degenerate": 0,
+        "minFaceAreaM2": 1.0865888835675254e-09,
+        "minFacetNormalDot": 0.8892323009504954,
+        "minAdjacencyDot": 0.011203374981349157,
+        "maxSeamGapM": 0,
+        "minSeamNormalDot": 1,
+        "maxPlaneMarginM": 0,
+        "minWeight": 0,
+        "maxWeight": 0,
+        "maxWeightL1": 0
+      },
+      "tip-pinch": {
+        "count": 39,
+        "invalid": 0,
+        "crossing": 0,
+        "faceArea": 0,
+        "facetNormal": 0,
+        "adjacency": 0,
+        "seam": 0,
+        "degenerate": 0,
+        "minFaceAreaM2": 1.0865888835675254e-09,
+        "minFacetNormalDot": 0.7232249061785014,
+        "minAdjacencyDot": 0.01120337498112628,
+        "maxSeamGapM": 0,
+        "minSeamNormalDot": 0.9999999999999997,
+        "maxPlaneMarginM": 0,
+        "minWeight": -1.1090186322702051,
+        "maxWeight": 2.0839209229675237,
+        "maxWeightL1": 3.2183050743636263
+      },
+      "tripod": {
+        "count": 37,
+        "invalid": 0,
+        "crossing": 0,
+        "faceArea": 0,
+        "facetNormal": 0,
+        "adjacency": 0,
+        "seam": 0,
+        "degenerate": 0,
+        "minFaceAreaM2": 1.086588883566997e-09,
+        "minFacetNormalDot": 0.7055473090411255,
+        "minAdjacencyDot": 0.011203374980868028,
+        "maxSeamGapM": 0,
+        "minSeamNormalDot": 0.9999999999999998,
+        "maxPlaneMarginM": 0,
+        "minWeight": -0.7062961245229489,
+        "maxWeight": 0.999998996260971,
+        "maxWeightL1": 1.6811066078501296
+      },
+      "side-pinch": {
+        "count": 37,
+        "invalid": 0,
+        "crossing": 0,
+        "faceArea": 0,
+        "facetNormal": 0,
+        "adjacency": 0,
+        "seam": 0,
+        "degenerate": 0,
+        "minFaceAreaM2": 1.0865888835656926e-09,
+        "minFacetNormalDot": 0.3023402211660163,
+        "minAdjacencyDot": 0.011203374980849503,
+        "maxSeamGapM": 0,
+        "minSeamNormalDot": 0.9999999999999997,
+        "maxPlaneMarginM": 0,
+        "minWeight": -4.421834265593597e-10,
+        "maxWeight": 4.895650729481701e-10,
+        "maxWeightL1": 9.804097073424086e-10
+      },
+      "flick": {
+        "count": 182,
+        "invalid": 0,
+        "crossing": 0,
+        "faceArea": 0,
+        "facetNormal": 0,
+        "adjacency": 0,
+        "seam": 0,
+        "degenerate": 0,
+        "minFaceAreaM2": 1.0865888835658663e-09,
+        "minFacetNormalDot": 0.5803437588189746,
+        "minAdjacencyDot": 0.011203374981403447,
+        "maxSeamGapM": 0,
+        "minSeamNormalDot": 0.9999999999999998,
+        "maxPlaneMarginM": 0,
+        "minWeight": -0.1321191958015619,
+        "maxWeight": 1.0000000000000004,
+        "maxWeightL1": 1.3232682803049065
+      },
+      "palpate": {
+        "count": 3,
+        "invalid": 0,
+        "crossing": 0,
+        "faceArea": 0,
+        "facetNormal": 0,
+        "adjacency": 0,
+        "seam": 0,
+        "degenerate": 0,
+        "minFaceAreaM2": 1.0865888835675254e-09,
+        "minFacetNormalDot": 0.893680041631616,
+        "minAdjacencyDot": 0.011203374981349157,
+        "maxSeamGapM": 0,
+        "minSeamNormalDot": 1,
+        "maxPlaneMarginM": 0,
+        "minWeight": -7.023776910325078e-18,
+        "maxWeight": 2.3163372106125965e-17,
+        "maxWeightL1": 5.2443909759368e-17
+      },
+      "stretch": {
+        "count": 3,
+        "invalid": 0,
+        "crossing": 0,
+        "faceArea": 0,
+        "facetNormal": 0,
+        "adjacency": 0,
+        "seam": 0,
+        "degenerate": 0,
+        "minFaceAreaM2": 1.0865888835675254e-09,
+        "minFacetNormalDot": 0.893680041631616,
+        "minAdjacencyDot": 0.011203374981349157,
+        "maxSeamGapM": 0,
+        "minSeamNormalDot": 1,
+        "maxPlaneMarginM": 0,
+        "minWeight": -7.023776910325078e-18,
+        "maxWeight": 2.3163372106125965e-17,
+        "maxWeightL1": 5.2443909759368e-17
+      },
+      "press": {
+        "count": 3,
+        "invalid": 0,
+        "crossing": 0,
+        "faceArea": 0,
+        "facetNormal": 0,
+        "adjacency": 0,
+        "seam": 0,
+        "degenerate": 0,
+        "minFaceAreaM2": 1.0865888835675254e-09,
+        "minFacetNormalDot": 0.893680041631616,
+        "minAdjacencyDot": 0.011203374981349157,
+        "maxSeamGapM": 0,
+        "minSeamNormalDot": 1,
+        "maxPlaneMarginM": 0,
+        "minWeight": -7.023776910325078e-18,
+        "maxWeight": 2.3163372106125965e-17,
+        "maxWeightL1": 5.2443909759368e-17
+      },
+      "free35palmar40radial5hinges": {
+        "count": 1,
+        "invalid": 0,
+        "crossing": 0,
+        "faceArea": 0,
+        "facetNormal": 0,
+        "adjacency": 0,
+        "seam": 0,
+        "degenerate": 0,
+        "minFaceAreaM2": 1.0865888835675254e-09,
+        "minFacetNormalDot": 0.5205377018095865,
+        "minAdjacencyDot": 0.011203374981349157,
+        "maxSeamGapM": 0,
+        "minSeamNormalDot": 0.9999999999999999,
+        "maxPlaneMarginM": 0,
+        "minWeight": -1.1814449849462519e-21,
+        "maxWeight": 1.1352887756305468e-21,
+        "maxWeightL1": 2.6336645398431504e-21
+      },
+      "scrape": {
+        "count": 54,
+        "invalid": 0,
+        "crossing": 0,
+        "faceArea": 0,
+        "facetNormal": 0,
+        "adjacency": 0,
+        "seam": 0,
+        "degenerate": 0,
+        "minFaceAreaM2": 1.0865888835665239e-09,
+        "minFacetNormalDot": 0.8653405690685817,
+        "minAdjacencyDot": 0.011203374981112646,
+        "maxSeamGapM": 0,
+        "minSeamNormalDot": 0.9999999999999998,
+        "maxPlaneMarginM": 0,
+        "minWeight": -0.012792906814953533,
+        "maxWeight": 0.01199458904521524,
+        "maxWeightL1": 0.03319752245262728
+      },
+      "dense_release": {
+        "count": 1212,
+        "invalid": 0,
+        "crossing": 0,
+        "faceArea": 0,
+        "facetNormal": 0,
+        "adjacency": 0,
+        "seam": 0,
+        "degenerate": 0,
+        "minFaceAreaM2": 1.0865888835679756e-09,
+        "minFacetNormalDot": 0.7383595674882301,
+        "minAdjacencyDot": 0.01120337498112628,
+        "maxSeamGapM": 0,
+        "minSeamNormalDot": 0.9999999999999996,
+        "maxPlaneMarginM": 0,
+        "minWeight": -0.6772289442958104,
+        "maxWeight": 1.4672848080216687,
+        "maxWeightL1": 2.3468331900648125
+      },
+      "dense_roll": {
+        "count": 1446,
+        "invalid": 0,
+        "crossing": 0,
+        "faceArea": 0,
+        "facetNormal": 0,
+        "adjacency": 0,
+        "seam": 0,
+        "degenerate": 0,
+        "minFaceAreaM2": 1.0865888835679756e-09,
+        "minFacetNormalDot": 0.7200967333296359,
+        "minAdjacencyDot": 0.01120337498112628,
+        "maxSeamGapM": 0,
+        "minSeamNormalDot": 0.9999999999999996,
+        "maxPlaneMarginM": 0,
+        "minWeight": -1.421985872286807,
+        "maxWeight": 2.3963163659299704,
+        "maxWeightL1": 3.8661379901648028
+      },
+      "dense_tan": {
+        "count": 603,
+        "invalid": 0,
+        "crossing": 0,
+        "faceArea": 0,
+        "facetNormal": 0,
+        "adjacency": 0,
+        "seam": 0,
+        "degenerate": 0,
+        "minFaceAreaM2": 1.0865888835687697e-09,
+        "minFacetNormalDot": 0.5803437588190682,
+        "minAdjacencyDot": 0.011203374981403447,
+        "maxSeamGapM": 0,
+        "minSeamNormalDot": 0.9999999999999997,
+        "maxPlaneMarginM": 0,
+        "minWeight": -0.13426811572489708,
+        "maxWeight": 1.0000000000000009,
+        "maxWeightL1": 1.3266894513107808
+      }
+    },
+    "reportSha256": "c6459623e7b07bbd9301429b33981bf8d89f8cbd6dfd7eda826a0130c1c77b70"
+  },
+  "baked": {
+    "count": 392,
+    "operatorCount": 0,
+    "anchorCount": 0,
+    "bakedCount": 392,
+    "thresholds": {
+      "crossingPlaneMarginM": 5e-05,
+      "maxSeamGapM": 5e-06,
+      "minSeamNormalDot": 0.99999,
+      "minFaceAreaM2": 1e-10,
+      "minFacetNormalDot": 0,
+      "minAdjacentFacetDot": -0.1
+    },
+    "source": {
+      "vertexCount": 4304,
+      "edgeCount": 12906,
+      "faceCount": 8604,
+      "boundaryEdgeCount": 0,
+      "nonManifoldEdgeCount": 0,
+      "windingConflictCount": 0,
+      "connectedComponentCount": 1,
+      "eulerCharacteristic": 2,
+      "bindDegenerateFaceCount": 0,
+      "posedDegenerateFaceCount": 0,
+      "negativeWeightVertexCount": 0,
+      "invalidWeightVertexCount": 0,
+      "maxRawWeightSumError": 3.725290298461914e-08
+    },
+    "seamCount": 34,
+    "checkedFaceCount": 7346,
+    "checkedAdjacencyCount": 11036,
+    "failureCount": 0,
+    "groups": {
+      "hand_open": {
+        "count": 89,
+        "invalid": 0,
+        "crossing": 0,
+        "faceArea": 0,
+        "facetNormal": 0,
+        "adjacency": 0,
+        "seam": 0,
+        "degenerate": 0,
+        "minFaceAreaM2": 1.0865888652490034e-09,
+        "minFacetNormalDot": 0.7383595796478868,
+        "minAdjacencyDot": 0.011203363748725548,
+        "maxSeamGapM": 0,
+        "minSeamNormalDot": 0.9999999999999996,
+        "maxPlaneMarginM": 0,
+        "minWeight": -0.6766942739486694,
+        "maxWeight": 1.4665440320968628,
+        "maxWeightL1": 2.3467411026358604
+      },
+      "hand_support": {
+        "count": 61,
+        "invalid": 0,
+        "crossing": 0,
+        "faceArea": 0,
+        "facetNormal": 0,
+        "adjacency": 0,
+        "seam": 0,
+        "degenerate": 0,
+        "minFaceAreaM2": 1.0865888835675254e-09,
+        "minFacetNormalDot": 0.8936800415811567,
+        "minAdjacencyDot": 0.011203374981349157,
+        "maxSeamGapM": 0,
+        "minSeamNormalDot": 1,
+        "maxPlaneMarginM": 0,
+        "minWeight": 0,
+        "maxWeight": 0,
+        "maxWeightL1": 0
+      },
+      "hand_three_finger": {
+        "count": 61,
+        "invalid": 0,
+        "crossing": 0,
+        "faceArea": 0,
+        "facetNormal": 0,
+        "adjacency": 0,
+        "seam": 0,
+        "degenerate": 0,
+        "minFaceAreaM2": 1.0865888720917284e-09,
+        "minFacetNormalDot": 0.7142718077831591,
+        "minAdjacencyDot": 0.011203372208096918,
+        "maxSeamGapM": 0,
+        "minSeamNormalDot": 0.9999999999999998,
+        "maxPlaneMarginM": 0,
+        "minWeight": 0,
+        "maxWeight": 0,
+        "maxWeightL1": 0
+      },
+      "hand_scrape": {
+        "count": 89,
+        "invalid": 0,
+        "crossing": 0,
+        "faceArea": 0,
+        "facetNormal": 0,
+        "adjacency": 0,
+        "seam": 0,
+        "degenerate": 0,
+        "minFaceAreaM2": 1.0865889500712913e-09,
+        "minFacetNormalDot": 0.8934684454044763,
+        "minAdjacencyDot": 0.011203354131112932,
+        "maxSeamGapM": 0,
+        "minSeamNormalDot": 0.9999999999999999,
+        "maxPlaneMarginM": 0,
+        "minWeight": 0,
+        "maxWeight": 0,
+        "maxWeightL1": 0
+      },
+      "hand_flick": {
+        "count": 92,
+        "invalid": 0,
+        "crossing": 0,
+        "faceArea": 0,
+        "facetNormal": 0,
+        "adjacency": 0,
+        "seam": 0,
+        "degenerate": 0,
+        "minFaceAreaM2": 1.0865891052628037e-09,
+        "minFacetNormalDot": 0.5803437587351867,
+        "minAdjacencyDot": 0.011203296909884697,
+        "maxSeamGapM": 0,
+        "minSeamNormalDot": 0.9999999999999997,
+        "maxPlaneMarginM": 0,
+        "minWeight": -0.12916390597820282,
+        "maxWeight": 1,
+        "maxWeightL1": 1.3110135793685913
+      }
+    },
+    "reportSha256": "1e6755ee36b64f959b864f400da35c975f8184076ccd06cbc152cc97a86103a6"
+  },
+  "openingAndTan": {
+    "count": 306,
+    "operatorCount": 306,
+    "anchorCount": 0,
+    "bakedCount": 0,
+    "thresholds": {
+      "crossingPlaneMarginM": 5e-05,
+      "maxSeamGapM": 5e-06,
+      "minSeamNormalDot": 0.99999,
+      "minFaceAreaM2": 1e-10,
+      "minFacetNormalDot": 0,
+      "minAdjacentFacetDot": -0.1
+    },
+    "source": {
+      "vertexCount": 4304,
+      "edgeCount": 12906,
+      "faceCount": 8604,
+      "boundaryEdgeCount": 0,
+      "nonManifoldEdgeCount": 0,
+      "windingConflictCount": 0,
+      "connectedComponentCount": 1,
+      "eulerCharacteristic": 2,
+      "bindDegenerateFaceCount": 0,
+      "posedDegenerateFaceCount": 0,
+      "negativeWeightVertexCount": 0,
+      "invalidWeightVertexCount": 0,
+      "maxRawWeightSumError": 3.725290298461914e-08
+    },
+    "seamCount": 34,
+    "checkedFaceCount": 7346,
+    "checkedAdjacencyCount": 11036,
+    "failureCount": 0,
+    "groups": {
+      "tip-pinch": {
+        "count": 62,
+        "invalid": 0,
+        "crossing": 0,
+        "faceArea": 0,
+        "facetNormal": 0,
+        "adjacency": 0,
+        "seam": 0,
+        "degenerate": 0,
+        "minFaceAreaM2": 1.0865888835681687e-09,
+        "minFacetNormalDot": 0.7383585411751395,
+        "minAdjacencyDot": 0.011203374981200165,
+        "maxSeamGapM": 0,
+        "minSeamNormalDot": 0.9999999999999997,
+        "maxPlaneMarginM": 0,
+        "minWeight": -0.6766685365972064,
+        "maxWeight": 1.4665128499844027,
+        "maxWeightL1": 2.3466855575885672
+      },
+      "flick": {
+        "count": 244,
+        "invalid": 0,
+        "crossing": 0,
+        "faceArea": 0,
+        "facetNormal": 0,
+        "adjacency": 0,
+        "seam": 0,
+        "degenerate": 0,
+        "minFaceAreaM2": 1.0865888835687697e-09,
+        "minFacetNormalDot": 0.5803437588190682,
+        "minAdjacencyDot": 0.011203374981403447,
+        "maxSeamGapM": 0,
+        "minSeamNormalDot": 0.9999999999999998,
+        "maxPlaneMarginM": 0,
+        "minWeight": -0.13381340271593287,
+        "maxWeight": 1.0000000000000002,
+        "maxWeightL1": 1.326263426727499
+      }
+    },
+    "reportSha256": "bfcdcade3e753fe41d5741547038bb3154ce1cf05cb98b91f6ee14f28b3423e9"
+  },
+  "tanStrikeComparison": {
+    "phase": 0.28,
+    "scope": "Same source skin and rig with previous and updated preparation. Real nail edge position and normal at three wrist angles on each side.",
+    "comparisons": [
+      {
+        "side": "right",
+        "wrist": 50,
+        "nailEdgeDeltaUm": 0,
+        "principalDeltaUm": 0,
+        "normalDelta": 0
+      },
+      {
+        "side": "right",
+        "wrist": 55,
+        "nailEdgeDeltaUm": 0,
+        "principalDeltaUm": 0,
+        "normalDelta": 0
+      },
+      {
+        "side": "right",
+        "wrist": 60,
+        "nailEdgeDeltaUm": 0,
+        "principalDeltaUm": 0,
+        "normalDelta": 0
+      },
+      {
+        "side": "left",
+        "wrist": 50,
+        "nailEdgeDeltaUm": 0,
+        "principalDeltaUm": 0,
+        "normalDelta": 0
+      },
+      {
+        "side": "left",
+        "wrist": 55,
+        "nailEdgeDeltaUm": 0,
+        "principalDeltaUm": 0,
+        "normalDelta": 0
+      },
+      {
+        "side": "left",
+        "wrist": 60,
+        "nailEdgeDeltaUm": 0,
+        "principalDeltaUm": 0,
+        "normalDelta": 0
+      }
+    ]
+  },
+  "studio": {
+    "syntheticOnly": true,
+    "browser": "Actual Studio UI in Chromium software WebGL. Public preview, playback, and grip inspection controls.",
+    "served": [
+      {
+        "kind": "stage",
+        "url": "http://127.0.0.1:8795/app/stage.js",
+        "status": 200,
+        "sha256": "a056a2c5c7bf71b0090738272af81d5cdadbcf626b3fdb92a35a12e700622c29"
+      },
+      {
+        "kind": "asset",
+        "url": "http://127.0.0.1:8795/app/models/acu-practitioner-hand.glb",
+        "status": 200,
+        "sha256": "d5845f8167042906c161437d9c388db582230897576d9216a77aad639f7a9a53"
+      }
+    ],
+    "stage": {
+      "expectedSha256": "a056a2c5c7bf71b0090738272af81d5cdadbcf626b3fdb92a35a12e700622c29",
+      "servedSha256": "a056a2c5c7bf71b0090738272af81d5cdadbcf626b3fdb92a35a12e700622c29",
+      "etag": "\"a056a2c5c7bf71b009073827\"",
+      "sourceHashes": {
+        "hand.ts": "c6633d8e3b15912d4fac5df156c3b60df8fe4ddbc5dd4299518dde9ffda05238",
+        "hand-physiology.ts": "221ca74afde3847f9237af22f18f5de4356e319c478185a9c5ce5348958e917b",
+        "hand-nail-work.ts": "e7402ad9af73cd8a90a7f79647b81afde52d78faba6e0874a9a4cc0894580aca",
+        "hand-skin-correctives.ts": "78d0aa72b412cbf73bb1a8e23a5f0b68d9221ca823ba9ad998ef530ddd41b572",
+        "clearance.ts": "df98aae539f2258cc7bcab241cd6d074750561c48f700517d440b32afb6575e3",
+        "choreography.ts": "49522bf15affb60ceab9fda916fe45c24267727c57072af7d1cc7e3756e42d4a",
+        "procedure.ts": "540b069313321853f87f8beceeab3c22f306c559cdca71b5e0eff1b1c489aaa8",
+        "rig.ts": "314f336e0b066d761144753462fc1575e739dd58d45a26b635ca08ae4571d824",
+        "cast.ts": "60e796ae1ccfcdd7e108bec8077130e332683fca5b851d1f547e9cbfc7545918",
+        "wrist-join.ts": "81aa94d3feb5f7a81fa8ad0dbbe8a8e6ff543765c05862561d4330eb23e6a876",
+        "director.ts": "5a9ed7a05e5c2e85902b2ffbc2d4ae0de1fdaa98991b02d3212f81bc67c1ff8a",
+        "engine.ts": "ab61af5314e09358483ae495a5e66df876a68ee5b48f984ce9f66a38f5f226e1"
+      },
+      "inputs": 214,
+      "bytes": 1430849,
+      "method": "Fresh StageBundle equals actual8795HTTP response; all twelve runtime source hashes stable"
+    },
+    "views": [
+      {
+        "label": "tip-three-quarter",
+        "parameters": {
+          "technique": "nian",
+          "hand": "left",
+          "grip": "two-finger",
+          "support": "none",
+          "duration": 3200,
+          "elevation": 55,
+          "style": "tip-pinch",
+          "idle": "curled",
+          "rotation": 90,
+          "cycles": 2,
+          "opening": 2
+        },
+        "progress": 0.5,
+        "actualViewLabel": "\u624b\u90e8 \u4e09\u5206\u4e4b\u56db \u00be",
+        "phase": "Nian \u00b7 twirling \u00b7 50%",
+        "gripBlocked": "0",
+        "image": "img/thumb-web-tip-three-quarter.png",
+        "imageSha256": "4560a03931f49edea71b6880ad527d4984292c0fba88e4b088de3449e57da75d"
+      },
+      {
+        "label": "tip-side",
+        "parameters": {
+          "technique": "nian",
+          "hand": "left",
+          "grip": "two-finger",
+          "support": "none",
+          "duration": 3200,
+          "elevation": 55,
+          "style": "tip-pinch",
+          "idle": "curled",
+          "rotation": 90,
+          "cycles": 2,
+          "opening": 2
+        },
+        "progress": 0.5,
+        "actualViewLabel": "\u624b\u90e8 \u4fa7\u9762 Side",
+        "phase": "Nian \u00b7 twirling \u00b7 50%",
+        "gripBlocked": "0",
+        "imageSha256": "60f41b85c7bb846f22411adb25e5b5c1293b2f7a6f2e14bfb5de3ba744db2396"
+      },
+      {
+        "label": "tripod",
+        "parameters": {
+          "technique": "nian",
+          "hand": "left",
+          "grip": "three-finger",
+          "support": "none",
+          "duration": 3200,
+          "elevation": 48,
+          "style": "tip-pinch",
+          "idle": "curled",
+          "rotation": 90,
+          "cycles": 2,
+          "opening": 2
+        },
+        "progress": 0.5,
+        "actualViewLabel": "\u624b\u90e8 \u4e09\u5206\u4e4b\u56db \u00be",
+        "phase": "Nian \u00b7 twirling \u00b7 50%",
+        "gripBlocked": "0",
+        "imageSha256": "33f4cc518f68a0c3a65c029aeb58cac95d5715e9e82844340770df232b662b69"
+      },
+      {
+        "label": "side-pinch",
+        "parameters": {
+          "technique": "nian",
+          "hand": "left",
+          "grip": "two-finger",
+          "support": "none",
+          "duration": 3200,
+          "elevation": 55,
+          "style": "side-pinch",
+          "idle": "curled",
+          "rotation": 90,
+          "cycles": 2,
+          "opening": 2
+        },
+        "progress": 0.5,
+        "actualViewLabel": "\u624b\u90e8 \u4e09\u5206\u4e4b\u56db \u00be",
+        "phase": "Nian \u00b7 twirling \u00b7 50%",
+        "gripBlocked": "0",
+        "image": "img/thumb-web-side-pinch.png",
+        "imageSha256": "cbe7c1df69d474600b27b47a939bc5b29db4638b834c127afe3bc6dd2830d6c3"
+      },
+      {
+        "label": "tan",
+        "parameters": {
+          "technique": "tan",
+          "hand": "left",
+          "grip": "two-finger",
+          "support": "none",
+          "duration": 3200,
+          "elevation": 55,
+          "style": "tip-pinch",
+          "idle": "curled",
+          "rotation": 90,
+          "cycles": 2,
+          "opening": 2
+        },
+        "progress": 0.5,
+        "actualViewLabel": "\u624b\u90e8 \u638c\u4fa7 Palm",
+        "phase": "Tan \u00b7 flicking \u00b7 50%",
+        "gripBlocked": "0",
+        "image": "img/thumb-web-tan.png",
+        "imageSha256": "4474f5a60c4116215a58d9aa3b434a49dc6052cf947a4c9cf8f194da65716137"
+      },
+      {
+        "label": "gua",
+        "parameters": {
+          "technique": "gua",
+          "hand": "left",
+          "grip": "two-finger",
+          "support": "none",
+          "duration": 3200,
+          "elevation": 55,
+          "style": "tip-pinch",
+          "idle": "curled",
+          "rotation": 90,
+          "cycles": 2,
+          "opening": 2
+        },
+        "progress": 0.5,
+        "actualViewLabel": "\u624b\u90e8 \u638c\u4fa7 Palm",
+        "phase": "Gua \u00b7 scraping \u00b7 50%",
+        "gripBlocked": "0"
+      },
+      {
+        "label": "approach",
+        "parameters": {
+          "technique": "nian",
+          "hand": "right",
+          "grip": "two-finger",
+          "support": "none",
+          "duration": 3200,
+          "elevation": 55,
+          "style": "tip-pinch",
+          "idle": "curled",
+          "rotation": 90,
+          "cycles": 2,
+          "opening": 12
+        },
+        "progress": 0.15,
+        "actualViewLabel": "\u624b\u90e8 \u4fa7\u9762 Side",
+        "phase": "Approach and grip \u00b7 15%",
+        "gripBlocked": "0",
+        "imageSha256": "60487f0ee41b60a85ff5f281015c3fc34c870499014fa87c4706cac925714940"
+      },
+      {
+        "label": "right-held",
+        "parameters": {
+          "technique": "nian",
+          "hand": "right",
+          "grip": "two-finger",
+          "support": "none",
+          "duration": 3200,
+          "elevation": 55,
+          "style": "tip-pinch",
+          "idle": "curled",
+          "rotation": 90,
+          "cycles": 2,
+          "opening": 12
+        },
+        "progress": 0.5,
+        "actualViewLabel": "\u624b\u90e8 \u4fa7\u9762 Side",
+        "phase": "Nian \u00b7 twirling \u00b7 50%",
+        "gripBlocked": "0"
+      },
+      {
+        "label": "release",
+        "parameters": {
+          "technique": "nian",
+          "hand": "right",
+          "grip": "two-finger",
+          "support": "none",
+          "duration": 3200,
+          "elevation": 55,
+          "style": "tip-pinch",
+          "idle": "curled",
+          "rotation": 90,
+          "cycles": 2,
+          "opening": 12
+        },
+        "progress": 0.91,
+        "actualViewLabel": "\u624b\u90e8 \u4fa7\u9762 Side",
+        "phase": "Release and retreat \u00b7 91%",
+        "gripBlocked": "0",
+        "image": "img/thumb-web-release.png",
+        "imageSha256": "9b556dff68ec4e208562b851019e6b1b30a8e0609e86e3900fb859a6eccaee5a"
+      }
+    ],
+    "persisted": {
+      "before": {
+        "version": 66,
+        "timeline": 64,
+        "feet": {
+          "x": 0.25,
+          "z": -4.25,
+          "yaw": -2.5324,
+          "facing": "south-east",
+          "room": "treatment-room"
+        }
+      },
+      "after": {
+        "version": 66,
+        "timeline": 64,
+        "feet": {
+          "x": 0.25,
+          "z": -4.25,
+          "yaw": -2.5324,
+          "facing": "south-east",
+          "room": "treatment-room"
+        }
+      },
+      "sha256": {
+        "record": "e41c0223000deb7fd733eaef17b765715fe75ce3820340078e960858cae85fd4",
+        "protectedRecord": "6a69e45c972b57b5db2dd39ee23a379cc497b2df80c5780befeb6f759ce6822e"
+      }
+    },
+    "browserErrors": [],
+    "networkErrors": [],
+    "mutatingRecordActions": []
+  },
+  "repositoryCheck": {
+    "command": "bash tools/check.sh",
+    "testFiles": 49,
+    "tests": 676,
+    "figureFitSites": 11,
+    "scriptedLlmPrimaryEndpoint": "15/15",
+    "protocolPrimaryEndpoint": "14/15",
+    "protocolRemainingFailure": "The baseline slim tension-headache fixture still reports pleura penetration."
+  }
+}

@@ -1,4 +1,4 @@
-import { manipulationTechnique, type AgentView, type PerformTechniqueAction } from "@acucraft/core";
+import { manipulationTechnique, phaseCyclesError, type AgentView, type PerformTechniqueAction } from "@acucraft/core";
 import type { ChartSite } from "./types.js";
 
 /** Public-view target validation for local preview. Execute still passes the complete encounter engine. */
@@ -6,6 +6,8 @@ export function previewSite(view: AgentView, request: PerformTechniqueAction): C
   if (request.at && ![request.at.u, request.at.v].every(Number.isFinite)) throw new Error("坐标必须为有限数值 · Coordinates must be finite.");
   const definition = manipulationTechnique(request.technique);
   if (!definition) throw new Error("未知手法 · Unknown technique.");
+  const phaseError = phaseCyclesError(definition, request.motion?.phaseCycles);
+  if (phaseError) throw new Error(phaseError);
   let site: ChartSite;
   if (definition.context !== "skin" || request.needleId) {
     const needle = view.needling.find((n) => n.needle === request.needleId);

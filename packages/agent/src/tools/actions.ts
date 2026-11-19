@@ -1,4 +1,4 @@
-import { ActionSchema, type ActionInput, type ActionType } from "@acucraft/core";
+import { ActionSchema, HAND_PRESENTATION_PROFILES, type ActionInput, type ActionType } from "@acucraft/core";
 import type { z, ZodTypeAny } from "zod";
 import { objectSchemaOf, type FieldNotes } from "./schema.js";
 import type { ActionTool } from "./types.js";
@@ -14,6 +14,11 @@ interface ActionDoc {
   does: string;
   fields?: FieldNotes;
 }
+
+const ordinaryWrist = HAND_PRESENTATION_PROFILES.ordinary.wristElevationDeg;
+const threeFingerWrist = HAND_PRESENTATION_PROFILES.threeFinger.wristElevationDeg;
+const nailWrist = HAND_PRESENTATION_PROFILES.nailWork.wristElevationDeg;
+const wristProfiles = `Two-finger holding: ${ordinaryWrist.min} to ${ordinaryWrist.max} degrees, default ${ordinaryWrist.default}. Explicit three-finger support: ${threeFingerWrist.min} to ${threeFingerWrist.max} degrees, default ${threeFingerWrist.default}. Read lookup techniques handProfiles; an omitted wrist uses the selected profile's default, while an explicit out-of-range value is rejected.`;
 
 const POINT_TARGET = "A standard point with its side ({ point, side }; a group point also names one `site`), or an Ashi point found on examination ({ ashi }).";
 const CHART_AT = "Chart position in centimetres: u across the body, v along it (cranial positive).";
@@ -127,16 +132,47 @@ export const ACTION_DOCS: Record<ActionType, ActionDoc> = {
       azimuthDeg: "The direction the tip travels across the chart: 0 cranial (+v), 90 towards +u, 180 caudal, 270 towards -u.",
       depthCm: "Depth along the shaft, in centimetres.",
       presentation: "Optional 3D insertion choreography: duration, grip, supporting hand and needle-holding hand. These settings never alter the permitted needle path, depth, consent or clinical response.",
+      "presentation.skinContactFraction": "Fraction of the insertion movement at which the tip first meets the skin, after approach and grasp. Range 0.2 to 0.8, default 0.45.",
       "presentation.durationMs": "Insertion movement duration in milliseconds, 400 to 8000.",
-      "presentation.grip": "two-finger thumb-index pinch or three-finger grip with middle-finger support.",
+      "presentation.grip": "Default two-finger holding uses the thumb and index. Explicit three-finger holding retains the thumb-index pinch and adds middle-finger support.",
       "presentation.support": "Illustrative supporting-hand pose: none, stabilize, stretch, pinch or press.",
       "presentation.hand": "auto chooses the closer hand; left or right requests the named hand.",
-      "presentation.gripApertureMm": "Visual grip aperture adjustment in millimetres, 0 to 12; this is not a measured contact force.",
+      "presentation.gripApertureMm": "Approach/release opening in millimetres, 0 to 12, with minimum clearance when letting go. Engaged fingers fit the actual rendered handle; this is not contact force.",
+      "presentation.wristElevationDeg": `Authored hand/wrist elevation. ${wristProfiles} Changes the holding pose without changing the clinical needle angle or path.`,
+      "presentation.gripStyle": "tip-pinch (default) uses opposing thumb/index tip pulp. side-pinch uses the index's distal side pulp, allowing its tip to extend below the holding point. Explicit three-finger support accepts only the gripStyles published in lookup techniques handProfiles.threeFinger; an unsupported combination is rejected.",
+      "presentation.idleFingerPose": "curled (default) or relaxed: coordinated pose of fingers not actively holding or manipulating the needle.",
     },
   },
   adjust_needle: {
-    fields: { strokeMm: "Total peak-to-peak axial excursion in mm; lift-thrust only. The full excursion is checked against anatomy.", rotationDeg: "Peak angular displacement in degrees for alternating turns, degrees per cycle for one-way turns; rotate only.", frequencyHz: "Cycles per second, not a clinical recommendation.", durationSeconds: "Duration in seconds of simulated time.", depthCm: "Depth along the shaft from skin entry in cm. Decrease to lift, increase to thrust. Angles are fixed while inserted; withdraw before redirecting." },
+    fields: {
+      technique: "none, lift-thrust or rotate for parameterized needle movement. Legacy lift, thrust, twist, bu and xie remain supported; bu/xie are illustrative labels without a therapeutic efficacy model.",
+      strokeMm: "Total peak-to-peak axial excursion in mm; lift-thrust only. The full excursion is checked against anatomy.",
+      rotationDeg: "Peak angular displacement in degrees for alternating turns, degrees per cycle for one-way turns; rotate only.",
+      frequencyHz: "Cycles per second, not a clinical recommendation.",
+      durationSeconds: "Duration in seconds of simulated time.",
+      depthCm: "Depth along the shaft from skin entry in cm. Decrease to lift, increase to thrust. Angles are fixed while inserted; withdraw before redirecting.",
+      motion: "Legacy presentation-only settings: cycles, durationMs, outward strokeMm and rotationDeg. These do not change the executed depth or clinical response. Use top-level parameters for an anatomy-checked clinical motion envelope.",
+    },
     does: "Work a needle in place, or change its depth: lift and thrust, rotate, or re-seat it deeper or shallower. What you then feel in the needle is evidence of its response. Stronger stimulation is never the aim: a tip that lies too shallow is not helped by working it harder, and a sharp, burning or electric sensation means withdraw a little or take the needle out.",
+  },
+  perform_technique: {
+    does: "Perform one illustrative 3D manipulation, using the same bounded parameters as the operator panel. Read lookup techniques for all 24 basic terms, 10 compound demonstrations and bu/xie, source status, contexts, defaults and bounds. This records choreography; it does not insert, withdraw, deepen a needle, measure force, produce clinical evidence or change therapeutic effects. Retained maneuvers require an inserted needle; post-removal maneuvers require a needle withdrawn in this visit; skin maneuvers use a current mark, a needle's executed site, or explicit chart coordinates. Treatment gestures need current consent and a well patient; post-removal covering follows aftercare permissions and may still be demonstrated after treatment stops. Every gesture needs permission and the actual body site within reach. Skin contact affects preparation and hand hygiene; follow the engine's returned conditions.",
+    fields: {
+      technique: "Stable technique id from lookup techniques, such as nian, ti, gua, an, men, shao-shan-huo, bu or xie. Definitions are authored illustrative variants rather than verified clinical standards.",
+      needleId: "Required for retained or post-removal techniques. May anchor a skin gesture to a needle's executed site in this visit.",
+      mark: "A current non-stale mark for a skin gesture. Omit conflicting targets when needleId determines the site.",
+      region: "Without mark or needleId, name a regional model and give side and at.",
+      at: CHART_AT,
+      motion: "Optional bounded presentation settings shared with the operator controls. Use lookup techniques for units and per-technique defaults. Contact intensity is cosmetic and is never a force measurement or clinical dose.",
+      "motion.cycles": "Displayed cycles within each primitive phase, 1 to 12. A compound's total duration spans all phases.",
+      "motion.phaseCycles": "For a compound, supply one integer from 1 to 12 per phase in lookup techniques phase order. Each count overrides cycles for that stage. Equal phase durations and the total duration are preserved.",
+      "motion.durationMs": "Total performance duration in milliseconds, 400 to 30000, spanning every compound phase. Presentation time does not advance the clinical clock.",
+      "motion.grip": "Default two-finger holding uses the thumb and index. For techniques offering grip selection, three-finger explicitly adds middle-pulp support without replacing the thumb-index pair. Gua has a thumb tail brace and index nail scraping; Tan has thumb-assisted preparation and index nail contact/release.",
+      "motion.gripApertureMm": "Approach/release opening in millimetres, 0 to 12. A held grip fits the actual handle; letting go retains minimum clearance even at zero. In Gua this sets index-nail clearance from the handle while the thumb separately clears the needle tail; it is not the distance between those two contacts. Held contacts remain engaged.",
+      "motion.wristElevationDeg": `Authored hand/wrist elevation. ${wristProfiles} Gua/Tan nail-work parameterBounds take precedence: ${nailWrist.min} to ${nailWrist.max} degrees, default ${nailWrist.default}. It does not change the clinical needle angle, entry or depth.`,
+      "motion.gripStyle": "For gestures advertising this control: tip-pinch (default) uses the thumb/index tip pulp; side-pinch uses the index's distal side pulp with its tip extending below the grip. Explicit three-finger support accepts only handProfiles.threeFinger.gripStyles from lookup techniques. Gua/Tan retain their specific nail-work contact roles.",
+      "motion.idleFingerPose": "For retained-needle gestures, curled (default) or relaxed sets the pose of unused fingers; active holding, supporting and nail-work contacts retain their technique-specific roles.",
+    },
   },
   check_sensation: {
     does: "Ask the patient what they feel at one needle. Their answer is evidence of that needle's response. Within earshot.",

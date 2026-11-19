@@ -1,4 +1,5 @@
 import type { Action } from "../schema/actions.js";
+import { techniqueStimulus } from "./techniques.js";
 
 export interface NeedleMotion {
   technique: "none" | "lift-thrust" | "rotate";
@@ -14,9 +15,16 @@ export interface NeedleMotion {
 
 /** Bounds are simulation input limits, never patient-specific clinical recommendations. */
 export function needleMotion(action: Extract<Action, { type: "adjust_needle" }>, depthCm: number): NeedleMotion {
-  return { technique: action.technique, depthCm, strokeMm: action.technique === "lift-thrust" ? (action.strokeMm ?? 2) : 0,
-    rotationDeg: action.technique === "rotate" ? (action.rotationDeg ?? 90) : 0, rotationDirection: action.rotationDirection ?? "alternating",
+  const technique = techniqueStimulus(action.technique) ?? "none";
+  return { technique, depthCm, strokeMm: technique === "lift-thrust" ? (action.strokeMm ?? 2) : 0,
+    rotationDeg: technique === "rotate" ? (action.rotationDeg ?? 90) : 0, rotationDirection: action.rotationDirection ?? "alternating",
     frequencyHz: action.frequencyHz ?? 1, durationSeconds: action.durationSeconds ?? 30 };
+}
+
+/** Legacy `motion` is visual only; only explicit top-level controls request a clinical excursion and duration. */
+export function hasClinicalNeedleMotion(action: Extract<Action, { type: "adjust_needle" }>): boolean {
+  return action.strokeMm !== undefined || action.rotationDeg !== undefined || action.rotationDirection !== undefined
+    || action.frequencyHz !== undefined || action.durationSeconds !== undefined;
 }
 
 export function motionEnvelope(motion: NeedleMotion): { minDepthCm: number; maxDepthCm: number } {

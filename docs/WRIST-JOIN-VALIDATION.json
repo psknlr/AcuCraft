@@ -1,0 +1,3456 @@
+{
+  "schemaVersion": 1,
+  "scope": "Source-pinned finite engineering and actual production UI evidence for wrist/sleeve refinement. Historical anatomy evidence remains separate. No clinical, universal range, or AAA-quality claim.",
+  "baselineCommit": "55dffb60951ced69093d4e0a6269661cd4d0a217",
+  "asset": {
+    "path": "content/world/assets/models/acu-practitioner-hand.glb",
+    "sha256": "0777d31012d238a490aa07a94dee77169f9bb7afa5fa95cb6dfb28d43bb47a7e",
+    "bytes": 1321932,
+    "triangles": 16990,
+    "animations": [
+      "hand_open",
+      "hand_support",
+      "hand_three_finger",
+      "hand_scrape",
+      "hand_flick"
+    ],
+    "manifestSha256": "4b84476627424591267106840f842c277760d12055cd6589bd2ed2356370d033",
+    "posesSha256": "ed64244ae5712da743d1b6acec1a8821fcc2bec84151e2aa3c57c2596cc6a198",
+    "anatomySha256": "aa27e079439b7674e55cc109335083900584c134047a1af742fa137e78de6952",
+    "builderSha256": "a010ef5780b69978efb9ab6938702d9fbfa8229cccc706a4bc2e8aaadbf17169",
+    "deterministicBuilds": 2,
+    "determinism": "Both complete normal Blender builds yielded identical GLB and manifest bytes. Calibration was isolated and animation-free.",
+    "calibrationInput": {
+      "path": "../wrist-hand-calibration.glb",
+      "sha256": "cae50e3d7e814bcb4ea5e7927261faa4c886ccd71ddfd108187491003f3c0cc7",
+      "role": "immutable geometry calibration input; not the subsequently rebuilt GLB output hash"
+    }
+  },
+  "preservedPayload": {
+    "byteIdenticalNonPalmMeshes": [
+      "index_nail",
+      "index_skin",
+      "little_nail",
+      "little_skin",
+      "middle_nail",
+      "middle_skin",
+      "ring_nail",
+      "ring_skin",
+      "thumb_nail",
+      "thumb_skin"
+    ],
+    "allSampledPoseAndMaterialDataIdenticalExcludingProvenance": true,
+    "unchangedRuntimeFiles": [
+      "hand.ts",
+      "hand-physiology.ts",
+      "hand-nail-work.ts"
+    ],
+    "unchangedRigMethods": [
+      "pose",
+      "wristRoll"
+    ],
+    "forearmRollCapDeg": 85,
+    "originalRecord": {
+      "path": "runs/studio-preview/enc-3e2d2c23f2c6/record.json",
+      "sha256": "6a69e45c972b57b5db2dd39ee23a379cc497b2df80c5780befeb6f759ce6822e"
+    }
+  },
+  "verification": {
+    "command": "bash tools/check.sh",
+    "tests": 635,
+    "testFiles": 45,
+    "typecheck": true,
+    "contentAndGeneratorConsistency": true,
+    "figureFitSites": 11,
+    "offlineScriptedLlm": "15/15",
+    "protocolBaseline": "14/15; existing slim-headache pleura outcome unchanged",
+    "logSha256": "7c3ff66d0823a662260f0e6c58af59235eabade0da45f3ff5a65780faaccc133",
+    "boundsUnchanged": {
+      "needleFitM": 2.5e-05,
+      "penetrationM": 5e-05,
+      "surfaceAttachmentM": 5e-06,
+      "handMotionStepDeg": 4,
+      "palmTriangleAreaM2": 1e-10,
+      "palmAdjacentNormalDot": -0.1
+    }
+  },
+  "beforeClothingFixImage": {
+    "path": "docs/img/wrist-join-before-trouser-binding.png",
+    "sha256": "9b884968a83c7a65fdcfc6f1b2692995a2383d781d638390634e47096372a766",
+    "scope": "Diagnostic actual UI capture before component ownership fix, same final0777hand and81aawrist; actual prior bundle/source hashes and public camera values retained in its capture report. This is not an original-baseline or pixel-controlled camera comparison.",
+    "assetSha256": "0777d31012d238a490aa07a94dee77169f9bb7afa5fa95cb6dfb28d43bb47a7e",
+    "stageCheck": {
+      "expectedSha256": "556a6926c42b7695bec438beb4f787944a63634941a0bc248dd8b80b02a3d1a9",
+      "servedSha256": "556a6926c42b7695bec438beb4f787944a63634941a0bc248dd8b80b02a3d1a9",
+      "etag": "\"556a6926c42b7695bec438be\"",
+      "sourceHashes": {
+        "hand.ts": "001d183a8df400788a339425eafec39a9e2a885d14b778608ad6fecf5f680228",
+        "hand-physiology.ts": "fceb8866c6a3a7c45d4024daaa1b8a6cf0582b6ded34feaaa3c9495fa02b53f5",
+        "hand-nail-work.ts": "d3a78366d06f500284e0e7ef788be5039eed3a40112fccdaab48933b0d1c115f",
+        "choreography.ts": "49522bf15affb60ceab9fda916fe45c24267727c57072af7d1cc7e3756e42d4a",
+        "procedure.ts": "1a4a78307fec6b4ce900002f325d4d4bbfa4092cfa1b6b47d97d7df0c14a262c",
+        "rig.ts": "76cbf2a24b4d3bb406348e9cc63b38d15e32dcd2765b0c960c378bc5a8704b01",
+        "cast.ts": "60e796ae1ccfcdd7e108bec8077130e332683fca5b851d1f547e9cbfc7545918",
+        "wrist-join.ts": "81aa94d3feb5f7a81fa8ad0dbbe8a8e6ff543765c05862561d4330eb23e6a876",
+        "director.ts": "5a9ed7a05e5c2e85902b2ffbc2d4ae0de1fdaa98991b02d3212f81bc67c1ff8a",
+        "engine.ts": "ab61af5314e09358483ae495a5e66df876a68ee5b48f984ce9f66a38f5f226e1"
+      },
+      "inputs": 213,
+      "bytes": 1420405,
+      "method": "Fresh StageBundle equals actual8795HTTP response; all ten runtime source hashes stable"
+    },
+    "parameters": {
+      "technique": "nian",
+      "hand": "left",
+      "grip": "two-finger",
+      "support": "stabilize",
+      "duration": 3200,
+      "elevation": 55,
+      "style": "tip-pinch",
+      "idle": "curled",
+      "rotation": 90,
+      "cycles": 2
+    },
+    "gripDetails": {
+      "cpuMs": 141.29999999981374,
+      "eye": [
+        1.205616186907916,
+        1.1558893006216273,
+        -4.17283622976655
+      ],
+      "direction": [
+        0.7610639992028019,
+        0.646232576147256,
+        0.0562587472622562
+      ],
+      "requestedAngleDifferenceDeg": 71.13223881602481,
+      "shaftAlignment": 0.6380128618772136,
+      "critical": [
+        {
+          "point": [
+            0.9627366777482691,
+            0.8988657747480658,
+            -4.1916590746379745
+          ],
+          "blockers": []
+        },
+        {
+          "point": [
+            0.9629670657273636,
+            0.8988746927563606,
+            -4.19099813386323
+          ],
+          "blockers": []
+        },
+        {
+          "point": [
+            0.9625062897967734,
+            0.8988568577094406,
+            -4.192320011987998
+          ],
+          "blockers": []
+        }
+      ],
+      "optional": [
+        {
+          "point": [
+            0.9281449160276929,
+            0.9275089839883314,
+            -4.187338096420929
+          ],
+          "blockers": [
+            "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+          ]
+        },
+        {
+          "point": [
+            0.9873174385028326,
+            0.8806020326579641,
+            -4.187511038527983
+          ],
+          "blockers": []
+        },
+        {
+          "point": [
+            0.9440012835521749,
+            0.9337475712385702,
+            -4.192175111573267
+          ],
+          "blockers": [
+            "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+          ]
+        }
+      ],
+      "insideSupport": [
+        {
+          "probe": 0,
+          "containing": []
+        },
+        {
+          "probe": 1,
+          "containing": []
+        },
+        {
+          "probe": 2,
+          "containing": []
+        }
+      ]
+    },
+    "previewIsolation": {
+      "before": {
+        "version": 66,
+        "timeline": 64,
+        "feet": {
+          "x": 0.25,
+          "z": -4.25,
+          "yaw": -2.5324,
+          "facing": "south-east",
+          "room": "treatment-room"
+        }
+      },
+      "after": {
+        "version": 66,
+        "timeline": 64,
+        "feet": {
+          "x": 0.25,
+          "z": -4.25,
+          "yaw": -2.5324,
+          "facing": "south-east",
+          "room": "treatment-room"
+        }
+      }
+    },
+    "captureReportSha256": "79b1d95f3f540634b97796fc14bfb54acf0348cd9ba476845cf167467e537b17"
+  },
+  "independentAudit": {
+    "schemaVersion": 1,
+    "createdAt": "2026-11-17T11:21:48.254Z",
+    "scope": "Independent read-only source/runtime audit of actual wrist ownership, material seam, reflected normals and target lifecycle. Production files not edited. Existing test suites not rerun by this reviewer. In-memory diagnostics plus this report only.",
+    "repositoryHeadBaseline": "55dffb60951ced69093d4e0a6269661cd4d0a217",
+    "fixture": {
+      "viewPath": "/workspace/work/public-tri-actual-view.json",
+      "viewSha256": "facb2da70162459a18c2d74a6f879f2a1c55cdbef9b26b303373b374db177ee2",
+      "stagePath": "/workspace/work/public-tri-actual-stage.json",
+      "stageSha256": "25380b8f319face048a817004996f160300b7043b96481cfa68cabe521b614fe",
+      "actorFeet": [
+        0.25,
+        0,
+        -4.25
+      ]
+    },
+    "sourceFingerprints": {
+      "before": {
+        "packages/server/web/stage/rig.ts": "314f336e0b066d761144753462fc1575e739dd58d45a26b635ca08ae4571d824",
+        "packages/server/web/stage/cast.ts": "60e796ae1ccfcdd7e108bec8077130e332683fca5b851d1f547e9cbfc7545918",
+        "packages/server/web/stage/procedure.ts": "1a4a78307fec6b4ce900002f325d4d4bbfa4092cfa1b6b47d97d7df0c14a262c",
+        "packages/server/web/stage/wrist-join.ts": "81aa94d3feb5f7a81fa8ad0dbbe8a8e6ff543765c05862561d4330eb23e6a876",
+        "packages/server/web/stage/director.ts": "5a9ed7a05e5c2e85902b2ffbc2d4ae0de1fdaa98991b02d3212f81bc67c1ff8a",
+        "content/world/assets/models/acu-practitioner-hand.glb": "0777d31012d238a490aa07a94dee77169f9bb7afa5fa95cb6dfb28d43bb47a7e"
+      },
+      "after": {
+        "packages/server/web/stage/rig.ts": "314f336e0b066d761144753462fc1575e739dd58d45a26b635ca08ae4571d824",
+        "packages/server/web/stage/cast.ts": "60e796ae1ccfcdd7e108bec8077130e332683fca5b851d1f547e9cbfc7545918",
+        "packages/server/web/stage/procedure.ts": "1a4a78307fec6b4ce900002f325d4d4bbfa4092cfa1b6b47d97d7df0c14a262c",
+        "packages/server/web/stage/wrist-join.ts": "81aa94d3feb5f7a81fa8ad0dbbe8a8e6ff543765c05862561d4330eb23e6a876",
+        "packages/server/web/stage/director.ts": "5a9ed7a05e5c2e85902b2ffbc2d4ae0de1fdaa98991b02d3212f81bc67c1ff8a",
+        "content/world/assets/models/acu-practitioner-hand.glb": "0777d31012d238a490aa07a94dee77169f9bb7afa5fa95cb6dfb28d43bb47a7e"
+      },
+      "unchangedDuringCurrentDiagnostics": true
+    },
+    "runtimeReview": {
+      "status": "No unresolved substantive correctness finding in final reviewed source snapshot. The critical source-trouser binding defect is resolved numerically; refreshed GPU bimanual proof belongs to root.",
+      "ownershipParts": [
+        {
+          "side": "left",
+          "stockHandVertices": 1531,
+          "stockHandTriangles": 2952,
+          "replacedForearmTriangles": 64,
+          "replacedFlatCapTriangles": 10,
+          "totalExcludedTriangles": 3026,
+          "sourceForearmRing": [
+            268,
+            269,
+            270,
+            271,
+            272,
+            273,
+            274,
+            275,
+            276,
+            277,
+            278,
+            279,
+            280,
+            281,
+            282,
+            283
+          ],
+          "sourceForearmSecondRing": [
+            284,
+            285,
+            286,
+            287,
+            288,
+            289,
+            290,
+            291,
+            292,
+            293,
+            294,
+            295,
+            296,
+            297,
+            298,
+            299
+          ],
+          "sourceSleeveRing": [
+            246,
+            247,
+            248,
+            249,
+            250,
+            251,
+            252,
+            253,
+            254,
+            255
+          ],
+          "sourceCapVertices": 11
+        },
+        {
+          "side": "right",
+          "stockHandVertices": 1531,
+          "stockHandTriangles": 2952,
+          "replacedForearmTriangles": 64,
+          "replacedFlatCapTriangles": 10,
+          "totalExcludedTriangles": 3026,
+          "sourceForearmRing": [
+            2059,
+            2060,
+            2061,
+            2062,
+            2063,
+            2064,
+            2065,
+            2066,
+            2067,
+            2068,
+            2069,
+            2070,
+            2071,
+            2072,
+            2073,
+            2074
+          ],
+          "sourceForearmSecondRing": [
+            2075,
+            2076,
+            2077,
+            2078,
+            2079,
+            2080,
+            2081,
+            2082,
+            2083,
+            2084,
+            2085,
+            2086,
+            2087,
+            2088,
+            2089,
+            2090
+          ],
+          "sourceSleeveRing": [
+            2038,
+            2037,
+            2046,
+            2045,
+            2044,
+            2043,
+            2042,
+            2041,
+            2040,
+            2039
+          ],
+          "sourceCapVertices": 11
+        }
+      ],
+      "indexModes": [
+        {
+          "left": 0,
+          "right": 0,
+          "drawnIndexCount": 27516,
+          "expectedIndexCount": 27516,
+          "exactOriginalTriangleOwnership": true,
+          "sameBufferAttribute": true,
+          "sameTypedArray": true,
+          "unchangedGpuCapacity": true
+        },
+        {
+          "left": 1,
+          "right": 0,
+          "drawnIndexCount": 18660,
+          "expectedIndexCount": 18660,
+          "exactOriginalTriangleOwnership": true,
+          "sameBufferAttribute": true,
+          "sameTypedArray": true,
+          "unchangedGpuCapacity": true
+        },
+        {
+          "left": 2,
+          "right": 0,
+          "drawnIndexCount": 18438,
+          "expectedIndexCount": 18438,
+          "exactOriginalTriangleOwnership": true,
+          "sameBufferAttribute": true,
+          "sameTypedArray": true,
+          "unchangedGpuCapacity": true
+        },
+        {
+          "left": 0,
+          "right": 1,
+          "drawnIndexCount": 18660,
+          "expectedIndexCount": 18660,
+          "exactOriginalTriangleOwnership": true,
+          "sameBufferAttribute": true,
+          "sameTypedArray": true,
+          "unchangedGpuCapacity": true
+        },
+        {
+          "left": 1,
+          "right": 1,
+          "drawnIndexCount": 9804,
+          "expectedIndexCount": 9804,
+          "exactOriginalTriangleOwnership": true,
+          "sameBufferAttribute": true,
+          "sameTypedArray": true,
+          "unchangedGpuCapacity": true
+        },
+        {
+          "left": 2,
+          "right": 1,
+          "drawnIndexCount": 9582,
+          "expectedIndexCount": 9582,
+          "exactOriginalTriangleOwnership": true,
+          "sameBufferAttribute": true,
+          "sameTypedArray": true,
+          "unchangedGpuCapacity": true
+        },
+        {
+          "left": 0,
+          "right": 2,
+          "drawnIndexCount": 18438,
+          "expectedIndexCount": 18438,
+          "exactOriginalTriangleOwnership": true,
+          "sameBufferAttribute": true,
+          "sameTypedArray": true,
+          "unchangedGpuCapacity": true
+        },
+        {
+          "left": 1,
+          "right": 2,
+          "drawnIndexCount": 9582,
+          "expectedIndexCount": 9582,
+          "exactOriginalTriangleOwnership": true,
+          "sameBufferAttribute": true,
+          "sameTypedArray": true,
+          "unchangedGpuCapacity": true
+        },
+        {
+          "left": 2,
+          "right": 2,
+          "drawnIndexCount": 9360,
+          "expectedIndexCount": 9360,
+          "exactOriginalTriangleOwnership": true,
+          "sameBufferAttribute": true,
+          "sameTypedArray": true,
+          "unchangedGpuCapacity": true
+        }
+      ],
+      "allIndexModesPassed": true,
+      "lifecycle": {
+        "cancel": {
+          "modes": [
+            0,
+            0
+          ],
+          "drawnIndexCount": 27516,
+          "targets": [
+            false,
+            false
+          ],
+          "joinsVisible": [
+            false,
+            false
+          ],
+          "detailVisible": false,
+          "supportVisible": false,
+          "indexAttributeStable": true,
+          "indexAllocationStable": true
+        },
+        "release": {
+          "modes": [
+            0,
+            0
+          ],
+          "drawnIndexCount": 27516,
+          "targets": [
+            false,
+            false
+          ],
+          "joinsVisible": [
+            false,
+            false
+          ],
+          "detailVisible": false,
+          "supportVisible": false,
+          "indexAttributeStable": true,
+          "indexAllocationStable": true
+        },
+        "actorHidden": {
+          "modes": [
+            0,
+            0
+          ],
+          "drawnIndexCount": 27516,
+          "targets": [
+            false,
+            false
+          ],
+          "joinsVisible": [
+            false,
+            false
+          ],
+          "detailVisible": false,
+          "supportVisible": false,
+          "indexAttributeStable": true,
+          "indexAllocationStable": true
+        },
+        "reset": {
+          "modes": [
+            0,
+            0
+          ],
+          "drawnIndexCount": 27516,
+          "targets": [
+            false,
+            false
+          ],
+          "joinsVisible": [
+            false,
+            false
+          ],
+          "detailVisible": false,
+          "supportVisible": false,
+          "indexAttributeStable": true,
+          "indexAllocationStable": true
+        }
+      },
+      "shaderReview": {
+        "scope": "Node source insertion checks only; no GPU shader compilation",
+        "sourceMaterialType": "MeshPhysicalMaterial",
+        "sourceSpecularIntensity": 0.5600000023841858,
+        "cacheKey": "wrist-join-v2",
+        "vertexAttributesPresent": true,
+        "albedoBlend": true,
+        "roughnessBlend": true,
+        "normalBlend": true,
+        "warmEmissionBlend": true,
+        "specularF0Blend": true,
+        "specularF90Blend": true
+      },
+      "reflectedNormalReview": {
+        "method": "Compared source implementation against Three0.180 skinnormal_vertex: bindMatrix -> weighted bone linear matrices -> bindMatrixInverse, then inverse-transpose targetToGroup and normalization. Left-hand negative scale is retained in target normal matrix; proper local frame built after reflected transforms.",
+        "numericalEndpointOracle": "Covered by independent wrist regression agent and geometry agent; this reviewer did not rerun those suites."
+      },
+      "findings": [
+        {
+          "id": "pbr-specular-boundary",
+          "status": "fixed-during-review",
+          "evidence": "Source hand MeshPhysicalMaterial specularIntensity approximately0.64 versus stock MeshStandardMaterial dielectricF0=.04. Initial bridge blended albedo/roughness/emission/normals but not F0/F90.",
+          "resolution": "Geometry agent added material.specularColor/F90 interpolation after lights_physical_fragment; cache key v2. Current shader source insertion checks include both."
+        },
+        {
+          "id": "gpu-index-resource-lifetime",
+          "status": "fixed-during-review",
+          "evidence": "Three WebGLGeometries.onGeometryDispose removes only the currently attached geometry.index. Swapping cached BufferAttributes could leave prior uploaded GL buffers unremoved.",
+          "resolution": "Root now keeps one original-capacity dynamic index attribute, copies CPU cached variants into its prefix and updates drawRange. All nine modes preserve attribute and typed-array identity."
+        },
+        {
+          "id": "inspection-draw-range",
+          "status": "fixed-by-root",
+          "evidence": "Inspection camera baked full index storage without copying drawRange, so unused live-index suffix could become phantom occluders after the GPU-allocation fix.",
+          "resolution": "director.inspectionMeshes now copies source drawRange to its baked geometry; separate regression agent covers empty/nonzero-start/count camera probes."
+        },
+        {
+          "id": "trouser-component-misbound-to-arm",
+          "status": "resolved-by-source-component-ownership",
+          "evidence": "Whole204-vertex trouser pieces previously split across arm and two leg owners, producing42source cloth outliers up to929.72mm. Final component-based ownership assigns each complete piece to its correct leg.",
+          "resolution": "Source topology connectivity determines anatomical piece; aggregate source-limb costs plus explicit wrist/hand arm seeds choose one owner, then per-vertex segment/t is recomputed against that owner. No source faces hidden, no camera or bone/foot/needle changes."
+        }
+      ],
+      "compatibilityScope": "Ownership capture intentionally recognizes the pinned long-sleeve figure topology: a separately tagged1531-vertex stock hand immediately follows a48-vertex bare-forearm block and a ten-sided separate flat cap. Older hand assets without interface metadata remove only stock hand faces and retain source forearm/cap. Short-sleeve or changed upstream topology is not claimed by this capture contract.",
+      "directorReview": {
+        "sourceSha256": "5a9ed7a05e5c2e85902b2ffbc2d4ae0de1fdaa98991b02d3212f81bc67c1ff8a",
+        "inspectionMeshes": "Baked world geometry copies source drawRange; Mesh.raycast therefore ignores unused original-capacity index-buffer tails. This prevents hidden stock-hand triangles becoming phantom inspection-camera occluders.",
+        "insideSupportDepthScope": "Manual nearest-depth loop is restricted to support-hand meshes, whose product GLB index drawRange is unchanged/full. Current actor body is not in that name filter.",
+        "gpuPicking": "New join meshes intentionally retain no-op scene picking, consistent with source figure mesh; inspectionMeshes creates normal-raycast baked proxies for them."
+      }
+    },
+    "baselineDiagnosis": {
+      "assetSha256": "8e8750a456c8ac31be4a6f86349e600a23c0aace332998091f85f7aaad05bbd9",
+      "neutralFigure": {
+        "forearmLengthMm": 250,
+        "sleeveHemBeforeWristMm": 17.5,
+        "sleeveHemRadiiMm": [
+          42.14362779259259,
+          35.08964545185186
+        ],
+        "bareWristRadiiMm": [
+          26.593,
+          18.879
+        ],
+        "ringVertices": 16,
+        "ringVsHandAxisDeg": 6.05102484611693
+      },
+      "oldHandoff": {
+        "sourceForearmVerticesIncorrectlyCollapsed": 4,
+        "sourceForearmDisplacementMm": [
+          23.060830914040483,
+          26.592989750311947
+        ],
+        "forearmTrianglesDegenerateAtUnmovedWrist": 3,
+        "stockHandVerticesSurviving": 32,
+        "stockHandNondegenerateTrianglesSurviving": 40,
+        "stockHandTrianglesCollapsed": 2912,
+        "detailVisibleAfterReach": 0.02,
+        "stockCollapseStartedAfterReach": 0.55
+      },
+      "oldPalm": {
+        "uniquePositions": 2928,
+        "triangles": 5852,
+        "boundaryEdges": 0,
+        "proximalTipPastWristMm": 15.29412388736216,
+        "wristPlaneRadialRangeMm": [
+          -24.443507426587654,
+          32.219703457805295
+        ],
+        "wristPlaneDorsalRangeMm": [
+          -17.403138801180297,
+          8.903256863465751
+        ]
+      }
+    },
+    "unchangedWristFrameLimitation": {
+      "forearmRollCapDeg": 85,
+      "implementationDecision": "Original two-bone poses, boneTurn frames and85-degree cap intentionally retained. New skin bridge does not establish full3D wrist alignment or remove the documented roll residual.",
+      "measurementScope": "Original8e product on actual saved public fixture;121 chronological production-order ticks over4320ms,80 visible held samples for each technique/hand. No source/joint/needle/foot overrides in baseline measurements.",
+      "cases": [
+        {
+          "technique": "Tri48",
+          "side": "left",
+          "swingDeg": [
+            11.207380322854403,
+            14.70335320476532
+          ],
+          "targetDorsalProjectionMagnitude": [
+            0.9690875776394183,
+            0.9825929711425143
+          ],
+          "maxProjectedRollResidualDeg": 52.83671768045984,
+          "fullFrameErrorDeg": [
+            52.95009442088067,
+            54.23372552782898
+          ]
+        },
+        {
+          "technique": "Tri48",
+          "side": "right",
+          "swingDeg": [
+            11.683048742543939,
+            14.834203454257649
+          ],
+          "targetDorsalProjectionMagnitude": [
+            0.9724746978464287,
+            0.984763630458246
+          ],
+          "maxProjectedRollResidualDeg": 57.65007212402006,
+          "fullFrameErrorDeg": [
+            57.73657730645478,
+            59.241163949198196
+          ]
+        },
+        {
+          "technique": "Gua55",
+          "side": "left",
+          "swingDeg": [
+            33.772720388667636,
+            33.83446996779593
+          ],
+          "targetDorsalProjectionMagnitude": [
+            0.9999978912740912,
+            0.9999998899444669
+          ],
+          "maxProjectedRollResidualDeg": 20.255343159773314,
+          "fullFrameErrorDeg": [
+            39.17901030635923,
+            39.29162742027459
+          ]
+        },
+        {
+          "technique": "Gua55",
+          "side": "right",
+          "swingDeg": [
+            33.30398762425624,
+            33.36889748741583
+          ],
+          "targetDorsalProjectionMagnitude": [
+            0.9988818900210883,
+            0.9989353873520076
+          ],
+          "maxProjectedRollResidualDeg": 14.92222213459911,
+          "fullFrameErrorDeg": [
+            36.0259995597313,
+            36.11480400760636
+          ]
+        }
+      ],
+      "rejectedAlternative": {
+        "description": "Read-only elbow-hinge frame and bounded elbow-circle pole exploration. Source normalized upper×lower magnitude.3225994; posed cross approximately.454635–.454712, so frame construction is well-conditioned.",
+        "sameElbowHingeFrameRequestedRollDeg": {
+          "triLeft": [
+            137.34253468029567,
+            139.74088375060748
+          ],
+          "triRight": [
+            -135.10665413217785,
+            -132.55885660766845
+          ],
+          "guaLeft": [
+            21.37866906006702,
+            21.49653754469675
+          ],
+          "guaRight": [
+            -16.28444731333574,
+            -16.149753505401527
+          ]
+        },
+        "boundedTriCandidate": {
+          "leftPoleDeg": 60,
+          "leftRequestedRollDeg": [
+            81.99330550001001,
+            85.27480930326803
+          ],
+          "leftMaximumCapResidualDeg": 0.27480930326802877,
+          "rightPoleDeg": -58,
+          "rightRequestedRollDeg": [
+            -82.35500469346461,
+            -78.98094386595244
+          ],
+          "elbowShiftAt60DegMm": 63.269,
+          "upperBoneDirectionChangeAt60Deg": 12.312,
+          "lowerBoneDirectionChangeAt60Deg": 14.539,
+          "upperFrameVsMinimalTurnAt60Deg": [
+            133.74570384272135,
+            133.76170783769254
+          ]
+        },
+        "reasonNotAdopted": "Trades forearm residual for a large humeral/hinge reference rotation. Those mathematical frame angles are not calibrated clinical shoulder ROM; changing the reference must not be presented as naturally resolving the85-degree forearm limit."
+      }
+    },
+    "addedGeometryPatientDiagnostic": {
+      "assetSha256": "0777d31012d238a490aa07a94dee77169f9bb7afa5fa95cb6dfb28d43bb47a7e",
+      "wristJoinSha256": "81aa94d3feb5f7a81fa8ad0dbbe8a8e6ff543765c05862561d4330eb23e6a876",
+      "scope": "Final frozen7-row/common-tangent.7length/frameease7.5% loft. Twelve visible actual-public seek cases: Tri48 and Gua55, both hands, progress.2/.5/.8. New bridge and hem only, after actor.tick. No full-parameter or continuous-clearance claim.",
+      "methods": [
+        "Direct production PatientClearance.intersects(join.group, actualPatient): includes vertex and triangle-crossing guard with unchanged50-micrometre tolerance.",
+        "Independent three-ray majority parity plus nearest actual patient-surface distance for every added-mesh vertex and triangle centroid; offender requires world depth greater than50micrometres."
+      ],
+      "cases": [
+        {
+          "technique": "Tri48",
+          "side": "left",
+          "progress": 0.2,
+          "joinVisible": true,
+          "detailHandVisible": true,
+          "productionGuardOnAddedGroup": false,
+          "probes": 1019,
+          "offenderCount": 0,
+          "maxDepthMm": 0,
+          "worst": []
+        },
+        {
+          "technique": "Tri48",
+          "side": "left",
+          "progress": 0.5,
+          "joinVisible": true,
+          "detailHandVisible": true,
+          "productionGuardOnAddedGroup": false,
+          "probes": 1019,
+          "offenderCount": 0,
+          "maxDepthMm": 0,
+          "worst": []
+        },
+        {
+          "technique": "Tri48",
+          "side": "left",
+          "progress": 0.8,
+          "joinVisible": true,
+          "detailHandVisible": true,
+          "productionGuardOnAddedGroup": false,
+          "probes": 1019,
+          "offenderCount": 0,
+          "maxDepthMm": 0,
+          "worst": []
+        },
+        {
+          "technique": "Tri48",
+          "side": "right",
+          "progress": 0.2,
+          "joinVisible": true,
+          "detailHandVisible": true,
+          "productionGuardOnAddedGroup": false,
+          "probes": 1019,
+          "offenderCount": 0,
+          "maxDepthMm": 0,
+          "worst": []
+        },
+        {
+          "technique": "Tri48",
+          "side": "right",
+          "progress": 0.5,
+          "joinVisible": true,
+          "detailHandVisible": true,
+          "productionGuardOnAddedGroup": false,
+          "probes": 1019,
+          "offenderCount": 0,
+          "maxDepthMm": 0,
+          "worst": []
+        },
+        {
+          "technique": "Tri48",
+          "side": "right",
+          "progress": 0.8,
+          "joinVisible": true,
+          "detailHandVisible": true,
+          "productionGuardOnAddedGroup": false,
+          "probes": 1019,
+          "offenderCount": 0,
+          "maxDepthMm": 0,
+          "worst": []
+        },
+        {
+          "technique": "Gua55",
+          "side": "left",
+          "progress": 0.2,
+          "joinVisible": true,
+          "detailHandVisible": true,
+          "productionGuardOnAddedGroup": false,
+          "probes": 1019,
+          "offenderCount": 0,
+          "maxDepthMm": 0,
+          "worst": []
+        },
+        {
+          "technique": "Gua55",
+          "side": "left",
+          "progress": 0.5,
+          "joinVisible": true,
+          "detailHandVisible": true,
+          "productionGuardOnAddedGroup": false,
+          "probes": 1019,
+          "offenderCount": 0,
+          "maxDepthMm": 0,
+          "worst": []
+        },
+        {
+          "technique": "Gua55",
+          "side": "left",
+          "progress": 0.8,
+          "joinVisible": true,
+          "detailHandVisible": true,
+          "productionGuardOnAddedGroup": false,
+          "probes": 1019,
+          "offenderCount": 0,
+          "maxDepthMm": 0,
+          "worst": []
+        },
+        {
+          "technique": "Gua55",
+          "side": "right",
+          "progress": 0.2,
+          "joinVisible": true,
+          "detailHandVisible": true,
+          "productionGuardOnAddedGroup": false,
+          "probes": 1019,
+          "offenderCount": 0,
+          "maxDepthMm": 0,
+          "worst": []
+        },
+        {
+          "technique": "Gua55",
+          "side": "right",
+          "progress": 0.5,
+          "joinVisible": true,
+          "detailHandVisible": true,
+          "productionGuardOnAddedGroup": false,
+          "probes": 1019,
+          "offenderCount": 0,
+          "maxDepthMm": 0,
+          "worst": []
+        },
+        {
+          "technique": "Gua55",
+          "side": "right",
+          "progress": 0.8,
+          "joinVisible": true,
+          "detailHandVisible": true,
+          "productionGuardOnAddedGroup": false,
+          "probes": 1019,
+          "offenderCount": 0,
+          "maxDepthMm": 0,
+          "worst": []
+        }
+      ],
+      "probesPerCase": 1019,
+      "productionGuardTrueCases": 0,
+      "independentOffenders": 0,
+      "maximumObservedOffenderDepthMm": 0,
+      "runtimeGuardScope": "Normal runtime clearance still scans hand.model; added actor-attached joins are scanned only by this explicit diagnostic.",
+      "rigSha256": "314f336e0b066d761144753462fc1575e739dd58d45a26b635ca08ae4571d824"
+    },
+    "validationBoundaries": [
+      "No GPU shader compilation, image-quality verdict or performance benchmark performed by this reviewer; root owns actual GPU screenshots.",
+      "No existing hand/clinical test suite rerun by this reviewer; regression agent owns those results.",
+      "Boundary/winding/self-intersection chronological loft QA belongs to geometry agent and is distinct from this finite added-mesh patient probe.",
+      "Skin loft continuity does not certify clinical wrist comfort, calibrated tissue mechanics, full3D cuff alignment, or zero forearm-roll residual."
+    ],
+    "postGpuCriticalFinding": {
+      "createdAt": "2026-11-17T11:18:31.024651+00:00",
+      "id": "trouser-component-misbound-to-arm",
+      "status": "resolved-by-source-component-ownership",
+      "scope": "Actual saved Public fixture; Nian two-finger tip pinch55deg, left primary hand, supportstabilize, duration3200ms, rotation90deg, cycles2, seek.5, production patient->needle->procedure->actor tick order. Feet.25,-4.25. Source body mesh original index-buffer connectivity and visible drawRange inspected; no source edits by reviewer.",
+      "image": "/workspace/work/wrist-bimanual-sails-before.png",
+      "imageSha256": "9b884968a83c7a65fdcfc6f1b2692995a2383d781d638390634e47096372a766",
+      "mesh": "practitioner original __figure limb mesh; navy source trousers #2f3a45, not added wrist skin or sleeve hem",
+      "leftTrouserComponent": {
+        "vertices": [
+          3638,
+          3841
+        ],
+        "count": 204,
+        "existingBindings": {
+          "leftArm": 12,
+          "leftLeg": 188,
+          "rightLeg": 4
+        },
+        "wrongArmVertices": [
+          3643,
+          3644,
+          3654,
+          3655,
+          3656,
+          3666,
+          3667,
+          3668,
+          3678,
+          3679,
+          3680,
+          3691
+        ]
+      },
+      "rightTrouserComponent": {
+        "vertices": [
+          4235,
+          4438
+        ],
+        "count": 204,
+        "existingBindings": {
+          "rightArm": 12,
+          "rightLeg": 188,
+          "leftLeg": 4
+        }
+      },
+      "worstVisibleTriangle": {
+        "indices": [
+          3691,
+          3703,
+          3692
+        ],
+        "restMaxEdgeMm": 72.30239022493136,
+        "posedMaxEdgeMm": 929.7225749988667,
+        "ratio": 12.858808292596102,
+        "bindings": [
+          {
+            "vertex": 3691,
+            "limb": 0,
+            "t": 3
+          },
+          {
+            "vertex": 3703,
+            "limb": 2,
+            "t": 0.8002223462747785
+          },
+          {
+            "vertex": 3692,
+            "limb": 2,
+            "t": 0.6600000504937455
+          }
+        ]
+      },
+      "visibleSourceTrianglesWithEdgeAbove200Mm": 42,
+      "addedMeshMaxEdgeMm": {
+        "leftSkin": 8.634036516506146,
+        "rightSkin": 11.065247376272895,
+        "hem": 26.096459248027184
+      },
+      "oldCollapseComparison": "Reapplying old arm t>2.01 collapse still leaves approximately750mm triangle[3691,3703,3692]. Triangle[3644,3656,3645] remains approximately739mm because wrongly arm-bound vertices have t1.73/1.96, below old collapse threshold. It is a pre-existing per-vertex nearest-limb binding defect, amplified/exposed in current capture; old camera did not prove healthy geometry.",
+      "requiredFix": "Assign original connected source parts to one anatomical limb, then recompute each vertex segment/t against that part owner. Do not hide trousers or alter camera, feet, arm lengths, hand/needle pose or85deg cap. Vertexxsign is insufficient because four crotch vertices cross the midline.",
+      "afterFix": {
+        "rigSha256": "314f336e0b066d761144753462fc1575e739dd58d45a26b635ca08ae4571d824",
+        "scope": "Independent numeric reproduction of the actualPublic bimanual screenshot parameters and production tick order; not a replacement GPU screenshot.",
+        "pants": [
+          {
+            "side": "left",
+            "vertices": [
+              3638,
+              3841
+            ],
+            "count": 204,
+            "expectedOwner": 2,
+            "actualOwners": [
+              2
+            ],
+            "allVerticesOwnedByExpectedLeg": true,
+            "maximumSourcePositionDriftMm": 0,
+            "originalTriangles": 384,
+            "drawnTriangles": 384,
+            "allSourceFacesPreserved": true,
+            "restMaximumEdgeMm": 91.43388440934605,
+            "posedMaximumEdgeMm": 91.43388440934605
+          },
+          {
+            "side": "right",
+            "vertices": [
+              4235,
+              4438
+            ],
+            "count": 204,
+            "expectedOwner": 3,
+            "actualOwners": [
+              3
+            ],
+            "allVerticesOwnedByExpectedLeg": true,
+            "maximumSourcePositionDriftMm": 0,
+            "originalTriangles": 384,
+            "drawnTriangles": 384,
+            "allSourceFacesPreserved": true,
+            "restMaximumEdgeMm": 91.43388440934605,
+            "posedMaximumEdgeMm": 91.43388440934605
+          }
+        ],
+        "previousVisibleSourceTrianglesAbove200Mm": 42,
+        "currentVisibleSourceTrianglesAbove200Mm": 0,
+        "maximumVisibleSourceTriangleEdgeMm": 91.43388440934605,
+        "triangles": [
+          {
+            "ids": [
+              3691,
+              3703,
+              3692
+            ],
+            "restMaxEdgeMm": 72.30239022493136,
+            "posedMaxEdgeMm": 72.30239022493136,
+            "bindings": [
+              {
+                "index": 3691,
+                "limb": 2,
+                "t": 0.6600000332286607
+              },
+              {
+                "index": 3703,
+                "limb": 2,
+                "t": 0.8002223462747785
+              },
+              {
+                "index": 3692,
+                "limb": 2,
+                "t": 0.6600000504937455
+              }
+            ]
+          },
+          {
+            "ids": [
+              3644,
+              3656,
+              3645
+            ],
+            "restMaxEdgeMm": 78.5945154682371,
+            "posedMaxEdgeMm": 78.5945154682371,
+            "bindings": [
+              {
+                "index": 3644,
+                "limb": 2,
+                "t": 0
+              },
+              {
+                "index": 3656,
+                "limb": 2,
+                "t": 0.13999997424517918
+              },
+              {
+                "index": 3645,
+                "limb": 2,
+                "t": 0
+              }
+            ]
+          },
+          {
+            "ids": [
+              4288,
+              4289,
+              4300
+            ],
+            "restMaxEdgeMm": 72.30239022493136,
+            "posedMaxEdgeMm": 72.30239022493136,
+            "bindings": [
+              {
+                "index": 4288,
+                "limb": 3,
+                "t": 0.6600000332286607
+              },
+              {
+                "index": 4289,
+                "limb": 3,
+                "t": 0.6600000504937455
+              },
+              {
+                "index": 4300,
+                "limb": 3,
+                "t": 0.8002223462747785
+              }
+            ]
+          }
+        ],
+        "actorFeet": [
+          0.25,
+          0,
+          -4.25
+        ],
+        "detailModes": [
+          2,
+          2
+        ],
+        "bothDetailHandsVisible": true,
+        "needleGripPointDeltaMm": 0,
+        "needleAxisDelta": 1.3877787807814457e-17
+      }
+    }
+  },
+  "loftGeometry": {
+    "scope": "Actual saved public encounter; final production-asset snapshot; current original bone pose and authored85deg forearm cap. Procedure renders first, actor.tick deforms source and updates joins second, then geometry sampled. This visual loft does not resolve clinical/anatomical frame residuals.",
+    "startedAt": "2026-11-17T11:20:06.505Z",
+    "startFingerprints": {
+      "content/world/assets/models/acu-practitioner-hand.glb": {
+        "sha256": "0777d31012d238a490aa07a94dee77169f9bb7afa5fa95cb6dfb28d43bb47a7e",
+        "bytes": 1321932
+      },
+      "packages/server/web/stage/wrist-join.ts": {
+        "sha256": "81aa94d3feb5f7a81fa8ad0dbbe8a8e6ff543765c05862561d4330eb23e6a876",
+        "bytes": 29123
+      },
+      "packages/server/web/stage/rig.ts": {
+        "sha256": "314f336e0b066d761144753462fc1575e739dd58d45a26b635ca08ae4571d824",
+        "bytes": 18100
+      },
+      "packages/server/web/stage/cast.ts": {
+        "sha256": "60e796ae1ccfcdd7e108bec8077130e332683fca5b851d1f547e9cbfc7545918",
+        "bytes": 12069
+      },
+      "packages/server/web/stage/procedure.ts": {
+        "sha256": "1a4a78307fec6b4ce900002f325d4d4bbfa4092cfa1b6b47d97d7df0c14a262c",
+        "bytes": 33295
+      },
+      "tools/_public_tri_case.ts": {
+        "sha256": "76298c72a792a523f5afebe7738ab77531563bf94cdc09103c7d04560e5946ef",
+        "bytes": 8291
+      },
+      "/workspace/work/public-tri-actual-view.json": {
+        "sha256": "facb2da70162459a18c2d74a6f879f2a1c55cdbef9b26b303373b374db177ee2",
+        "bytes": 80911
+      },
+      "/workspace/work/public-tri-actual-stage.json": {
+        "sha256": "25380b8f319face048a817004996f160300b7043b96481cfa68cabe521b614fe",
+        "bytes": 15384
+      }
+    },
+    "directHeldInitializations": [
+      {
+        "side": "left",
+        "wrist": 44,
+        "minimumAdjacentNormalDot": 0.8048237022826025,
+        "intersectionPairs": 0,
+        "sourceGapMm": 2.8125325068002995e-05,
+        "targetGapMm": 4.197909023653823e-05,
+        "minAreaM2": 2.196685103121126e-06,
+        "frameAngleDeg": 29.909669049986753,
+        "mapping": [
+          42,
+          41,
+          40,
+          39,
+          38,
+          37,
+          36,
+          35,
+          34,
+          33,
+          32,
+          31,
+          30,
+          29,
+          28,
+          27,
+          26,
+          25,
+          24,
+          23,
+          22,
+          21,
+          20,
+          19,
+          18,
+          17,
+          16,
+          15,
+          14,
+          13,
+          12,
+          11,
+          10,
+          9,
+          8,
+          7,
+          6,
+          5,
+          4,
+          3,
+          2,
+          1,
+          0,
+          47,
+          46,
+          45,
+          44,
+          43
+        ]
+      },
+      {
+        "side": "right",
+        "wrist": 44,
+        "minimumAdjacentNormalDot": 0.8152219564743144,
+        "intersectionPairs": 0,
+        "sourceGapMm": 2.815956986991014e-05,
+        "targetGapMm": 4.174127599217339e-05,
+        "minAreaM2": 2.115427978193379e-06,
+        "frameAngleDeg": 30.252187541355333,
+        "mapping": [
+          43,
+          42,
+          41,
+          40,
+          39,
+          38,
+          37,
+          36,
+          35,
+          34,
+          33,
+          32,
+          31,
+          30,
+          29,
+          28,
+          27,
+          26,
+          25,
+          24,
+          23,
+          22,
+          21,
+          20,
+          19,
+          18,
+          17,
+          16,
+          15,
+          14,
+          13,
+          12,
+          11,
+          10,
+          9,
+          8,
+          7,
+          6,
+          5,
+          4,
+          3,
+          2,
+          1,
+          0,
+          47,
+          46,
+          45,
+          44
+        ]
+      },
+      {
+        "side": "left",
+        "wrist": 48,
+        "minimumAdjacentNormalDot": 0.8077995019484228,
+        "intersectionPairs": 0,
+        "sourceGapMm": 2.8125325068002995e-05,
+        "targetGapMm": 3.7525335245086205e-05,
+        "minAreaM2": 2.3509847448375442e-06,
+        "frameAngleDeg": 29.291471405815667,
+        "mapping": [
+          42,
+          41,
+          40,
+          39,
+          38,
+          37,
+          36,
+          35,
+          34,
+          33,
+          32,
+          31,
+          30,
+          29,
+          28,
+          27,
+          26,
+          25,
+          24,
+          23,
+          22,
+          21,
+          20,
+          19,
+          18,
+          17,
+          16,
+          15,
+          14,
+          13,
+          12,
+          11,
+          10,
+          9,
+          8,
+          7,
+          6,
+          5,
+          4,
+          3,
+          2,
+          1,
+          0,
+          47,
+          46,
+          45,
+          44,
+          43
+        ]
+      },
+      {
+        "side": "right",
+        "wrist": 48,
+        "minimumAdjacentNormalDot": 0.8192094812522224,
+        "intersectionPairs": 0,
+        "sourceGapMm": 2.8125325067696637e-05,
+        "targetGapMm": 4.081146275565175e-05,
+        "minAreaM2": 2.275155046426578e-06,
+        "frameAngleDeg": 29.162739988307077,
+        "mapping": [
+          43,
+          42,
+          41,
+          40,
+          39,
+          38,
+          37,
+          36,
+          35,
+          34,
+          33,
+          32,
+          31,
+          30,
+          29,
+          28,
+          27,
+          26,
+          25,
+          24,
+          23,
+          22,
+          21,
+          20,
+          19,
+          18,
+          17,
+          16,
+          15,
+          14,
+          13,
+          12,
+          11,
+          10,
+          9,
+          8,
+          7,
+          6,
+          5,
+          4,
+          3,
+          2,
+          1,
+          0,
+          47,
+          46,
+          45,
+          44
+        ]
+      },
+      {
+        "side": "left",
+        "wrist": 51,
+        "minimumAdjacentNormalDot": 0.8135058453607426,
+        "intersectionPairs": 0,
+        "sourceGapMm": 2.8125325068002995e-05,
+        "targetGapMm": 4.145034146046114e-05,
+        "minAreaM2": 2.51055507654726e-06,
+        "frameAngleDeg": 30.893288047804617,
+        "mapping": [
+          42,
+          41,
+          40,
+          39,
+          38,
+          37,
+          36,
+          35,
+          34,
+          33,
+          32,
+          31,
+          30,
+          29,
+          28,
+          27,
+          26,
+          25,
+          24,
+          23,
+          22,
+          21,
+          20,
+          19,
+          18,
+          17,
+          16,
+          15,
+          14,
+          13,
+          12,
+          11,
+          10,
+          9,
+          8,
+          7,
+          6,
+          5,
+          4,
+          3,
+          2,
+          1,
+          0,
+          47,
+          46,
+          45,
+          44,
+          43
+        ]
+      },
+      {
+        "side": "right",
+        "wrist": 51,
+        "minimumAdjacentNormalDot": 0.8212551414687443,
+        "intersectionPairs": 0,
+        "sourceGapMm": 2.8125325068002995e-05,
+        "targetGapMm": 3.744311328387212e-05,
+        "minAreaM2": 2.391407308826641e-06,
+        "frameAngleDeg": 28.75686449495663,
+        "mapping": [
+          43,
+          42,
+          41,
+          40,
+          39,
+          38,
+          37,
+          36,
+          35,
+          34,
+          33,
+          32,
+          31,
+          30,
+          29,
+          28,
+          27,
+          26,
+          25,
+          24,
+          23,
+          22,
+          21,
+          20,
+          19,
+          18,
+          17,
+          16,
+          15,
+          14,
+          13,
+          12,
+          11,
+          10,
+          9,
+          8,
+          7,
+          6,
+          5,
+          4,
+          3,
+          2,
+          1,
+          0,
+          47,
+          46,
+          45,
+          44
+        ]
+      }
+    ],
+    "frameAngleDefinition": "Shortest proper rotation of fixed-correspondence loft cross-section frames, including material-parameter correspondence; not anatomical forearm ROM.",
+    "radialCriterionCaveat": "A bent/nonorthogonal or concave ring can have negative face-to-centreline radial dot without selfcrossing; strict triangle intersection and adjacent geometric face normal results are reported separately.",
+    "anatomicalTrackingScope": "Original bone solve and85deg cap retained. Exact endpoint attachment does not imply that the underlying forearm dorsal frame matches the detail hand; independent root forearm audit reports those residuals.",
+    "endFingerprints": {
+      "content/world/assets/models/acu-practitioner-hand.glb": {
+        "sha256": "0777d31012d238a490aa07a94dee77169f9bb7afa5fa95cb6dfb28d43bb47a7e",
+        "bytes": 1321932
+      },
+      "packages/server/web/stage/wrist-join.ts": {
+        "sha256": "81aa94d3feb5f7a81fa8ad0dbbe8a8e6ff543765c05862561d4330eb23e6a876",
+        "bytes": 29123
+      },
+      "packages/server/web/stage/rig.ts": {
+        "sha256": "314f336e0b066d761144753462fc1575e739dd58d45a26b635ca08ae4571d824",
+        "bytes": 18100
+      },
+      "packages/server/web/stage/cast.ts": {
+        "sha256": "60e796ae1ccfcdd7e108bec8077130e332683fca5b851d1f547e9cbfc7545918",
+        "bytes": 12069
+      },
+      "packages/server/web/stage/procedure.ts": {
+        "sha256": "1a4a78307fec6b4ce900002f325d4d4bbfa4092cfa1b6b47d97d7df0c14a262c",
+        "bytes": 33295
+      },
+      "tools/_public_tri_case.ts": {
+        "sha256": "76298c72a792a523f5afebe7738ab77531563bf94cdc09103c7d04560e5946ef",
+        "bytes": 8291
+      },
+      "/workspace/work/public-tri-actual-view.json": {
+        "sha256": "facb2da70162459a18c2d74a6f879f2a1c55cdbef9b26b303373b374db177ee2",
+        "bytes": 80911
+      },
+      "/workspace/work/public-tri-actual-stage.json": {
+        "sha256": "25380b8f319face048a817004996f160300b7043b96481cfa68cabe521b614fe",
+        "bytes": 15384
+      }
+    },
+    "finishedAt": "2026-11-17T11:21:26.842Z",
+    "reverseSeekCases": [
+      {
+        "side": "left",
+        "wrist": 44,
+        "states": [
+          {
+            "progress": 1,
+            "visible": false
+          },
+          {
+            "progress": 0.975,
+            "visible": true,
+            "minimumAdjacentNormalDot": 0.374321563522516,
+            "intersectionPairs": 0,
+            "nonfinite": 0,
+            "minAreaM2": 8.106642079277715e-07,
+            "sourceGapMm": 2.0629723564759807e-05,
+            "targetGapMm": 2.9531550192072812e-05,
+            "mappingChanged": false,
+            "frameAngleDeg": 62.9001541803666
+          },
+          {
+            "progress": 0.9,
+            "visible": true,
+            "minimumAdjacentNormalDot": 0.896117369569161,
+            "intersectionPairs": 0,
+            "nonfinite": 0,
+            "minAreaM2": 1.961954597099631e-06,
+            "sourceGapMm": 4.4426679246918183e-05,
+            "targetGapMm": 3.856877152532251e-05,
+            "mappingChanged": false,
+            "frameAngleDeg": 44.17720171052274
+          },
+          {
+            "progress": 0.75,
+            "visible": true,
+            "minimumAdjacentNormalDot": 0.8966334611915271,
+            "intersectionPairs": 0,
+            "nonfinite": 0,
+            "minAreaM2": 2.084601688705711e-06,
+            "sourceGapMm": 2.8125325068002995e-05,
+            "targetGapMm": 3.7165844806695324e-05,
+            "mappingChanged": false,
+            "frameAngleDeg": 44.689290344699955
+          },
+          {
+            "progress": 0.5,
+            "visible": true,
+            "minimumAdjacentNormalDot": 0.8969728372981683,
+            "intersectionPairs": 0,
+            "nonfinite": 0,
+            "minAreaM2": 2.0959385279078353e-06,
+            "sourceGapMm": 2.8125325068002995e-05,
+            "targetGapMm": 3.735920295736659e-05,
+            "mappingChanged": false,
+            "frameAngleDeg": 44.96389512182218
+          },
+          {
+            "progress": 0.25,
+            "visible": true,
+            "minimumAdjacentNormalDot": 0.8969796979421898,
+            "intersectionPairs": 0,
+            "nonfinite": 0,
+            "minAreaM2": 2.096035295831043e-06,
+            "sourceGapMm": 2.8125325068002995e-05,
+            "targetGapMm": 3.941788454923994e-05,
+            "mappingChanged": false,
+            "frameAngleDeg": 44.96561238555488
+          },
+          {
+            "progress": 0.1,
+            "visible": true,
+            "minimumAdjacentNormalDot": 0.7333383489037031,
+            "intersectionPairs": 0,
+            "nonfinite": 0,
+            "minAreaM2": 1.341805704403078e-06,
+            "sourceGapMm": 2.4333494378583714e-05,
+            "targetGapMm": 3.215259450034037e-05,
+            "mappingChanged": false,
+            "frameAngleDeg": 38.80076612788021
+          },
+          {
+            "progress": 0.025,
+            "visible": false
+          },
+          {
+            "progress": 0,
+            "visible": false
+          }
+        ]
+      },
+      {
+        "side": "right",
+        "wrist": 44,
+        "states": [
+          {
+            "progress": 1,
+            "visible": false
+          },
+          {
+            "progress": 0.975,
+            "visible": true,
+            "minimumAdjacentNormalDot": 0.6783733198970141,
+            "intersectionPairs": 0,
+            "nonfinite": 0,
+            "minAreaM2": 5.321322399672142e-07,
+            "sourceGapMm": 2.0629723564759807e-05,
+            "targetGapMm": 2.9832134953815526e-05,
+            "mappingChanged": false,
+            "frameAngleDeg": 64.90015082547075
+          },
+          {
+            "progress": 0.9,
+            "visible": true,
+            "minimumAdjacentNormalDot": 0.8192155534485617,
+            "intersectionPairs": 0,
+            "nonfinite": 0,
+            "minAreaM2": 2.3145095363683203e-06,
+            "sourceGapMm": 2.820744294115933e-05,
+            "targetGapMm": 3.825736715701906e-05,
+            "mappingChanged": false,
+            "frameAngleDeg": 11.981632181481507
+          },
+          {
+            "progress": 0.75,
+            "visible": true,
+            "minimumAdjacentNormalDot": 0.8171970043676962,
+            "intersectionPairs": 0,
+            "nonfinite": 0,
+            "minAreaM2": 2.295072081508054e-06,
+            "sourceGapMm": 2.8125325068002995e-05,
+            "targetGapMm": 3.952944063381144e-05,
+            "mappingChanged": false,
+            "frameAngleDeg": 12.274405524630293
+          },
+          {
+            "progress": 0.5,
+            "visible": true,
+            "minimumAdjacentNormalDot": 0.8164340778163662,
+            "intersectionPairs": 0,
+            "nonfinite": 0,
+            "minAreaM2": 2.2960488704026813e-06,
+            "sourceGapMm": 2.815956986991014e-05,
+            "targetGapMm": 3.8523708256461295e-05,
+            "mappingChanged": false,
+            "frameAngleDeg": 12.814348942994949
+          },
+          {
+            "progress": 0.25,
+            "visible": true,
+            "minimumAdjacentNormalDot": 0.8164325568892854,
+            "intersectionPairs": 0,
+            "nonfinite": 0,
+            "minAreaM2": 2.296156045882144e-06,
+            "sourceGapMm": 2.8125325068002995e-05,
+            "targetGapMm": 3.754007286018867e-05,
+            "mappingChanged": false,
+            "frameAngleDeg": 12.817591682039803
+          },
+          {
+            "progress": 0.1,
+            "visible": true,
+            "minimumAdjacentNormalDot": 0.826563036982771,
+            "intersectionPairs": 0,
+            "nonfinite": 0,
+            "minAreaM2": 1.7296246502493993e-06,
+            "sourceGapMm": 2.2248020893013662e-05,
+            "targetGapMm": 3.251492744037135e-05,
+            "mappingChanged": false,
+            "frameAngleDeg": 20.77265160862736
+          },
+          {
+            "progress": 0.025,
+            "visible": false
+          },
+          {
+            "progress": 0,
+            "visible": false
+          }
+        ]
+      },
+      {
+        "side": "left",
+        "wrist": 48,
+        "states": [
+          {
+            "progress": 1,
+            "visible": false
+          },
+          {
+            "progress": 0.975,
+            "visible": true,
+            "minimumAdjacentNormalDot": 0.41486542346836425,
+            "intersectionPairs": 0,
+            "nonfinite": 0,
+            "minAreaM2": 7.471723416422903e-07,
+            "sourceGapMm": 2.0629723564759807e-05,
+            "targetGapMm": 3.0250146027397073e-05,
+            "mappingChanged": false,
+            "frameAngleDeg": 58.40189547507063
+          },
+          {
+            "progress": 0.9,
+            "visible": true,
+            "minimumAdjacentNormalDot": 0.32947585144018243,
+            "intersectionPairs": 0,
+            "nonfinite": 0,
+            "minAreaM2": 2.95179895504471e-06,
+            "sourceGapMm": 4.4703483664809696e-05,
+            "targetGapMm": 3.92538653218954e-05,
+            "mappingChanged": false,
+            "frameAngleDeg": 103.46426663249282
+          },
+          {
+            "progress": 0.75,
+            "visible": true,
+            "minimumAdjacentNormalDot": 0.013154778348632934,
+            "intersectionPairs": 0,
+            "nonfinite": 0,
+            "minAreaM2": 3.282369643865954e-06,
+            "sourceGapMm": 2.8125325068002995e-05,
+            "targetGapMm": 3.829903380265152e-05,
+            "mappingChanged": false,
+            "frameAngleDeg": 121.44001332290696
+          },
+          {
+            "progress": 0.5,
+            "visible": true,
+            "minimumAdjacentNormalDot": 0.033147274351432915,
+            "intersectionPairs": 0,
+            "nonfinite": 0,
+            "minAreaM2": 3.2614964160264674e-06,
+            "sourceGapMm": 2.8125325068002995e-05,
+            "targetGapMm": 4.131323243718814e-05,
+            "mappingChanged": false,
+            "frameAngleDeg": 121.04259872852508
+          },
+          {
+            "progress": 0.25,
+            "visible": true,
+            "minimumAdjacentNormalDot": 0.033265924001057795,
+            "intersectionPairs": 0,
+            "nonfinite": 0,
+            "minAreaM2": 3.2615859392588136e-06,
+            "sourceGapMm": 2.8125325068002995e-05,
+            "targetGapMm": 3.799726077532295e-05,
+            "mappingChanged": false,
+            "frameAngleDeg": 121.040258558171
+          },
+          {
+            "progress": 0.1,
+            "visible": true,
+            "minimumAdjacentNormalDot": 0.4846517066158651,
+            "intersectionPairs": 0,
+            "nonfinite": 0,
+            "minAreaM2": 1.5332625538872122e-06,
+            "sourceGapMm": 2.4333494378583714e-05,
+            "targetGapMm": 3.29425174410437e-05,
+            "mappingChanged": false,
+            "frameAngleDeg": 71.87842764324382
+          },
+          {
+            "progress": 0.025,
+            "visible": false
+          },
+          {
+            "progress": 0,
+            "visible": false
+          }
+        ]
+      },
+      {
+        "side": "right",
+        "wrist": 48,
+        "states": [
+          {
+            "progress": 1,
+            "visible": false
+          },
+          {
+            "progress": 0.975,
+            "visible": true,
+            "minimumAdjacentNormalDot": 0.6413392687651788,
+            "intersectionPairs": 0,
+            "nonfinite": 0,
+            "minAreaM2": 4.904666983528255e-07,
+            "sourceGapMm": 2.0815748279869294e-05,
+            "targetGapMm": 2.9622273486217588e-05,
+            "mappingChanged": false,
+            "frameAngleDeg": 60.4941554154393
+          },
+          {
+            "progress": 0.9,
+            "visible": true,
+            "minimumAdjacentNormalDot": 0.8199888708556942,
+            "intersectionPairs": 0,
+            "nonfinite": 0,
+            "minAreaM2": 2.5060789746767948e-06,
+            "sourceGapMm": 4.4496041786027325e-05,
+            "targetGapMm": 3.9764031322284834e-05,
+            "mappingChanged": false,
+            "frameAngleDeg": 11.606173529861556
+          },
+          {
+            "progress": 0.75,
+            "visible": true,
+            "minimumAdjacentNormalDot": 0.818389907130009,
+            "intersectionPairs": 0,
+            "nonfinite": 0,
+            "minAreaM2": 2.490010145192948e-06,
+            "sourceGapMm": 2.8125325068002995e-05,
+            "targetGapMm": 4.045334991085866e-05,
+            "mappingChanged": false,
+            "frameAngleDeg": 11.435272979177213
+          },
+          {
+            "progress": 0.5,
+            "visible": true,
+            "minimumAdjacentNormalDot": 0.817394805944104,
+            "intersectionPairs": 0,
+            "nonfinite": 0,
+            "minAreaM2": 2.4907594888189186e-06,
+            "sourceGapMm": 2.8125325068002995e-05,
+            "targetGapMm": 3.7978309841852365e-05,
+            "mappingChanged": false,
+            "frameAngleDeg": 12.106341608848775
+          },
+          {
+            "progress": 0.25,
+            "visible": true,
+            "minimumAdjacentNormalDot": 0.8173938704727779,
+            "intersectionPairs": 0,
+            "nonfinite": 0,
+            "minAreaM2": 2.4906514830379352e-06,
+            "sourceGapMm": 2.8125325068002995e-05,
+            "targetGapMm": 3.896942817099621e-05,
+            "mappingChanged": false,
+            "frameAngleDeg": 12.110074166099475
+          },
+          {
+            "progress": 0.1,
+            "visible": true,
+            "minimumAdjacentNormalDot": 0.8292343124303149,
+            "intersectionPairs": 0,
+            "nonfinite": 0,
+            "minAreaM2": 1.9221518060783724e-06,
+            "sourceGapMm": 2.224802089262637e-05,
+            "targetGapMm": 3.178500735494758e-05,
+            "mappingChanged": false,
+            "frameAngleDeg": 16.005681353056147
+          },
+          {
+            "progress": 0.025,
+            "visible": false
+          },
+          {
+            "progress": 0,
+            "visible": false
+          }
+        ]
+      },
+      {
+        "side": "left",
+        "wrist": 51,
+        "states": [
+          {
+            "progress": 1,
+            "visible": false
+          },
+          {
+            "progress": 0.975,
+            "visible": true,
+            "minimumAdjacentNormalDot": 0.3992353090237786,
+            "intersectionPairs": 0,
+            "nonfinite": 0,
+            "minAreaM2": 7.264974905185805e-07,
+            "sourceGapMm": 2.0629723564759807e-05,
+            "targetGapMm": 2.9359236395596686e-05,
+            "mappingChanged": false,
+            "frameAngleDeg": 55.36751575889908
+          },
+          {
+            "progress": 0.9,
+            "visible": true,
+            "minimumAdjacentNormalDot": 0.23817723127250717,
+            "intersectionPairs": 0,
+            "nonfinite": 0,
+            "minAreaM2": 2.998584179570487e-06,
+            "sourceGapMm": 4.504709735532144e-05,
+            "targetGapMm": 3.828512200546965e-05,
+            "mappingChanged": false,
+            "frameAngleDeg": 104.94949131208156
+          },
+          {
+            "progress": 0.75,
+            "visible": true,
+            "minimumAdjacentNormalDot": 0.0593223821866989,
+            "intersectionPairs": 0,
+            "nonfinite": 0,
+            "minAreaM2": 3.1808583357834954e-06,
+            "sourceGapMm": 2.8125325068002995e-05,
+            "targetGapMm": 4.031466542009882e-05,
+            "mappingChanged": false,
+            "frameAngleDeg": 121.09921467045334
+          },
+          {
+            "progress": 0.5,
+            "visible": true,
+            "minimumAdjacentNormalDot": 0.043925129757434914,
+            "intersectionPairs": 0,
+            "nonfinite": 0,
+            "minAreaM2": 3.300143889635831e-06,
+            "sourceGapMm": 2.8125325068002995e-05,
+            "targetGapMm": 3.922641191557267e-05,
+            "mappingChanged": false,
+            "frameAngleDeg": 123.28226579865238
+          },
+          {
+            "progress": 0.25,
+            "visible": true,
+            "minimumAdjacentNormalDot": 0.0439110219392885,
+            "intersectionPairs": 0,
+            "nonfinite": 0,
+            "minAreaM2": 3.3006976846239622e-06,
+            "sourceGapMm": 2.8125325068002995e-05,
+            "targetGapMm": 3.938496631793569e-05,
+            "mappingChanged": false,
+            "frameAngleDeg": 123.28383937538628
+          },
+          {
+            "progress": 0.1,
+            "visible": true,
+            "minimumAdjacentNormalDot": 0.36865068293700265,
+            "intersectionPairs": 0,
+            "nonfinite": 0,
+            "minAreaM2": 1.6228821646133127e-06,
+            "sourceGapMm": 2.4333494378583714e-05,
+            "targetGapMm": 3.11558598599534e-05,
+            "mappingChanged": false,
+            "frameAngleDeg": 72.13544297030958
+          },
+          {
+            "progress": 0.025,
+            "visible": false
+          },
+          {
+            "progress": 0,
+            "visible": false
+          }
+        ]
+      },
+      {
+        "side": "right",
+        "wrist": 51,
+        "states": [
+          {
+            "progress": 1,
+            "visible": false
+          },
+          {
+            "progress": 0.975,
+            "visible": true,
+            "minimumAdjacentNormalDot": 0.5971712791034884,
+            "intersectionPairs": 0,
+            "nonfinite": 0,
+            "minAreaM2": 5.385244471911667e-07,
+            "sourceGapMm": 2.0629723564759807e-05,
+            "targetGapMm": 2.964928036250416e-05,
+            "mappingChanged": false,
+            "frameAngleDeg": 57.05968457682029
+          },
+          {
+            "progress": 0.9,
+            "visible": true,
+            "minimumAdjacentNormalDot": 0.8159257404279586,
+            "intersectionPairs": 0,
+            "nonfinite": 0,
+            "minAreaM2": 2.6477542993785943e-06,
+            "sourceGapMm": 4.4496041786027325e-05,
+            "targetGapMm": 3.990043481845867e-05,
+            "mappingChanged": false,
+            "frameAngleDeg": 13.002339959089296
+          },
+          {
+            "progress": 0.75,
+            "visible": true,
+            "minimumAdjacentNormalDot": 0.8147726579318595,
+            "intersectionPairs": 0,
+            "nonfinite": 0,
+            "minAreaM2": 2.634092162688572e-06,
+            "sourceGapMm": 2.8125325068002995e-05,
+            "targetGapMm": 3.7060917656030815e-05,
+            "mappingChanged": false,
+            "frameAngleDeg": 12.561496558797835
+          },
+          {
+            "progress": 0.5,
+            "visible": true,
+            "minimumAdjacentNormalDot": 0.8133845063663742,
+            "intersectionPairs": 0,
+            "nonfinite": 0,
+            "minAreaM2": 2.6348179663999773e-06,
+            "sourceGapMm": 2.8125325068002995e-05,
+            "targetGapMm": 4.034860334572473e-05,
+            "mappingChanged": false,
+            "frameAngleDeg": 13.25005695678985
+          },
+          {
+            "progress": 0.25,
+            "visible": true,
+            "minimumAdjacentNormalDot": 0.8133711892791597,
+            "intersectionPairs": 0,
+            "nonfinite": 0,
+            "minAreaM2": 2.6348181741175413e-06,
+            "sourceGapMm": 2.8125325068002995e-05,
+            "targetGapMm": 3.8624728320739135e-05,
+            "mappingChanged": false,
+            "frameAngleDeg": 13.253866843894976
+          },
+          {
+            "progress": 0.1,
+            "visible": true,
+            "minimumAdjacentNormalDot": 0.8312596803369203,
+            "intersectionPairs": 0,
+            "nonfinite": 0,
+            "minAreaM2": 2.0660457931299253e-06,
+            "sourceGapMm": 2.2248020893013662e-05,
+            "targetGapMm": 3.145400204929887e-05,
+            "mappingChanged": false,
+            "frameAngleDeg": 12.446801982030815
+          },
+          {
+            "progress": 0.025,
+            "visible": false
+          },
+          {
+            "progress": 0,
+            "visible": false
+          }
+        ]
+      }
+    ],
+    "reverseSeekFingerprints": {
+      "asset": "0777d31012d238a490aa07a94dee77169f9bb7afa5fa95cb6dfb28d43bb47a7e",
+      "wristJoin": "81aa94d3feb5f7a81fa8ad0dbbe8a8e6ff543765c05862561d4330eb23e6a876",
+      "rig": "314f336e0b066d761144753462fc1575e739dd58d45a26b635ca08ae4571d824"
+    },
+    "componentBindingVerification": {
+      "rigSha256": "314f336e0b066d761144753462fc1575e739dd58d45a26b635ca08ae4571d824",
+      "actualBimanualClothEvidence": "/workspace/work/wrist-bimanual-topology-fixed.json",
+      "unchangedKinematicsEvidence": "/workspace/work/wrist-component-binding-kinematics.json",
+      "all408NavyTrouserVerticesRestDisplacementMm": 0,
+      "navyTrianglesRetained": 768
+    },
+    "cases": [
+      {
+        "side": "left",
+        "wrist": 44,
+        "summary": {
+          "visibleCount": 114,
+          "intersectionPairs": 0,
+          "minimumAdjacentNormalDot": 0.33967149795161433,
+          "sourceGapMm": 6.287787803207889e-05,
+          "targetGapMm": 4.160435414429697e-05,
+          "sleeveGapMm": 9.159339953157541e-13,
+          "minAreaM2": 7.072553848563366e-07,
+          "minRadiusMm": 9.009804581688448,
+          "negativeRadialFaces": 66,
+          "negativeNormalFaces": 3,
+          "nonfinite": 0,
+          "degenerate": 0,
+          "maxFrameAngleDeg": 62.9001543286747,
+          "maxFrameQuaternionStepDeg": 10.316131967152733,
+          "maxStepMm": 103.58733939288476,
+          "maxProfileStepMm": 8.038405919462088,
+          "maxSourceBoundaryStepMm": 101.05959838612675,
+          "maxTargetBoundaryStepMm": 103.42883228702306,
+          "heldMinimumAdjacentNormalDot": 0.8959798826685283,
+          "mappingChanges": 0,
+          "textureUvError": 2.9802322387695312e-08,
+          "uvEdgeJump": 0.020833373069763184,
+          "wristErrorMm": 1.132209773400735e-12,
+          "maxCappedForearmRollDeg": 85
+        }
+      },
+      {
+        "side": "right",
+        "wrist": 44,
+        "summary": {
+          "visibleCount": 114,
+          "intersectionPairs": 0,
+          "minimumAdjacentNormalDot": 0.5254712074497547,
+          "sourceGapMm": 6.28410822533378e-05,
+          "targetGapMm": 4.1577140074253044e-05,
+          "sleeveGapMm": 9.020562075079397e-13,
+          "minAreaM2": 4.784317048459126e-07,
+          "minRadiusMm": 9.009798615725398,
+          "negativeRadialFaces": 52,
+          "negativeNormalFaces": 2,
+          "nonfinite": 0,
+          "degenerate": 0,
+          "maxFrameAngleDeg": 64.90015036796437,
+          "maxFrameQuaternionStepDeg": 8.822202774816253,
+          "maxStepMm": 111.91539118685921,
+          "maxProfileStepMm": 5.342789052957748,
+          "maxSourceBoundaryStepMm": 110.29928852034583,
+          "maxTargetBoundaryStepMm": 111.91537980599097,
+          "heldMinimumAdjacentNormalDot": 0.8141743834026559,
+          "mappingChanges": 0,
+          "textureUvError": 0,
+          "uvEdgeJump": 0.020833373069763184,
+          "wristErrorMm": 1.25607396694702e-12,
+          "maxCappedForearmRollDeg": 85
+        }
+      },
+      {
+        "side": "left",
+        "wrist": 48,
+        "summary": {
+          "visibleCount": 114,
+          "intersectionPairs": 0,
+          "minimumAdjacentNormalDot": -0.30486333622090805,
+          "sourceGapMm": 4.449604188594848e-05,
+          "targetGapMm": 4.141597295130093e-05,
+          "sleeveGapMm": 9.159339953157541e-13,
+          "minAreaM2": 2.7795165400275883e-07,
+          "minRadiusMm": 9.009807769038828,
+          "negativeRadialFaces": 42,
+          "negativeNormalFaces": 0,
+          "nonfinite": 0,
+          "degenerate": 0,
+          "maxFrameAngleDeg": 122.23608231227485,
+          "maxFrameQuaternionStepDeg": 8.26556323458038,
+          "maxStepMm": 104.2013025307387,
+          "maxProfileStepMm": 8.89535442387646,
+          "maxSourceBoundaryStepMm": 101.7738997319824,
+          "maxTargetBoundaryStepMm": 104.20129872222435,
+          "heldMinimumAdjacentNormalDot": -0.027959902069392972,
+          "mappingChanges": 0,
+          "textureUvError": 2.9802322387695312e-08,
+          "uvEdgeJump": 0.020833373069763184,
+          "wristErrorMm": 1.8107189559191205e-12,
+          "maxCappedForearmRollDeg": -85
+        }
+      },
+      {
+        "side": "right",
+        "wrist": 48,
+        "summary": {
+          "visibleCount": 114,
+          "intersectionPairs": 0,
+          "minimumAdjacentNormalDot": 0.5097467640111355,
+          "sourceGapMm": 4.4444030129598344e-05,
+          "targetGapMm": 4.1652913081778684e-05,
+          "sleeveGapMm": 9.020562075079397e-13,
+          "minAreaM2": 4.89936563724149e-07,
+          "minRadiusMm": 9.009800013403073,
+          "negativeRadialFaces": 24,
+          "negativeNormalFaces": 0,
+          "nonfinite": 0,
+          "degenerate": 0,
+          "maxFrameAngleDeg": 60.49415497619893,
+          "maxFrameQuaternionStepDeg": 8.84446259945704,
+          "maxStepMm": 112.69369407285146,
+          "maxProfileStepMm": 5.44835480054564,
+          "maxSourceBoundaryStepMm": 110.95590067332365,
+          "maxTargetBoundaryStepMm": 112.69370770069861,
+          "heldMinimumAdjacentNormalDot": 0.8135791748253041,
+          "mappingChanges": 0,
+          "textureUvError": 0,
+          "uvEdgeJump": 0.020833373069763184,
+          "wristErrorMm": 1.439013507999545e-12,
+          "maxCappedForearmRollDeg": 85
+        }
+      },
+      {
+        "side": "left",
+        "wrist": 51,
+        "summary": {
+          "visibleCount": 114,
+          "intersectionPairs": 0,
+          "minimumAdjacentNormalDot": -0.11727808238767656,
+          "sourceGapMm": 6.302484642935331e-05,
+          "targetGapMm": 4.1875898167627716e-05,
+          "sleeveGapMm": 9.159339953157541e-13,
+          "minAreaM2": 3.9366575793997805e-07,
+          "minRadiusMm": 9.009810033626685,
+          "negativeRadialFaces": 27,
+          "negativeNormalFaces": 0,
+          "nonfinite": 0,
+          "degenerate": 0,
+          "maxFrameAngleDeg": 123.99581277342759,
+          "maxFrameQuaternionStepDeg": 8.257225431997425,
+          "maxStepMm": 104.73514662134198,
+          "maxProfileStepMm": 9.32925436738015,
+          "maxSourceBoundaryStepMm": 102.34403246954203,
+          "maxTargetBoundaryStepMm": 104.73513510177321,
+          "heldMinimumAdjacentNormalDot": 0.019942737648679,
+          "mappingChanges": 0,
+          "textureUvError": 2.9802322387695312e-08,
+          "uvEdgeJump": 0.020833373069763184,
+          "wristErrorMm": 1.2994827337208943e-12,
+          "maxCappedForearmRollDeg": -85
+        }
+      },
+      {
+        "side": "right",
+        "wrist": 51,
+        "summary": {
+          "visibleCount": 114,
+          "intersectionPairs": 0,
+          "minimumAdjacentNormalDot": 0.5165150979501715,
+          "sourceGapMm": 6.282957916545308e-05,
+          "targetGapMm": 4.206830924455544e-05,
+          "sleeveGapMm": 9.020562075079397e-13,
+          "minAreaM2": 5.385237208062301e-07,
+          "minRadiusMm": 9.009798223885502,
+          "negativeRadialFaces": 15,
+          "negativeNormalFaces": 0,
+          "nonfinite": 0,
+          "degenerate": 0,
+          "maxFrameAngleDeg": 57.059684158283375,
+          "maxFrameQuaternionStepDeg": 8.861802941521532,
+          "maxStepMm": 113.31906553108921,
+          "maxProfileStepMm": 5.515833576863736,
+          "maxSourceBoundaryStepMm": 111.48453098144113,
+          "maxTargetBoundaryStepMm": 113.31905883786663,
+          "heldMinimumAdjacentNormalDot": 0.807613594724152,
+          "mappingChanges": 0,
+          "textureUvError": 0,
+          "uvEdgeJump": 0.020833373069763184,
+          "wristErrorMm": 1.25607396694702e-12,
+          "maxCappedForearmRollDeg": 85
+        }
+      }
+    ],
+    "chronologicalVisibleFrames": 684,
+    "rawDiagnosticSha256": "f79f878f3a61756ff9278c1a2f513421723dd0054b18c4363e079ea403507de1"
+  },
+  "actualUi": {
+    "syntheticOnly": true,
+    "case": "enc-17441d080d46",
+    "assetSha256": "0777d31012d238a490aa07a94dee77169f9bb7afa5fa95cb6dfb28d43bb47a7e",
+    "manifestSha256": "4b84476627424591267106840f842c277760d12055cd6589bd2ed2356370d033",
+    "posesSha256": "ed64244ae5712da743d1b6acec1a8821fcc2bec84151e2aa3c57c2596cc6a198",
+    "stageCheck": {
+      "expectedSha256": "406a4fe590f1ef47fa2f12a277f98d88d158413de176b1cf37367af422bab144",
+      "servedSha256": "406a4fe590f1ef47fa2f12a277f98d88d158413de176b1cf37367af422bab144",
+      "etag": "\"406a4fe590f1ef47fa2f12a2\"",
+      "sourceHashes": {
+        "hand.ts": "001d183a8df400788a339425eafec39a9e2a885d14b778608ad6fecf5f680228",
+        "hand-physiology.ts": "fceb8866c6a3a7c45d4024daaa1b8a6cf0582b6ded34feaaa3c9495fa02b53f5",
+        "hand-nail-work.ts": "d3a78366d06f500284e0e7ef788be5039eed3a40112fccdaab48933b0d1c115f",
+        "choreography.ts": "49522bf15affb60ceab9fda916fe45c24267727c57072af7d1cc7e3756e42d4a",
+        "procedure.ts": "1a4a78307fec6b4ce900002f325d4d4bbfa4092cfa1b6b47d97d7df0c14a262c",
+        "rig.ts": "314f336e0b066d761144753462fc1575e739dd58d45a26b635ca08ae4571d824",
+        "cast.ts": "60e796ae1ccfcdd7e108bec8077130e332683fca5b851d1f547e9cbfc7545918",
+        "wrist-join.ts": "81aa94d3feb5f7a81fa8ad0dbbe8a8e6ff543765c05862561d4330eb23e6a876",
+        "director.ts": "5a9ed7a05e5c2e85902b2ffbc2d4ae0de1fdaa98991b02d3212f81bc67c1ff8a",
+        "engine.ts": "ab61af5314e09358483ae495a5e66df876a68ee5b48f984ce9f66a38f5f226e1"
+      },
+      "inputs": 213,
+      "bytes": 1421370,
+      "method": "Fresh StageBundle equals actual8795HTTP response; all ten runtime source hashes stable"
+    },
+    "resources": [
+      {
+        "url": "http://127.0.0.1:8795/app/stage.js",
+        "status": 200,
+        "sha256": "406a4fe590f1ef47fa2f12a277f98d88d158413de176b1cf37367af422bab144"
+      },
+      {
+        "url": "http://127.0.0.1:8795/app/models/acu-practitioner-hand.glb",
+        "status": 200,
+        "sha256": "0777d31012d238a490aa07a94dee77169f9bb7afa5fa95cb6dfb28d43bb47a7e"
+      }
+    ],
+    "results": [
+      {
+        "name": "wrist-join-bimanual",
+        "path": "/workspace/work/reference-grip-evidence/wrist-join-bimanual.png",
+        "requestedView": null,
+        "actualViewLabel": "手部 避让斜视 Oblique",
+        "gripBlocked": "0",
+        "gripDetails": {
+          "cpuMs": 476.79999999981374,
+          "eye": [
+            1.205620425119067,
+            1.1558955259401922,
+            -4.172927181752394
+          ],
+          "direction": [
+            0.7610770103369804,
+            0.6462428097932137,
+            0.055964409467944815
+          ],
+          "requestedAngleDifferenceDeg": 71.13223881602482,
+          "shaftAlignment": 0.6380166795510688,
+          "critical": [
+            {
+              "point": [
+                0.9627366777482693,
+                0.898865774748066,
+                -4.1916590746379745
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9629672970858794,
+                0.8988747235628656,
+                -4.190998214971073
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9625060584394474,
+                0.8988568269030834,
+                -4.192319930880207
+              ],
+              "blockers": []
+            }
+          ],
+          "optional": [
+            {
+              "point": [
+                0.9281461368821485,
+                0.9275088147658196,
+                -4.187327214945242
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            },
+            {
+              "point": [
+                0.9873190774325139,
+                0.8806024635276913,
+                -4.187518861236661
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9439970908907553,
+                0.9337469176879032,
+                -4.192165176336726
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            }
+          ],
+          "insideSupport": [
+            {
+              "probe": 0,
+              "containing": []
+            },
+            {
+              "probe": 1,
+              "containing": []
+            },
+            {
+              "probe": 2,
+              "containing": []
+            }
+          ]
+        },
+        "phase": "Nian · twirling · 50%",
+        "roles": "默认拇指＋食指指端精密捏持。 · Thumb/index precision tip pinch.",
+        "controls": {
+          "手腕抬高角 Wrist elevation (°)": "55",
+          "持针接触 Grip style": "tip-pinch",
+          "闲置手指 Idle fingers": "curled",
+          "持针方式 Grip": "two-finger"
+        },
+        "notice": "BL23\nL\n1 needle in\ntreatment room\nlying face down · towels\ncomfortable\nconsent: given\nmin 46.7\nvisit 1 of 2\n1 needle in · 0 of 20 min\nFree camera\nRoom\nPatient\nNeedle\n手部 避让斜视 Oblique\n⤓\n⛶\nQuality: auto\nHigh\nMedium\nLow\n本地预览 Preview · nian · Nian · twirling · 50% · 1× · 暂停 Paused\nSchematic figure: positions on the body are drawn approximately Nian · twirling · 50%",
+        "parameters": {
+          "technique": "nian",
+          "hand": "left",
+          "grip": "two-finger",
+          "support": "stabilize",
+          "duration": 3200,
+          "elevation": 55,
+          "style": "tip-pinch",
+          "idle": "curled",
+          "rotation": 90,
+          "cycles": 2
+        },
+        "progress": 0.5,
+        "sha256": "28d0d3d9721ea6bb0692b032941f616c1f3e123b7c7dd1b643fbcecd3a0d2300"
+      },
+      {
+        "name": "wrist-join-tip-side",
+        "path": "/workspace/work/reference-grip-evidence/wrist-join-tip-side.png",
+        "requestedView": null,
+        "actualViewLabel": "手部 侧面 Side",
+        "gripBlocked": "0",
+        "gripDetails": {
+          "cpuMs": 62.799999999813735,
+          "eye": [
+            0.8463273632664117,
+            1.0491912089261448,
+            -4.5004206209123705
+          ],
+          "direction": [
+            -0.27988276769960935,
+            0.3347101253984342,
+            -0.8997970706223549
+          ],
+          "requestedAngleDifferenceDeg": 0,
+          "shaftAlignment": 0.42565279406337125,
+          "critical": [
+            {
+              "point": [
+                0.9627366777482691,
+                0.8988657747480657,
+                -4.191659074637973
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9630246790137247,
+                0.8988824508357645,
+                -4.191021283105655
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9624486768106837,
+                0.8988490996677099,
+                -4.192296862772132
+              ],
+              "blockers": []
+            }
+          ],
+          "optional": [
+            {
+              "point": [
+                0.9285755392463712,
+                0.9274815278595533,
+                -4.184598652739568
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            },
+            {
+              "point": [
+                0.9876444281004042,
+                0.8807008240022574,
+                -4.189509001435803
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9429909076783045,
+                0.9335918551771254,
+                -4.189656314797084
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            }
+          ],
+          "insideSupport": [
+            {
+              "probe": 0,
+              "containing": []
+            },
+            {
+              "probe": 1,
+              "containing": []
+            },
+            {
+              "probe": 2,
+              "containing": []
+            }
+          ]
+        },
+        "phase": "Nian · twirling · 50%",
+        "roles": "默认拇指＋食指指端精密捏持。 · Thumb/index precision tip pinch.",
+        "controls": {
+          "手腕抬高角 Wrist elevation (°)": "55",
+          "持针接触 Grip style": "tip-pinch",
+          "闲置手指 Idle fingers": "curled",
+          "持针方式 Grip": "two-finger"
+        },
+        "notice": "BL23\nL\n1 needle in\ntreatment room\nlying face down · towels\ncomfortable\nconsent: given\nmin 46.7\nvisit 1 of 2\n1 needle in · 0 of 20 min\nFree camera\nRoom\nPatient\nNeedle\n手部 侧面 Side\n⤓\n⛶\nQuality: auto\nHigh\nMedium\nLow\n本地预览 Preview · nian · Nian · twirling · 50% · 1× · 暂停 Paused\nSchematic figure: positions on the body are drawn approximately Nian · twirling · 50%",
+        "parameters": {
+          "technique": "nian",
+          "hand": "left",
+          "grip": "two-finger",
+          "support": "none",
+          "duration": 3200,
+          "elevation": 55,
+          "style": "tip-pinch",
+          "idle": "curled",
+          "rotation": 90,
+          "cycles": 2
+        },
+        "progress": 0.5,
+        "sha256": "e59c6df032e6a7777fa7a8f23af89e18bcb2a720788642672e2b4f274c73f528"
+      },
+      {
+        "name": "wrist-join-tip-three-quarter",
+        "path": "/workspace/work/reference-grip-evidence/wrist-join-tip-three-quarter.png",
+        "requestedView": null,
+        "actualViewLabel": "手部 避让斜视 Oblique",
+        "gripBlocked": "0",
+        "gripDetails": {
+          "cpuMs": 208.29999999981374,
+          "eye": [
+            1.2058394285067013,
+            1.157538127636235,
+            -4.195998830920081
+          ],
+          "direction": [
+            0.7610601488160305,
+            0.6484213147077076,
+            -0.018364327290954916
+          ],
+          "requestedAngleDifferenceDeg": 71.13223881602484,
+          "shaftAlignment": 0.6390653688443477,
+          "critical": [
+            {
+              "point": [
+                0.9627366777482691,
+                0.8988657747480657,
+                -4.191659074637973
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9630246790137247,
+                0.8988824508357645,
+                -4.191021283105655
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9624486768106837,
+                0.8988490996677099,
+                -4.192296862772132
+              ],
+              "blockers": []
+            }
+          ],
+          "optional": [
+            {
+              "point": [
+                0.9285755392463712,
+                0.9274815278595533,
+                -4.184598652739568
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            },
+            {
+              "point": [
+                0.9876444281004042,
+                0.8807008240022574,
+                -4.189509001435803
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9429909076783045,
+                0.9335918551771254,
+                -4.189656314797084
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            }
+          ],
+          "insideSupport": [
+            {
+              "probe": 0,
+              "containing": []
+            },
+            {
+              "probe": 1,
+              "containing": []
+            },
+            {
+              "probe": 2,
+              "containing": []
+            }
+          ]
+        },
+        "phase": "Nian · twirling · 50%",
+        "roles": "默认拇指＋食指指端精密捏持。 · Thumb/index precision tip pinch.",
+        "controls": {
+          "手腕抬高角 Wrist elevation (°)": "55",
+          "持针接触 Grip style": "tip-pinch",
+          "闲置手指 Idle fingers": "curled",
+          "持针方式 Grip": "two-finger"
+        },
+        "notice": "BL23\nL\n1 needle in\ntreatment room\nlying face down · towels\ncomfortable\nconsent: given\nmin 46.7\nvisit 1 of 2\n1 needle in · 0 of 20 min\nFree camera\nRoom\nPatient\nNeedle\n手部 避让斜视 Oblique\n⤓\n⛶\nQuality: auto\nHigh\nMedium\nLow\n本地预览 Preview · nian · Nian · twirling · 50% · 1× · 暂停 Paused\nSchematic figure: positions on the body are drawn approximately Nian · twirling · 50%",
+        "parameters": {
+          "technique": "nian",
+          "hand": "left",
+          "grip": "two-finger",
+          "support": "none",
+          "duration": 3200,
+          "elevation": 55,
+          "style": "tip-pinch",
+          "idle": "curled",
+          "rotation": 90,
+          "cycles": 2
+        },
+        "progress": 0.5,
+        "sha256": "29dffc5bf63e4fbd593b978219ddf615691f8482c0e3b4021840b250a44ef64c"
+      },
+      {
+        "name": "wrist-join-tip-right",
+        "path": "/workspace/work/reference-grip-evidence/wrist-join-tip-right.png",
+        "requestedView": null,
+        "actualViewLabel": "手部 侧面 Side",
+        "gripBlocked": "0",
+        "gripDetails": {
+          "cpuMs": 42.5,
+          "eye": [
+            0.7781485443245391,
+            1.0237302477286905,
+            -3.8963945153523762
+          ],
+          "direction": [
+            -0.4681716174829014,
+            0.26040579434583866,
+            0.8443957359286917
+          ],
+          "requestedAngleDifferenceDeg": 0,
+          "shaftAlignment": 0.4189363771761043,
+          "critical": [
+            {
+              "point": [
+                0.9627366777482697,
+                0.8988657747480657,
+                -4.1916590746379745
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9631537759494988,
+                0.8989333962934185,
+                -4.192217158212181
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9623195784660474,
+                0.8987981529487459,
+                -4.191100989492955
+              ],
+              "blockers": []
+            }
+          ],
+          "optional": [
+            {
+              "point": [
+                0.9306055757955541,
+                0.9282826161382962,
+                -4.203403597898441
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            },
+            {
+              "point": [
+                0.9876944093523718,
+                0.8807204757474847,
+                -4.189972970184378
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9410103214914459,
+                0.9331434866607318,
+                -4.190132505974004
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            }
+          ],
+          "insideSupport": [
+            {
+              "probe": 0,
+              "containing": []
+            },
+            {
+              "probe": 1,
+              "containing": []
+            },
+            {
+              "probe": 2,
+              "containing": []
+            }
+          ]
+        },
+        "phase": "Nian · twirling · 50%",
+        "roles": "默认拇指＋食指指端精密捏持。 · Thumb/index precision tip pinch.",
+        "controls": {
+          "手腕抬高角 Wrist elevation (°)": "55",
+          "持针接触 Grip style": "tip-pinch",
+          "闲置手指 Idle fingers": "curled",
+          "持针方式 Grip": "two-finger"
+        },
+        "notice": "BL23\nL\n1 needle in\ntreatment room\nlying face down · towels\ncomfortable\nconsent: given\nmin 46.7\nvisit 1 of 2\n1 needle in · 0 of 20 min\nFree camera\nRoom\nPatient\nNeedle\n手部 侧面 Side\n⤓\n⛶\nQuality: auto\nHigh\nMedium\nLow\n本地预览 Preview · nian · Nian · twirling · 50% · 1× · 暂停 Paused\nSchematic figure: positions on the body are drawn approximately Nian · twirling · 50%",
+        "parameters": {
+          "technique": "nian",
+          "hand": "right",
+          "grip": "two-finger",
+          "support": "none",
+          "duration": 3200,
+          "elevation": 55,
+          "style": "tip-pinch",
+          "idle": "curled",
+          "rotation": 90,
+          "cycles": 2
+        },
+        "progress": 0.5,
+        "sha256": "784e4ac8d660554dd9e2b07be3a3a8f5dcccc63873cbca62786ad0a42bc82c6e"
+      },
+      {
+        "name": "wrist-join-tripod",
+        "path": "/workspace/work/reference-grip-evidence/wrist-join-tripod.png",
+        "requestedView": null,
+        "actualViewLabel": "手部 侧面 Side",
+        "gripBlocked": "0",
+        "gripDetails": {
+          "cpuMs": 52,
+          "eye": [
+            1.0567739623345507,
+            1.0594899786210752,
+            -4.4404799936264805
+          ],
+          "direction": [
+            0.3828839457880425,
+            0.4528975507371105,
+            -0.8051606625972892
+          ],
+          "requestedAngleDifferenceDeg": 1.2074182697257333e-06,
+          "shaftAlignment": 0.4526470858997917,
+          "critical": [
+            {
+              "point": [
+                0.96273667774827,
+                0.8988657747480658,
+                -4.191659074637975
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9630093375205956,
+                0.8928417246540898,
+                -4.1913227158076864
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9639268353840078,
+                0.8929844412067139,
+                -4.1923447039514805
+              ],
+              "blockers": []
+            }
+          ],
+          "optional": [
+            {
+              "point": [
+                0.9618766436218539,
+                0.9100182696632291,
+                -4.191842658508389
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9173636068287625,
+                0.9042672466119135,
+                -4.183017640566632
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            },
+            {
+              "point": [
+                0.9871195162697299,
+                0.8753594785695804,
+                -4.16942624055045
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9340189094346056,
+                0.9142881141643028,
+                -4.182340312353974
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            }
+          ],
+          "insideSupport": [
+            {
+              "probe": 0,
+              "containing": []
+            },
+            {
+              "probe": 1,
+              "containing": []
+            },
+            {
+              "probe": 2,
+              "containing": []
+            }
+          ]
+        },
+        "phase": "Nian · twirling · 50%",
+        "roles": "拇指＋食指指端主夹持，中指腹承托。 · Thumb/index tip pinch with middle-pulp support.",
+        "controls": {
+          "手腕抬高角 Wrist elevation (°)": "48",
+          "持针接触 Grip style": "tip-pinch",
+          "闲置手指 Idle fingers": "curled",
+          "持针方式 Grip": "three-finger"
+        },
+        "notice": "BL23\nL\n1 needle in\ntreatment room\nlying face down · towels\ncomfortable\nconsent: given\nmin 46.7\nvisit 1 of 2\n1 needle in · 0 of 20 min\nFree camera\nRoom\nPatient\nNeedle\n手部 侧面 Side\n⤓\n⛶\nQuality: auto\nHigh\nMedium\nLow\n本地预览 Preview · nian · Nian · twirling · 50% · 1× · 暂停 Paused\nSchematic figure: positions on the body are drawn approximately Nian · twirling · 50%",
+        "parameters": {
+          "technique": "nian",
+          "hand": "left",
+          "grip": "three-finger",
+          "support": "none",
+          "duration": 3200,
+          "elevation": 48,
+          "style": "tip-pinch",
+          "idle": "curled",
+          "rotation": 90,
+          "cycles": 2
+        },
+        "progress": 0.5,
+        "sha256": "38290eed037b9a67daec3581e15c79be8eaae432cedd63de8dcbb0727ff7cdda"
+      },
+      {
+        "name": "wrist-join-gua",
+        "path": "/workspace/work/reference-grip-evidence/wrist-join-gua.png",
+        "requestedView": null,
+        "actualViewLabel": "手部 掌侧 Palm",
+        "gripBlocked": "0",
+        "gripDetails": {
+          "cpuMs": 45.200000000186265,
+          "eye": [
+            0.5297325581671002,
+            1.0361198938351506,
+            -4.182836866628169
+          ],
+          "direction": [
+            -0.9719569474897479,
+            0.22091289654632074,
+            0.08060511377031879
+          ],
+          "requestedAngleDifferenceDeg": 0,
+          "shaftAlignment": 0.4164715806120372,
+          "critical": [
+            {
+              "point": [
+                0.9627366777321188,
+                0.8988657705821932,
+                -4.191658932723467
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9612129096026746,
+                0.9112672117306915,
+                -4.191295112479103
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9643922597964045,
+                0.8910199460710351,
+                -4.191924954464977
+              ],
+              "blockers": []
+            }
+          ],
+          "optional": [
+            {
+              "point": [
+                0.9333474085597215,
+                0.9544159277623148,
+                -4.188873163479152
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            },
+            {
+              "point": [
+                0.9990115556833199,
+                0.9055368118912517,
+                -4.193362382306057
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9360190027945127,
+                0.943776384647883,
+                -4.216530504167476
+              ],
+              "blockers": []
+            }
+          ],
+          "insideSupport": [
+            {
+              "probe": 0,
+              "containing": []
+            },
+            {
+              "probe": 1,
+              "containing": []
+            },
+            {
+              "probe": 2,
+              "containing": []
+            }
+          ]
+        },
+        "phase": "Gua · scraping · 50%",
+        "roles": "刮针：拇指支撑针尾，食指甲缘沿针柄刮动。 · The thumb braces the needle tail; the index nail edge scrapes the handle.",
+        "controls": {
+          "手腕抬高角 Wrist elevation (°)": "55",
+          "持针接触 Grip style": "tip-pinch",
+          "闲置手指 Idle fingers": "curled",
+          "持针方式 Grip": "two-finger"
+        },
+        "notice": "BL23\nL\n1 needle in\ntreatment room\nlying face down · towels\ncomfortable\nconsent: given\nmin 46.7\nvisit 1 of 2\n1 needle in · 0 of 20 min\nFree camera\nRoom\nPatient\nNeedle\n手部 掌侧 Palm\n⤓\n⛶\nQuality: auto\nHigh\nMedium\nLow\n本地预览 Preview · gua · Gua · scraping · 50% · 1× · 暂停 Paused\nSchematic figure: positions on the body are drawn approximately Gua · scraping · 50%",
+        "parameters": {
+          "technique": "gua",
+          "hand": "left",
+          "grip": "two-finger",
+          "support": "none",
+          "duration": 3200,
+          "elevation": 55,
+          "style": "tip-pinch",
+          "idle": "curled",
+          "rotation": 90,
+          "cycles": 2
+        },
+        "progress": 0.5,
+        "sha256": "188fdd4106a4629e3ef425b42dc1854c92466d17423b6b4db122f787c92ec371"
+      },
+      {
+        "name": "wrist-join-approach",
+        "path": "/workspace/work/reference-grip-evidence/wrist-join-approach.png",
+        "requestedView": null,
+        "actualViewLabel": "手部 侧面 Side",
+        "gripBlocked": "0",
+        "gripDetails": {
+          "cpuMs": 38.200000000186265,
+          "eye": [
+            0.8468762638493498,
+            1.0492499776105009,
+            -4.50057178156584
+          ],
+          "direction": [
+            -0.2783741367549075,
+            0.3349070682678586,
+            -0.9001916993675224
+          ],
+          "requestedAngleDifferenceDeg": 0,
+          "shaftAlignment": 0.42564355736745013,
+          "critical": [
+            {
+              "point": [
+                0.9627366777482699,
+                0.8988657747480657,
+                -4.191659074637975
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9630236218564443,
+                0.8988823068591842,
+                -4.1910208030440685
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9624497339623794,
+                0.898849243643582,
+                -4.192297342832977
+              ],
+              "blockers": []
+            }
+          ],
+          "optional": [
+            {
+              "point": [
+                0.9285652660378653,
+                0.9274817565890692,
+                -4.184649476057434
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            },
+            {
+              "point": [
+                0.987639948056634,
+                0.8806991705732543,
+                -4.189471404946065
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9430088162016019,
+                0.9335945807093675,
+                -4.18970337017063
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            }
+          ],
+          "insideSupport": [
+            {
+              "probe": 0,
+              "containing": []
+            },
+            {
+              "probe": 1,
+              "containing": []
+            },
+            {
+              "probe": 2,
+              "containing": []
+            }
+          ]
+        },
+        "phase": "Approach and grip · 15%",
+        "roles": "默认拇指＋食指指端精密捏持。 · Thumb/index precision tip pinch.",
+        "controls": {
+          "手腕抬高角 Wrist elevation (°)": "55",
+          "持针接触 Grip style": "tip-pinch",
+          "闲置手指 Idle fingers": "curled",
+          "持针方式 Grip": "two-finger"
+        },
+        "notice": "BL23\nL\n1 needle in\ntreatment room\nlying face down · towels\ncomfortable\nconsent: given\nmin 46.7\nvisit 1 of 2\n1 needle in · 0 of 20 min\nFree camera\nRoom\nPatient\nNeedle\n手部 侧面 Side\n⤓\n⛶\nQuality: auto\nHigh\nMedium\nLow\n本地预览 Preview · nian · Approach and grip · 15% · 1× · 暂停 Paused\nSchematic figure: positions on the body are drawn approximately Approach and grip · 15%",
+        "parameters": {
+          "technique": "nian",
+          "hand": "left",
+          "grip": "two-finger",
+          "support": "none",
+          "duration": 3200,
+          "elevation": 55,
+          "style": "tip-pinch",
+          "idle": "curled",
+          "rotation": 90,
+          "cycles": 2
+        },
+        "progress": 0.15,
+        "sha256": "bd7dd1b66f3182778a7c9cb68e7e9f7b7950b86aea2470f272129b55bb81c043"
+      },
+      {
+        "name": "wrist-join-held",
+        "path": "/workspace/work/reference-grip-evidence/wrist-join-held.png",
+        "requestedView": null,
+        "actualViewLabel": "手部 侧面 Side",
+        "gripBlocked": "0",
+        "gripDetails": {
+          "cpuMs": 38.200000000186265,
+          "eye": [
+            0.8468762638493498,
+            1.0492499776105009,
+            -4.50057178156584
+          ],
+          "direction": [
+            -0.2783741367549075,
+            0.3349070682678586,
+            -0.9001916993675224
+          ],
+          "requestedAngleDifferenceDeg": 0,
+          "shaftAlignment": 0.42564355736745013,
+          "critical": [
+            {
+              "point": [
+                0.9627366777482699,
+                0.8988657747480657,
+                -4.191659074637975
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9630236218564443,
+                0.8988823068591842,
+                -4.1910208030440685
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9624497339623794,
+                0.898849243643582,
+                -4.192297342832977
+              ],
+              "blockers": []
+            }
+          ],
+          "optional": [
+            {
+              "point": [
+                0.9285652660378653,
+                0.9274817565890692,
+                -4.184649476057434
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            },
+            {
+              "point": [
+                0.987639948056634,
+                0.8806991705732543,
+                -4.189471404946065
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9430088162016019,
+                0.9335945807093675,
+                -4.18970337017063
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            }
+          ],
+          "insideSupport": [
+            {
+              "probe": 0,
+              "containing": []
+            },
+            {
+              "probe": 1,
+              "containing": []
+            },
+            {
+              "probe": 2,
+              "containing": []
+            }
+          ]
+        },
+        "phase": "Nian · twirling · 50%",
+        "roles": "默认拇指＋食指指端精密捏持。 · Thumb/index precision tip pinch.",
+        "controls": {
+          "手腕抬高角 Wrist elevation (°)": "55",
+          "持针接触 Grip style": "tip-pinch",
+          "闲置手指 Idle fingers": "curled",
+          "持针方式 Grip": "two-finger"
+        },
+        "notice": "BL23\nL\n1 needle in\ntreatment room\nlying face down · towels\ncomfortable\nconsent: given\nmin 46.7\nvisit 1 of 2\n1 needle in · 0 of 20 min\nFree camera\nRoom\nPatient\nNeedle\n手部 侧面 Side\n⤓\n⛶\nQuality: auto\nHigh\nMedium\nLow\n本地预览 Preview · nian · Nian · twirling · 50% · 1× · 暂停 Paused\nSchematic figure: positions on the body are drawn approximately Nian · twirling · 50%",
+        "parameters": {
+          "technique": "nian",
+          "hand": "left",
+          "grip": "two-finger",
+          "support": "none",
+          "duration": 3200,
+          "elevation": 55,
+          "style": "tip-pinch",
+          "idle": "curled",
+          "rotation": 90,
+          "cycles": 2
+        },
+        "progress": 0.5,
+        "sha256": "c447a98bfdac01853c95cdf060aea6da6457d440d7a80d07d0062866ab62358d"
+      },
+      {
+        "name": "wrist-join-release",
+        "path": "/workspace/work/reference-grip-evidence/wrist-join-release.png",
+        "requestedView": null,
+        "actualViewLabel": "手部 侧面 Side",
+        "gripBlocked": "0",
+        "gripDetails": {
+          "cpuMs": 38.200000000186265,
+          "eye": [
+            0.8468762638493498,
+            1.0492499776105009,
+            -4.50057178156584
+          ],
+          "direction": [
+            -0.2783741367549075,
+            0.3349070682678586,
+            -0.9001916993675224
+          ],
+          "requestedAngleDifferenceDeg": 0,
+          "shaftAlignment": 0.42564355736745013,
+          "critical": [
+            {
+              "point": [
+                0.9627366777482699,
+                0.8988657747480657,
+                -4.191659074637975
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9630236218564443,
+                0.8988823068591842,
+                -4.1910208030440685
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9624497339623794,
+                0.898849243643582,
+                -4.192297342832977
+              ],
+              "blockers": []
+            }
+          ],
+          "optional": [
+            {
+              "point": [
+                0.9285652660378653,
+                0.9274817565890692,
+                -4.184649476057434
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            },
+            {
+              "point": [
+                0.987639948056634,
+                0.8806991705732543,
+                -4.189471404946065
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9430088162016019,
+                0.9335945807093675,
+                -4.18970337017063
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            }
+          ],
+          "insideSupport": [
+            {
+              "probe": 0,
+              "containing": []
+            },
+            {
+              "probe": 1,
+              "containing": []
+            },
+            {
+              "probe": 2,
+              "containing": []
+            }
+          ]
+        },
+        "phase": "Release and retreat · 91%",
+        "roles": "默认拇指＋食指指端精密捏持。 · Thumb/index precision tip pinch.",
+        "controls": {
+          "手腕抬高角 Wrist elevation (°)": "55",
+          "持针接触 Grip style": "tip-pinch",
+          "闲置手指 Idle fingers": "curled",
+          "持针方式 Grip": "two-finger"
+        },
+        "notice": "BL23\nL\n1 needle in\ntreatment room\nlying face down · towels\ncomfortable\nconsent: given\nmin 46.7\nvisit 1 of 2\n1 needle in · 0 of 20 min\nFree camera\nRoom\nPatient\nNeedle\n手部 侧面 Side\n⤓\n⛶\nQuality: auto\nHigh\nMedium\nLow\n本地预览 Preview · nian · Release and retreat · 91% · 1× · 暂停 Paused\nSchematic figure: positions on the body are drawn approximately Release and retreat · 91%",
+        "parameters": {
+          "technique": "nian",
+          "hand": "left",
+          "grip": "two-finger",
+          "support": "none",
+          "duration": 3200,
+          "elevation": 55,
+          "style": "tip-pinch",
+          "idle": "curled",
+          "rotation": 90,
+          "cycles": 2
+        },
+        "progress": 0.91,
+        "sha256": "636906355a0f3477e49335b419a9d36942736eb7efdf65032c5523bbca00756e"
+      }
+    ],
+    "errors": [],
+    "networkErrors": [],
+    "console": [],
+    "webgl": {
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "vendor": "Google Inc. (Google)",
+      "drawingBuffer": {
+        "width": 1024,
+        "height": 768
+      },
+      "devicePixelRatio": 1,
+      "isContextLost": false,
+      "contextEvents": []
+    },
+    "previewIsolation": {
+      "before": {
+        "version": 66,
+        "timeline": 64,
+        "feet": {
+          "x": 0.25,
+          "z": -4.25,
+          "yaw": -2.5324,
+          "facing": "south-east",
+          "room": "treatment-room"
+        }
+      },
+      "after": {
+        "version": 66,
+        "timeline": 64,
+        "feet": {
+          "x": 0.25,
+          "z": -4.25,
+          "yaw": -2.5324,
+          "facing": "south-east",
+          "room": "treatment-room"
+        }
+      }
+    },
+    "captureScriptSha256": "0862c4b08ead2e645003102e1c0a11e7923c9d5f9086d3da1a80955db1ecdc9b",
+    "scope": "Actual production UI and public controls. Full practitioner retained, no geometry substitution, private camera, scene hiding or image retouch; native rAF waits after public seeks. Software WebGL evidence, not AAA certification."
+  },
+  "limitations": [
+    "The authored85deg forearm cap and original IK wrist-frame residual are unchanged. A connected skin surface is not evidence of anatomically correct wrist tracking.",
+    "A faint circumferential shading trace remains visible in the optional three-finger close-up. Small chronological left-wrist creases remain at some approach/withdrawal poses; one held adjacent-face normal dot reaches about-.028. The measured finite cases do not certify every parameter combination.",
+    "Correspondence is fixed per activation and can differ between chronological and first-update-held initialization; it is not a unique anatomical material correspondence.",
+    "The low-reach endpoint trajectories can move rapidly; loft continuity measurements must be read alongside actual source/target boundary movement.",
+    "The production patient guard normally checks the articulated hand model. The added loft and hem were separately checked in twelve explicit finite cases; this is not continuous full-parameter clearance coverage.",
+    "Materials and shape remain procedural. Tissue pressure/friction, measured cloth mechanics, clinical motion capture and target-GPU performance are unverified. Software WebGL screenshots are not AAA production certification."
+  ]
+}

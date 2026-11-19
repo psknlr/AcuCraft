@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { ChartPointSchema, IdSchema, PositionSchema } from "./common.js";
-import { PerformTechniqueSchema } from "./manipulation.js";
+import { HandPresentationSettingsShape, PerformTechniqueSchema } from "./manipulation.js";
 
 /**
  * The action interface (proposal §7.3) — every actor (the practitioner or learner under test, the support agent,
@@ -38,12 +38,18 @@ export const NeedleMotionSettingsSchema = z.object({
 }).strict();
 export type NeedleMotionSettings = z.infer<typeof NeedleMotionSettingsSchema>;
 
+export const INSERTION_SKIN_CONTACT = { min: 0.2, max: 0.8, default: 0.45 } as const;
+
 /** Optional presentation controls; they neither alter the needle path nor prescribe clinical dosing. */
 export const InsertionPresentationSchema = z.object({
+  /** Fraction of the insertion movement elapsed when the displayed tip reaches the skin. */
+  skinContactFraction: z.number().min(INSERTION_SKIN_CONTACT.min).max(INSERTION_SKIN_CONTACT.max).optional(),
   durationMs: z.number().int().min(400).max(8000).optional(),
   grip: z.enum(["two-finger", "three-finger"]).optional(),
+  ...HandPresentationSettingsShape,
   support: z.enum(["none", "stabilize", "stretch", "pinch", "press"]).optional(),
   hand: z.enum(["auto", "left", "right"]).optional(),
+  /** Approach/release opening; the held fingers fit the actual needle handle. */
   gripApertureMm: z.number().min(0).max(12).optional(),
 }).strict();
 export type InsertionPresentation = z.infer<typeof InsertionPresentationSchema>;
@@ -68,7 +74,7 @@ export const MoveTargetSchema = z.union([
   z.object({ room: IdSchema }).strict(),
   z.object({ fixture: IdSchema }).strict(),
   z.object({ person: IdSchema }).strict(),
-  z.object({ region: IdSchema, side: SideArgSchema }).strict(),
+  z.object({ region: IdSchema, side: SideArgSchema, within: z.number().finite().min(0.3).max(0.85).optional() }).strict(),
   z.object({ x: z.number().finite(), z: z.number().finite() }).strict(),
 ]);
 export type MoveTargetInput = z.infer<typeof MoveTargetSchema>;
@@ -223,13 +229,15 @@ export const ActionSchema = z.discriminatedUnion("type", [
     .strict(),
   z.object({ type: z.literal("adjust_needle"), needleId: IdSchema,
     depthCm: z.number().finite().positive().max(10).optional(),
-    technique: z.enum(["none", "lift-thrust", "rotate"]).default("none"),
+    technique: NeedleTechniqueSchema.default("none"),
+    motion: NeedleMotionSettingsSchema.optional(),
     strokeMm: z.number().finite().positive().max(20).optional(),
     rotationDeg: z.number().finite().positive().max(360).optional(),
     rotationDirection: z.enum(["alternating", "clockwise", "counterclockwise"]).optional(),
     frequencyHz: z.number().finite().min(0.1).max(10).optional(),
     durationSeconds: z.number().finite().min(0.1).max(120).optional(),
   }).strict(),
+  PerformTechniqueSchema,
   /** Ask the patient what they feel at one needle: their answer is evidence of that needle's response. */
   z.object({ type: z.literal("check_sensation"), needleId: IdSchema }).strict(),
   z.object({ type: z.literal("monitor") }).strict(),

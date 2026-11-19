@@ -61,14 +61,14 @@ import {
   type Ctx,
 } from "./runtime.js";
 import { clinicWorld, roleOf, type Scenario } from "./scenario.js";
-import { needleMotion, motionEnvelope } from "./manipulation.js";
+import { hasClinicalNeedleMotion, needleMotion, motionEnvelope } from "./manipulation.js";
 import { roomAt, walkMinutes } from "./world.js";
 import { atFixture, atFixtureOfKind, nearActor, patientBody, patientContact, patientSight, patientTalk, placeEveryone, placePatient, seatIn, siteOf, siteReach, walk, walkTarget, type MoveTarget, type Spatial } from "./space.js";
 import { ARM_REACH_M, CONTACT_RANGE_M, distanceToArea, fixtureReach, planWalk, seesArea, spotsNear } from "./world.js";
 import { detectClaims, detectCommitment, detectTopics, questionCount, type Claim } from "./text.js";
 import { clone } from "./util.js";
 import { techniqueStimulus } from "./techniques.js";
-import { manipulationTechnique, resolveManipulationMotion } from "./performance.js";
+import { HAND_PRESENTATION_PROFILES, handWristBounds, manipulationTechnique, phaseCyclesError, resolveManipulationMotion } from "./performance.js";
 
 /**
  * The encounter engine: `createEncounter` and `step`. Pure — `step` never mutates its input and returns a new state.
@@ -1434,6 +1434,15 @@ const HANDLERS: HandlerMap = {
     ctx.out.cost = 0.5;
   },
   insert_needle(ctx, a) {
+    if (a.presentation?.grip === "three-finger" && a.presentation.gripStyle !== undefined && !(HAND_PRESENTATION_PROFILES.threeFinger.gripStyles as readonly string[]).includes(a.presentation.gripStyle)) {
+      throw new Rejection("presentation-parameter", "Three-finger holding uses tip-pinch on this hand; read lookup techniques handProfiles.");
+    }
+    if (a.presentation?.wristElevationDeg !== undefined) {
+      const bounds = handWristBounds(a.presentation);
+      if (a.presentation.wristElevationDeg < bounds.min || a.presentation.wristElevationDeg > bounds.max) {
+        throw new Rejection("presentation-parameter", `Insertion wristElevationDeg must be ${bounds.min} to ${bounds.max} for the selected grip; read lookup techniques handProfiles.`);
+      }
+    }
     const { s, sc } = ctx;
     const n = s.needles[a.needleId];
     if (!n) throw new Rejection("unknown-id", `There is no needle ${a.needleId}.`);
@@ -1590,15 +1599,17 @@ const HANDLERS: HandlerMap = {
     if (s.stopped && s.stopped.visit === visitIndex(s)) addUnsafe(ctx, "continued-after-adverse-event");
     const frame = regionFrame(ctx, loc.region, loc.side);
     const depth = a.depthCm ?? loc.depthCm;
-    if (a.strokeMm !== undefined && a.technique !== "lift-thrust") throw new Rejection("invalid", "strokeMm requires lift-thrust.");
-    if ((a.rotationDeg !== undefined || a.rotationDirection !== undefined) && a.technique !== "rotate") throw new Rejection("invalid", "Rotation parameters require rotate.");
+    const clinicalMotion = hasClinicalNeedleMotion(a);
+    const stimulus = techniqueStimulus(a.technique);
+    if (a.strokeMm !== undefined && stimulus !== "lift-thrust") throw new Rejection("invalid", "strokeMm requires an axial manipulation technique.");
+    if ((a.rotationDeg !== undefined || a.rotationDirection !== undefined) && stimulus !== "rotate") throw new Rejection("invalid", "Rotation parameters require a rotation technique.");
     if (a.technique === "none" && (a.frequencyHz !== undefined || a.durationSeconds !== undefined)) throw new Rejection("invalid", "Frequency and duration require a manipulation technique.");
     const motion = needleMotion(a, depth);
     const envelope = motionEnvelope(motion);
-    if (envelope.minDepthCm <= 0) throw new Rejection("invalid", "The lift would withdraw the needle through the skin; use remove_needle instead.");
-    if (s.stopped && s.stopped.visit === visitIndex(s)) blockers.push({ by: "simulation-guard", kind: "guard", reason: "treatment has stopped: remove the needles" });
+    if (clinicalMotion && envelope.minDepthCm <= 0) throw new Rejection("invalid", "The lift would withdraw the needle through the skin; use remove_needle instead.");
+    if (clinicalMotion && s.stopped && s.stopped.visit === visitIndex(s)) blockers.push({ by: "simulation-guard", kind: "guard", reason: "treatment has stopped: remove the needles" });
     let deepest: PathAssessment | undefined;
-    if (motion.strokeMm > 0) {
+    if (clinicalMotion && motion.strokeMm > 0) {
       deepest = doInsertCheckPath(ctx, n, frame, loc.entry, loc.angleDeg, loc.azimuthDeg, envelope.maxDepthCm, blockers);
       if (deepest.executedDepthCm + 1e-9 < envelope.maxDepthCm) blockers.push({ by: "simulation-guard", kind: "guard", reason: "the full thrust exceeds the available needle path" });
     }
@@ -1612,10 +1623,10 @@ const HANDLERS: HandlerMap = {
     }
     pushNeedleEvent(s, n.id, ctx.actor.id, "adjusted", `${fmt(path.executedDepthCm)} cm, ${a.technique}`);
     const event = n.events[n.events.length - 1]!;
-      // Keep the legacy event shape for unparameterized adjustments.
-    if (a.strokeMm !== undefined || a.rotationDeg !== undefined || a.rotationDirection !== undefined || a.frequencyHz !== undefined || a.durationSeconds !== undefined) event.motion = { ...motion, depthCm: path.executedDepthCm };
+    // Keep legacy events and replay output unchanged for presentation-only requests.
+    if (clinicalMotion) event.motion = { ...motion, depthCm: path.executedDepthCm };
     const before = n.response;
-    n.response = needleResponse(sc, s, n, path, a.technique === "none" ? null : a.technique);
+    n.response = needleResponse(sc, s, n, path, stimulus);
     consequences(ctx, n, deepest ?? path);
     if (a.technique !== "none") {
       // working the needle tells the operator how the tissue holds it: evidence of this needle's response
@@ -1630,13 +1641,27 @@ const HANDLERS: HandlerMap = {
       }
     }
     ctx.out.target = `needle:${n.id}`;
-    ctx.out.detail = `${n.id} to ${fmt(path.executedDepthCm)} cm (${a.technique}; stroke ${motion.strokeMm} mm, rotation ${motion.rotationDeg} degrees, ${motion.frequencyHz} Hz, ${motion.durationSeconds} s)`;
-    ctx.out.cost = a.technique === "none" ? 0.5 : motion.durationSeconds / 60;
+    ctx.out.detail = clinicalMotion
+      ? `${n.id} to ${fmt(path.executedDepthCm)} cm (${a.technique}; stroke ${motion.strokeMm} mm, rotation ${motion.rotationDeg} degrees, ${motion.frequencyHz} Hz, ${motion.durationSeconds} s)`
+      : `${n.id} to ${fmt(path.executedDepthCm)} cm (${a.technique})`;
+    ctx.out.cost = clinicalMotion && a.technique !== "none" ? motion.durationSeconds / 60 : 0.5;
   },
   perform_technique(ctx, a) {
     const { s } = ctx;
     const definition = manipulationTechnique(a.technique);
     if (!definition) throw new Rejection("unknown-technique", `Unknown manipulation ${a.technique}: read lookup techniques.`);
+    const phaseError = phaseCyclesError(definition, a.motion?.phaseCycles);
+    if (phaseError) throw new Rejection("technique-parameter", phaseError);
+    if (definition.controls.includes("grip") && a.motion?.grip === "three-finger" && a.motion.gripStyle !== undefined && !(HAND_PRESENTATION_PROFILES.threeFinger.gripStyles as readonly string[]).includes(a.motion.gripStyle)) {
+      throw new Rejection("technique-parameter", "Three-finger holding uses tip-pinch on this hand; read lookup techniques handProfiles.");
+    }
+    const contactBounds = { wristElevationDeg: handWristBounds(a.motion, a.technique === "gua" || a.technique === "tan"), ...definition.parameterBounds };
+    for (const [key, bounds] of Object.entries(contactBounds)) {
+      const value = a.motion?.[key as keyof NonNullable<typeof a.motion>];
+      if (typeof value === "number" && (value < bounds.min || value > bounds.max)) {
+        throw new Rejection("technique-parameter", `${a.technique}: ${key} must be ${bounds.min} to ${bounds.max} for this authored contact pose; read lookup techniques handProfiles.`);
+      }
+    }
     const blockers: Protection[] = [];
     if (definition.context !== "removed" && s.patient.fainted) {
       addUnsafe(ctx, "continued-after-adverse-event");
@@ -1702,15 +1727,24 @@ const HANDLERS: HandlerMap = {
       touchSite(ctx, region, side, `${definition.zh} (${definition.id}) performance`);
       soil(s, ctx.actor);
     }
+    // Presentation-only controls must not change the authoritative state of historical requests:
+    // their recorded digests were made from the original 13-field motion object.
+    const recordedMotion: ManipulationPerformance["motion"] = { ...motion };
+    if (a.motion?.wristElevationDeg === undefined && a.motion?.gripStyle === undefined && a.motion?.idleFingerPose === undefined) {
+      delete recordedMotion.wristElevationDeg;
+      delete recordedMotion.gripStyle;
+      delete recordedMotion.idleFingerPose;
+    }
     const performance: ManipulationPerformance = {
       id: `performance-${s.attempts.length}`, requestId: ctx.req.requestId, attempt: s.attempts.length - 1, at: now(s), visit: visitIndex(s), actor: ctx.actor.id,
       technique: definition.id, context: definition.context, needleId, site: { region, side, u: entry.u, v: entry.v },
-      patientPosition: s.patient.position, motion,
+      patientPosition: s.patient.position, motion: recordedMotion,
       provenance: { kind: "illustrative", source: "acucraft-authored-demonstration-v1", review: "unreviewed", forces: "not-modelled" },
     };
     (s.performances ??= []).push(performance);
     ctx.out.target = needleId ? `needle:${needleId}` : `${region}:${side}`;
-    ctx.out.detail = `${definition.zh} (${definition.label}) at ${region} ${side}; ${motion.durationMs} ms, ${motion.cycles} cycle(s); illustrative choreography`;
+    const repeats = motion.phaseCycles ? `${motion.phaseCycles.join("/")} cycles by phase` : `${motion.cycles} cycle(s)`;
+    ctx.out.detail = `${definition.zh} (${definition.label}) at ${region} ${side}; ${motion.durationMs} ms, ${repeats}; illustrative choreography`;
     observe(ctx, `Recorded ${performance.id}: ${ctx.out.detail}. Needle depth and clinical response are unchanged; displayed contact intensity is not measured force.`);
     // Presentation time is independent of the clinical clock; no invented treatment dose or physiological effect.
     ctx.out.cost = 0;

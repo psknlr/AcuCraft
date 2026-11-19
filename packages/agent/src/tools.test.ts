@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ActionSchema, createEncounter, observeAs, referenceLibrary, step, type ActionRequestInput, type EncounterState, type Scenario } from "@acucraft/core";
+import { ActionSchema, HAND_PRESENTATION_PROFILES, createEncounter, observeAs, referenceLibrary, step, type ActionRequestInput, type EncounterState, type Scenario } from "@acucraft/core";
 import { loadContentPack, requireScenario, scenarioIds } from "@acucraft/bench";
 import { ACTION_DOCS, ACTION_TYPES, actionCatalogue, actionTool, constructPoint, constructPointTool, lookupTool, LOOKUP_TOPICS, readSkillTool, toolsFor, viewTool, VIEW_SECTIONS, type JsonSchema, type ToolContext } from "./index.js";
 
@@ -80,6 +80,49 @@ describe("action tools", () => {
     expect(n).toBeGreaterThan(900);
   });
 
+  it("offers the same reference hand controls in insertion and manipulation tool inputs", () => {
+    const insert = actionTool("insert_needle"), perform = actionTool("perform_technique");
+    const insertion = insert.inputSchema.properties.presentation!.properties!, motion = perform.inputSchema.properties.motion!.properties!;
+    for (const fields of [insertion, motion]) {
+      expect(fields.wristElevationDeg).toMatchObject({ type: "number", minimum: 35, maximum: 70 });
+      expect(fields.gripStyle!.enum).toEqual(["tip-pinch", "side-pinch"]);
+      expect(fields.idleFingerPose!.enum).toEqual(["curled", "relaxed"]);
+    }
+    const settings = { wristElevationDeg: 62.5, gripStyle: "side-pinch", idleFingerPose: "relaxed" };
+    expect(insert.toAction({ needleId: "pack-a.1", depthCm: 1.8, presentation: settings })).toMatchObject({ ok: true, action: { presentation: settings } });
+    expect(perform.toAction({ technique: "nian", needleId: "pack-a.1", motion: settings })).toMatchObject({ ok: true, action: { motion: settings } });
+    for (const invalid of [{ wristElevationDeg: 0 }, { wristElevationDeg: 71 }, { gripStyle: "free" }, { idleFingerPose: "rigid" }]) {
+      expect(insert.toAction({ needleId: "pack-a.1", depthCm: 1.8, presentation: invalid }).ok).toBe(false);
+      expect(perform.toAction({ technique: "nian", needleId: "pack-a.1", motion: invalid }).ok).toBe(false);
+    }
+  });
+
+  it("exposes the same bounded skin-contact timing to models and insertion playback", () => {
+    const tool = actionTool("insert_needle");
+    const field = tool.inputSchema.properties.presentation!.properties!.skinContactFraction!;
+    expect(field).toMatchObject({ type: "number", minimum: 0.2, maximum: 0.8 });
+    for (const skinContactFraction of [0.19, 0.2, 0.7, 0.8, 0.81]) {
+      const parsed = tool.toAction({ needleId: "pack-a.1", depthCm: 1.8, presentation: { skinContactFraction } });
+      if (skinContactFraction >= 0.2 && skinContactFraction <= 0.8) expect(parsed).toMatchObject({ ok: true, action: { presentation: { skinContactFraction } } });
+      else expect(parsed.ok).toBe(false);
+    }
+  });
+
+  it("documents the selected wrist profile and preserves an omitted three-finger wrist for the engine default", () => {
+    for (const type of ["insert_needle", "perform_technique"] as const) {
+      const tool = actionTool(type), key = type === "insert_needle" ? "presentation" : "motion";
+      const description = tool.inputSchema.properties[key]!.properties!.wristElevationDeg!.description!;
+      expect(description).toContain("Two-finger holding: 35 to 70 degrees, default 55");
+      expect(description).toContain("three-finger support: 44 to 51 degrees, default 48");
+      expect(description).toContain("handProfiles");
+      expect(tool.inputSchema.properties[key]!.properties!.gripStyle!.description).toContain("handProfiles.threeFinger");
+      const request = type === "insert_needle" ? { needleId: "pack-a.1", depthCm: 1.8, presentation: { grip: "three-finger" } } : { technique: "nian", needleId: "pack-a.1", motion: { grip: "three-finger" } };
+      const parsed = tool.toAction(request);
+      expect(parsed).toMatchObject({ ok: true, action: { [key]: { grip: "three-finger" } } });
+      if (parsed.ok) expect((parsed.action as unknown as Record<string, unknown>)[key]).not.toHaveProperty("wristElevationDeg");
+    }
+  });
+
   it("refuses what the engine would not parse, in words that say where — and nothing reaches the engine", () => {
     const insert = actionTool("insert_needle");
     const missing = insert.toAction({ needleId: "pack-a.1" });
@@ -133,6 +176,25 @@ describe("read-only tools", () => {
     expect(viewTool.run({ section: "space" }, start).output).toEqual({ minute: start.view.minute, space: start.view.space });
     expect(viewTool.run({ section: "teaching" }, start).output).toEqual({ minute: start.view.minute, teaching: null });
     expect(viewTool.run({ section: "evaluation" }, start).ok).toBe(false);
+  });
+
+  it("describes reference grip controls with shared defaults, units and per-technique availability", () => {
+    const result = lookupTool.run({ topic: "techniques", id: "nian" }, start);
+    expect(result.ok).toBe(true);
+    expect(result.output).toMatchObject({
+      handProfiles: HAND_PRESENTATION_PROFILES,
+      defaults: { nian: { wristElevationDeg: 55, gripStyle: "tip-pinch", idleFingerPose: "curled" } },
+      parameters: {
+        wristElevationDeg: { min: 35, max: 70, unit: "deg" },
+        gripStyle: { options: ["tip-pinch", "side-pinch"] },
+        idleFingerPose: { options: ["curled", "relaxed"] },
+      },
+      techniques: [expect.objectContaining({ controls: expect.arrayContaining(["wristElevationDeg", "gripStyle", "idleFingerPose"]) })],
+    });
+    expect((result.output as { handProfiles: unknown }).handProfiles).toBe(HAND_PRESENTATION_PROFILES);
+    expect((result.output as { handProfiles: typeof HAND_PRESENTATION_PROFILES }).handProfiles.threeFinger).toEqual({ wristElevationDeg: { min: 44, max: 51, default: 48 }, gripStyles: ["tip-pinch"] });
+    const fixed = lookupTool.run({ topic: "techniques", id: "gua" }, start).output as { techniques: { controls: string[] }[] };
+    expect(fixed.techniques[0]!.controls).not.toContain("gripStyle");
   });
 
   it("construct_point says what still has to be palpated and measured, then gives the position those observations give", () => {

@@ -235,7 +235,9 @@ export function walkTarget(sc: Scenario, s: EncounterState, to: MoveTarget): { o
 export function walkPlan(sc: Scenario, s: EncounterState, actorId: string, to: MoveTarget): WalkPlan {
   const target = walkTarget(sc, s, to);
   if (!target.ok) return { ok: false, code: "unknown-target", message: target.message };
-  return planWalkFrom(sc, s.actors[actorId]!.at, target.target);
+  const from = actorId === s.patient.id ? s.patient.at : s.actors[actorId]?.at;
+  if (!from) return { ok: false, code: "unknown-target", message: `There is no actor ${actorId} here.` };
+  return planWalkFrom(sc, from, target.target);
 }
 
 function planWalkFrom(sc: Scenario, from: Stance, target: WalkTarget): WalkPlan {

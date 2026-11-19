@@ -1,23 +1,39 @@
-import { Group, Mesh, Vector3, type Material, type Quaternion } from "three";
+import { Box3, Group, Mesh, Quaternion, SkinnedMesh, Texture, Vector3, type Material } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { clone as cloneSkeleton } from "three/examples/jsm/utils/SkeletonUtils.js";
 import {
-  manipulationTechnique, resolveManipulationMotion, resolveNeedleMotion, sampleTechnique,
+  ActionSchema, handWristBounds, hasClinicalNeedleMotion, manipulationTechnique, needleMotion, resolveManipulationMotion, resolveNeedleMotion, sampleTechnique,
   type ManipulationMotionSettings, type ManipulationTechniqueId, type NeedleMotionSettings, type NeedleTechnique,
   type ResolvedManipulationMotion, type TechniqueMotionSample,
+  type InsertionPresentation as SharedInsertionPresentation,
 } from "@acucraft/core";
 import type { Person } from "./cast.js";
 import type { NeedleLayer } from "./needles.js";
-import type { SkinSite } from "./sites.js";
+import { SiteFinder, type SkinSite } from "./sites.js";
+import { poseSupportPinch, type SupportPinchFrame } from "./support-pinch.js";
 import { sampleProcedure, type ProcedureKind } from "./choreography.js";
-import { ArticulatedHand, handOrientation, surfaceHandOrientation, type HandContact, type HandPose } from "./hand.js";
+import { ArticulatedHand, handOrientation, surfaceHandOrientation, type FingerPose, type HandContact, type HandPose } from "./hand.js";
+import { alignNeedleWristAzimuth } from "./needle-hand-frame.js";
+import type { GripSubjects } from "./director.js";
+import { NEEDLE_HANDLE_GRIP_Y_M, NEEDLE_HANDLE_RADIUS_M } from "./needle-shape.js";
+import { PatientClearance } from "./clearance.js";
+import { handWristSurface, type HandWristSurface } from "./wrist-join.js";
 
-export interface InsertionPresentation {
-  /** Duration of the actual insertion phase, excluding approach/grasp/release/retreat. */
-  durationMs?: number;
-  grip?: "two-finger" | "three-finger";
-  support?: "none" | "stabilize" | "stretch" | "pinch" | "press";
-  hand?: "auto" | "left" | "right";
-  gripApertureMm?: number;
+export type InsertionPresentation = SharedInsertionPresentation;
+export interface HandInspectionFrame {
+  contact: Vector3;
+  wrist: Vector3;
+  center: Vector3;
+  /** Actual palmar outward direction, distinct from the needle axis. */
+  palmNormal: Vector3;
+  radial: Vector3;
+  surfaceNormal: Vector3;
+  radius: number;
+  /** Real working contacts and joint landmarks used to keep inspection views clear of sleeves and bodies. */
+  visibilityPoints: Vector3[];
+  gripSubjects?: GripSubjects;
+  /** Actual shaft direction, for avoiding inspection views that visually collapse the needle. */
+  needleAxis?: Vector3;
 }
 export interface TechniquePerformanceInput {
   id: string;
@@ -34,7 +50,7 @@ export interface ProcedurePlayback {
   technique: string | null;
   phase: string | null;
   durationMs: number;
-  /** A schematic hand target outside arm reach; the clipped hand is not drawn detached from the sleeve. */
+  /** A schematic pose, patient-clearance or arm-reach problem; the affected detail hand is hidden. */
   reachWarning?: string | null;
 }
 export interface PlaybackControl { paused?: boolean; speed?: number; progress?: number }
@@ -44,12 +60,15 @@ interface LegacyGesture {
   technique?: NeedleTechnique;
   motion?: NeedleMotionSettings;
   presentation?: InsertionPresentation;
+  workInput?: Record<string, unknown>;
+  workDurationMs?: number;
+  frequencyHz?: number;
 }
 interface PerformanceGesture { id: string; kind: "performance"; input: TechniquePerformanceInput; preview: boolean }
 type Gesture = LegacyGesture | PerformanceGesture;
 type ActiveGesture = Gesture & {
   start: number; side: "left" | "right"; worked: boolean; finished: boolean;
-  grip: Vector3; axis: Vector3; elapsed: number; lastNow: number; primeClock: boolean;
+  grip: Vector3; axis: Vector3; initialGrip: Vector3; elapsed: number; lastNow: number; primeClock: boolean;
 };
 const finiteClamp = (value: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, Number.isFinite(value) ? value : lo));
 const copySite = (site: SkinSite): SkinSite => ({ ...site, p: site.p.clone(), n: site.n.clone(), uDir: site.uDir.clone(), vDir: site.vDir.clone() });
@@ -70,34 +89,109 @@ export class NeedleProcedure {
   private actor: Person | null = null;
   private readonly assetGeometries = new Set<Mesh["geometry"]>();
   private readonly assetMaterials = new Set<Material>();
+  private readonly assetTextures = new Set<Texture>();
   private readonly insertion = new Map<string, InsertionPresentation>();
   private paused = false;
   private speed = 1;
   private lastNow = 0;
   private reachWarning: string | null = null;
   private playbackState: ProcedurePlayback = { ...IDLE };
-  private placements: { hand: ArticulatedHand; side: "left" | "right"; desiredWrist: Vector3; orientation: Quaternion; reach: number }[] = [];
+  private readonly clearance = new PatientClearance();
+  private readonly supportSites = new WeakMap<Person, SiteFinder>();
+  private readonly clearanceRoll = new Map<ArticulatedHand, number>();
+  private readonly clearancePlan = new Map<ArticulatedHand, number>();
+  private readonly fingerPoses = new Map<ArticulatedHand, FingerPose>();
+  private readonly wristSurfaces = new Map<ArticulatedHand, HandWristSurface>();
+  private placements: { hand: ArticulatedHand; side: "left" | "right"; desiredWrist: Vector3; orientation: Quaternion; reach: number; anchor: HandContact }[] = [];
 
-  constructor(private readonly needles: NeedleLayer, private readonly practitioner: () => Person | null, private readonly focus: (id: string) => void) {
+  constructor(private readonly needles: NeedleLayer, private readonly practitioner: () => Person | null, private readonly focus: (id: string) => void,
+    private readonly patient: () => Person | null = () => null) {
     this.group.name = "precision-needling";
     this.group.visible = false;
   }
 
   get playback(): ProcedurePlayback { return { ...this.playbackState }; }
 
+  /** A complete hand frame for inspection, without rescanning every deformed mesh each display frame. */
+  inspectionFrame(forCamera = false): HandInspectionFrame | null {
+    const hand = this.hand, placement = this.placements.find((p) => p.hand === hand);
+    if (!hand?.root.visible || !placement) return null;
+    hand.root.updateWorldMatrix(true, true);
+    const contact = hand.contactAt(placement.anchor), wrist = hand.root.localToWorld(hand.wrist());
+    const bounds = new Box3().setFromPoints([contact, wrist]);
+    for (const digit of ["thumb", "index", "middle", "ring", "little"]) for (const landmark of [digit === "thumb" ? "CMC" : "MCP", "tip"]) {
+      const node = hand.model.getObjectByName(`${digit}_${landmark}`);
+      if (node) bounds.expandByPoint(node.getWorldPosition(new Vector3()));
+    }
+    const palm = hand.model.getObjectByName("palm_frame") ?? hand.model;
+    const palmOrigin = palm.getWorldPosition(new Vector3());
+    const gesture = this.active;
+    const site = gesture?.kind === "performance" ? gesture.input.site : gesture ? this.needles.siteOf(gesture.id) : null;
+    const visibilityPoints = [contact.clone()];
+    let gripSubjects: GripSubjects | undefined;
+    if (placement.anchor === "handle") {
+      // Inspect the real participating materials: side pulp, third-finger
+      // support and nail work do not share one inferred thumb/index midpoint.
+      const contacts = hand.materialContacts();
+      for (const name of Object.keys(contacts)) {
+        const material = hand.model.getObjectByName(name);
+        if (material) visibilityPoints.push(material.getWorldPosition(new Vector3()));
+      }
+      if (forCamera) {
+        const id = gesture?.kind === "performance" ? gesture.input.needleId : gesture?.id;
+        const handle = id ? this.needles.grip(id) : null;
+        if (handle) {
+          const digits = [...new Set(Object.values(contacts).map(contact => contact.surface.split("_")[0]))]
+            .filter((digit): digit is string => !!digit && digit !== "palm")
+            .map(digit => ({ digit, points: [`${digit}_nail_contact`, digit === "thumb" ? "thumb_IP" : `${digit}_DIP`]
+              .flatMap(name => hand.model.getObjectByName(name)?.getWorldPosition(new Vector3()) ?? []) }))
+            .filter(target => target.points.length > 0);
+          gripSubjects = { hand: hand.root, digits,
+            thenar: { landmarks: ["palm_frame", "thumb_CMC", "index_MCP"].flatMap(name => hand.model.getObjectByName(name)?.getWorldPosition(new Vector3()) ?? []),
+              outward: palm.localToWorld(new Vector3(0, -1, 0)).sub(palmOrigin).normalize() },
+            handlePoints: [-1, 1].map(sign => handle.point.clone().addScaledVector(handle.axis, sign * NEEDLE_HANDLE_GRIP_Y_M * 0.85)) };
+        }
+      }
+      for (const name of ["thumb_MCP", "index_PIP"]) {
+        const joint = hand.model.getObjectByName(name);
+        if (joint) visibilityPoints.push(joint.getWorldPosition(new Vector3()));
+      }
+    }
+    return {
+      contact, wrist, center: bounds.getCenter(new Vector3()), radius: bounds.getSize(new Vector3()).length() / 2 + 0.015,
+      palmNormal: palm.localToWorld(new Vector3(0, -1, 0)).sub(palmOrigin).normalize(),
+      radial: palm.localToWorld(new Vector3(0, 0, 1)).sub(palmOrigin).normalize(),
+      surfaceNormal: site?.n.clone() ?? new Vector3(0, 1, 0),
+      visibilityPoints, gripSubjects,
+      ...(placement.anchor === "handle" ? { needleAxis: new Vector3(0, 1, 0).applyQuaternion(hand.root.quaternion) } : {}),
+    };
+  }
+
   async load(url: string, skin: string): Promise<void> {
     const gltf = await new GLTFLoader().loadAsync(url);
     gltf.scene.traverse((o) => {
       if (!(o instanceof Mesh)) return;
+      if (o instanceof SkinnedMesh) o.frustumCulled = false;
       this.assetGeometries.add(o.geometry);
-      for (const material of Array.isArray(o.material) ? o.material : [o.material]) this.assetMaterials.add(material);
+      for (const material of Array.isArray(o.material) ? o.material : [o.material]) {
+        this.assetMaterials.add(material);
+        for (const value of Object.values(material)) if (value instanceof Texture) this.assetTextures.add(value);
+      }
     });
     if (this.gone) { this.disposeAssets(); return; }
     this.hand = new ArticulatedHand(gltf.scene, gltf.animations, skin);
-    this.supportHand = new ArticulatedHand(gltf.scene.clone(true), gltf.animations, skin);
+    this.supportHand = new ArticulatedHand(cloneSkeleton(gltf.scene) as Group, gltf.animations, skin);
+    for (const hand of [this.hand, this.supportHand]) {
+      const surface = handWristSurface(hand.model);
+      if (surface) this.wristSurfaces.set(hand, surface);
+    }
     this.hand.root.name = "needle-hand";
     this.supportHand.root.name = "support-hand";
     this.group.add(this.hand.root, this.supportHand.root);
+    if (this.active) {
+      this.setHandSides(this.active.side);
+      if (this.active.kind === "performance") this.renderPerformance(this.active, this.actor);
+    }
   }
 
   setInsertionPresentation(id: string, presentation: InsertionPresentation): void {
@@ -122,6 +216,21 @@ export class NeedleProcedure {
     this.stopPreview();
     this.sync();
     this.queue.push({ id, kind: "work", technique, motion });
+  }
+
+  /** Queue the complete executed action so top-level frequency, excursion and duration reach both hands and needle. */
+  workAction(id: string, input: Record<string, unknown>): void {
+    const parsed = ActionSchema.safeParse({ ...input, type: "adjust_needle", needleId: id });
+    if (!parsed.success || parsed.data.type !== "adjust_needle") return;
+    if (!hasClinicalNeedleMotion(parsed.data)) {
+      this.work(id, parsed.data.technique, parsed.data.motion);
+      return;
+    }
+    const profile = needleMotion(parsed.data, 0);
+    this.stopPreview();
+    this.sync();
+    this.queue.push({ id, kind: "work", technique: parsed.data.technique, workInput: { ...parsed.data },
+      workDurationMs: profile.durationSeconds * 1000, frequencyHz: profile.frequencyHz });
   }
 
   /** A performance from the engine's executed public record. */
@@ -160,6 +269,7 @@ export class NeedleProcedure {
     }
     // Seeking recorded actions would conceal ordering; only a clearly labelled local preview can be sought.
     if (control.progress !== undefined && active?.kind === "performance" && active.preview) {
+      this.clearanceRoll.clear();
       const motion = resolveManipulationMotion(active.input.technique, active.input.motion);
       active.elapsed = finiteClamp(control.progress, 0, 1) * sampleProcedure("work", 0, motion.durationMs).durationMs;
       active.lastNow = this.lastNow;
@@ -210,10 +320,9 @@ export class NeedleProcedure {
       requested = next.presentation?.hand ?? "auto";
     }
     const side = requested !== "auto" ? requested : person.shoulderAt("left").distanceToSquared(point) < person.shoulderAt("right").distanceToSquared(point) ? "left" : "right";
-    this.active = { ...next, start: now, side, worked: false, finished: false, grip: point.clone(), axis: axis.clone(), elapsed: 0, lastNow: now, primeClock: next.kind === "performance" && next.preview };
+    this.active = { ...next, start: now, side, worked: false, finished: false, grip: point.clone(), axis: axis.clone(), initialGrip: point.clone(), elapsed: 0, lastNow: now, primeClock: next.kind === "performance" && next.preview };
     this.actor = person;
-    this.hand?.setSide(side);
-    this.supportHand?.setSide(side === "left" ? "right" : "left");
+    this.setHandSides(side);
     const needleId = next.kind === "performance" ? next.input.needleId : next.id;
     if (needleId) this.focus(needleId);
     return true;
@@ -244,16 +353,24 @@ export class NeedleProcedure {
     } else this.renderLegacy(gesture, person, this.lastNow);
   }
 
+  private setHandSides(side: "left" | "right"): void {
+    this.hand?.setSide(side);
+    this.supportHand?.setSide(side === "left" ? "right" : "left");
+  }
+
   private renderLegacy(gesture: ActiveGesture & LegacyGesture, person: Person, now: number): void {
-    const duration = resolveNeedleMotion(gesture.technique ?? "none", gesture.motion).durationMs;
+    const duration = gesture.workDurationMs ?? resolveNeedleMotion(gesture.technique ?? "none", gesture.motion).durationMs;
     const insertionMs = gesture.kind === "insert" && gesture.presentation?.durationMs !== undefined ? finiteClamp(gesture.presentation.durationMs, 400, 8000) : undefined;
     const sample = sampleProcedure(gesture.kind, now - gesture.start, duration, insertionMs);
     if (sample.operation > 0 && !gesture.worked) {
       gesture.worked = true;
-      if (gesture.kind === "work") this.needles.work(gesture.id, gesture.technique ?? "none", gesture.start + sample.operationStartMs, gesture.motion);
+      if (gesture.kind === "work") {
+        if (gesture.workInput) this.needles.work(gesture.id, gesture.workInput, gesture.start + sample.operationStartMs);
+        else this.needles.work(gesture.id, gesture.technique ?? "none", gesture.start + sample.operationStartMs, gesture.motion);
+      }
     }
     if (gesture.kind !== "work" && gesture.worked && !gesture.finished) {
-      this.needles.progress(gesture.id, gesture.kind, Math.min(0.99999, sample.operation));
+      this.needles.progress(gesture.id, gesture.kind, Math.min(0.99999, sample.operation), gesture.presentation?.skinContactFraction);
       if (sample.operation === 1 && sample.grip < 0.01) {
         this.needles.progress(gesture.id, gesture.kind, 1);
         gesture.finished = true;
@@ -265,18 +382,33 @@ export class NeedleProcedure {
     this.placements = [];
     const hand = this.hand;
     if (hand) {
-      const phase = sample.operating ? ((now - gesture.start - sample.operationStartMs) / duration * (gesture.motion?.cycles ?? 3)) % 1 : 0;
-      hand.pose({ pose: gesture.presentation?.grip === "three-finger" ? "tripod" : "pinch", grip: sample.grip,
-        apertureMm: Math.max(1.5, gesture.presentation?.gripApertureMm ?? 2), phase, rotationRad: handle?.rotation ?? 0 });
-      this.placeHand(hand, person, gesture.side, gesture.grip, gesture.axis, sample.reach, "pinch", (handle?.rotation ?? 0) * 0.22);
+      const phase = sample.operating ? (gesture.frequencyHz !== undefined
+        ? (now - gesture.start - sample.operationStartMs) / 1000 * gesture.frequencyHz
+        : (now - gesture.start - sample.operationStartMs) / duration * (gesture.motion?.cycles ?? 3)) % 1 : 0;
+      // An insertion starts with a needle already in the fingers. Retained work/removal instead
+      // approaches an existing needle before closing; bringing an open hand with a floating needle
+      // to the patient is not the insertion gesture shown in the references.
+      const carrying = gesture.kind === "insert" && now - gesture.start < sample.operationStartMs;
+      this.poseHand(hand, { pose: gesture.presentation?.grip === "three-finger" ? "tripod" : "pinch", grip: carrying ? 1 : sample.grip,
+        apertureMm: gesture.presentation?.gripApertureMm ?? 2, handleRadiusM: NEEDLE_HANDLE_RADIUS_M,
+        wristElevationDeg: gesture.presentation?.wristElevationDeg ?? handWristBounds(gesture.presentation).default,
+        gripStyle: gesture.presentation?.gripStyle ?? "tip-pinch", idleFingerPose: gesture.presentation?.idleFingerPose ?? "curled",
+        axialDisplacementMm: gesture.kind === "work" && handle ? handle.point.clone().sub(gesture.initialGrip).dot(gesture.axis) * 1000 : 0,
+        continuousRoll: gesture.workInput?.technique === "rotate" && (gesture.workInput.rotationDirection === "clockwise" || gesture.workInput.rotationDirection === "counterclockwise"),
+        phase, rotationRad: handle?.rotation ?? 0 });
+      const wristRoll = Math.sin(handle?.rotation ?? 0) * 0.04;
+      this.placeHand(hand, person, gesture.side, gesture.grip, gesture.axis, sample.reach, "handle", wristRoll);
     } else this.group.visible = false;
     const support = gesture.presentation?.support ?? "none";
     const site = this.needles.siteOf(gesture.id);
     this.placeSupport(person, gesture.side, site, support, sample.reach, sample.grip, phaseValue(now - gesture.start, duration), 0.5);
     this.settleHands(person);
-    if (gesture.kind === "insert" && !gesture.worked && hand?.root.visible) this.needles.carry(gesture.id, hand.contactAt("pinch"), gesture.axis);
+    if (gesture.kind === "insert" && !gesture.worked && hand?.root.visible) this.needles.carry(gesture.id, hand.contactAt("handle"), gesture.axis);
     this.group.visible = !!this.hand?.root.visible || !!this.supportHand?.root.visible;
-    if (sample.complete) { this.finish(gesture); this.active = null; }
+    // Clinical insertion/work has its own clock; expose geometry feedback without offering the
+    // catalogue's local preview transport as a way to pause or seek that clinical action.
+    this.publish({ ...IDLE, speed: this.speed, reachWarning: this.reachWarning });
+    if (sample.complete) { this.finish(gesture); this.active = null; this.publish({ ...IDLE, speed: this.speed }); }
   }
 
   private renderPerformance(gesture: ActiveGesture & PerformanceGesture, person: Person | null): void {
@@ -298,22 +430,24 @@ export class NeedleProcedure {
       this.needles.poseTechnique(input.needleId, input.technique, elapsed, motion);
     }
     const handle = definition.context === "retained" && input.needleId ? this.needles.grip(input.needleId) : null;
-    const contact = handle?.point.clone() ?? input.site.p.clone().addScaledVector(input.site.uDir, sample.lateralMm.u / 1000).addScaledVector(input.site.vDir, sample.lateralMm.v / 1000);
-    const axis = handle?.axis.clone() ?? input.site.n.clone();
-    let anchor: HandContact = handle ? "pinch" : "index";
-    if (poseSample.contact === "nail-handle" || ["zhua", "she"].includes(poseSample.phase.primitive)) anchor = "nail";
-    else if (!handle && (poseSample.handPose === "press" || motion.support === "press")) anchor = "palm";
-    if (handle && poseSample.handPose === "scrape") contact.addScaledVector(axis, (sample.phase.progress - 0.5) * 0.016);
-    if (handle && poseSample.handPose === "flick" && !sample.nailContact) contact.addScaledVector(input.site.uDir, 0.004 * Math.sin(Math.PI * sample.phase.progress));
-    if (!handle) contact.addScaledVector(input.site.n, 0.0015);
-    const grip = envelope.grip * (elapsed === 0 ? 1 : sample.complete ? 1 : sample.grip);
-    person.faceToward?.(input.site.p, envelope.reach);
+    const site = handle ? input.site : input.site.currentSurface?.() ?? input.site;
+    const contact = handle?.point.clone() ?? site.p.clone().addScaledVector(site.uDir, sample.lateralMm.u / 1000).addScaledVector(site.vDir, sample.lateralMm.v / 1000);
+    const axis = handle?.axis.clone() ?? site.n.clone();
+    let anchor: HandContact = handle ? "handle" : "index";
+    if (!handle && poseSample.handPose === "skin-nail") anchor = "nail";
+    else if (!handle && poseSample.handPose === "press") anchor = "palm";
+    if (!handle && anchor !== "nail") contact.addScaledVector(site.n, 0.0015);
+    const grip = envelope.grip * sample.gripEngagement;
+    person.faceToward?.(site.p, envelope.reach);
     this.placements = [];
-    this.hand?.pose({ pose: poseSample.handPose,
-      grip, apertureMm: handle ? Math.max(1.5, motion.gripApertureMm) : motion.gripApertureMm, phase: (sample.phase.progress * motion.cycles) % 1,
+    if (this.hand) this.poseHand(this.hand, { pose: poseSample.handPose,
+      grip, apertureMm: motion.gripApertureMm, handleRadiusM: handle ? NEEDLE_HANDLE_RADIUS_M : undefined,
+      stabilizerGrip: envelope.grip, phase: sample.phase.cycleProgress,
+      wristElevationDeg: motion.wristElevationDeg, gripStyle: motion.gripStyle, idleFingerPose: motion.idleFingerPose,
+      axialDisplacementMm: handle && sample.withdrawalMm > 0 ? Math.max(0, contact.clone().sub(gesture.initialGrip).dot(gesture.axis) * 1000) : 0,
       rotationRad: sample.rotationRad, nailContact: sample.nailContact, intensity: motion.contactIntensity });
-    if (this.hand) this.placeHand(this.hand, person, gesture.side, contact, axis, envelope.reach, anchor, (handle?.rotation ?? 0) * 0.22, !handle);
-    this.placeSupport(person, gesture.side, input.site, motion.support, envelope.reach, envelope.grip * sample.supportContact, sample.phase.progress, motion.contactIntensity);
+    if (this.hand) this.placeHand(this.hand, person, gesture.side, contact, axis, envelope.reach, anchor, Math.sin(handle?.rotation ?? 0) * 0.04, !handle);
+    this.placeSupport(person, gesture.side, site, motion.support, envelope.reach, envelope.grip, sample.phase.progress, motion.contactIntensity);
     this.settleHands(person);
     this.group.visible = !!this.hand?.root.visible || !!this.supportHand?.root.visible;
     this.publish({ reachWarning: this.reachWarning, mode: gesture.preview ? "preview" : "record", playing: !this.paused && !envelope.complete,
@@ -324,28 +458,173 @@ export class NeedleProcedure {
     else if (envelope.complete && gesture.preview) this.paused = true;
   }
 
-  private placeHand(hand: ArticulatedHand, person: Person, side: "left" | "right", contact: Vector3, axis: Vector3, reach: number, anchor: HandContact, roll = 0, surface = false): void {
-    const contactLocal = hand.contact(anchor), wristLocal = hand.wrist();
-    const orientation = surface ? surfaceHandOrientation(contactLocal, wristLocal, hand.contactNormal(anchor), contact, axis, person.shoulderAt(side))
-      : handOrientation(contact, axis, person.shoulderAt(side), roll);
+  private poseHand(hand: ArticulatedHand, pose: FingerPose): void {
+    this.fingerPoses.set(hand, { ...pose });
+    hand.pose(pose);
+  }
+
+  /** Include the geometry that will close around the retained handle, before choosing a palm branch. */
+  private needleClearancePoses(hand: ArticulatedHand, current: FingerPose): FingerPose[] {
+    const poses = [current], gesture = this.active;
+    const endpoints = [current];
+    if (hand === this.hand && gesture?.kind === "performance") {
+      const motion = resolveManipulationMotion(gesture.input.technique, gesture.input.motion);
+      const steps = Math.max(...(motion.phaseCycles ?? [motion.cycles])) * 32;
+      for (let step = 0; step <= steps; step++) {
+        const elapsed = finiteClamp(motion.durationMs * step / steps, 0.001, motion.durationMs - 0.001);
+        const sample = sampleTechnique(gesture.input.technique, elapsed, motion);
+        const pose: FingerPose = { ...current, pose: sample.handPose, grip: sample.gripEngagement, stabilizerGrip: 1,
+          phase: sample.phase.cycleProgress, rotationRad: sample.rotationRad,
+          nailContact: sample.nailContact, axialDisplacementMm: sample.withdrawalMm };
+        poses.push(pose);
+        if (step === 0 || step === steps) endpoints.push(pose);
+      }
+    }
+    // A fully closed shape alone misses the wider thumb and finger geometry
+    // during acquisition and release. These are the same anatomical poses used
+    // by the renderer; no inflated proxy or altered hand scale is involved.
+    for (const endpoint of endpoints) for (let step = 0; step <= 8; step++) {
+      const grip = step / 8;
+      poses.push({ ...endpoint, grip: endpoint.grip * grip, stabilizerGrip: grip });
+    }
+    return poses;
+  }
+
+  private placeHand(hand: ArticulatedHand, person: Person, side: "left" | "right", contact: Vector3, axis: Vector3, reach: number, anchor: HandContact, roll = 0, surface = false, pinch?: SupportPinchFrame | null): void {
+    const gesture = this.active;
+    const site = gesture?.kind === "performance" ? gesture.input.site : gesture ? this.needles.siteOf(gesture.id) : null;
+    const workingContact = contact;
+    // Approach and retreat above the local skin plane rather than cutting diagonally through the
+    // patient with the carried needle. The arc vanishes before any recorded insertion takes place.
+    if (site && reach > 0 && reach < 1) contact = contact.clone().addScaledVector(site.n, Math.sin(Math.PI * reach) * 0.08);
+    const contactLocal = pinch?.point ?? hand.contact(anchor), wristLocal = hand.wrist();
+    let orientation = surface ? surfaceHandOrientation(contactLocal, wristLocal, pinch?.normal ?? hand.contactNormal(anchor), contact, axis, person.shoulderAt(side))
+      : alignNeedleWristAzimuth(handOrientation(contact, axis, person.shoulderAt(side), roll), contactLocal, wristLocal);
+    const patient = this.patient();
+    if (patient && hand.contactValid) {
+      const base = orientation.clone(), normal = axis.clone().normalize();
+      // Choose a needle-hand branch against the working point before adding
+      // the approach arc. A branch that only clears while hovering can force
+      // a sudden palm turn when the hand arrives or starts retreating.
+      const clearanceContact = anchor === "handle" && !surface ? workingContact : contact;
+      const currentPose = this.fingerPoses.get(hand);
+      const tripod = anchor === "handle" && currentPose?.pose === "tripod";
+      const turns = [0, -15, -30, -45, 15, 30, 45, -60, 60, -75, 75, -90, 90];
+      if (tripod) turns.push(-105, 105, -120, 120);
+      const candidates = turns.map((degrees) => degrees * Math.PI / 180);
+      if (tripod) {
+        // Turn the tripod outward first so the proximal index joint stays away from the moving trunk.
+        const outward = side === "right" ? 1 : -1;
+        candidates.sort((a, b) => Number(outward * a < 0) - Number(outward * b < 0) || Math.abs(a) - Math.abs(b));
+      }
+      const fits = (angle: number) => {
+        const candidate = new Quaternion().setFromAxisAngle(normal, angle).multiply(base);
+        hand.root.quaternion.copy(candidate);
+        // Once a working branch is planned, judge the opening hand at its actual approach height.
+        const frameContact = tripod && reach > 0.02 && reach < 1 && this.clearancePlan.has(hand) ? contact : clearanceContact;
+        hand.root.position.copy(frameContact).sub(contactLocal.clone().applyQuaternion(candidate));
+        return !this.clearance.intersects(hand.model, patient);
+      };
+      // Registration can precede the patient's first animated pose. Replan while
+      // the hand is still off screen if that first real skin pose invalidates it.
+      const plan = this.clearancePlan.get(hand);
+      // During a tripod approach the facing shoulder is still turning. Its resting wrist
+      // cannot invalidate a plan measured in the eventual working frame while hidden.
+      const detachedTripod = tripod && !!gesture && reach <= 0.02;
+      if (!detachedTripod && reach <= 0.02 && plan !== undefined && !fits(plan)) {
+        this.clearancePlan.delete(hand);
+        this.clearanceRoll.delete(hand);
+      }
+      if (anchor === "handle" && !surface && currentPose && !this.clearancePlan.has(hand)) {
+        const poses = this.needleClearancePoses(hand, currentPose);
+        const workingShoulder = person.shoulderAt(side);
+        if (tripod && site && person.faceToward) {
+          try {
+            person.faceToward(site.p, 1);
+            workingShoulder.copy(person.shoulderAt(side));
+          } finally { person.faceToward(site.p, reach); }
+        }
+        const workingBase = handOrientation(clearanceContact, axis, workingShoulder);
+        const planEnvelope = () => {
+          for (const angle of candidates) {
+            let clearsEnvelope = true;
+            for (const pose of poses) {
+              hand.pose(pose);
+              const local = hand.contact(anchor), wrist = hand.wrist();
+              const candidate = new Quaternion().setFromAxisAngle(normal, angle + Math.sin(pose.rotationRad ?? 0) * 0.04)
+                .multiply(alignNeedleWristAzimuth(workingBase, local, wrist));
+              hand.root.quaternion.copy(candidate);
+              hand.root.position.copy(clearanceContact).sub(local.applyQuaternion(candidate));
+              if (!hand.contactValid || this.clearance.intersects(hand.model, patient)) { clearsEnvelope = false; break; }
+            }
+            if (clearsEnvelope) return angle;
+          }
+          return undefined;
+        };
+        try {
+          let planned = (tripod && patient.atFullInhalation ? patient.atFullInhalation(planEnvelope) : undefined) ?? planEnvelope();
+          if (planned === undefined && tripod) {
+            // A fully open tripod tested at the seated handle may rule out every working
+            // branch. Start the raised acquisition laterally, with the index knuckle turned
+            // away from the torso. Every visible frame still checks the current mesh.
+            planned = (side === "right" ? 1 : -1) * Math.PI / 2;
+          }
+          if (planned !== undefined) this.clearancePlan.set(hand, planned);
+        } finally { hand.pose(currentPose); }
+      }
+      const preferred = this.clearanceRoll.get(hand) ?? this.clearancePlan.get(hand) ?? 0;
+      let selected: number | null = (detachedTripod && this.clearancePlan.has(hand)) || fits(preferred) ? preferred
+        : !tripod && preferred !== 0 && fits(0) ? 0 : null;
+      if (selected === null) {
+        // Stay on the previous side of the shaft whenever an adjacent cleared wrist angle exists.
+        const nearest = tripod ? candidates.filter((angle) => angle !== preferred)
+          .sort((a, b) => Math.abs(a - preferred) - Math.abs(b - preferred)) : candidates.slice(1);
+        for (const end of nearest) {
+          if (!fits(end)) continue;
+          let blocked = tripod ? preferred : end - Math.sign(end) * Math.PI / 12, clear = end;
+          for (let i = 0; i < 5; i++) {
+            const middle = (blocked + clear) / 2;
+            if (fits(middle)) clear = middle; else blocked = middle;
+          }
+          selected = clear;
+          break;
+        }
+      }
+      if (selected !== null) {
+        orientation = new Quaternion().setFromAxisAngle(normal, selected).multiply(base);
+        this.clearanceRoll.set(hand, selected);
+        // A preview seek resets frame feedback, but retains the branch planned
+        // at gesture start. Its approach and retreat must use the same side.
+        if (!this.clearancePlan.has(hand)) this.clearancePlan.set(hand, selected);
+      } else this.clearanceRoll.delete(hand);
+    }
     const wristOffset = wristLocal.sub(contactLocal).applyQuaternion(orientation);
     const desiredWrist = contact.clone().add(wristOffset);
-    person.reach(side, desiredWrist, reach, orientation);
-    this.placements.push({ hand, side, desiredWrist, orientation, reach });
+    person.reach(side, desiredWrist, reach, hand.wristOrientation(orientation));
+    this.placements.push({ hand, side, desiredWrist, orientation, reach, anchor });
   }
 
   /** Register both arms before attaching either hand: both solves must use the same final torso lean. */
   private settleHands(person: Person): void {
     const unreachable: string[] = [];
+    const invalidContacts: string[] = [];
+    const blocked: string[] = [];
     for (const placement of this.placements) {
       const { hand, side, desiredWrist, orientation, reach } = placement;
-      const result = person.reach(side, desiredWrist, reach, orientation);
+      const result = person.reach(side, desiredWrist, reach, hand.wristOrientation(orientation));
       hand.root.position.copy(result.wrist).sub(hand.wrist().applyQuaternion(orientation));
       hand.root.quaternion.copy(orientation);
-      hand.root.visible = person.holder.visible && reach > 0.02 && (result.reachable || reach < 0.99);
+      const lacksSpace = hand.contactValid && this.clearance.intersects(hand.model, this.patient());
+      hand.root.visible = hand.contactValid && !lacksSpace && person.holder.visible && reach > 0.02 && (result.reachable || reach < 0.99);
+      person.setDetailHand?.(side, hand.root.visible, this.wristSurfaces.get(hand));
       if (reach >= 0.99 && !result.reachable) unreachable.push(side);
+      if (reach >= 0.99 && !hand.contactValid) invalidContacts.push(side);
+      if (reach > 0.02 && lacksSpace) blocked.push(side);
     }
-    this.reachWarning = unreachable.length ? `Move closer: the ${unreachable.join(" and ")} hand cannot reach the selected contact.` : null;
+    this.reachWarning = invalidContacts.length
+      ? "手型无法自然贴合针柄；请调整持针方式或手法参数。 · This hand pose cannot maintain a natural grip; adjust the grip or technique."
+      : blocked.length ? "当前示意手型空间不足，已隐藏相交的细节手模型；针位和临床参数保持不变。 · This schematic hand lacks clearance; the intersecting detail hand is hidden."
+      : unreachable.length ? `Move closer: the ${unreachable.join(" and ")} hand cannot reach the selected contact.` : null;
   }
 
   private placeSupport(person: Person, mainSide: "left" | "right", site: SkinSite | null, support: NonNullable<InsertionPresentation["support"]>, reach: number, grip: number, phase: number, intensity: number): void {
@@ -355,15 +634,28 @@ export class NeedleProcedure {
       person.reach(side, null);
       return;
     }
+    site = site.currentSurface?.() ?? site;
     const pose: HandPose = support === "stretch" ? "stretch" : support === "pinch" ? "pinch" : support === "press" ? "press" : "palpate";
-    hand.pose({ pose, grip, phase, apertureMm: support === "stretch" ? 8 : 2, intensity });
+    const pinch = support === "pinch" ? poseSupportPinch(hand, grip) : null;
+    if (!pinch) this.poseHand(hand, { pose, grip, phase, apertureMm: support === "stretch" ? 8 : 2, intensity });
     // Contact remains beside the entry, toward the supporting shoulder, rather than underneath the needle.
     const tangent = person.shoulderAt(side).sub(site.p);
     tangent.addScaledVector(site.n, -tangent.dot(site.n));
     if (tangent.lengthSq() < 1e-10) tangent.copy(site.uDir);
     tangent.normalize();
-    const contact = site.p.clone().addScaledVector(tangent, 0.035).addScaledVector(site.n, 0.002);
-    this.placeHand(hand, person, side, contact, site.n, reach, support === "press" ? "palm" : support === "pinch" ? "pinch" : "index", 0, true);
+    const contact = site.p.clone().addScaledVector(tangent, 0.035);
+    let normal = site.n;
+    const patient = pinch && this.patient();
+    if (patient) {
+      let finder = this.supportSites.get(patient);
+      if (!finder) { finder = new SiteFinder(patient.rig); this.supportSites.set(patient, finder); }
+      const skin = finder.nearbySkin(contact, normal);
+      if (skin) { contact.copy(skin.p); normal = skin.n; }
+    }
+    // An open pair approaches with both rounded tips just above the patch,
+    // then settles its bearing surfaces as the thumb and index close.
+    contact.addScaledVector(normal, pinch ? 0.00012 + 0.0004 * (1 - grip) : 0.002);
+    this.placeHand(hand, person, side, contact, normal, reach, support === "press" ? "palm" : support === "pinch" ? "pinch" : "index", 0, true, pinch);
   }
 
   private finish(gesture: ActiveGesture): void {
@@ -374,6 +666,9 @@ export class NeedleProcedure {
 
   private clearHands(): void {
     this.placements = [];
+    this.clearanceRoll.clear();
+    this.clearancePlan.clear();
+    this.fingerPoses.clear();
     this.reachWarning = null;
     this.actor?.faceToward?.(null);
     this.actor?.reach("left", null);
@@ -391,7 +686,14 @@ export class NeedleProcedure {
   private disposeAssets(): void {
     for (const geometry of this.assetGeometries) geometry.dispose();
     for (const material of this.assetMaterials) material.dispose();
+    const images = new Set<{ close?: () => void }>();
+    for (const texture of this.assetTextures) {
+      texture.dispose();
+      if (texture.source.data && typeof texture.source.data === "object") images.add(texture.source.data);
+    }
+    for (const bitmap of images) bitmap.close?.();
     this.assetGeometries.clear(); this.assetMaterials.clear();
+    this.assetTextures.clear();
   }
 
   dispose(): void {
@@ -399,6 +701,7 @@ export class NeedleProcedure {
     this.reset();
     this.hand?.dispose();
     this.supportHand?.dispose();
+    this.wristSurfaces.clear();
     this.disposeAssets();
     this.group.removeFromParent();
   }

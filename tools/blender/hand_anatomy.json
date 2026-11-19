@@ -1,0 +1,380 @@
+{
+  "schemaVersion": 1,
+  "sourceHandedness": "right",
+  "description": "Authored adult-proportioned hand with one baked anatomical palm basis. Canonical palm +X points wristward, +Y dorsal, +Z radial. Source angles describe one active needle grasp; they are not a clinical neutral or universal comfort limit.",
+  "palmBasisColumns": [
+    [
+      0.30997551921944466,
+      0.8516507396391466,
+      0.4226182617406993
+    ],
+    [
+      0.14454395845259893,
+      0.3971312619671027,
+      -0.90630778703665
+    ],
+    [
+      -0.9396926207859084,
+      0.3420201433256687,
+      -0.0
+    ]
+  ],
+  "anatomyOriginM": [
+    0.02610761734492085,
+    -0.0013650208731453173,
+    -0.024956531449903643
+  ],
+  "palmCanonicalCentreM": [
+    0.05,
+    0.0,
+    0.0
+  ],
+  "palmCentreM": [
+    0.04160639330589308,
+    0.04121751610881202,
+    -0.0038256183628686815
+  ],
+  "wristM": [
+    0.05710516926686532,
+    0.08380005309076935,
+    0.01730529472416629
+  ],
+  "wristCanonicalM": [
+    0.1,
+    -4.7916009453725e-18,
+    -5.730207896555631e-18
+  ],
+  "digits": {
+    "index": [
+      [
+        0.002615301825273136,
+        0.0071854827099964,
+        -0.024956531449903643
+      ],
+      [
+        -0.009772177987831988,
+        -0.026848838360459874,
+        -0.011774050775803109
+      ],
+      [
+        -0.006262417553985032,
+        -0.01720585082077013,
+        0.006000000000000007
+      ],
+      [
+        0.001710100716628343,
+        0.004698463103929543,
+        0.006
+      ]
+    ],
+    "middle": [
+      [
+        0.020406955704106673,
+        -0.0024084380064179653,
+        -0.025771232341607418
+      ],
+      [
+        0.008646424362186406,
+        -0.03472023230913227,
+        -0.0034410319059912987
+      ],
+      [
+        0.011955788913790262,
+        -0.025627827930857102,
+        0.021765639609433146
+      ],
+      [
+        0.018252412951985805,
+        -0.008327995567119658,
+        0.02958026217921863
+      ]
+    ],
+    "ring": [
+      [
+        0.04091611727668891,
+        -0.004536067697063562,
+        -0.02232921498412657
+      ],
+      [
+        0.03108153307115723,
+        -0.03155636573148692,
+        0.0009556394847174232
+      ],
+      [
+        0.03573847109157207,
+        -0.018761533676597452,
+        0.021922403683353027
+      ],
+      [
+        0.04184894507832277,
+        -0.0019731443758350176,
+        0.024116051864645677
+      ]
+    ],
+    "little": [
+      [
+        0.05852416294455955,
+        -0.0029392302264725965,
+        -0.017166188947905302
+      ],
+      [
+        0.0512688200651203,
+        -0.022873120958132837,
+        0.0040470144876911225
+      ],
+      [
+        0.055933963602249226,
+        -0.01005574443135642,
+        0.018674088520074534
+      ],
+      [
+        0.06137630794135919,
+        0.004896973749244885,
+        0.017001633107792076
+      ]
+    ],
+    "thumb": [
+      [
+        0.029323768839923416,
+        0.08056639274099667,
+        0.027552802283044523
+      ],
+      [
+        0.015609096267115277,
+        0.04288563953199267,
+        0.0044016222830445245
+      ],
+      [
+        0.005834768563536063,
+        0.01603089487605903,
+        -0.006
+      ],
+      [
+        -0.0017101007166283467,
+        -0.004698463103929541,
+        -0.005999999999999997
+      ]
+    ]
+  },
+  "hinges": {
+    "index": [
+      -0.9396926207859082,
+      0.34202014332566905,
+      3.479345683805466e-16
+    ],
+    "middle": [
+      -0.9396926207859084,
+      0.34202014332566866,
+      0.0
+    ],
+    "ring": [
+      -0.9396926207859084,
+      0.3420201433256689,
+      8.839250766121024e-17
+    ],
+    "little": [
+      -0.9396926207859085,
+      0.3420201433256684,
+      -2.034118203259712e-16
+    ],
+    "thumb": [
+      -0.9396926207859083,
+      0.34202014332566916,
+      -8.867833230317102e-16
+    ]
+  },
+  "endVolars": {
+    "index": [
+      -4.287633411616337e-16,
+      -1.6072497613162007e-16,
+      -1.0
+    ],
+    "middle": [
+      0.1336379165677018,
+      0.36716715815272155,
+      -0.9205048534524403
+    ],
+    "ring": [
+      0.041681770298433535,
+      0.11451972269784069,
+      -0.9925461516413221
+    ],
+    "little": [
+      -0.03575083998841457,
+      -0.09822462559470509,
+      -0.9945218953682734
+    ],
+    "thumb": [
+      -7.795124621262306e-16,
+      4.510880939960634e-16,
+      1.0
+    ]
+  },
+  "padTargets": {
+    "index": [
+      0.0,
+      -2.220446049250313e-19,
+      0.0006999999999999993
+    ],
+    "thumb": [
+      0.0,
+      6.661338147750939e-19,
+      -0.0006999999999999993
+    ]
+  },
+  "padNormals": {
+    "index": [
+      6.653767949707644e-18,
+      1.0249136555475811e-18,
+      -1.0
+    ],
+    "thumb": [
+      -6.653767949707644e-18,
+      -1.0249136555475811e-18,
+      1.0
+    ]
+  },
+  "capOffsetsM": {
+    "index": 0.005,
+    "middle": 0.004,
+    "ring": 0.004,
+    "little": 0.004,
+    "thumb": 0.005
+  },
+  "adultLengthsMm": {
+    "index": [
+      38.542995,
+      20.523706,
+      23.310084
+    ],
+    "middle": [
+      41.0,
+      27.0,
+      20.0
+    ],
+    "ring": [
+      37.0,
+      25.0,
+      18.0
+    ],
+    "little": [
+      30.0,
+      20.0,
+      16.0
+    ],
+    "thumb": [
+      46.30236,
+      30.412309,
+      22.059722
+    ]
+  },
+  "sourceAnglesDeg": {
+    "index": [
+      45,
+      100,
+      60
+    ],
+    "middle": [
+      58.0,
+      78.0,
+      46.0
+    ],
+    "ring": [
+      64.0,
+      84.0,
+      50.0
+    ],
+    "little": [
+      70.0,
+      88.0,
+      53.0
+    ],
+    "thumb": [
+      null,
+      10.0,
+      20.0
+    ]
+  },
+  "thumbCmcCanonicalMm": [
+    92.96528058109749,
+    -14.58721710287339,
+    25.0
+  ],
+  "wristToThumbCmcMm": 29.78714790155389,
+  "review": "Authored coherent carpal source with actual skin and nail contacts; not a clinical calibration or motion-capture reconstruction.",
+  "sourceLabel": "Coherent carpal opposition with true volar crest pinch, a rounded volar-distal supporting index, and exact contact-normal/elevation presentation.",
+  "contactFrameHorizontalBranch": -1,
+  "precisionSides": 32,
+  "materialContactNames": [
+    "thumb_pad_contact",
+    "index_pad_contact",
+    "index_side_contact"
+  ],
+  "thumbMetacarpalSoftTissue": {
+    "minimumRadiusScale": 0.65,
+    "proximalStaticWeight": 0.78,
+    "rootStaticTransition": [
+      0.45,
+      1.0
+    ],
+    "carpalCushionM": 0.0035,
+    "metacarpalMarginCushionM": 0.001,
+    "maximumThenarCmcWeight": 0.56,
+    "description": "Authored soft-tissue volume and local CMC following; central palm and four MCP roots remain outside the influence mask. These are mesh deformation parameters, not clinical measurements."
+  },
+  "wristInterface": {
+    "canonicalU": 0.104,
+    "samples": 48,
+    "description": "Actual proximal palm ring for the runtime skin transition. The closed cap behind the join preserves a solid collision volume; all distal contacts and the carpal CMC are retained."
+  },
+  "thumbPalmSkin": {
+    "topology": "closed palm-thumb composite",
+    "aperture": {
+      "canonicalUM": [
+        0.058,
+        0.091
+      ],
+      "angularColumns": [
+        15,
+        22
+      ],
+      "ellipseExponent": 2.0,
+      "retainedAnnulusM": 0.016
+    },
+    "collar": {
+      "thumbCutMetacarpalFraction": 1.0,
+      "longitudinalSegments": 12,
+      "angularSamples": 72,
+      "palmarBulgeM": 0.004,
+      "textureChartTransition": {
+        "sourceDerivativeThroughFraction": 0.1,
+        "transitionFraction": 0.32,
+        "method": "area-weighted retained-palm UV Jacobian extension"
+      }
+    },
+    "firstWebRecess": {
+      "depthM": 0.017,
+      "canonicalUBeginM": 0.004,
+      "onsetM": 0.012,
+      "canonicalUEndM": 0.05,
+      "offsetM": 0.015,
+      "radialCentreM": 0.026,
+      "radialSpreadM": 0.013
+    },
+    "weights": {
+      "method": "positive Dirichlet field on final exported physical triangle graph",
+      "radiusM": 0.032,
+      "conductancePower": 2,
+      "minimumEdgeM": 5e-05,
+      "fixedCentralRadialBelowM": 0.01,
+      "fixedCarpalUFromM": 0.101,
+      "fixedDistalThumbAfterIpM": 0.0045,
+      "relativeTolerance": 1e-11
+    },
+    "description": "One visible closed outer skin, with a rounded aperture and regular parallel-transported collar; semantic palm/thumb partitions share positions, normals and influences. Source bones and rigid distal bearing remain unchanged.",
+    "correctives": {
+      "source": "hand_thumb_web_correctives.json",
+      "sha256": "b6787c52e415484f650339e8661da7fda02faa40f4723f328e54939d1b9507d5"
+    }
+  }
+}

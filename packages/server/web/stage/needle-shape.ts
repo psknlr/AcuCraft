@@ -3,6 +3,11 @@ import { BufferAttribute, BufferGeometry, Quaternion, Vector3 } from "three";
 const SEGMENTS = 16;
 const SIDES = 8;
 const RADIUS = 0.00024;
+/** Shared by the rendered handle and the articulated surface-contact solver. */
+export const NEEDLE_HANDLE_LENGTH_M = 0.025;
+export const NEEDLE_HANDLE_GRIP_Y_M = NEEDLE_HANDLE_LENGTH_M / 2;
+export const NEEDLE_HANDLE_RADIUS_M = 0.0007;
+export const needleHandleRadiusAt = (offsetM: number) => NEEDLE_HANDLE_RADIUS_M + Math.max(-0.0125, Math.min(0.0125, offsetM)) * (0.00004 / NEEDLE_HANDLE_LENGTH_M);
 
 /**
  * An exterior-only, length-preserving drawing aid. The entry point stays at the origin; the interior needle
@@ -36,6 +41,7 @@ export function exteriorGeometry(): BufferGeometry {
   const count = (SEGMENTS + 1) * (SIDES + 1);
   geometry.setAttribute("position", new BufferAttribute(new Float32Array(count * 3), 3));
   geometry.setAttribute("normal", new BufferAttribute(new Float32Array(count * 3), 3));
+  geometry.setAttribute("shaftAxisRadius", new BufferAttribute(new Float32Array(count * 3), 3));
   const indices: number[] = [];
   for (let i = 0; i < SEGMENTS; i++) for (let side = 0; side < SIDES; side++) {
     const a = i * (SIDES + 1) + side, b = a + SIDES + 1;
@@ -45,10 +51,12 @@ export function exteriorGeometry(): BufferGeometry {
   return geometry;
 }
 
-export function updateExteriorGeometry(geometry: BufferGeometry, points: Vector3[]): void {
+export function updateExteriorGeometry(geometry: BufferGeometry, points: Vector3[], radiusM = RADIUS): void {
   const positions = geometry.getAttribute("position") as BufferAttribute;
   const normals = geometry.getAttribute("normal") as BufferAttribute;
+  const axes = geometry.getAttribute("shaftAxisRadius") as BufferAttribute;
   const tangent = new Vector3(), normal = new Vector3(), turn = new Quaternion();
+  const radius = Number.isFinite(radiusM) && radiusM > 0 ? radiusM : RADIUS;
   for (let i = 0; i <= SEGMENTS; i++) {
     const centre = points[i]!;
     tangent.copy(points[Math.min(SEGMENTS, i + 1)]!).sub(points[Math.max(0, i - 1)]!);
@@ -59,9 +67,10 @@ export function updateExteriorGeometry(geometry: BufferGeometry, points: Vector3
       const angle = side / SIDES * Math.PI * 2;
       normal.set(Math.cos(angle), 0, Math.sin(angle)).applyQuaternion(turn);
       const index = i * (SIDES + 1) + side;
-      positions.setXYZ(index, centre.x + normal.x * RADIUS, centre.y + normal.y * RADIUS, centre.z + normal.z * RADIUS);
+      positions.setXYZ(index, centre.x + normal.x * radius, centre.y + normal.y * radius, centre.z + normal.z * radius);
       normals.setXYZ(index, normal.x, normal.y, normal.z);
+      axes.setXYZ(index, tangent.x * radius, tangent.y * radius, tangent.z * radius);
     }
   }
-  positions.needsUpdate = normals.needsUpdate = true;
+  positions.needsUpdate = normals.needsUpdate = axes.needsUpdate = true;
 }

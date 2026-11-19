@@ -51,7 +51,6 @@ export function stageCard(id: string, info: Info, onPick: (needle: string | null
   const navigation = navigationControls(id);
   const host = h("div", { class: "stage", tabindex: "-1" });
   const movement = movementPanel(id);
-  const el = h("section", { class: "card stage-card", "aria-label": "3D view of the encounter" }, host, movement.el);
   let handle: StageHandle | null = null;
   const manipulation = manipulationControls(id, {
     preview: (request) => {
@@ -61,7 +60,7 @@ export function stageCard(id: string, info: Info, onPick: (needle: string | null
     playback: (state) => handle?.setPlayback(state),
     cancelPreview: () => handle?.cancelPreview(),
   });
-  const el = h("section", { class: "card stage-card", "aria-label": "3D view of the encounter" }, host, manipulation.el, navigation.el);
+  const el = h("section", { class: "card stage-card", "aria-label": "3D view of the encounter" }, host, manipulation.el, movement.el, navigation.el);
   let pending: EncounterSnapshot | null = null;
   let gone = false;
   const say = (text: string) => replace(host, h("div", { class: "stage-off" }, h("p", null, text)));
@@ -87,6 +86,8 @@ export function stageCard(id: string, info: Info, onPick: (needle: string | null
     update(snapshot) {
       pending = snapshot;
       movement.update(snapshot);
+      navigation.update(snapshot.view, snapshot.summary.status !== "open");
+      manipulation.update(snapshot);
       feed(snapshot);
     },
     highlight(needle) {
