@@ -9,6 +9,22 @@ visual simulation, without anatomical, motion-capture or clinical validation.
 [Reference interpretation, shared controls and inspection views](REFERENCE-POSES.md)
 describes how the supplied images inform the implementation.
 
+## Where the fingers meet the palm
+
+The previous hand had four individually capped fingers overlapping the palm.
+The new hand has one closed skin surface from the wrist to all five fingertips.
+On the thumb side, the thenar mound meets the index side of the first web.
+Between the four long fingers, three webs descend from the knuckle row into
+the softer pads on the palm side.
+Each finger and its socket share a ring of points with the same bone weights,
+skin colour and surface normals. This lets the web follow its neighbours as
+they bend by different amounts. Studio tests contact against this combined
+outer skin.
+
+[Compare the open hand and loaded pinch from matched camera angles](img/hand-finger-palm-junctions.png) ·
+[Read the surface and movement measurements](HAND-JUNCTION-VALIDATION.json) ·
+[Watch the hand in all 36 Studio recordings](STUDIO-RECORDINGS.md)
+
 ## Finger shape during a grip
 
 The index through little finger now narrow along the phalanges and broaden at
@@ -38,8 +54,8 @@ shows its clearance message and hides the intersecting detail hand.
 ## Thumb and palm skin
 
 The palm and thumb meet at a low, broad thenar mound and a shallow
-first web. The generated `palm_surface` and `thumb_skin` meshes are two charts
-of one closed surface. Their shared vertices carry the same positions, normals,
+first web. The generated `palm_surface` and `thumb_skin` meet along the thumb
+root of the six-part exterior. Their shared vertices carry the same positions, normals,
 texture coordinates and named bone weights. The thumb collar narrows into the
 metacarpal and blends into the thenar mound. The UV field extends the palm chart
 across the join so that the normal map follows the same direction on both sides.

@@ -57,6 +57,8 @@ The [reference-based hand controls](docs/REFERENCE-POSES.md) add compact tip/sid
 holding, wrist elevation and graduated idle-finger poses. The **手部 Grip** camera
 shows the complete hand from three angles for inspecting the actual motion.
 
+[观看 36 种针法实录 · Watch all 36 Studio recordings](docs/STUDIO-RECORDINGS.md)
+
 ![The workspace: the complete record of a low-back-pain encounter around a live 3D view of the treatment room — the patient face down on the couch with needles in the lower back and their labels, the practitioner beside the couch](docs/img/web-workspace.png)
 
 > **Status: first implementation milestone of the design proposal.** The engine, the evaluator and a pilot content pack
