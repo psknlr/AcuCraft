@@ -1,13 +1,13 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { Box3, BufferGeometry, DoubleSide, Mesh, MeshBasicMaterial, Quaternion, Ray, Raycaster, Triangle, Vector3, type Object3D, type SkinnedMesh } from "three";
+import { BoxGeometry, Mesh, Quaternion, Triangle, Vector3, type Object3D, type SkinnedMesh } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { describe, expect, it } from "vitest";
 import { THREE_FINGER_WRIST_BOUNDS, THREE_FINGER_WRIST_DEFAULT, sampleTechnique } from "@acucraft/core";
 import { ArticulatedHand } from "../web/stage/hand.js";
 import { sampleProcedure } from "../web/stage/choreography.js";
 import { NEEDLE_HANDLE_RADIUS_M, exteriorGeometry, needleHandleRadiusAt, updateExteriorGeometry } from "../web/stage/needle-shape.js";
-import { collectCompositeSkin, sampleCompositeSkin, type CompositeSkin } from "../../../tools/test/hand-composite-skin.js";
+import { distalSkinIntrusion as measureDistalIntrusion, posedSkinRegion } from "../../../tools/test/hand-skin-region.js";
 
 const asset = readFileSync(process.env.ACUCRAFT_HAND_GEOMETRY_FIXTURE ?? fileURLToPath(new URL("../../../content/world/assets/models/acu-practitioner-hand.glb", import.meta.url)));
 const toleranceM = 0.000025;
@@ -166,130 +166,8 @@ function jointRotations(hand: ArticulatedHand): Quaternion[] {
   });
 }
 
-interface Occupancy { inside: boolean; nearestSkin?: string }
-interface SurfaceTree { box: Box3; children?: [SurfaceTree, SurfaceTree]; triangles?: Triangle[]; region?: string; occupancy?: WeakMap<Vector3, Occupancy> }
-const triangleSkin = new WeakMap<Triangle, string>();
-const compositeSkins = new WeakMap<ArticulatedHand, CompositeSkin>();
-const compositeTrees = new WeakMap<ArticulatedHand, { signature: (number | object | undefined)[]; tree: SurfaceTree }>();
-
-function thumbPalmComposite(hand: ArticulatedHand): CompositeSkin | undefined {
-  const names = ["palm_surface", "thumb_skin"];
-  const declarations = names.map((name) => node(hand, name).userData.skinUnion);
-  if (declarations.every((declaration) => declaration === undefined)) return undefined;
-  // The chart declaration has evolved from a version string into a material-
-  // section object. Its representation cannot silently select legacy parity
-  // for an open partition; the physical closure below remains authoritative.
-  expect(declarations.every(Boolean), "both actual partitions declare the shared skin assembly").toBe(true);
-  let composite = compositeSkins.get(hand);
-  if (!composite) {
-    composite = collectCompositeSkin(hand.model, names);
-    // Regional occupancy below is valid only for the actual closed assembly.
-    // No cap, collision-only skin or normal/position averaging closes a part.
-    expect(composite.topology.boundaryEdgeCount).toBe(0);
-    expect(composite.topology.nonManifoldEdgeCount).toBe(0);
-    expect(composite.topology.windingConflictCount).toBe(0);
-    expect(composite.topology.connectedComponentCount).toBe(1);
-    expect(composite.seamVertices.length).toBeGreaterThan(0);
-    compositeSkins.set(hand, composite);
-  }
-  return composite;
-}
-
-/** Cache only an identical physical pose, including corrective-only changes. */
-function compositeTarget(hand: ArticulatedHand, composite: CompositeSkin): SurfaceTree {
-  hand.root.updateWorldMatrix(true, true);
-  const signature: (number | object | undefined)[] = [];
-  for (const mesh of composite.meshes) {
-    mesh.skeleton.update();
-    signature.push(mesh, mesh.geometry, ...mesh.matrixWorld.elements, ...mesh.bindMatrix.elements, ...mesh.bindMatrixInverse.elements,
-      ...mesh.skeleton.boneMatrices, Number(mesh.geometry.morphTargetsRelative), ...(mesh.morphTargetInfluences ?? []));
-    // Three's CPU vertex path uses the full-precision matrices, so two nearby
-    // poses must not alias merely because their GPU float32 palettes agree.
-    mesh.skeleton.bones.forEach((bone, index) => signature.push(bone, ...bone.matrixWorld.elements, ...mesh.skeleton.boneInverses[index]!.elements));
-    for (const attribute of [mesh.geometry.index, ...Object.values(mesh.geometry.attributes), ...Object.values(mesh.geometry.morphAttributes).flat()]) {
-      if (!attribute) { signature.push(undefined); continue; }
-      const versioned = attribute as { version?: number; data?: { version: number } };
-      signature.push(attribute, attribute.array, attribute.count, versioned.version ?? versioned.data?.version);
-    }
-  }
-  const previous = compositeTrees.get(hand);
-  if (previous && signature.length === previous.signature.length && signature.every((value, index) => value === previous.signature[index])) return previous.tree;
-  sampleCompositeSkin(composite);
-  const triangles = composite.triangles.map((triangle, index) => {
-    triangleSkin.set(triangle, composite.triangleSources[index]!.meshName);
-    return triangle;
-  });
-  const tree = { ...surfaceTree(triangles), occupancy: new WeakMap<Vector3, Occupancy>() };
-  compositeTrees.set(hand, { signature, tree });
-  return tree;
-}
-
-function surfaceTree(triangles: Triangle[]): SurfaceTree {
-  const box = new Box3();
-  for (const triangle of triangles) box.expandByPoint(triangle.a).expandByPoint(triangle.b).expandByPoint(triangle.c);
-  if (triangles.length <= 12) return { box, triangles };
-  const size = box.getSize(new Vector3()), axis = size.x >= size.y && size.x >= size.z ? "x" : size.y >= size.z ? "y" : "z";
-  triangles.sort((a, b) => a.a[axis] + a.b[axis] + a.c[axis] - b.a[axis] - b.b[axis] - b.c[axis]);
-  const middle = Math.floor(triangles.length / 2);
-  return { box, children: [surfaceTree(triangles.slice(0, middle)), surfaceTree(triangles.slice(middle))] };
-}
-
-function posedSurface(hand: ArticulatedHand, name: string): { points: Vector3[]; tree: SurfaceTree } {
-  const mesh = node(hand, name) as SkinnedMesh;
-  mesh.skeleton.update();
-  const points = Array.from({ length: mesh.geometry.getAttribute("position").count }, (_, index) => mesh.getVertexPosition(index, new Vector3()).applyMatrix4(mesh.matrixWorld));
-  const indices = mesh.geometry.index!, triangles: Triangle[] = [];
-  for (let index = 0; index < indices.count; index += 3) triangles.push(new Triangle(points[indices.getX(index)]!, points[indices.getX(index + 1)]!, points[indices.getX(index + 2)]!));
-  const composite = ["palm_surface", "thumb_skin"].includes(name) ? thumbPalmComposite(hand) : undefined;
-  if (composite) {
-    return { points, tree: { ...compositeTarget(hand, composite), region: name } };
-  }
-  return { points, tree: surfaceTree(triangles) };
-}
-
-/** Three independent rays avoid edge-grazing parity errors on mirrored skin. Contact stays at 50µm. */
-function insideSurface(point: Vector3, tree: SurfaceTree): boolean {
-  const cached = tree.occupancy?.get(point);
-  if (cached) return cached.inside && (!tree.region || cached.nearestSkin === tree.region);
-  const remember = (inside: boolean, nearestSkin?: string) => {
-    tree.occupancy?.set(point, { inside, nearestSkin });
-    return inside && (!tree.region || nearestSkin === tree.region);
-  };
-  if (!tree.box.containsPoint(point)) return remember(false);
-  const hit = new Vector3();
-  let votes = 0;
-  for (const direction of [[0.431, 0.293, 0.853], [0.853, 0.431, 0.293], [0.293, 0.853, 0.431]]) {
-    const ray = new Ray(point, new Vector3(...direction).normalize()), distances: number[] = [];
-    const visit = (node: SurfaceTree) => {
-      if (!ray.intersectBox(node.box, hit)) return;
-      if (node.children) { visit(node.children[0]); visit(node.children[1]); }
-      else for (const triangle of node.triangles!) if (ray.intersectTriangle(triangle.a, triangle.b, triangle.c, false, hit)) {
-        const distance = point.distanceTo(hit);
-        if (distance > 1e-7 && !distances.some((existing) => Math.abs(existing - distance) < 1e-7)) distances.push(distance);
-      }
-    };
-    visit(tree);
-    if (distances.length % 2 !== 0) votes++;
-  }
-  if (votes < 2) return remember(false);
-  let nearest = Infinity, nearestSkin: string | undefined;
-  const distance = (node: SurfaceTree) => {
-    if (node.box.distanceToPoint(point) >= nearest) return;
-    if (node.children) { distance(node.children[0]); distance(node.children[1]); }
-    else for (const triangle of node.triangles!) {
-      triangle.closestPointToPoint(point, hit);
-      const separation = point.distanceTo(hit);
-      if (separation < nearest) { nearest = separation; nearestSkin = triangleSkin.get(triangle); }
-    }
-  };
-  distance(tree);
-  // Palm and thumb are now regions of one closed outer skin. Use the nearest
-  // real boundary's ownership to retain the existing exposed-palm/into-thumb
-  // distinction; aliasing both logical regions to the same unqualified volume
-  // would make that pair of checks tautological. The independent composite
-  // triangle-crossing regression catches folded self-intersections even when a
-  // thumb sample lies on its own surface and its nearest distance is zero.
-  return remember(nearest > 0.00005, nearestSkin);
+function posedSurface(hand: ArticulatedHand, name: string) {
+  return posedSkinRegion(node(hand, name) as SkinnedMesh);
 }
 
 /** The shaft radius comes from the same generated tube that the scene renders. */
@@ -321,75 +199,29 @@ function needleSkinIntrusion(hand: ArticulatedHand, shaftRadius: number): number
 function distalSkinIntrusion(hand: ArticulatedHand, fromDigit: string, intoDigit: string): number {
   const from = node(hand, `${fromDigit}_skin`) as SkinnedMesh;
   const into = node(hand, intoDigit === "palm_surface" ? intoDigit : `${intoDigit}_skin`) as SkinnedMesh;
-  for (const skin of [from, into]) skin.skeleton?.update();
-  if (["thumb", "palm_surface"].includes(intoDigit) && thumbPalmComposite(hand)) {
-    const target = posedSurface(hand, into.name).tree;
-    const joints = from.geometry.getAttribute("skinIndex"), weights = from.geometry.getAttribute("skinWeight");
-    const nearest = new Vector3();
-    let intrusion = 0;
-    for (let vertex = 0; vertex < from.geometry.getAttribute("position").count; vertex++) {
-      let distalWeight = 0;
-      for (let influence = 0; influence < joints.itemSize; influence++) {
-        if (/(_distal|_DIP)$/.test(from.skeleton.bones[joints.getComponent(vertex, influence)]!.name)) distalWeight += weights.getComponent(vertex, influence);
-      }
-      if (distalWeight < 0.8) continue;
-      const point = from.localToWorld(from.getVertexPosition(vertex, new Vector3()));
-      if (!insideSurface(point, target)) continue;
-      let distance = Infinity;
-      const visit = (tree: SurfaceTree) => {
-        if (tree.box.distanceToPoint(point) >= distance) return;
-        if (tree.children) { visit(tree.children[0]); visit(tree.children[1]); }
-        else for (const triangle of tree.triangles!) {
-          triangle.closestPointToPoint(point, nearest);
-          distance = Math.min(distance, point.distanceTo(nearest));
-        }
-      };
-      visit(target); intrusion = Math.max(intrusion, distance);
-      if (intrusion > 0.00005) break;
-    }
-    return intrusion;
-  }
-  const direction = new Vector3(0.431, 0.293, 0.853).normalize(), triangle = new Triangle(), nearest = new Vector3();
-  const vertices = Array.from({ length: into.geometry.getAttribute("position").count }, (_, i) => into.localToWorld(into.getVertexPosition(i, new Vector3())));
-  const indices = into.geometry.getIndex()!;
-  // Bake the actual posed target once. Raycasting a SkinnedMesh would re-skin every target
-  // triangle for every source vertex; this proxy uses the same vertices and topology in world space.
-  const geometry = new BufferGeometry().setFromPoints(vertices).setIndex(indices.clone());
-  const material = new MeshBasicMaterial({ side: DoubleSide }), proxy = new Mesh(geometry, material);
-  geometry.computeBoundingBox(); geometry.computeBoundingSphere(); proxy.updateMatrixWorld(true);
-  const raycaster = new Raycaster(new Vector3(), direction, 0.000001, 1);
-  try {
-    let intrusion = 0;
-    for (let vertex = 0; vertex < from.geometry.getAttribute("position").count; vertex++) {
-      let distalWeight = 0;
-      for (let influence = 0; influence < 4; influence++) {
-        const boneIndex = from.geometry.getAttribute("skinIndex").array[vertex * 4 + influence]!;
-        if (/(_distal|_DIP)$/.test(from.skeleton.bones[boneIndex]!.name)) distalWeight += from.geometry.getAttribute("skinWeight").array[vertex * 4 + influence]!;
-      }
-      if (distalWeight < 0.8) continue;
-      const point = from.localToWorld(from.getVertexPosition(vertex, new Vector3()));
-      const distances: number[] = [];
-      raycaster.ray.origin.copy(point);
-      for (const hit of raycaster.intersectObject(proxy, false)) {
-        if (!distances.some((distance) => Math.abs(distance - hit.distance) < 1e-7)) distances.push(hit.distance);
-      }
-      if (distances.length % 2 === 0) continue;
-      let surfaceDistance = Infinity;
-      for (let index = 0; index < indices.count; index += 3) {
-        triangle.set(vertices[indices.getX(index)]!, vertices[indices.getX(index + 1)]!, vertices[indices.getX(index + 2)]!);
-        triangle.closestPointToPoint(point, nearest);
-        surfaceDistance = Math.min(surfaceDistance, point.distanceTo(nearest));
-      }
-      intrusion = Math.max(intrusion, surfaceDistance);
-      if (intrusion > 0.00005) break;
-    }
-    return intrusion;
-  } finally {
-    geometry.dispose(); material.dispose();
-  }
+  return measureDistalIntrusion(from, into);
 }
 
 describe("needle-handle surface grip regression", () => {
+  it("measures penetration into an open finger chart from its real opposing skin surfaces", () => {
+    const geometry = new BoxGeometry(.020, .020, .040);
+    // Leave both axial cuts open, as on a section of skin between two joints.
+    const sides = geometry.groups.slice(0, 4).flatMap(({ start, count }) =>
+      Array.from({ length: count }, (_, i) => geometry.index!.getX(start + i)));
+    geometry.setIndex(sides);
+    const mesh = new Mesh(geometry);
+    try {
+      for (const mirror of [-1, 1]) {
+        mesh.scale.x = mirror;
+        const region = posedSkinRegion(mesh);
+        expect(region.intrusion(new Vector3(.0102, 0, 0))).toBe(0);
+        expect(region.intrusion(new Vector3(.0100, 0, 0))).toBeCloseTo(0, 9);
+        expect(region.intrusion(new Vector3(.0098, 0, 0))).toBeCloseTo(.0002, 9);
+        expect(region.intrusion(new Vector3(0, 0, .022))).toBe(0);
+      }
+    } finally { geometry.dispose(); }
+  });
+
   it("raises the real wrist and supports distinct tip and side grips on actual skin", async () => {
     const hand = await handRig(), lengths = chainLengths(hand);
     expect(hand.model.getObjectByName("thenar")).toBeUndefined();
@@ -516,12 +348,12 @@ describe("needle-handle surface grip regression", () => {
         hand.pose({ pose: "pinch", grip, phase: 0.3, apertureMm: 12, handleRadiusM: NEEDLE_HANDLE_RADIUS_M, gripStyle, idleFingerPose, ...motion });
         expect(hand.contactValid).toBe(true);
         const surfaces = new Map([...digits.map((digit) => `${digit}_skin`), "palm_surface"].map((name) => [name, posedSurface(hand, name)]));
-        const palm = surfaces.get("palm_surface")!.tree;
+        const palm = surfaces.get("palm_surface")!;
         for (const digit of digits) {
           const skin = node(hand, `${digit}_skin`) as SkinnedMesh, points = surfaces.get(`${digit}_skin`)!.points;
-          const external = points.filter((p) => !insideSurface(p, palm));
+          const external = points.filter((p) => palm.intrusion(p) <= 0.00005);
           for (const other of digits.filter((other) => other !== digit)) {
-            const collision = external.find((p) => insideSurface(p, surfaces.get(`${other}_skin`)!.tree));
+            const collision = external.find((p) => surfaces.get(`${other}_skin`)!.intrusion(p) > 0.00005);
             expect(collision?.toArray(), `${side}/${gripStyle}/${idleFingerPose}/${grip}/${motion.rotationRad} exposed ${digit} into ${other}`).toBeUndefined();
           }
           const joints = skin.geometry.getAttribute("skinIndex"), weights = skin.geometry.getAttribute("skinWeight");
@@ -529,7 +361,7 @@ describe("needle-handle surface grip regression", () => {
             let distalWeight = 0;
             for (let influence = 0; influence < joints.itemSize; influence++) if (skin.skeleton.bones[joints.getComponent(vertex, influence)]?.name === `${digit}_distal`) distalWeight += weights.getComponent(vertex, influence);
             if (distalWeight < 0.8) continue;
-            expect(insideSurface(points[vertex]!, palm), `${side}/${gripStyle}/${idleFingerPose}/${grip} ${digit} distal ${vertex} into palm`).toBe(false);
+            expect(palm.intrusion(points[vertex]!) > 0.00005, `${side}/${gripStyle}/${idleFingerPose}/${grip} ${digit} distal ${vertex} into palm`).toBe(false);
           }
         }
       }
@@ -589,11 +421,11 @@ describe("needle-handle surface grip regression", () => {
       hand.setSide(side);
       hand.pose({ pose, grip: phase, phase, intensity: 1 });
       const surfaces = new Map([...digits.map((digit) => `${digit}_skin`), "palm_surface"].map((name) => [name, posedSurface(hand, name)]));
-      const palm = surfaces.get("palm_surface")!.tree;
+      const palm = surfaces.get("palm_surface")!;
       for (const digit of digits) {
         for (const other of digits.filter((other) => other !== digit && (digit === "thumb" || other === "thumb"))) {
-          const external = surfaces.get(`${digit}_skin`)!.points.filter((point) => !insideSurface(point, palm));
-          const collision = external.find((point) => insideSurface(point, surfaces.get(`${other}_skin`)!.tree));
+          const external = surfaces.get(`${digit}_skin`)!.points.filter((point) => palm.intrusion(point) <= 0.00005);
+          const collision = external.find((point) => surfaces.get(`${other}_skin`)!.intrusion(point) > 0.00005);
           expect(collision?.toArray(), `${side}/${pose}/${phase} complete exposed ${digit} into ${other}`).toBeUndefined();
         }
       }

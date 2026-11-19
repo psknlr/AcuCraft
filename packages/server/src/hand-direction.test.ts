@@ -4,7 +4,7 @@ import { Mesh, Object3D, SkinnedMesh, Vector3 } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { describe, expect, it } from "vitest";
 import { ArticulatedHand, type FingerPose } from "../web/stage/hand.js";
-import { collectCompositeSkin, sampleCompositeSkin } from "../../../tools/test/hand-composite-skin.js";
+import { collectCompositeSkin, handSkinParts, sampleCompositeSkin } from "../../../tools/test/hand-composite-skin.js";
 
 const asset = process.env.ACUCRAFT_HAND_ASSET_FIXTURE
   ?? fileURLToPath(new URL("../../../content/world/assets/models/acu-practitioner-hand.glb", import.meta.url));
@@ -121,14 +121,14 @@ describe("anatomical thumb and four-finger directions", () => {
     // The outer skin is one physical assembly split into material charts. A
     // thumb vertex is now on that assembly itself, so testing its occupancy
     // against a separately closed palm would no longer measure the junction.
-    const skin = collectCompositeSkin(hand.model);
+    const skin = collectCompositeSkin(hand.model, handSkinParts);
     try {
       expect(skin.topology.connectedComponentCount).toBe(1);
       expect(skin.topology.eulerCharacteristic).toBe(2);
       expect(skin.topology.boundaryEdgeCount).toBe(0);
       expect(skin.topology.nonManifoldEdgeCount).toBe(0);
       expect(skin.topology.windingConflictCount).toBe(0);
-      expect(skin.seamVertices.length, "real shared palm/thumb vertices, rather than two overlapping closed shells").toBeGreaterThan(20);
+      expect(skin.seamVertices.filter((seam) => seam.meshNames.includes("thumb_skin")).length, "actual shared thumb/palm vertices").toBeGreaterThan(20);
       for (const side of ["left", "right"] as const) for (const role of roles) {
         pose(hand, side, role);
         const palm = node(hand, "palm_frame"), mcp = palm.worldToLocal(point(hand, "thumb_MCP"));

@@ -4,8 +4,8 @@
   "quaternionOrder": "xyzw",
   "provenance": {
     "calibrationInputAsset": {
-      "path": "runs/hand-calibration/phalanges.glb",
-      "sha256": "4c516312e9b1c6f5c7668e4bb461b78f14d5d587fef12d1414ac32e6b1fba1c5",
+      "path": "runs/hand-calibration/junctions.glb",
+      "sha256": "e1cf07120d2a8bb558c2af46a45b2f6d05dd5794321ea98b1a669e9ce57b1eea",
       "role": "immutable geometry calibration input; not the subsequently rebuilt GLB output hash"
     },
     "sources": {
@@ -23,15 +23,15 @@
       },
       "anatomy": {
         "path": "tools/blender/hand_anatomy.json",
-        "sha256": "c1f0041ffea660c2fb6634ac7ad61c9b3e393ab4e8a5700a3b601f24ef7d34da"
+        "sha256": "a53ab76650e468656be5f6f48d2ceab8074b8aa534b4c5097ffda87b51bbb26f"
       },
       "builder": {
         "path": "tools/blender/build_hand.py",
-        "sha256": "52bee3d500f1fa3193a468e50122f47be213cd0726058499a1ff066d655f283e"
+        "sha256": "e6784de9a11b128b39b088a0d03f9f797965733666cb25535851f97cd9451b4f"
       },
       "correctives": {
         "path": "tools/blender/hand_thumb_web_correctives.json",
-        "sha256": "cbd574792d554a04663d793fa19147787b19833474b3a2feced6d49878e7334e"
+        "sha256": "edf8972279e279d7feb74880b56d5e0870a23a1a9f0f2b12e59b717dea475c11"
       },
       "exporter": {
         "path": "tools/blender/export_hand_poses.ts",
@@ -1502,11 +1502,11 @@
         "normalField": "skin-bary",
         "definition": {
           "primitive": 0,
-          "triangleIndex": 2313,
+          "triangleIndex": 2041,
           "vertexIndices": [
-            1190,
-            1227,
-            1225
+            1050,
+            1087,
+            1085
           ],
           "barycentric": [
             0.999989259014307,
@@ -1611,11 +1611,11 @@
         "normalField": "skin-bary",
         "definition": {
           "primitive": 0,
-          "triangleIndex": 2313,
+          "triangleIndex": 2041,
           "vertexIndices": [
-            1190,
-            1227,
-            1225
+            1050,
+            1087,
+            1085
           ],
           "barycentric": [
             0.999989259014307,
@@ -1720,11 +1720,11 @@
         "normalField": "skin-bary",
         "definition": {
           "primitive": 0,
-          "triangleIndex": 2313,
+          "triangleIndex": 2041,
           "vertexIndices": [
-            1190,
-            1227,
-            1225
+            1050,
+            1087,
+            1085
           ],
           "barycentric": [
             0.999989259014307,
@@ -18037,11 +18037,11 @@
               "frame": 1,
               "definition": {
                 "primitive": 0,
-                "triangleIndex": 2313,
+                "triangleIndex": 2041,
                 "vertexIndices": [
-                  1190,
-                  1227,
-                  1225
+                  1050,
+                  1087,
+                  1085
                 ],
                 "barycentric": [
                   0.999989259014307,
@@ -18058,11 +18058,11 @@
               "frame": 2,
               "definition": {
                 "primitive": 0,
-                "triangleIndex": 2313,
+                "triangleIndex": 2041,
                 "vertexIndices": [
-                  1190,
-                  1227,
-                  1225
+                  1050,
+                  1087,
+                  1085
                 ],
                 "barycentric": [
                   0.999989259014307,
@@ -18079,11 +18079,11 @@
               "frame": 18.4,
               "definition": {
                 "primitive": 0,
-                "triangleIndex": 2313,
+                "triangleIndex": 2041,
                 "vertexIndices": [
-                  1190,
-                  1227,
-                  1225
+                  1050,
+                  1087,
+                  1085
                 ],
                 "barycentric": [
                   0.999989259014307,

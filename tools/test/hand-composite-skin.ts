@@ -192,8 +192,10 @@ export function createSkinnedVertexSampler(mesh: Mesh): SkinVertexSampler {
 
 const compositeSamplers = new WeakMap<CompositeSkin, Map<SkinnedMesh, SkinVertexSampler>>();
 
+export const handSkinParts = ["palm_surface", "thumb_skin", "index_skin", "middle_skin", "ring_skin", "little_skin"];
+
 /**
- * Collect the actual palm/thumb skin assembly without closing its partitions
+ * Collect the actual skin assembly without closing its partitions
  * with invented faces. Stable weld IDs come from immutable bind positions AND
  * named bone influences, never from coincident coordinates in a curled pose.
  * UV/normal splits are physical duplicates only when both tests agree.

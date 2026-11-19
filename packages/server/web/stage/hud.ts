@@ -47,6 +47,23 @@ export interface HudStatus {
   retention: { elapsed: number; total: number } | null;
 }
 
+/** Keep a target badge off the grasp in a manual close-up as well as in the inspection preset. */
+export function needleLabelUnderHand(
+  anchors: readonly { id: string; at: Vector3 }[], contact: Vector3 | undefined, eye: Vector3,
+  activeNeedle: string | null, inspectingGrip: boolean,
+): string | null {
+  if (!contact) return null;
+  if (inspectingGrip && activeNeedle) return activeNeedle;
+  if (!inspectingGrip && (!activeNeedle || eye.distanceToSquared(contact) > 0.55 ** 2)) return null;
+  let nearest: string | null = null, distanceSquared = 0.12 ** 2;
+  for (const anchor of anchors) {
+    if (!inspectingGrip && anchor.id !== activeNeedle) continue;
+    const distance = anchor.at.distanceToSquared(contact);
+    if (distance < distanceSquared) { nearest = anchor.id; distanceSquared = distance; }
+  }
+  return nearest;
+}
+
 export class Hud {
   readonly root = el("div", "stage-hud");
   private readonly tl = el("div", "hud-tl");

@@ -2,7 +2,7 @@ import { buildClinic } from "./clinic.js";
 import { Plane, Raycaster, Vector2, Vector3 } from "three";
 import { Director, GRIP_VIEWS, gripShot, type Shot } from "./director.js";
 import { Engine } from "./engine.js";
-import { Hud } from "./hud.js";
+import { Hud, needleLabelUnderHand } from "./hud.js";
 import { NeedleLayer, type NeedleSpec } from "./needles.js";
 import { Person, patientAppearance, practitionerAppearance, practitionerPlacement, type Placement, type SetName } from "./cast.js";
 import { CONSULT, TREATMENT, type ModelRef } from "./set.js";
@@ -447,9 +447,9 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
     engine.focus(director.focusDistance, director.focusPoint, inspection ? { point: inspection.contact, normal: inspection.surfaceNormal ?? new Vector3(0, 1, 0) } : undefined);
     const r = host.getBoundingClientRect();
     const anchors = needles.anchors();
-    const nearContact = inspectingGrip && inspection ? anchors.reduce<(typeof anchors)[number] | null>((best, anchor) =>
-      anchor.at.distanceToSquared(inspection.contact) < Math.min(best?.at.distanceToSquared(inspection.contact) ?? Infinity, 0.12 ** 2) ? anchor : best, null) : null;
-    hud.place(anchors, engine.camera, r.width, r.height, procedure.group.visible, inspectingGrip ? activeInspectionNeedle ?? nearContact?.id : undefined);
+    const workingContact = inspectingGrip || inspection?.needleAxis ? inspection?.contact : undefined;
+    const coveredLabel = needleLabelUnderHand(anchors, workingContact, engine.camera.position, activeInspectionNeedle, inspectingGrip);
+    hud.place(anchors, engine.camera, r.width, r.height, procedure.group.visible, coveredLabel);
   });
   sets.ready.then(
     () => {

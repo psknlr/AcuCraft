@@ -99,6 +99,51 @@ describe("actual patient surface clearance", () => {
     expect(guard.intersects(model, subject)).toBe(true);
   });
 
+  it("uses all six open charts for shared-edge crossing and invalidates an unchanged chart when its partners change", () => {
+    const subject = patient(mesh(new BoxGeometry(0.02, 0.2, 0.02))), model = new Group();
+    const faces = geometry(new BoxGeometry(0.2, 0.02, 0.02).toNonIndexed()).getAttribute("position");
+    const names = ["palm_surface", "thumb_skin", "index_skin", "middle_skin", "ring_skin", "little_skin"];
+    const parts = names.map((name, i) => {
+      // Each part is one planar face of the box. No individual chart encloses any volume.
+      const chart = new BufferGeometry();
+      chart.setAttribute("position", new Float32BufferAttribute(faces.array.slice(18 * i, 18 * (i + 1)), 3));
+      const part = mesh(chart); part.name = name;
+      part.userData.skinUnion = { schema: "acucraft.skin-union@2", id: "hand", parts: names, individualClosed: false };
+      model.add(part);
+      return part;
+    });
+    const guard = new PatientClearance();
+    expect(guard.intersects(model, subject)).toBe(true);
+    model.remove(parts[5]!);
+    expect(guard.intersects(model, subject), "open faces alone do not enclose the edge probe").toBe(false);
+    model.add(parts[5]!);
+    expect(guard.intersects(model, subject)).toBe(true);
+
+    // Separate the +Y face to isolate a shared-edge test on the stationary −Y face.
+    // Its parity ray exits through the +Z (ring) chart. Moving that chart, or
+    // replacing it with a new mesh at the same revision, must invalidate the result.
+    parts[2]!.position.x = 0.3;
+    const ring = parts[4]!;
+    const guardWithFreshRevisions = new PatientClearance();
+    expect(guardWithFreshRevisions.intersects(model, subject)).toBe(true);
+    const displaced = ring.clone();
+    displaced.position.x = 0.3;
+    model.remove(ring); model.add(displaced);
+    expect(guardWithFreshRevisions.intersects(model, subject)).toBe(false);
+    displaced.position.x = 0;
+    expect(guardWithFreshRevisions.intersects(model, subject)).toBe(true);
+    displaced.position.x = 0.3;
+    expect(guardWithFreshRevisions.intersects(model, subject)).toBe(false);
+
+    model.remove(displaced); model.add(ring); parts[2]!.position.x = 0;
+    subject.holder.position.x = 0.11;
+    expect(guard.intersects(model, subject)).toBe(false);
+    subject.holder.position.x -= 0.0002;
+    expect(guard.intersects(model, subject)).toBe(true);
+    model.scale.z = -1;
+    expect(guard.intersects(model, subject)).toBe(true);
+  });
+
   it("rebuilds the patient surface after position data changes in the same attribute", () => {
     const body = mesh(new BoxGeometry(2, 2, 2)), subject = patient(body);
     const { model, surface } = probe(), guard = new PatientClearance();

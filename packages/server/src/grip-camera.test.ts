@@ -1,6 +1,7 @@
 import { BoxGeometry, BufferGeometry, Float32BufferAttribute, FrontSide, Group, Mesh, MeshBasicMaterial, MeshStandardMaterial, PerspectiveCamera, Quaternion, Raycaster, Vector3 } from "three";
 import { describe, expect, it } from "vitest";
 import { GRIP_VIEWS, clearGripShot, gripShot, type HandInspectionFrame } from "../web/stage/director.js";
+import { needleLabelUnderHand } from "../web/stage/hud.js";
 
 const frame = (): HandInspectionFrame => ({
   contact: new Vector3(0.1, 0.83, -0.2), wrist: new Vector3(0.18, 0.94, -0.2),
@@ -9,6 +10,20 @@ const frame = (): HandInspectionFrame => ({
 });
 
 describe("whole-hand inspection views", () => {
+  it("keeps the held needle label off a manually zoomed hand and restores it on retreat or a wider shot", () => {
+    const { contact } = frame();
+    const anchors = [{ id: "other", at: contact }, { id: "held", at: contact.clone().add(new Vector3(0.008, 0, 0)) }];
+    const close = contact.clone().add(new Vector3(0, 0.35, 0));
+    const wide = contact.clone().add(new Vector3(0, 1.2, 0));
+    expect(needleLabelUnderHand(anchors, contact, close, "held", false)).toBe("held");
+    expect(needleLabelUnderHand(anchors, contact, wide, "held", false)).toBeNull();
+    expect(needleLabelUnderHand(anchors, undefined, close, "held", false)).toBeNull();
+    expect(needleLabelUnderHand(anchors, contact.clone().add(new Vector3(0, 0.2, 0)), close, "held", false)).toBeNull();
+    expect(needleLabelUnderHand(anchors, contact, close, null, false)).toBeNull();
+    expect(needleLabelUnderHand(anchors, contact, wide, "held", true)).toBe("held");
+    expect(needleLabelUnderHand(anchors, contact, close, null, true)).toBe("other");
+  });
+
   it("keeps the actual hand bounds, wrist and needle entry in frame across landscape and portrait views", () => {
     const input = frame(), center = input.center!;
     const points = [input.contact, input.wrist, input.contact.clone().addScaledVector(input.surfaceNormal!, -0.04)];

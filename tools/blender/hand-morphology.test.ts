@@ -5,7 +5,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { beforeAll, describe, expect, it } from "vitest";
 import { ArticulatedHand } from "../../packages/server/web/stage/hand.js";
 import { createHandSkinCorrectives } from "../../packages/server/web/stage/hand-skin-correctives.js";
-import { collectCompositeSkin, compositeFaceNormalAlignment, findCompositeCrossings, sampleCompositeSkin, type CompositeSkin, type CompositeSkinMember } from "../test/hand-composite-skin.js";
+import { collectCompositeSkin, handSkinParts, compositeFaceNormalAlignment, findCompositeCrossings, sampleCompositeSkin, type CompositeSkin, type CompositeSkinMember } from "../test/hand-composite-skin.js";
 
 const here = (path: string) => fileURLToPath(new URL(path, import.meta.url));
 const asset = process.env.ACUCRAFT_HAND_ASSET_FIXTURE ?? here("../../content/world/assets/models/acu-practitioner-hand.glb");
@@ -326,6 +326,95 @@ describe("the authored hand's soft-tissue morphology", () => {
     }
   });
 
+  it("connects each digit to the palm through one continuous material ring in the posed mesh", async () => {
+    const gltf = await new GLTFLoader().parseAsync(Uint8Array.from(readFileSync(asset)).buffer, "");
+    const hand = new ArticulatedHand(gltf.scene, gltf.animations, "#d9b48f");
+    try {
+      const skin = collectCompositeSkin(hand.model, handSkinParts);
+      expect(skin.topology).toMatchObject({ connectedComponentCount: 1, boundaryEdgeCount: 0,
+        nonManifoldEdgeCount: 0, windingConflictCount: 0, eulerCharacteristic: 2 });
+
+      const rings = handSkinParts.slice(1).map((name) => {
+        const edges = skin.edges.filter(({ faces }) => {
+          const regions = faces.map((id) => skin.triangleSources[id]!.meshName);
+          return regions.includes(name) && regions.includes("palm_surface");
+        });
+        const neighbours = new Map<number, number[]>();
+        for (const { vertices: [a, b] } of edges) {
+          for (const [from, to] of [[a, b], [b, a]] as const) {
+            const ring = neighbours.get(from) ?? [];
+            ring.push(to); neighbours.set(from, ring);
+          }
+        }
+        expect(neighbours.size, `${name} actual welded circumference`).toBeGreaterThanOrEqual(16);
+        expect([...neighbours.values()].every((next) => next.length === 2), `${name} unbranched circumference`).toBe(true);
+        const reached = new Set<number>();
+        const pending = [edges[0]!.vertices[0]];
+        while (pending.length) {
+          const vertex = pending.pop()!;
+          if (reached.has(vertex)) continue;
+          reached.add(vertex); pending.push(...neighbours.get(vertex)!);
+        }
+        expect(reached.size, `${name} single closed loop`).toBe(neighbours.size);
+        return { name, edges };
+      });
+
+      for (const side of ["left", "right"] as const) {
+        hand.setSide(side);
+        for (const role of ["release", "pinch", "tripod", "skin-nail", "press"] as const) {
+          hand.pose({ pose: role, phase: .3, grip: role === "release" ? 0 : 1, apertureMm: 8,
+            wristElevationDeg: role === "tripod" ? 48 : 55, gripStyle: "tip-pinch", handleRadiusM: .0007 });
+          sampleCompositeSkin(skin);
+          expect(skin.maxSeamPositionGapM, `${side}/${role} positioned seam`).toBeLessThan(.000005);
+          expect(skin.minSeamNormalDot, `${side}/${role} rendered normal on either side`).toBeGreaterThan(.99999);
+          for (const { name, edges } of rings) {
+            const maxTurn = Math.max(...edges.map(({ faces: [a, b] }) =>
+              skin.triangles[a!]!.getNormal(new Vector3()).angleTo(skin.triangles[b!]!.getNormal(new Vector3()))));
+            expect(maxTurn, `${side}/${role}/${name} uninterrupted silhouette across sewn ring`).toBeLessThan(Math.PI / 3);
+          }
+        }
+      }
+    } finally { hand.dispose(); }
+  });
+
+  it("continues the three interdigital webs beyond the row of MCP joints in a tip pinch", async () => {
+    const gltf = await new GLTFLoader().parseAsync(Uint8Array.from(readFileSync(asset)).buffer, "");
+    const hand = new ArticulatedHand(gltf.scene, gltf.animations, "#d9b48f");
+    try {
+      for (const side of ["left", "right"] as const) {
+        hand.setSide(side);
+        hand.pose({ pose: "pinch", grip: 1, phase: .3 });
+        hand.root.updateWorldMatrix(true, true);
+        const triangles = skinTriangles(hand.model, "palm_surface", new Matrix4());
+        const point = (digit: string, joint: string) => hand.model.getObjectByName(`${digit}_${joint}`)!.getWorldPosition(new Vector3());
+        const palm = hand.model.getObjectByName("palm_frame")!;
+        const dorsal = palm.localToWorld(new Vector3(0, 1, 0)).sub(palm.getWorldPosition(new Vector3())).normalize();
+        for (const [a, b] of [["index", "middle"], ["middle", "ring"], ["ring", "little"]] as const) {
+          const mcpA = point(a, "MCP"), mcpB = point(b, "MCP"), centre = mcpA.clone().lerp(mcpB, .5);
+          const lateral = mcpB.clone().sub(mcpA).normalize();
+          const proximalA = point(a, "PIP").sub(mcpA), proximalB = point(b, "PIP").sub(mcpB);
+          const digitLength = (proximalA.length() + proximalB.length()) / 2;
+          const distal = proximalA.normalize().add(proximalB.normalize());
+          distal.addScaledVector(lateral, -distal.dot(lateral)).normalize();
+          const transverse = lateral.clone().cross(distal).normalize();
+          if (transverse.dot(dorsal) < 0) transverse.negate();
+          // Intersect the free edge of the palm at the midpoint between these
+          // two phalanges. The old overlapping tubes ended on a common palm
+          // shelf 24–26% of the proximal phalanx length from the MCPs.
+          // Normalize by that length because the ulnar fingers are shorter.
+          const from = centre.clone().addScaledVector(transverse, -.003).addScaledVector(distal, .06);
+          const ray = new Ray(from, distal.clone().negate()), hit = new Vector3();
+          let extension = -Infinity;
+          for (const face of triangles) if (ray.intersectTriangle(face.a, face.b, face.c, false, hit)) {
+            extension = Math.max(extension, hit.sub(centre).dot(distal));
+          }
+          expect(extension / digitLength, `${side}/${a}–${b} actual web material`).toBeGreaterThan(.27);
+          expect(extension / digitLength, `${side}/${a}–${b} free finger length`).toBeLessThan(.5);
+        }
+      }
+    } finally { hand.dispose(); }
+  });
+
   it("keeps a rounded, full first web in a loaded lateral pinch on either hand", async () => {
     const gltf = await new GLTFLoader().parseAsync(Uint8Array.from(readFileSync(asset)).buffer, "");
     const hand = new ArticulatedHand(gltf.scene, gltf.animations, "#d9b48f");
@@ -350,7 +439,7 @@ describe("the authored hand's soft-tissue morphology", () => {
   });
 
   it("keeps the actual shared thumb-palm junction smooth when the thumb abducts, without a stretched triangular spur", () => {
-    const skin = collectCompositeSkin(rig);
+    const skin = collectCompositeSkin(rig, handSkinParts);
     expect(skin.topology.boundaryEdgeCount).toBe(0); expect(skin.topology.nonManifoldEdgeCount).toBe(0);
     expect(skin.topology.windingConflictCount).toBe(0); expect(skin.topology.connectedComponentCount).toBe(1);
     expect(skin.topology.eulerCharacteristic).toBe(2);

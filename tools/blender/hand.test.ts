@@ -1,14 +1,15 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { AnimationMixer, BufferAttribute, BufferGeometry, DoubleSide, LoopOnce, Mesh, MeshBasicMaterial, MeshStandardMaterial, Object3D, Quaternion, Ray, Raycaster, SkinnedMesh, Triangle, Vector3 } from "three";
+import { AnimationMixer, LoopOnce, Mesh, MeshStandardMaterial, Object3D, Quaternion, Ray, Raycaster, SkinnedMesh, Triangle, Vector3 } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { clone } from "three/examples/jsm/utils/SkeletonUtils.js";
 import { describe, expect, it } from "vitest";
 import { ArticulatedHand } from "../../packages/server/web/stage/hand.js";
 import { needleHandleRadiusAt } from "../../packages/server/web/stage/needle-shape.js";
 import { parseGlb } from "@clinicalcraft/core";
-import { collectCompositeSkin, createSkinnedVertexSampler, compositeFaceNormalAlignment, findCompositeCrossings, sampleCompositeSkin, type CompositeSkin } from "../test/hand-composite-skin.js";
+import { distalSkinIntrusion as measureDistalIntrusion } from "../test/hand-skin-region.js";
+import { collectCompositeSkin, handSkinParts, createSkinnedVertexSampler, compositeFaceNormalAlignment, findCompositeCrossings, sampleCompositeSkin, type CompositeSkin } from "../test/hand-composite-skin.js";
 
 const here = (path: string) => fileURLToPath(new URL(path, import.meta.url));
 const candidate = process.env.ACUCRAFT_HAND_ASSET_FIXTURE;
@@ -175,54 +176,8 @@ function expectDeclaredClipTracks(clip: { name: string; tracks: { name: string; 
 
 function distalSkinIntrusion(rig: Object3D, fromDigit: string, intoDigit: string): number {
   const from = rig.getObjectByName(`${fromDigit}_skin`) as SkinnedMesh;
-  const into = (rig.getObjectByName(intoDigit) ?? rig.getObjectByName(`${intoDigit}_skin`)) as Mesh;
-  for (const surface of [from, into]) if (surface instanceof SkinnedMesh) surface.skeleton.update();
-  const direction = new Vector3(0.431, 0.293, 0.853).normalize(), triangle = new Triangle(), nearest = new Vector3();
-  const composite = intoDigit === "thumb" || intoDigit === "palm_surface" ? collectCompositeSkin(rig) : undefined;
-  const vertices = composite ? composite.triangles.flatMap((triangle) => [triangle.a.clone(), triangle.b.clone(), triangle.c.clone()])
-    : Array.from({ length: into.geometry.getAttribute("position").count }, (_, i) => into.localToWorld(into.getVertexPosition(i, new Vector3())));
-  const indices = composite ? new BufferAttribute(Uint32Array.from(vertices.map((_, index) => index)), 1) : into.geometry.getIndex()!;
-  // Snapshot the actual posed skin once. Raycasting the live SkinnedMesh would
-  // reapply its bone matrices to every target triangle for every source vertex.
-  // This CPU-only proxy retains the world vertices' double precision.
-  const positions = new Float64Array(vertices.length * 3);
-  vertices.forEach((point, i) => point.toArray(positions, i * 3));
-  const geometry = new BufferGeometry();
-  geometry.setAttribute("position", new BufferAttribute(positions, 3));
-  geometry.setIndex(indices.clone());
-  geometry.computeBoundingBox(); geometry.computeBoundingSphere();
-  const material = new MeshBasicMaterial({ side: DoubleSide }), proxy = new Mesh(geometry, material);
-  proxy.updateMatrixWorld(true);
-  const ray = new Raycaster(new Vector3(), direction, 0.000001, 1), point = new Vector3();
-  const distalBones = new Set(from.skeleton.bones.flatMap((bone, i) => /(_distal|_DIP)$/.test(bone.name) ? [i] : []));
-  const skinIndices = from.geometry.getAttribute("skinIndex"), skinWeights = from.geometry.getAttribute("skinWeight");
-  let intrusion = 0;
-  try {
-    for (let vertex = 0; vertex < from.geometry.getAttribute("position").count; vertex++) {
-      let distalWeight = 0;
-      for (let influence = 0; influence < 4; influence++) {
-        if (distalBones.has(skinIndices.array[vertex * 4 + influence]!)) distalWeight += skinWeights.array[vertex * 4 + influence]!;
-      }
-      if (distalWeight < 0.8) continue;
-      from.localToWorld(from.getVertexPosition(vertex, point));
-      ray.ray.origin.copy(point);
-      const distances: number[] = [];
-      for (const hit of ray.intersectObject(proxy, false)) {
-        if (!distances.some((distance) => Math.abs(distance - hit.distance) < 1e-7)) distances.push(hit.distance);
-      }
-      if (distances.length % 2 === 0) continue;
-      let distance = Infinity;
-      for (let index = 0; index < indices.count; index += 3) {
-        triangle.set(vertices[indices.getX(index)]!, vertices[indices.getX(index + 1)]!, vertices[indices.getX(index + 2)]!);
-        triangle.closestPointToPoint(point, nearest);
-        distance = Math.min(distance, point.distanceTo(nearest));
-      }
-      intrusion = Math.max(intrusion, distance);
-    }
-    return intrusion;
-  } finally {
-    geometry.dispose(); material.dispose();
-  }
+  const into = (rig.getObjectByName(intoDigit) ?? rig.getObjectByName(`${intoDigit}_skin`)) as SkinnedMesh;
+  return measureDistalIntrusion(from, into);
 }
 
 function surfaceDistance(mesh: Mesh, point: Vector3): number {
@@ -323,7 +278,7 @@ function expectClosedPalmSkin(skin: CompositeSkin): void {
   expect(skin.topology.boundaryEdgeCount, "the actual assembly has no invented closure faces").toBe(0);
   expect(skin.topology.nonManifoldEdgeCount).toBe(0);
   expect(skin.topology.windingConflictCount).toBe(0);
-  expect(skin.topology.connectedComponentCount, "palm and thumb form one real connected outer surface").toBe(1);
+  expect(skin.topology.connectedComponentCount, "palm and digits form one real connected outer surface").toBe(1);
   expect(skin.topology.eulerCharacteristic).toBe(2);
   expect(skin.topology.bindDegenerateFaceCount).toBe(0);
   expect(skin.topology.negativeWeightVertexCount).toBe(0);
@@ -432,14 +387,19 @@ function expectPalmSurface(skin: CompositeSkin, context: string): void {
   expect(minimumArea, `${context} non-degenerate palm/junction face ${worstFace}`).toBeGreaterThan(1e-10);
   expect(minimumDot, `${context} continuous palm/junction edge ${worstEdge}`).toBeGreaterThan(-0.1);
   expect(minimumFieldDot, `${context} outward palm/junction facet vs actual deformed normal field ${worstFieldFace}`).toBeGreaterThan(0);
-  const crossings = findCompositeCrossings(skin, { toleranceM: 0.00005, maxCrossings: 1 });
+  // The working pads can meet during a flick. This test covers the complete
+  // palm, thumb and the four digital junctions; the distal pad checks measure
+  // contacts with the other finger and needle in their respective tests.
+  const crossings = findCompositeCrossings(skin, { toleranceM: 0.00005 })
+    .filter(({ faces }) => faces.some((face) => checkedFaces.has(face))
+      || faces.every((face) => skin.triangleSources[face]!.meshName === "thumb_skin"));
   expect(crossings.map((crossing) => ({ faces: crossing.faces.map((face) => skin.triangleSources[face]), edge: crossing.edge,
     planeMarginM: crossing.planeMarginM })), `${context} non-adjacent actual outer-skin crossing beyond 50µm`).toEqual([]);
 }
 
 
 describe("the Blender precision hand", () => {
-  it("retains regional skin colour under practitioner recolouring and across both skin joins", async () => {
+  it("retains regional skin colour under practitioner recolouring and across all skin joins", async () => {
     const gltf = await new GLTFLoader().parseAsync(Uint8Array.from(bytes).buffer, "");
     const hand = new ArticulatedHand(gltf.scene, gltf.animations, "#8d604c");
     const meshes = ["palm_surface", "thumb_skin", "index_skin", "middle_skin", "ring_skin", "little_skin"];
@@ -460,7 +420,7 @@ describe("the Blender precision hand", () => {
     for (const i of [...wrist.ring, ...wrist.distalRing]) {
       expect([colour.getX(i), colour.getY(i), colour.getZ(i)]).toEqual([1, 1, 1]);
     }
-    const skin = collectCompositeSkin(gltf.scene);
+    const skin = collectCompositeSkin(gltf.scene, handSkinParts);
     const shared = skin.vertices.filter(({ members }) => new Set(members.map(({ mesh }) => mesh)).size > 1);
     expect(shared.length).toBeGreaterThan(0);
     for (const { members } of shared) {
@@ -476,8 +436,8 @@ describe("the Blender precision hand", () => {
     const palm = rig.getObjectByName("palm_surface") as SkinnedMesh;
     expect(palm.isSkinnedMesh).toBe(true);
     expect(rig.getObjectByName("thenar")).toBeUndefined();
-    expect(manifest.palm).toMatchObject({ surface: "palm_surface", topology: "closed palm-thumb composite", skinParts: ["palm_surface", "thumb_skin"] });
-    const outerSkin = collectCompositeSkin(rig); expectClosedPalmSkin(outerSkin);
+    expect(manifest.palm).toMatchObject({ surface: "palm_surface", topology: "closed palm and five-digit composite", skinParts: handSkinParts });
+    const outerSkin = collectCompositeSkin(rig, handSkinParts); expectClosedPalmSkin(outerSkin);
     expectPalmSurface(outerSkin, "authored bind outer skin");
     expect(rig.getObjectByName("palm_frame")).toBeDefined();
     expect(rig.getObjectByName("wrist_frame")).toBeDefined();
@@ -511,24 +471,13 @@ describe("the Blender precision hand", () => {
     }
   });
 
-  it("joins the thumb to the actual closed outer palm skin and keeps the other MCP base caps internal", async () => {
+  it("joins all five digits to the closed skin and encloses their root joints through flexion", async () => {
     const gltf = await new GLTFLoader().parseAsync(Uint8Array.from(bytes).buffer, "");
     const rig = gltf.scene; rig.updateMatrixWorld(true);
-    const outerSkin = collectCompositeSkin(rig); expectClosedPalmSkin(outerSkin);
-    // A continuous outer junction has no closed CMC tube hidden inside another
-    // skin shell. Its two real partitions are individually open and close only
-    // through their matching material boundary.
+    const outerSkin = collectCompositeSkin(rig, handSkinParts); expectClosedPalmSkin(outerSkin);
+    // Each skin patch is open at its physical junction. The assembled mesh is closed.
     for (const mesh of outerSkin.meshes) expect(collectCompositeSkin(rig, [mesh.name]).topology.boundaryEdgeCount,
-      `${mesh.name} must be a real outer partition, not a duplicate closed shell`).toBeGreaterThan(0);
-    const otherCaps = ["index", "middle", "ring", "little"].map((digit) => {
-      const mesh = rig.getObjectByName(`${digit}_skin`) as SkinnedMesh;
-      const start = rig.getObjectByName(`${digit}_proximal`)!.getWorldPosition(new Vector3());
-      const toward = rig.getObjectByName(`${digit}_middle`)!.getWorldPosition(new Vector3()).sub(start).normalize();
-      const positions = mesh.geometry.getAttribute("position"), vertices: number[] = [];
-      for (let i = 0; i < positions.count; i++) if (Math.abs(new Vector3().fromBufferAttribute(positions, i).sub(start).dot(toward)) < 0.0001) vertices.push(i);
-      expect(vertices.length, `${digit} actual base cap`).toBeGreaterThanOrEqual(20);
-      return { digit, mesh, vertices };
-    });
+      `${mesh.name} has an actual open material boundary`).toBeGreaterThan(0);
     const hand = new ArticulatedHand(rig, gltf.animations, "#cba88a");
     for (const [pose, grip, gripStyle, rotationRad] of [["pinch", 1, "tip-pinch", 0], ["pinch", 0, "tip-pinch", 0], ["pinch", 1, "side-pinch", 0], ["pinch", 1, "tip-pinch", 1.4], ["pinch", 1, "tip-pinch", -1.4], ["palpate", 1, "tip-pinch", 0], ["stretch", 1, "tip-pinch", 0], ["press", 1, "tip-pinch", 0]] as const) {
       hand.pose({ pose, grip, gripStyle, rotationRad, phase: 0.35, apertureMm: 12,
@@ -536,17 +485,17 @@ describe("the Blender precision hand", () => {
       expectPalmSurface(outerSkin, `${pose}/${grip}/${gripStyle}/${rotationRad}`);
       const cmc = rig.getObjectByName("thumb_CMC")!.getWorldPosition(new Vector3());
       expect(insidePalmSkin(outerSkin, cmc), "the actual carpal CMC remains inside the real continuous skin").toBe(true);
-      for (const { digit, mesh, vertices } of otherCaps) {
-        mesh.skeleton.update();
-        for (const vertex of vertices) expect(insidePalmSkin(outerSkin, mesh.localToWorld(mesh.getVertexPosition(vertex, new Vector3()))), `${digit} whole MCP cap ${vertex}/${grip}/${gripStyle}/${rotationRad}`).toBe(true);
+      for (const digit of ["index", "middle", "ring", "little"]) {
+        const joint = rig.getObjectByName(`${digit}_MCP`)!.getWorldPosition(new Vector3());
+        expect(insidePalmSkin(outerSkin, joint), `${digit} MCP inside the joined skin during ${pose}/${grip}/${rotationRad}`).toBe(true);
       }
     }
     hand.dispose();
   });
 
-  it("keeps the actual welded palm-thumb skin closed and free of paper-like opposing adjacent faces", async () => {
+  it("keeps the actual joined palm and digits closed and free of opposing adjacent facets", async () => {
     const gltf = await new GLTFLoader().parseAsync(Uint8Array.from(bytes).buffer, "");
-    const rig = gltf.scene, skin = collectCompositeSkin(rig); expectClosedPalmSkin(skin);
+    const rig = gltf.scene, skin = collectCompositeSkin(rig, handSkinParts); expectClosedPalmSkin(skin);
     const mixer = new AnimationMixer(rig);
     for (const clip of gltf.animations) {
       mixer.stopAllAction();
@@ -562,7 +511,7 @@ describe("the Blender precision hand", () => {
   it.each(["left", "right"] as const)("keeps the runtime %s palm continuous in both grip styles, openings, wrist bounds and supporting poses", async (side) => {
     const gltf = await new GLTFLoader().parseAsync(Uint8Array.from(bytes).buffer, "");
     const hand = new ArticulatedHand(gltf.scene, gltf.animations, "#cba88a");
-    const skin = collectCompositeSkin(hand.model); expectClosedPalmSkin(skin);
+    const skin = collectCompositeSkin(hand.model, handSkinParts); expectClosedPalmSkin(skin);
     for (const gripStyle of ["tip-pinch", "side-pinch"] as const)
       for (const wristElevationDeg of [35, 55, 70]) for (const grip of [0, 1]) for (const rotationRad of [-1.4, 0, 1.4]) {
         hand.setSide(side);
@@ -841,6 +790,7 @@ describe("the Blender precision hand", () => {
     for (const clipName of ["hand_open", "hand_support"]) {
       const gltf = await new GLTFLoader().parseAsync(Uint8Array.from(bytes).buffer, "");
       const rig = gltf.scene, mixer = new AnimationMixer(rig);
+      const outerSkin = collectCompositeSkin(rig, handSkinParts);
       const point = (name: string) => rig.getObjectByName(name)!.getWorldPosition(new Vector3());
       const source = ["CMC", "MCP", "IP", "tip"].map((name) => point(`thumb_${name}`));
       const sourceHinge = source[1]!.clone().sub(source[0]!).cross(source[2]!.clone().sub(source[1]!)).normalize();
@@ -865,7 +815,7 @@ describe("the Blender precision hand", () => {
         }
         const palm = rig.getObjectByName("palm_surface") as SkinnedMesh;
         palm.skeleton.update(); palm.computeBoundingBox(); palm.computeBoundingSphere();
-        expect(insidePalmSkin(collectCompositeSkin(rig), nodes[0]!)).toBe(true);
+        expect(insidePalmSkin(sampleCompositeSkin(outerSkin), nodes[0]!)).toBe(true);
       }
       if (clipName === "hand_support") {
         expect(rig.getObjectByName("thumb_proximal")!.quaternion.angleTo(new Quaternion())).toBeLessThan(100 * Math.PI / 180);

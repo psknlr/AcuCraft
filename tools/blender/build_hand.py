@@ -55,6 +55,7 @@ MATERIALS_BY_CLIP = {}
 MATERIAL_BIND_FRAMES = {}
 WRIST_INTERFACE_ROWS = {}
 THUMB_COLLAR_CONSTRUCTION_SECTIONS = []
+DIGIT_PALM_ROWS = {}
 
 
 PROTECTED_SKIN_NORMALS = {}
@@ -1156,6 +1157,10 @@ def palm(root, skin):
                            * smoothstep((u-.032)/.018) * end_fade)
             influence = max(influence, min(THUMB_TISSUE["maximumThenarCmcWeight"], 1-root_static)*muscle_mask)
             weights.append((1-influence,influence,0,0))
+    cut_row = min(range(rows-1),key=lambda i:abs(section(samples[i])[0]-.017))
+    DIGIT_PALM_ROWS["ring"] = vertices[cut_row*n:(cut_row+1)*n]
+    DIGIT_PALM_ROWS["wristward"] = vertices[(cut_row+1)*n:(cut_row+2)*n]
+    DIGIT_PALM_ROWS["v"] = uv[cut_row*n][1]
     faces=[]
     for j in range(rows-1):
         for i in range(n):
@@ -1186,6 +1191,443 @@ def palm(root, skin):
     WRIST_INTERFACE_ROWS["distalRing"] = vertices[distal_row*n:(distal_row+1)*n]
     SKIN_WEIGHTS[surface.name]=('palm',vertices,weights);empty('palm_root',root)
     return surface
+
+
+def integrate_finger_roots(palm, digits):
+    """Replace the distal palm and enclosed finger bases with a single branched skin.
+
+    At each interdigital saddle two neighboring socket rings share a chain of
+    real vertices. Their remaining edges form the one perimeter of the dorsal
+    knuckle row and palmar pads. Each socket ends on the phalanx's own ring.
+    """
+    origin = Vector(SOURCE_ANATOMY["anatomyOriginM"])
+    inverse = PALM_BASIS.transposed()
+    names = ("index", "middle", "ring", "little")
+    divisions = 40
+    palm_joint = 15
+
+    def ring_parameters(ring):
+        lengths = [(ring[(i + 1) % len(ring)] - p).length for i, p in enumerate(ring)]
+        total = sum(lengths)
+        knots = [0.0]
+        for length in lengths[:-1]:
+            knots.append(knots[-1] + length / total)
+        return knots
+
+    def interval(knots, value):
+        value %= 1
+        i = next((j - 1 for j in range(1, len(knots)) if knots[j] > value), len(knots) - 1)
+        end = knots[i + 1] if i + 1 < len(knots) else 1
+        return i, (value - knots[i]) / (end - knots[i])
+
+    def sample(ring, knots, value):
+        i, t = interval(knots, value)
+        return ring[i].lerp(ring[(i + 1) % len(ring)], t)
+
+    def blend_weights(a, b, t):
+        return {joint: a.get(joint, 0) * (1 - t) + b.get(joint, 0) * t for joint in set(a) | set(b)}
+
+    positions, weights, faces, corner_uv, corner_normals, smooth = [], [], [], [], [], []
+    terminal_rings = set()
+
+    def vertex(p, w):
+        positions.append(p.copy())
+        weights.append(w)
+        return len(positions) - 1
+
+    def face(indices, uvs, normals=None, smooth_face=True):
+        faces.append(indices)
+        uv = [list(a) for a in uvs]
+        if max(p[0] for p in uv) - min(p[0] for p in uv) > 0.5:
+            for p in uv:
+                if p[0] < 0.5:
+                    p[0] += 1
+        corner_uv.append(uv)
+        corner_normals.append(normals)
+        smooth.append(smooth_face)
+
+    def zipper(a, au, at, b, bu, bt):
+        i = j = 0
+        while i < len(a) or j < len(b):
+            x = au[i + 1] if i + 1 < len(a) else 1
+            y = bu[j + 1] if j + 1 < len(b) else 1
+            ai = i % len(a)
+            bj = j % len(b)
+            an = (i + 1) % len(a)
+            bn = (j + 1) % len(b)
+            if i < len(a) and j < len(b) and abs(x - y) < 1e-8:
+                face([a[ai], a[an], b[bn], b[bj]], [at[ai], at[an], bt[bn], bt[bj]])
+                i += 1
+                j += 1
+            elif i < len(a) and (j >= len(b) or x < y):
+                face([a[ai], a[an], b[bj]], [at[ai], at[an], bt[bj]])
+                i += 1
+            else:
+                face([a[ai], b[bn], b[bj]], [at[ai], bt[bn], bt[bj]])
+                j += 1
+
+    # Locate the actual retained palm row. This row is distal to the authored
+    # thumb aperture and shares the preexisting cylindrical material chart.
+    old = palm.data
+    raw_weights = SKIN_WEIGHTS[palm.name][2]
+    indices = {tuple(v.co): v.index for v in old.vertices}
+    cuff_src = [indices[tuple(p)] for p in DIGIT_PALM_ROWS["ring"]]
+    cuff_next = [Vector(p) for p in DIGIT_PALM_ROWS["wristward"]]
+    cuff_v = DIGIT_PALM_ROWS["v"]
+    kept_faces = [
+        p for p in old.polygons if min(old.uv_layers.active.data[l].uv.y for l in p.loop_indices) >= cuff_v - 1e-6
+    ]
+    used = sorted({i for p in kept_faces for i in p.vertices})
+    retained = {
+        i: vertex(old.vertices[i].co, {j: w for j, w in zip((0, 1, 2, palm_joint), raw_weights[i]) if w > 0})
+        for i in used
+    }
+    for p in kept_faces:
+        face(
+            [retained[i] for i in p.vertices],
+            [old.uv_layers.active.data[l].uv[:] for l in p.loop_indices],
+            [old.corner_normals[l].vector.copy() for l in p.loop_indices],
+            p.use_smooth,
+        )
+
+    # At each MCP, the dorsal side drapes over the extensor hood, the
+    # volar side continues into the digital cushion. The web's free edge
+    # sits further along the proximal phalanges than either dorsal root.
+    bases, ends, frames, cut_sizes, cut_indices, cut_knots, cut_v, end_uv = [], [], [], [], [], [], [], []
+    cut_weights = []
+    for idx, name in enumerate(names):
+        d = digits[name]
+        data = d.data
+        width = 34 if name == "index" else 20
+        cut = 4 * width  # original along_samples starts at 0, .12, .25, .40, .55
+        mcp = Vector(DIGITS[name][0])
+        pip = Vector(DIGITS[name][1])
+        axis = (pip - mcp).normalized()
+        volar = Vector(DIGIT_HINGES[name]).cross(axis).normalized()
+        lateral = axis.cross(volar).normalized()
+        frames.append((mcp, pip, axis, volar, lateral))
+        coords = [v.co.copy() for v in data.vertices[cut : cut + width]]
+        after = [v.co.copy() for v in data.vertices[cut + width : cut + 2 * width]]
+        angles = (
+            [i / 32 for i in range(32)] + [1 / 48, 47 / 48] if name == "index" else [i / 20 for i in range(20)]
+        )
+        angles.sort()
+        # Match the true source UV of the full precision bearing partition.
+        uv_by_id = {}
+        for polygon in data.polygons:
+            for li, vi in zip(polygon.loop_indices, polygon.vertices):
+                if cut <= vi < cut + width:
+                    uv_by_id[vi] = data.uv_layers.active.data[li].uv.copy()
+        uv = [Vector((a, uv_by_id[cut + i].y)) for i, a in enumerate(angles)]
+        cut_sizes.append(width)
+        cut_indices.append(cut)
+        cut_knots.append(angles)
+        cut_v.append(uv[0].y)
+        end_uv.append(uv)
+        joint = 3 * (idx + 1)
+        raw = SKIN_WEIGHTS[name + "_skin"][2]
+        cut_weights.append(
+            [
+                {j: w for j, w in zip((joint, joint + 1, joint + 2, palm_joint), raw[cut + i]) if w > 0}
+                for i in range(width)
+            ]
+        )
+        ends.append((coords, after))
+        root = []
+        for k in range(divisions):
+            theta = math.tau * k / divisions
+            c = math.cos(theta)
+            s = math.sin(theta)
+            t = 0.10 + 0.085 * max(c, 0)
+            width0 = (0.0102, 0.0104, 0.0095, 0.0081)[idx]
+            thickness = (0.0092 if c >= 0 else 0.0103) * (0.80 if idx == 3 else 1)
+            root.append(
+                mcp.lerp(pip, t)
+                + volar * (c * thickness)
+                + lateral * (s * width0)
+                + PALM_DORSAL * (0.0023 * max(-c, 0) ** 2)
+            )
+        bases.append(root)
+
+    # The volar and dorsal mouths of each cleft are at different heights.
+    # A convex free edge, authored in physical space, lies between them.
+    shared = {}
+    for idx in range(3):
+        for k in range(5, 16):
+            n = divisions - k
+            q = (k - 5) / 10
+            a, b = bases[idx][n], bases[idx + 1][k]
+            axis = (frames[idx][2] + frames[idx + 1][2]).normalized()
+            bridge = (a + b) * 0.5 + axis * (0.0035 + 0.004 * math.sin(math.pi * q) + 0.0025 * (1 - q))
+            total = 0.15 + 0.14 * math.sin(math.pi * q)
+            w = {palm_joint: 1 - total, 3 * (idx + 1): total * 0.5, 3 * (idx + 2): total * 0.5}
+            v = vertex(bridge, w)
+            shared[(idx, n)] = shared[(idx + 1, k)] = v
+    base_ids = []
+    for idx, root in enumerate(bases):
+        row = []
+        for k, point in enumerate(root):
+            if (idx, k) in shared:
+                row.append(shared[idx, k])
+                continue
+            fraction = 0.085 + 0.085 * max(0, math.cos(math.tau * k / divisions))
+            row.append(vertex(point, {palm_joint: 1 - fraction, 3 * (idx + 1): fraction}))
+        base_ids.append(row)
+    # Following the oriented non-shared edges gives the entire outside rim.
+    edges = {}
+    for row in base_ids:
+        for a, b in zip(row, row[1:] + row[:1]):
+            if (b, a) in edges:
+                del edges[b, a]
+            else:
+                edges[a, b] = True
+    following = dict(edges.keys())
+    border = [base_ids[0][10]]
+    while following[border[-1]] != border[0]:
+        border.append(following[border[-1]])
+    if len(border) != len(edges):
+        raise ValueError("Finger sockets must form a single palm perimeter")
+    bp = [positions[i] for i in border]
+    bk = ring_parameters(bp)
+    # Begin both circumferences at their radial extreme and sweep dorsally.
+    cuff_order = [(12 - i) % 48 for i in range(48)]
+    cuff = [retained[cuff_src[i]] for i in cuff_order]
+    cp = [positions[i] for i in cuff]
+    ck = ring_parameters(cp)
+    tangents = [(cp[q] - cuff_next[i]).normalized() for q, i in enumerate(cuff_order)]
+    ctex = [Vector((i / 48, cuff_v)) for i in cuff_order]
+
+    # Extend the palm chart across the knuckle row and into each socket,
+    # blending it into the true cylindrical phalanx chart before their join.
+    def palm_uv(param, t):
+        i, f = interval(ck, param)
+        v = ctex[i]
+        w = ctex[(i + 1) % len(ctex)]
+        return Vector(((v.x + ((w.x - v.x + 0.5) % 1 - 0.5) * f) % 1, cuff_v - 0.105 * t))
+
+    border_uv = [palm_uv(v, 1) for v in bk]
+    border_maps = {i: v for i, v in zip(border, border_uv)}
+    border_tangents = {}
+    for idx, row in enumerate(base_ids):
+        for k, i in enumerate(row):
+            if i in border_maps:
+                target = sample(ends[idx][0], cut_knots[idx], k / divisions)
+                border_tangents.setdefault(i, []).append((target - positions[i]).normalized())
+    previous, pars, tex = cuff, ck, ctex
+    for j in range(1, 7):
+        t = j / 6
+        row = []
+        uv = []
+        for q, (point, u, i) in enumerate(zip(bp, bk, border)):
+            start = sample(cp, ck, u)
+            tangent = sample(tangents, ck, u).normalized()
+            toward = sum(border_tangents[i], Vector()).normalized()
+            span = (point - start).length
+            if j < 6:
+                centre = (
+                    start.lerp(point, smoothstep(t))
+                    + tangent * (span * t * (1 - t) ** 2)
+                    + toward * (span * t * t * (t - 1))
+                )
+                ci, fract = interval(ck, u)
+                w = blend_weights(
+                    blend_weights(weights[cuff[ci]], weights[cuff[(ci + 1) % 48]], fract),
+                    weights[i],
+                    smoothstep(t),
+                )
+                row.append(vertex(centre, w))
+            else:
+                row.append(i)
+            uv.append(palm_uv(u, t))
+        zipper(previous, pars, tex, row, bk, uv)
+        previous, pars, tex = row, bk, uv
+    for idx, (name, row) in enumerate(zip(names, base_ids)):
+        coords, after = ends[idx]
+        angles = cut_knots[idx]
+        source_tex = []
+        for k, i in enumerate(row):
+            if i in border_maps:
+                source_tex.append(border_maps[i])
+                continue
+            # Only interior sidewall vertices are outside the palm perimeter.
+            a = 5 if 5 <= k <= 15 else 25
+            b = a + 10
+            f = (k - a) / 10
+            v = border_maps[row[a]]
+            w = border_maps[row[b]]
+            source_tex.append(Vector((v.x + ((w.x - v.x + 0.5) % 1 - 0.5) * f, v.y)))
+        previous, pars, tex = row, [k / divisions for k in range(divisions)], source_tex
+        for j in range(1, 6):
+            t = j / 5
+            new = []
+            uv = []
+            if j == 5:
+                new = [vertex(p, w) for p, w in zip(coords, cut_weights[idx])]
+                terminal_rings.update(new)
+                params = angles
+                uv = end_uv[idx]
+            else:
+                params = [k / divisions for k in range(divisions)]
+                for k, u in enumerate(params):
+                    b = sample(coords, angles, u)
+                    end_tan = (sample(after, angles, u) - b).normalized()
+                    a = positions[row[k]]
+                    span = (a - b).length
+                    # The shared interdigit saddle splits as a rounded U.
+                    # Let the two phalange surfaces leave its crest on
+                    # opposite transverse tangents, then turn onto the digit.
+                    tangent = (b - a).normalized()
+                    if (idx, k) in shared:
+                        q = (k - 5) / 10 if k <= 15 else (k - 25) / 10
+                        side = -1 if k <= 15 else 1
+                        lateral = frames[idx][4] * side
+                        turn = math.sin(math.pi * q) ** 0.7
+                        tangent = tangent.lerp(lateral, turn * 0.90).normalized()
+                    p = (
+                        a.lerp(b, smoothstep(t))
+                        + tangent * (span * t * (1 - t) ** 2)
+                        + end_tan * (span * t * t * (t - 1))
+                    )
+                    aj, f = interval(angles, u)
+                    endw = blend_weights(cut_weights[idx][aj], cut_weights[idx][(aj + 1) % len(angles)], f)
+                    new.append(vertex(p, blend_weights(weights[row[k]], endw, smoothstep(t))))
+                    v = source_tex[k]
+                    h = smoothstep(t)
+                    uv.append(Vector((v.x + ((u - v.x + 0.5) % 1 - 0.5) * h, v.y * (1 - h) + cut_v[idx] * h)))
+            zipper(previous, pars, tex, new, params, uv)
+            previous, pars, tex = new, params, uv
+
+    # Fair the common soft tissue across the four metacarpal heads. The
+    # carpal border and the actual phalanx sections remain fixed. Sharing
+    # the stencil between the interdigital folds prevents a pinch ridge.
+    fixed = set(retained.values()) | terminal_rings
+    neighbors = {i: set() for i in range(len(positions)) if i not in fixed}
+    for polygon in faces:
+        for a, b in zip(polygon, polygon[1:] + polygon[:1]):
+            if a in neighbors:
+                neighbors[a].add(b)
+            if b in neighbors:
+                neighbors[b].add(a)
+    for iteration in range(18):
+        updates = {}
+        for i, adjacent in neighbors.items():
+            centroid = sum((positions[j] for j in adjacent), Vector()) / len(adjacent)
+            updates[i] = positions[i].lerp(centroid, 0.44)
+        for i, point in updates.items():
+            positions[i] = point
+
+    # The reference hand is built in flexion. Determine how much of the
+    # dorsal hood should follow the phalanx as it extends. Tracking volume
+    # at a straight MCP prevents the dorsal surface collapsing into a
+    # transverse crease while leaving the palmar pad free to compress.
+    corrections = {}
+    for vertex_id in neighbors:
+        material = weights[vertex_id]
+        mobile = sum(w for joint, w in material.items() if joint != palm_joint)
+        if not 1e-7 < mobile < 0.99999:
+            continue
+        first_height = last_height = first_distance = last_distance = dorsal = flank = 0.0
+        point = positions[vertex_id]
+        for idx, (mcp, pip, axis, volar, lateral) in enumerate(frames):
+            share = material.get(3 * (idx + 1), 0) / mobile
+            if share == 0:
+                continue
+            offset = point - mcp
+            # In a straight MCP, distal along the proximal phalanx points
+            # toward -palm longitudinal and its extensor side toward +dorsal.
+            first_height += share * offset.dot(PALM_DORSAL)
+            last_height += share * -offset.dot(volar)
+            first_distance += share * -offset.dot(PALM_LONGITUDINAL)
+            last_distance += share * offset.dot(axis)
+            dorsal += share * -offset.dot(volar)
+            width = 0.0085 if idx == 3 else 0.010
+            side = min(abs(offset.dot(lateral)) / width, 1)
+            flank += share * math.sqrt(1 - side * side)
+        span = last_height - first_height
+        if abs(span) < 0.0002:
+            continue
+        along = first_distance * (1 - mobile) + last_distance * mobile
+        profile = 0.006 + 0.002 * (1 - smoothstep((along - 0.002) / 0.018))
+        target = profile * flank
+        achieved = first_height + mobile * span
+        response = smoothstep((target - achieved) / 0.002) * smoothstep((dorsal - 0.001) / 0.0055)
+        wanted = max(0, min(1, (target - first_height) / span))
+        corrections[vertex_id] = response * (wanted - mobile)
+
+    # Distribute the hood's correction over actual triangle neighbors; a
+    # per-vertex volume constraint alone can introduce sharp weight steps.
+    topology = bpy.data.meshes.new("extensor_hood_stencil")
+    topology.from_pydata(positions, [], faces)
+    topology.calc_loop_triangles()
+    hood_edges = {i: set() for i in neighbors}
+    for triangle in topology.loop_triangles:
+        for a, b in zip(triangle.vertices, tuple(triangle.vertices)[1:] + (triangle.vertices[0],)):
+            if a in hood_edges:
+                hood_edges[a].add(b)
+            if b in hood_edges:
+                hood_edges[b].add(a)
+    bpy.data.meshes.remove(topology)
+    active = {i for i in neighbors if 1e-7 < sum(w for j, w in weights[i].items() if j != palm_joint) < 0.99999}
+    for _ in range(6):
+        corrections = {
+            i: 0.45 * corrections.get(i, 0)
+            + 0.55 * sum(corrections.get(j, 0) for j in hood_edges[i]) / len(hood_edges[i])
+            for i in active
+        }
+    for i, change in corrections.items():
+        if change == 0:
+            continue
+        material = weights[i]
+        old = sum(w for j, w in material.items() if j != palm_joint)
+        amount = max(0, min(1, old + change))
+        weights[i] = {j: w * amount / old for j, w in material.items() if j != palm_joint}
+        weights[i][palm_joint] = 1 - amount
+
+    def replace(source, pts, polygons, texcoords, normals, smooth_flags):
+        name = source.name
+        mat = source.data.materials[0]
+        ob = mesh(name + "_joined", pts, polygons, mat, source.parent)
+        layer = ob.data.uv_layers.new(name="UVMap")
+        corners = []
+        for poly, tex, normals_row, use_smooth in zip(ob.data.polygons, texcoords, normals, smooth_flags):
+            poly.use_smooth = use_smooth
+            for offset, (li, uv) in enumerate(zip(poly.loop_indices, tex)):
+                layer.data[li].uv = uv
+                corners.append(tuple(normals_row[offset]) if normals_row is not None else (0, 0, 0))
+        ob.data.normals_split_custom_set(corners)
+        for k, v in source.items():
+            ob[k] = v
+        old = source.data
+        bpy.data.objects.remove(source, do_unlink=True)
+        bpy.data.meshes.remove(old)
+        ob.name = name
+        ob.data.name = name
+        return ob
+
+    for idx, (name, d) in enumerate(digits.items()):
+        data = d.data
+        cut = cut_indices[idx]
+        width = cut_sizes[idx]
+        first_cap = len(data.vertices) - 2
+        keep = [p for p in data.polygons if all(i >= cut and i != first_cap for i in p.vertices)]
+        ids = sorted({i for p in keep for i in p.vertices})
+        mapping = {i: j for j, i in enumerate(ids)}
+        coord = [tuple(data.vertices[i].co) for i in ids]
+        raw = SKIN_WEIGHTS[d.name][2]
+        old_uv = data.uv_layers.active
+        replace(
+            d,
+            coord,
+            [[mapping[i] for i in p.vertices] for p in keep],
+            [[old_uv.data[l].uv[:] for l in p.loop_indices] for p in keep],
+            [[data.corner_normals[l].vector.copy() for l in p.loop_indices] for p in keep],
+            [p.use_smooth for p in keep],
+        )
+        SKIN_WEIGHTS[name + "_skin"] = (name, coord, [raw[i] for i in ids])
+
+    result = replace(palm, positions, faces, corner_uv, corner_normals, smooth)
+    SKIN_WEIGHTS[result.name] = ("branched", list(map(tuple, positions)), weights)
+    return result
 
 
 def surface_anchor(name, parent, surface, target):
@@ -1462,6 +1904,7 @@ def solve_exported_thumb_web_weights():
     slots = [palette.index(name) for name in names]
     points, source_weights, members, part_names, faces, parts = [], [], [], [], [], []
     lookup = {}
+    digital_boundary = set()
     for name in ('palm_surface', 'thumb_skin'):
         node = next(node for node in gltf['nodes'] if node.get('name') == name)
         primitive = gltf['meshes'][node['mesh']]['primitives'][0]
@@ -1472,9 +1915,17 @@ def solve_exported_thumb_web_weights():
         mapping = []
         for vertex, (point, js, ws) in enumerate(zip(positions, joints, weights)):
             value = [0.0] * 4
+            digital_weight = 0.0
             for joint, weight in zip(js, ws):
-                if weight > 1e-12:
+                if weight <= 1e-12:
+                    continue
+                if joint in slots:
                     value[slots.index(joint)] += weight
+                else:
+                    digital_weight += weight
+            # Finger sockets retain their authored digital weights. From the
+            # thenar solve's frame these are fixed, non-thumb tissue.
+            value[3] += digital_weight
             total = sum(value)
             value = [weight / total for weight in value]
             if point not in lookup:
@@ -1484,6 +1935,8 @@ def solve_exported_thumb_web_weights():
                 members.append([])
                 part_names.append(set())
             physical = lookup[point]
+            if digital_weight:
+                digital_boundary.add(physical)
             if max(abs(a-b) for a, b in zip(source_weights[physical], value)) > 1e-7:
                 raise ValueError('Same physical skin position has different source influences')
             mapping.append(physical)
@@ -1523,7 +1976,7 @@ def solve_exported_thumb_web_weights():
     for vertex, point in enumerate(points):
         canonical = [sum((point[k]-origin[k])*column[k] for k in range(3)) for column in columns]
         along = sum((point[k]-ip[k])*axis[k] for k in range(3))
-        fixed.append(canonical[0] >= parameters['fixedCarpalUFromM']
+        fixed.append(vertex in digital_boundary or canonical[0] >= parameters['fixedCarpalUFromM']
                      or canonical[2] < parameters['fixedCentralRadialBelowM']
                      or 'thumb_skin' in part_names[vertex] and along >= parameters['fixedDistalThumbAfterIpM'])
     free = [vertex for vertex in range(len(points))
@@ -1614,9 +2067,9 @@ def solve_exported_thumb_web_weights():
 def bind_exported_skin_union():
     """Publish only real shared boundary indices of the closed outer skin.
 
-    The semantic palm and thumb primitives are open partitions. They are never
-    closed by invisible caps; their actual exported, weighted vertices close
-    one visible manifold surface together.
+    Every finger has an open material ring in the palm. Verify the boundaries
+    and their shared skinning before publishing one shading normal per physical
+    vertex, including the UV split at the side of a finger.
     """
     raw = OUT.read_bytes()
     json_length = struct.unpack_from('<I', raw, 12)[0]
@@ -1635,7 +2088,7 @@ def bind_exported_skin_union():
         return [struct.unpack_from('<' + code * width, binary, offset + i * stride)
                 for i in range(value['count'])]
 
-    names = ['palm_surface', 'thumb_skin']
+    names = ['palm_surface', *(f'{digit}_skin' for digit in DIGITS)]
     parts = {}
     all_faces = []
     for name in names:
@@ -1645,7 +2098,11 @@ def bind_exported_skin_union():
         normals = accessor(primitive['attributes']['NORMAL'])
         joints = accessor(primitive['attributes']['JOINTS_0'])
         weights = accessor(primitive['attributes']['WEIGHTS_0'])
-        texture = accessor(primitive['attributes']['TEXCOORD_0'])
+        texture_index = primitive['attributes']['TEXCOORD_0']
+        texture = accessor(texture_index)
+        texture_accessor = gltf['accessors'][texture_index]
+        texture_view = gltf['bufferViews'][texture_accessor['bufferView']]
+        texture_offset = texture_view.get('byteOffset', 0) + texture_accessor.get('byteOffset', 0)
         normal_accessor = gltf['accessors'][primitive['attributes']['NORMAL']]
         normal_view = gltf['bufferViews'][normal_accessor['bufferView']]
         normal_offset = normal_view.get('byteOffset',0)+normal_accessor.get('byteOffset',0)
@@ -1666,15 +2123,37 @@ def bind_exported_skin_union():
                 edge = tuple(sorted((a, b)))
                 edges[edge] = edges.get(edge, 0) + 1
         boundary = {edge for edge, count in edges.items() if count == 1}
-        parts[name] = dict(node=node, points=points, normals=normals,
+        palette = gltf['skins'][node['skin']]['joints']
+        parts[name] = dict(node=node, points=points, normals=normals, palette=palette,
                            joints=joints, weights=weights, texture=texture,
                            normal_offset=normal_offset,normal_stride=normal_stride,
+                           texture_offset=texture_offset, texture_stride=texture_view.get('byteStride', 8),
                            point_vertices=point_vertices, boundary=boundary)
-    if parts[names[0]]['boundary'] != parts[names[1]]['boundary']:
-        raise ValueError('Actual exported palm/thumb boundary edges do not match')
-    shared_keys = sorted({key for edge in parts[names[0]]['boundary'] for key in edge})
-    if len(shared_keys) < 16:
-        raise ValueError('Actual skin union is missing a closed shared material perimeter')
+    palm = parts['palm_surface']
+    partners = {}
+    openings = set()
+    for name in names[1:]:
+        loop = parts[name]['boundary']
+        endpoints = {}
+        for a, b in loop:
+            endpoints.setdefault(a, set()).add(b)
+            endpoints.setdefault(b, set()).add(a)
+        if len(endpoints) < 16 or any(len(neighbors) != 2 for neighbors in endpoints.values()):
+            raise ValueError(f'{name} is missing a closed proximal ring')
+        visited = set()
+        pending = [next(iter(endpoints))]
+        while pending:
+            key = pending.pop()
+            if key not in visited:
+                visited.add(key)
+                pending.extend(endpoints[key] - visited)
+        if visited != endpoints.keys() or not loop.issubset(palm['boundary']) or visited.intersection(partners):
+            raise ValueError(f'{name} does not occupy one distinct opening in the palm')
+        openings.update(loop)
+        partners.update(dict.fromkeys(visited, name))
+    if openings != palm['boundary']:
+        raise ValueError('Distal or thenar palm has an unpaired boundary')
+    shared_keys = sorted(partners)
     assembled_edges = {}
     for face in all_faces:
         for a, b in zip(face, face[1:] + face[:1]):
@@ -1682,7 +2161,20 @@ def bind_exported_skin_union():
             assembled_edges.setdefault(edge, []).append(1 if a < b else -1)
     if any(len(directions) != 2 or sum(directions) != 0
            for directions in assembled_edges.values()):
-        raise ValueError('Palm/thumb outer assembly is not a closed consistently wound manifold')
+        raise ValueError('Hand outer assembly is not a closed consistently wound manifold')
+    neighbors = {}
+    for a, b in assembled_edges:
+        neighbors.setdefault(a, set()).add(b)
+        neighbors.setdefault(b, set()).add(a)
+    visited = set()
+    pending = [shared_keys[0]]
+    while pending:
+        key = pending.pop()
+        if key not in visited:
+            visited.add(key)
+            pending.extend(neighbors[key] - visited)
+    if len(visited) != len(neighbors) or len(neighbors) - len(assembled_edges) + len(all_faces) != 2:
+        raise ValueError('The hand exterior must be one connected genus-zero manifold')
     # The two glTF primitives share one physical smooth normal, derived from
     # the actual combined outer triangles. Blender independently quantizes
     # custom corner vectors per primitive; publishing this physical field once
@@ -1703,32 +2195,38 @@ def bind_exported_skin_union():
         if normal.length_squared < 1e-20:
             raise ValueError('Actual composite seam has no defined physical smooth normal')
         normal.normalize()
-        texture_at_point = []
-        for part in parts.values():
-            for vertex in part['point_vertices'][key]:
-                texture_at_point.append(part['texture'][vertex])
-                struct.pack_into('<3f',binary,part['normal_offset']+vertex*part['normal_stride'],*normal)
-                part['normals'][vertex] = tuple(normal)
-        for a in texture_at_point:
-            for b in texture_at_point:
-                # The authored skin detail maps repeat horizontally.
-                du = a[0]-b[0]
-                du -= round(du)
-                max_uv_gap = max(max_uv_gap,math.hypot(du,a[1]-b[1]))
+        corners = [(part, vertex) for part in (palm, parts[partners[key]])
+                   for vertex in part['point_vertices'][key]]
+        # U repeats at integral tiles. For example, separately storing U and
+        # U+1 in float32 may round them at different precisions. Use the
+        # coarsest of the actual two encodings to publish the same fraction.
+        ref_u, ref_v = max((part['texture'][i] for part, i in corners), key=lambda uv: abs(uv[0]))
+        for part, i in corners:
+            u, v = part['texture'][i]
+            tile = round(u - ref_u)
+            if abs(u - ref_u - tile) > 1.2e-7 or abs(v - ref_v) > 1.2e-7:
+                raise ValueError(f"{partners[key]} ring has different physical UVs: {(u, v)} vs {(ref_u, ref_v)}")
+            offset = part['texture_offset'] + i * part['texture_stride']
+            struct.pack_into('<2f', binary, offset, ref_u + tile, ref_v)
+            actual_u, actual_v = struct.unpack_from('<2f', binary, offset)
+            max_uv_gap = max(max_uv_gap, math.hypot(actual_u - ref_u - tile, actual_v - ref_v))
+            struct.pack_into('<3f', binary, part['normal_offset'] + i * part['normal_stride'], *normal)
+            part['normals'][i] = tuple(normal)
     if max_uv_gap > 1e-8:
         raise ValueError(f'Physical skin boundary has a discontinuous texture chart: {max_uv_gap}')
     max_gap, min_dot, max_weight_delta = 0.0, 1.0, 0.0
     for key in shared_keys:
-        for a in parts[names[0]]['point_vertices'][key]:
-            for b in parts[names[1]]['point_vertices'][key]:
-                left, right = parts[names[0]], parts[names[1]]
+        left, right = palm, parts[partners[key]]
+        for a in left['point_vertices'][key]:
+            for b in right['point_vertices'][key]:
                 max_gap = max(max_gap, (Vector(left['points'][a]) - Vector(right['points'][b])).length)
                 min_dot = min(min_dot, Vector(left['normals'][a]).normalized().dot(Vector(right['normals'][b]).normalized()))
                 influences = []
                 for part, vertex in ((left, a), (right, b)):
                     values = {}
                     for joint, weight in zip(part['joints'][vertex], part['weights'][vertex]):
-                        values[joint] = values.get(joint, 0) + weight
+                        bone = part['palette'][joint]
+                        values[bone] = values.get(bone, 0) + weight
                     influences.append(values)
                 max_weight_delta = max(max_weight_delta, max(abs(influences[0].get(joint, 0) - influences[1].get(joint, 0))
                     for joint in set(influences[0]) | set(influences[1])))
@@ -1756,14 +2254,18 @@ def bind_exported_skin_union():
             if beyond_region == 2:
                 break
     for name, part in parts.items():
-        part['node'].setdefault('extras', {})['skinUnion'] = {
-            'schema': 'acucraft.skin-union@1',
-            'id': 'thumb-palm',
+        extras = part['node'].setdefault('extras', {})
+        for old in ('unionPartner', 'unionSeamVertices', 'unionTopology'):
+            extras.pop(old, None)
+        extras['skinUnion'] = {
+            'schema': 'acucraft.skin-union@2',
+            'id': 'hand',
             'parts': names,
             'individualClosed': False,
             'compositeTopology': 'one connected closed visible outer skin',
-            'sharedBoundary': [{'id': index, 'vertices': part['point_vertices'][key]}
-                               for index, key in enumerate(shared_keys)],
+            'sharedBoundary': [{'id': index, 'vertices': part['point_vertices'][key],
+                                'partner': partners[key] if name == 'palm_surface' else 'palm_surface'}
+                               for index, key in enumerate(shared_keys) if name in ('palm_surface', partners[key])],
             'maxBindPositionGapM': max_gap,
             'minBindNormalDot': min_dot,
             'maxBindInfluenceDelta': max_weight_delta,
@@ -1877,7 +2379,7 @@ def publish_exported_thumb_web_correctives():
         parts[name] = {'node':node,'mesh':mesh,'primitive':primitive,'positions':positions,'weights':named_weights}
     actual_fingerprint = hashlib.sha256(json.dumps(fingerprint,sort_keys=True,separators=(',',':')).encode()).hexdigest()
     if authored.get('sourceBindSha256') != actual_fingerprint:
-        raise ValueError('Authored thumb-web targets do not match actual final P/N/UV/influences/topology')
+        raise ValueError(f'Authored thumb-web targets require a matching bind field; actual SHA-256 {actual_fingerprint}')
     source_normals = {name:{point_key(record[0]) for record in records}
                       for name,records in PROTECTED_SKIN_NORMALS.items()}
     driver = authored['driver']
@@ -1967,6 +2469,14 @@ def publish_exported_thumb_web_correctives():
 
 
 
+def finger_socket_influences(weights):
+    active = [(joint, value) for joint, value in sorted(weights.items()) if value > 1e-7]
+    if not 1 <= len(active) <= 4:
+        raise ValueError('Finger socket vertex requires one to four bone influences')
+    total = sum(value for _, value in active)
+    return [(joint, value / total) for joint, value in active]
+
+
 def bind_continuous_skins():
     """Bind the exported continuous meshes to the existing animated controls.
 
@@ -2044,7 +2554,7 @@ def bind_continuous_skins():
             continue
         digit, positions, weighting = SKIN_WEIGHTS[name]
         lookup = {tuple(round(v, 6) for v in p): weight for p, weight in zip(positions, weighting)}
-        base_joint = list(DIGITS).index(digit) * 3 if digit != "palm" else None
+        base_joint = list(DIGITS).index(digit) * 3 if digit in DIGITS else None
         for primitive in exported["primitives"]:
             position_accessor = gltf["accessors"][primitive["attributes"]["POSITION"]]
             position_view = gltf["bufferViews"][position_accessor["bufferView"]]
@@ -2059,7 +2569,11 @@ def bind_continuous_skins():
                     if (Vector(positions[nearest]) - Vector(point)).length > 1e-6:
                         raise ValueError(f"Cannot map exported skin vertex {name}: {point}")
                     weight = weighting[nearest]
-                if digit == "palm":
+                if digit == "branched":
+                    active = finger_socket_influences(weight)
+                    joints.extend([joint for joint, _ in active] + [0] * (4 - len(active)))
+                    weights.extend([value for _, value in active] + [0] * (4 - len(active)))
+                elif digit == "palm":
                     joints.extend((15, 0, 0, 0))
                     weights.extend(weight)
                 else:
@@ -2134,7 +2648,12 @@ def apply_preview_skin():
     for name, (digit, positions, weights) in SKIN_WEIGHTS.items():
         ob = bpy.data.objects[name]
         local = ob.matrix_world.inverted()
-        if digit == "palm":
+        if digit == "branched":
+            transforms = [local @ bpy.data.objects[f"{finger}_{joint}"].matrix_world
+                          @ Matrix.Translation(-Vector(DIGITS[finger][i]))
+                          for finger in DIGITS for i, joint in enumerate(JOINTS)]
+            transforms.append(local @ bpy.data.objects["palm_root"].matrix_world)
+        elif digit == "palm":
             transforms = [local @ bpy.data.objects["palm_root"].matrix_world,
                           local @ bpy.data.objects["thumb_proximal"].matrix_world @ Matrix.Translation(-Vector(DIGITS["thumb"][0])),
                           Matrix.Identity(4), Matrix.Identity(4)]
@@ -2142,7 +2661,8 @@ def apply_preview_skin():
             transforms = [local @ bpy.data.objects[f"{digit}_{joint}"].matrix_world @ Matrix.Translation(-Vector(DIGITS[digit][i])) for i, joint in enumerate(JOINTS)]
             transforms.append(local @ bpy.data.objects["palm_root"].matrix_world)
         for vertex, point, blend in zip(ob.data.vertices, positions, weights):
-            vertex.co = sum((transforms[i] @ Vector(point) * blend[i] for i in range(len(blend))), Vector())
+            influences = finger_socket_influences(blend) if digit == "branched" else enumerate(blend)
+            vertex.co = sum((transforms[i] @ Vector(point) * w for i, w in influences), Vector())
         ob.data.update()
 
 
@@ -2179,7 +2699,7 @@ def publish_skin_colour(gltf, binary, accessor):
         fade = smoothstep((wrist - .005 - u) / .017)
         return warmth * fade, cool * fade
 
-    def digit_fields(name, p, uv, palm_warmth, palm_cool):
+    def digit_fields(name, p, uv, palm_warmth, palm_cool, root_fraction):
         chain = bones[name]
         lengths = [(b - a).length for a, b in zip(chain, chain[1:])]
         # Ring UV v tracks arc length and u=0 is the true volar crest.
@@ -2198,7 +2718,9 @@ def publish_skin_colour(gltf, binary, accessor):
             # shared boundary is wristward of the MCP in this frame.
             influence = smoothstep((chain[1] - p).dot(PALM_LONGITUDINAL) / .014)
         else:
-            influence = smoothstep(along / .014)
+            # On the material ring the socket and the finger carry the same
+            # palmar/dorsal colouring. Blend toward the digit along its shaft.
+            influence = smoothstep((along - root_fraction * (end + .0025)) / .014)
         return (palm_warmth * (1 - influence) + warmth * influence, palm_cool * (1 - influence))
 
     for node in gltf["nodes"]:
@@ -2209,12 +2731,16 @@ def publish_skin_colour(gltf, binary, accessor):
         attributes = primitive["attributes"]
         positions = accessor(attributes["POSITION"])
         uvs = accessor(attributes["TEXCOORD_0"])
+        root_fraction = 0
+        if name not in ('thumb_skin', 'palm_surface'):
+            ring = node['extras']['skinUnion']['sharedBoundary']
+            root_fraction = max(1 - uvs[i][1] for group in ring for i in group['vertices'])
         offset = len(binary)
         for point, uv in zip(positions, uvs):
             p = Vector(point)
             warm, cool = palm_fields(p)
             if name != "palm_surface":
-                warm, cool = digit_fields(name[:-5], p, uv, warm, cool)
+                warm, cool = digit_fields(name[:-5], p, uv, warm, cool, root_fraction)
             warm = min(warm, 1)
             rgb = (1 - .027 * warm - .075 * cool, 1 - .234 * warm - .041 * cool,
                    1 - .188 * warm - .018 * cool)
@@ -2227,6 +2753,36 @@ def publish_skin_colour(gltf, binary, accessor):
         gltf["accessors"].append({"bufferView": view, "componentType": 5121, "count": len(positions),
                                   "type": "VEC3", "normalized": True})
     gltf["buffers"][0]["byteLength"] = len(binary)
+
+
+def compact_hand_buffer_views(gltf, binary):
+    """Share byte-identical nail UVs, animation clocks and other equal views."""
+    unique_views, by_content, remap, result = [], {}, {}, bytearray()
+    for index, view in enumerate(gltf["bufferViews"]):
+        start = view.get("byteOffset", 0)
+        data = bytes(binary[start:start + view["byteLength"]])
+        metadata = {key: value for key, value in view.items() if key != "byteOffset"}
+        signature = (json.dumps(metadata, sort_keys=True), data)
+        if signature not in by_content:
+            result.extend(bytes(-len(result) % 4))
+            by_content[signature] = len(unique_views)
+            unique_views.append({**metadata, "byteOffset": len(result)})
+            result.extend(data)
+        remap[index] = by_content[signature]
+    for accessor in gltf["accessors"]:
+        if "bufferView" in accessor:
+            accessor["bufferView"] = remap[accessor["bufferView"]]
+        if "sparse" in accessor:
+            for key in ("indices", "values"):
+                lane = accessor["sparse"][key]
+                lane["bufferView"] = remap[lane["bufferView"]]
+    for image in gltf.get("images", []):
+        if "bufferView" in image:
+            image["bufferView"] = remap[image["bufferView"]]
+    gltf["bufferViews"] = unique_views
+    result.extend(bytes(-len(result) % 4))
+    gltf["buffers"][0]["byteLength"] = len(result)
+    return result
 
 
 def align_exported_smooth_contact_fields():
@@ -2286,6 +2842,7 @@ def align_exported_smooth_contact_fields():
             'normalField': 'barycentric-exported-smooth-vertex-normals',
         }
     publish_skin_colour(gltf, binary, accessor)
+    binary = compact_hand_buffer_views(gltf, binary)
     json_bytes = json.dumps(gltf, separators=(',', ':'), ensure_ascii=False).encode()
     json_bytes += b' ' * ((-len(json_bytes)) % 4)
     total = 12 + 8 + len(json_bytes) + 8 + len(binary)
@@ -2771,6 +3328,7 @@ def build(calibration_only=False):
             for track in node.animation_data.nla_tracks:
                 track.mute = False
         bpy.context.view_layer.update()
+    palm_surface = integrate_finger_roots(palm_surface, {name:bpy.data.objects[name+"_skin"] for name in ("index","middle","ring","little")})
     OUT.parent.mkdir(parents=True, exist_ok=True)
     bpy.ops.export_scene.gltf(
         filepath=str(OUT), export_format="GLB", export_yup=False,
@@ -2817,13 +3375,13 @@ def build(calibration_only=False):
         "joints": {d: [f"{d}_{j}" for j in JOINTS] for d in DIGITS},
         "anatomicalJoints": {d: [f"{d}_{j}" for j in ANATOMICAL[d]] for d in DIGITS},
         "anatomicalMapping": {f"{d}_{j}": f"{d}_{ANATOMICAL[d][i]}" for d in DIGITS for i, j in enumerate(JOINTS)},
-        "skin": {"surfaces": list(SKIN_WEIGHTS), "joints": [f"{d}_{j}" for d in DIGITS for j in JOINTS] + ["palm_root"], "weights": "smooth neighbouring-joint blend and proximal palm/MCP transition; contact-bearing distal vertices are rigid; closed palm-thumb composite uses a positive final-triangle CMC/MCP/IP/static Dirichlet field", "staticInfluence": "palm_root", "clone": "SkeletonUtils.clone is required for independent hands"},
+        "skin": {"surfaces": list(SKIN_WEIGHTS), "joints": [f"{d}_{j}" for d in DIGITS for j in JOINTS] + ["palm_root"], "weights": "smooth neighbouring-joint blend and proximal palm/MCP transition; contact-bearing distal vertices are rigid; thumb web uses a positive final-triangle CMC/MCP/IP/static Dirichlet field", "staticInfluence": "palm_root", "clone": "SkeletonUtils.clone is required for independent hands"},
         "wristInterface": exported_nodes["palm_surface"]["extras"]["wristInterface"],
         "thumbWebCorrectives": exported_nodes["acu_practitioner_hand"].get("extras",{}).get("thumbWebCorrectives"),
         "thumbWebCorrectivesSourceSha256": THUMB_PALM_SKIN.get("correctives",{}).get("sha256"),
         "correctiveSourceSha256": THUMB_PALM_SKIN.get("correctives",{}).get("sha256"),
         "thumbWebCorrectivesBindSha256": authored_thumb_web_correctives().get("sourceBindSha256"),
-        "palm": {"surface": "palm_surface", "topology": "closed palm-thumb composite", "skinParts": ["palm_surface", "thumb_skin"], "thenar": {"region": "localized radial-palmar quadrant", "inputSeedMaximumCmcWeight": THUMB_TISSUE["maximumThenarCmcWeight"], "weightField": exported_nodes["palm_surface"]["extras"]["skinWeightField"]}, "knuckles": "asymmetric MCP arch and dorsal metacarpal contours", "frame": "palm_frame", "shape": "localized thenar and hypothenar cushions with central palmar hollow; rounded first-web aperture and regular continuous thenar collar"},
+        "palm": {"surface": "palm_surface", "topology": "closed palm and five-digit composite", "skinParts": exported_nodes["palm_surface"]["extras"]["skinUnion"]["parts"], "thenar": {"region": "localized radial-palmar quadrant", "inputSeedMaximumCmcWeight": THUMB_TISSUE["maximumThenarCmcWeight"], "weightField": exported_nodes["palm_surface"]["extras"]["skinWeightField"]}, "knuckles": "asymmetric MCP arch and dorsal metacarpal contours", "frame": "palm_frame", "shape": "localized thenar and hypothenar cushions with central palmar hollow; rounded first-web aperture and regular continuous thenar collar"},
         "restAnatomy": {"thumb": {"points": {joint: list(point) for joint, point in zip((*ANATOMICAL["thumb"], "tip"), DIGITS["thumb"])},
                                   "boneLengthsMm": [(Vector(DIGITS["thumb"][i + 1]) - Vector(DIGITS["thumb"][i])).length * 1000 for i in range(3)],
                                   "flexionDeg": [(Vector(DIGITS["thumb"][i]) - Vector(DIGITS["thumb"][i - 1])).angle(Vector(DIGITS["thumb"][i + 1]) - Vector(DIGITS["thumb"][i])) * 180 / math.pi for i in (1, 2)],
