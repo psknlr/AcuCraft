@@ -36,10 +36,10 @@
         "landmark": "great-toe-nail-medial-corner",
         "offset": {
           "medial": {
-            "cm": 0.15
+            "fcun": 0.07
           },
           "cranial": {
-            "cm": 0.15
+            "fcun": 0.07
           }
         }
       },

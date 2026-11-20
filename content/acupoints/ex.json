@@ -33,17 +33,90 @@
       "area": "head",
       "sites": 4,
       "region": "scalp",
-      "localisation": {
-        "method": "along",
-        "from": "anterior-hairline",
-        "toward": "posterior-hairline",
-        "distance": {
-          "cun": 5,
-          "segment": "seg.hairlines"
+      "siteLocalisations": [
+        {
+          "id": "anterior",
+          "label": "1 B-cun anterior to GV20",
+          "localisation": {
+            "method": "along",
+            "from": "anterior-hairline",
+            "toward": "posterior-hairline",
+            "distance": {
+              "cun": 4,
+              "segment": "seg.hairlines"
+            }
+          },
+          "tolerance": {
+            "cun": 0.3,
+            "segment": "seg.hairlines"
+          }
+        },
+        {
+          "id": "posterior",
+          "label": "1 B-cun posterior to GV20",
+          "localisation": {
+            "method": "along",
+            "from": "anterior-hairline",
+            "toward": "posterior-hairline",
+            "distance": {
+              "cun": 6,
+              "segment": "seg.hairlines"
+            }
+          },
+          "tolerance": {
+            "cun": 0.3,
+            "segment": "seg.hairlines"
+          }
+        },
+        {
+          "id": "left",
+          "label": "1 B-cun to the left of GV20",
+          "localisation": {
+            "method": "along",
+            "from": "anterior-hairline",
+            "toward": "posterior-hairline",
+            "distance": {
+              "cun": 5,
+              "segment": "seg.hairlines"
+            },
+            "offset": {
+              "lateral": {
+                "cun": 1,
+                "segment": "seg.hairlines"
+              }
+            }
+          },
+          "tolerance": {
+            "cun": 0.3,
+            "segment": "seg.hairlines"
+          }
+        },
+        {
+          "id": "right",
+          "label": "1 B-cun to the right of GV20",
+          "localisation": {
+            "method": "along",
+            "from": "anterior-hairline",
+            "toward": "posterior-hairline",
+            "distance": {
+              "cun": 5,
+              "segment": "seg.hairlines"
+            },
+            "offset": {
+              "medial": {
+                "cun": 1,
+                "segment": "seg.hairlines"
+              }
+            }
+          },
+          "tolerance": {
+            "cun": 0.3,
+            "segment": "seg.hairlines"
+          }
         }
-      },
+      ],
       "tolerance": {
-        "cun": 1.3,
+        "cun": 0.3,
         "segment": "seg.hairlines"
       },
       "bilateral": false,
@@ -997,18 +1070,304 @@
       "area": "upper-back",
       "sites": 17,
       "region": "upper-back",
-      "localisation": {
-        "method": "landmark",
-        "landmark": "t1-spinous",
-        "offset": {
-          "lateral": {
-            "cun": 0.5,
-            "segment": "seg.scapulae"
+      "siteLocalisations": [
+        {
+          "id": "t1",
+          "label": "level of T1",
+          "localisation": {
+            "method": "landmark",
+            "landmark": "t1-spinous",
+            "offset": {
+              "lateral": {
+                "cun": 0.5,
+                "segment": "seg.scapulae"
+              }
+            }
+          },
+          "tolerance": {
+            "cm": 0.5
+          }
+        },
+        {
+          "id": "t2",
+          "label": "level of T2",
+          "localisation": {
+            "method": "landmark",
+            "landmark": "t2-spinous",
+            "offset": {
+              "lateral": {
+                "cun": 0.5,
+                "segment": "seg.scapulae"
+              }
+            }
+          },
+          "tolerance": {
+            "cm": 0.5
+          }
+        },
+        {
+          "id": "t3",
+          "label": "level of T3",
+          "localisation": {
+            "method": "landmark",
+            "landmark": "t3-spinous",
+            "offset": {
+              "lateral": {
+                "cun": 0.5,
+                "segment": "seg.scapulae"
+              }
+            }
+          },
+          "tolerance": {
+            "cm": 0.5
+          }
+        },
+        {
+          "id": "t4",
+          "label": "level of T4",
+          "localisation": {
+            "method": "landmark",
+            "landmark": "t4-spinous",
+            "offset": {
+              "lateral": {
+                "cun": 0.5,
+                "segment": "seg.scapulae"
+              }
+            }
+          },
+          "tolerance": {
+            "cm": 0.5
+          }
+        },
+        {
+          "id": "t5",
+          "label": "level of T5",
+          "localisation": {
+            "method": "landmark",
+            "landmark": "t5-spinous",
+            "offset": {
+              "lateral": {
+                "cun": 0.5,
+                "segment": "seg.scapulae"
+              }
+            }
+          },
+          "tolerance": {
+            "cm": 0.5
+          }
+        },
+        {
+          "id": "t6",
+          "label": "level of T6",
+          "localisation": {
+            "method": "landmark",
+            "landmark": "t6-spinous",
+            "offset": {
+              "lateral": {
+                "cun": 0.5,
+                "segment": "seg.scapulae"
+              }
+            }
+          },
+          "tolerance": {
+            "cm": 0.5
+          }
+        },
+        {
+          "id": "t7",
+          "label": "level of T7",
+          "localisation": {
+            "method": "landmark",
+            "landmark": "t7-spinous",
+            "offset": {
+              "lateral": {
+                "cun": 0.5,
+                "segment": "seg.scapulae"
+              }
+            }
+          },
+          "tolerance": {
+            "cm": 0.5
+          }
+        },
+        {
+          "id": "t8",
+          "label": "level of T8",
+          "localisation": {
+            "method": "landmark",
+            "landmark": "t8-spinous",
+            "offset": {
+              "lateral": {
+                "cun": 0.5,
+                "segment": "seg.scapulae"
+              }
+            }
+          },
+          "tolerance": {
+            "cm": 0.5
+          }
+        },
+        {
+          "id": "t9",
+          "label": "level of T9",
+          "localisation": {
+            "method": "landmark",
+            "landmark": "t9-spinous",
+            "offset": {
+              "lateral": {
+                "cun": 0.5,
+                "segment": "seg.scapulae"
+              }
+            }
+          },
+          "tolerance": {
+            "cm": 0.5
+          }
+        },
+        {
+          "id": "t10",
+          "label": "level of T10",
+          "localisation": {
+            "method": "landmark",
+            "landmark": "t10-spinous",
+            "offset": {
+              "lateral": {
+                "cun": 0.5,
+                "segment": "seg.scapulae"
+              }
+            }
+          },
+          "tolerance": {
+            "cm": 0.5
+          }
+        },
+        {
+          "id": "t11",
+          "label": "level of T11",
+          "localisation": {
+            "method": "landmark",
+            "landmark": "t11-spinous",
+            "offset": {
+              "lateral": {
+                "cun": 0.5,
+                "segment": "seg.scapulae"
+              }
+            }
+          },
+          "tolerance": {
+            "cm": 0.5
+          }
+        },
+        {
+          "id": "t12",
+          "label": "level of T12",
+          "localisation": {
+            "method": "landmark",
+            "landmark": "t12-spinous",
+            "offset": {
+              "lateral": {
+                "cun": 0.5,
+                "segment": "seg.scapulae"
+              }
+            }
+          },
+          "tolerance": {
+            "cm": 0.5
+          }
+        },
+        {
+          "id": "l1",
+          "label": "level of L1",
+          "region": "lumbar",
+          "localisation": {
+            "method": "landmark",
+            "landmark": "l1-spinous",
+            "offset": {
+              "lateral": {
+                "cun": 0.5,
+                "segment": "seg.scapulae"
+              }
+            }
+          },
+          "tolerance": {
+            "cm": 0.5
+          }
+        },
+        {
+          "id": "l2",
+          "label": "level of L2",
+          "region": "lumbar",
+          "localisation": {
+            "method": "landmark",
+            "landmark": "l2-spinous",
+            "offset": {
+              "lateral": {
+                "cun": 0.5,
+                "segment": "seg.scapulae"
+              }
+            }
+          },
+          "tolerance": {
+            "cm": 0.5
+          }
+        },
+        {
+          "id": "l3",
+          "label": "level of L3",
+          "region": "lumbar",
+          "localisation": {
+            "method": "landmark",
+            "landmark": "l3-spinous",
+            "offset": {
+              "lateral": {
+                "cun": 0.5,
+                "segment": "seg.scapulae"
+              }
+            }
+          },
+          "tolerance": {
+            "cm": 0.5
+          }
+        },
+        {
+          "id": "l4",
+          "label": "level of L4",
+          "region": "lumbar",
+          "localisation": {
+            "method": "landmark",
+            "landmark": "l4-spinous",
+            "offset": {
+              "lateral": {
+                "cun": 0.5,
+                "segment": "seg.scapulae"
+              }
+            }
+          },
+          "tolerance": {
+            "cm": 0.5
+          }
+        },
+        {
+          "id": "l5",
+          "label": "level of L5",
+          "region": "lumbar",
+          "localisation": {
+            "method": "landmark",
+            "landmark": "l5-spinous",
+            "offset": {
+              "lateral": {
+                "cun": 0.5,
+                "segment": "seg.scapulae"
+              }
+            }
+          },
+          "tolerance": {
+            "cm": 0.5
           }
         }
-      },
+      ],
       "tolerance": {
-        "cm": 0.6
+        "cm": 0.5
       },
       "bilateral": true,
       "cautions": [],
@@ -1854,17 +2213,39 @@
       "area": "hand",
       "sites": 2,
       "region": "hand-dorsum",
-      "localisation": {
-        "method": "between",
-        "a": "cleft-2-3",
-        "b": "wrist-dorsal-crease",
-        "fraction": 0.5,
-        "offset": {
-          "lateral": {
-            "cm": 0.5
+      "siteLocalisations": [
+        {
+          "id": "mc-2-3",
+          "label": "between the second and third metacarpals",
+          "localisation": {
+            "method": "between",
+            "a": "cleft-2-3",
+            "b": "wrist-dorsal-crease",
+            "fraction": 0.5,
+            "offset": {
+              "lateral": {
+                "cm": 0.5
+              }
+            }
+          },
+          "tolerance": {
+            "cm": 0.6
+          }
+        },
+        {
+          "id": "mc-4-5",
+          "label": "between the fourth and fifth metacarpals",
+          "localisation": {
+            "method": "between",
+            "a": "cleft-4-5",
+            "b": "wrist-dorsal-crease",
+            "fraction": 0.5
+          },
+          "tolerance": {
+            "cm": 0.6
           }
         }
-      },
+      ],
       "tolerance": {
         "cm": 0.6
       },
@@ -1975,15 +2356,74 @@
       "area": "hand",
       "sites": 4,
       "region": "hand-dorsum",
-      "localisation": {
-        "method": "landmark",
-        "landmark": "web-margin",
-        "offset": {
-          "cranial": {
-            "cm": 0.3
+      "siteLocalisations": [
+        {
+          "id": "web-1-2",
+          "label": "web between the thumb and the index finger",
+          "localisation": {
+            "method": "landmark",
+            "landmark": "web-margin",
+            "offset": {
+              "cranial": {
+                "cm": 0.3
+              }
+            }
+          },
+          "tolerance": {
+            "cm": 0.5
+          }
+        },
+        {
+          "id": "web-2-3",
+          "label": "web between the index and middle fingers",
+          "localisation": {
+            "method": "landmark",
+            "landmark": "cleft-2-3",
+            "offset": {
+              "cranial": {
+                "cm": 0.3
+              }
+            }
+          },
+          "tolerance": {
+            "cm": 0.5
+          }
+        },
+        {
+          "id": "web-3-4",
+          "label": "web between the middle and ring fingers",
+          "localisation": {
+            "method": "between",
+            "a": "cleft-2-3",
+            "b": "cleft-4-5",
+            "fraction": 0.5,
+            "offset": {
+              "cranial": {
+                "cm": 0.3
+              }
+            }
+          },
+          "tolerance": {
+            "cm": 0.5
+          }
+        },
+        {
+          "id": "web-4-5",
+          "label": "web between the ring and little fingers",
+          "localisation": {
+            "method": "landmark",
+            "landmark": "cleft-4-5",
+            "offset": {
+              "cranial": {
+                "cm": 0.3
+              }
+            }
+          },
+          "tolerance": {
+            "cm": 0.5
           }
         }
-      },
+      ],
       "tolerance": {
         "cm": 0.5
       },
@@ -2035,10 +2475,52 @@
       "area": "finger",
       "sites": 4,
       "region": "hand-palm",
-      "localisation": {
-        "method": "landmark",
-        "landmark": "pip-crease-2"
-      },
+      "siteLocalisations": [
+        {
+          "id": "index",
+          "label": "proximal interphalangeal crease of the index finger",
+          "localisation": {
+            "method": "landmark",
+            "landmark": "pip-crease-2"
+          },
+          "tolerance": {
+            "cm": 0.4
+          }
+        },
+        {
+          "id": "middle",
+          "label": "proximal interphalangeal crease of the middle finger",
+          "localisation": {
+            "method": "landmark",
+            "landmark": "pip-crease-3"
+          },
+          "tolerance": {
+            "cm": 0.4
+          }
+        },
+        {
+          "id": "ring",
+          "label": "proximal interphalangeal crease of the ring finger",
+          "localisation": {
+            "method": "landmark",
+            "landmark": "pip-crease-4"
+          },
+          "tolerance": {
+            "cm": 0.4
+          }
+        },
+        {
+          "id": "little",
+          "label": "proximal interphalangeal crease of the little finger",
+          "localisation": {
+            "method": "landmark",
+            "landmark": "pip-crease-5"
+          },
+          "tolerance": {
+            "cm": 0.4
+          }
+        }
+      ],
       "tolerance": {
         "cm": 0.4
       },
@@ -2090,10 +2572,63 @@
       "area": "finger",
       "sites": 5,
       "region": "hand-palm",
-      "localisation": {
-        "method": "landmark",
-        "landmark": "tip-1"
-      },
+      "siteLocalisations": [
+        {
+          "id": "thumb",
+          "label": "tip of the thumb",
+          "localisation": {
+            "method": "landmark",
+            "landmark": "tip-1"
+          },
+          "tolerance": {
+            "cm": 0.4
+          }
+        },
+        {
+          "id": "index",
+          "label": "tip of the index finger",
+          "localisation": {
+            "method": "landmark",
+            "landmark": "tip-2"
+          },
+          "tolerance": {
+            "cm": 0.4
+          }
+        },
+        {
+          "id": "middle",
+          "label": "tip of the middle finger",
+          "localisation": {
+            "method": "landmark",
+            "landmark": "tip-3"
+          },
+          "tolerance": {
+            "cm": 0.4
+          }
+        },
+        {
+          "id": "ring",
+          "label": "tip of the ring finger",
+          "localisation": {
+            "method": "landmark",
+            "landmark": "tip-4"
+          },
+          "tolerance": {
+            "cm": 0.4
+          }
+        },
+        {
+          "id": "little",
+          "label": "tip of the little finger",
+          "localisation": {
+            "method": "landmark",
+            "landmark": "tip-5"
+          },
+          "tolerance": {
+            "cm": 0.4
+          }
+        }
+      ],
       "tolerance": {
         "cm": 0.4
       },
@@ -2388,14 +2923,35 @@
       "area": "knee",
       "sites": 2,
       "region": "knee-leg",
-      "localisation": {
-        "method": "landmark",
-        "landmark": "medial-knee-eye"
-      },
+      "siteLocalisations": [
+        {
+          "id": "medial",
+          "label": "medial knee eye",
+          "localisation": {
+            "method": "landmark",
+            "landmark": "medial-knee-eye"
+          },
+          "tolerance": {
+            "cm": 0.6
+          },
+          "configuration": "knee-flexed"
+        },
+        {
+          "id": "lateral",
+          "label": "lateral knee eye",
+          "localisation": {
+            "method": "landmark",
+            "landmark": "st35-depression"
+          },
+          "tolerance": {
+            "cm": 0.6
+          },
+          "configuration": "knee-flexed"
+        }
+      ],
       "tolerance": {
         "cm": 0.6
       },
-      "configuration": "knee-flexed",
       "bilateral": true,
       "cautions": [],
       "provenance": {
@@ -2676,15 +3232,72 @@
       "area": "foot",
       "sites": 4,
       "region": "foot",
-      "localisation": {
-        "method": "landmark",
-        "landmark": "web-1-2",
-        "offset": {
-          "cranial": {
-            "cm": 0.3
+      "siteLocalisations": [
+        {
+          "id": "web-1-2",
+          "label": "web between toes 1 and 2",
+          "localisation": {
+            "method": "landmark",
+            "landmark": "web-1-2",
+            "offset": {
+              "cranial": {
+                "cm": 0.3
+              }
+            }
+          },
+          "tolerance": {
+            "cm": 0.4
+          }
+        },
+        {
+          "id": "web-2-3",
+          "label": "web between toes 2 and 3",
+          "localisation": {
+            "method": "landmark",
+            "landmark": "web-2-3",
+            "offset": {
+              "cranial": {
+                "cm": 0.3
+              }
+            }
+          },
+          "tolerance": {
+            "cm": 0.4
+          }
+        },
+        {
+          "id": "web-3-4",
+          "label": "web between toes 3 and 4",
+          "localisation": {
+            "method": "landmark",
+            "landmark": "web-3-4",
+            "offset": {
+              "cranial": {
+                "cm": 0.3
+              }
+            }
+          },
+          "tolerance": {
+            "cm": 0.4
+          }
+        },
+        {
+          "id": "web-4-5",
+          "label": "web between toes 4 and 5",
+          "localisation": {
+            "method": "landmark",
+            "landmark": "web-4-5",
+            "offset": {
+              "cranial": {
+                "cm": 0.3
+              }
+            }
+          },
+          "tolerance": {
+            "cm": 0.4
           }
         }
-      },
+      ],
       "tolerance": {
         "cm": 0.4
       },

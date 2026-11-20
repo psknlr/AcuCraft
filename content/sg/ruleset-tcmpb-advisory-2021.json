@@ -85,6 +85,19 @@
       }
     },
     {
+      "id": "pregnancy-abdominal-lumbosacral",
+      "title": "No abdominal or lumbosacral needling after the first trimester",
+      "summary": "In pregnancy, needling of abdominal and lumbosacral points should also be avoided after the first trimester (advisory §4.1.4, as cited by the clinical audit of November 2026). Encoded by region — the abdomen, the lumbar region and the sacrum and buttocks — so it applies to a named point, an Ashi point or a bare chart position alike; the buttocks and hips are included conservatively.",
+      "severity": "critical",
+      "enforcement": "record",
+      "check": {
+        "kind": "avoid-regions",
+        "riskFactor": "pregnancy",
+        "regions": ["abdomen", "lumbar", "sacrum-buttock"],
+        "fromGestationWeek": 13
+      }
+    },
+    {
       "id": "treatment-records",
       "title": "Treatment records",
       "summary": "Treatment records are kept: the assessment, the points used and the procedure performed.",

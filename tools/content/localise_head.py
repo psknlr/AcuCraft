@@ -108,7 +108,6 @@ LOCALISE = {
     # EX-HN1 is four sites, 1 B-cun anterior, posterior and to either side of GV20. The engine holds one reference
     # location per point, so the group is localised at its centre with a tolerance that admits each of the four sites
     # (and, unavoidably, GV20 itself): the needles still go 1 B-cun from it, as the location text says.
-    "EX-HN1": ("scalp", along(AH, PH, cun(5, SAG)), cun(1.3, SAG)),
     "BL3": ("scalp", landmark("anterior-hairline-brow-medial-{side}", cranial=cun(0.5, SAG)), cun(0.3, SAG)),
     "BL4": bladder_line(0.5),
     "BL5": bladder_line(1),
@@ -149,7 +148,7 @@ LOCALISE = {
     "LI19": ("face", between("subnasale", "philtrum-lower", 1 / 3, lateral=cm(1.05)), cm(0.4)),
     "GV27": ("face", landmark("upper-lip-tubercle"), cm(0.3)),
     # 0.4 F-cun lateral to the angle of the mouth: about 0.8 cm
-    "ST4": ("face", landmark("mouth-angle-{side}", lateral=cm(0.8)), cm(0.4)),
+    "ST4": ("face", landmark("mouth-angle-{side}", lateral={"fcun": 0.4}), cm(0.4)),  # 0.4 F-cun: the patient's finger cun
     "CV24": ("face", landmark("mentolabial-sulcus"), cm(0.4)),
 
     # --- side of the head: in front of the ear (found with the mouth open), the cheek and the jaw ---------------------
@@ -189,4 +188,18 @@ LOCALISE = {
     "TE17": ("neck-shoulder", landmark("earlobe-depression-{side}"), cm(0.5)),
     "EX-HN14": ("neck-shoulder", landmark("earlobe-depression-{side}", medial=cun(1, MASTOIDS)), cun(0.3, MASTOIDS)),
     "EX-HN15": ("neck-shoulder", landmark("c7-spinous", cranial=cun(2, NAPE), lateral=cun(1, BACK)), cun(0.4, BACK)),
+}
+
+
+# Group points located site by site (each its own target; never at the centre of the group). On the midline scalp chart
+# `lateral` points to the patient's left and `medial` to the right.
+SITE_TOL = cun(0.3, SAG)
+SITES = {
+    # Sishencong: 1 B-cun anterior, posterior and either side of GV20 (5 B-cun behind the anterior hairline)
+    "EX-HN1": ("scalp", [
+        ("anterior", "1 B-cun anterior to GV20", None, along(AH, PH, cun(4, SAG)), SITE_TOL),
+        ("posterior", "1 B-cun posterior to GV20", None, along(AH, PH, cun(6, SAG)), SITE_TOL),
+        ("left", "1 B-cun to the left of GV20", None, along(AH, PH, cun(5, SAG), lateral=cun(1, SAG)), SITE_TOL),
+        ("right", "1 B-cun to the right of GV20", None, along(AH, PH, cun(5, SAG), medial=cun(1, SAG)), SITE_TOL),
+    ]),
 }

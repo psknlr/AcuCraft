@@ -14,9 +14,11 @@ content/
   sg/ruleset-*.json               acucraft/ruleset@1     versioned rule sets with effective dates
   sg/clinic.json                  acucraft/clinic@1      the simulated clinic: its facility, each room's home spot, the
                                                          placement every fixture stands on
-  world/facilities/*.json         clinicalcraft/facility@1          the clinic's floor plan, in ClinicalCraft's formats —
-  world/templates/*.json          clinicalcraft/room-template@1     written with sg/clinic.json by tools/content/clinic_world.py;
-  world/catalogs/*.json           clinicalcraft/equipment-catalog@1 docs/WORLD.md
+  world/facilities/*.json         clinicalcraft/facility@1          the clinic's floor plan and the skills room, in ClinicalCraft's
+  world/templates/*.json          clinicalcraft/room-template@1     formats — written with sg/clinic.json by
+  world/catalogs/*.json           clinicalcraft/equipment-catalog@1 tools/content/clinic_world.py; docs/WORLD.md
+  world/assets/models/*.glb       glTF                              a model for each equipment type, built by
+                                                                    tools/blender/build.py; docs/MODELS.md
   sg/vocabulary.json              acucraft/vocabulary@1  diagnoses, patterns, red flags (assessment ids); the signs, what
                                                          each pattern is recognised by, the needle sensations and deqi —
                                                          written by tools/content/vocabulary.py; docs/EVIDENCE.md
@@ -26,6 +28,9 @@ content/
   families/<id>/field.json        acucraft/field@1       the acupuncture field and the hidden evaluation
   families/<id>/variants/*.json   acucraft/variant@1     overlays of case and field
   families/<id>/solutions/*.json                         a variant's reference trajectory (hidden)
+  skills/<id>.md                                         how a part of the work is done in this clinic: a header
+                                                         (id, title, when) and a short text an agent may read;
+                                                         public, the same for every scenario (docs/AGENT.md §5)
   bench/pilot-v1.json             acucraft/suite@1       the pilot benchmark suite
 ```
 
@@ -58,8 +63,9 @@ A ClinicalCraft case (`docs/CASE_AUTHORING.md` in ClinicalCraft). AcuCraft conve
 
 - `clinic`, `roles`, `ruleSeries`, `visits` (index, phase, date, label), `cast` (who is under test; NPCs and their
   policy), `regions` modelled in the scenario.
-- `patient`: location, position, risk factors (matched against point cautions), anxiety, `needleSensitivity` (how
-  readily they feel a needle: scales the needle's response and what they tolerate), positions declined, anatomy
+- `patient`: location, position, risk factors (matched against point cautions and against `avoid-regions` rules),
+  `gestationWeeks` (with `pregnancy`), anxiety, `needleSensitivity` (how readily they feel a needle: scales the
+  needle's response and what they tolerate), positions declined, anatomy
   (finger cun; per region `both`/`left`/`right`: scale, subcutaneous and muscle scale, landmark and structure shifts),
   site conditions (circle or whole region, revealed by an exam finding), Ashi points (revealed by an exam finding),
   consent (required topics; agree, questions, decline texts).
@@ -68,9 +74,11 @@ A ClinicalCraft case (`docs/CASE_AUTHORING.md` in ClinicalCraft). AcuCraft conve
   (ClinicalCraft flags, field flags, speech, patient feedback, consent withdrawal, a needle dropping out or breaking,
   anxiety).
 - `evaluation`: pathways (acceptable or not), expected and acceptable diagnoses, defensible and implausible patterns,
-  `signs` (what each finding of the case shows, below), red flags present or absent, points recommended / acceptable /
-  to avoid, critical errors, required history, exam and records, monitoring limits, follow-up pathways, documentation
-  fields. Hidden from agents.
+  `signs` (what each finding of the case shows, below), red flags present or absent (each with `evident` — shown by
+  the opening statement or triage note — and `evidence`, the conditions that give the learner it), points recommended /
+  acceptable / to avoid (a group point's entries may name a `site`), critical errors, required history, exam and
+  records, monitoring limits, follow-up pathways, documentation fields. A pathway may say it `continues` (calls for
+  another visit); full-course completion is counted only then. Hidden from agents.
 
 ### What the findings show (`evaluation.signs`)
 

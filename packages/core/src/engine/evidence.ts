@@ -1,5 +1,5 @@
 import { createRng, seedFrom } from "@clinicalcraft/core";
-import type { NeedleResponseClaim, PointRef } from "../schema/actions.js";
+import type { NeedleResponseClaim, NeedleTechnique, PointRef } from "../schema/actions.js";
 import type { NeedleSensation } from "../schema/field.js";
 import type { EncounterState, EvidenceItem, EvidenceKind, NeedleResponse, NeedleState } from "../schema/state.js";
 import type { PathAssessment } from "./anatomy.js";
@@ -116,13 +116,22 @@ export function patternSupport(sc: Scenario, pattern: string, cited: readonly st
 }
 
 /**
- * The support of an assessment's pattern, on the evidence obtained when it was made (null: it names no pattern). The
- * ledger is in the order things were obtained, so "by then" is its first `ledger` items — not a time on the clock,
- * which two acts can share.
+ * The support of an assessment's pattern, on the evidence obtained when it was made (null: it names no pattern).
+ * "By then" is read from the clock: an assessment takes simulated time, so nothing obtained after it carries its
+ * minute, and what was obtained in the same minute was obtained before it.
  */
 export function assessmentSupport(sc: Scenario, s: EncounterState, a: EncounterState["assessments"][number]): PatternSupport | null {
   if (a.pattern === null) return null;
-  return patternSupport(sc, a.pattern, a.patternEvidence, s.evidence.slice(0, a.ledger).map((e) => e.id));
+  return patternSupport(sc, a.pattern, a.patternEvidence, s.evidence.filter((e) => e.at <= a.at + 1e-9).map((e) => e.id));
+}
+
+/**
+ * Since when a needle has had deqi without a break (null: it has none now). It is the minute qi first arrived,
+ * unless the needle lost its response and found it again: only then does the state carry `deqiSince`.
+ */
+export function deqiSince(r: Pick<NeedleResponse, "deqi" | "arrivedAt" | "deqiSince"> | null | undefined): number | null {
+  if (!r || !r.deqi) return null;
+  return r.deqiSince ?? r.arrivedAt;
 }
 
 /** What the whole case could show for a pattern at a visit's phase: every finding it has, obtained and cited. */
@@ -199,7 +208,10 @@ export function needleResponse(sc: Scenario, s: EncounterState, n: NeedleState, 
   const qualities: NeedleSensation[] = !deqi
     ? []
     : [...order.slice(0, 2), ...(path.findings.some((f) => f.near && f.kind === "nerve") ? (["numbness"] as NeedleSensation[]) : []), ...(intensity >= STRONG_RESPONSE ? (["spreading"] as NeedleSensation[]) : [])];
-  return { stimulation, manipulations, intensity, deqi, arrivedAt: prev?.arrivedAt ?? (deqi ? now(s) : null), deqiSince: deqi ? (prev?.deqiSince ?? now(s)) : null, qualities, noxious, overstimulated };
+  // a needle that lost its response and has it again has had it since now, not since it first arrived
+  const regained = deqi && prev !== null && prev !== undefined && prev.arrivedAt !== null && !prev.deqi;
+  const since = regained ? now(s) : deqi ? prev?.deqiSince : undefined;
+  return { stimulation, manipulations, intensity, deqi, arrivedAt: prev?.arrivedAt ?? (deqi ? now(s) : null), ...(since !== undefined ? { deqiSince: since } : {}), qualities, noxious, overstimulated };
 }
 
 const PHRASE: Record<NeedleSensation, string> = {
@@ -229,8 +241,8 @@ export function describeSensation(r: NeedleResponse): { text: string; qualities:
 }
 
 /** What the operator feels in the needle on working it. */
-export function describeGrasp(r: NeedleResponse, technique: "lift-thrust" | "rotate"): { text: string; grasp: boolean } {
-  const act = technique === "rotate" ? "rotate" : "lift and thrust";
+export function describeGrasp(r: NeedleResponse, technique: Exclude<NeedleTechnique, "none">): { text: string; grasp: boolean } {
+  const act = technique === "rotate" || technique === "twist" ? "rotate" : technique === "lift" ? "lift" : technique === "thrust" ? "thrust" : technique === "bu" || technique === "xie" ? `work (${technique} simulation gesture)` : "lift and thrust";
   if (r.noxious !== null) return { text: `The patient flinches as you ${act} the needle.`, grasp: false };
   if (r.deqi) return { text: `The needle is gripped as you ${act} it: it feels heavy and tight.`, grasp: true };
   if (r.intensity >= 0.3) return { text: `A slight drag on the needle as you ${act} it, no more.`, grasp: false };
@@ -309,7 +321,7 @@ export function needleAudit(sc: Scenario, s: EncounterState): NeedleAudit[] {
     } else if (claim.response === "none") {
       // the latest check the record names, against since when the needle has had deqi (if it has)
       const checkedAt = Math.max(...evidence.filter((e) => claim!.evidence.includes(e.id)).map((e) => e.at));
-      const since = r?.deqiSince ?? null;
+      const since = deqiSince(r);
       const stale = since !== null && since > checkedAt + 1e-9;
       verdict = stale ? "out-of-date" : "supported";
       detail = stale ? `recorded as none on a check at minute ${checkedAt.toFixed(1)}; the needle has had deqi since minute ${since.toFixed(1)}` : `none, on ${claim.evidence.join(", ")}`;

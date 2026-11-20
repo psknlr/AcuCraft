@@ -1,7 +1,7 @@
 import { t } from "@clinicalcraft/core";
-import type { PointRef } from "../schema/actions.js";
-import type { EncounterState } from "../schema/state.js";
-import { pointInstance, regionAccess } from "./anatomy.js";
+import type { DocumentRecord, PointRef } from "../schema/actions.js";
+import type { EncounterState, ManipulationPerformance } from "../schema/state.js";
+import { pointInstance, pointTargets, regionAccess } from "./anatomy.js";
 import { consentCovers, currentPlan, currentVisit, fellUnseen, fmt, needleList, now, parseRef, refKey, visitIndex } from "./queries.js";
 import { needleEvidence, recordEvidenceId } from "./evidence.js";
 import { ACTION_PERMISSIONS } from "./rules.js";
@@ -30,6 +30,8 @@ export interface AgentView {
   version: number;
   minute: number;
   finished: boolean;
+  /** Latest accepted visual performances, including resolved parameters and an explicit illustrative provenance. */
+  performances?: ManipulationPerformance[];
   you: { id: string; name: string; role: string; roleLabel: string; location: string; holding: string[]; may: string[] };
   /**
    * Where you are in the clinic (metres on its floor plan: +x east, +z south) and what is within reach from there.
@@ -37,9 +39,15 @@ export interface AgentView {
    * couch or chair the patient is on, and to each body site as the patient lies now.
    */
   space: {
-    you: { x: number; z: number; facing: string; room: string };
-    fixtures: { id: string; kind: string; label: string; room: string; x: number; z: number; distance: number; inReach: boolean }[];
+    you: { x: number; z: number; yaw: number; facing: string; room: string };
+    rooms: { id: string; label: string; minX: number; maxX: number; minZ: number; maxZ: number }[];
+    walks: import("../schema/state.js").WalkRecord[];
+    /** Current actor's latest walk, retained for existing animation consumers. */
+    lastWalk?: { attempt: number; from: { x: number; z: number }; to: { x: number; z: number }; path: { x: number; z: number }[]; withPatient: boolean } | null;
+    fixtures: { id: string; kind: string; label: string; room: string; x: number; z: number; rot: number; distance: number; inReach: boolean }[];
     patient: {
+      id: string;
+      yaw: number;
       room: string;
       /** The fixture they sit or lie on (null: standing). */
       on: string | null;
@@ -58,7 +66,7 @@ export interface AgentView {
        */
       sites: { inReach: string[]; outOfReach: { site: string; distance: number }[] };
     };
-    team: { id: string; room: string; x: number; z: number; distance: number; inReach: boolean }[];
+    team: { id: string; room: string; x: number; z: number; yaw: number; distance: number; inReach: boolean }[];
   };
   patient: {
     name: string;
@@ -98,8 +106,14 @@ export interface AgentView {
     needle: string;
     target: string;
     inPlace: boolean;
+    /** A recorded withdrawal, distinguished from a needle found dropped or broken. */
+    withdrawn?: boolean;
+    /** Executed geometry and the pack's shaft length, excluding hidden anatomy and path findings. */
+    placement?: { region: string; side: string; u: number; v: number; depthCm: number; angleDeg: number; azimuthDeg: number; lengthMm: number };
     /** Times the needle has been worked (lift-thrust or rotation). */
     manipulations: number;
+    /** Executed geometry, not a reconstruction from requested values. */
+    geometry: { region: string; side: string; u: number; v: number; depthCm: number; angleDeg: number; azimuthDeg: number; lengthMm: number; diameterMm: number };
     evidence: { id: string; minute: number; from: "patient" | "operator"; text: string; qualities: string[]; grasp: boolean | null; unasked: boolean }[];
     /** The response on record for it (`deqi`, `none`, `not-sought`), if any. */
     recorded: string | null;
@@ -109,7 +123,24 @@ export interface AgentView {
     measurements: { region: string; side: string; what: string; cm: number }[];
     marks: { id: string; target: string; region: string; side: string; u: number; v: number; stale: boolean }[];
   };
-  plan: { version: number; points: string[]; retentionMinutes: number; stimulation: string; approved: boolean } | null;
+  /** The plan as set (`propose_plan`): the latest version, which the patient's consent may or may not cover. */
+  plan: { version: number; minute: number; points: string[]; retentionMinutes: number; stimulation: string; method: string; rationale: string; alternatives: string[]; followUp: string | null; approved: boolean } | null;
+  /**
+   * The written record, every visit so far: the decisions made, what the patient was told and agreed to, the
+   * referrals, the incidents reported, a treatment stopped, and the notes written (`document`). It is the
+   * practitioner's own record and the team's — what they wrote and decided — so nothing in it is hidden from them,
+   * and a follow-up visit starts from the notes of the first.
+   */
+  documentation: {
+    visits: { visit: number; date: string; current: boolean; ended: boolean }[];
+    decisions: { visit: number; minute: number; by: string; disposition: string; rationale: string }[];
+    consent: { status: string; planVersion: number | null; minute: number | null; topics: string[] };
+    explanations: { visit: number; minute: number; by: string; topics: string[]; text: string | null }[];
+    referrals: { minute: number; by: string; to: string; urgency: string; reason: string }[];
+    notes: { visit: number; minute: number; by: string; record: DocumentRecord }[];
+    incidents: { visit: number; minute: number; by: string; kind: string; needle: string | null; description: string }[];
+    stopped: { visit: number; minute: number; by: string; reason: string } | null;
+  };
   equipment: {
     packs: { id: string; where: string; sealed: boolean; needles: number; spec: string; expiredLabel: boolean }[];
     needles: { id: string; where: string; used: boolean; contaminated: boolean }[];
@@ -117,14 +148,17 @@ export interface AgentView {
   };
   team: { id: string; name: string; role: string; location: string }[];
   tasks: { id: string; kind: string; from: string; to: string; status: string; params: Record<string, unknown>; unmet: string[] }[];
-  counts: { minute: number; by: string; reconciled: boolean; unaccounted: number }[];
+  counts: { minute: number; by: string; reconciled: boolean; unaccounted: number; method: string; reportedBy: string | null }[];
+  /** The treatment couches: when each was last cleaned and made up, by whom, and what was done. */
+  couches: { room: string; prepared: { minute: number; by: string; done: string[] } | null }[];
   rules: { id: string; title: string; version: string; effectiveFrom: string; encoding: string; rules: { id: string; title: string; enforcement: string }[] }[];
   last: { requestId: string; type: string; status: string; message: string; observations: string[] } | null;
   teaching?: { references: { target: string; region: string; side: string; u: number; v: number; toleranceCm: number }[]; notes: string[] };
 }
 
 export function observeAs(sc: Scenario, s: EncounterState, actorId: string): AgentView {
-  const actor = s.actors[actorId];
+  const isPatient = actorId === s.patient.id;
+  const actor = isPatient ? { id: s.patient.id, role: "patient", location: s.patient.location, at: s.patient.at, holding: [] } : s.actors[actorId];
   if (!actor) throw new Error(`unknown actor ${actorId}`);
   const role = roleOf(sc, actorId);
   const member = sc.field.cast.find((m) => m.id === actorId)!;
@@ -194,13 +228,20 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
   const right = body.lying && body.support ? siteOf(sc, s, "hand-dorsum", "right").point : null;
   const toward = (p: { x: number; z: number }, from: { x: number; z: number }) => compass(Math.atan2(-(p.x - from.x), -(p.z - from.z)));
   const space: AgentView["space"] = {
-    you: { x: me.x, z: me.z, facing: compass(me.yaw), room: actor.location },
+    you: { x: me.x, z: me.z, yaw: me.yaw, facing: compass(me.yaw), room: actor.location },
+    rooms: [...w.rooms.values()].map(r => ({ id: r.id, label: r.label, ...r.rect })),
+    walks: s.walks.slice(-24).map(walk => ({ ...walk, from: { ...walk.from }, to: { ...walk.to }, path: walk.path.map(p => ({ ...p })) })),
+    lastWalk: (() => {
+      const walk = s.walks.findLast(entry => entry.actor === actorId);
+      return walk ? { attempt: walk.attempt, from: { ...walk.from }, to: { ...walk.to }, path: walk.path.map(p => ({ ...p })), withPatient: walk.withPatient } : null;
+    })(),
     fixtures: [...w.fixtures.values()].map((f) => {
       const r = fixtureReach(w, me, f.id)!;
       const c = areaCentre(f.area);
-      return { id: f.id, kind: f.kind, label: f.label, room: f.room, x: round2(c.x), z: round2(c.z), distance: round2(r.distance), inReach: r.ok };
+      return { id: f.id, kind: f.kind, label: f.label, room: f.room, x: round2(c.x), z: round2(c.z), rot: f.entity.rot, distance: round2(r.distance), inReach: r.ok };
     }),
     patient: {
+      id: s.patient.id, yaw: s.patient.at.yaw,
       room: s.patient.location,
       on: s.patient.support,
       x: round2(body.centre.x),
@@ -219,7 +260,7 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
       .map((m) => {
         const other = s.actors[m.id]!;
         const distance = Math.hypot(me.x - other.at.x, me.z - other.at.z);
-        return { id: m.id, room: other.location, x: other.at.x, z: other.at.z, distance: round2(distance), inReach: distance <= CONTACT_RANGE_M + 1e-6 && seesArea(w, me, { minX: other.at.x - 0.25, maxX: other.at.x + 0.25, minZ: other.at.z - 0.25, maxZ: other.at.z + 0.25 }) };
+        return { id: m.id, room: other.location, x: other.at.x, z: other.at.z, yaw: other.at.yaw, distance: round2(distance), inReach: distance <= CONTACT_RANGE_M + 1e-6 && seesArea(w, me, { minX: other.at.x - 0.25, maxX: other.at.x + 0.25, minZ: other.at.z - 0.25, maxZ: other.at.z + 0.25 }) };
       }),
   };
 
@@ -233,14 +274,20 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
     version: s.version,
     minute: Math.round(now(s) * 100) / 100,
     finished: s.finished,
+    ...(s.performances ? { performances: s.performances.slice(-64).map((performance) => ({
+      id: performance.id, requestId: performance.requestId, attempt: performance.attempt, at: performance.at, visit: performance.visit,
+      actor: performance.actor, technique: performance.technique, context: performance.context, needleId: performance.needleId,
+      site: { ...performance.site }, patientPosition: performance.patientPosition, motion: { ...performance.motion },
+      provenance: { ...performance.provenance },
+    })) } : {}),
     you: {
       id: actorId,
-      name: member.name,
+      name: isPatient ? t(sc.case.patient.displayName, LOCALE) : member.name,
       role: actor.role,
       roleLabel: role?.label ?? actor.role,
       location: actor.location,
       holding: [...actor.holding],
-      may: Object.entries(ACTION_PERMISSIONS)
+      may: isPatient ? ["move", "say", "wait"] : Object.entries(ACTION_PERMISSIONS)
         .filter(([, p]) => p === null || role?.grants.some((g) => (typeof g === "string" ? g : g.permission) === p))
         .map(([type]) => type),
     },
@@ -286,7 +333,13 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
           target: placed ? label(parseRef(placed)) : `${n.insertion!.region} ${n.insertion!.side}`,
           // a needle that fell out unseen is still taken to be in place (as in `equipment`) until someone finds it
           inPlace: n.location.kind === "patient" || fellUnseen(s, n),
+          withdrawn: n.events.some((event) => event.what === "withdrawn"),
+          placement: (() => {
+            const p = n.location.kind === "patient" ? n.location : n.insertion!;
+            return { region: p.region, side: p.side, u: p.entry.u, v: p.entry.v, depthCm: p.depthCm, angleDeg: p.angleDeg, azimuthDeg: p.azimuthDeg, lengthMm: n.spec.lengthMm };
+          })(),
           manipulations: n.response?.manipulations ?? 0,
+          geometry: { region: n.insertion!.region, side: n.insertion!.side, u: n.insertion!.entry.u, v: n.insertion!.entry.v, depthCm: n.insertion!.depthCm, angleDeg: n.insertion!.angleDeg, azimuthDeg: n.insertion!.azimuthDeg, lengthMm: n.spec.lengthMm, diameterMm: n.spec.diameterMm },
           evidence: needleEvidence(s, n.id).map((e) => ({ id: e.id, minute: round2(e.at), from: e.kind === "needle-feel" ? ("operator" as const) : ("patient" as const), text: e.text, qualities: [...(e.needle?.qualities ?? [])], grasp: e.needle?.grasp ?? null, unasked: e.needle?.volunteered ?? false })),
           recorded,
         };
@@ -298,8 +351,31 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
     },
     plan: (() => {
       const p = currentPlan(s);
-      return p ? { version: p.version, points: p.plan.points.map((x) => refKey(x as PointRef)), retentionMinutes: p.plan.technique.retentionMinutes, stimulation: p.plan.technique.stimulation, approved: s.planApproved === p.version } : null;
+      return p
+        ? {
+            version: p.version,
+            minute: round2(p.at),
+            points: p.plan.points.map((x) => refKey(x as PointRef)),
+            retentionMinutes: p.plan.technique.retentionMinutes,
+            stimulation: p.plan.technique.stimulation,
+            method: p.plan.technique.method,
+            rationale: p.plan.rationale,
+            alternatives: [...p.plan.alternatives],
+            followUp: p.plan.followUp ?? null,
+            approved: s.planApproved === p.version,
+          }
+        : null;
     })(),
+    documentation: {
+      visits: s.visits.map((v, i) => ({ visit: v.index, date: v.date, current: i === s.visits.length - 1, ended: v.ended })),
+      decisions: s.decisions.map((d) => ({ visit: d.visit, minute: round2(d.at), by: speakerLabel(sc, d.by), disposition: d.disposition, rationale: d.rationale })),
+      consent: { status: s.patient.consent.status, planVersion: s.patient.consent.planVersion, minute: s.patient.consent.at === null ? null : round2(s.patient.consent.at), topics: [...s.patient.consent.topics] },
+      explanations: s.explanations.map((e) => ({ visit: e.visit, minute: round2(e.at), by: speakerLabel(sc, e.by), topics: [...e.topics], text: e.text })),
+      referrals: s.referrals.map((r) => ({ minute: round2(r.at), by: speakerLabel(sc, r.by), to: r.to, urgency: r.urgency, reason: r.reason })),
+      notes: s.documents.map((d) => ({ visit: d.visit, minute: round2(d.at), by: speakerLabel(sc, d.by), record: structuredClone(d.record) })),
+      incidents: s.incidents.map((x) => ({ visit: x.visit, minute: round2(x.at), by: speakerLabel(sc, x.by), kind: x.kind, needle: x.needleId, description: x.description })),
+      stopped: s.stopped ? { visit: s.stopped.visit, minute: round2(s.stopped.at), by: speakerLabel(sc, s.stopped.by), reason: s.stopped.reason } : null,
+    },
     equipment: {
       packs: Object.values(s.packs).map((p) => {
         const spec = s.needles[p.needles[0]!]!.spec;
@@ -317,7 +393,8 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
     tasks: Object.values(s.tasks)
       .filter((tk) => tk.assignee === actorId || tk.assignedBy === actorId)
       .map((tk) => ({ id: tk.id, kind: tk.kind, from: tk.assignedBy, to: tk.assignee, status: tk.status, params: tk.params, unmet: tk.unmet })),
-    counts: s.counts.filter((c) => c.visit === visit.index).map((c) => ({ minute: c.at, by: c.by, reconciled: c.reconciled, unaccounted: c.unaccounted })),
+    counts: s.counts.filter((c) => c.visit === visit.index).map((c) => ({ minute: c.at, by: c.by, reconciled: c.reconciled, unaccounted: c.unaccounted, method: c.method, reportedBy: c.reportedBy })),
+    couches: Object.entries(s.couches).map(([room, c]) => ({ room, prepared: c.prepared ? { minute: c.prepared.at, by: c.prepared.by, done: c.prepared.done } : null })),
     rules: (sc.rules.get(visitIndex(s)) ?? []).map((r) => ({ id: r.id, title: r.title, version: r.version, effectiveFrom: r.effectiveFrom, encoding: r.encoding, rules: r.rules.map((x) => ({ id: x.id, title: x.title, enforcement: x.enforcement })) })),
     last: (() => {
       const a = [...s.attempts].reverse().find((x) => x.actor === actorId);
@@ -329,12 +406,13 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
     const refs: NonNullable<AgentView["teaching"]>["references"] = [];
     for (const p of plan?.plan.points ?? []) {
       if ("ashi" in p) continue;
-      const def = sc.bundle.acupoints.get(p.point);
-      if (!def?.region || !sc.bundle.regions.has(def.region)) continue;
+      const point = sc.bundle.acupoints.get(p.point);
+      const def = point && pointTargets(point).find((x) => x.site === (p.site ?? null))?.def;
+      if (!point || !def?.region || !sc.bundle.regions.has(def.region)) continue;
       const region = sc.bundle.regions.get(def.region)!;
       const access = regionAccess(region, p.side, s.patient.position);
-      const inst = pointInstance(sc, def, p.side, access.configuration);
-      if (inst) refs.push({ target: `${p.point}:${p.side}`, region: def.region, side: inst.side, u: round2(inst.position.u), v: round2(inst.position.v), toleranceCm: round2(inst.toleranceCm) });
+      const inst = pointInstance(sc, point, p.side, access.configuration, p.site);
+      if (inst) refs.push({ target: refKey(p as PointRef), region: def.region, side: inst.side, u: round2(inst.position.u), v: round2(inst.position.v), toleranceCm: round2(inst.toleranceCm) });
     }
     view.teaching = { references: refs, notes: ["Teaching mode: reference locations are shown; assessment mode shows none of them."] };
   }
@@ -378,6 +456,8 @@ export function referenceLibrary(sc: Scenario) {
     sites: p.sites ?? null,
     region: p.region && sc.bundle.regions.has(p.region) ? p.region : null,
     localisation: p.region && sc.bundle.regions.has(p.region) ? (p.localisation ?? null) : null,
+    // a group point's sites, each its own target (named as `site`), with its own chart and construction
+    siteLocalisations: p.region && p.siteLocalisations ? p.siteLocalisations.map((x) => ({ id: x.id, label: x.label, region: x.region ?? p.region!, localisation: x.localisation, tolerance: x.tolerance ?? p.tolerance })) : null,
     configuration: p.configuration ?? null,
     bilateral: p.bilateral,
     cautions: p.cautions.map((c) => ({ when: c.when, text: c.text, severity: c.severity })),
@@ -399,7 +479,7 @@ export function referenceLibrary(sc: Scenario) {
     },
     clinic: { rooms: sc.clinic.rooms, supplies: sc.clinic.supplies, referralTargets: sc.clinic.referralTargets, floorPlan: floorPlan(sc) },
     roles: sc.roles.roles.map((r) => ({ id: r.id, label: r.label, kind: r.kind, registration: r.registration, grants: r.grants, acceptsTasks: r.acceptsTasks })),
-    rules: [...sc.rules.entries()].map(([visit, sets]) => ({ visit, sets: sets.map((r) => ({ id: r.id, title: r.title, version: r.version, effectiveFrom: r.effectiveFrom, encoding: r.encoding, source: r.source, rules: r.rules.map((x) => ({ id: x.id, title: x.title, summary: x.summary, severity: x.severity, enforcement: x.enforcement })) })) })),
+    rules: [...sc.rules.entries()].map(([visit, sets]) => ({ visit, sets: sets.map((r) => ({ id: r.id, title: r.title, version: r.version, effectiveFrom: r.effectiveFrom, encoding: r.encoding, source: r.source, rules: r.rules.map((x) => ({ id: x.id, title: x.title, summary: x.summary, severity: x.severity, enforcement: x.enforcement, check: x.check })) })) })),
     evidence: sc.bundle.evidence.filter((e) => e.condition === sc.family.condition),
   };
 }

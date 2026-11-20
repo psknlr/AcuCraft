@@ -1,0 +1,3953 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-11-16T23:03:53.498910+00:00",
+  "scope": "Authored hand shape, geometric joint motion and actual material-contact validation for this repository iteration. Finite diagnostic grids and real UI screenshots are distinct evidence; this is not clinical, motion-capture, force/tissue-mechanics or AAA certification.",
+  "baseCommitBeforeIteration": "3c312cfc77d4a0fc85bdf3b8d30f3b565bd63107",
+  "product": {
+    "path": "content/world/assets/models/acu-practitioner-hand.glb",
+    "sha256": "8e8750a456c8ac31be4a6f86349e600a23c0aace332998091f85f7aaad05bbd9",
+    "bytes": 1349164,
+    "triangles": 17756,
+    "meshCount": 11,
+    "animations": [
+      "hand_open",
+      "hand_support",
+      "hand_three_finger",
+      "hand_scrape",
+      "hand_flick"
+    ]
+  },
+  "sources": {
+    "packages/server/web/stage/hand.ts": "001d183a8df400788a339425eafec39a9e2a885d14b778608ad6fecf5f680228",
+    "packages/server/web/stage/hand-physiology.ts": "fceb8866c6a3a7c45d4024daaa1b8a6cf0582b6ded34feaaa3c9495fa02b53f5",
+    "packages/server/web/stage/hand-nail-work.ts": "d3a78366d06f500284e0e7ef788be5039eed3a40112fccdaab48933b0d1c115f",
+    "packages/server/web/stage/procedure.ts": "503a67a5faafad81a2b0735df1878bcdb3a470fd8dd42b1328f63eb8a1be9064",
+    "packages/server/web/stage/needle-hand-frame.ts": "309316a2cf6d3e33f7ae239395b3d2823801ae87a38121d2cae87f060bbfb238",
+    "packages/server/web/stage/clearance.ts": "52fb0b4d37bfafc0794ae3b608bebfd463454591477d81552ef74c4935885f0a",
+    "packages/server/web/stage/rig.ts": "5ffdc3bd5300d040107c0fcaf82053d712f5b5d25ee5aa7ef09838b16195a0c0",
+    "tools/blender/build_hand.py": "3e9f9d264c62ee4722a7b335cd5b0d09dc9b4a78f120706fe3de8552a012b329",
+    "tools/blender/export_hand_poses.ts": "c3ca27bb3f71bf9f9068379472a0a3c4f3cde26cb131307ac9b12672a641303a",
+    "tools/blender/hand_anatomy.json": "d289ed2c9cc8d5e3eb4931dcea543d3319f2231aa311e8da2f51121d3e60212b",
+    "tools/blender/hand_poses.json": "0385970548ebf5bed51c6e09a0dd45ea99349ec5e637a2f9ae8c7fbdac6acf9c",
+    "tools/blender/hand.json": "f74d808269f3d00177bd9a494707654885816b2818147c1496f08999c167f575"
+  },
+  "choreography": {
+    "schemaVersion": 2,
+    "poseCount": 9,
+    "sequenceSamples": {
+      "open": 31,
+      "scrape": 31,
+      "flick": 34
+    },
+    "flickCriticalTimes": [
+      0.08,
+      0.28,
+      0.5,
+      0.58
+    ],
+    "runtimeModuleCount": 92,
+    "allRuntimeModuleHashesCurrent": true,
+    "sourceFingerprints": {
+      "hand": {
+        "path": "packages/server/web/stage/hand.ts",
+        "sha256": "001d183a8df400788a339425eafec39a9e2a885d14b778608ad6fecf5f680228"
+      },
+      "physiology": {
+        "path": "packages/server/web/stage/hand-physiology.ts",
+        "sha256": "fceb8866c6a3a7c45d4024daaa1b8a6cf0582b6ded34feaaa3c9495fa02b53f5"
+      },
+      "nailWork": {
+        "path": "packages/server/web/stage/hand-nail-work.ts",
+        "sha256": "d3a78366d06f500284e0e7ef788be5039eed3a40112fccdaab48933b0d1c115f"
+      },
+      "anatomy": {
+        "path": "tools/blender/hand_anatomy.json",
+        "sha256": "d289ed2c9cc8d5e3eb4931dcea543d3319f2231aa311e8da2f51121d3e60212b"
+      },
+      "exporter": {
+        "path": "tools/blender/export_hand_poses.ts",
+        "sha256": "c3ca27bb3f71bf9f9068379472a0a3c4f3cde26cb131307ac9b12672a641303a"
+      }
+    },
+    "calibrationInput": {
+      "path": "../acu-hand-refit-crest-index-material-base.glb",
+      "sha256": "d19920c86f8ae76ef4f3c0751a66f6f05da460d613b767397c1747cdc6738669",
+      "role": "immutable geometry calibration input; not the subsequently rebuilt GLB output hash"
+    },
+    "note": "Calibration input identifies immutable source geometry, not a circular hash of the subsequently rebuilt output."
+  },
+  "reproducibility": {
+    "finalAssetSha256": "8e8750a456c8ac31be4a6f86349e600a23c0aace332998091f85f7aaad05bbd9",
+    "previous1bbAssetSha256": "1bb07096a59c4bee9402ec02f15e3bde5f989065673e07541c01aa4f6c3d7522",
+    "allElevenMeshPayloadsIdenticalTo1bb": true,
+    "allNonTripodActualAnimationSamplerPayloadsIdenticalTo1bb": true,
+    "unchangedAnimations": [
+      "hand_open",
+      "hand_support",
+      "hand_scrape",
+      "hand_flick"
+    ],
+    "tripodChangedActualSamplerChannels": [
+      "thumb_proximal/rotation",
+      "thumb_middle/rotation",
+      "thumb_distal/rotation",
+      "middle_proximal/rotation",
+      "middle_middle/rotation",
+      "middle_distal/rotation",
+      "hand_pose_frame/translation",
+      "hand_pose_frame/rotation"
+    ],
+    "meshPayloadsSha256": {
+      "index_nail": "b167665711a051be5416b29d30fa2b75b7ebf52596c7e7cda20b8a59dd20aa75",
+      "index_skin": "5d7a87fd7842a6629a328ac8c721e47924e54130903dd2c5307b5b7d4dae10ba",
+      "little_nail": "63c5035e5dc5626fa1d57c5514ed62fdabfa18bb27646dd387b31376b33f58a0",
+      "little_skin": "e97cd6ab33ff1c3d1658560e595088d1390d4bf935f6b7c3e0ee3c151d298a4e",
+      "middle_nail": "45fccd51966f011e3a5d77377bd03246191da641c4a5fb9e7473aefe5fcd98d5",
+      "middle_skin": "f3b7945f0cceafb0c61ff714ac1ea59b5829630d1c5b240b2dc9c54f54c76490",
+      "palm_surface": "7cd393036b2b90c2f1f2cc0b0242095a12572a36cdea56c6ad635b4726566078",
+      "ring_nail": "ade925e978cd84374045486d2d044ed6ccd3b659ef4bdf79e2edcdd7949fae0d",
+      "ring_skin": "fe6b2274b1956aad6474f1cb6351fc53d3ba53b7c2520b93b6c9832744db367f",
+      "thumb_nail": "340cb5ea2e08cda4021e1408a83acb0ae4aee5733833d087c3fe37e21e2edc4d",
+      "thumb_skin": "58db96c970e03993cc69f19ea66c329bbefed0baa50631e06642a4e7eeb371e9"
+    },
+    "exactSharedSamplerClocks": {
+      "hand_open": {
+        "channels": 21,
+        "sampleCount": 31,
+        "times": [
+          0.0,
+          0.03333333507180214,
+          0.06666667014360428,
+          0.10000000149011612,
+          0.13333334028720856,
+          0.1666666716337204,
+          0.20000000298023224,
+          0.23333333432674408,
+          0.2666666805744171,
+          0.30000001192092896,
+          0.3333333432674408,
+          0.36666667461395264,
+          0.4000000059604645,
+          0.4333333373069763,
+          0.46666666865348816,
+          0.5,
+          0.5333333611488342,
+          0.5666666626930237,
+          0.6000000238418579,
+          0.6333333253860474,
+          0.6666666865348816,
+          0.699999988079071,
+          0.7333333492279053,
+          0.7666666507720947,
+          0.800000011920929,
+          0.8333333134651184,
+          0.8666666746139526,
+          0.8999999761581421,
+          0.9333333373069763,
+          0.9666666388511658,
+          1.0
+        ]
+      },
+      "hand_support": {
+        "channels": 19,
+        "sampleCount": 2,
+        "times": [
+          0.0,
+          1.0
+        ]
+      },
+      "hand_three_finger": {
+        "channels": 23,
+        "sampleCount": 2,
+        "times": [
+          0.0,
+          1.0
+        ]
+      },
+      "hand_scrape": {
+        "channels": 21,
+        "sampleCount": 31,
+        "times": [
+          0.0,
+          0.03333333507180214,
+          0.06666667014360428,
+          0.10000000149011612,
+          0.13333334028720856,
+          0.1666666716337204,
+          0.20000000298023224,
+          0.23333333432674408,
+          0.2666666805744171,
+          0.30000001192092896,
+          0.3333333432674408,
+          0.36666667461395264,
+          0.4000000059604645,
+          0.4333333373069763,
+          0.46666666865348816,
+          0.5,
+          0.5333333611488342,
+          0.5666666626930237,
+          0.6000000238418579,
+          0.6333333253860474,
+          0.6666666865348816,
+          0.699999988079071,
+          0.7333333492279053,
+          0.7666666507720947,
+          0.800000011920929,
+          0.8333333134651184,
+          0.8666666746139526,
+          0.8999999761581421,
+          0.9333333373069763,
+          0.9666666388511658,
+          1.0
+        ]
+      },
+      "hand_flick": {
+        "channels": 23,
+        "sampleCount": 34,
+        "times": [
+          0.0,
+          0.03333333507180214,
+          0.06666667014360428,
+          0.07999999821186066,
+          0.10000000149011612,
+          0.13333334028720856,
+          0.1666666716337204,
+          0.20000000298023224,
+          0.23333333432674408,
+          0.2666666805744171,
+          0.2800000011920929,
+          0.30000001192092896,
+          0.3333333432674408,
+          0.36666667461395264,
+          0.4000000059604645,
+          0.4333333373069763,
+          0.46666666865348816,
+          0.5,
+          0.5333333611488342,
+          0.5666666626930237,
+          0.5799999833106995,
+          0.6000000238418579,
+          0.6333333253860474,
+          0.6666666865348816,
+          0.699999988079071,
+          0.7333333492279053,
+          0.7666666507720947,
+          0.800000011920929,
+          0.8333333134651184,
+          0.8666666746139526,
+          0.8999999761581421,
+          0.9333333373069763,
+          0.9666666388511658,
+          1.0
+        ]
+      }
+    },
+    "twoBuildByteIdentical": true,
+    "twoManifestByteIdentical": true,
+    "manifestSha256": "f74d808269f3d00177bd9a494707654885816b2818147c1496f08999c167f575",
+    "report": {
+      "file": "final-hand-build-proof.json",
+      "sha256": "051ade9f55fd1c95aad72bf4e3d79f1849b9fa730d319ede1f30e89c821d64d1"
+    },
+    "commands": [
+      "npx tsx tools/blender/export_hand_poses.ts --input content/world/assets/models/acu-practitioner-hand.glb",
+      "blender -b -P tools/blender/build_hand.py",
+      "blender -b -P tools/blender/render_hand_audit.py -- --no-render"
+    ]
+  },
+  "unchangedEngineeringThresholds": {
+    "needleContactAndFiniteFrustumMicrometres": 25,
+    "penetrationMicrometres": 50,
+    "actualSurfaceAttachmentMicrometres": 5,
+    "adjacentMotionStepDegrees": 4,
+    "palmTriangleAreaMinimumM2": 1e-10,
+    "palmAdjacentFaceNormalDotMinimum": -0.1
+  },
+  "checks": {
+    "command": "bash tools/check.sh",
+    "testFilesPassed": 44,
+    "testsPassed": 624,
+    "typecheckPassed": true,
+    "contentAndGeneratorPassed": true,
+    "figureFitSitesPassed": 11,
+    "protocolBenchmark": {
+      "primaryEndpoint": "14/15",
+      "note": "Existing slim-headache pleura outcome unchanged."
+    },
+    "offlineScriptedLlmPrimaryEndpoint": "15/15",
+    "localLog": {
+      "file": "hand-anatomy-final-check.log",
+      "sha256": "2b0a3795defebf2eeddeb5835d4ca009784d9f87e130cc316bcb0105bcdc2a99"
+    }
+  },
+  "independentSubset": {
+    "testsPassed": 90,
+    "coverage": [
+      "348 native palm-continuity poses",
+      "12 actual public working-side three-finger cases: two hands, wrist44/48/51, rotation0/90",
+      "121 sequential public seeks per hand on the actual breathing patient; cached clinical site and needle/feet fixed",
+      "five real glTF clips including raw bindings, all authored key and half-key surface/normal checks",
+      "Tan34 exact clock and actual .28 nail contact/.58 skin preparation",
+      "finite handle/shaft triangle penetration bound25um and physical malformed-view negative fixture"
+    ],
+    "inputHashesStable": true,
+    "runtimeModuleHashGate": {
+      "checked": 92,
+      "mismatches": {},
+      "passed": true
+    },
+    "namedSourceHashGate": {
+      "hand": {
+        "path": "packages/server/web/stage/hand.ts",
+        "sha256": "001d183a8df400788a339425eafec39a9e2a885d14b778608ad6fecf5f680228",
+        "current": true
+      },
+      "physiology": {
+        "path": "packages/server/web/stage/hand-physiology.ts",
+        "sha256": "fceb8866c6a3a7c45d4024daaa1b8a6cf0582b6ded34feaaa3c9495fa02b53f5",
+        "current": true
+      },
+      "nailWork": {
+        "path": "packages/server/web/stage/hand-nail-work.ts",
+        "sha256": "d3a78366d06f500284e0e7ef788be5039eed3a40112fccdaab48933b0d1c115f",
+        "current": true
+      },
+      "anatomy": {
+        "path": "tools/blender/hand_anatomy.json",
+        "sha256": "d289ed2c9cc8d5e3eb4931dcea543d3319f2231aa311e8da2f51121d3e60212b",
+        "current": true
+      },
+      "exporter": {
+        "path": "tools/blender/export_hand_poses.ts",
+        "sha256": "c3ca27bb3f71bf9f9068379472a0a3c4f3cde26cb131307ac9b12672a641303a",
+        "current": true
+      }
+    },
+    "typecheckPassed": true,
+    "report": {
+      "file": "anatomy-independent-public-final-result.json",
+      "sha256": "e6beea56cfc0a1cb455e29adac29cc51827fd157d6a139079a6740593a2b2b39"
+    },
+    "note": "This is a subset of the full test suite, not an additional ninety tests."
+  },
+  "additionalLocalDiagnostics": {
+    "scope": "Final actual GLB runtime ordinary primary poses, real PUBLIC encounter Tripod playback, and reference-scenario Gua transport. Source-frozen observations, with source-specific scopes kept separate. This index does not claim exact cuff alignment or clinical/motion-capture calibration.",
+    "primary": {
+      "open72": {
+        "report": "final-8e-primary-open72.json",
+        "reportSha256": "b7790e3956724da97841104be10ac70cbaa1762bce3f648d5fa7aa9ab91480fe",
+        "scope": "ordinary primary actual-surface self/needle guard; clinical patient movement validated separately",
+        "passed": true,
+        "sourcesStable": true,
+        "inputCount": 95,
+        "summary": {
+          "expectedCases": 72,
+          "actualCases": 72,
+          "invalid": 0,
+          "bearingFailures": 0,
+          "selfFailures": 0,
+          "needleFailures": 0,
+          "maxNeedleDepthMm": 0.014823474884033204
+        },
+        "startedAt": "2026-11-16T22:42:07.353Z",
+        "finishedAt": "2026-11-16T22:42:21.150Z",
+        "caseCount": 72,
+        "actualMeshCounts": [
+          11
+        ]
+      },
+      "roll192": {
+        "report": "final-8e-primary-roll192.json",
+        "reportSha256": "17806abcafd4e29a950a1450ba7933e254442729776bbcff8f00549954d6701a",
+        "scope": "ordinary primary actual-surface self/needle guard; clinical patient movement validated separately",
+        "passed": true,
+        "sourcesStable": true,
+        "inputCount": 95,
+        "summary": {
+          "expectedCases": 192,
+          "actualCases": 192,
+          "invalid": 0,
+          "bearingFailures": 0,
+          "selfFailures": 0,
+          "needleFailures": 0,
+          "maxNeedleDepthMm": 0.01672093391418457
+        },
+        "startedAt": "2026-11-16T22:42:07.858Z",
+        "finishedAt": "2026-11-16T22:42:43.316Z",
+        "caseCount": 192,
+        "actualMeshCounts": [
+          11
+        ]
+      },
+      "axial48": {
+        "report": "final-8e-primary-axial48.json",
+        "reportSha256": "0796708cd4a1d5a6c47ed511fa75a7880bb00c9b869c3f9d3ccf878f16bebc48",
+        "scope": "ordinary primary actual-surface self/needle guard; clinical patient movement validated separately",
+        "passed": true,
+        "sourcesStable": true,
+        "inputCount": 95,
+        "summary": {
+          "expectedCases": 48,
+          "actualCases": 48,
+          "invalid": 0,
+          "bearingFailures": 0,
+          "selfFailures": 0,
+          "needleFailures": 0,
+          "maxNeedleDepthMm": 0.014823474884033204
+        },
+        "startedAt": "2026-11-16T22:42:07.100Z",
+        "finishedAt": "2026-11-16T22:42:17.376Z",
+        "caseCount": 48,
+        "actualMeshCounts": [
+          11
+        ]
+      },
+      "continuity12480": {
+        "report": "final-8e-primary-continuity12480.json",
+        "reportSha256": "8fdcda79a08f0118a133ed76e6c7fa9440e4edf494f9eacd107008841caa55ff",
+        "scope": "ordinary pinch continuous hand_open runtime; all five final clips are loaded, other role paths are audited separately",
+        "passed": true,
+        "sourcesStable": true,
+        "inputCount": 95,
+        "summary": {
+          "jointStepDeg": 1.5080681458815155,
+          "modelStepDeg": 0.5122921752255069,
+          "palmStepMm": 0.1957826407996688,
+          "wristStepMm": 0.9172420670171498,
+          "skinProbeStepMm": 0.742631326840536,
+          "bearingErrorDeg": 4.263256414560601e-14,
+          "acquisitionPalmStepMm": 0.006688889848849918,
+          "resetPalmDeltaMm": 3.323580211337768e-05
+        },
+        "startedAt": "2026-11-16T22:42:07.603Z",
+        "finishedAt": "2026-11-16T22:42:19.377Z",
+        "comparisons": 12480,
+        "totalRequests": 16800
+      }
+    },
+    "actualPlayback": {
+      "referenceGuaSeek": {
+        "report": "gua45-progress-FINAL-8e-seek.json",
+        "reportSha256": "a397d0e16be720c55bb8e6470e4958806499442894cb1f3d328fe3649d20cae6",
+        "scope": "Production Procedure.preview Gua on the original scenario-based patient/actor fixture, right/45deg/18mm BL23; not the separate public-encounter neutral-avatar fixture. Chronological progress0..1 in120 intervals, real IK and forearm85deg clamp; no local joint, needle or policy override.",
+        "transport": "public setPlayback progress seek, clearing clearance cache at each seek",
+        "sourcesStable": true,
+        "inputCount": 7,
+        "procedureSha256": "503a67a5faafad81a2b0735df1878bcdb3a470fd8dd42b1328f63eb8a1be9064",
+        "samples": 121,
+        "visibleRange": [
+          0.03333333333333333,
+          0.975
+        ],
+        "maxVisibleRootStepDeg": 3.270394979449031,
+        "maxForearmAppliedDeg": 85,
+        "maxHeldProjectedForearmRollResidualDeg": 10.621491484353822,
+        "failures": [],
+        "hiddenProgress": [
+          0,
+          0.008333333333333333,
+          0.016666666666666666,
+          0.025,
+          0.9833333333333333,
+          0.9916666666666667,
+          1
+        ],
+        "passed": true
+      },
+      "referenceGuaTick": {
+        "report": "gua45-progress-FINAL-8e-tick.json",
+        "reportSha256": "0cd5ad8e86c1640930863c0ec6ce07468110081becca692d8a691a7f0148e773",
+        "scope": "Production Procedure.preview Gua on the original scenario-based patient/actor fixture, right/45deg/18mm BL23; not the separate public-encounter neutral-avatar fixture. Chronological progress0..1 in120 intervals, real IK and forearm85deg clamp; no local joint, needle or policy override.",
+        "transport": "real unpaused procedure.tick clock, retaining clearance cache",
+        "sourcesStable": true,
+        "inputCount": 7,
+        "procedureSha256": "503a67a5faafad81a2b0735df1878bcdb3a470fd8dd42b1328f63eb8a1be9064",
+        "samples": 121,
+        "visibleRange": [
+          0.03333333333333333,
+          0.975
+        ],
+        "maxVisibleRootStepDeg": 3.270394979449031,
+        "maxForearmAppliedDeg": 85,
+        "maxHeldProjectedForearmRollResidualDeg": 10.621491484353822,
+        "failures": [],
+        "hiddenProgress": [
+          0,
+          0.008333333333333333,
+          0.016666666666666666,
+          0.025,
+          0.9833333333333333,
+          0.9916666666666667,
+          1
+        ],
+        "passed": true
+      },
+      "publicTripodTick": {
+        "report": "public-tri-FINAL-8e-tick120.json",
+        "reportSha256": "aba571da69ac02387ea15fddcb93db8589004cec7f188f1e9da315c2fd408e8d",
+        "scope": "Actual public neutral actor/feet .25,-4.25 / BL23u3.32v6.91 / retained40mm depth18mm; true unpaused Nian clock, three-finger48, rotation90 cycles2. Production patient.tick->needle.tick->procedure.tick->actor.tick. Runtime patient guard every frame; independent three-ray offender diagnosis only if blocked. Static source-skin/needle/self oracle matrices are separate reports.",
+        "passed": true,
+        "sourcesStable": true,
+        "inputCount": 11,
+        "samples": 242,
+        "comparisons": 240,
+        "cases": [
+          {
+            "side": "left",
+            "passed": true,
+            "samples": 121,
+            "durationMs": 4320,
+            "intervalMs": 36,
+            "maxVisibleHandStepDeg": 0.6096655715450199,
+            "hiddenProgress": [
+              0,
+              0.008333333333333333,
+              0.016666666666666666,
+              0.025,
+              0.9833333333333333,
+              0.9916666666666667,
+              1
+            ],
+            "patientGuardTrueCount": 0,
+            "maxFootDeltaMm": 0,
+            "maxCachedSiteDeltaMm": 0,
+            "maxNeedlePointDeltaMm": 0,
+            "maxNeedleAxisDelta": 1.1443916996305594e-16,
+            "maxNeedleTipDeltaMm": 0,
+            "maxForearmAppliedDeg": 85,
+            "maxHeldProjectedForearmRollResidualDeg": 52.836717680459856,
+            "torsoBreathScaleZRange": [
+              1.0000046981827069,
+              1.0099932023703457
+            ]
+          },
+          {
+            "side": "right",
+            "passed": true,
+            "samples": 121,
+            "durationMs": 4320,
+            "intervalMs": 36,
+            "maxVisibleHandStepDeg": 1.0753055443260744,
+            "hiddenProgress": [
+              0,
+              0.008333333333333333,
+              0.016666666666666666,
+              0.025,
+              0.9833333333333333,
+              0.9916666666666667,
+              1
+            ],
+            "patientGuardTrueCount": 0,
+            "maxFootDeltaMm": 0,
+            "maxCachedSiteDeltaMm": 0,
+            "maxNeedlePointDeltaMm": 0,
+            "maxNeedleAxisDelta": 1.1443916996305594e-16,
+            "maxNeedleTipDeltaMm": 0,
+            "maxForearmAppliedDeg": 85,
+            "maxHeldProjectedForearmRollResidualDeg": 57.650072124020056,
+            "torsoBreathScaleZRange": [
+              1.0000046981827069,
+              1.0099932023703457
+            ]
+          }
+        ],
+        "failures": []
+      }
+    },
+    "primaryIndex": {
+      "file": "physiology-final-proof-index.json",
+      "sha256": "8150542d4480abc0eba66c855cac09f4fc570b8b3cd496d250c0cea551b348c8"
+    },
+    "nailScope": "FINAL8e/fceb native Nail validation using exact staged product GLB and final procedure. Official hand.pose or Procedure.preview/setPlayback only; no sample-to-joint, model/material calibration or forced inactive-finger override. The540 and20 datasets are reference-encounter patient fixtures, explicitly distinct from the saved public encounter used to uncover the Tripod bug.",
+    "nailMatrix540": {
+      "needleAngleDeg": 0,
+      "needleDepthCm": 1.8,
+      "clinicalReference": "Reference local scene from requireScenario(loadContentPack(),sg-low-back-pain/base), seed1, its solution mark and practitioner placement; actual160cm patient meshes and native hand/arm placement, not the saved browser encounter enc-17441d080d46.",
+      "grips": [
+        0,
+        0.5,
+        1
+      ],
+      "wristElevationsDeg": [
+        50,
+        55,
+        60
+      ],
+      "sides": [
+        "left",
+        "right"
+      ],
+      "inactiveFingerStyles": [
+        "curled",
+        "relaxed"
+      ],
+      "gua": {
+        "states": 216,
+        "nailContactTravel": [
+          0,
+          0.5,
+          1
+        ],
+        "apertureMm": [
+          0,
+          12
+        ],
+        "apertureMeaning": "Released index keratin radial work clearance max1.5..12mm; thumb independently escapes needle tail by1.5mm through its real CMC. NailContact controls unchanged core along-handle6mm travel."
+      },
+      "tan": {
+        "states": 324,
+        "phases": [
+          0,
+          0.04,
+          0.08,
+          0.18,
+          0.28,
+          0.39,
+          0.5,
+          0.54,
+          0.58
+        ],
+        "nominalWorkPointM": [
+          0,
+          0,
+          0.0007
+        ],
+        "trueContactPhase": 0.28,
+        "prepareSkinContactPhases": [
+          0,
+          0.58
+        ]
+      },
+      "results": {
+        "states": 540,
+        "nativeMetadataComparatorFailures": 0,
+        "exposedSkinNailPairViolatingStates": 0,
+        "rigidDistalIntoPalmViolatingStates": 0,
+        "maximumConservativeNeedleFrustumTriangleDepthMm": 0.010335044860839844,
+        "maximumActualWorldBoneLengthDriftNm": 3.4860657138757745,
+        "strictLocalJointTranslationErrorMaxM": 0,
+        "strictLocalJointScaleErrorMax": 0,
+        "actualNodeQuaternionNormSquaredErrorMax": 2.372887737411844e-07,
+        "materialSurfacePointErrorMaxMm": 1.396983871477807e-06,
+        "wristElevationErrorMaxDeg": 2.2026824808563106e-13
+      },
+      "productionPatientGuardViolatingStates": 0,
+      "independentPatientVertexViolatingStates": 0,
+      "hiddenStates": 0,
+      "maximumCanonicalHandleTargetErrorMm": 1.1157603309187457e-12,
+      "maximumFinalHandleTargetErrorMm": 1.7798229048217483e-12
+    },
+    "nailActualPreview20": {
+      "scope": "Actual Procedure.preview/setPlayback with unchanged Gua catalogue defaults on the same reference encounter patient fixture, not a replay of the saved browser encounter. Motion onlyhand/supportnone/duration2400ms/cycles1. Covers reference oblique45deg plus approach/release seeks.",
+      "workMidpointCases": 12,
+      "workMidpointNeedleAnglesDeg": [
+        0,
+        25,
+        45
+      ],
+      "workMidpointNeedleDepthCm": [
+        1.8,
+        3.6
+      ],
+      "sides": [
+        "left",
+        "right"
+      ],
+      "additionalShallow45SeekCases": 8,
+      "additionalShallow45SeekProgress": [
+        0.125,
+        0.25,
+        0.75,
+        0.9083333333333333
+      ],
+      "results": {
+        "states": 20,
+        "nativeMetadataComparatorFailures": 0,
+        "exposedSkinNailPairViolatingStates": 0,
+        "rigidDistalIntoPalmViolatingStates": 0,
+        "maximumConservativeNeedleFrustumTriangleDepthMm": 0.010334744453430175,
+        "maximumActualWorldBoneLengthDriftNm": 1.0062591801474063,
+        "strictLocalJointTranslationErrorMaxM": 0,
+        "strictLocalJointScaleErrorMax": 0,
+        "actualNodeQuaternionNormSquaredErrorMax": 2.372887737411844e-07,
+        "materialSurfacePointErrorMaxMm": 1.1853938111129682e-12,
+        "wristElevationErrorMaxDeg": 4.831690603168681e-13
+      },
+      "shallow18mmCases": 14,
+      "shallow18mmHiddenStates": 0,
+      "shallow18mmPatientGuardViolations": 0,
+      "deep36mmPhysicallyClearVisibleStates": 5,
+      "deep36mmGenuinelyBlockedHiddenStates": 1,
+      "visibleStatesWithPatientGuard": 0,
+      "unexpectedShallowHiddenStates": 0,
+      "actualBlockedCases": [
+        {
+          "side": "right",
+          "needleAngleDeg": 45,
+          "needleDepthCm": 3.6,
+          "progress": 0.5,
+          "productionPatientGuard": true,
+          "visible": false,
+          "warning": "当前示意手型空间不足，已隐藏相交的细节手模型；针位和临床参数保持不变。 · This schematic hand lacks clearance; the intersecting detail hand is hidden.",
+          "clinicalHandleBaselineRestoreErrorMm": 0
+        }
+      ],
+      "maximumPreviewStopClinicalHandleBaselineRestoreErrorMm": 0
+    },
+    "nailOracles": {
+      "needle": "Every actual posed hand skin/nail triangle against conservative circular handle frustum and40mm shaft cylinder; reported depth is the conservative frustum penetration, not an inferred marker-only gap.",
+      "self": "Three-direction majority parity with unchanged50micrometre exclusion: exposed skin/nail pairs, and all rigid distal skin independently against actual palm.",
+      "patient": "Unmodified production PatientClearance (including surface crossings) plus per-posed-mesh vertex oracle, before and after actual arm solve.",
+      "material": "Actual native alias P/Q,parent,source skin barycentric and real nail vertex97 attachment, exact normal field and engagedWith roles.",
+      "bones": "Actual local joint translations/scales strictly equal source; actual world segment distances and node quaternion norm error separately recorded."
+    },
+    "numericBoneDiagnostic": {
+      "strictAll30BoneControlAndLegacyLocalTranslationsUnchanged": true,
+      "strictAll30BoneControlAndLegacyLocalScalesUnchanged": true,
+      "worldDistanceComputationBudgetNm": 100,
+      "worldDistanceComputationBudgetMicrometres": 0.1,
+      "actualMaximum540WorldLengthDriftNm": 3.4860657138757745,
+      "explanation": "Float32 animated node quaternions produce a few nanometres of world-distance arithmetic drift despite strictly identical local joint translations and scales. The new100nm diagnostic budget is distinct from unchanged25micrometre needle and50micrometre self/patient contracts. Actual nonzero drift is retained; it is never reported as zero.",
+      "originalOneNanometreDiagnosticReportsRetained": [
+        "/workspace/work/nail-work-FINAL-NATIVE-04fb-gua-body.json",
+        "/workspace/work/nail-work-FINAL-NATIVE-04fb-tan-body.json"
+      ],
+      "originalDiagnosticDriver": {
+        "path": "/workspace/work/nail-work-native-driver-1nm-001d.ts",
+        "sha256": "538158080cd8470ee6f8cde1fa7e386d3c073e2dcc253eac087caf12bbcf0e85"
+      },
+      "sourceOnly120StateAttributionAudit": {
+        "path": "/workspace/work/nail-native-float32-bone-audit.json",
+        "sha256": "74b419f042b9580b892f8399d35de58f8c8a4cd714fd8435aee48997023f9861",
+        "scope": "Earlier04fb source-only diagnostic, explanatory provenance; not substituted for final1bb reports."
+      }
+    },
+    "nailReports": [
+      {
+        "name": "gua",
+        "path": "nail-work-NATIVE-FINAL-8e503a-gua-body.json",
+        "sha256": "87e82724c4fe36e3d2a33265ad4210b86dcc8f47f7b7f66d6b09042c8159b86a",
+        "states": 216,
+        "sourceClipsUsed": true,
+        "jointOverrides": false,
+        "materialOverrides": false
+      },
+      {
+        "name": "tan",
+        "path": "nail-work-NATIVE-FINAL-8e503a-tan-body.json",
+        "sha256": "0807badadb2a496b5c65bc87092fb2c70aec7615371908a3a728a90f4bee8e83",
+        "states": 324,
+        "sourceClipsUsed": true,
+        "jointOverrides": false,
+        "materialOverrides": false
+      },
+      {
+        "name": "preview",
+        "path": "nail-work-NATIVE-FINAL-8e503a-preview45.json",
+        "sha256": "38e4faaddd913d598cceeb63617dcca0b5d5c73a2df5df70c7a70ba07619845f",
+        "states": 20,
+        "sourceClipsUsed": true,
+        "jointOverrides": false,
+        "materialOverrides": false
+      }
+    ],
+    "nailIndex": {
+      "file": "nail-work-FINAL-native-validation-index.json",
+      "sha256": "88ec1749aafe0deb6d08eef95bcb13ffcb5ecf1a9cda086b9f6a6ea23fc24cd0"
+    },
+    "surfaceSupport54": {
+      "summary": {
+        "states": 54,
+        "hidden": 18,
+        "expectedReachHidden": 18,
+        "unexpectedHidden": 0,
+        "patientHits": 0,
+        "exposedSelf": 0,
+        "maximumIndexMarkerErrorMm": 0.00010145729608124951,
+        "maximumPalmMarkerErrorMm": 8.780499690715965e-05
+      },
+      "scope": "36 palpate/stretch fixture cases visible; all 18 press cases retain explicit Move closer reach hiding in this fixed low-back practitioner stance. This is not a claim that pressing is reachable here. All 54 geometric poses are audited separately from visibility.",
+      "sourceClipsUsed": true,
+      "inputsStable": true,
+      "report": {
+        "file": "hand-anatomy-final-support54.json",
+        "sha256": "f258f2e333adfc27bd918e65a92b0ee5113e7beceaf328389b464432a723b684"
+      }
+    },
+    "note": "These source-pinned local measurements supplement the committed automated tests. They do not establish every patient/pose combination."
+  },
+  "freeRigDiagnostic": {
+    "scope": "Four-finger deformation inspection with an independent named thumb pose. The third row reads the authored closed-fist M/R/L curled table; the index 52/72/42-degree example is an independent rig probe, not the operator's actual working index. Actual thumb bearings and source-relative rotations are reported separately. Runtime needle-grip solutions require their own UI checks. These are not neutral/comfort or clinical ROM measurements.",
+    "method": "Actual GLB accessors and standard LBS; fixed-length anatomical hinges in palm_frame; no clip interpolation, no mesh modifiers",
+    "maximumAngleErrorDeg": 1.3845283135083264e-05,
+    "maximumBoneLengthErrorMm": 3.688505844506862e-06,
+    "boundarySummary": [
+      {
+        "pose": "Extended",
+        "rawOverlappingTrianglePairs": 0,
+        "exposedCrossingTrianglePairs": 0,
+        "buriedInPalmTrianglePairs": 0,
+        "unclassifiedCoplanarTrianglePairs": 0
+      },
+      {
+        "pose": "Half flexion",
+        "rawOverlappingTrianglePairs": 0,
+        "exposedCrossingTrianglePairs": 0,
+        "buriedInPalmTrianglePairs": 0,
+        "unclassifiedCoplanarTrianglePairs": 0
+      },
+      {
+        "pose": "Curled inspection",
+        "rawOverlappingTrianglePairs": 0,
+        "exposedCrossingTrianglePairs": 0,
+        "buriedInPalmTrianglePairs": 0,
+        "unclassifiedCoplanarTrianglePairs": 0
+      }
+    ],
+    "diagnosticBoundaryClear": true,
+    "limitations": "The independent free-hand probes can retain skin-boundary crossings/contacts; see the actual affected surfaces, poses, counts and intersection points. Palm-enclosed intersections are reported separately using the actual posed palm union and three-direction parity. This diagnostic is not evidence of a natural collision-free grip; public runtime grip poses are verified separately.",
+    "report": {
+      "file": "hand-anatomy-final-flexion.json",
+      "sha256": "c9dd0488aa7941ff693fe2ddb9e2fe0b7fed2a30ef5404538593b90821887f46"
+    }
+  },
+  "publicUi": {
+    "scope": "Real production UI screenshots; retained first-nine and post-walk optional/nail/phase groups have explicitly different public stance baselines when resumed. Free-finger styles and handedness use public controls; no actor hiding, skin overrides or clinical needle-path changes.",
+    "case": "enc-17441d080d46",
+    "synthetic": true,
+    "localPreview": true,
+    "assetSha256": "8e8750a456c8ac31be4a6f86349e600a23c0aace332998091f85f7aaad05bbd9",
+    "stageCheck": {
+      "expectedSha256": "42cc502674e1b1e3db43c6aca44cea90d7723b1b4c9f5070c9943ec334ffb9b2",
+      "servedSha256": "42cc502674e1b1e3db43c6aca44cea90d7723b1b4c9f5070c9943ec334ffb9b2",
+      "etag": "\"42cc502674e1b1e3db43c6ac\"",
+      "sourceHashes": {
+        "hand.ts": "001d183a8df400788a339425eafec39a9e2a885d14b778608ad6fecf5f680228",
+        "hand-physiology.ts": "fceb8866c6a3a7c45d4024daaa1b8a6cf0582b6ded34feaaa3c9495fa02b53f5",
+        "hand-nail-work.ts": "d3a78366d06f500284e0e7ef788be5039eed3a40112fccdaab48933b0d1c115f",
+        "choreography.ts": "49522bf15affb60ceab9fda916fe45c24267727c57072af7d1cc7e3756e42d4a",
+        "procedure.ts": "503a67a5faafad81a2b0735df1878bcdb3a470fd8dd42b1328f63eb8a1be9064",
+        "rig.ts": "5ffdc3bd5300d040107c0fcaf82053d712f5b5d25ee5aa7ef09838b16195a0c0",
+        "engine.ts": "ab61af5314e09358483ae495a5e66df876a68ee5b48f984ce9f66a38f5f226e1"
+      },
+      "inputs": 212,
+      "bytes": 1403101,
+      "method": "Fresh StageBundle from current sources equals real8795HTTP response bytes"
+    },
+    "retainedComparison": {
+      "path": "hand-anatomy-ui-9cases-before-tripod-reach.json",
+      "sha256": "73eacbf3d6e6565938b8bf12564b99c0ad3b27254f22fcd8ac4a8f9c96550276",
+      "captureScriptPath": "/workspace/work/anatomy-ui-audit-before-tripod-diagnostic.mjs",
+      "captureScriptSha256": "e48cfd9a918973863b86968bd9efc5c08b211b6e3fd48ea335ef95a1fdfb39c1",
+      "case": "enc-17441d080d46",
+      "assetSha256": "1bb07096a59c4bee9402ec02f15e3bde5f989065673e07541c01aa4f6c3d7522",
+      "expectedStageSha256": "5809c719928f9e8548466eb52eff3af0d01e443b50e00f880a018e6a662ee567",
+      "sourceHashes": {
+        "hand.ts": "001d183a8df400788a339425eafec39a9e2a885d14b778608ad6fecf5f680228",
+        "hand-physiology.ts": "ef2c0ba03b0e90f107dc4ca045512f01bfebb1eca814646dea3ee387f6670d99",
+        "hand-nail-work.ts": "d3a78366d06f500284e0e7ef788be5039eed3a40112fccdaab48933b0d1c115f",
+        "choreography.ts": "49522bf15affb60ceab9fda916fe45c24267727c57072af7d1cc7e3756e42d4a",
+        "procedure.ts": "503a67a5faafad81a2b0735df1878bcdb3a470fd8dd42b1328f63eb8a1be9064",
+        "rig.ts": "5ffdc3bd5300d040107c0fcaf82053d712f5b5d25ee5aa7ef09838b16195a0c0",
+        "engine.ts": "ab61af5314e09358483ae495a5e66df876a68ee5b48f984ce9f66a38f5f226e1"
+      },
+      "clinicalBaseline": {
+        "version": 65,
+        "timeline": 63,
+        "feetAnchor": {
+          "x": 0.25,
+          "z": -3.75,
+          "yaw": -2.5324
+        }
+      },
+      "scope": "The first nine successful real UI frames are retained from the initial 1bb/5809 comparison run before the optional tripod reach failure. Their image hashes, parameters and visible states are preserved. The original failure writer did not serialize its browser response bodies/hashes; this group has initial matching served-product/stage checks and the explicitly frozen source checkpoint, rather than a claimed retained per-response fingerprint."
+    },
+    "intentionalSetupMove": {
+      "from": {
+        "x": 0.25,
+        "z": -3.75
+      },
+      "to": {
+        "x": 0.25,
+        "z": -4.25
+      },
+      "metres": 0.5,
+      "note": "One accepted public move in the synthetic encounter before the current capture group. Feet and record version remain fixed during subsequent previews."
+    },
+    "previewIsolation": {
+      "before": {
+        "version": 66,
+        "timeline": 64,
+        "feetAnchor": {
+          "x": 0.25,
+          "z": -4.25,
+          "yaw": -2.5324,
+          "facing": "south-east",
+          "room": "treatment-room"
+        }
+      },
+      "after": {
+        "version": 66,
+        "timeline": 64,
+        "feetAnchor": {
+          "x": 0.25,
+          "z": -4.25,
+          "yaw": -2.5324,
+          "facing": "south-east",
+          "room": "treatment-room"
+        }
+      },
+      "scope": "Current optional/nail/phase group after one recorded public setup walk; the retained first nine are the separate pre-walk group at65/63. Each captured motion keeps its own floor anchor and clinical record fixed."
+    },
+    "currentRawPrimary": {
+      "path": "docs/img/hand-anatomy-working-tip.png",
+      "sha256": "7d1d256952c9bb768070e00b4a1ea2b3f58f00b559b1eca87ff4a1df5b133f77",
+      "sourceFrame": {
+        "name": "hand-anatomy-phase-002",
+        "path": "hand-anatomy-phase-002.png",
+        "requestedView": null,
+        "actualViewLabel": "手部 侧面 Side",
+        "gripBlocked": "0",
+        "gripDetails": {
+          "cpuMs": 48.20000000298023,
+          "eye": [
+            0.846327335956321,
+            1.0491912060034243,
+            -4.500420613372771
+          ],
+          "direction": [
+            -0.27988284275087427,
+            0.33471011559895275,
+            -0.8997970509228318
+          ],
+          "requestedAngleDifferenceDeg": 0,
+          "shaftAlignment": 0.4256527945196348,
+          "critical": [
+            {
+              "point": [
+                0.9627366777482702,
+                0.8988657747480658,
+                -4.191659074637974
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9630246790663088,
+                0.8988824508429275,
+                -4.191021283129586
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9624486767581022,
+                0.898849099660547,
+                -4.192296862748201
+              ],
+              "blockers": []
+            }
+          ],
+          "optional": [
+            {
+              "point": [
+                0.9285755397596527,
+                0.9274815278484422,
+                -4.18459865021108
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            },
+            {
+              "point": [
+                0.9876444283217742,
+                0.880700824084345,
+                -4.189509003306755
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9429909067881458,
+                0.933591855041685,
+                -4.189656312455742
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            }
+          ],
+          "insideSupport": [
+            {
+              "probe": 0,
+              "containing": []
+            },
+            {
+              "probe": 1,
+              "containing": []
+            },
+            {
+              "probe": 2,
+              "containing": []
+            }
+          ]
+        },
+        "phase": "Nian · twirling · 50%",
+        "roles": "默认拇指＋食指指端精密捏持。 · Thumb/index precision tip pinch.",
+        "controls": {
+          "手腕抬高角 Wrist elevation (°)": "55",
+          "持针接触 Grip style": "tip-pinch",
+          "闲置手指 Idle fingers": "curled",
+          "持针方式 Grip": "two-finger"
+        },
+        "notice": "BL23\nL\n1 needle in\ntreatment room\nlying face down · towels\ncomfortable\nconsent: given\nmin 46.7\nvisit 1 of 2\n1 needle in · 0 of 20 min\nFree camera\nRoom\nPatient\nNeedle\n手部 侧面 Side\n⤓\n⛶\nQuality: auto\nHigh\nMedium\nLow\n本地预览 Preview · nian · Nian · twirling · 50% · 1× · 暂停 Paused\nSchematic figure: positions on the body are drawn approximately Nian · twirling · 50%",
+        "actualControlValues": {
+          "主操作手 Main hand": "left",
+          "辅助手 Support": "none",
+          "总时长 Total duration (ms)": "3200",
+          "每阶段循环 Cycles per phase": "2",
+          "接近与释放开口 Opening (mm)": "2",
+          "旋转幅度 Rotation (°)": "90",
+          "播放进度 Playback progress": "0.5"
+        },
+        "parameters": {
+          "technique": "nian",
+          "hand": "left",
+          "grip": "two-finger",
+          "support": "none",
+          "duration": 3200,
+          "elevation": 55,
+          "style": "tip-pinch",
+          "idle": "curled",
+          "rotation": 90,
+          "cycles": 2
+        },
+        "requestedProgress": 0.5,
+        "stage": "engaged",
+        "sha256": "7d1d256952c9bb768070e00b4a1ea2b3f58f00b559b1eca87ff4a1df5b133f77"
+      },
+      "assetSha256": "8e8750a456c8ac31be4a6f86349e600a23c0aace332998091f85f7aaad05bbd9",
+      "stageSha256": "42cc502674e1b1e3db43c6aca44cea90d7723b1b4c9f5070c9943ec334ffb9b2",
+      "method": "Unchanged byte-for-byte copy of the actual current-source public-seek engaged raw frame. No additional render, crop, resize, retouch or interpolation."
+    },
+    "views": [
+      {
+        "name": "hand-anatomy-tip-curled",
+        "requestedView": "side",
+        "actualViewLabel": "手部 侧面 Side",
+        "gripBlocked": "0",
+        "gripDetails": {
+          "cpuMs": 43.599999994039536,
+          "eye": [
+            0.6600713912372176,
+            1.0217002211689266,
+            -4.368026962244138
+          ],
+          "direction": [
+            -0.8198643711997784,
+            0.25697548374730816,
+            -0.5116502844619837
+          ],
+          "requestedAngleDifferenceDeg": 8.537736462515939e-07,
+          "shaftAlignment": 0.4138522336353938,
+          "critical": [
+            {
+              "point": [
+                0.9627366777482699,
+                0.8988657747480658,
+                -4.191659074637975
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9633723526373826,
+                0.8989355282274084,
+                -4.191374376996657
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9621010052947518,
+                0.8987960225688251,
+                -4.191943770032667
+              ],
+              "blockers": []
+            }
+          ],
+          "optional": [
+            {
+              "point": [
+                0.9403274081016492,
+                0.9283774620448868,
+                -4.165918460541443
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            },
+            {
+              "point": [
+                0.983751457003425,
+                0.8806821277183681,
+                -4.205176408381473
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9425516154416349,
+                0.9331605860610486,
+                -4.191740381016599
+              ],
+              "blockers": []
+            }
+          ],
+          "insideSupport": [
+            {
+              "probe": 0,
+              "containing": []
+            },
+            {
+              "probe": 1,
+              "containing": []
+            },
+            {
+              "probe": 2,
+              "containing": []
+            }
+          ]
+        },
+        "phase": "Nian · twirling · 50%",
+        "roles": "默认拇指＋食指指端精密捏持。 · Thumb/index precision tip pinch.",
+        "parameters": {
+          "technique": "nian",
+          "hand": "left",
+          "grip": "two-finger",
+          "support": "none",
+          "duration": 3200,
+          "elevation": 55,
+          "style": "tip-pinch",
+          "idle": "curled",
+          "rotation": 90,
+          "cycles": 2
+        },
+        "sha256": "b9c876ec36792fed7ba5ec586c996317ff0aa14d591936035f8892fc15b2cc7c",
+        "captureGroup": "retained-cart-comparison",
+        "assetSha256": "1bb07096a59c4bee9402ec02f15e3bde5f989065673e07541c01aa4f6c3d7522",
+        "stageSha256": "5809c719928f9e8548466eb52eff3af0d01e443b50e00f880a018e6a662ee567"
+      },
+      {
+        "name": "hand-anatomy-tip-relaxed",
+        "requestedView": "side",
+        "actualViewLabel": "手部 侧面 Side",
+        "gripBlocked": "0",
+        "gripDetails": {
+          "cpuMs": 28.700000002980232,
+          "eye": [
+            0.632164765105067,
+            1.0212804086172576,
+            -4.401890769197754
+          ],
+          "direction": [
+            -0.8198643693593733,
+            0.2569754840554155,
+            -0.5116502872562877
+          ],
+          "requestedAngleDifferenceDeg": 0,
+          "shaftAlignment": 0.3791733431015513,
+          "critical": [
+            {
+              "point": [
+                0.9627366777482695,
+                0.8988657747480658,
+                -4.1916590746379745
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9633723526363803,
+                0.8989355282272181,
+                -4.191374376994371
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9621010052957534,
+                0.8987960225690151,
+                -4.191943770034949
+              ],
+              "blockers": []
+            }
+          ],
+          "optional": [
+            {
+              "point": [
+                0.9403274080134733,
+                0.9283774620360058,
+                -4.165918460608023
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            },
+            {
+              "point": [
+                0.9837514570494496,
+                0.88068212772207,
+                -4.205176408314899
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9425516153974243,
+                0.9239938157621019,
+                -4.208188582533941
+              ],
+              "blockers": []
+            }
+          ],
+          "insideSupport": [
+            {
+              "probe": 0,
+              "containing": []
+            },
+            {
+              "probe": 1,
+              "containing": []
+            },
+            {
+              "probe": 2,
+              "containing": []
+            }
+          ]
+        },
+        "phase": "Nian · twirling · 50%",
+        "roles": "默认拇指＋食指指端精密捏持。 · Thumb/index precision tip pinch.",
+        "parameters": {
+          "technique": "nian",
+          "hand": "left",
+          "grip": "two-finger",
+          "support": "none",
+          "duration": 3200,
+          "elevation": 55,
+          "style": "tip-pinch",
+          "idle": "relaxed",
+          "rotation": 90,
+          "cycles": 2
+        },
+        "sha256": "0030a4952cc972dd1b2842d4b47100863a296cf225be92a52dbc836fb8ec083e",
+        "captureGroup": "retained-cart-comparison",
+        "assetSha256": "1bb07096a59c4bee9402ec02f15e3bde5f989065673e07541c01aa4f6c3d7522",
+        "stageSha256": "5809c719928f9e8548466eb52eff3af0d01e443b50e00f880a018e6a662ee567"
+      },
+      {
+        "name": "hand-anatomy-side-curled",
+        "requestedView": "side",
+        "actualViewLabel": "手部 侧面 Side",
+        "gripBlocked": "0",
+        "gripDetails": {
+          "cpuMs": 33.900000005960464,
+          "eye": [
+            0.7264697215124034,
+            1.1110284813121283,
+            -3.943916476896336
+          ],
+          "direction": [
+            -0.5543096036082293,
+            0.46603202361084645,
+            0.6896049712095085
+          ],
+          "requestedAngleDifferenceDeg": 13.490138899152958,
+          "shaftAlignment": 0.6120393914341905,
+          "critical": [
+            {
+              "point": [
+                0.9627366777482697,
+                0.898865774748066,
+                -4.191659074637975
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9632957972080934,
+                0.8989222284063858,
+                -4.191241702435135
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9621775567547124,
+                0.8988093211510746,
+                -4.192076443428266
+              ],
+              "blockers": []
+            }
+          ],
+          "optional": [
+            {
+              "point": [
+                0.9537022446140355,
+                0.9354026062473695,
+                -4.161175574883373
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9722508580428331,
+                0.918323822206884,
+                -4.219045648923797
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            },
+            {
+              "point": [
+                0.9349921628430031,
+                0.9357146590925584,
+                -4.203334879922882
+              ],
+              "blockers": [
+                "person"
+              ]
+            }
+          ],
+          "insideSupport": [
+            {
+              "probe": 0,
+              "containing": []
+            },
+            {
+              "probe": 1,
+              "containing": []
+            },
+            {
+              "probe": 2,
+              "containing": []
+            }
+          ]
+        },
+        "phase": "Nian · twirling · 50%",
+        "roles": "拇指腹＋食指侧腹持针，食指末端自然下伸。 · Thumb/index side pinch; the index tip extends below the grip.",
+        "parameters": {
+          "technique": "nian",
+          "hand": "left",
+          "grip": "two-finger",
+          "support": "none",
+          "duration": 3200,
+          "elevation": 55,
+          "style": "side-pinch",
+          "idle": "curled",
+          "rotation": 90,
+          "cycles": 2
+        },
+        "sha256": "54e3142324408f54a0be6fb224b21396d1fadb5d205ce9cf72bb7bfb4d83cce3",
+        "captureGroup": "retained-cart-comparison",
+        "assetSha256": "1bb07096a59c4bee9402ec02f15e3bde5f989065673e07541c01aa4f6c3d7522",
+        "stageSha256": "5809c719928f9e8548466eb52eff3af0d01e443b50e00f880a018e6a662ee567"
+      },
+      {
+        "name": "hand-anatomy-side-relaxed",
+        "requestedView": "side",
+        "actualViewLabel": "手部 侧面 Side",
+        "gripBlocked": "0",
+        "gripDetails": {
+          "cpuMs": 39.20000000298023,
+          "eye": [
+            0.7217358860885339,
+            1.1083617940797852,
+            -3.938027211372642
+          ],
+          "direction": [
+            -0.5543096036154835,
+            0.46603202361011187,
+            0.6896049712041742
+          ],
+          "requestedAngleDifferenceDeg": 13.490138899152905,
+          "shaftAlignment": 0.5998184021281131,
+          "critical": [
+            {
+              "point": [
+                0.9627366777482693,
+                0.8988657747480658,
+                -4.191659074637975
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9632957972080887,
+                0.8989222284063849,
+                -4.191241702435128
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9621775567547166,
+                0.898809321151075,
+                -4.192076443428272
+              ],
+              "blockers": []
+            }
+          ],
+          "optional": [
+            {
+              "point": [
+                0.9537022446137196,
+                0.935402606247332,
+                -4.161175574883421
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9722508580431328,
+                0.918323822206917,
+                -4.219045648923669
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            },
+            {
+              "point": [
+                0.9349921628430977,
+                0.9290680319741789,
+                -4.203334879923259
+              ],
+              "blockers": [
+                "person"
+              ]
+            }
+          ],
+          "insideSupport": [
+            {
+              "probe": 0,
+              "containing": []
+            },
+            {
+              "probe": 1,
+              "containing": []
+            },
+            {
+              "probe": 2,
+              "containing": []
+            }
+          ]
+        },
+        "phase": "Nian · twirling · 50%",
+        "roles": "拇指腹＋食指侧腹持针，食指末端自然下伸。 · Thumb/index side pinch; the index tip extends below the grip.",
+        "parameters": {
+          "technique": "nian",
+          "hand": "left",
+          "grip": "two-finger",
+          "support": "none",
+          "duration": 3200,
+          "elevation": 55,
+          "style": "side-pinch",
+          "idle": "relaxed",
+          "rotation": 90,
+          "cycles": 2
+        },
+        "sha256": "a1b582b80b8b30275ff75a166d1ef53989be9263b689b5795a4549a28afb131b",
+        "captureGroup": "retained-cart-comparison",
+        "assetSha256": "1bb07096a59c4bee9402ec02f15e3bde5f989065673e07541c01aa4f6c3d7522",
+        "stageSha256": "5809c719928f9e8548466eb52eff3af0d01e443b50e00f880a018e6a662ee567"
+      },
+      {
+        "name": "hand-anatomy-tip-curled-right",
+        "requestedView": "side",
+        "actualViewLabel": "手部 侧面 Side",
+        "gripBlocked": "0",
+        "gripDetails": {
+          "cpuMs": 32.20000000298023,
+          "eye": [
+            0.9888786117040538,
+            1.0459237189759354,
+            -3.861628109352567
+          ],
+          "direction": [
+            0.11787846796446654,
+            0.32970604902803663,
+            0.9366955684877943
+          ],
+          "requestedAngleDifferenceDeg": 0,
+          "shaftAlignment": 0.42046838183846735,
+          "critical": [
+            {
+              "point": [
+                0.9627366777482695,
+                0.898865774748066,
+                -4.1916590746379745
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9627349943727769,
+                0.8988860952439035,
+                -4.192358778219758
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9627383612056837,
+                0.8988454541309607,
+                -4.190959369138098
+              ],
+              "blockers": []
+            }
+          ],
+          "optional": [
+            {
+              "point": [
+                0.9287478585720994,
+                0.9274793401886722,
+                -4.183803112540613
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            },
+            {
+              "point": [
+                0.9845020960061033,
+                0.8807402402472335,
+                -4.204016855911003
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9486931481319636,
+                0.9335249861835491,
+                -4.180953142122346
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            }
+          ],
+          "insideSupport": [
+            {
+              "probe": 0,
+              "containing": []
+            },
+            {
+              "probe": 1,
+              "containing": []
+            },
+            {
+              "probe": 2,
+              "containing": []
+            }
+          ]
+        },
+        "phase": "Nian · twirling · 50%",
+        "roles": "默认拇指＋食指指端精密捏持。 · Thumb/index precision tip pinch.",
+        "parameters": {
+          "technique": "nian",
+          "hand": "right",
+          "grip": "two-finger",
+          "support": "none",
+          "duration": 3200,
+          "elevation": 55,
+          "style": "tip-pinch",
+          "idle": "curled",
+          "rotation": 90,
+          "cycles": 2
+        },
+        "sha256": "c62aaffd47ec0657d29878262c31b69ea6db27c30464e4dfde887afbd18cc96c",
+        "captureGroup": "retained-cart-comparison",
+        "assetSha256": "1bb07096a59c4bee9402ec02f15e3bde5f989065673e07541c01aa4f6c3d7522",
+        "stageSha256": "5809c719928f9e8548466eb52eff3af0d01e443b50e00f880a018e6a662ee567"
+      },
+      {
+        "name": "hand-anatomy-tip-relaxed-right",
+        "requestedView": "side",
+        "actualViewLabel": "手部 侧面 Side",
+        "gripBlocked": "0",
+        "gripDetails": {
+          "cpuMs": 52.69999998807907,
+          "eye": [
+            1.0083227284756224,
+            1.0521053307620274,
+            -3.823487274105039
+          ],
+          "direction": [
+            0.11787846798473421,
+            0.32970604903062833,
+            0.9366955684843316
+          ],
+          "requestedAngleDifferenceDeg": 0,
+          "shaftAlignment": 0.39161826117530896,
+          "critical": [
+            {
+              "point": [
+                0.9627366777482695,
+                0.898865774748066,
+                -4.191659074637975
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9627349943727616,
+                0.8988860952439016,
+                -4.192358778219758
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.962738361205699,
+                0.8988454541309627,
+                -4.1909593691381
+              ],
+              "blockers": []
+            }
+          ],
+          "optional": [
+            {
+              "point": [
+                0.9287478585722528,
+                0.9274793401886715,
+                -4.183803112539948
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            },
+            {
+              "point": [
+                0.9845020960058447,
+                0.8807402402472144,
+                -4.204016855911432
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9633374309078655,
+                0.9262814633577354,
+                -4.180953142121952
+              ],
+              "blockers": []
+            }
+          ],
+          "insideSupport": [
+            {
+              "probe": 0,
+              "containing": []
+            },
+            {
+              "probe": 1,
+              "containing": []
+            },
+            {
+              "probe": 2,
+              "containing": []
+            }
+          ]
+        },
+        "phase": "Nian · twirling · 50%",
+        "roles": "默认拇指＋食指指端精密捏持。 · Thumb/index precision tip pinch.",
+        "parameters": {
+          "technique": "nian",
+          "hand": "right",
+          "grip": "two-finger",
+          "support": "none",
+          "duration": 3200,
+          "elevation": 55,
+          "style": "tip-pinch",
+          "idle": "relaxed",
+          "rotation": 90,
+          "cycles": 2
+        },
+        "sha256": "a178e969d43d9fd6bf2381c3313912f3d2083d93560fbba495a09ab10cb04627",
+        "captureGroup": "retained-cart-comparison",
+        "assetSha256": "1bb07096a59c4bee9402ec02f15e3bde5f989065673e07541c01aa4f6c3d7522",
+        "stageSha256": "5809c719928f9e8548466eb52eff3af0d01e443b50e00f880a018e6a662ee567"
+      },
+      {
+        "name": "hand-anatomy-side-curled-right",
+        "requestedView": "side",
+        "actualViewLabel": "手部 侧面 Side",
+        "gripBlocked": "0",
+        "gripDetails": {
+          "cpuMs": 58.099999994039536,
+          "eye": [
+            0.6282406310007032,
+            1.1017492485765943,
+            -4.091709741313037
+          ],
+          "direction": [
+            -0.8768829594927502,
+            0.44101733526427805,
+            0.19125894841191401
+          ],
+          "requestedAngleDifferenceDeg": 13.490138899152905,
+          "shaftAlignment": 0.6066861901600457,
+          "critical": [
+            {
+              "point": [
+                0.9627366777482697,
+                0.8988657747480658,
+                -4.191659074637975
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9625835140861903,
+                0.8988669927365738,
+                -4.192342112375165
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9628898376687111,
+                0.8988645566514291,
+                -4.190976036896573
+              ],
+              "blockers": []
+            }
+          ],
+          "optional": [
+            {
+              "point": [
+                0.9295961700671737,
+                0.9335333201805619,
+                -4.19841712216515
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9906940955020109,
+                0.9197539684506794,
+                -4.190552629170937
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            },
+            {
+              "point": [
+                0.9570602379566344,
+                0.9363735330692033,
+                -4.163429338053736
+              ],
+              "blockers": [
+                "person"
+              ]
+            }
+          ],
+          "insideSupport": [
+            {
+              "probe": 0,
+              "containing": []
+            },
+            {
+              "probe": 1,
+              "containing": []
+            },
+            {
+              "probe": 2,
+              "containing": []
+            }
+          ]
+        },
+        "phase": "Nian · twirling · 50%",
+        "roles": "拇指腹＋食指侧腹持针，食指末端自然下伸。 · Thumb/index side pinch; the index tip extends below the grip.",
+        "parameters": {
+          "technique": "nian",
+          "hand": "right",
+          "grip": "two-finger",
+          "support": "none",
+          "duration": 3200,
+          "elevation": 55,
+          "style": "side-pinch",
+          "idle": "curled",
+          "rotation": 90,
+          "cycles": 2
+        },
+        "sha256": "950919d0c8dbbf01d0e07b2ec8f3c6fc56a03dd38492a3f3de277c2639475ea9",
+        "captureGroup": "retained-cart-comparison",
+        "assetSha256": "1bb07096a59c4bee9402ec02f15e3bde5f989065673e07541c01aa4f6c3d7522",
+        "stageSha256": "5809c719928f9e8548466eb52eff3af0d01e443b50e00f880a018e6a662ee567"
+      },
+      {
+        "name": "hand-anatomy-side-relaxed-right",
+        "requestedView": "side",
+        "actualViewLabel": "手部 侧面 Side",
+        "gripBlocked": "0",
+        "gripDetails": {
+          "cpuMs": 34.29999999701977,
+          "eye": [
+            0.6339622879686144,
+            1.0937354349775765,
+            -4.094313514178796
+          ],
+          "direction": [
+            -0.8768829594849747,
+            0.44101733526418135,
+            0.19125894844778615
+          ],
+          "requestedAngleDifferenceDeg": 13.490138899152878,
+          "shaftAlignment": 0.5990134925194046,
+          "critical": [
+            {
+              "point": [
+                0.9627366777482698,
+                0.8988657747480655,
+                -4.1916590746379745
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9625835140861606,
+                0.8988669927365696,
+                -4.192342112375156
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9628898376687409,
+                0.8988645566514326,
+                -4.190976036896578
+              ],
+              "blockers": []
+            }
+          ],
+          "optional": [
+            {
+              "point": [
+                0.9295961700668347,
+                0.933533320180483,
+                -4.19841712216389
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9906940955020325,
+                0.9197539684507207,
+                -4.190552629172267
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            },
+            {
+              "point": [
+                0.9570602379574242,
+                0.931237355396836,
+                -4.164785147242335
+              ],
+              "blockers": []
+            }
+          ],
+          "insideSupport": [
+            {
+              "probe": 0,
+              "containing": []
+            },
+            {
+              "probe": 1,
+              "containing": []
+            },
+            {
+              "probe": 2,
+              "containing": []
+            }
+          ]
+        },
+        "phase": "Nian · twirling · 50%",
+        "roles": "拇指腹＋食指侧腹持针，食指末端自然下伸。 · Thumb/index side pinch; the index tip extends below the grip.",
+        "parameters": {
+          "technique": "nian",
+          "hand": "right",
+          "grip": "two-finger",
+          "support": "none",
+          "duration": 3200,
+          "elevation": 55,
+          "style": "side-pinch",
+          "idle": "relaxed",
+          "rotation": 90,
+          "cycles": 2
+        },
+        "sha256": "36699559f2726e008bb8081b1902cda35237b274e2ead39ea83fba8aa16793c2",
+        "captureGroup": "retained-cart-comparison",
+        "assetSha256": "1bb07096a59c4bee9402ec02f15e3bde5f989065673e07541c01aa4f6c3d7522",
+        "stageSha256": "5809c719928f9e8548466eb52eff3af0d01e443b50e00f880a018e6a662ee567"
+      },
+      {
+        "name": "hand-anatomy-bimanual",
+        "requestedView": "side",
+        "actualViewLabel": "手部 侧面 Side",
+        "gripBlocked": "0",
+        "gripDetails": {
+          "cpuMs": 58.29999999701977,
+          "eye": [
+            0.6754583202292066,
+            1.0254295213304225,
+            -4.3980993383434726
+          ],
+          "direction": [
+            -0.7658255716667877,
+            0.2657832696108815,
+            -0.5855514045548753
+          ],
+          "requestedAngleDifferenceDeg": 0,
+          "shaftAlignment": 0.4114161306112244,
+          "critical": [
+            {
+              "point": [
+                0.96273667774827,
+                0.8988657747480658,
+                -4.191659074637975
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9633419200433466,
+                0.8989299972444462,
+                -4.191313302900104
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9621314376624922,
+                0.8988015535169142,
+                -4.192004843888294
+              ],
+              "blockers": []
+            }
+          ],
+          "optional": [
+            {
+              "point": [
+                0.9380047903847041,
+                0.9281489622468808,
+                -4.167857332167895
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            },
+            {
+              "point": [
+                0.9849214998815007,
+                0.8807706848319418,
+                -4.203294609254869
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.941419538473118,
+                0.9331264633106826,
+                -4.194744983694672
+              ],
+              "blockers": []
+            }
+          ],
+          "insideSupport": [
+            {
+              "probe": 0,
+              "containing": []
+            },
+            {
+              "probe": 1,
+              "containing": []
+            },
+            {
+              "probe": 2,
+              "containing": []
+            }
+          ]
+        },
+        "phase": "Nian · twirling · 50%",
+        "roles": "默认拇指＋食指指端精密捏持。 · Thumb/index precision tip pinch.",
+        "parameters": {
+          "technique": "nian",
+          "hand": "left",
+          "grip": "two-finger",
+          "support": "stabilize",
+          "duration": 3200,
+          "elevation": 55,
+          "style": "tip-pinch",
+          "idle": "curled",
+          "rotation": 90,
+          "cycles": 2
+        },
+        "sha256": "031d09c5eab241d3c809eacf9d402a9f0c8bf36619fdb64bdd666f7b4ceafb85",
+        "captureGroup": "retained-cart-comparison",
+        "assetSha256": "1bb07096a59c4bee9402ec02f15e3bde5f989065673e07541c01aa4f6c3d7522",
+        "stageSha256": "5809c719928f9e8548466eb52eff3af0d01e443b50e00f880a018e6a662ee567"
+      },
+      {
+        "name": "hand-anatomy-three-finger",
+        "requestedView": null,
+        "actualViewLabel": "手部 侧面 Side",
+        "gripBlocked": "0",
+        "gripDetails": {
+          "cpuMs": 32.5,
+          "eye": [
+            1.0567739619000875,
+            1.0594899785549834,
+            -4.440479993792174
+          ],
+          "direction": [
+            0.3828839444059447,
+            0.45289755058901676,
+            -0.80516066333783
+          ],
+          "requestedAngleDifferenceDeg": 1.2074182697257333e-06,
+          "shaftAlignment": 0.4526470858917148,
+          "critical": [
+            {
+              "point": [
+                0.9627366777482701,
+                0.8988657747480662,
+                -4.191659074637975
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.963009337521462,
+                0.8928417246541736,
+                -4.191322715806896
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9639268353756081,
+                0.8929844411975106,
+                -4.192344703925627
+              ],
+              "blockers": []
+            }
+          ],
+          "optional": [
+            {
+              "point": [
+                0.9618766436209912,
+                0.9100182696631486,
+                -4.191842658509251
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9173636068430875,
+                0.9042672466114591,
+                -4.183017640491132
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            },
+            {
+              "point": [
+                0.9871195163007599,
+                0.8753594785858548,
+                -4.169426240604938
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9340189094593243,
+                0.9142881141647021,
+                -4.182340312316043
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            }
+          ],
+          "insideSupport": [
+            {
+              "probe": 0,
+              "containing": []
+            },
+            {
+              "probe": 1,
+              "containing": []
+            },
+            {
+              "probe": 2,
+              "containing": []
+            }
+          ]
+        },
+        "phase": "Nian · twirling · 50%",
+        "roles": "拇指＋食指指端主夹持，中指腹承托。 · Thumb/index tip pinch with middle-pulp support.",
+        "parameters": {
+          "technique": "nian",
+          "hand": "left",
+          "grip": "three-finger",
+          "support": "none",
+          "duration": 3200,
+          "elevation": 48,
+          "style": "tip-pinch",
+          "idle": "curled",
+          "rotation": 90,
+          "cycles": 2,
+          "opening": 2
+        },
+        "passed": true,
+        "sha256": "60d7bb9f7877e80b5cf5d4eba3c5f966df6bef2e7aa038ef3f8f477a8634c97c",
+        "captureGroup": "current-working-or-GLB-diagnostic",
+        "assetSha256": "8e8750a456c8ac31be4a6f86349e600a23c0aace332998091f85f7aaad05bbd9",
+        "stageSha256": "42cc502674e1b1e3db43c6aca44cea90d7723b1b4c9f5070c9943ec334ffb9b2"
+      },
+      {
+        "name": "hand-anatomy-gua-nail",
+        "requestedView": "palmar",
+        "actualViewLabel": "手部 掌侧 Palm",
+        "gripBlocked": "0",
+        "gripDetails": {
+          "cpuMs": 35.29999999701977,
+          "eye": [
+            0.5791666400568172,
+            1.0374171173440023,
+            -4.020013169946125
+          ],
+          "direction": [
+            -0.8536960570902357,
+            0.2240162405884184,
+            0.4701273934384347
+          ],
+          "requestedAngleDifferenceDeg": 23.48871320595166,
+          "shaftAlignment": 0.42762233809851213,
+          "critical": [
+            {
+              "point": [
+                0.9627366777321181,
+                0.8988657705821935,
+                -4.191658932723467
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9612129096026739,
+                0.9112672117306917,
+                -4.191295112479103
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9643922597921688,
+                0.8910199460729117,
+                -4.191924954546673
+              ],
+              "blockers": []
+            }
+          ],
+          "optional": [
+            {
+              "point": [
+                0.9333474086962962,
+                0.9544159277008966,
+                -4.188873160813586
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            },
+            {
+              "point": [
+                0.9990115554589629,
+                0.905536811992244,
+                -4.193362386688203
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9360190017304181,
+                0.9437763843884219,
+                -4.216530500959435
+              ],
+              "blockers": []
+            }
+          ],
+          "insideSupport": [
+            {
+              "probe": 0,
+              "containing": []
+            },
+            {
+              "probe": 1,
+              "containing": []
+            },
+            {
+              "probe": 2,
+              "containing": []
+            }
+          ]
+        },
+        "phase": "Gua · scraping · 50%",
+        "roles": "刮针：拇指支撑针尾，食指甲缘沿针柄刮动。 · The thumb braces the needle tail; the index nail edge scrapes the handle.",
+        "parameters": {
+          "technique": "gua",
+          "hand": "left",
+          "grip": "two-finger",
+          "support": "none",
+          "duration": 3200,
+          "elevation": 55,
+          "style": "tip-pinch",
+          "idle": "curled",
+          "rotation": 90,
+          "cycles": 2,
+          "opening": 2
+        },
+        "sha256": "d8ce179585db175cbf3ada0a145d53c28f23234ee262460f22013fbc70ce8aa7",
+        "captureGroup": "current-working-or-GLB-diagnostic",
+        "assetSha256": "8e8750a456c8ac31be4a6f86349e600a23c0aace332998091f85f7aaad05bbd9",
+        "stageSha256": "42cc502674e1b1e3db43c6aca44cea90d7723b1b4c9f5070c9943ec334ffb9b2"
+      },
+      {
+        "name": "hand-anatomy-gua-release",
+        "requestedView": "palmar",
+        "actualViewLabel": "手部 掌侧 Palm",
+        "gripBlocked": "0",
+        "gripDetails": {
+          "cpuMs": 56.19999998807907,
+          "eye": [
+            0.5739656058563467,
+            1.040702251854006,
+            -4.017155491589112
+          ],
+          "direction": [
+            -0.8536844991757357,
+            0.2240170564148209,
+            0.4701479919156435
+          ],
+          "requestedAngleDifferenceDeg": 23.48871320595176,
+          "shaftAlignment": 0.4301397191056033,
+          "critical": [
+            {
+              "point": [
+                0.9627366809646913,
+                0.8988663045637435,
+                -4.191677435998315
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.961212912835249,
+                0.911267745712241,
+                -4.191313615753913
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9636711711382376,
+                0.8969677958691922,
+                -4.191769362180473
+              ],
+              "blockers": []
+            }
+          ],
+          "optional": [
+            {
+              "point": [
+                0.9333474407605306,
+                0.9544164487207759,
+                -4.188891101513464
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            },
+            {
+              "point": [
+                1.001252182050883,
+                0.9070747105827,
+                -4.193461120997494
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9360187803890683,
+                0.9456951543809085,
+                -4.216548327159625
+              ],
+              "blockers": []
+            }
+          ],
+          "insideSupport": [
+            {
+              "probe": 0,
+              "containing": []
+            },
+            {
+              "probe": 1,
+              "containing": []
+            },
+            {
+              "probe": 2,
+              "containing": []
+            }
+          ]
+        },
+        "phase": "Release and retreat · 87%",
+        "roles": "刮针：拇指支撑针尾，食指甲缘沿针柄刮动。 · The thumb braces the needle tail; the index nail edge scrapes the handle.",
+        "parameters": {
+          "technique": "gua",
+          "hand": "left",
+          "grip": "two-finger",
+          "support": "none",
+          "duration": 3200,
+          "elevation": 55,
+          "style": "tip-pinch",
+          "idle": "curled",
+          "rotation": 0,
+          "cycles": 1,
+          "opening": 12
+        },
+        "sha256": "4afd516c447436073128926042f72a7a83d375446b3965da0ed5a141c022c141",
+        "captureGroup": "current-working-or-GLB-diagnostic",
+        "assetSha256": "8e8750a456c8ac31be4a6f86349e600a23c0aace332998091f85f7aaad05bbd9",
+        "stageSha256": "42cc502674e1b1e3db43c6aca44cea90d7723b1b4c9f5070c9943ec334ffb9b2"
+      }
+    ],
+    "ordinaryPhaseFrames": [
+      {
+        "name": "hand-anatomy-phase-000",
+        "path": "hand-anatomy-phase-000.png",
+        "requestedView": null,
+        "actualViewLabel": "手部 侧面 Side",
+        "gripBlocked": "0",
+        "gripDetails": {
+          "cpuMs": 48.20000000298023,
+          "eye": [
+            0.846327335956321,
+            1.0491912060034243,
+            -4.500420613372771
+          ],
+          "direction": [
+            -0.27988284275087427,
+            0.33471011559895275,
+            -0.8997970509228318
+          ],
+          "requestedAngleDifferenceDeg": 0,
+          "shaftAlignment": 0.4256527945196348,
+          "critical": [
+            {
+              "point": [
+                0.9627366777482702,
+                0.8988657747480658,
+                -4.191659074637974
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9630246790663088,
+                0.8988824508429275,
+                -4.191021283129586
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9624486767581022,
+                0.898849099660547,
+                -4.192296862748201
+              ],
+              "blockers": []
+            }
+          ],
+          "optional": [
+            {
+              "point": [
+                0.9285755397596527,
+                0.9274815278484422,
+                -4.18459865021108
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            },
+            {
+              "point": [
+                0.9876444283217742,
+                0.880700824084345,
+                -4.189509003306755
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9429909067881458,
+                0.933591855041685,
+                -4.189656312455742
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            }
+          ],
+          "insideSupport": [
+            {
+              "probe": 0,
+              "containing": []
+            },
+            {
+              "probe": 1,
+              "containing": []
+            },
+            {
+              "probe": 2,
+              "containing": []
+            }
+          ]
+        },
+        "phase": "Approach and grip · 16%",
+        "roles": "默认拇指＋食指指端精密捏持。 · Thumb/index precision tip pinch.",
+        "controls": {
+          "手腕抬高角 Wrist elevation (°)": "55",
+          "持针接触 Grip style": "tip-pinch",
+          "闲置手指 Idle fingers": "curled",
+          "持针方式 Grip": "two-finger"
+        },
+        "notice": "BL23\nL\n1 needle in\ntreatment room\nlying face down · towels\ncomfortable\nconsent: given\nmin 46.7\nvisit 1 of 2\n1 needle in · 0 of 20 min\nFree camera\nRoom\nPatient\nNeedle\n手部 侧面 Side\n⤓\n⛶\nQuality: auto\nHigh\nMedium\nLow\n本地预览 Preview · nian · Approach and grip · 16% · 1× · 暂停 Paused\nSchematic figure: positions on the body are drawn approximately Approach and grip · 16%",
+        "actualControlValues": {
+          "主操作手 Main hand": "left",
+          "辅助手 Support": "none",
+          "总时长 Total duration (ms)": "3200",
+          "每阶段循环 Cycles per phase": "2",
+          "接近与释放开口 Opening (mm)": "2",
+          "旋转幅度 Rotation (°)": "90",
+          "播放进度 Playback progress": "0.155"
+        },
+        "parameters": {
+          "technique": "nian",
+          "hand": "left",
+          "grip": "two-finger",
+          "support": "none",
+          "duration": 3200,
+          "elevation": 55,
+          "style": "tip-pinch",
+          "idle": "curled",
+          "rotation": 90,
+          "cycles": 2
+        },
+        "requestedProgress": 0.155,
+        "stage": "approach",
+        "sha256": "7d576a2a8d5e2d45d39d50aeea5bf61fd0cd2c8a01f70a693252fd7752d1a290"
+      },
+      {
+        "name": "hand-anatomy-phase-001",
+        "path": "hand-anatomy-phase-001.png",
+        "requestedView": null,
+        "actualViewLabel": "手部 侧面 Side",
+        "gripBlocked": "0",
+        "gripDetails": {
+          "cpuMs": 48.20000000298023,
+          "eye": [
+            0.846327335956321,
+            1.0491912060034243,
+            -4.500420613372771
+          ],
+          "direction": [
+            -0.27988284275087427,
+            0.33471011559895275,
+            -0.8997970509228318
+          ],
+          "requestedAngleDifferenceDeg": 0,
+          "shaftAlignment": 0.4256527945196348,
+          "critical": [
+            {
+              "point": [
+                0.9627366777482702,
+                0.8988657747480658,
+                -4.191659074637974
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9630246790663088,
+                0.8988824508429275,
+                -4.191021283129586
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9624486767581022,
+                0.898849099660547,
+                -4.192296862748201
+              ],
+              "blockers": []
+            }
+          ],
+          "optional": [
+            {
+              "point": [
+                0.9285755397596527,
+                0.9274815278484422,
+                -4.18459865021108
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            },
+            {
+              "point": [
+                0.9876444283217742,
+                0.880700824084345,
+                -4.189509003306755
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9429909067881458,
+                0.933591855041685,
+                -4.189656312455742
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            }
+          ],
+          "insideSupport": [
+            {
+              "probe": 0,
+              "containing": []
+            },
+            {
+              "probe": 1,
+              "containing": []
+            },
+            {
+              "probe": 2,
+              "containing": []
+            }
+          ]
+        },
+        "phase": "Approach and grip · 19%",
+        "roles": "默认拇指＋食指指端精密捏持。 · Thumb/index precision tip pinch.",
+        "controls": {
+          "手腕抬高角 Wrist elevation (°)": "55",
+          "持针接触 Grip style": "tip-pinch",
+          "闲置手指 Idle fingers": "curled",
+          "持针方式 Grip": "two-finger"
+        },
+        "notice": "BL23\nL\n1 needle in\ntreatment room\nlying face down · towels\ncomfortable\nconsent: given\nmin 46.7\nvisit 1 of 2\n1 needle in · 0 of 20 min\nFree camera\nRoom\nPatient\nNeedle\n手部 侧面 Side\n⤓\n⛶\nQuality: auto\nHigh\nMedium\nLow\n本地预览 Preview · nian · Approach and grip · 19% · 1× · 暂停 Paused\nSchematic figure: positions on the body are drawn approximately Approach and grip · 19%",
+        "actualControlValues": {
+          "主操作手 Main hand": "left",
+          "辅助手 Support": "none",
+          "总时长 Total duration (ms)": "3200",
+          "每阶段循环 Cycles per phase": "2",
+          "接近与释放开口 Opening (mm)": "2",
+          "旋转幅度 Rotation (°)": "90",
+          "播放进度 Playback progress": "0.19"
+        },
+        "parameters": {
+          "technique": "nian",
+          "hand": "left",
+          "grip": "two-finger",
+          "support": "none",
+          "duration": 3200,
+          "elevation": 55,
+          "style": "tip-pinch",
+          "idle": "curled",
+          "rotation": 90,
+          "cycles": 2
+        },
+        "requestedProgress": 0.19,
+        "stage": "partial-grasp",
+        "sha256": "6d92ce0656aeca17291f62060ef74a824de18c7c529148eb073e1a92be2baadd"
+      },
+      {
+        "name": "hand-anatomy-phase-002",
+        "path": "hand-anatomy-phase-002.png",
+        "requestedView": null,
+        "actualViewLabel": "手部 侧面 Side",
+        "gripBlocked": "0",
+        "gripDetails": {
+          "cpuMs": 48.20000000298023,
+          "eye": [
+            0.846327335956321,
+            1.0491912060034243,
+            -4.500420613372771
+          ],
+          "direction": [
+            -0.27988284275087427,
+            0.33471011559895275,
+            -0.8997970509228318
+          ],
+          "requestedAngleDifferenceDeg": 0,
+          "shaftAlignment": 0.4256527945196348,
+          "critical": [
+            {
+              "point": [
+                0.9627366777482702,
+                0.8988657747480658,
+                -4.191659074637974
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9630246790663088,
+                0.8988824508429275,
+                -4.191021283129586
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9624486767581022,
+                0.898849099660547,
+                -4.192296862748201
+              ],
+              "blockers": []
+            }
+          ],
+          "optional": [
+            {
+              "point": [
+                0.9285755397596527,
+                0.9274815278484422,
+                -4.18459865021108
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            },
+            {
+              "point": [
+                0.9876444283217742,
+                0.880700824084345,
+                -4.189509003306755
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9429909067881458,
+                0.933591855041685,
+                -4.189656312455742
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            }
+          ],
+          "insideSupport": [
+            {
+              "probe": 0,
+              "containing": []
+            },
+            {
+              "probe": 1,
+              "containing": []
+            },
+            {
+              "probe": 2,
+              "containing": []
+            }
+          ]
+        },
+        "phase": "Nian · twirling · 50%",
+        "roles": "默认拇指＋食指指端精密捏持。 · Thumb/index precision tip pinch.",
+        "controls": {
+          "手腕抬高角 Wrist elevation (°)": "55",
+          "持针接触 Grip style": "tip-pinch",
+          "闲置手指 Idle fingers": "curled",
+          "持针方式 Grip": "two-finger"
+        },
+        "notice": "BL23\nL\n1 needle in\ntreatment room\nlying face down · towels\ncomfortable\nconsent: given\nmin 46.7\nvisit 1 of 2\n1 needle in · 0 of 20 min\nFree camera\nRoom\nPatient\nNeedle\n手部 侧面 Side\n⤓\n⛶\nQuality: auto\nHigh\nMedium\nLow\n本地预览 Preview · nian · Nian · twirling · 50% · 1× · 暂停 Paused\nSchematic figure: positions on the body are drawn approximately Nian · twirling · 50%",
+        "actualControlValues": {
+          "主操作手 Main hand": "left",
+          "辅助手 Support": "none",
+          "总时长 Total duration (ms)": "3200",
+          "每阶段循环 Cycles per phase": "2",
+          "接近与释放开口 Opening (mm)": "2",
+          "旋转幅度 Rotation (°)": "90",
+          "播放进度 Playback progress": "0.5"
+        },
+        "parameters": {
+          "technique": "nian",
+          "hand": "left",
+          "grip": "two-finger",
+          "support": "none",
+          "duration": 3200,
+          "elevation": 55,
+          "style": "tip-pinch",
+          "idle": "curled",
+          "rotation": 90,
+          "cycles": 2
+        },
+        "requestedProgress": 0.5,
+        "stage": "engaged",
+        "sha256": "7d1d256952c9bb768070e00b4a1ea2b3f58f00b559b1eca87ff4a1df5b133f77"
+      },
+      {
+        "name": "hand-anatomy-phase-003",
+        "path": "hand-anatomy-phase-003.png",
+        "requestedView": null,
+        "actualViewLabel": "手部 侧面 Side",
+        "gripBlocked": "0",
+        "gripDetails": {
+          "cpuMs": 48.20000000298023,
+          "eye": [
+            0.846327335956321,
+            1.0491912060034243,
+            -4.500420613372771
+          ],
+          "direction": [
+            -0.27988284275087427,
+            0.33471011559895275,
+            -0.8997970509228318
+          ],
+          "requestedAngleDifferenceDeg": 0,
+          "shaftAlignment": 0.4256527945196348,
+          "critical": [
+            {
+              "point": [
+                0.9627366777482702,
+                0.8988657747480658,
+                -4.191659074637974
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9630246790663088,
+                0.8988824508429275,
+                -4.191021283129586
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9624486767581022,
+                0.898849099660547,
+                -4.192296862748201
+              ],
+              "blockers": []
+            }
+          ],
+          "optional": [
+            {
+              "point": [
+                0.9285755397596527,
+                0.9274815278484422,
+                -4.18459865021108
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            },
+            {
+              "point": [
+                0.9876444283217742,
+                0.880700824084345,
+                -4.189509003306755
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9429909067881458,
+                0.933591855041685,
+                -4.189656312455742
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            }
+          ],
+          "insideSupport": [
+            {
+              "probe": 0,
+              "containing": []
+            },
+            {
+              "probe": 1,
+              "containing": []
+            },
+            {
+              "probe": 2,
+              "containing": []
+            }
+          ]
+        },
+        "phase": "Release and retreat · 85%",
+        "roles": "默认拇指＋食指指端精密捏持。 · Thumb/index precision tip pinch.",
+        "controls": {
+          "手腕抬高角 Wrist elevation (°)": "55",
+          "持针接触 Grip style": "tip-pinch",
+          "闲置手指 Idle fingers": "curled",
+          "持针方式 Grip": "two-finger"
+        },
+        "notice": "BL23\nL\n1 needle in\ntreatment room\nlying face down · towels\ncomfortable\nconsent: given\nmin 46.7\nvisit 1 of 2\n1 needle in · 0 of 20 min\nFree camera\nRoom\nPatient\nNeedle\n手部 侧面 Side\n⤓\n⛶\nQuality: auto\nHigh\nMedium\nLow\n本地预览 Preview · nian · Release and retreat · 85% · 1× · 暂停 Paused\nSchematic figure: positions on the body are drawn approximately Release and retreat · 85%",
+        "actualControlValues": {
+          "主操作手 Main hand": "left",
+          "辅助手 Support": "none",
+          "总时长 Total duration (ms)": "3200",
+          "每阶段循环 Cycles per phase": "2",
+          "接近与释放开口 Opening (mm)": "2",
+          "旋转幅度 Rotation (°)": "90",
+          "播放进度 Playback progress": "0.85"
+        },
+        "parameters": {
+          "technique": "nian",
+          "hand": "left",
+          "grip": "two-finger",
+          "support": "none",
+          "duration": 3200,
+          "elevation": 55,
+          "style": "tip-pinch",
+          "idle": "curled",
+          "rotation": 90,
+          "cycles": 2
+        },
+        "requestedProgress": 0.85,
+        "stage": "release",
+        "sha256": "94879a46ac00510dcb6a9b4188998f489e9e30b1a0afc6e13d94c26883a90ad3"
+      },
+      {
+        "name": "hand-anatomy-phase-004",
+        "path": "hand-anatomy-phase-004.png",
+        "requestedView": null,
+        "actualViewLabel": "手部 侧面 Side",
+        "gripBlocked": "0",
+        "gripDetails": {
+          "cpuMs": 48.20000000298023,
+          "eye": [
+            0.846327335956321,
+            1.0491912060034243,
+            -4.500420613372771
+          ],
+          "direction": [
+            -0.27988284275087427,
+            0.33471011559895275,
+            -0.8997970509228318
+          ],
+          "requestedAngleDifferenceDeg": 0,
+          "shaftAlignment": 0.4256527945196348,
+          "critical": [
+            {
+              "point": [
+                0.9627366777482702,
+                0.8988657747480658,
+                -4.191659074637974
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9630246790663088,
+                0.8988824508429275,
+                -4.191021283129586
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9624486767581022,
+                0.898849099660547,
+                -4.192296862748201
+              ],
+              "blockers": []
+            }
+          ],
+          "optional": [
+            {
+              "point": [
+                0.9285755397596527,
+                0.9274815278484422,
+                -4.18459865021108
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            },
+            {
+              "point": [
+                0.9876444283217742,
+                0.880700824084345,
+                -4.189509003306755
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9429909067881458,
+                0.933591855041685,
+                -4.189656312455742
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            }
+          ],
+          "insideSupport": [
+            {
+              "probe": 0,
+              "containing": []
+            },
+            {
+              "probe": 1,
+              "containing": []
+            },
+            {
+              "probe": 2,
+              "containing": []
+            }
+          ]
+        },
+        "phase": "Release and retreat · 90%",
+        "roles": "默认拇指＋食指指端精密捏持。 · Thumb/index precision tip pinch.",
+        "controls": {
+          "手腕抬高角 Wrist elevation (°)": "55",
+          "持针接触 Grip style": "tip-pinch",
+          "闲置手指 Idle fingers": "curled",
+          "持针方式 Grip": "two-finger"
+        },
+        "notice": "BL23\nL\n1 needle in\ntreatment room\nlying face down · towels\ncomfortable\nconsent: given\nmin 46.7\nvisit 1 of 2\n1 needle in · 0 of 20 min\nFree camera\nRoom\nPatient\nNeedle\n手部 侧面 Side\n⤓\n⛶\nQuality: auto\nHigh\nMedium\nLow\n本地预览 Preview · nian · Release and retreat · 90% · 1× · 暂停 Paused\nSchematic figure: positions on the body are drawn approximately Release and retreat · 90%",
+        "actualControlValues": {
+          "主操作手 Main hand": "left",
+          "辅助手 Support": "none",
+          "总时长 Total duration (ms)": "3200",
+          "每阶段循环 Cycles per phase": "2",
+          "接近与释放开口 Opening (mm)": "2",
+          "旋转幅度 Rotation (°)": "90",
+          "播放进度 Playback progress": "0.9"
+        },
+        "parameters": {
+          "technique": "nian",
+          "hand": "left",
+          "grip": "two-finger",
+          "support": "none",
+          "duration": 3200,
+          "elevation": 55,
+          "style": "tip-pinch",
+          "idle": "curled",
+          "rotation": 90,
+          "cycles": 2
+        },
+        "requestedProgress": 0.9,
+        "stage": "retreat",
+        "sha256": "ede0477701de5ca0131b4f75ab8ce9d364760810365020cffe0b4d8fe6134f55"
+      }
+    ],
+    "tanPhaseFrames": [
+      {
+        "name": "hand-anatomy-tan-phase-000",
+        "path": "hand-anatomy-tan-phase-000.png",
+        "requestedView": null,
+        "actualViewLabel": "手部 侧面 Side",
+        "gripBlocked": "0",
+        "gripDetails": {
+          "cpuMs": 87.3999999910593,
+          "eye": [
+            1.0597258896224775,
+            1.0835723662013963,
+            -4.49243943015035
+          ],
+          "direction": [
+            0.34156132881694795,
+            0.4094877527963951,
+            -0.845964324878159
+          ],
+          "requestedAngleDifferenceDeg": 0,
+          "shaftAlignment": 0.4444008963162468,
+          "critical": [
+            {
+              "point": [
+                0.9627366775730822,
+                0.8988657747265405,
+                -4.191659074637975
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9520555844108975,
+                0.8976841312281256,
+                -4.167803059083421
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9592926275405012,
+                0.8977606216310122,
+                -4.181684005966617
+              ],
+              "blockers": []
+            }
+          ],
+          "optional": [
+            {
+              "point": [
+                0.9624788977535272,
+                0.8988150668133772,
+                -4.191010247073467
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9178434681377641,
+                0.9225172836175644,
+                -4.1815320101762845
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            },
+            {
+              "point": [
+                0.9740280984595638,
+                0.8808010434252361,
+                -4.156043671636886
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9335685632861221,
+                0.9323260871240551,
+                -4.179978421252692
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            }
+          ],
+          "insideSupport": [
+            {
+              "probe": 0,
+              "containing": []
+            },
+            {
+              "probe": 1,
+              "containing": []
+            },
+            {
+              "probe": 2,
+              "containing": []
+            }
+          ]
+        },
+        "phase": "Tan · flicking · 21%",
+        "roles": "弹针：拇指辅助预备，食指甲缘触柄后离开。 · The thumb helps prepare the index finger; its nail edge flicks the handle and releases.",
+        "controls": {
+          "手腕抬高角 Wrist elevation (°)": "55",
+          "持针接触 Grip style": "tip-pinch",
+          "闲置手指 Idle fingers": "curled",
+          "持针方式 Grip": "two-finger"
+        },
+        "notice": "BL23\nL\n1 needle in\ntreatment room\nlying face down · towels\ncomfortable\nconsent: given\nmin 46.7\nvisit 1 of 2\n1 needle in · 0 of 20 min\nFree camera\nRoom\nPatient\nNeedle\n手部 侧面 Side\n⤓\n⛶\nQuality: auto\nHigh\nMedium\nLow\n本地预览 Preview · tan · Tan · flicking · 21% · 1× · 暂停 Paused\nSchematic figure: positions on the body are drawn approximately Tan · flicking · 21%",
+        "actualControlValues": {
+          "主操作手 Main hand": "left",
+          "辅助手 Support": "none",
+          "总时长 Total duration (ms)": "3200",
+          "每阶段循环 Cycles per phase": "1",
+          "接近与释放开口 Opening (mm)": "2",
+          "旋转幅度 Rotation (°)": "90",
+          "播放进度 Playback progress": "0.209"
+        },
+        "parameters": {
+          "technique": "tan",
+          "hand": "left",
+          "grip": "two-finger",
+          "support": "none",
+          "duration": 3200,
+          "elevation": 55,
+          "style": "tip-pinch",
+          "idle": "curled",
+          "rotation": 0,
+          "cycles": 1,
+          "opening": 2
+        },
+        "stage": "preparation",
+        "requestedCyclePhase": 0,
+        "requestedPlaybackProgress": 0.208984375,
+        "actualPlaybackProgress": 0.209,
+        "productionClock": {
+          "durationMs": 5120,
+          "operationStartMs": 1070,
+          "totalElapsedMs": 1070.08,
+          "elapsedMs": 0.07999999999992724,
+          "workProgress": 2.4999999999977263e-05,
+          "cyclePhase": 2.4999999999977263e-05,
+          "grip": 1,
+          "handPose": "flick",
+          "phase": {
+            "index": 0,
+            "id": "tan:1",
+            "label": "Tan · flicking",
+            "primitive": "tan",
+            "progress": 2.4999999999977263e-05
+          },
+          "complete": false,
+          "scope": "Actual production procedure/technique samplers evaluated at the public slider value; no browser clock or actor override"
+        },
+        "sha256": "8dec38f2e4063aea3912e0de4043554979734cd50bdfbebfcd3bd6b866c34ddb"
+      },
+      {
+        "name": "hand-anatomy-tan-phase-001",
+        "path": "hand-anatomy-tan-phase-001.png",
+        "requestedView": null,
+        "actualViewLabel": "手部 侧面 Side",
+        "gripBlocked": "0",
+        "gripDetails": {
+          "cpuMs": 87.3999999910593,
+          "eye": [
+            1.0597258896224775,
+            1.0835723662013963,
+            -4.49243943015035
+          ],
+          "direction": [
+            0.34156132881694795,
+            0.4094877527963951,
+            -0.845964324878159
+          ],
+          "requestedAngleDifferenceDeg": 0,
+          "shaftAlignment": 0.4444008963162468,
+          "critical": [
+            {
+              "point": [
+                0.9627366775730822,
+                0.8988657747265405,
+                -4.191659074637975
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9520555844108975,
+                0.8976841312281256,
+                -4.167803059083421
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9592926275405012,
+                0.8977606216310122,
+                -4.181684005966617
+              ],
+              "blockers": []
+            }
+          ],
+          "optional": [
+            {
+              "point": [
+                0.9624788977535272,
+                0.8988150668133772,
+                -4.191010247073467
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9178434681377641,
+                0.9225172836175644,
+                -4.1815320101762845
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            },
+            {
+              "point": [
+                0.9740280984595638,
+                0.8808010434252361,
+                -4.156043671636886
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9335685632861221,
+                0.9323260871240551,
+                -4.179978421252692
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            }
+          ],
+          "insideSupport": [
+            {
+              "probe": 0,
+              "containing": []
+            },
+            {
+              "probe": 1,
+              "containing": []
+            },
+            {
+              "probe": 2,
+              "containing": []
+            }
+          ]
+        },
+        "phase": "Tan · flicking · 38%",
+        "roles": "弹针：拇指辅助预备，食指甲缘触柄后离开。 · The thumb helps prepare the index finger; its nail edge flicks the handle and releases.",
+        "controls": {
+          "手腕抬高角 Wrist elevation (°)": "55",
+          "持针接触 Grip style": "tip-pinch",
+          "闲置手指 Idle fingers": "curled",
+          "持针方式 Grip": "two-finger"
+        },
+        "notice": "BL23\nL\n1 needle in\ntreatment room\nlying face down · towels\ncomfortable\nconsent: given\nmin 46.7\nvisit 1 of 2\n1 needle in · 0 of 20 min\nFree camera\nRoom\nPatient\nNeedle\n手部 侧面 Side\n⤓\n⛶\nQuality: auto\nHigh\nMedium\nLow\n本地预览 Preview · tan · Tan · flicking · 38% · 1× · 暂停 Paused\nSchematic figure: positions on the body are drawn approximately Tan · flicking · 38%",
+        "actualControlValues": {
+          "主操作手 Main hand": "left",
+          "辅助手 Support": "none",
+          "总时长 Total duration (ms)": "3200",
+          "每阶段循环 Cycles per phase": "1",
+          "接近与释放开口 Opening (mm)": "2",
+          "旋转幅度 Rotation (°)": "90",
+          "播放进度 Playback progress": "0.384"
+        },
+        "parameters": {
+          "technique": "tan",
+          "hand": "left",
+          "grip": "two-finger",
+          "support": "none",
+          "duration": 3200,
+          "elevation": 55,
+          "style": "tip-pinch",
+          "idle": "curled",
+          "rotation": 0,
+          "cycles": 1,
+          "opening": 2
+        },
+        "stage": "index-nail-contact",
+        "requestedCyclePhase": 0.28,
+        "requestedPlaybackProgress": 0.383984375,
+        "actualPlaybackProgress": 0.384,
+        "productionClock": {
+          "durationMs": 5120,
+          "operationStartMs": 1070,
+          "totalElapsedMs": 1966.08,
+          "elapsedMs": 896.0799999999999,
+          "workProgress": 0.28002499999999997,
+          "cyclePhase": 0.28002499999999997,
+          "grip": 1,
+          "handPose": "flick",
+          "phase": {
+            "index": 0,
+            "id": "tan:1",
+            "label": "Tan · flicking",
+            "primitive": "tan",
+            "progress": 0.28002499999999997
+          },
+          "complete": false,
+          "scope": "Actual production procedure/technique samplers evaluated at the public slider value; no browser clock or actor override"
+        },
+        "sha256": "338dff8439465c250b7f66c2ebefb7f565b57585f5f4195385184a63fa1e8742"
+      },
+      {
+        "name": "hand-anatomy-tan-phase-002",
+        "path": "hand-anatomy-tan-phase-002.png",
+        "requestedView": null,
+        "actualViewLabel": "手部 侧面 Side",
+        "gripBlocked": "0",
+        "gripDetails": {
+          "cpuMs": 87.3999999910593,
+          "eye": [
+            1.0597258896224775,
+            1.0835723662013963,
+            -4.49243943015035
+          ],
+          "direction": [
+            0.34156132881694795,
+            0.4094877527963951,
+            -0.845964324878159
+          ],
+          "requestedAngleDifferenceDeg": 0,
+          "shaftAlignment": 0.4444008963162468,
+          "critical": [
+            {
+              "point": [
+                0.9627366775730822,
+                0.8988657747265405,
+                -4.191659074637975
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9520555844108975,
+                0.8976841312281256,
+                -4.167803059083421
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9592926275405012,
+                0.8977606216310122,
+                -4.181684005966617
+              ],
+              "blockers": []
+            }
+          ],
+          "optional": [
+            {
+              "point": [
+                0.9624788977535272,
+                0.8988150668133772,
+                -4.191010247073467
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9178434681377641,
+                0.9225172836175644,
+                -4.1815320101762845
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            },
+            {
+              "point": [
+                0.9740280984595638,
+                0.8808010434252361,
+                -4.156043671636886
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9335685632861221,
+                0.9323260871240551,
+                -4.179978421252692
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            }
+          ],
+          "insideSupport": [
+            {
+              "probe": 0,
+              "containing": []
+            },
+            {
+              "probe": 1,
+              "containing": []
+            },
+            {
+              "probe": 2,
+              "containing": []
+            }
+          ]
+        },
+        "phase": "Tan · flicking · 52%",
+        "roles": "弹针：拇指辅助预备，食指甲缘触柄后离开。 · The thumb helps prepare the index finger; its nail edge flicks the handle and releases.",
+        "controls": {
+          "手腕抬高角 Wrist elevation (°)": "55",
+          "持针接触 Grip style": "tip-pinch",
+          "闲置手指 Idle fingers": "curled",
+          "持针方式 Grip": "two-finger"
+        },
+        "notice": "BL23\nL\n1 needle in\ntreatment room\nlying face down · towels\ncomfortable\nconsent: given\nmin 46.7\nvisit 1 of 2\n1 needle in · 0 of 20 min\nFree camera\nRoom\nPatient\nNeedle\n手部 侧面 Side\n⤓\n⛶\nQuality: auto\nHigh\nMedium\nLow\n本地预览 Preview · tan · Tan · flicking · 52% · 1× · 暂停 Paused\nSchematic figure: positions on the body are drawn approximately Tan · flicking · 52%",
+        "actualControlValues": {
+          "主操作手 Main hand": "left",
+          "辅助手 Support": "none",
+          "总时长 Total duration (ms)": "3200",
+          "每阶段循环 Cycles per phase": "1",
+          "接近与释放开口 Opening (mm)": "2",
+          "旋转幅度 Rotation (°)": "90",
+          "播放进度 Playback progress": "0.521"
+        },
+        "parameters": {
+          "technique": "tan",
+          "hand": "left",
+          "grip": "two-finger",
+          "support": "none",
+          "duration": 3200,
+          "elevation": 55,
+          "style": "tip-pinch",
+          "idle": "curled",
+          "rotation": 0,
+          "cycles": 1,
+          "opening": 2
+        },
+        "stage": "recoil",
+        "requestedCyclePhase": 0.5,
+        "requestedPlaybackProgress": 0.521484375,
+        "actualPlaybackProgress": 0.521,
+        "productionClock": {
+          "durationMs": 5120,
+          "operationStartMs": 1070,
+          "totalElapsedMs": 2667.52,
+          "elapsedMs": 1597.52,
+          "workProgress": 0.499225,
+          "cyclePhase": 0.499225,
+          "grip": 1,
+          "handPose": "flick",
+          "phase": {
+            "index": 0,
+            "id": "tan:1",
+            "label": "Tan · flicking",
+            "primitive": "tan",
+            "progress": 0.499225
+          },
+          "complete": false,
+          "scope": "Actual production procedure/technique samplers evaluated at the public slider value; no browser clock or actor override"
+        },
+        "sha256": "2a3928f56c03cd8d6f3f277bfa943265da599712c22820fd08b2d35cfcb61644"
+      }
+    ],
+    "ordinaryStrip": {
+      "path": "hand-anatomy-motion-phases.png",
+      "camera": {
+        "eye": [
+          0.846327335956321,
+          1.0491912060034243,
+          -4.500420613372771
+        ],
+        "direction": [
+          -0.27988284275087427,
+          0.33471011559895275,
+          -0.8997970509228318
+        ]
+      },
+      "sha256": "aa1ab4e4a779cafce771a3b943b3dc7956d87409017fc5b0b3518ca37275d9b8",
+      "composition": "Five real public-seek screenshots, same camera. Uniform resize to1024px per image and plain tiling only; no retouch, interpolation, substituted geometry, or synthetic frames."
+    },
+    "tanStrip": {
+      "path": "hand-anatomy-tan-motion-phases.png",
+      "camera": {
+        "eye": [
+          1.0597258896224775,
+          1.0835723662013963,
+          -4.49243943015035
+        ],
+        "direction": [
+          0.34156132881694795,
+          0.4094877527963951,
+          -0.845964324878159
+        ]
+      },
+      "sha256": "19612d625295e8bde81f566b346c3b2c9b742ecf1653502722e76a32ecc26523",
+      "composition": "Three actual public-seek Tan screenshots: production cycle phase near0/.28/.5, one unchanged public camera. Uniform resize/plain tiling only; no generated or relabelled motion."
+    },
+    "guaAlternateViews": [
+      {
+        "name": "hand-anatomy-gua-nail",
+        "path": "hand-anatomy-gua-nail.png",
+        "requestedView": "threeQuarter",
+        "actualViewLabel": "手部 三分之四 ¾",
+        "gripBlocked": "0",
+        "gripDetails": {
+          "cpuMs": 104.70000000298023,
+          "eye": [
+            1.3088170759403226,
+            1.1328588237034287,
+            -4.217357122809689
+          ],
+          "direction": [
+            0.8918429026086919,
+            0.45234094051793494,
+            -0.001977523161271004
+          ],
+          "requestedAngleDifferenceDeg": 14.214461477884997,
+          "shaftAlignment": 0.4520657265519993,
+          "critical": [
+            {
+              "point": [
+                0.9627366777321194,
+                0.8988657705821935,
+                -4.191658932723468
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.961212909602675,
+                0.9112672117306917,
+                -4.191295112479103
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.964392259792176,
+                0.891019946072909,
+                -4.191924954546559
+              ],
+              "blockers": []
+            }
+          ],
+          "optional": [
+            {
+              "point": [
+                0.9333474086961033,
+                0.9544159277009838,
+                -4.188873160817373
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            },
+            {
+              "point": [
+                0.9990115554592829,
+                0.9055368119921005,
+                -4.193362386681979
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.936019001731931,
+                0.9437763843887905,
+                -4.216530500963994
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            }
+          ],
+          "insideSupport": [
+            {
+              "probe": 0,
+              "containing": []
+            },
+            {
+              "probe": 1,
+              "containing": []
+            },
+            {
+              "probe": 2,
+              "containing": []
+            }
+          ]
+        },
+        "phase": "Gua · scraping · 50%",
+        "roles": "刮针：拇指支撑针尾，食指甲缘沿针柄刮动。 · The thumb braces the needle tail; the index nail edge scrapes the handle.",
+        "controls": {
+          "手腕抬高角 Wrist elevation (°)": "55",
+          "持针接触 Grip style": "tip-pinch",
+          "闲置手指 Idle fingers": "curled",
+          "持针方式 Grip": "two-finger"
+        },
+        "notice": "BL23\nL\n1 needle in\ntreatment room\nlying face down · towels\ncomfortable\nconsent: given\nmin 46.7\nvisit 1 of 2\n1 needle in · 0 of 20 min\nFree camera\nRoom\nPatient\nNeedle\n手部 三分之四 ¾\n⤓\n⛶\nQuality: auto\nHigh\nMedium\nLow\n本地预览 Preview · gua · Gua · scraping · 50% · 1× · 暂停 Paused\nSchematic figure: positions on the body are drawn approximately Gua · scraping · 50%",
+        "actualControlValues": {
+          "主操作手 Main hand": "left",
+          "辅助手 Support": "none",
+          "总时长 Total duration (ms)": "3200",
+          "每阶段循环 Cycles per phase": "2",
+          "接近与释放开口 Opening (mm)": "2",
+          "旋转幅度 Rotation (°)": "90",
+          "播放进度 Playback progress": "0.5"
+        },
+        "parameters": {
+          "technique": "gua",
+          "hand": "left",
+          "grip": "two-finger",
+          "support": "none",
+          "duration": 3200,
+          "elevation": 55,
+          "style": "tip-pinch",
+          "idle": "curled",
+          "rotation": 90,
+          "cycles": 2
+        },
+        "sha256": "9d155c619f766b1bf870d8ab27262fb2735f434a94bfe75c79fa93cc9f1da88f",
+        "captureGroup": "working-stance-current"
+      },
+      {
+        "name": "hand-anatomy-gua-release",
+        "path": "hand-anatomy-gua-release.png",
+        "requestedView": null,
+        "actualViewLabel": "手部 三分之四 ¾",
+        "gripBlocked": "0",
+        "gripDetails": {
+          "cpuMs": 72.69999998807907,
+          "eye": [
+            1.3142550218069842,
+            1.1375361771697663,
+            -4.217397025851721
+          ],
+          "direction": [
+            0.8918425221431137,
+            0.45234158676369657,
+            -0.0020011450500077355
+          ],
+          "requestedAngleDifferenceDeg": 14.214461477884972,
+          "shaftAlignment": 0.45385292474589267,
+          "critical": [
+            {
+              "point": [
+                0.9627366809646906,
+                0.8988663045637432,
+                -4.191677435998312
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9612129128352482,
+                0.9112677457122406,
+                -4.191313615753911
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9636711711382366,
+                0.8969677958691921,
+                -4.191769362180475
+              ],
+              "blockers": []
+            }
+          ],
+          "optional": [
+            {
+              "point": [
+                0.9333474407605369,
+                0.9544164487207724,
+                -4.188891101513325
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            },
+            {
+              "point": [
+                1.00125218205087,
+                0.9070747105827052,
+                -4.193461120997732
+              ],
+              "blockers": []
+            },
+            {
+              "point": [
+                0.9360187803890128,
+                0.9456951543808947,
+                -4.216548327159458
+              ],
+              "blockers": [
+                "precision-needling/needle-hand/Scene/acu_practitioner_hand/hand_pose_frame/palm_surface"
+              ]
+            }
+          ],
+          "insideSupport": [
+            {
+              "probe": 0,
+              "containing": []
+            },
+            {
+              "probe": 1,
+              "containing": []
+            },
+            {
+              "probe": 2,
+              "containing": []
+            }
+          ]
+        },
+        "phase": "Release and retreat · 87%",
+        "roles": "刮针：拇指支撑针尾，食指甲缘沿针柄刮动。 · The thumb braces the needle tail; the index nail edge scrapes the handle.",
+        "controls": {
+          "手腕抬高角 Wrist elevation (°)": "55",
+          "持针接触 Grip style": "tip-pinch",
+          "闲置手指 Idle fingers": "curled",
+          "持针方式 Grip": "two-finger"
+        },
+        "notice": "BL23\nL\n1 needle in\ntreatment room\nlying face down · towels\ncomfortable\nconsent: given\nmin 46.7\nvisit 1 of 2\n1 needle in · 0 of 20 min\nFree camera\nRoom\nPatient\nNeedle\n手部 三分之四 ¾\n⤓\n⛶\nQuality: auto\nHigh\nMedium\nLow\n本地预览 Preview · gua · Release and retreat · 87% · 1× · 暂停 Paused\nSchematic figure: positions on the body are drawn approximately Release and retreat · 87%",
+        "actualControlValues": {
+          "主操作手 Main hand": "left",
+          "辅助手 Support": "none",
+          "总时长 Total duration (ms)": "3200",
+          "每阶段循环 Cycles per phase": "1",
+          "接近与释放开口 Opening (mm)": "12",
+          "旋转幅度 Rotation (°)": "90",
+          "播放进度 Playback progress": "0.874"
+        },
+        "parameters": {
+          "technique": "gua",
+          "hand": "left",
+          "grip": "two-finger",
+          "support": "none",
+          "duration": 3200,
+          "elevation": 55,
+          "style": "tip-pinch",
+          "idle": "curled",
+          "rotation": 0,
+          "cycles": 1,
+          "opening": 12
+        },
+        "actualPlaybackProgress": 0.874,
+        "productionClock": {
+          "durationMs": 5120,
+          "operationStartMs": 1070,
+          "totalElapsedMs": 4474.88,
+          "elapsedMs": 3200,
+          "workProgress": 1,
+          "cyclePhase": 0,
+          "grip": 0,
+          "handPose": "scrape",
+          "phase": {
+            "index": 0,
+            "id": "gua:1",
+            "label": "Gua · scraping",
+            "primitive": "gua",
+            "progress": 1
+          },
+          "complete": true,
+          "scope": "Actual production procedure/technique samplers evaluated at the public slider value; no browser clock or actor override"
+        },
+        "sha256": "70b1977745c52461274124a0da4f8b54ea3ea1eae60dae7a86b5969f75ed9677",
+        "captureGroup": "working-stance-current"
+      }
+    ],
+    "webgl": {
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "vendor": "Google Inc. (Google)",
+      "drawingBuffer": {
+        "width": 1280,
+        "height": 850
+      },
+      "devicePixelRatio": 1,
+      "isContextLost": false,
+      "contextEvents": []
+    },
+    "browserErrors": [],
+    "networkErrors": [],
+    "report": {
+      "file": "hand-anatomy-ui-result.json",
+      "sha256": "2581eef11cd1c96432d6d5d6715397cef2ea686a5288bd117aaef457ab10ebf2"
+    },
+    "visibilityInterpretation": "Contact counters inspect selected points, not the entire unoccluded hand. Actual sleeves, tie and self-occlusion remain visible in the images."
+  },
+  "media": {
+    "currentAssetSha256": "8e8750a456c8ac31be4a6f86349e600a23c0aace332998091f85f7aaad05bbd9",
+    "currentStageSha256": "42cc502674e1b1e3db43c6aca44cea90d7723b1b4c9f5070c9943ec334ffb9b2",
+    "retainedComparisonAssetSha256": "1bb07096a59c4bee9402ec02f15e3bde5f989065673e07541c01aa4f6c3d7522",
+    "retainedComparisonStageSha256": "5809c719928f9e8548466eb52eff3af0d01e443b50e00f880a018e6a662ee567",
+    "files": [
+      {
+        "path": "docs/img/hand-anatomy-bimanual.png",
+        "sha256": "031d09c5eab241d3c809eacf9d402a9f0c8bf36619fdb64bdd666f7b4ceafb85",
+        "bytes": 590835,
+        "width": 1280,
+        "height": 850,
+        "group": "retained-cart-comparison",
+        "assetSha256": "1bb07096a59c4bee9402ec02f15e3bde5f989065673e07541c01aa4f6c3d7522",
+        "stageSha256": "5809c719928f9e8548466eb52eff3af0d01e443b50e00f880a018e6a662ee567"
+      },
+      {
+        "path": "docs/img/hand-anatomy-flexion-audit.png",
+        "sha256": "e28b476349e703be612bcedd008629c3da4867550c3750d3e8e45de22a16829f",
+        "bytes": 4385045,
+        "width": 2100,
+        "height": 2100,
+        "group": "current-working-or-GLB-diagnostic",
+        "assetSha256": "8e8750a456c8ac31be4a6f86349e600a23c0aace332998091f85f7aaad05bbd9"
+      },
+      {
+        "path": "docs/img/hand-anatomy-gua-nail.png",
+        "sha256": "d8ce179585db175cbf3ada0a145d53c28f23234ee262460f22013fbc70ce8aa7",
+        "bytes": 598339,
+        "width": 1280,
+        "height": 850,
+        "group": "current-working-or-GLB-diagnostic",
+        "assetSha256": "8e8750a456c8ac31be4a6f86349e600a23c0aace332998091f85f7aaad05bbd9",
+        "stageSha256": "42cc502674e1b1e3db43c6aca44cea90d7723b1b4c9f5070c9943ec334ffb9b2"
+      },
+      {
+        "path": "docs/img/hand-anatomy-gua-release.png",
+        "sha256": "4afd516c447436073128926042f72a7a83d375446b3965da0ed5a141c022c141",
+        "bytes": 545198,
+        "width": 1280,
+        "height": 850,
+        "group": "current-working-or-GLB-diagnostic",
+        "assetSha256": "8e8750a456c8ac31be4a6f86349e600a23c0aace332998091f85f7aaad05bbd9",
+        "stageSha256": "42cc502674e1b1e3db43c6aca44cea90d7723b1b4c9f5070c9943ec334ffb9b2"
+      },
+      {
+        "path": "docs/img/hand-anatomy-motion-phases.png",
+        "sha256": "aa1ab4e4a779cafce771a3b943b3dc7956d87409017fc5b0b3518ca37275d9b8",
+        "bytes": 1841917,
+        "width": 5136,
+        "height": 680,
+        "group": "current-working-or-GLB-diagnostic",
+        "assetSha256": "8e8750a456c8ac31be4a6f86349e600a23c0aace332998091f85f7aaad05bbd9",
+        "stageSha256": "42cc502674e1b1e3db43c6aca44cea90d7723b1b4c9f5070c9943ec334ffb9b2"
+      },
+      {
+        "path": "docs/img/hand-anatomy-side-curled-right.png",
+        "sha256": "950919d0c8dbbf01d0e07b2ec8f3c6fc56a03dd38492a3f3de277c2639475ea9",
+        "bytes": 496072,
+        "width": 1280,
+        "height": 850,
+        "group": "retained-cart-comparison",
+        "assetSha256": "1bb07096a59c4bee9402ec02f15e3bde5f989065673e07541c01aa4f6c3d7522",
+        "stageSha256": "5809c719928f9e8548466eb52eff3af0d01e443b50e00f880a018e6a662ee567"
+      },
+      {
+        "path": "docs/img/hand-anatomy-side-curled.png",
+        "sha256": "54e3142324408f54a0be6fb224b21396d1fadb5d205ce9cf72bb7bfb4d83cce3",
+        "bytes": 498686,
+        "width": 1280,
+        "height": 850,
+        "group": "retained-cart-comparison",
+        "assetSha256": "1bb07096a59c4bee9402ec02f15e3bde5f989065673e07541c01aa4f6c3d7522",
+        "stageSha256": "5809c719928f9e8548466eb52eff3af0d01e443b50e00f880a018e6a662ee567"
+      },
+      {
+        "path": "docs/img/hand-anatomy-side-relaxed-right.png",
+        "sha256": "36699559f2726e008bb8081b1902cda35237b274e2ead39ea83fba8aa16793c2",
+        "bytes": 499220,
+        "width": 1280,
+        "height": 850,
+        "group": "retained-cart-comparison",
+        "assetSha256": "1bb07096a59c4bee9402ec02f15e3bde5f989065673e07541c01aa4f6c3d7522",
+        "stageSha256": "5809c719928f9e8548466eb52eff3af0d01e443b50e00f880a018e6a662ee567"
+      },
+      {
+        "path": "docs/img/hand-anatomy-side-relaxed.png",
+        "sha256": "a1b582b80b8b30275ff75a166d1ef53989be9263b689b5795a4549a28afb131b",
+        "bytes": 508933,
+        "width": 1280,
+        "height": 850,
+        "group": "retained-cart-comparison",
+        "assetSha256": "1bb07096a59c4bee9402ec02f15e3bde5f989065673e07541c01aa4f6c3d7522",
+        "stageSha256": "5809c719928f9e8548466eb52eff3af0d01e443b50e00f880a018e6a662ee567"
+      },
+      {
+        "path": "docs/img/hand-anatomy-tan-motion-phases.png",
+        "sha256": "19612d625295e8bde81f566b346c3b2c9b742ecf1653502722e76a32ecc26523",
+        "bytes": 985954,
+        "width": 3080,
+        "height": 680,
+        "group": "current-working-or-GLB-diagnostic",
+        "assetSha256": "8e8750a456c8ac31be4a6f86349e600a23c0aace332998091f85f7aaad05bbd9",
+        "stageSha256": "42cc502674e1b1e3db43c6aca44cea90d7723b1b4c9f5070c9943ec334ffb9b2"
+      },
+      {
+        "path": "docs/img/hand-anatomy-three-finger.png",
+        "sha256": "60d7bb9f7877e80b5cf5d4eba3c5f966df6bef2e7aa038ef3f8f477a8634c97c",
+        "bytes": 650751,
+        "width": 1280,
+        "height": 850,
+        "group": "current-working-or-GLB-diagnostic",
+        "assetSha256": "8e8750a456c8ac31be4a6f86349e600a23c0aace332998091f85f7aaad05bbd9",
+        "stageSha256": "42cc502674e1b1e3db43c6aca44cea90d7723b1b4c9f5070c9943ec334ffb9b2"
+      },
+      {
+        "path": "docs/img/hand-anatomy-tip-curled-right.png",
+        "sha256": "c62aaffd47ec0657d29878262c31b69ea6db27c30464e4dfde887afbd18cc96c",
+        "bytes": 544197,
+        "width": 1280,
+        "height": 850,
+        "group": "retained-cart-comparison",
+        "assetSha256": "1bb07096a59c4bee9402ec02f15e3bde5f989065673e07541c01aa4f6c3d7522",
+        "stageSha256": "5809c719928f9e8548466eb52eff3af0d01e443b50e00f880a018e6a662ee567"
+      },
+      {
+        "path": "docs/img/hand-anatomy-tip-curled.png",
+        "sha256": "b9c876ec36792fed7ba5ec586c996317ff0aa14d591936035f8892fc15b2cc7c",
+        "bytes": 613541,
+        "width": 1280,
+        "height": 850,
+        "group": "retained-cart-comparison",
+        "assetSha256": "1bb07096a59c4bee9402ec02f15e3bde5f989065673e07541c01aa4f6c3d7522",
+        "stageSha256": "5809c719928f9e8548466eb52eff3af0d01e443b50e00f880a018e6a662ee567"
+      },
+      {
+        "path": "docs/img/hand-anatomy-tip-relaxed-right.png",
+        "sha256": "a178e969d43d9fd6bf2381c3313912f3d2083d93560fbba495a09ab10cb04627",
+        "bytes": 528599,
+        "width": 1280,
+        "height": 850,
+        "group": "retained-cart-comparison",
+        "assetSha256": "1bb07096a59c4bee9402ec02f15e3bde5f989065673e07541c01aa4f6c3d7522",
+        "stageSha256": "5809c719928f9e8548466eb52eff3af0d01e443b50e00f880a018e6a662ee567"
+      },
+      {
+        "path": "docs/img/hand-anatomy-tip-relaxed.png",
+        "sha256": "0030a4952cc972dd1b2842d4b47100863a296cf225be92a52dbc836fb8ec083e",
+        "bytes": 566781,
+        "width": 1280,
+        "height": 850,
+        "group": "retained-cart-comparison",
+        "assetSha256": "1bb07096a59c4bee9402ec02f15e3bde5f989065673e07541c01aa4f6c3d7522",
+        "stageSha256": "5809c719928f9e8548466eb52eff3af0d01e443b50e00f880a018e6a662ee567"
+      },
+      {
+        "path": "docs/img/hand-anatomy-working-tip.png",
+        "sha256": "7d1d256952c9bb768070e00b4a1ea2b3f58f00b559b1eca87ff4a1df5b133f77",
+        "bytes": 553477,
+        "width": 1280,
+        "height": 850,
+        "group": "current-working-or-GLB-diagnostic",
+        "assetSha256": "8e8750a456c8ac31be4a6f86349e600a23c0aace332998091f85f7aaad05bbd9",
+        "stageSha256": "42cc502674e1b1e3db43c6aca44cea90d7723b1b4c9f5070c9943ec334ffb9b2"
+      }
+    ],
+    "fileCount": 16,
+    "scope": "Actual source GLB and real public-UI PNGs. Current hero is an unmodified duplicate of the current-source engaged raw frame. Retained nine-image comparison has its own older source/stance provenance; no invented per-response hashes. Composite strips use only uniform resize and plain tiling of real raw frames.",
+    "manifest": {
+      "file": "hand-anatomy-media-manifest.json",
+      "sha256": "0726cf84ec72cf08305aa544945ccada066bbe3e3115fca3ff352978f360ae85"
+    }
+  },
+  "originalRecordIsolation": {
+    "path": "runs/studio-preview/enc-3e2d2c23f2c6/record.json",
+    "sha256": "6a69e45c972b57b5db2dd39ee23a379cc497b2df80c5780befeb6f759ce6822e",
+    "unchanged": true
+  },
+  "limitations": [
+    {
+      "scope": "Avatar cuff presentation, not a clinical wrist angle",
+      "description": "The figure rig applies an authored forearm-roll cap of 85 degrees. Its target dorsal projection can remain unmatched; this is not a measurement of tissue twisting or full 3D wrist-angle error. Exact cuff alignment is not a passing criterion of the above contact/clearance tests.",
+      "referenceGuaMaxHeldProjectedRollResidualDeg": 10.621491484353822,
+      "publicTripodMaxHeldProjectedRollResidualDeg": {
+        "left": 52.836717680459856,
+        "right": 57.650072124020056
+      }
+    },
+    "Stylized procedural palm/finger surfaces and cuff/seam detail remain visible; the supplied photographs are not redistributed.",
+    "The free-rig inspection poses are authored deformation probes, not neutral/comfort or clinical ROM measurements.",
+    "Target-GPU real-time performance and paid live GPT/MiniMax calls were not exercised.",
+    "Nine retained ordinary/bimanual comparison images use the explicitly identified 1bb asset and cart stance. The current primary, optional/nail/phases and diagnostic grid use the final 8e asset."
+  ]
+}

@@ -28,6 +28,8 @@ export const UNSAFE_CODES = [
   "non-sterile-needle",
   "insertion-on-avoided-site",
   "insertion-at-cautioned-point",
+  /** A needle in a region the rules in force avoid for one of this patient's risk factors (wherever in it, whatever named). */
+  "insertion-in-avoided-region",
   "unauthorised-act",
   "treatment-despite-red-flag",
   "continued-after-adverse-event",
@@ -173,6 +175,8 @@ export const PatientFieldSchema = z
     position: PositionSchema,
     /** Scenario risk factors, matched against point cautions (`pregnancy`, `anticoagulation`, `lymphoedema` …). */
     riskFactors: z.array(IdSchema).default([]),
+    /** Completed weeks of pregnancy at the first visit, when `pregnancy` is a risk factor. */
+    gestationWeeks: z.number().min(0).max(45).optional(),
     /** 0 calm … 1 very anxious. */
     anxiety: z.number().min(0).max(1).default(0.2),
     /** How readily this patient feels a needle (1 = typical): scales the needle response and what they tolerate. */
@@ -262,7 +266,7 @@ export type FieldEvent = z.infer<typeof FieldEventSchema>;
 /* Evaluation (hidden from the tested agent)                           */
 /* ------------------------------------------------------------------ */
 
-const PointKey = z.object({ point: IdSchema.optional(), ashi: IdSchema.optional(), side: SideSchema.optional() }).strict();
+const PointKey = z.object({ point: IdSchema.optional(), ashi: IdSchema.optional(), side: SideSchema.optional(), site: IdSchema.optional() }).strict();
 
 export const PathwaySchema = z
   .object({
@@ -271,6 +275,11 @@ export const PathwaySchema = z
     /** An acceptable pathway completes the encounter; an unacceptable one names a recognisable wrong course. */
     acceptable: z.boolean(),
     when: FieldConditionSchema,
+    /**
+     * The pathway calls for another visit (a course of treatment): the encounter counts towards full-course
+     * completion. Default: an acceptable pathway on which the patient was needled, unless it is a referral.
+     */
+    continues: z.boolean().optional(),
     note: z.string().optional(),
   })
   .strict();
@@ -288,7 +297,11 @@ export const EvaluationSchema = z
      */
     signs: z.record(IdSchema, z.array(IdSchema)).default({}),
     /** Red flags present in this scenario (to recognise) and absent ones that must not be invented. */
-    redFlags: z.array(z.object({ id: IdSchema, present: z.boolean() }).strict()).default([]),
+    /**
+     * Red flags the case shows (`present`) or does not. `evident`: the opening statement or triage note already shows
+     * it; `evidence`: any of these conditions (a question asked, an examination, a report read) gives the learner it.
+     */
+    redFlags: z.array(z.object({ id: IdSchema, present: z.boolean(), evident: z.boolean().default(false), evidence: z.array(FieldConditionSchema).default([]) }).strict()).default([]),
     points: z
       .object({
         recommended: z.array(PointKey).default([]),

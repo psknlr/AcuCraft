@@ -206,7 +206,7 @@
         "landmark": "mouth-angle-{side}",
         "offset": {
           "lateral": {
-            "cm": 0.8
+            "fcun": 0.4
           }
         }
       },
@@ -2654,10 +2654,10 @@
         "landmark": "toe2-nail-lateral-corner",
         "offset": {
           "lateral": {
-            "cm": 0.15
+            "fcun": 0.07
           },
           "cranial": {
-            "cm": 0.15
+            "fcun": 0.07
           }
         }
       },

@@ -1,0 +1,240 @@
+{
+  "schema": "clinicalcraft/room-template@1",
+  "id": "acu-skills-room",
+  "name": {
+    "zh-CN": "针灸技能实训室",
+    "en": "Acupuncture skills room"
+  },
+  "description": {
+    "zh-CN": "技能实训室：两个针刺练习台——一具模拟人俯卧练习腰部腧穴，另一具仰卧练习四肢腧穴——各配针具治疗车和圆凳，另有治疗灯、铜人与挂图、耗材架、洗手池和白板。",
+    "en": "A skills room: two needling practice stations — a patient simulator face down for the points of the lower back, another on its back for the points of the limbs — each with a needle trolley and a stool, a heat lamp, the bronze figure and the charts, a supply shelf, a hand-wash sink and a whiteboard."
+  },
+  "kind": "teaching",
+  "size": {
+    "w": 9,
+    "d": 7
+  },
+  "floor": "lino",
+  "partitions": [
+    {
+      "side": "n",
+      "base": "acu-dado"
+    },
+    {
+      "side": "w",
+      "base": "acu-dado"
+    },
+    {
+      "side": "e",
+      "base": "acu-dado"
+    },
+    {
+      "side": "s",
+      "base": "acu-dado",
+      "openings": [
+        {
+          "kind": "door",
+          "width": 1.6,
+          "height": 2.4,
+          "offset": 0
+        }
+      ]
+    }
+  ],
+  "sign": {
+    "text": {
+      "zh-CN": "实训室",
+      "en": "Skills room"
+    },
+    "side": "n"
+  },
+  "lights": [
+    {
+      "x": -2,
+      "z": -0.75
+    },
+    {
+      "x": 1.5,
+      "z": -0.75
+    },
+    {
+      "x": 0,
+      "z": 2
+    }
+  ],
+  "placements": [
+    {
+      "id": "station-prone",
+      "type": "acu-needling-station-prone",
+      "x": -2.0,
+      "z": -0.75,
+      "label": {
+        "zh-CN": "针刺练习台：腰部",
+        "en": "Needling station: lower back"
+      }
+    },
+    {
+      "id": "station-supine",
+      "type": "acu-needling-station-supine",
+      "x": 1.5,
+      "z": -0.75,
+      "label": {
+        "zh-CN": "针刺练习台：四肢",
+        "en": "Needling station: limbs"
+      }
+    },
+    {
+      "id": "trolley-prone",
+      "type": "acu-needle-trolley",
+      "x": -2.0,
+      "z": 0.65,
+      "label": {
+        "zh-CN": "针具治疗车与锐器盒",
+        "en": "Needle trolley and sharps box"
+      }
+    },
+    {
+      "id": "trolley-supine",
+      "type": "acu-needle-trolley",
+      "x": 1.5,
+      "z": 0.65,
+      "label": {
+        "zh-CN": "针具治疗车与锐器盒",
+        "en": "Needle trolley and sharps box"
+      }
+    },
+    {
+      "id": "heat-lamp",
+      "type": "acu-heat-lamp",
+      "x": -2.75,
+      "z": -1.02,
+      "rot": 90,
+      "label": {
+        "zh-CN": "治疗灯",
+        "en": "Heat lamp"
+      }
+    },
+    {
+      "id": "stool-prone",
+      "type": "stool",
+      "x": -1.1,
+      "z": -0.9
+    },
+    {
+      "id": "stool-supine",
+      "type": "stool",
+      "x": 2.4,
+      "z": -0.9
+    },
+    {
+      "id": "model",
+      "type": "acu-meridian-model",
+      "x": -0.25,
+      "z": -3.0
+    },
+    {
+      "id": "chart-west",
+      "type": "acu-meridian-chart",
+      "x": -2.0,
+      "z": -3.3
+    },
+    {
+      "id": "chart-east",
+      "type": "acu-meridian-chart",
+      "x": 1.5,
+      "z": -3.3
+    },
+    {
+      "id": "shelf",
+      "type": "acu-supply-shelf",
+      "x": 4.05,
+      "z": -1.8,
+      "rot": 270,
+      "label": {
+        "zh-CN": "耗材架",
+        "en": "Supply shelf"
+      }
+    },
+    {
+      "id": "sink",
+      "type": "sink",
+      "x": 4.0,
+      "z": 0.6,
+      "rot": 270,
+      "label": {
+        "zh-CN": "洗手池",
+        "en": "Hand-wash sink"
+      }
+    },
+    {
+      "id": "hand-rub",
+      "type": "hand-sanitizer",
+      "x": 1.5,
+      "z": 3.1,
+      "rot": 180,
+      "label": {
+        "zh-CN": "免洗手消毒液",
+        "en": "Hand-rub dispenser"
+      }
+    },
+    {
+      "id": "whiteboard",
+      "type": "whiteboard",
+      "x": -4.24,
+      "z": 0.4,
+      "rot": 90
+    },
+    {
+      "id": "clock",
+      "type": "wall-clock",
+      "x": 4.27,
+      "z": 2.3,
+      "rot": 270
+    },
+    {
+      "id": "bin",
+      "type": "trash-bin",
+      "x": -4.0,
+      "z": 3.0
+    },
+    {
+      "id": "plant",
+      "type": "potted-plant",
+      "x": 4.0,
+      "z": 3.0
+    }
+  ],
+  "staff": [
+    {
+      "id": "tutor",
+      "role": "attending",
+      "position": "educator",
+      "name": {
+        "zh-CN": "林秀云医师（带教）",
+        "en": "Dr Lim Siew Hoon (clinical tutor)"
+      },
+      "x": -0.25,
+      "z": 1.1,
+      "rot": 0,
+      "appearance": {
+        "skin": "#e0bf9f",
+        "hair": "#3a3330",
+        "hairStyle": "bob",
+        "shirt": "#7fae9b",
+        "pants": "#3d4450",
+        "build": "slim",
+        "presentation": "feminine"
+      },
+      "greeting": {
+        "zh-CN": "选一个练习台。先标好穴位再开封针具，起针后逐一清点。",
+        "en": "Take a station. Mark your points before you open a pack, and count every needle out."
+      }
+    }
+  ],
+  "capabilities": [],
+  "tags": [
+    "tcm",
+    "teaching",
+    "simulation"
+  ]
+}

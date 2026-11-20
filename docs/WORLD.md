@@ -16,13 +16,22 @@ The clinic's building is authored in ClinicalCraft's own formats and compiled by
 | file | format | what it holds |
 |---|---|---|
 | `content/world/facilities/sg-tcm-outpatient.json` | `clinicalcraft/facility@1` | the building (16 × 12 m), the reception and the corridor, three placed room templates, doors and windows, a receptionist, the spawn |
-| `content/world/templates/acu-*.json` | `clinicalcraft/room-template@1` | the consultation room, the treatment room (couch, needle trolley with its sharps box, chair, sink, screen) and the preparation area (supply shelf, sink, sharps box, worktop) |
-| `content/world/catalogs/acucraft-tcm.json` | `clinicalcraft/equipment-catalog@1` | seven equipment types: treatment couch, patient chair, needle trolley, supply shelf, herb cabinet, meridian chart, meridian model |
+| `content/world/templates/acu-*.json` | `clinicalcraft/room-template@1` | the consultation room, the treatment room (couch, needle trolley with its sharps box, chair, sink, screen) and the preparation area (supply shelf, sink, sharps box, worktop) — and the skills room, which is not part of the clinic |
+| `content/world/catalogs/acucraft-tcm.json` | `clinicalcraft/equipment-catalog@1` | the pack's materials and eleven equipment types, each with a model: treatment couch, patient chair, needle trolley, supply shelf, herb cabinet, meridian chart, meridian model, pulse cushion, heat lamp, and two needling stations |
+| `content/world/assets/models/*.glb` | glTF | the models the world draws the equipment from ([MODELS.md](MODELS.md)) |
+| `content/world/facilities/sg-tcm-skills-room.json` | `clinicalcraft/facility@1` | a skills room with the two needling stations: beside the clinic's floor plan, not in it — no encounter is played there and the engine plans no walk in it |
 | `content/sg/clinic.json` | `acucraft/clinic@1` | which facility the clinic is, each room's `home` spot, and for every fixture the engine knows (`couch-1`, `trolley-1`, `shelf` …) the facility `placement` it stands on |
 
-`tools/content/clinic_world.py` writes all of them. The loader (`@acucraft/bench`) parses and compiles the facility
-with `parseFacility`, `compileFacility`, `checkFacility`, `checkCatalogs` and `checkRoomTemplate` of
-`@clinicalcraft/core`, together with the pinned engine's built-in catalogs and templates.
+`tools/content/clinic_world.py` writes all of them but the models (`tools/blender/build.py`). The loader
+(`@acucraft/bench`) parses and compiles the facilities with `parseFacility`, `compileFacility`, `checkFacility`,
+`checkCatalogs` and `checkRoomTemplate` of `@clinicalcraft/core`, together with the pinned engine's built-in catalogs
+and templates.
+
+**The clinic's solid furniture is the floor plan.** Every reference walk was planned round it, so nothing solid is
+added to, moved in or taken from the clinic's three rooms without planning those walks again
+(`packages/bench/src/models.test.ts` holds the list). How the clinic looks — its models, finishes and people — changes
+nothing of where one can stand: a model is drawn inside its type's footprint, which stays the collider, and people are
+never obstacles.
 
 AcuCraft then builds ClinicalCraft's static world layer from it, headless (`@clinicalcraft/world`, pure — no renderer,
 no clock): the collision model, the semantic registry (rooms, doors, every piece of equipment with its footprint and
@@ -63,6 +72,30 @@ room's chair; they must be able to walk — not faint, no needles in — and be 
 
 `position_patient` moves the patient within the room: lying positions onto the room's couch, sitting onto a chair.
 
+### Browser avatar controls
+
+The workspace's **Move in the clinic** panel reads the same public floor plan as `lookup floorplan`. Click a floor
+destination to request a walk; with the map focused, arrow keys or WASD request 0.5 m steps. Each request uses the
+ordinary `move` tool, so the engine plans around walls and furniture, records who moved and advances simulated time.
+The browser waits for the accepted position in the live record instead of moving an avatar speculatively. Refusals
+are shown beside the controls. Repeated keydown events are ignored and a pending request holds further input.
+
+The panel also offers room destinations, an explicit **Escort patient** option, **Go to patient**, and patient
+positioning. These use `move {withPatient:true}` and `position_patient` with their existing proximity, consent,
+patient-preference and retained-needle checks. The same requests are available to language models through their
+typed tools. The controls remain usable when the browser cannot draw WebGL.
+
+The 3D view maps the engine's coordinates onto its presentation sets using the patient's chair or couch as a common
+anchor. A rotated couch's head direction sets the rotation of that mapping. Both directions are invertible, so a
+Shift-click on the 3D floor requests an engine coordinate. The drawn furniture is an illustration of the clinic;
+the floor plan and its collision grid remain the authority for where an avatar can walk.
+
+A standing patient uses their own recorded floor coordinates, including when the practitioner is in another room.
+An escort reuses the escorting actor's recorded route for its arrival in the destination set, then changes to the
+recorded seated pose. The workspace's two presentation rooms do not draw the connecting corridor, so that portion
+of the walk remains on the floor-plan record. A later position change cancels an unfinished arrival animation and
+draws the newly accepted pose.
+
 ## 3. Reach
 
 | what | range | acts that need it |
@@ -71,10 +104,14 @@ room's chair; they must be able to walk — not faint, no needles in — and be 
 | **at the patient's side** | 1.5 m to the couch or chair they are on, in sight | `examine`, `check_vitals`, `position_patient`, `search`, `remove_all_needles` (which then walks from needle to needle) |
 | **earshot** | 3 m, in sight | `ask`, `explain`, `seek_consent`, `check_sensation`; speech is never refused, but the patient hears and answers only from here |
 | **in view** | 8 m, in sight | `observe`, `monitor` |
-| **a fixture within its reach** | the equipment's own reach (1–1.5 m of its footprint), in sight | `hand_hygiene` (a sink or hand-rub dispenser), `fetch` (where the item is kept), `open_pack` (onto a trolley or worktop), `pick_up` (the tray's trolley; a fallen needle, by the couch it fell near), `dispose` (a sharps container), `review_result` (a records terminal — or with the patient, for the reports they brought) |
+| **a fixture within its reach** | the equipment's own reach (1–1.5 m of its footprint), in sight | `hand_hygiene` (a sink or hand-rub dispenser), `fetch` (where the item is kept), `open_pack` (onto a trolley or worktop), `pick_up` (the tray's trolley; a fallen needle, by the couch it fell near), `dispose` (a sharps container), `review_result` (a records terminal — or with the patient, for the reports they brought), `prepare_couch` (the couch being cleaned and made up) |
 | **another member of the team** | 1.5 m, in sight | `handover` |
 
 Walls and closed doors block sight: nobody monitors a patient through a wall.
+
+`count_needles` is never refused, but only a count made where the needles are reconciles them (`observed`): in the
+patient's room with the patient in sight while any needle is in place, and in the room of every tray that holds
+opened needles. From anywhere else it reads the record (`read`), which verifies nothing.
 
 A refusal for where the actor stands has the code `not-at-patient` or `not-in-reach` (`no-route` when there is no way
 there) and a message with the distance and the walk that fixes it, for instance — standing beside the right knee:
@@ -129,6 +166,19 @@ npm run acu -- map sg-knee-oa/base
 In `play`: `go <room | fixture | patient | region:side>` walks, `where` says what is in reach, `map` draws the plan
 with everyone on it.
 
+For precision hand work, a body-site move can request a closer stance:
+
+```json
+{ "type": "move", "to": { "region": "lumbar", "side": "left", "within": 0.75 } }
+```
+
+`within` is an optional finite maximum floor-plan distance in metres, from 0.3 to 0.85. It is not a clinical or
+hand-specific reach measurement. The Technique Studio's “移动靠近 Move closer” button explicitly requests 0.75 m
+for the selected target. Omitting `within` retains the original
+0.85 m body-site reach and historical paths. The same collision planner finds a free visible standing spot; if
+none is close enough, the move is refused and the actor stays where they were. A closer stance is requested
+explicitly by an operator or an LLM. The renderer does not move the actor automatically to make an arm reach.
+
 Authoring a reference trajectory does not need the floor plan: the helper in `tools/content/lib.py` walks the
 practitioner to wherever each act is done, and `tools/finish-solutions.ts` replays the result on the engine and drops
 the walks that covered no ground (see [CONTENT.md](CONTENT.md)).
@@ -140,23 +190,34 @@ the walks that covered no ground (see [CONTENT.md](CONTENT.md)).
 ClinicalCraft's tools read the clinic as they read their own facilities. Checked against the pinned revision, with a
 ClinicalCraft checkout whose `contentDirs` names this folder:
 
-- `clinicalcraft facilities list` shows `sg-tcm-outpatient` beside the engine's own facilities (5 rooms, 2 patient
-  slots, 31 pieces of equipment), and `clinicalcraft facilities validate` passes the facility, the catalog and the
-  three room templates with no error and no warning;
+- `clinicalcraft facilities list` shows `sg-tcm-outpatient` (5 rooms, 2 patient slots, 32 pieces of equipment) and
+  `sg-tcm-skills-room` (2 rooms, no patient slot, 20 pieces) beside the engine's own facilities, and `clinicalcraft
+  facilities validate` passes both facilities, the catalog and the four room templates with no error. Its only
+  warnings are about the engine's own built-in cases, which this clinic cannot complete (it has no imaging and no
+  laboratory); the skills room has none;
+- `clinicalcraft assets inspect <model> --type <id>` passes each of the pack's eleven models with no error and no
+  warning ([MODELS.md](MODELS.md));
 - the floor-plan preview draws it — `node scripts/preview/render.mjs facility --facility
-  <AcuCraft>/content/world/facilities/sg-tcm-outpatient.json --catalogs <the engine's catalogs>,<AcuCraft>/content/world/catalogs/acucraft-tcm.json --out plan.png`:
+  <AcuCraft>/content/world/facilities/sg-tcm-outpatient.json --catalogs <the engine's catalogs>,<AcuCraft>/content/world/catalogs/acucraft-tcm.json --out plan.png`
+  (`tools/preview-sheets.py` runs it):
 
   ![The clinic drawn by ClinicalCraft's floor-plan preview](img/clinic-plan-clinicalcraft.png)
 
-- the 3D voxel world renders it and its autopilot walks it — from the corridor, through the door, to the side of the
-  couch. The web client bundles `packages/content` when it is built or served, so the three folders are copied (or
-  linked) there first; then `world-harness.html?facility=sg-tcm-outpatient`:
+- the 3D world draws it — the rooms, the pack's models, the staff as the world's figures, a patient of the world on
+  the couch or the chair — and its autopilot walks it: from the corridor, through the door, into the treatment room
+  beside the couch (the world's own walk ends within a metre of the spot asked for). The world's QA page bundles
+  `packages/content` when it is built or served, so the pack's folders are copied there first and its models served
+  from a home directory; then `world-harness.html?facility=sg-tcm-outpatient`. `tools/world-shots.mjs` does all of
+  that and takes the pictures on these pages:
 
-  ![The treatment room in ClinicalCraft's 3D world: the couch, the needle trolley with its sharps box, the patient's chair, the screen](img/clinic-3d-treatment-room.png)
+  ![The treatment room in ClinicalCraft's 3D world: the couch made up with fresh paper, the needle trolley with its sharps box, the bronze figure and the chart, the clinic assistant](img/clinic-3d-treatment-room.png)
+
+  ![The consultation room: the physician's desk with the pulse cushion, the patient's chair, the herb cabinet](img/clinic-3d-consult-room.png)
 
 AcuCraft itself uses only the static layer, as above: the encounter engine stays a pure function of the scenario, the
 state and the request, and an encounter is not yet played inside the 3D renderer — the renderer shows the building the
-engine reasons about.
+engine reasons about. The needling stations of the skills room are a drill of ClinicalCraft's world, with nothing of
+AcuCraft's evaluator attached ([MODELS.md](MODELS.md) §3).
 
 ## 9. Limits
 
@@ -165,4 +226,5 @@ engine reasons about.
 - Reach is a distance to a point on the floor plan with a line of sight: there is no posture, no height of the couch,
   no left or right hand.
 - People do not block each other, and furniture does not move: the trolley stays at the foot of the couch.
+- The skills room is drawn, not played: no walk is planned in it and no encounter uses it.
 - The body map places each chart at one point; a long chart (the whole leg) is reached from one standing place.

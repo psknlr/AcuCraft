@@ -100,6 +100,12 @@ export const RuleCheckSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("hand-hygiene-before"), actions: z.array(IdSchema).min(1) }).strict(),
   /** The needling site was prepared (skin cleaned) before insertion. */
   z.object({ kind: z.literal("site-preparation-before-insertion") }).strict(),
+  /**
+   * No needle in these regions while the patient has the risk factor (for pregnancy, from `fromGestationWeek`; an
+   * unknown gestation counts as reached). Judged by where the needle goes: a named point, an Ashi point or a bare
+   * chart position alike.
+   */
+  z.object({ kind: z.literal("avoid-regions"), riskFactor: IdSchema, regions: z.array(IdSchema).min(1), fromGestationWeek: z.number().min(0).optional() }).strict(),
   /** Consent to the current plan, given and not withdrawn, before insertion. */
   z.object({ kind: z.literal("consent-before-treatment") }).strict(),
   /** Withdrawn and unused opened needles go into a sharps container (never back to the tray), by the end of the visit. */

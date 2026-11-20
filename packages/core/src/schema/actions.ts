@@ -1,12 +1,6 @@
 import { z } from "zod";
-import { ChartPointSchema, IdSchema as PlainIdSchema, PositionSchema } from "./common.js";
-
-/**
- * An id as a request may give it. The state keeps its needles, packs, marks, tasks and actors in records keyed by id,
- * so a name every object has (`constructor`, `toString` …) can never be the id of anything: a request that gives one
- * is malformed, and is recorded as such instead of being looked up.
- */
-const IdSchema = PlainIdSchema.refine((id) => !(id in Object.prototype), "not an id");
+import { ChartPointSchema, PositionSchema, RequestIdSchema as IdSchema } from "./common.js";
+import { HandPresentationSettingsShape, PerformTechniqueSchema } from "./manipulation.js";
 
 /**
  * The action interface (proposal §7.3) — every actor (the practitioner or learner under test, the support agent,
@@ -21,10 +15,44 @@ export const SideArgSchema = z.enum(["left", "right", "midline"]);
 
 /** A target on the patient: a standard point, or an Ashi (tender) location found on examination. */
 export const PointRefSchema = z.union([
-  z.object({ point: IdSchema, side: SideArgSchema }).strict(),
+  /** `site`: one site of a group point (Sishencong's `anterior`, Jiaji's `t5`, Shixuan's `index`). */
+  z.object({ point: IdSchema, side: SideArgSchema, site: IdSchema.optional() }).strict(),
   z.object({ ashi: IdSchema }).strict(),
 ]);
 export type PointRef = z.infer<typeof PointRefSchema>;
+
+/** Named simulation movements. Bu/xie are illustrative choreography, not a model of treatment efficacy. */
+export const NEEDLE_TECHNIQUES = ["none", "lift-thrust", "rotate", "lift", "thrust", "twist", "bu", "xie"] as const;
+export const NeedleTechniqueSchema = z.enum(NEEDLE_TECHNIQUES);
+export type NeedleTechnique = z.infer<typeof NeedleTechniqueSchema>;
+
+/**
+ * Presentation settings only: the approved depth and the tissue response are still decided by the engine.
+ * A displayed stroke withdraws towards the skin and returns to the approved depth; it never goes deeper.
+ */
+export const NeedleMotionSettingsSchema = z.object({
+  cycles: z.number().int().min(1).max(8).optional(),
+  durationMs: z.number().int().min(400).max(8000).optional(),
+  strokeMm: z.number().min(0).max(3).optional(),
+  rotationDeg: z.number().min(0).max(180).optional(),
+}).strict();
+export type NeedleMotionSettings = z.infer<typeof NeedleMotionSettingsSchema>;
+
+export const INSERTION_SKIN_CONTACT = { min: 0.2, max: 0.8, default: 0.45 } as const;
+
+/** Optional presentation controls; they neither alter the needle path nor prescribe clinical dosing. */
+export const InsertionPresentationSchema = z.object({
+  /** Fraction of the insertion movement elapsed when the displayed tip reaches the skin. */
+  skinContactFraction: z.number().min(INSERTION_SKIN_CONTACT.min).max(INSERTION_SKIN_CONTACT.max).optional(),
+  durationMs: z.number().int().min(400).max(8000).optional(),
+  grip: z.enum(["two-finger", "three-finger"]).optional(),
+  ...HandPresentationSettingsShape,
+  support: z.enum(["none", "stabilize", "stretch", "pinch", "press"]).optional(),
+  hand: z.enum(["auto", "left", "right"]).optional(),
+  /** Approach/release opening; the held fingers fit the actual needle handle. */
+  gripApertureMm: z.number().min(0).max(12).optional(),
+}).strict();
+export type InsertionPresentation = z.infer<typeof InsertionPresentationSchema>;
 
 export const DISPOSITIONS = ["treat", "treat-modified", "further-assessment", "defer", "refer", "decline"] as const;
 export const DispositionSchema = z.enum(DISPOSITIONS);
@@ -46,13 +74,14 @@ export const MoveTargetSchema = z.union([
   z.object({ room: IdSchema }).strict(),
   z.object({ fixture: IdSchema }).strict(),
   z.object({ person: IdSchema }).strict(),
-  z.object({ region: IdSchema, side: SideArgSchema }).strict(),
-  z.object({ x: z.number(), z: z.number() }).strict(),
+  z.object({ region: IdSchema, side: SideArgSchema, within: z.number().finite().min(0.3).max(0.85).optional() }).strict(),
+  z.object({ x: z.number().finite(), z: z.number().finite() }).strict(),
 ]);
 export type MoveTargetInput = z.infer<typeof MoveTargetSchema>;
 
 export const PlanPointSchema = z.union([
-  z.object({ point: IdSchema, side: SideArgSchema }).strict(),
+  /** `site`: one site of a group point (Sishencong's `anterior`, Jiaji's `t5`, Shixuan's `index`). */
+  z.object({ point: IdSchema, side: SideArgSchema, site: IdSchema.optional() }).strict(),
   z.object({ ashi: IdSchema }).strict(),
 ]);
 
@@ -165,7 +194,7 @@ export const ActionSchema = z.discriminatedUnion("type", [
 
   /* preparation */
   /**
-   * Walk: `to` is a room id, or a target (`{ fixture }`, `{ person }`, `{ region, side }`, `{ room }`, `{ x, z }`). The
+   * Walk: `to` is a room id, or a target (`{ fixture }`, `{ person }`, `{ region, side, within? }`, `{ room }`, `{ x, z }`). The
    * world plans the path and the walk takes the time it takes. `withPatient` (to a room) walks the patient there at
    * their pace and seats them; they must be able to walk.
    */
@@ -176,6 +205,8 @@ export const ActionSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("open_pack"), packId: IdSchema }).strict(),
   z.object({ type: z.literal("pick_up"), object: IdSchema }).strict(),
   z.object({ type: z.literal("prepare_site"), region: IdSchema, side: SideArgSchema }).strict(),
+  /** Clean the couch surface and put on fresh linen, in the room the actor is in. */
+  z.object({ type: z.literal("prepare_couch") }).strict(),
 
   /* procedure */
   z
@@ -193,9 +224,20 @@ export const ActionSchema = z.discriminatedUnion("type", [
       /** Direction the needle tip travels across the chart: 0 = cranial (+v), 90 = +u, 180 = caudal, 270 = −u. */
       azimuthDeg: z.number().min(0).max(360).default(0),
       depthCm: z.number().positive().max(10),
+      presentation: InsertionPresentationSchema.optional(),
     })
     .strict(),
-  z.object({ type: z.literal("adjust_needle"), needleId: IdSchema, depthCm: z.number().positive().max(10).optional(), technique: z.enum(["none", "lift-thrust", "rotate"]).default("none") }).strict(),
+  z.object({ type: z.literal("adjust_needle"), needleId: IdSchema,
+    depthCm: z.number().finite().positive().max(10).optional(),
+    technique: NeedleTechniqueSchema.default("none"),
+    motion: NeedleMotionSettingsSchema.optional(),
+    strokeMm: z.number().finite().positive().max(20).optional(),
+    rotationDeg: z.number().finite().positive().max(360).optional(),
+    rotationDirection: z.enum(["alternating", "clockwise", "counterclockwise"]).optional(),
+    frequencyHz: z.number().finite().min(0.1).max(10).optional(),
+    durationSeconds: z.number().finite().min(0.1).max(120).optional(),
+  }).strict(),
+  PerformTechniqueSchema,
   /** Ask the patient what they feel at one needle: their answer is evidence of that needle's response. */
   z.object({ type: z.literal("check_sensation"), needleId: IdSchema }).strict(),
   z.object({ type: z.literal("monitor") }).strict(),

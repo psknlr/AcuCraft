@@ -21,7 +21,7 @@ case = {
   "triageNote": "Asks whether acupuncture could help him sleep.", "tags": ["insomnia"],
   "persona": {"personality": "Polite, worried, a little embarrassed to be here.", "speechStyle": "Singapore English with Hokkien and Malay words.", "healthLiteracy": "medium", "affect": "anxious",
    "openingLine": "Doctor, I cannot sleep properly already three months.", "fallbackUnknown": "Not sure leh, doctor.", "concerns": ["He worries about falling asleep at the wheel."]},
-  "posture": "sitting", "appearance": {"build": "average"}},
+  "posture": "sitting", "appearance": {"build": "average", "skin": "#d8b592", "hair": "#4c4845", "hairStyle": "short", "shirt": "#5d7fa3", "pants": "#3a3f47", "presentation": "masculine"}},
  "phases": phases("Monday 15:00 at the clinic, before his evening shift.", "One week later, same clinic."), "initialPhase": V1,
  "clock": {"mode": "simulated", "startTime": "15:00", "actionCosts": {"ask": 1, "examine": 2, "order": 0, "read": 1, "intervene": 1, "answer": 0}},
  "history": [
@@ -122,7 +122,7 @@ variants = [
     "diagnoses": {"expected": {"$replace": ["depressive-episode"]}, "acceptable": {"$replace": ["insomnia"]}},
     "patterns": {"$replace": {"defensible": [], "implausible": []}},
     "signs": {"hx-mood": ["emotional-strain"], "hx-onset": ["emotional-strain"], "ex-general": []},
-    "redFlags": {"$replace": [{"id": "suicidal-ideation", "present": True}]},
+    "redFlags": {"$replace": [{"id": "suicidal-ideation", "present": True, "evidence": [{"clinical": {"asked": "hx-self-harm"}}]}]},
     "points": {"$replace": {"recommended": [], "acceptable": [], "avoid": [], "maxNeedles": 1}},
     "criticalErrors": [{"id": "ce-no-urgent-help", "label": "No same-day urgent help for suicidal thoughts with a method", "when": {"all": [{"visitEnded": 1}, {"not": {"referred": {"urgency": ["emergency", "urgent"]}}}]}}],
     "required": {"$replace": {"history": ["hx-mood", "hx-self-harm"], "exam": [], "records": []}},

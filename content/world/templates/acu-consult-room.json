@@ -14,19 +14,23 @@
     "w": 6,
     "d": 5
   },
-  "floor": "floor",
+  "floor": "acu-timber",
   "partitions": [
     {
-      "side": "n"
+      "side": "n",
+      "base": "acu-dado"
     },
     {
-      "side": "w"
+      "side": "w",
+      "base": "acu-dado"
     },
     {
-      "side": "e"
+      "side": "e",
+      "base": "acu-dado"
     },
     {
       "side": "s",
+      "base": "acu-dado",
       "openings": [
         {
           "kind": "door",
@@ -63,22 +67,18 @@
       "label": {
         "zh-CN": "诊桌",
         "en": "Physician's desk"
+      }
+    },
+    {
+      "id": "pulse-cushion",
+      "type": "acu-pulse-cushion",
+      "x": -1.0,
+      "z": -1.64,
+      "label": {
+        "zh-CN": "脉枕",
+        "en": "Pulse cushion"
       },
-      "extraParts": [
-        {
-          "m": "red",
-          "p": [
-            -0.5,
-            0.785,
-            0.16
-          ],
-          "s": [
-            0.2,
-            0.05,
-            0.12
-          ]
-        }
-      ]
+      "y": 0.76
     },
     {
       "id": "records",

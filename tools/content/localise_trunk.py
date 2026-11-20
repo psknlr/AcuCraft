@@ -105,7 +105,6 @@ for pid, t in outer.items():
 for pid, t in {"GV6": 11, "GV7": 10, "GV8": 9, "GV9": 7, "GV10": 6, "GV11": 5, "GV12": 3, "GV13": 1}.items():
     LOCALISE[pid] = ("upper-back", landmark(f"t{t}-spinous", caudal=cm(0.6)), cm(0.6))
 LOCALISE.update({
-    "EX-B2": ("upper-back", landmark("t1-spinous", lateral=cun(0.5, BACK)), cm(0.6)),  # Jiaji: the first (T1) of seventeen sites
     "TE15": ("upper-back", landmark("scapula-superior-angle-{side}", cranial=cm(0.8)), cm(1.0)),
     "SI11": ("upper-back", between("scapula-spine-mid-{side}", "scapula-inferior-angle-{side}", 1 / 3), cm(1.0)),
     "SI12": ("upper-back", landmark("scapula-spine-mid-{side}", cranial=cm(1.5)), cm(1.0)),
@@ -156,3 +155,13 @@ LOCALISE.update({
     "CV22": ("neck-anterior", landmark("suprasternal-notch", cranial=cm(0.5)), NECK_TOL),
     "CV23": ("neck-anterior", landmark("hyoid", cranial=cm(0.8)), NECK_TOL),
 })
+
+
+# Group points located site by site. Jiaji: 0.5 B-cun lateral to the lower border of each spinous process from T1 to L5
+# (T1-T12 on the upper back, L1-L5 on the lumbar chart; the back's B-cun from between the medial scapular borders).
+SITES = {
+    "EX-B2": ("upper-back", [
+        *[(f"t{n}", f"level of T{n}", None, landmark(f"t{n}-spinous", lateral=cun(0.5, BACK)), cm(0.5)) for n in range(1, 13)],
+        *[(f"l{n}", f"level of L{n}", "lumbar", landmark(f"l{n}-spinous", lateral=cun(0.5, BACK)), cm(0.5)) for n in range(1, 6)],
+    ]),
+}

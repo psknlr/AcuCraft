@@ -3,6 +3,7 @@
  * acucraft — validate the content pack, run and replay encounters, play one yourself, run the benchmark.
  * Run from the repository root: `npm run acu -- <command>` (see `npm run acu -- help`).
  */
+import { randomBytes } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { createInterface } from "node:readline/promises";
@@ -21,6 +22,7 @@ import {
   modelledRegions,
   patientRegion,
   pointInstance,
+  pointTargets,
   referenceLibrary,
   regionAccess,
   replayLog,
@@ -32,27 +34,10 @@ import {
   type Position,
   type Side,
 } from "@acucraft/core";
-import {
-  claudeAgent,
-  CLINICALCRAFT_REV,
-  encounterHtml,
-  episodeMarkdown,
-  evaluateEncounter,
-  loadContentPack,
-  loadScenario,
-  lookup,
-  protocolAgent,
-  referenceAgent,
-  requireScenario,
-  runEpisode,
-  runSuite,
-  scenarioIds,
-  suiteMarkdown,
-  SuiteSchema,
-  DEFAULT_CONTENT_DIR,
-  type Agent,
-  type Effort,
-} from "@acucraft/bench";
+import { openaiProvider, claudeAgent, llmAgent, lookup, oracleProvider, protocolAgent, referenceAgent, systemPrompt, toolsFor, type Agent, type Effort, type LlmEvent } from "@acucraft/agent";
+import { CLINICALCRAFT_REV, encounterHtml, episodeMarkdown, evaluateEncounter, loadContentPack, loadScenario, requireScenario, runEpisode, runSuite, scenarioIds, suiteMarkdown, SuiteSchema, DEFAULT_CONTENT_DIR } from "@acucraft/bench";
+import { runMcpServer } from "@acucraft/mcp";
+import { isLoopbackHost, RecordHub, serve } from "@acucraft/server";
 import type { Scenario } from "@acucraft/core";
 
 const HELP = `acucraft — acupuncture simulation and evaluation (Singapore edition)
@@ -70,9 +55,11 @@ usage: npm run acu -- <command> [options]
   vocabulary [PATTERN]                      the signs, what each pattern is recognised by, and what counts as deqi
   locate <family/variant> <position> [POINT:side ...]
                                             authoring: the hidden patient-specific landmarks and points
-  run <family/variant> [--agent protocol|reference|claude] [--seed N] [--mode assessment|teaching]
-      [--model ID] [--effort low|medium|high|xhigh|max] [--max-steps N] [--out DIR] [--verbose]
-                                            run one encounter; writes log.json, report.json and report.md
+  run <family/variant> [--agent protocol|reference|claude|openai|minimax|compatible|scripted-llm] [--seed N] [--mode assessment|teaching]
+      [--model ID] [--effort low|medium|high|xhigh|max] [--max-steps N] [--no-skills] [--no-locate]
+      [--out DIR] [--verbose]               run one encounter; writes log.json, report.json and report.md
+                                            (claude/openai/minimax/compatible: live model providers; scripted-llm: the
+                                            reference trajectory spoken as tool calls through the same loop, offline)
   play <family/variant> [--mode teaching] [--seed N] [--out DIR]
                                             play the practitioner yourself (type help inside)
   replay <log.json>                         replay a log, check it reproduces the recorded state, re-evaluate
@@ -84,6 +71,16 @@ usage: npm run acu -- <command> [options]
                                             run a benchmark suite; writes suite-result.json and report.md
   export-clinicalcraft --out DIR            write every instance's ClinicalCraft case (cases/<id>/case.json) for
                                             ClinicalCraft's contentDirs setting
+  skills [ID]                               the clinic's written skills an agent may read: the index, or one in full
+  tools [--role ROLE]                       the tools a language-model practitioner is given (name and description)
+  prompt                                    the standing instructions a language-model practitioner is given
+  mcp                                       serve encounters to an MCP client over stdio (Claude Code, Claude Desktop):
+                                            the client plays the practitioner with the same tools (docs/AGENT.md)
+  serve [--port 8787] [--host 127.0.0.1] [--data runs/web | --in-memory] [--token-file FILE] [--verbose]
+                                            the live patient-record workspace in a web browser: you, a language model
+                                            the server runs, and any MCP client (Streamable HTTP at /mcp) work on the
+                                            same records in real time (docs/WEB.md). A token comes from --token-file or
+                                            ACUCRAFT_TOKEN; any address but loopback needs one (made up if not given)
 
   --content DIR                             another content pack (default: ./content)
 `;
@@ -108,8 +105,16 @@ const { positionals, values } = parseArgs({
     split: { type: "string", default: "all" },
     content: { type: "string" },
     verbose: { type: "boolean", default: false },
+    "no-skills": { type: "boolean", default: false },
+    "no-locate": { type: "boolean", default: false },
+    role: { type: "string" },
     library: { type: "boolean", default: false },
     json: { type: "boolean", default: false },
+    port: { type: "string", default: "8787" },
+    host: { type: "string", default: "127.0.0.1" },
+    data: { type: "string" },
+    "in-memory": { type: "boolean", default: false },
+    "token-file": { type: "string" },
     help: { type: "boolean", short: "h", default: false },
   },
 });
@@ -224,16 +229,36 @@ function evidenceText(v: AgentView): string {
   return lines.length ? lines.join("\n") : "  nothing obtained yet";
 }
 
+/** A model at work, one line for each of its turns (`--verbose`). */
+function showModel(e: LlmEvent): void {
+  if (e.type === "model") {
+    if (e.text) console.log(`      │ ${e.text.replace(/\s+/g, " ").slice(0, 200)}`);
+    if (e.calls.length > 1) console.log(`      │ ${e.calls.length} calls: ${e.calls.map((c) => c.name).join(", ")}`);
+  } else if (e.type === "read") console.log(`      · ${e.name}${e.ok ? "" : " (not found)"}`);
+  else if (e.type === "skipped") console.log(`      · ${e.name} not carried out: ${e.reason}`);
+  else console.log(`      · ${e.name} not valid: ${e.error.slice(0, 160)}`);
+}
+
 function makeAgent(id: string, p: ReturnType<typeof pack>): Agent {
+  const llm = { skills: values["no-skills"] ? [] : p.skills, locate: !values["no-locate"], ...(values.verbose ? { onEvent: showModel } : {}) };
   switch (values.agent) {
     case "reference":
       return referenceAgent(requireScenario(p, id));
+    case "openai":
+    case "minimax":
+    case "compatible":
+      return llmAgent({ ...llm, provider: openaiProvider({ provider: values.agent, ...(values.model ? { model: values.model } : {}) }) });
     case "claude":
-      return claudeAgent({ ...(values.model ? { model: values.model } : {}), ...(values.effort ? { effort: values.effort as Effort } : {}) });
+      return claudeAgent({ ...llm, ...(values.model ? { model: values.model } : {}), ...(values.effort ? { effort: values.effort as Effort } : {}) });
+    case "gpt":
+      return llmAgent({ ...llm, provider: openaiProvider({ ...(values.model ? { model: values.model } : {}) }) });
+    case "scripted-llm":
+      // the loop, the tools and the results, with the reference trajectory in place of a model: no network
+      return llmAgent({ ...llm, provider: oracleProvider(requireScenario(p, id).field.solution, { batch: 3 }) });
     case "protocol":
       return protocolAgent();
     default:
-      console.error(`unknown agent ${values.agent} (protocol, reference, claude)`);
+      console.error(`unknown agent ${values.agent} (protocol, reference, claude, openai, minimax, scripted-llm)`);
       process.exit(2);
   }
 }
@@ -276,7 +301,7 @@ async function main(): Promise<void> {
         for (const pr of problems) console.log(`    ${pr}`);
         if (values.verbose) for (const w of r.warnings) console.log(`    warning ${w.path}: ${w.message}`);
       }
-      console.log(`\n${p.families.size} families, ${scenarioIds(p).length} instances, ${p.bundle.acupoints.size} point definitions (${[...p.bundle.acupoints.values()].filter((x) => x.localisation).length} localised), ${p.bundle.regions.size} regions, ${p.bundle.ruleSets.length} rule sets.`);
+      console.log(`\n${p.families.size} families, ${scenarioIds(p).length} instances, ${p.bundle.acupoints.size} point definitions (${[...p.bundle.acupoints.values()].filter((x) => pointTargets(x).length > 0).length} localised; ${[...p.bundle.acupoints.values()].filter((x) => x.siteLocalisations).length} groups by site), ${p.bundle.regions.size} regions, ${p.bundle.ruleSets.length} rule sets, ${p.skills.length} skills.`);
       if (failed) {
         console.log(`${failed} instance(s) failed.`);
         process.exit(1);
@@ -306,7 +331,10 @@ async function main(): Promise<void> {
         const by = new Map<string, number>();
         for (const d of all) by.set(d.channel, (by.get(d.channel) ?? 0) + 1);
         console.log([...by].map(([c, k]) => `${c} ${k}`).join(" · "));
-        console.log(`${all.length} points, ${all.filter((d) => d.localisation).length} localised on the modelled regions (${[...p.bundle.regions.keys()].join(", ")}).`);
+        console.log(`${all.length} points, ${all.filter((d) => pointTargets(d).length > 0).length} localised on the modelled regions (${[...p.bundle.regions.keys()].join(", ")}).`);
+        const groups = all.filter((d) => d.sites);
+        console.log(`Group points: ${groups.length}, ${groups.filter((d) => d.siteLocalisations).length} located site by site (${groups.filter((d) => d.siteLocalisations).map((d) => `${d.id} ${d.siteLocalisations!.length}`).join(", ")}); the others at one canonical site.`);
+        console.log(`Review: ${all.filter((d) => d.provenance.review.status !== "unreviewed").length} of ${all.length} points reviewed by an expert; none is suitable for assessment until reviewed.`);
         return;
       }
       const one = all.find((d) => d.id.toUpperCase() === key.toUpperCase() || d.aliases.some((a) => a.toUpperCase() === key.toUpperCase()));
@@ -365,16 +393,17 @@ async function main(): Promise<void> {
       const sc = requireScenario(p, args[0] ?? "");
       const position = (args[1] ?? sc.field.patient.position) as Position;
       for (const spec of args.slice(2)) {
-        const [id, side] = spec.split(":");
+        const [id, side, site] = spec.split(":");
         const def = p.bundle.acupoints.get(id!);
-        if (!def?.region) {
-          console.log(`${spec}: no localisation`);
+        const target = def && pointTargets(def).find((t) => t.site === (site ?? null));
+        if (!def || !target?.def.region) {
+          console.log(`${spec}: no localisation${def?.siteLocalisations ? ` (a group: name a site, ${def.siteLocalisations.map((x) => x.id).join(", ")})` : ""}`);
           continue;
         }
-        const region = p.bundle.regions.get(def.region)!;
+        const region = p.bundle.regions.get(target.def.region)!;
         const s: Side = def.bilateral ? ((side ?? "right") as Side) : "midline";
         const access = regionAccess(region, s, position);
-        const inst = pointInstance(sc, def, s, access.configuration);
+        const inst = pointInstance(sc, def, s, access.configuration, site);
         console.log(inst ? `${spec}  u=${inst.position.u.toFixed(2)} v=${inst.position.v.toFixed(2)}  tolerance ${inst.toleranceCm.toFixed(2)} cm  (${inst.configuration}${access.accessible ? "" : ", not reachable in this position"})` : `${spec}: no instance`);
       }
       if (args.length <= 2) {
@@ -411,7 +440,9 @@ async function main(): Promise<void> {
       write(join(out, "report.json"), `${JSON.stringify(e.report, null, 2)}\n`);
       write(join(out, "report.md"), episodeMarkdown(e.report));
       write(join(out, "viewer.html"), encounterHtml(sc, e.state, e.report));
-      console.log(`${id}: ${e.report.primary.status} (${e.stopReason}, ${e.steps} actions)${e.error ? ` — error: ${e.error}` : ""}`);
+      console.log(`${id}: ${e.report.primary.status} (${e.stopReason}, ${e.steps} actions)${e.error ? ` — error: ${e.error}` : ""}${e.note ? ` — ${e.note}` : ""}`);
+      const used = agent.usage?.();
+      if (used) console.log(`  model: ${used.modelCalls} turns; ${used.inputTokens + used.cacheReadTokens + used.cacheWriteTokens} input tokens (${used.cacheReadTokens} from cache), ${used.outputTokens} output tokens`);
       for (const reason of e.report.primary.reasons) console.log(`  ${reason}`);
       console.log(`  tracks: ${Object.entries(e.report.tracks).map(([k, t]) => `${k} ${t.score === null ? "—" : t.score.toFixed(2)}`).join(", ")}`);
       console.log(`  wrote ${out}/log.json, report.json, report.md, viewer.html`);
@@ -441,7 +472,7 @@ async function main(): Promise<void> {
         if (line === "quit" || line === "exit") break;
         if (line === "help") {
           console.log("ask <question> | say <text> | exam <manoeuvre> | records <query> | go <room|fixture|patient|region:side> | where | map | feel <needle> | evidence");
-          console.log("view | lib <points|point|region|regions|vocabulary|pattern|deqi|clinic|floorplan|roles|rules|evidence|actions> [id] | actions | <JSON action> | quit");
+          console.log("view | lib <points|point|region|regions|vocabulary|pattern|deqi|clinic|floorplan|roles|rules|evidence> [id] | actions | <JSON action> | quit");
           prompt();
           continue;
         }
@@ -564,6 +595,82 @@ async function main(): Promise<void> {
       }
       write(join(out, "README.md"), `# AcuCraft cases for ClinicalCraft\n\nExported ClinicalCraft cases, one per AcuCraft scenario instance. Add this directory to ClinicalCraft's \`contentDirs\` setting to play the consultation part in ClinicalCraft's front-ends; needling, roles, consent and the evaluation run in AcuCraft.\n`);
       console.log(`wrote ${scenarioIds(p).length} cases to ${out}/cases`);
+      return;
+    }
+    case "skills": {
+      const p = pack();
+      const one = args[0] ? p.skills.find((s) => s.id === args[0]) : null;
+      if (args[0] && !one) {
+        console.error(`no skill ${args[0]} (${p.skills.map((s) => s.id).join(", ")})`);
+        process.exit(2);
+      }
+      if (one) console.log(`# ${one.title}\n\nRead it ${one.when}\n\n${one.body}`);
+      else for (const s of p.skills) console.log(`${s.id.padEnd(28)} ${s.title}\n${" ".repeat(29)}${s.when}`);
+      return;
+    }
+    case "tools": {
+      const p = pack();
+      const sc = requireScenario(p, args[0] ?? scenarioIds(p)[0]!);
+      const actor = values.role ? sc.field.cast.find((m) => m.role === values.role)?.id : sc.field.cast.find((m) => m.agent === "under-test")!.id;
+      if (!actor) {
+        console.error(`nobody in ${sc.id} has the role ${values.role} (${sc.field.cast.map((m) => m.role).join(", ")})`);
+        process.exit(2);
+      }
+      const view = observeAs(sc, createEncounter(sc, { seed: 1 }), actor);
+      const tools = toolsFor(view.you.may, { skills: p.skills.length > 0 });
+      if (values.json) console.log(JSON.stringify(tools.map((t) => ({ name: t.name, kind: t.kind, description: t.description, input_schema: t.inputSchema })), null, 2));
+      else for (const t of tools) console.log(`${t.name.padEnd(20)} ${t.kind.padEnd(5)} ${t.description}`);
+      return;
+    }
+    case "prompt": {
+      console.log(systemPrompt(pack().skills));
+      return;
+    }
+    case "mcp": {
+      const out = values.out ?? join("runs", "mcp");
+      await runMcpServer({
+        pack: pack(),
+        onClosed: ({ sessionId, log, report }) => {
+          write(join(out, sessionId, "log.json"), `${JSON.stringify(log, null, 2)}\n`);
+          write(join(out, sessionId, "report.md"), episodeMarkdown(report));
+        },
+      });
+      return;
+    }
+    case "serve": {
+      const port = Number(values.port);
+      if (!Number.isInteger(port) || port < 0 || port > 65535) throw new Error(`--port must be a port number, not ${values.port}`);
+      const fromFile = values["token-file"] ? readFileSync(resolve(values["token-file"]), "utf8").trim() : "";
+      if (values["token-file"] && !fromFile) throw new Error(`the token file ${values["token-file"]} is empty`);
+      const loopback = isLoopbackHost(values.host);
+      let token: string | null = fromFile || process.env.ACUCRAFT_TOKEN?.trim() || null;
+      const madeUp = !token && !loopback;
+      if (madeUp) token = randomBytes(24).toString("hex");
+      if (token && token.length < 16) throw new Error("the access token must be at least 16 characters");
+      const dataDir = values["in-memory"] ? null : resolve(values.data ?? join("runs", "web"));
+      const hub = new RecordHub({ pack: pack(), dataDir, log: (line) => console.error(line) });
+      const restored = hub.restore();
+      for (const s of restored.skipped) console.error(`skipped ${s.file}: ${s.reason}`);
+      const running = await serve({ hub, host: values.host, port, token, log: values.verbose ? (line) => console.error(line) : undefined });
+      const url = running.url.replace(/\/$/, "");
+      console.log(`AcuCraft workspace   ${url}/${madeUp ? `?token=${token}` : ""}`);
+      console.log(`  records            ${dataDir ? `${dataDir} (${restored.restored} restored)` : "in memory only (gone when the server stops)"}`);
+      console.log("  language models    Claude, OpenAI, MiniMax, compatible endpoint, or offline reference (docs/CHARACTER-CONTROL.md)");
+      console.log(`  MCP over HTTP      ${url}/mcp`);
+      console.log(`    claude mcp add --transport http acucraft ${url}/mcp${token ? ' --header "Authorization: Bearer <token>"' : ""}`);
+      if (token && !madeUp) console.log("  access             the token you gave: open the workspace once with ?token=<token>");
+      if (!loopback) console.log("  warning            listening beyond this computer: anyone with the token can read and change the records");
+      console.log("Ctrl-C stops the server.");
+      await new Promise<void>((done) => {
+        const stop = () => {
+          process.off("SIGINT", stop);
+          process.off("SIGTERM", stop);
+          console.error("stopping…");
+          void running.close().then(done);
+        };
+        process.on("SIGINT", stop);
+        process.on("SIGTERM", stop);
+      });
       return;
     }
     default:

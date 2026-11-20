@@ -1,0 +1,234 @@
+{
+  "acu-heat-lamp": {
+    "uri": "models/acu-heat-lamp.glb",
+    "sha256": "b5eec0b4220c042ed345bfda9f601e5fd16c53dbfb6edafd1d32cf004dbc7c14",
+    "scale": 1,
+    "offset": [
+      0.0,
+      0.0,
+      0.0274
+    ],
+    "license": "MIT",
+    "attribution": {
+      "zh-CN": "AcuCraft 贡献者，在 Blender 中按该设备类型的占位与体素部件程序化建模（tools/blender）",
+      "en": "AcuCraft contributors, modelled procedurally in Blender from the type's footprint and voxel parts (tools/blender)"
+    },
+    "source": {
+      "name": "AcuCraft tools/blender",
+      "url": "https://github.com/psknlr/AcuCraft",
+      "version": "Blender 5.0.1",
+      "changes": "modelled procedurally from the type's footprint and voxel parts"
+    },
+    "use": "cleared"
+  },
+  "acu-herb-cabinet": {
+    "uri": "models/acu-herb-cabinet.glb",
+    "sha256": "a7a3efaf87d3ef5d5d8a044a98540beb28e8a0267c0a61786fd999a3a96ab2d3",
+    "scale": 1,
+    "license": "MIT",
+    "attribution": {
+      "zh-CN": "AcuCraft 贡献者，在 Blender 中按该设备类型的占位与体素部件程序化建模（tools/blender）",
+      "en": "AcuCraft contributors, modelled procedurally in Blender from the type's footprint and voxel parts (tools/blender)"
+    },
+    "source": {
+      "name": "AcuCraft tools/blender",
+      "url": "https://github.com/psknlr/AcuCraft",
+      "version": "Blender 5.0.1",
+      "changes": "modelled procedurally from the type's footprint and voxel parts"
+    },
+    "use": "cleared"
+  },
+  "acu-meridian-chart": {
+    "uri": "models/acu-meridian-chart.glb",
+    "sha256": "8823e0b4d50a25421d88352e3954fdccdca296f8c4863b6a47d810b25ba921ae",
+    "scale": 1,
+    "offset": [
+      0.0,
+      0.837,
+      -0.014
+    ],
+    "license": "MIT",
+    "attribution": {
+      "zh-CN": "AcuCraft 贡献者，在 Blender 中按该设备类型的占位与体素部件程序化建模（tools/blender）",
+      "en": "AcuCraft contributors, modelled procedurally in Blender from the type's footprint and voxel parts (tools/blender)"
+    },
+    "source": {
+      "name": "AcuCraft tools/blender",
+      "url": "https://github.com/psknlr/AcuCraft",
+      "version": "Blender 5.0.1",
+      "changes": "modelled procedurally from the type's footprint and voxel parts"
+    },
+    "use": "cleared"
+  },
+  "acu-meridian-model": {
+    "uri": "models/acu-meridian-model.glb",
+    "sha256": "3252e3032b0dfa3072088c7a53607240c76c11f81a767599f17204ca8600cb02",
+    "scale": 1,
+    "license": "MIT",
+    "attribution": {
+      "zh-CN": "AcuCraft 贡献者，在 Blender 中按该设备类型的占位与体素部件程序化建模（tools/blender）",
+      "en": "AcuCraft contributors, modelled procedurally in Blender from the type's footprint and voxel parts (tools/blender)"
+    },
+    "source": {
+      "name": "AcuCraft tools/blender",
+      "url": "https://github.com/psknlr/AcuCraft",
+      "version": "Blender 5.0.1",
+      "changes": "modelled procedurally from the type's footprint and voxel parts"
+    },
+    "use": "cleared"
+  },
+  "acu-needle-trolley": {
+    "uri": "models/acu-needle-trolley.glb",
+    "sha256": "fbce94f05f391432cc29646171df09d5e647b26725d929192113b3f9756da05a",
+    "scale": 1,
+    "offset": [
+      -0.0262,
+      0.0,
+      0.0
+    ],
+    "license": "MIT",
+    "attribution": {
+      "zh-CN": "AcuCraft 贡献者，在 Blender 中按该设备类型的占位与体素部件程序化建模（tools/blender）",
+      "en": "AcuCraft contributors, modelled procedurally in Blender from the type's footprint and voxel parts (tools/blender)"
+    },
+    "source": {
+      "name": "AcuCraft tools/blender",
+      "url": "https://github.com/psknlr/AcuCraft",
+      "version": "Blender 5.0.1",
+      "changes": "modelled procedurally from the type's footprint and voxel parts"
+    },
+    "use": "cleared"
+  },
+  "acu-needling-station-prone": {
+    "uri": "models/acu-needling-station-prone.glb",
+    "sha256": "f1ba891da565edc2b127c13074aa75c3ad9394a5211ef2b2b30b2cad99c0165f",
+    "scale": 1,
+    "offset": [
+      0.0,
+      0.0,
+      0.0024
+    ],
+    "license": "MIT",
+    "attribution": {
+      "zh-CN": "AcuCraft 贡献者，在 Blender 中按该设备类型的占位与体素部件程序化建模（tools/blender）",
+      "en": "AcuCraft contributors, modelled procedurally in Blender from the type's footprint and voxel parts (tools/blender)"
+    },
+    "source": {
+      "name": "AcuCraft tools/blender",
+      "url": "https://github.com/psknlr/AcuCraft",
+      "version": "Blender 5.0.1",
+      "changes": "modelled procedurally from the type's footprint and voxel parts"
+    },
+    "use": "cleared"
+  },
+  "acu-needling-station-supine": {
+    "uri": "models/acu-needling-station-supine.glb",
+    "sha256": "331eee3d9c8a8588adea564c2524e51df3aeb58b7ad0efe569d74f026f55e2f7",
+    "scale": 1,
+    "offset": [
+      0.0,
+      0.0,
+      0.0024
+    ],
+    "license": "MIT",
+    "attribution": {
+      "zh-CN": "AcuCraft 贡献者，在 Blender 中按该设备类型的占位与体素部件程序化建模（tools/blender）",
+      "en": "AcuCraft contributors, modelled procedurally in Blender from the type's footprint and voxel parts (tools/blender)"
+    },
+    "source": {
+      "name": "AcuCraft tools/blender",
+      "url": "https://github.com/psknlr/AcuCraft",
+      "version": "Blender 5.0.1",
+      "changes": "modelled procedurally from the type's footprint and voxel parts"
+    },
+    "use": "cleared"
+  },
+  "acu-patient-chair": {
+    "uri": "models/acu-patient-chair.glb",
+    "sha256": "f87f09fc27c199ea63c7f60bb213c040349dac4c11ff4d69c9d063800274f538",
+    "scale": 1,
+    "offset": [
+      0.0,
+      0.0,
+      -0.0045
+    ],
+    "license": "MIT",
+    "attribution": {
+      "zh-CN": "AcuCraft 贡献者，在 Blender 中按该设备类型的占位与体素部件程序化建模（tools/blender）",
+      "en": "AcuCraft contributors, modelled procedurally in Blender from the type's footprint and voxel parts (tools/blender)"
+    },
+    "source": {
+      "name": "AcuCraft tools/blender",
+      "url": "https://github.com/psknlr/AcuCraft",
+      "version": "Blender 5.0.1",
+      "changes": "modelled procedurally from the type's footprint and voxel parts"
+    },
+    "use": "cleared"
+  },
+  "acu-pulse-cushion": {
+    "uri": "models/acu-pulse-cushion.glb",
+    "sha256": "69a9b42c17ec64b92b49252f967682657901adda74ae1d782beede5018e1854c",
+    "scale": 1,
+    "offset": [
+      0.0,
+      0.002,
+      0.0
+    ],
+    "license": "MIT",
+    "attribution": {
+      "zh-CN": "AcuCraft 贡献者，在 Blender 中按该设备类型的占位与体素部件程序化建模（tools/blender）",
+      "en": "AcuCraft contributors, modelled procedurally in Blender from the type's footprint and voxel parts (tools/blender)"
+    },
+    "source": {
+      "name": "AcuCraft tools/blender",
+      "url": "https://github.com/psknlr/AcuCraft",
+      "version": "Blender 5.0.1",
+      "changes": "modelled procedurally from the type's footprint and voxel parts"
+    },
+    "use": "cleared"
+  },
+  "acu-supply-shelf": {
+    "uri": "models/acu-supply-shelf.glb",
+    "sha256": "43ab38e0873b2b5e4d1315052cfcd7c3a5a5eeeb2e82a3c6cdda8504a106fe9f",
+    "scale": 1,
+    "offset": [
+      0.0,
+      0.0,
+      -0.002
+    ],
+    "license": "MIT",
+    "attribution": {
+      "zh-CN": "AcuCraft 贡献者，在 Blender 中按该设备类型的占位与体素部件程序化建模（tools/blender）",
+      "en": "AcuCraft contributors, modelled procedurally in Blender from the type's footprint and voxel parts (tools/blender)"
+    },
+    "source": {
+      "name": "AcuCraft tools/blender",
+      "url": "https://github.com/psknlr/AcuCraft",
+      "version": "Blender 5.0.1",
+      "changes": "modelled procedurally from the type's footprint and voxel parts"
+    },
+    "use": "cleared"
+  },
+  "acu-treatment-couch": {
+    "uri": "models/acu-treatment-couch.glb",
+    "sha256": "02b7c1017edffb12cf3a856a28e2b02d36ea16ac11088b1ba58617cd033832b9",
+    "scale": 1,
+    "offset": [
+      0.0,
+      0.0,
+      0.0024
+    ],
+    "license": "MIT",
+    "attribution": {
+      "zh-CN": "AcuCraft 贡献者，在 Blender 中按该设备类型的占位与体素部件程序化建模（tools/blender）",
+      "en": "AcuCraft contributors, modelled procedurally in Blender from the type's footprint and voxel parts (tools/blender)"
+    },
+    "source": {
+      "name": "AcuCraft tools/blender",
+      "url": "https://github.com/psknlr/AcuCraft",
+      "version": "Blender 5.0.1",
+      "changes": "modelled procedurally from the type's footprint and voxel parts"
+    },
+    "use": "cleared"
+  }
+}

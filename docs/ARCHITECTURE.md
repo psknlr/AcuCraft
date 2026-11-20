@@ -5,12 +5,13 @@
 
 AcuCraft is an acupuncture content pack and field extension built on the
 [ClinicalCraft](https://github.com/psknlr/ClinicalCraft) engine, pinned to commit
-`4569808889ca5d5e837657918cc2a821df212474` (`tools/clinicalcraft.rev`). ClinicalCraft runs the consultation; AcuCraft
+`b48995acb9bf5688292c68a19c7b1f586cf0689f` (`tools/clinicalcraft.rev`). ClinicalCraft runs the consultation; AcuCraft
 adds what an acupuncture encounter needs on top of it.
 
 ```
  content/ (data)            standards · acupoints · regions · sg/ (roles, rule sets, clinic, vocabulary, evidence)
-                            world/ (the clinic's floor plan: a ClinicalCraft facility, room templates, a catalog)
+                            world/ (the clinic's floor plan: a ClinicalCraft facility, room templates, a catalog —
+                            and how it is drawn: a model for each equipment type, a skills room; docs/MODELS.md)
                             families/<id>/ case.json (ClinicalCraft) + field.json (AcuCraft) + variants/ + solutions/
         │
  @acucraft/core (pure)      schemas · scenario resolution (family + variant overlay) · patient-specific anatomy
@@ -25,10 +26,20 @@ adds what an acupuncture encounter needs on top of it.
  @clinicalcraft/world       the static world of a facility, headless: collision model, semantic registry,
         │                   navigation grid and planner, line of sight
         │
- @acucraft/bench (Node)     content loader · independent evaluator · agents (reference, protocol, Claude)
-        │                   · episode runner · suites · statistics · reports · the HTML viewer
+ @acucraft/agent            who plays the practitioner: the Agent interface · the reference and rule-based agents
+        │                   · the runtime of a language-model practitioner (one typed tool per action, read-only
+        │                   tools, standing instructions, skills, model providers, the loop) · the session
+        │
+ @acucraft/bench (Node)     content loader (with the skills) · independent evaluator · episode runner · suites
+        │                   · statistics · reports · the HTML viewer
+ @acucraft/mcp              encounters served to an MCP client: another program's agent as the practitioner
+ @acucraft/server (Node)    the browser workspace: live records an operator, the server's language model and MCP
+                            clients work on together (record hub, HTTP API, event stream, MCP over HTTP, the
+                            language-model runner, the browser app and its 3D view — drawn with ClinicalCraft's
+                            figure kit from packages/web of the pinned checkout; docs/WEB.md)
  @acucraft/cli              acucraft validate | list | points | show | map | vocabulary | locate | run | play
-                            | replay | evaluate | view | bench | export-clinicalcraft
+                            | replay | evaluate | view | bench | export-clinicalcraft | skills | tools | prompt | mcp
+                            | serve
 ```
 
 ## 1. Relationship to ClinicalCraft
@@ -37,7 +48,7 @@ adds what an acupuncture encounter needs on top of it.
 |---|---|---|
 | `@clinicalcraft/core` | `CaseSchema` (each scenario's consultation is a `clinicalcraft/case@1` case), `reduce`, `createSession`, `evaluate` (conditions), the matchers, `resultFor`, `vitalsAt`, `verifyCase`, `createRng`/`seedFrom`, `t` | the acupuncture field (`acucraft/field@1`), the encounter state that wraps the clinical session, needling, roles, rules |
 | `@clinicalcraft/world` | the static layer of the clinic's facility, headless and pure: `buildCollisionModel`, `buildRegistry`, `GridAStarBackend` (navigation grid and planner, no clock), the visibility model ([WORLD.md](WORLD.md)) | who stands where in an encounter, the patient's body on the couch, the reach rule of every act; the dynamic world runtime and the 3D renderer are not used — the encounter engine stays a pure function |
-| `@clinicalcraft/agent` | not yet | `@acucraft/bench` agents and the `AgentView` |
+| `@clinicalcraft/agent` | its design, not its code: typed tools with a read/act split, a model provider behind neutral types, a loop that never throws, skills as data, an MCP server ([AGENT.md](AGENT.md)) | `@acucraft/agent` and `@acucraft/mcp`: one practitioner in one clinic, on AcuCraft's own action interface and `AgentView` |
 | `@clinicalcraft/bench` | the conventions (scenario files, Wilson intervals, held-out splits) | `@acucraft/bench` |
 
 The engine is consumed from source: `tools/bootstrap.sh` fetches the pinned revision into `.deps/clinicalcraft`
@@ -186,7 +197,9 @@ their distance) and the team; the patient's presentation, position and appearanc
 — questions asked and answered, examinations done, reports read, vital signs, observations, **each with its evidence
 id** — and the sites and tender points found; the latest assessment with the evidence its pattern names; each needle
 of the visit with the evidence of its response and what is recorded of it; the landmarks the actor palpated and the
-measurements they took, their marks, the plan and consent, equipment, team, tasks, counts, the rules in force and the
+measurements they took, their marks, the plan (its latest version in full) and consent, what has been written —
+`documentation`: the visits, the decisions with their rationale, consent and what was explained, referrals, the
+clinical notes in full, incidents, a stopped treatment — equipment, team, tasks, counts, the rules in force and the
 outcome of their last request. `referenceLibrary(scenario)` is the public knowledge: point definitions and
 constructions, regional charts without patient geometry, the vocabulary (with the signs, each pattern's criteria, the
 needle sensations and deqi), the clinic and its floor plan, roles, rules and guideline evidence. Neither contains the
@@ -196,6 +209,10 @@ acceptance and evidence tests). Teaching mode adds the reference locations of pl
 each insertion.
 
 Palpation is precise to 2.5 mm and tape measurement to 1.5 %, with a seeded error per patient, landmark and position.
+
+How a language model is given this view and the action interface — one typed tool per action, what each result
+tells it, the skills it can read, and the same tools over MCP — is in [AGENT.md](AGENT.md). The browser workspace
+draws the patient's record from this same view, and nothing else of the state ([WEB.md](WEB.md)).
 
 ## 8. Replay
 

@@ -38,10 +38,10 @@
         "landmark": "nail-4-ulnar-corner",
         "offset": {
           "cranial": {
-            "cm": 0.2
+            "fcun": 0.07
           },
           "medial": {
-            "cm": 0.2
+            "fcun": 0.07
           }
         }
       },

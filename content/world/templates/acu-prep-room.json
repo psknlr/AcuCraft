@@ -17,16 +17,20 @@
   "floor": "lino",
   "partitions": [
     {
-      "side": "n"
+      "side": "n",
+      "base": "acu-dado"
     },
     {
-      "side": "w"
+      "side": "w",
+      "base": "acu-dado"
     },
     {
-      "side": "e"
+      "side": "e",
+      "base": "acu-dado"
     },
     {
       "side": "s",
+      "base": "acu-dado",
       "openings": [
         {
           "kind": "door",

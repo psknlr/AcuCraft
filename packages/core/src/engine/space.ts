@@ -34,7 +34,7 @@ import {
  */
 
 /** Where to walk, as a `move` action names it. */
-export type MoveTarget = { room: string } | { fixture: string } | { person: string } | { region: string; side: Side } | { x: number; z: number };
+export type MoveTarget = { room: string } | { fixture: string } | { person: string } | { region: string; side: Side; within?: number } | { x: number; z: number };
 
 /** Where a person "in the room" is not when in none of the clinic's rooms. */
 export const OUTSIDE = "outside";
@@ -122,7 +122,7 @@ const roomLabel = (w: ClinicWorld, id: string) => w.rooms.get(id)?.label ?? id;
 
 function toPatient(sc: Scenario, s: EncounterState, actorId: string, range: number, purpose: string): Spatial {
   const w = clinicWorld(sc);
-  const me = s.actors[actorId]!.at;
+  const me = actorId === s.patient.id ? s.patient.at : s.actors[actorId]!.at;
   const body = patientBody(sc, s);
   const distance = distanceToArea(me.x, me.z, body.area);
   const hint: MoveTarget = { person: s.patient.id };
@@ -222,8 +222,11 @@ export function walkTarget(sc: Scenario, s: EncounterState, to: MoveTarget): { o
   }
   if ("region" in to) {
     if (!sc.bundle.regions.has(to.region)) return { ok: false, code: "not-modelled", message: `There is no regional model ${to.region}.` };
+    if (to.within !== undefined && (!Number.isFinite(to.within) || to.within < 0.3 || to.within > ARM_REACH_M)) {
+      return { ok: false, code: "invalid", message: `A body-site approach distance must be between 0.3 and ${ARM_REACH_M} metres.` };
+    }
     const site = siteOf(sc, s, to.region, to.side);
-    return { ok: true, target: { kind: "near", area: site.area, within: ARM_REACH_M, face: site.point, what: `the ${site.label}` }, label: `the ${site.label}` };
+    return { ok: true, target: { kind: "near", area: site.area, within: to.within ?? ARM_REACH_M, face: site.point, what: `the ${site.label}` }, label: `the ${site.label}` };
   }
   return { ok: true, target: { kind: "point", at: { x: to.x, z: to.z } }, label: `(${fmt1(to.x)}, ${fmt1(to.z)})` };
 }
@@ -232,7 +235,9 @@ export function walkTarget(sc: Scenario, s: EncounterState, to: MoveTarget): { o
 export function walkPlan(sc: Scenario, s: EncounterState, actorId: string, to: MoveTarget): WalkPlan {
   const target = walkTarget(sc, s, to);
   if (!target.ok) return { ok: false, code: "unknown-target", message: target.message };
-  return planWalkFrom(sc, s.actors[actorId]!.at, target.target);
+  const from = actorId === s.patient.id ? s.patient.at : s.actors[actorId]?.at;
+  if (!from) return { ok: false, code: "unknown-target", message: `There is no actor ${actorId} here.` };
+  return planWalkFrom(sc, from, target.target);
 }
 
 function planWalkFrom(sc: Scenario, from: Stance, target: WalkTarget): WalkPlan {

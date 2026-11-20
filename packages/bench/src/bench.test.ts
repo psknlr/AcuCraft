@@ -1,12 +1,8 @@
 import { describe, expect, it } from "vitest";
-import type Anthropic from "@anthropic-ai/sdk";
 import { replayLog, digest } from "@acucraft/core";
 import { loadContentPack, requireScenario, scenarioIds } from "./content.js";
 import { runEpisode } from "./runner.js";
-import { protocolAgent } from "./agents/protocol.js";
-import { referenceAgent } from "./agents/reference.js";
-import { claudeAgent } from "./agents/claude.js";
-import { actionCatalogue } from "./agents/catalogue.js";
+import { protocolAgent, referenceAgent } from "@acucraft/agent";
 import { clusterBootstrap, wilson } from "./stats.js";
 import { runSuite, SuiteSchema, suiteMarkdown } from "./suite.js";
 import { encounterHtml } from "./viewer.js";
@@ -84,77 +80,5 @@ describe("statistics", () => {
     expect(a.families).toBe(3);
     expect(a.ci![0]).toBeLessThan(a.p!);
     expect(a.ci![1]).toBeGreaterThan(a.p!);
-  });
-});
-
-describe("Claude agent loop (mock client: no network)", () => {
-  it("uses lookup and view without simulated time, acts once per step, pairs every tool result, and records outputs", async () => {
-    const sc = requireScenario(pack, "sg-knee-oa/hot-knee");
-    const script: Anthropic.Beta.BetaContentBlock[][] = [
-      [{ type: "tool_use", id: "u1", name: "lookup", input: { topic: "vocabulary" }, caller: { type: "direct" } } as never],
-      [{ type: "tool_use", id: "u2", name: "act", input: { action: { type: "ask", text: "What brings you in today?" } }, caller: { type: "direct" } } as never],
-      [{ type: "text", text: "Let me think.", citations: null } as never],
-      [{ type: "tool_use", id: "u3", name: "view", input: {}, caller: { type: "direct" } } as never],
-      [{ type: "tool_use", id: "u4", name: "act", input: { action: { type: "refer", to: "emergency", urgency: "emergency", reason: "hot swollen knee with fever" } }, caller: { type: "direct" } } as never],
-      [{ type: "tool_use", id: "u5", name: "act", input: { action: { type: "end_visit" } }, caller: { type: "direct" } } as never],
-      [{ type: "tool_use", id: "u6", name: "act", input: { action: { type: "finish_encounter" } }, caller: { type: "direct" } } as never],
-    ];
-    const seen: Anthropic.Beta.MessageCreateParams[] = [];
-    let i = 0;
-    const client = {
-      beta: {
-        messages: {
-          create: async (params: Anthropic.Beta.MessageCreateParams) => {
-            seen.push(JSON.parse(JSON.stringify(params)));
-            const content = script[i++]!;
-            return { id: `m${i}`, type: "message", role: "assistant", model: params.model, content, stop_reason: content[0]!.type === "tool_use" ? "tool_use" : "end_turn", stop_details: null, usage: { input_tokens: 1, output_tokens: 1 } };
-          },
-        },
-      },
-    } as unknown as Anthropic;
-    const agent = claudeAgent({ client });
-    const e = await runEpisode(sc, agent, { seed: 1 });
-    expect(e.stopReason).toBe("finished");
-    expect(e.log.requests.map((r) => r.action.type)).toEqual(["ask", "refer", "end_visit", "finish_encounter"]);
-    // defaults: current model, adaptive thinking (omitted), explicit effort, refusal fallback, no forced tool choice
-    expect(seen[0]!.model).toBe("claude-opus-5-5");
-    expect(seen[0]!.thinking).toBeUndefined();
-    expect(seen[0]!.output_config?.effort).toBe("high");
-    expect(seen[0]!.tool_choice).toEqual({ type: "auto", disable_parallel_tool_use: true });
-    expect((seen[0] as { fallbacks?: unknown }).fallbacks).toBe("default");
-    // every tool_use is answered by a tool_result in the next request, and history is only appended to
-    for (let k = 1; k < seen.length; k++) {
-      const prev = seen[k - 1]!.messages;
-      expect(seen[k]!.messages.slice(0, prev.length)).toEqual(prev);
-      const assistant = seen[k]!.messages[prev.length]!;
-      const reply = seen[k]!.messages[prev.length + 1]!;
-      const use = (assistant.content as { type: string; id?: string }[]).find((b) => b.type === "tool_use");
-      if (use) expect((reply.content as { type: string; tool_use_id?: string }[])[0]!.tool_use_id).toBe(use.id);
-    }
-    expect((agent.transcript!() as unknown[]).length).toBe(script.length);
-    expect(e.log.meta?.transcript).toBeDefined();
-    expect(e.report.primary.pathway).toBe("p-emergency-referral");
-    // what the model is told: the clinic is a place, conclusions name their evidence; the lookups that go with both
-    const system = (seen[0]!.system as { text: string }[])[0]!.text;
-    for (const phrase of ["You have a body in the clinic", "`move` first", "patternEvidence", "check_sensation", "needling.responses", "stronger stimulation is never the aim", "Never record a response you did not observe"]) expect(system).toContain(phrase);
-    const topics = ((seen[0]!.tools as { name: string; input_schema: { properties: { topic?: { enum: string[] } } } }[]).find((t) => t.name === "lookup")!.input_schema.properties.topic!.enum);
-    expect(topics).toEqual(expect.arrayContaining(["pattern", "deqi", "floorplan", "vocabulary"]));
-    // the vocabulary lookup gives the ids; the criteria are under "pattern"
-    const vocabulary = JSON.parse((seen[1]!.messages.at(-1)!.content as { content: string }[])[0]!.content) as { patterns: Record<string, unknown>[]; note: string };
-    expect(vocabulary.patterns[0]).not.toHaveProperty("criteria");
-    expect(vocabulary.note).toMatch(/lookup pattern/);
-    // each action's result says where the model stands and lists the ids of the evidence obtained so far
-    const afterAsk = JSON.parse((seen[2]!.messages.at(-1)!.content as { content: string }[])[0]!.content) as { space: { patient: { inEarshot: boolean; atSide: boolean }; fixturesInReach: string[] }; evidence: { history: string[]; needles: unknown[]; pattern: unknown } };
-    expect(afterAsk.space.patient).toMatchObject({ inEarshot: true, atSide: true });
-    expect(afterAsk.space.fixturesInReach.join(" ")).toMatch(/consult-chair/);
-    expect(afterAsk.evidence.history).toEqual(["hx-chief"]);
-    expect(afterAsk.evidence).toMatchObject({ needles: [], pattern: null });
-  });
-
-  it("the action catalogue lists every action type", () => {
-    const text = actionCatalogue();
-    for (const t of ["ask", "move", "insert_needle", "check_sensation", "assign_task", "count_needles", "finish_encounter"]) expect(text).toMatch(new RegExp(`^- ${t}\\b`, "m"));
-    expect(text).toMatch(/^- assess \{.*patternEvidence\?: string\[\]/m);
-    expect(text).toMatch(/responses\?: \{ needle: string, response: "deqi"\|"none"\|"not-sought", evidence\?: string\[\] \}\[\]/);
   });
 });

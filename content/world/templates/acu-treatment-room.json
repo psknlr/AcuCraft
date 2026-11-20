@@ -17,16 +17,20 @@
   "floor": "lino",
   "partitions": [
     {
-      "side": "n"
+      "side": "n",
+      "base": "acu-dado"
     },
     {
-      "side": "w"
+      "side": "w",
+      "base": "acu-dado"
     },
     {
-      "side": "e"
+      "side": "e",
+      "base": "acu-dado"
     },
     {
       "side": "s",
+      "base": "acu-dado",
       "openings": [
         {
           "kind": "door",
@@ -143,6 +147,7 @@
     {
       "id": "assistant",
       "role": "nurse",
+      "position": "ward-nurse",
       "name": {
         "zh-CN": "努尔·艾莎女士（诊所助理）",
         "en": "Ms Nur Aisyah (clinic assistant)"
@@ -150,6 +155,15 @@
       "x": 1.75,
       "z": 0.75,
       "rot": 270,
+      "appearance": {
+        "skin": "#b98a66",
+        "hair": "#1f1a17",
+        "hairStyle": "bun",
+        "shirt": "#5f9f92",
+        "pants": "#3f4a4c",
+        "build": "average",
+        "presentation": "feminine"
+      },
       "greeting": {
         "zh-CN": "治疗床已备好。需要我陪着患者就说一声。",
         "en": "The couch is ready. Tell me if you want me to stay with the patient."

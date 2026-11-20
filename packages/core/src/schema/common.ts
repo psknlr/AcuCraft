@@ -7,6 +7,13 @@ import { IdSchema, LocalizedTextSchema } from "@clinicalcraft/core";
  */
 export { IdSchema, LocalizedTextSchema };
 
+/**
+ * An id as a request may give it. The state keeps its needles, packs, marks, tasks and actors in records keyed by id,
+ * so a name every object has (`constructor`, `toString` …) can never be the id of anything: a request that gives one
+ * is malformed, and is recorded as such instead of being looked up.
+ */
+export const RequestIdSchema = IdSchema.refine((id) => !(id in Object.prototype), "not an id");
+
 export const DateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "YYYY-MM-DD");
 export const SemverSchema = z.string().regex(/^\d+\.\d+\.\d+$/, "semver x.y.z");
 
@@ -55,8 +62,11 @@ export type Position = z.infer<typeof PositionSchema>;
 
 /** A distance on the body: in proportional (B-cun) units of a named segment, or in centimetres. */
 export const DistanceSchema = z.union([
+  /** Proportional bone cun of a region's segment (B-cun). */
   z.object({ cun: z.number().min(0), segment: IdSchema }).strict(),
   z.object({ cm: z.number().min(0) }).strict(),
+  /** Finger cun (F-cun): the patient's own middle-finger cun (`patient.anatomy.fingerCunCm`), as `measure` reports it. */
+  z.object({ fcun: z.number().min(0) }).strict(),
 ]);
 export type Distance = z.infer<typeof DistanceSchema>;
 

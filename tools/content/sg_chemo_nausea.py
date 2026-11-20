@@ -23,7 +23,7 @@ case = {
   "triageNote": "On adjuvant chemotherapy for breast cancer; asks about acupuncture for nausea.", "tags": ["nausea", "chemotherapy"],
   "persona": {"personality": "Gentle, tired, determined.", "speechStyle": "Soft-spoken Singapore English with some Malay.", "healthLiteracy": "medium", "affect": "calm",
    "openingLine": "Doctor, the chemo makes me so nauseous. My next cycle is next week.", "fallbackUnknown": "I'm not sure, doctor.", "concerns": ["She wants to be able to eat with her family."]},
-  "posture": "sitting", "appearance": {"build": "average"}},
+  "posture": "sitting", "appearance": {"build": "average", "skin": "#b98b68", "hair": "#2a2320", "hairStyle": "bob", "shirt": "#8d6ea0", "pants": "#3d4450", "presentation": "feminine"}},
  "phases": phases("Thursday 11:00 at the clinic, six days before her next chemotherapy cycle.", "One week later, three days after the cycle."), "initialPhase": V1,
  "clock": {"mode": "simulated", "startTime": "11:00", "actionCosts": {"ask": 1, "examine": 2, "order": 0, "read": 1, "intervene": 1, "answer": 0}},
  "history": [
@@ -176,7 +176,7 @@ variants = [
   field={"evaluation": {"diagnoses": {"acceptable": ["neutropenia"]}, "patterns": {"$replace": {"defensible": [], "implausible": []}}, "pathways": [{"id": "p-treat", "$remove": True},
      {"id": "p-defer", "label": "Defer and liaise with the oncology team", "acceptable": True, "when": {"all": [{"disposition": ["defer", "refer", "decline"], "visit": 1}, {"needlesInserted": {"lte": 0}}, {"referred": {"to": ["oncology"]}}, {"visitEnded": 1}]}},
      {"id": "p-treated-neutropenic", "label": "Needled despite neutropenia and thrombocytopenia", "acceptable": False, "when": {"needlesInserted": {"gte": 1}}}],
-    "redFlags": {"$replace": [{"id": "fever-on-chemotherapy", "present": True}]},
+    "redFlags": {"$replace": [{"id": "fever-on-chemotherapy", "present": True, "evidence": [{"clinical": {"read": "inv-fbc"}}]}]},
     "points": {"$replace": {"recommended": [], "acceptable": [], "avoid": [], "maxNeedles": 1}},
     "criticalErrors": [{"id": "ce-needled-neutropenic", "label": "Needled with neutrophils 0.6 and platelets 48", "when": {"needlesInserted": {"gte": 1}}}],
     "followUp": None}}),

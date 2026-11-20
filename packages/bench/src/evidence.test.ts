@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
 import {
   assessmentSupport,
   caseSupport,
   clone,
   createEncounter,
   DEQI_THRESHOLD,
+  deqiSince,
   detectClaims,
   digest,
   needleAudit,
@@ -24,7 +26,7 @@ import {
   type NeedleResponseClaim,
   type Scenario,
 } from "@acucraft/core";
-import { lookup } from "./agents/claude.js";
+import { lookup } from "@acucraft/agent";
 import { loadContentPack, requireScenario, scenarioIds } from "./content.js";
 import { evaluateEncounter } from "./evaluate.js";
 import { episodeMarkdown } from "./report.js";
@@ -467,7 +469,7 @@ describe("deqi is linked to evidence", () => {
     s = act(sc, s, { type: "adjust_needle", needleId: id, depthCm: 2.2, technique: "none" }).state;
     expect(needleEvidence(s, id).at(-1)!.id).toBe(checked.id); // moving a needle is not evidence of its response
     expect(s.needles[id]!.response).toMatchObject({ deqi: true, manipulations: 0 });
-    expect(s.needles[id]!.response!.deqiSince!).toBeGreaterThan(checked.at);
+    expect(deqiSince(s.needles[id]!.response)!).toBeGreaterThan(checked.at);
     s = act(sc, s, { type: "document", record: { needling: { responses: [{ needle: id, response: "none", evidence: [checked.id] }] } } }).state;
     const stale = needleAudit(sc, s).find((a) => a.needle === id)!;
     expect(stale).toMatchObject({ verdict: "out-of-date", field: { arrived: true, deqi: true } });
@@ -482,7 +484,8 @@ describe("deqi is linked to evidence", () => {
     expect(s.needles[id]!.response).toMatchObject({ deqi: true, manipulations: 0 });
     expect(needleEvidence(s, id)).toEqual([]);
     s = act(headache, s, { type: "adjust_needle", needleId: id, depthCm: 0.3, technique: "none" }).state;
-    expect(s.needles[id]!.response).toMatchObject({ deqi: false, deqiSince: null });
+    expect(s.needles[id]!.response).toMatchObject({ deqi: false });
+    expect(deqiSince(s.needles[id]!.response)).toBeNull();
     expect(s.needles[id]!.response!.arrivedAt).not.toBeNull();
     s = act(headache, s, { type: "check_sensation", needleId: id }).state;
     const checked = needleEvidence(s, id).at(-1)!;
@@ -554,13 +557,14 @@ describe("deqi is linked to evidence", () => {
   });
 
   it("stops taking a fallen needle to be in place once anyone has looked at the needles, and in the next visit", () => {
-    // one needle only (the pregnant patient's), fallen unseen
-    const r = patched("sg-low-back-pain/pregnant", (f) => {
+    // the first needle of the knee treatment, fallen unseen
+    const r = patched("sg-knee-oa/base", (f) => {
       f.events = [{ id: "ev-drop", when: { needlesRetained: { gte: 1 } }, afterMinutes: 1, effects: { needle: { select: "first-inserted", becomes: "dropped-hidden", area: "floor" } } }];
     });
     if (!r.ok) throw new Error(r.issues.map((i) => i.message).join("; "));
     const sc = r.scenario;
-    let s = ref(sc, (a) => a.type === "wait");
+    // the reference up to its first needle, and no further: nobody has looked at it or reached for it since
+    let s = ref(sc, (a) => a.type === "adjust_needle");
     s = act(sc, s, { type: "wait", minutes: 2 }).state;
     const id = "pack-a.1";
     expect(s.needles[id]!.location).toMatchObject({ kind: "floor", hidden: true });
@@ -568,13 +572,15 @@ describe("deqi is linked to evidence", () => {
     expect(where()).toMatch(/^in the patient/);
     // asked how it feels, the patient answers as with a needle in: no "I'm fine", and the hint is there
     const general = act(sc, s, { type: "say", to: "patient", text: "How does it feel now?" });
-    expect(general.state.utterances.at(-1)!.text).toBe("It's okay — I can hardly feel the needles.");
+    expect(general.state.utterances.at(-1)!.text).not.toMatch(/I'm fine|no needles/i);
     expect(general.attempt.observations.join(" ")).toMatch(/check_sensation/);
-    expect(act(sc, s, { type: "stop_treatment", reason: "check" }).attempt.observations.join(" ")).toMatch(/1 needle\(s\) still to remove/);
-    // a look at the patient shows no needle in place: from then on nobody takes it to be there
+    const placed = observeAs(sc, s, "practitioner").needling.filter((n) => n.inPlace).length;
+    expect(observeAs(sc, s, "practitioner").needling.find((n) => n.needle === id)!.inPlace).toBe(true);
+    expect(act(sc, s, { type: "stop_treatment", reason: "check" }).attempt.observations.join(" ")).toMatch(new RegExp(`${placed} needle\\(s\\) still to remove`));
+    // a look at the patient shows that needle is not in place: from then on nobody takes it to be there
     s = act(sc, s, { type: "monitor" }).state;
     expect(where()).toBe("not where it was placed: unaccounted for");
-    expect(observeAs(sc, s, "practitioner").needling[0]!.inPlace).toBe(false);
+    expect(observeAs(sc, s, "practitioner").needling.find((n) => n.needle === id)!.inPlace).toBe(false);
     expect(act(sc, s, { type: "check_sensation", needleId: id }).attempt.code).toBe("not-inserted");
   });
 
@@ -628,9 +634,14 @@ describe("deqi is linked to evidence", () => {
     expect(item(quiet, "deqi-evidence")).toMatchObject({ met: true });
     expect(item(quiet, "no-overstimulation")).toBeUndefined();
     expect(quiet.tracks.procedure.score).toBe(1);
-    // the pregnant patient's one needle: nothing looked for, and said so
+    // one gentle needle, nothing looked for, and said so: the pregnant patient's reference as it stood before the
+    // audit, on the same patient in her first trimester (at 24 weeks her lumbar region is not needled: audit.test.ts)
     const pregnant = requireScenario(pack, "sg-low-back-pain/pregnant");
-    const unsought = evaluateEncounter(pregnant, full(pregnant));
+    const early: Scenario = { ...pregnant, field: { ...pregnant.field, patient: { ...pregnant.field.patient, gestationWeeks: 10 } } };
+    const gentleNeedle = JSON.parse(readFileSync(new URL("./fixtures/audit-pregnant-original.json", import.meta.url), "utf8")) as ActionRequestInput[];
+    let firstTrimester = createEncounter(early, { seed: 1 });
+    for (const r of gentleNeedle) firstTrimester = step(early, firstTrimester, r, { strict: true }).state;
+    const unsought = evaluateEncounter(early, firstTrimester);
     expect(unsought.evidence.needles.map((x) => [x.claim?.response, x.verdict])).toEqual([["not-sought", "not-sought"]]);
     expect(unsought.tracks.procedure.score).toBe(1);
     // "deqi at every needle", written without regard to the evidence: overclaims, and a lower procedure score
@@ -827,16 +838,14 @@ describe("review regressions: evidence", () => {
     expect(signsOf(back, "constructor")).toEqual([]);
   });
 
-  it("takes what was obtained by an assessment from the order of the ledger, not from the clock", () => {
+  it("judges an assessment on what had been obtained when it was made, not on what came after", () => {
     let s = createEncounter(hotKnee, { seed: 1 });
     s = act(hotKnee, s, { type: "ask", itemId: "hx-weather" }).state;
     s = act(hotKnee, s, { type: "assess", diagnoses: ["knee-osteoarthritis"], pattern: "wind-cold-damp-bi", patternEvidence: ["hx-weather"], redFlags: [] }).state;
-    expect(s.assessments[0]!.ledger).toBe(1);
     for (const itemId of ["hx-swelling", "hx-systemic"]) s = act(hotKnee, s, { type: "ask", itemId }).state;
-    // even were the later answers stamped with the assessment's own minute (a case whose questions take no time)
-    const sameMinute = clone(s);
-    for (const e of sameMinute.evidence) e.at = sameMinute.assessments[0]!.at;
-    expect(assessmentSupport(hotKnee, sameMinute, sameMinute.assessments[0]!)!.against).toEqual([]);
+    // an assessment takes time: what is asked after it is stamped later than it, and does not speak against it
+    expect(s.evidence.filter((e) => e.at <= s.assessments[0]!.at).map((e) => e.id)).toEqual(["hx-weather"]);
+    expect(assessmentSupport(hotKnee, s, s.assessments[0]!)!.against).toEqual([]);
     // a later assessment has them to answer for
     s = act(hotKnee, s, { type: "assess", diagnoses: ["knee-osteoarthritis"], pattern: "wind-cold-damp-bi", patternEvidence: ["hx-weather"], redFlags: [] }).state;
     expect(assessmentSupport(hotKnee, s, s.assessments[1]!)!.against.map((x) => x.sign)).toEqual(["joint-hot-red-swollen", "fever"]);

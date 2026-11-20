@@ -65,7 +65,13 @@
     },
     "posture": "sitting",
     "appearance": {
-      "build": "average"
+      "build": "average",
+      "skin": "#b98b68",
+      "hair": "#2a2320",
+      "hairStyle": "bob",
+      "shirt": "#8d6ea0",
+      "pants": "#3d4450",
+      "presentation": "feminine"
     }
   },
   "phases": [

@@ -16,8 +16,14 @@ export default defineConfig({
     alias: [
       { find: /^@clinicalcraft\/core$/, replacement: engine },
       { find: /^@clinicalcraft\/world$/, replacement: world },
+      // the 3D world's own modules (the figure kit the workspace's 3D view draws people with)
+      { find: /^@clinicalcraft\/web\/(.*)\.js$/, replacement: `${here("./.deps/clinicalcraft/packages/web/src/")}$1.ts` },
       { find: /^@acucraft\/core$/, replacement: here("./packages/core/src/index.ts") },
+      { find: /^@acucraft\/agent$/, replacement: here("./packages/agent/src/index.ts") },
+      { find: /^@acucraft\/agent\/node$/, replacement: here("./packages/agent/src/node/index.ts") },
       { find: /^@acucraft\/bench$/, replacement: here("./packages/bench/src/index.ts") },
+      { find: /^@acucraft\/mcp$/, replacement: here("./packages/mcp/src/index.ts") },
+      { find: /^@acucraft\/server$/, replacement: here("./packages/server/src/index.ts") },
       // one zod for AcuCraft and the engine sources, whatever node_modules the engine checkout has
       { find: /^zod$/, replacement: require.resolve("zod") },
     ],
@@ -26,6 +32,7 @@ export default defineConfig({
     include: ["packages/*/src/**/*.test.ts", "tools/**/*.test.ts"],
     exclude: ["**/node_modules/**", "**/dist/**", ".deps/**"],
     environment: "node",
+    setupFiles: [here("./tools/test/browser-images.ts")],
     testTimeout: 30000,
   },
 });

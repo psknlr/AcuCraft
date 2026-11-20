@@ -1,20 +1,7 @@
-import {
-  ACUCRAFT_VERSION,
-  createEncounter,
-  digest,
-  observeAs,
-  referenceLibrary,
-  step,
-  LOG_SCHEMA_ID,
-  type ActionRequest,
-  type EncounterLog,
-  type EncounterState,
-  type Mode,
-  type Scenario,
-} from "@acucraft/core";
+import { EncounterSession, type Agent } from "@acucraft/agent";
+import type { ActionRequest, EncounterLog, EncounterState, Mode, Scenario } from "@acucraft/core";
 import { readFileSync } from "node:fs";
 import { evaluateEncounter, type EncounterReport } from "./evaluate.js";
-import type { Agent } from "./agents/types.js";
 
 export const CLINICALCRAFT_REV = (() => {
   try {
@@ -40,6 +27,8 @@ export interface EpisodeResult {
   seed: number;
   stopReason: "finished" | "agent-done" | "max-steps" | "error";
   error?: string;
+  /** Why the agent stopped by itself before the encounter was finished, when it said. */
+  note?: string;
   steps: number;
   state: EncounterState;
   log: EncounterLog;
@@ -51,30 +40,25 @@ export interface EpisodeResult {
  * the episode, on the record, independently of the agent.
  */
 export async function runEpisode(sc: Scenario, agent: Agent, opts: RunOptions = {}): Promise<EpisodeResult> {
-  const seed = opts.seed ?? 1;
-  const mode = opts.mode ?? "assessment";
   const maxSteps = opts.maxSteps ?? 250;
-  const actor = sc.field.cast.find((m) => m.agent === "under-test")!.id;
-  let s = createEncounter(sc, { seed, mode });
-  const requests: ActionRequest[] = [];
+  const session = new EncounterSession(sc, { ...(opts.seed !== undefined ? { seed: opts.seed } : {}), ...(opts.mode ? { mode: opts.mode } : {}), strict: opts.strict !== false });
   let stopReason: EpisodeResult["stopReason"] = "max-steps";
   let error: string | undefined;
-  await agent.init?.({ actorId: actor, library: referenceLibrary(sc) });
+  /** Why the agent stopped by itself, when it said (a model that could not be reached, a refusal). */
+  let note: string | undefined;
+  await agent.init?.({ actorId: session.actor, library: session.library() });
   let i = 0;
   try {
     for (; i < maxSteps; i++) {
-      const view = observeAs(sc, s, actor);
-      const turn = await agent.next(view);
+      const turn = await agent.next(session.view());
       if ("done" in turn) {
         stopReason = "agent-done";
+        note = turn.note;
         break;
       }
-      const req = { requestId: `${actor}-${String(i + 1).padStart(4, "0")}`, actor, patient: sc.field.patient.id, action: turn.action, expectedVersion: view.version };
-      const res = step(sc, s, req, { strict: opts.strict !== false });
-      s = res.state;
-      requests.push(res.attempt.request);
-      opts.onStep?.({ index: i, request: res.attempt.request, status: res.attempt.status, message: res.attempt.message || res.attempt.executed?.detail || "" });
-      if (s.finished) {
+      const { attempt } = session.act(turn.action);
+      opts.onStep?.({ index: i, request: attempt.request, status: attempt.status, message: attempt.message || attempt.executed?.detail || "" });
+      if (session.finished) {
         stopReason = "finished";
         i++;
         break;
@@ -84,16 +68,6 @@ export async function runEpisode(sc: Scenario, agent: Agent, opts: RunOptions = 
     stopReason = "error";
     error = (e as Error).message;
   }
-  const log: EncounterLog = {
-    schema: LOG_SCHEMA_ID,
-    scenarioId: sc.id,
-    scenarioVersion: sc.family.version,
-    engine: { acucraft: ACUCRAFT_VERSION, clinicalcraft: CLINICALCRAFT_REV },
-    seed,
-    mode,
-    requests,
-    finalDigest: digest(s),
-    meta: { agent: agent.name, stopReason, ...(agent.transcript ? { transcript: agent.transcript() } : {}) },
-  };
-  return { scenario: sc.id, agent: agent.name, seed, stopReason, ...(error ? { error } : {}), steps: i, state: s, log, report: evaluateEncounter(sc, s) };
+  const log = session.log({ clinicalcraft: CLINICALCRAFT_REV }, { agent: agent.name, stopReason, ...(note ? { note } : {}), ...(agent.usage ? { usage: agent.usage() } : {}), ...(agent.transcript ? { transcript: agent.transcript() } : {}) });
+  return { scenario: sc.id, agent: agent.name, seed: session.seed, stopReason, ...(error ? { error } : {}), ...(note ? { note } : {}), steps: i, state: session.state, log, report: evaluateEncounter(sc, session.state) };
 }

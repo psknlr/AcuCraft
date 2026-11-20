@@ -2,6 +2,7 @@ import type { DomainEvent, SessionState } from "@clinicalcraft/core";
 import type { Action, ActionRequest, ActionType, DocumentRecord, PlanBody, PointRef, TaskKind } from "./actions.js";
 import type { ChartPoint, Position, Side } from "./common.js";
 import type { ConsentStatus, FeedbackKind, NeedleSensation, NeedleSpec, UnsafeCode } from "./field.js";
+import type { ManipulationTechniqueId, RecordedManipulationMotion } from "./manipulation.js";
 
 /**
  * Encounter state — `acucraft/encounter@1`: the authoritative simulation state human learners and AI agents share.
@@ -34,6 +35,23 @@ export interface WalkRecord {
   minutes: number;
   /** The patient walked alongside. */
   withPatient: boolean;
+}
+
+/** An accepted, reproducible presentation performance; it never asserts a clinical response or measured force. */
+export interface ManipulationPerformance {
+  id: string;
+  requestId: string;
+  attempt: number;
+  at: number;
+  visit: number;
+  actor: string;
+  technique: ManipulationTechniqueId;
+  context: "skin" | "retained" | "removed";
+  needleId: string | null;
+  site: { region: string; side: Side; u: number; v: number };
+  patientPosition: Position;
+  motion: RecordedManipulationMotion;
+  provenance: { kind: "illustrative"; source: "acucraft-authored-demonstration-v1"; review: "unreviewed"; forces: "not-modelled" };
 }
 
 /**
@@ -75,8 +93,12 @@ export interface NeedleResponse {
   deqi: boolean;
   /** When deqi first arrived (null: it has not). */
   arrivedAt: number | null;
-  /** Since when the needle has had deqi without a break (null: it has none now). */
-  deqiSince: number | null;
+  /**
+   * Set only for a needle that lost its response and found it again: since when it has had deqi this time. Absent,
+   * a needle with deqi has had it since `arrivedAt` (read it with `deqiSince()`); a record made by an engine that
+   * did not keep this replays to the state it had.
+   */
+  deqiSince?: number;
   qualities: NeedleSensation[];
   /** A sensation that is not deqi and wants the needle adjusted or out (a nerve, a tendon, too strong). */
   noxious: NeedleSensation | null;
@@ -115,6 +137,7 @@ export interface NeedleEvent {
   actor: string;
   what: "pack-opened" | "picked-up" | "handed-over" | "inserted" | "adjusted" | "withdrawn" | "disposed" | "dropped" | "found" | "broken" | "contaminated" | "pressure";
   detail?: string;
+  motion?: import("../engine/manipulation.js").NeedleMotion;
 }
 
 export interface NeedleState {
@@ -138,6 +161,11 @@ export interface NeedleState {
     configuration: string;
     patientPosition: Position;
     entry: ChartPoint;
+    /** The point the operator named or marked for this needle (null: none named). */
+    intended: PointRef | null;
+    /** The point the entry actually lies on, judged against this patient's anatomy (planned points first). */
+    nearest: PointRef | null;
+    /** What the rules treat the needle as: the intended point when the entry lies on it, otherwise the nearest. */
     target: PointRef | null;
     mark: string | null;
     /** The mark had moved with the skin (made in another position) when the needle went in. */
@@ -276,7 +304,13 @@ export interface CountRecord {
   onTray: number;
   disposed: number;
   unaccounted: number;
+  /** Only a count made where the needles are (`observed`), or a colleague's such count received (`reported`), reconciles. */
   reconciled: boolean;
+  /** `observed`: counted at the bedside and the tray; `read`: the record read from elsewhere (verifies nothing);
+   * `reported`: a colleague's observed count, received through a delegated task. */
+  method: "observed" | "read" | "reported";
+  /** For `reported`: who counted. */
+  reportedBy: string | null;
 }
 
 export interface VisitState {
@@ -317,19 +351,23 @@ export interface EncounterState {
   landmarks: { visit: number; by: string; at: number; region: string; side: Side; landmark: string; position: ChartPoint; configuration: string }[];
   measurements: { visit: number; by: string; at: number; region: string; side: Side; what: string; cm: number }[];
   marks: Record<string, MarkRecord>;
-  sitesPrepared: { visit: number; region: string; side: Side; at: number; by: string }[];
+  /** Each treatment couch, by room: when it was last cleaned and made up, by whom, and what was done. */
+  couches: Record<string, { prepared: { at: number; by: string; done: string[] } | null }>;
+  /** Skin cleaned before needling; `touched`: the cleaned skin was handled again afterwards (it needs cleaning again). */
+  sitesPrepared: { visit: number; region: string; side: Side; at: number; by: string; touched: { at: number; by: string; how: string } | null }[];
   revealedConditions: string[];
   revealedAshi: string[];
   /**
    * `patternEvidence`: the evidence ids the pattern differentiation names (each was in `evidence` when it was made);
    * `ledger`: how many items the evidence ledger held then — what had been obtained by the time of the assessment.
    */
-  assessments: { at: number; by: string; visit: number; ledger: number; diagnoses: string[]; pattern: string | null; patternEvidence: string[]; redFlags: string[]; rationale: string }[];
+  assessments: { at: number; by: string; visit: number; diagnoses: string[]; pattern: string | null; patternEvidence: string[]; redFlags: string[]; rationale: string }[];
   decisions: { at: number; by: string; disposition: string; rationale: string; visit: number }[];
   plans: PlanVersion[];
   planApproved: number | null;
   referrals: { at: number; by: string; to: string; urgency: string; reason: string }[];
-  explanations: { visit: number; at: number; by: string; topics: string[] }[];
+  /** What the patient was told (`text`), and the topics it covered; tags without words cover nothing (`tagged`). */
+  explanations: { visit: number; at: number; by: string; topics: string[]; text: string | null; tagged: string[] }[];
   packs: Record<string, PackState>;
   needles: Record<string, NeedleState>;
   items: Record<string, { id: string; holder: string | null; at: string | null }>;
@@ -348,6 +386,8 @@ export interface EncounterState {
   events: Record<string, { armedAt: number; draw: boolean; firedAt: number | null }>;
   /** Every walk made, in order. */
   walks: WalkRecord[];
+  /** Created only by perform_technique, leaving historical encounter/replay digests unchanged. */
+  performances?: ManipulationPerformance[];
   /** The evidence ledger: everything obtained, in order, each item once. */
   evidence: EvidenceItem[];
   attempts: AttemptRecord[];

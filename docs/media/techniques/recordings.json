@@ -1,0 +1,1864 @@
+{
+  "source": "AcuCraft Studio operator preview on three virtual encounters. Each MP4 contains the native rendered approach, work and release. Frame numbers are zero-based. The scene clock was advanced at the encoding frame rate.",
+  "videoCodec": "H.264",
+  "sceneQuality": "Medium",
+  "handAssetSha256": "e9e7ce69914ab8603f8d168491b74c6c525e8fe87cecc4ce11c42a1c8348c889",
+  "stageBundleSha256": "8bd7977bcc07e8d248aae1d870959ec87e01a48dd98bebc0cc76615afa61792b",
+  "recordingCount": 36,
+  "cataloguePhaseCount": 57,
+  "totalFrames": 4219,
+  "recordings": [
+    {
+      "id": "chuai",
+      "name": "揣",
+      "file": "chuai.mp4",
+      "context": "skin",
+      "frames": 105,
+      "fps": 24,
+      "size": [
+        960,
+        720
+      ],
+      "durationSeconds": 4.375,
+      "phaseLabels": [
+        "Chuai · palpation"
+      ],
+      "phases": [
+        {
+          "label": "Chuai · palpation",
+          "primitive": "chuai",
+          "startFrame": 26
+        }
+      ],
+      "operatorSettings": {
+        "durationMs": 2400,
+        "cycles": 2,
+        "strokeMm": 1.5,
+        "rotationDeg": 90,
+        "lateralMm": 2,
+        "tiltDeg": 3,
+        "tempoBias": 0.5,
+        "direction": "alternating",
+        "grip": "two-finger",
+        "wristElevationDeg": 55,
+        "gripStyle": "tip-pinch",
+        "idleFingerPose": "curled",
+        "support": "none",
+        "hand": "left",
+        "gripApertureMm": 2,
+        "contactIntensity": 0.45
+      },
+      "camera": {
+        "inspectionButton": "手部 三分之四 ¾",
+        "wheelDeltaY": -850
+      },
+      "sceneRecordSha256": "90d5fc0371a8d0259f9fffd48b5c965583ace864ec24a554ee77d73828fb1286",
+      "sha256": "aa029a090b94fa440f05dd4190176c985bea5cff4e39d9a7555106d76f9bcbda"
+    },
+    {
+      "id": "zhua",
+      "name": "爪",
+      "file": "zhua.mp4",
+      "context": "skin",
+      "frames": 105,
+      "fps": 24,
+      "size": [
+        960,
+        720
+      ],
+      "durationSeconds": 4.375,
+      "phaseLabels": [
+        "Zhua · nail contact"
+      ],
+      "phases": [
+        {
+          "label": "Zhua · nail contact",
+          "primitive": "zhua",
+          "startFrame": 26
+        }
+      ],
+      "operatorSettings": {
+        "durationMs": 2400,
+        "cycles": 2,
+        "strokeMm": 1.5,
+        "rotationDeg": 90,
+        "lateralMm": 0.5,
+        "tiltDeg": 3,
+        "tempoBias": 0.5,
+        "direction": "alternating",
+        "grip": "two-finger",
+        "wristElevationDeg": 55,
+        "gripStyle": "tip-pinch",
+        "idleFingerPose": "curled",
+        "support": "stabilize",
+        "hand": "left",
+        "gripApertureMm": 2,
+        "contactIntensity": 0.45
+      },
+      "camera": {
+        "inspectionButton": "手部 掌侧 Palm",
+        "wheelDeltaY": -850
+      },
+      "sceneRecordSha256": "90d5fc0371a8d0259f9fffd48b5c965583ace864ec24a554ee77d73828fb1286",
+      "sha256": "930c24d70412785750900ed1bc3d8b489160682b178fd149b37ffbba87155172"
+    },
+    {
+      "id": "xun",
+      "name": "循",
+      "file": "xun.mp4",
+      "context": "skin",
+      "frames": 105,
+      "fps": 24,
+      "size": [
+        960,
+        720
+      ],
+      "durationSeconds": 4.375,
+      "phaseLabels": [
+        "Xun · tracing"
+      ],
+      "phases": [
+        {
+          "label": "Xun · tracing",
+          "primitive": "xun",
+          "startFrame": 26
+        }
+      ],
+      "operatorSettings": {
+        "durationMs": 2400,
+        "cycles": 2,
+        "strokeMm": 1.5,
+        "rotationDeg": 90,
+        "lateralMm": 4,
+        "tiltDeg": 3,
+        "tempoBias": 0.5,
+        "direction": "alternating",
+        "grip": "two-finger",
+        "wristElevationDeg": 55,
+        "gripStyle": "tip-pinch",
+        "idleFingerPose": "curled",
+        "support": "none",
+        "hand": "left",
+        "gripApertureMm": 2,
+        "contactIntensity": 0.45
+      },
+      "camera": {
+        "inspectionButton": "手部 三分之四 ¾",
+        "wheelDeltaY": -850
+      },
+      "sceneRecordSha256": "90d5fc0371a8d0259f9fffd48b5c965583ace864ec24a554ee77d73828fb1286",
+      "sha256": "094322db42a24ec1c731492f164123c24f89c494428fe8630d8388761b8b41f8"
+    },
+    {
+      "id": "she",
+      "name": "摄",
+      "file": "she.mp4",
+      "context": "skin",
+      "frames": 105,
+      "fps": 24,
+      "size": [
+        960,
+        720
+      ],
+      "durationSeconds": 4.375,
+      "phaseLabels": [
+        "She · contact variant"
+      ],
+      "phases": [
+        {
+          "label": "She · contact variant",
+          "primitive": "she",
+          "startFrame": 26
+        }
+      ],
+      "operatorSettings": {
+        "durationMs": 2400,
+        "cycles": 2,
+        "strokeMm": 1.5,
+        "rotationDeg": 90,
+        "lateralMm": 1,
+        "tiltDeg": 3,
+        "tempoBias": 0.5,
+        "direction": "alternating",
+        "grip": "two-finger",
+        "wristElevationDeg": 55,
+        "gripStyle": "tip-pinch",
+        "idleFingerPose": "curled",
+        "support": "pinch",
+        "hand": "left",
+        "gripApertureMm": 2,
+        "contactIntensity": 0.45
+      },
+      "camera": {
+        "inspectionButton": "手部 掌侧 Palm",
+        "wheelDeltaY": -850
+      },
+      "sceneRecordSha256": "90d5fc0371a8d0259f9fffd48b5c965583ace864ec24a554ee77d73828fb1286",
+      "sha256": "c8851ba2a93799e53fbf65ae802e3f0a460b1537bae17d34bbbecef7b42b0e7c"
+    },
+    {
+      "id": "yao",
+      "name": "摇",
+      "file": "yao.mp4",
+      "context": "retained",
+      "frames": 105,
+      "fps": 24,
+      "size": [
+        960,
+        720
+      ],
+      "durationSeconds": 4.375,
+      "phaseLabels": [
+        "Yao · oscillation"
+      ],
+      "phases": [
+        {
+          "label": "Yao · oscillation",
+          "primitive": "yao",
+          "startFrame": 26
+        }
+      ],
+      "operatorSettings": {
+        "durationMs": 2400,
+        "cycles": 2,
+        "strokeMm": 1.5,
+        "rotationDeg": 90,
+        "lateralMm": 2,
+        "tiltDeg": 3,
+        "tempoBias": 0.5,
+        "direction": "alternating",
+        "grip": "two-finger",
+        "wristElevationDeg": 55,
+        "gripStyle": "tip-pinch",
+        "idleFingerPose": "curled",
+        "support": "none",
+        "hand": "left",
+        "gripApertureMm": 2,
+        "contactIntensity": 0.45
+      },
+      "camera": {
+        "inspectionButton": "手部 掌侧 Palm",
+        "wheelDeltaY": -850
+      },
+      "sceneRecordSha256": "76651f82c1f1bbe32584b01cc35acd744bd99f7526e8be9f7d208182602e15ba",
+      "sha256": "4a6d6db47ce44cf0a4a8eee5980ba4a1898f22cfa1a691e3c6a081b7e6884945"
+    },
+    {
+      "id": "pan",
+      "name": "盘",
+      "file": "pan.mp4",
+      "context": "retained",
+      "frames": 105,
+      "fps": 24,
+      "size": [
+        960,
+        720
+      ],
+      "durationSeconds": 4.375,
+      "phaseLabels": [
+        "Pan · circular motion"
+      ],
+      "phases": [
+        {
+          "label": "Pan · circular motion",
+          "primitive": "pan",
+          "startFrame": 26
+        }
+      ],
+      "operatorSettings": {
+        "durationMs": 2400,
+        "cycles": 2,
+        "strokeMm": 1.5,
+        "rotationDeg": 90,
+        "lateralMm": 2,
+        "tiltDeg": 3,
+        "tempoBias": 0.5,
+        "direction": "alternating",
+        "grip": "two-finger",
+        "wristElevationDeg": 55,
+        "gripStyle": "tip-pinch",
+        "idleFingerPose": "curled",
+        "support": "none",
+        "hand": "left",
+        "gripApertureMm": 2,
+        "contactIntensity": 0.45
+      },
+      "camera": {
+        "inspectionButton": "手部 掌侧 Palm",
+        "wheelDeltaY": -850
+      },
+      "sceneRecordSha256": "76651f82c1f1bbe32584b01cc35acd744bd99f7526e8be9f7d208182602e15ba",
+      "sha256": "67e2cc3cff8e3531610fe20a48a51e0f08d5e5b0c889552f291d8c9085713808"
+    },
+    {
+      "id": "nian",
+      "name": "捻",
+      "file": "nian.mp4",
+      "context": "retained",
+      "frames": 105,
+      "fps": 24,
+      "size": [
+        960,
+        720
+      ],
+      "durationSeconds": 4.375,
+      "phaseLabels": [
+        "Nian · twirling"
+      ],
+      "phases": [
+        {
+          "label": "Nian · twirling",
+          "primitive": "nian",
+          "startFrame": 26
+        }
+      ],
+      "operatorSettings": {
+        "durationMs": 2400,
+        "cycles": 2,
+        "strokeMm": 1.5,
+        "rotationDeg": 90,
+        "lateralMm": 2,
+        "tiltDeg": 3,
+        "tempoBias": 0.5,
+        "direction": "alternating",
+        "grip": "two-finger",
+        "wristElevationDeg": 55,
+        "gripStyle": "tip-pinch",
+        "idleFingerPose": "curled",
+        "support": "none",
+        "hand": "left",
+        "gripApertureMm": 2,
+        "contactIntensity": 0.45
+      },
+      "camera": {
+        "inspectionButton": "手部 掌侧 Palm",
+        "wheelDeltaY": -850
+      },
+      "sceneRecordSha256": "76651f82c1f1bbe32584b01cc35acd744bd99f7526e8be9f7d208182602e15ba",
+      "sha256": "42cdad144355b5b6be55f644d46b9090026e3f1bbead74ba7b43ae25814549fd"
+    },
+    {
+      "id": "cuo",
+      "name": "搓",
+      "file": "cuo.mp4",
+      "context": "retained",
+      "frames": 105,
+      "fps": 24,
+      "size": [
+        960,
+        720
+      ],
+      "durationSeconds": 4.375,
+      "phaseLabels": [
+        "Cuo · rolling"
+      ],
+      "phases": [
+        {
+          "label": "Cuo · rolling",
+          "primitive": "cuo",
+          "startFrame": 26
+        }
+      ],
+      "operatorSettings": {
+        "durationMs": 2400,
+        "cycles": 2,
+        "strokeMm": 1.5,
+        "rotationDeg": 90,
+        "lateralMm": 2,
+        "tiltDeg": 3,
+        "tempoBias": 0.5,
+        "direction": "clockwise",
+        "grip": "two-finger",
+        "wristElevationDeg": 55,
+        "gripStyle": "tip-pinch",
+        "idleFingerPose": "curled",
+        "support": "none",
+        "hand": "left",
+        "gripApertureMm": 2,
+        "contactIntensity": 0.45
+      },
+      "camera": {
+        "inspectionButton": "手部 掌侧 Palm",
+        "wheelDeltaY": -850
+      },
+      "sceneRecordSha256": "76651f82c1f1bbe32584b01cc35acd744bd99f7526e8be9f7d208182602e15ba",
+      "sha256": "deaf59a0b4e43b99e7e90f6b566fcb5a3dd2fd496d0cc024ed592a46a001f49b"
+    },
+    {
+      "id": "jin",
+      "name": "进",
+      "file": "jin.mp4",
+      "context": "retained",
+      "frames": 105,
+      "fps": 24,
+      "size": [
+        960,
+        720
+      ],
+      "durationSeconds": 4.375,
+      "phaseLabels": [
+        "Jin · advancing gesture"
+      ],
+      "phases": [
+        {
+          "label": "Jin · advancing gesture",
+          "primitive": "jin",
+          "startFrame": 26
+        }
+      ],
+      "operatorSettings": {
+        "durationMs": 2400,
+        "cycles": 2,
+        "strokeMm": 1.5,
+        "rotationDeg": 90,
+        "lateralMm": 2,
+        "tiltDeg": 3,
+        "tempoBias": 0.72,
+        "direction": "alternating",
+        "grip": "two-finger",
+        "wristElevationDeg": 55,
+        "gripStyle": "tip-pinch",
+        "idleFingerPose": "curled",
+        "support": "none",
+        "hand": "left",
+        "gripApertureMm": 2,
+        "contactIntensity": 0.45
+      },
+      "camera": {
+        "inspectionButton": "手部 掌侧 Palm",
+        "wheelDeltaY": -850
+      },
+      "sceneRecordSha256": "76651f82c1f1bbe32584b01cc35acd744bd99f7526e8be9f7d208182602e15ba",
+      "sha256": "dbba1e46d67d5eb4ff579c7eae68aaa52347b14d9ee391ba1cfd46aaba0422a0"
+    },
+    {
+      "id": "tui-withdraw",
+      "name": "退",
+      "file": "tui-withdraw.mp4",
+      "context": "retained",
+      "frames": 105,
+      "fps": 24,
+      "size": [
+        960,
+        720
+      ],
+      "durationSeconds": 4.375,
+      "phaseLabels": [
+        "Tui · withdrawing gesture"
+      ],
+      "phases": [
+        {
+          "label": "Tui · withdrawing gesture",
+          "primitive": "tui-withdraw",
+          "startFrame": 26
+        }
+      ],
+      "operatorSettings": {
+        "durationMs": 2400,
+        "cycles": 2,
+        "strokeMm": 1.5,
+        "rotationDeg": 90,
+        "lateralMm": 2,
+        "tiltDeg": 3,
+        "tempoBias": 0.28,
+        "direction": "alternating",
+        "grip": "two-finger",
+        "wristElevationDeg": 55,
+        "gripStyle": "tip-pinch",
+        "idleFingerPose": "curled",
+        "support": "none",
+        "hand": "left",
+        "gripApertureMm": 2,
+        "contactIntensity": 0.45
+      },
+      "camera": {
+        "inspectionButton": "手部 掌侧 Palm",
+        "wheelDeltaY": -850
+      },
+      "sceneRecordSha256": "76651f82c1f1bbe32584b01cc35acd744bd99f7526e8be9f7d208182602e15ba",
+      "sha256": "df4274f45a14f6ebf8a9409b395e2955b640427a12ff33e97ccba05936e81df0"
+    },
+    {
+      "id": "ti",
+      "name": "提",
+      "file": "ti.mp4",
+      "context": "retained",
+      "frames": 105,
+      "fps": 24,
+      "size": [
+        960,
+        720
+      ],
+      "durationSeconds": 4.375,
+      "phaseLabels": [
+        "Ti · lifting"
+      ],
+      "phases": [
+        {
+          "label": "Ti · lifting",
+          "primitive": "ti",
+          "startFrame": 26
+        }
+      ],
+      "operatorSettings": {
+        "durationMs": 2400,
+        "cycles": 2,
+        "strokeMm": 1.5,
+        "rotationDeg": 90,
+        "lateralMm": 2,
+        "tiltDeg": 3,
+        "tempoBias": 0.3,
+        "direction": "alternating",
+        "grip": "two-finger",
+        "wristElevationDeg": 55,
+        "gripStyle": "tip-pinch",
+        "idleFingerPose": "curled",
+        "support": "none",
+        "hand": "left",
+        "gripApertureMm": 2,
+        "contactIntensity": 0.45
+      },
+      "camera": {
+        "inspectionButton": "手部 掌侧 Palm",
+        "wheelDeltaY": -850
+      },
+      "sceneRecordSha256": "76651f82c1f1bbe32584b01cc35acd744bd99f7526e8be9f7d208182602e15ba",
+      "sha256": "a20497acf152ab8caf898127d19f830bccc0729d6e96bfe171e9862eb018d487"
+    },
+    {
+      "id": "cha",
+      "name": "插",
+      "file": "cha.mp4",
+      "context": "retained",
+      "frames": 105,
+      "fps": 24,
+      "size": [
+        960,
+        720
+      ],
+      "durationSeconds": 4.375,
+      "phaseLabels": [
+        "Cha · thrusting"
+      ],
+      "phases": [
+        {
+          "label": "Cha · thrusting",
+          "primitive": "cha",
+          "startFrame": 26
+        }
+      ],
+      "operatorSettings": {
+        "durationMs": 2400,
+        "cycles": 2,
+        "strokeMm": 1.5,
+        "rotationDeg": 90,
+        "lateralMm": 2,
+        "tiltDeg": 3,
+        "tempoBias": 0.7,
+        "direction": "alternating",
+        "grip": "two-finger",
+        "wristElevationDeg": 55,
+        "gripStyle": "tip-pinch",
+        "idleFingerPose": "curled",
+        "support": "none",
+        "hand": "left",
+        "gripApertureMm": 2,
+        "contactIntensity": 0.45
+      },
+      "camera": {
+        "inspectionButton": "手部 掌侧 Palm",
+        "wheelDeltaY": -850
+      },
+      "sceneRecordSha256": "76651f82c1f1bbe32584b01cc35acd744bd99f7526e8be9f7d208182602e15ba",
+      "sha256": "d3b0830106d54d87e3316655f80b93c3b6f88e976b71c69ac51248f2db55abb3"
+    },
+    {
+      "id": "gua",
+      "name": "刮",
+      "file": "gua.mp4",
+      "context": "retained",
+      "frames": 105,
+      "fps": 24,
+      "size": [
+        960,
+        720
+      ],
+      "durationSeconds": 4.375,
+      "phaseLabels": [
+        "Gua · scraping"
+      ],
+      "phases": [
+        {
+          "label": "Gua · scraping",
+          "primitive": "gua",
+          "startFrame": 26
+        }
+      ],
+      "operatorSettings": {
+        "durationMs": 2400,
+        "cycles": 2,
+        "strokeMm": 1.5,
+        "rotationDeg": 90,
+        "lateralMm": 2,
+        "tiltDeg": 3,
+        "tempoBias": 0.5,
+        "direction": "alternating",
+        "grip": "two-finger",
+        "wristElevationDeg": 55,
+        "gripStyle": "tip-pinch",
+        "idleFingerPose": "curled",
+        "support": "none",
+        "hand": "left",
+        "gripApertureMm": 2,
+        "contactIntensity": 0.45
+      },
+      "camera": {
+        "inspectionButton": "手部 掌侧 Palm",
+        "wheelDeltaY": -850
+      },
+      "sceneRecordSha256": "76651f82c1f1bbe32584b01cc35acd744bd99f7526e8be9f7d208182602e15ba",
+      "sha256": "8a54151e1b3e4302984c4279a0c68ea3a2483e8f5a8599ba32a161fde6561414"
+    },
+    {
+      "id": "tan",
+      "name": "弹",
+      "file": "tan.mp4",
+      "context": "retained",
+      "frames": 105,
+      "fps": 24,
+      "size": [
+        960,
+        720
+      ],
+      "durationSeconds": 4.375,
+      "phaseLabels": [
+        "Tan · flicking"
+      ],
+      "phases": [
+        {
+          "label": "Tan · flicking",
+          "primitive": "tan",
+          "startFrame": 26
+        }
+      ],
+      "operatorSettings": {
+        "durationMs": 2400,
+        "cycles": 2,
+        "strokeMm": 1.5,
+        "rotationDeg": 90,
+        "lateralMm": 1.2,
+        "tiltDeg": 3,
+        "tempoBias": 0.5,
+        "direction": "alternating",
+        "grip": "two-finger",
+        "wristElevationDeg": 55,
+        "gripStyle": "tip-pinch",
+        "idleFingerPose": "curled",
+        "support": "none",
+        "hand": "left",
+        "gripApertureMm": 2,
+        "contactIntensity": 0.45
+      },
+      "camera": {
+        "inspectionButton": "手部 掌侧 Palm",
+        "wheelDeltaY": -850
+      },
+      "sceneRecordSha256": "76651f82c1f1bbe32584b01cc35acd744bd99f7526e8be9f7d208182602e15ba",
+      "sha256": "d6b5d1184a20048bc2bb546751f0c8f24a74d5c6854aea4409164f43083e40d3"
+    },
+    {
+      "id": "fei",
+      "name": "飞",
+      "file": "fei.mp4",
+      "context": "retained",
+      "frames": 105,
+      "fps": 24,
+      "size": [
+        960,
+        720
+      ],
+      "durationSeconds": 4.375,
+      "phaseLabels": [
+        "Fei · pinch and release"
+      ],
+      "phases": [
+        {
+          "label": "Fei · pinch and release",
+          "primitive": "fei",
+          "startFrame": 26
+        }
+      ],
+      "operatorSettings": {
+        "durationMs": 2400,
+        "cycles": 2,
+        "strokeMm": 1.5,
+        "rotationDeg": 90,
+        "lateralMm": 2,
+        "tiltDeg": 3,
+        "tempoBias": 0.5,
+        "direction": "alternating",
+        "grip": "two-finger",
+        "wristElevationDeg": 55,
+        "gripStyle": "tip-pinch",
+        "idleFingerPose": "curled",
+        "support": "none",
+        "hand": "left",
+        "gripApertureMm": 2,
+        "contactIntensity": 0.45
+      },
+      "camera": {
+        "inspectionButton": "手部 掌侧 Palm",
+        "wheelDeltaY": -850
+      },
+      "sceneRecordSha256": "76651f82c1f1bbe32584b01cc35acd744bd99f7526e8be9f7d208182602e15ba",
+      "sha256": "d943e77df4f4a51d44b064f1986932f08fad01a8dc777f2c3013f666e5bb888c"
+    },
+    {
+      "id": "mo",
+      "name": "摩",
+      "file": "mo.mp4",
+      "context": "retained",
+      "frames": 105,
+      "fps": 24,
+      "size": [
+        960,
+        720
+      ],
+      "durationSeconds": 4.375,
+      "phaseLabels": [
+        "Mo · rubbing"
+      ],
+      "phases": [
+        {
+          "label": "Mo · rubbing",
+          "primitive": "mo",
+          "startFrame": 26
+        }
+      ],
+      "operatorSettings": {
+        "durationMs": 2400,
+        "cycles": 2,
+        "strokeMm": 1.5,
+        "rotationDeg": 25,
+        "lateralMm": 0.6,
+        "tiltDeg": 3,
+        "tempoBias": 0.5,
+        "direction": "alternating",
+        "grip": "two-finger",
+        "wristElevationDeg": 55,
+        "gripStyle": "tip-pinch",
+        "idleFingerPose": "curled",
+        "support": "none",
+        "hand": "left",
+        "gripApertureMm": 2,
+        "contactIntensity": 0.45
+      },
+      "camera": {
+        "inspectionButton": "手部 掌侧 Palm",
+        "wheelDeltaY": -850
+      },
+      "sceneRecordSha256": "76651f82c1f1bbe32584b01cc35acd744bd99f7526e8be9f7d208182602e15ba",
+      "sha256": "4c15ffe15a9edaa29b830a8f3c3128f13922fd0104150eb85208d14481138976"
+    },
+    {
+      "id": "dong",
+      "name": "动",
+      "file": "dong.mp4",
+      "context": "retained",
+      "frames": 105,
+      "fps": 24,
+      "size": [
+        960,
+        720
+      ],
+      "durationSeconds": 4.375,
+      "phaseLabels": [
+        "Dong · mobilization"
+      ],
+      "phases": [
+        {
+          "label": "Dong · mobilization",
+          "primitive": "dong",
+          "startFrame": 26
+        }
+      ],
+      "operatorSettings": {
+        "durationMs": 2400,
+        "cycles": 2,
+        "strokeMm": 0.6,
+        "rotationDeg": 90,
+        "lateralMm": 0.5,
+        "tiltDeg": 3,
+        "tempoBias": 0.5,
+        "direction": "alternating",
+        "grip": "two-finger",
+        "wristElevationDeg": 55,
+        "gripStyle": "tip-pinch",
+        "idleFingerPose": "curled",
+        "support": "none",
+        "hand": "left",
+        "gripApertureMm": 2,
+        "contactIntensity": 0.45
+      },
+      "camera": {
+        "inspectionButton": "手部 掌侧 Palm",
+        "wheelDeltaY": -850
+      },
+      "sceneRecordSha256": "76651f82c1f1bbe32584b01cc35acd744bd99f7526e8be9f7d208182602e15ba",
+      "sha256": "310a141159210a957ed67ff8aa4f8c23b9624a1926daa103f002f7550fc7b204"
+    },
+    {
+      "id": "tui-push",
+      "name": "推",
+      "file": "tui-push.mp4",
+      "context": "retained",
+      "frames": 105,
+      "fps": 24,
+      "size": [
+        960,
+        720
+      ],
+      "durationSeconds": 4.375,
+      "phaseLabels": [
+        "Tui · pushing gesture"
+      ],
+      "phases": [
+        {
+          "label": "Tui · pushing gesture",
+          "primitive": "tui-push",
+          "startFrame": 26
+        }
+      ],
+      "operatorSettings": {
+        "durationMs": 2400,
+        "cycles": 2,
+        "strokeMm": 0.6,
+        "rotationDeg": 90,
+        "lateralMm": 0.5,
+        "tiltDeg": 3,
+        "tempoBias": 0.7,
+        "direction": "alternating",
+        "grip": "two-finger",
+        "wristElevationDeg": 55,
+        "gripStyle": "tip-pinch",
+        "idleFingerPose": "curled",
+        "support": "none",
+        "hand": "left",
+        "gripApertureMm": 2,
+        "contactIntensity": 0.45
+      },
+      "camera": {
+        "inspectionButton": "手部 掌侧 Palm",
+        "wheelDeltaY": -850
+      },
+      "sceneRecordSha256": "76651f82c1f1bbe32584b01cc35acd744bd99f7526e8be9f7d208182602e15ba",
+      "sha256": "70cb33f8952443ef52126122b9bf264829d2c165dad270510e51bc745d3ea3da"
+    },
+    {
+      "id": "chan",
+      "name": "颤",
+      "file": "chan.mp4",
+      "context": "retained",
+      "frames": 105,
+      "fps": 24,
+      "size": [
+        960,
+        720
+      ],
+      "durationSeconds": 4.375,
+      "phaseLabels": [
+        "Chan · trembling"
+      ],
+      "phases": [
+        {
+          "label": "Chan · trembling",
+          "primitive": "chan",
+          "startFrame": 26
+        }
+      ],
+      "operatorSettings": {
+        "durationMs": 2400,
+        "cycles": 8,
+        "strokeMm": 0.3,
+        "rotationDeg": 90,
+        "lateralMm": 0.4,
+        "tiltDeg": 1,
+        "tempoBias": 0.5,
+        "direction": "alternating",
+        "grip": "two-finger",
+        "wristElevationDeg": 55,
+        "gripStyle": "tip-pinch",
+        "idleFingerPose": "curled",
+        "support": "none",
+        "hand": "left",
+        "gripApertureMm": 2,
+        "contactIntensity": 0.45
+      },
+      "camera": {
+        "inspectionButton": "手部 掌侧 Palm",
+        "wheelDeltaY": -850
+      },
+      "sceneRecordSha256": "76651f82c1f1bbe32584b01cc35acd744bd99f7526e8be9f7d208182602e15ba",
+      "sha256": "1f386d0ff047d9f5f283de30555508d94c4f3e796f703e5f51dfe6919614b7ef"
+    },
+    {
+      "id": "nu",
+      "name": "弩",
+      "file": "nu.mp4",
+      "context": "retained",
+      "frames": 105,
+      "fps": 24,
+      "size": [
+        960,
+        720
+      ],
+      "durationSeconds": 4.375,
+      "phaseLabels": [
+        "Nu · shaft deflection"
+      ],
+      "phases": [
+        {
+          "label": "Nu · shaft deflection",
+          "primitive": "nu",
+          "startFrame": 26
+        }
+      ],
+      "operatorSettings": {
+        "durationMs": 2400,
+        "cycles": 2,
+        "strokeMm": 0,
+        "rotationDeg": 90,
+        "lateralMm": 2.5,
+        "tiltDeg": 4,
+        "tempoBias": 0.5,
+        "direction": "alternating",
+        "grip": "two-finger",
+        "wristElevationDeg": 55,
+        "gripStyle": "tip-pinch",
+        "idleFingerPose": "curled",
+        "support": "none",
+        "hand": "left",
+        "gripApertureMm": 2,
+        "contactIntensity": 0.45
+      },
+      "camera": {
+        "inspectionButton": "手部 掌侧 Palm",
+        "wheelDeltaY": -850
+      },
+      "sceneRecordSha256": "76651f82c1f1bbe32584b01cc35acd744bd99f7526e8be9f7d208182602e15ba",
+      "sha256": "d2386932692f062499ecb3029ed4d48567d40a8e508a7d6ba4577d0a7d7a623c"
+    },
+    {
+      "id": "an",
+      "name": "按",
+      "file": "an.mp4",
+      "context": "skin",
+      "frames": 105,
+      "fps": 24,
+      "size": [
+        960,
+        720
+      ],
+      "durationSeconds": 4.375,
+      "phaseLabels": [
+        "An · pressing"
+      ],
+      "phases": [
+        {
+          "label": "An · pressing",
+          "primitive": "an",
+          "startFrame": 26
+        }
+      ],
+      "operatorSettings": {
+        "durationMs": 2400,
+        "cycles": 2,
+        "strokeMm": 1.5,
+        "rotationDeg": 90,
+        "lateralMm": 0,
+        "tiltDeg": 3,
+        "tempoBias": 0.5,
+        "direction": "alternating",
+        "grip": "two-finger",
+        "wristElevationDeg": 55,
+        "gripStyle": "tip-pinch",
+        "idleFingerPose": "curled",
+        "support": "none",
+        "hand": "left",
+        "gripApertureMm": 2,
+        "contactIntensity": 0.45
+      },
+      "camera": {
+        "inspectionButton": "手部 避让斜视 Oblique",
+        "wheelDeltaY": -850,
+        "preset": "¾",
+        "orbitDrags": [
+          [
+            10,
+            90
+          ],
+          [
+            75,
+            35
+          ]
+        ]
+      },
+      "sceneRecordSha256": "90d5fc0371a8d0259f9fffd48b5c965583ace864ec24a554ee77d73828fb1286",
+      "sha256": "2a86e93fc1cd5e452d70f22ebc4dbf55e543a302b21a9c7afef4d6d6c445a0f7"
+    },
+    {
+      "id": "men",
+      "name": "扪",
+      "file": "men.mp4",
+      "context": "removed",
+      "frames": 105,
+      "fps": 24,
+      "size": [
+        960,
+        720
+      ],
+      "durationSeconds": 4.375,
+      "phaseLabels": [
+        "Men · covering and compression"
+      ],
+      "phases": [
+        {
+          "label": "Men · covering and compression",
+          "primitive": "men",
+          "startFrame": 26
+        }
+      ],
+      "operatorSettings": {
+        "durationMs": 2400,
+        "cycles": 2,
+        "strokeMm": 1.5,
+        "rotationDeg": 90,
+        "lateralMm": 0,
+        "tiltDeg": 3,
+        "tempoBias": 0.5,
+        "direction": "alternating",
+        "grip": "two-finger",
+        "wristElevationDeg": 55,
+        "gripStyle": "tip-pinch",
+        "idleFingerPose": "curled",
+        "support": "none",
+        "hand": "left",
+        "gripApertureMm": 2,
+        "contactIntensity": 0.45
+      },
+      "camera": {
+        "inspectionButton": "手部 避让斜视 Oblique",
+        "wheelDeltaY": -850,
+        "preset": "¾",
+        "orbitDrags": [
+          [
+            10,
+            90
+          ],
+          [
+            75,
+            35
+          ]
+        ]
+      },
+      "sceneRecordSha256": "f42c7ddb36fc6fb8ca5c21345d36d1e7936c62f6a663dcdc33fee813715fadd4",
+      "sha256": "668a16e22ad916a2b39a80d5f5288506a7b0f65a9105ec6ad7f3ce81c1e9804e"
+    },
+    {
+      "id": "sou",
+      "name": "搜",
+      "file": "sou.mp4",
+      "context": "retained",
+      "frames": 105,
+      "fps": 24,
+      "size": [
+        960,
+        720
+      ],
+      "durationSeconds": 4.375,
+      "phaseLabels": [
+        "Sou · direction pattern"
+      ],
+      "phases": [
+        {
+          "label": "Sou · direction pattern",
+          "primitive": "sou",
+          "startFrame": 26
+        }
+      ],
+      "operatorSettings": {
+        "durationMs": 2400,
+        "cycles": 2,
+        "strokeMm": 1.5,
+        "rotationDeg": 90,
+        "lateralMm": 1.5,
+        "tiltDeg": 2,
+        "tempoBias": 0.5,
+        "direction": "alternating",
+        "grip": "two-finger",
+        "wristElevationDeg": 55,
+        "gripStyle": "tip-pinch",
+        "idleFingerPose": "curled",
+        "support": "none",
+        "hand": "left",
+        "gripApertureMm": 2,
+        "contactIntensity": 0.45
+      },
+      "camera": {
+        "inspectionButton": "手部 掌侧 Palm",
+        "wheelDeltaY": -850
+      },
+      "sceneRecordSha256": "76651f82c1f1bbe32584b01cc35acd744bd99f7526e8be9f7d208182602e15ba",
+      "sha256": "92e409fff9c33f0852ec0a539f3a0efe9575265493b5dfb5a312be8305dda394"
+    },
+    {
+      "id": "bo",
+      "name": "拨",
+      "file": "bo.mp4",
+      "context": "retained",
+      "frames": 105,
+      "fps": 24,
+      "size": [
+        960,
+        720
+      ],
+      "durationSeconds": 4.375,
+      "phaseLabels": [
+        "Bo · lateral manipulation"
+      ],
+      "phases": [
+        {
+          "label": "Bo · lateral manipulation",
+          "primitive": "bo",
+          "startFrame": 26
+        }
+      ],
+      "operatorSettings": {
+        "durationMs": 2400,
+        "cycles": 2,
+        "strokeMm": 1.5,
+        "rotationDeg": 90,
+        "lateralMm": 2,
+        "tiltDeg": 2,
+        "tempoBias": 0.5,
+        "direction": "alternating",
+        "grip": "two-finger",
+        "wristElevationDeg": 55,
+        "gripStyle": "tip-pinch",
+        "idleFingerPose": "curled",
+        "support": "none",
+        "hand": "left",
+        "gripApertureMm": 2,
+        "contactIntensity": 0.45
+      },
+      "camera": {
+        "inspectionButton": "手部 掌侧 Palm",
+        "wheelDeltaY": -850
+      },
+      "sceneRecordSha256": "76651f82c1f1bbe32584b01cc35acd744bd99f7526e8be9f7d208182602e15ba",
+      "sha256": "6d95eb97e21265e38b0848f735de5acbeb94faa88265f7e098bc94f01803bce3"
+    },
+    {
+      "id": "shao-shan-huo",
+      "name": "烧山火",
+      "file": "shao-shan-huo.mp4",
+      "context": "retained",
+      "frames": 172,
+      "fps": 24,
+      "size": [
+        960,
+        720
+      ],
+      "durationSeconds": 7.167,
+      "phaseLabels": [
+        "Axial stage A",
+        "Axial stage B",
+        "Rotational stage",
+        "Combined settle"
+      ],
+      "phases": [
+        {
+          "label": "Axial stage A",
+          "primitive": "cha",
+          "startFrame": 26
+        },
+        {
+          "label": "Axial stage B",
+          "primitive": "cha",
+          "startFrame": 57
+        },
+        {
+          "label": "Rotational stage",
+          "primitive": "nian",
+          "startFrame": 89
+        },
+        {
+          "label": "Combined settle",
+          "primitive": "bu",
+          "startFrame": 120
+        }
+      ],
+      "operatorSettings": {
+        "durationMs": 5200,
+        "cycles": 1,
+        "strokeMm": 1.5,
+        "rotationDeg": 90,
+        "lateralMm": 2,
+        "tiltDeg": 3,
+        "tempoBias": 0.7,
+        "direction": "alternating",
+        "grip": "two-finger",
+        "wristElevationDeg": 55,
+        "gripStyle": "tip-pinch",
+        "idleFingerPose": "curled",
+        "support": "none",
+        "hand": "left",
+        "gripApertureMm": 2,
+        "contactIntensity": 0.45
+      },
+      "camera": {
+        "inspectionButton": "手部 掌侧 Palm",
+        "wheelDeltaY": -850
+      },
+      "sceneRecordSha256": "76651f82c1f1bbe32584b01cc35acd744bd99f7526e8be9f7d208182602e15ba",
+      "sha256": "234153889c7eda01272bf0898cc0dfd9a1dd687b78cc7ae71d9a12652beb3643"
+    },
+    {
+      "id": "tou-tian-liang",
+      "name": "透天凉",
+      "file": "tou-tian-liang.mp4",
+      "context": "retained",
+      "frames": 172,
+      "fps": 24,
+      "size": [
+        960,
+        720
+      ],
+      "durationSeconds": 7.167,
+      "phaseLabels": [
+        "Outward stage A",
+        "Outward stage B",
+        "Rotational stage",
+        "Combined settle"
+      ],
+      "phases": [
+        {
+          "label": "Outward stage A",
+          "primitive": "ti",
+          "startFrame": 26
+        },
+        {
+          "label": "Outward stage B",
+          "primitive": "ti",
+          "startFrame": 57
+        },
+        {
+          "label": "Rotational stage",
+          "primitive": "nian",
+          "startFrame": 89
+        },
+        {
+          "label": "Combined settle",
+          "primitive": "xie",
+          "startFrame": 120
+        }
+      ],
+      "operatorSettings": {
+        "durationMs": 5200,
+        "cycles": 1,
+        "strokeMm": 1.5,
+        "rotationDeg": 90,
+        "lateralMm": 2,
+        "tiltDeg": 3,
+        "tempoBias": 0.3,
+        "direction": "alternating",
+        "grip": "two-finger",
+        "wristElevationDeg": 55,
+        "gripStyle": "tip-pinch",
+        "idleFingerPose": "curled",
+        "support": "none",
+        "hand": "left",
+        "gripApertureMm": 2,
+        "contactIntensity": 0.45
+      },
+      "camera": {
+        "inspectionButton": "手部 掌侧 Palm",
+        "wheelDeltaY": -850
+      },
+      "sceneRecordSha256": "76651f82c1f1bbe32584b01cc35acd744bd99f7526e8be9f7d208182602e15ba",
+      "sha256": "875ce1fade61199fe501e7d1df130ea92eb2f5f4db822131e7d628b425b50894"
+    },
+    {
+      "id": "qing-long-bai-wei",
+      "name": "青龙摆尾",
+      "file": "qing-long-bai-wei.mp4",
+      "context": "retained",
+      "frames": 141,
+      "fps": 24,
+      "size": [
+        960,
+        720
+      ],
+      "durationSeconds": 5.875,
+      "phaseLabels": [
+        "Oscillate",
+        "Sweep",
+        "Return"
+      ],
+      "phases": [
+        {
+          "label": "Oscillate",
+          "primitive": "yao",
+          "startFrame": 26
+        },
+        {
+          "label": "Sweep",
+          "primitive": "pan",
+          "startFrame": 57
+        },
+        {
+          "label": "Return",
+          "primitive": "yao",
+          "startFrame": 89
+        }
+      ],
+      "operatorSettings": {
+        "durationMs": 3900,
+        "cycles": 1,
+        "strokeMm": 1.5,
+        "rotationDeg": 90,
+        "lateralMm": 2,
+        "tiltDeg": 3,
+        "tempoBias": 0.5,
+        "direction": "alternating",
+        "grip": "two-finger",
+        "wristElevationDeg": 55,
+        "gripStyle": "tip-pinch",
+        "idleFingerPose": "curled",
+        "support": "none",
+        "hand": "left",
+        "gripApertureMm": 2,
+        "contactIntensity": 0.45
+      },
+      "camera": {
+        "inspectionButton": "手部 掌侧 Palm",
+        "wheelDeltaY": -850,
+        "preset": "Palm"
+      },
+      "sceneRecordSha256": "76651f82c1f1bbe32584b01cc35acd744bd99f7526e8be9f7d208182602e15ba",
+      "sha256": "acd3c2c619f9b6423df6d30958c6ea70daef9a51d175fab7e0decc141f6f08da"
+    },
+    {
+      "id": "bai-hu-yao-tou",
+      "name": "白虎摇头",
+      "file": "bai-hu-yao-tou.mp4",
+      "context": "retained",
+      "frames": 141,
+      "fps": 24,
+      "size": [
+        960,
+        720
+      ],
+      "durationSeconds": 5.875,
+      "phaseLabels": [
+        "Oscillate",
+        "Outward cycle",
+        "Tremble"
+      ],
+      "phases": [
+        {
+          "label": "Oscillate",
+          "primitive": "yao",
+          "startFrame": 26
+        },
+        {
+          "label": "Outward cycle",
+          "primitive": "ti",
+          "startFrame": 57
+        },
+        {
+          "label": "Tremble",
+          "primitive": "chan",
+          "startFrame": 89
+        }
+      ],
+      "operatorSettings": {
+        "durationMs": 3900,
+        "cycles": 1,
+        "strokeMm": 1.5,
+        "rotationDeg": 90,
+        "lateralMm": 2,
+        "tiltDeg": 3,
+        "tempoBias": 0.5,
+        "direction": "alternating",
+        "grip": "two-finger",
+        "wristElevationDeg": 55,
+        "gripStyle": "tip-pinch",
+        "idleFingerPose": "curled",
+        "support": "none",
+        "hand": "left",
+        "gripApertureMm": 2,
+        "contactIntensity": 0.45
+      },
+      "camera": {
+        "inspectionButton": "手部 掌侧 Palm",
+        "wheelDeltaY": -850
+      },
+      "sceneRecordSha256": "76651f82c1f1bbe32584b01cc35acd744bd99f7526e8be9f7d208182602e15ba",
+      "sha256": "78462e20ab0e0a442489ca1e11c5f7f754f9814a7ab7586eb19309aa54c9405a"
+    },
+    {
+      "id": "cang-gui-tan-xue",
+      "name": "苍龟探穴",
+      "file": "cang-gui-tan-xue.mp4",
+      "context": "retained",
+      "frames": 141,
+      "fps": 24,
+      "size": [
+        960,
+        720
+      ],
+      "durationSeconds": 5.875,
+      "phaseLabels": [
+        "Axial stage",
+        "External direction pattern",
+        "Outward stage"
+      ],
+      "phases": [
+        {
+          "label": "Axial stage",
+          "primitive": "jin",
+          "startFrame": 26
+        },
+        {
+          "label": "External direction pattern",
+          "primitive": "sou",
+          "startFrame": 57
+        },
+        {
+          "label": "Outward stage",
+          "primitive": "tui-withdraw",
+          "startFrame": 89
+        }
+      ],
+      "operatorSettings": {
+        "durationMs": 3900,
+        "cycles": 1,
+        "strokeMm": 1.5,
+        "rotationDeg": 90,
+        "lateralMm": 2,
+        "tiltDeg": 3,
+        "tempoBias": 0.5,
+        "direction": "alternating",
+        "grip": "two-finger",
+        "wristElevationDeg": 55,
+        "gripStyle": "tip-pinch",
+        "idleFingerPose": "curled",
+        "support": "none",
+        "hand": "left",
+        "gripApertureMm": 2,
+        "contactIntensity": 0.45
+      },
+      "camera": {
+        "inspectionButton": "手部 掌侧 Palm",
+        "wheelDeltaY": -850
+      },
+      "sceneRecordSha256": "76651f82c1f1bbe32584b01cc35acd744bd99f7526e8be9f7d208182602e15ba",
+      "sha256": "ae88d3c8b6e581a3094b2445da28acc91224b023440877eec47dd87027135908"
+    },
+    {
+      "id": "chi-feng-ying-yuan",
+      "name": "赤凤迎源",
+      "file": "chi-feng-ying-yuan.mp4",
+      "context": "retained",
+      "frames": 141,
+      "fps": 24,
+      "size": [
+        960,
+        720
+      ],
+      "durationSeconds": 5.875,
+      "phaseLabels": [
+        "Axial stage",
+        "Rotation",
+        "Contact transition"
+      ],
+      "phases": [
+        {
+          "label": "Axial stage",
+          "primitive": "cha",
+          "startFrame": 26
+        },
+        {
+          "label": "Rotation",
+          "primitive": "nian",
+          "startFrame": 57
+        },
+        {
+          "label": "Contact transition",
+          "primitive": "fei",
+          "startFrame": 89
+        }
+      ],
+      "operatorSettings": {
+        "durationMs": 3900,
+        "cycles": 1,
+        "strokeMm": 1.5,
+        "rotationDeg": 90,
+        "lateralMm": 2,
+        "tiltDeg": 3,
+        "tempoBias": 0.5,
+        "direction": "alternating",
+        "grip": "two-finger",
+        "wristElevationDeg": 55,
+        "gripStyle": "tip-pinch",
+        "idleFingerPose": "curled",
+        "support": "none",
+        "hand": "left",
+        "gripApertureMm": 2,
+        "contactIntensity": 0.45
+      },
+      "camera": {
+        "inspectionButton": "手部 掌侧 Palm",
+        "wheelDeltaY": -850,
+        "preset": "Palm"
+      },
+      "sceneRecordSha256": "76651f82c1f1bbe32584b01cc35acd744bd99f7526e8be9f7d208182602e15ba",
+      "sha256": "cc5b9664529bb95bd7fb4140e37b797baba8b37c81f67fce234405959002a390"
+    },
+    {
+      "id": "long-hu-jiao-zhan",
+      "name": "龙虎交战",
+      "file": "long-hu-jiao-zhan.mp4",
+      "context": "retained",
+      "frames": 141,
+      "fps": 24,
+      "size": [
+        960,
+        720
+      ],
+      "durationSeconds": 5.875,
+      "phaseLabels": [
+        "Alternating rotation",
+        "Rolling",
+        "Return rotation"
+      ],
+      "phases": [
+        {
+          "label": "Alternating rotation",
+          "primitive": "nian",
+          "startFrame": 26
+        },
+        {
+          "label": "Rolling",
+          "primitive": "cuo",
+          "startFrame": 57
+        },
+        {
+          "label": "Return rotation",
+          "primitive": "nian",
+          "startFrame": 89
+        }
+      ],
+      "operatorSettings": {
+        "durationMs": 3900,
+        "cycles": 1,
+        "strokeMm": 1.5,
+        "rotationDeg": 90,
+        "lateralMm": 2,
+        "tiltDeg": 3,
+        "tempoBias": 0.5,
+        "direction": "alternating",
+        "grip": "two-finger",
+        "wristElevationDeg": 55,
+        "gripStyle": "tip-pinch",
+        "idleFingerPose": "curled",
+        "support": "none",
+        "hand": "left",
+        "gripApertureMm": 2,
+        "contactIntensity": 0.45
+      },
+      "camera": {
+        "inspectionButton": "手部 掌侧 Palm",
+        "wheelDeltaY": -850
+      },
+      "sceneRecordSha256": "76651f82c1f1bbe32584b01cc35acd744bd99f7526e8be9f7d208182602e15ba",
+      "sha256": "78e04f80f4ffc2fd2e953b174508b2422ec20b4be00ffe524e28aec595454e2d"
+    },
+    {
+      "id": "zi-wu-dao-jiu",
+      "name": "子午捣臼",
+      "file": "zi-wu-dao-jiu.mp4",
+      "context": "retained",
+      "frames": 172,
+      "fps": 24,
+      "size": [
+        960,
+        720
+      ],
+      "durationSeconds": 7.167,
+      "phaseLabels": [
+        "Outward cycle",
+        "Rotation",
+        "Return cycle",
+        "Rotation"
+      ],
+      "phases": [
+        {
+          "label": "Outward cycle",
+          "primitive": "ti",
+          "startFrame": 26
+        },
+        {
+          "label": "Rotation",
+          "primitive": "nian",
+          "startFrame": 57
+        },
+        {
+          "label": "Return cycle",
+          "primitive": "cha",
+          "startFrame": 89
+        },
+        {
+          "label": "Rotation",
+          "primitive": "nian",
+          "startFrame": 120
+        }
+      ],
+      "operatorSettings": {
+        "durationMs": 5200,
+        "cycles": 1,
+        "strokeMm": 1.5,
+        "rotationDeg": 90,
+        "lateralMm": 2,
+        "tiltDeg": 3,
+        "tempoBias": 0.5,
+        "direction": "alternating",
+        "grip": "two-finger",
+        "wristElevationDeg": 55,
+        "gripStyle": "tip-pinch",
+        "idleFingerPose": "curled",
+        "support": "none",
+        "hand": "left",
+        "gripApertureMm": 2,
+        "contactIntensity": 0.45
+      },
+      "camera": {
+        "inspectionButton": "手部 掌侧 Palm",
+        "wheelDeltaY": -850,
+        "preset": "Palm"
+      },
+      "sceneRecordSha256": "76651f82c1f1bbe32584b01cc35acd744bd99f7526e8be9f7d208182602e15ba",
+      "sha256": "08a99a594b5c62421c3ca7f4d8af2c1107ffc2c484d9ebd631531e286f67dc0b"
+    },
+    {
+      "id": "yang-zhong-yin-yin",
+      "name": "阳中隐阴",
+      "file": "yang-zhong-yin-yin.mp4",
+      "context": "retained",
+      "frames": 134,
+      "fps": 24,
+      "size": [
+        960,
+        720
+      ],
+      "durationSeconds": 5.583,
+      "phaseLabels": [
+        "Bu phase",
+        "Xie phase"
+      ],
+      "phases": [
+        {
+          "label": "Bu phase",
+          "primitive": "bu",
+          "startFrame": 26
+        },
+        {
+          "label": "Xie phase",
+          "primitive": "xie",
+          "startFrame": 69
+        }
+      ],
+      "operatorSettings": {
+        "durationMs": 3600,
+        "cycles": 1,
+        "strokeMm": 1.5,
+        "rotationDeg": 90,
+        "lateralMm": 2,
+        "tiltDeg": 3,
+        "tempoBias": 0.5,
+        "direction": "alternating",
+        "grip": "two-finger",
+        "wristElevationDeg": 55,
+        "gripStyle": "tip-pinch",
+        "idleFingerPose": "curled",
+        "support": "none",
+        "hand": "left",
+        "gripApertureMm": 2,
+        "contactIntensity": 0.45,
+        "phaseCycles": [
+          1,
+          3
+        ]
+      },
+      "camera": {
+        "inspectionButton": "手部 掌侧 Palm",
+        "wheelDeltaY": -850
+      },
+      "sceneRecordSha256": "76651f82c1f1bbe32584b01cc35acd744bd99f7526e8be9f7d208182602e15ba",
+      "sha256": "5290e7ec6233115fe050dc5be2d3eca5ee65b68a83512c4083dc23212821c020"
+    },
+    {
+      "id": "yin-zhong-yin-yang",
+      "name": "阴中隐阳",
+      "file": "yin-zhong-yin-yang.mp4",
+      "context": "retained",
+      "frames": 134,
+      "fps": 24,
+      "size": [
+        960,
+        720
+      ],
+      "durationSeconds": 5.583,
+      "phaseLabels": [
+        "Xie phase",
+        "Bu phase"
+      ],
+      "phases": [
+        {
+          "label": "Xie phase",
+          "primitive": "xie",
+          "startFrame": 26
+        },
+        {
+          "label": "Bu phase",
+          "primitive": "bu",
+          "startFrame": 69
+        }
+      ],
+      "operatorSettings": {
+        "durationMs": 3600,
+        "cycles": 1,
+        "strokeMm": 1.5,
+        "rotationDeg": 90,
+        "lateralMm": 2,
+        "tiltDeg": 3,
+        "tempoBias": 0.5,
+        "direction": "alternating",
+        "grip": "two-finger",
+        "wristElevationDeg": 55,
+        "gripStyle": "tip-pinch",
+        "idleFingerPose": "curled",
+        "support": "none",
+        "hand": "left",
+        "gripApertureMm": 2,
+        "contactIntensity": 0.45,
+        "phaseCycles": [
+          1,
+          3
+        ]
+      },
+      "camera": {
+        "inspectionButton": "手部 掌侧 Palm",
+        "wheelDeltaY": -850,
+        "preset": "Palm"
+      },
+      "sceneRecordSha256": "76651f82c1f1bbe32584b01cc35acd744bd99f7526e8be9f7d208182602e15ba",
+      "sha256": "20c48c998cd01f97d914c19a2c2614f62ec63dc191a39806509926ae72d33aee"
+    },
+    {
+      "id": "bu",
+      "name": "补",
+      "file": "bu.mp4",
+      "context": "retained",
+      "frames": 105,
+      "fps": 24,
+      "size": [
+        960,
+        720
+      ],
+      "durationSeconds": 4.375,
+      "phaseLabels": [
+        "Bu · tonification gesture"
+      ],
+      "phases": [
+        {
+          "label": "Bu · tonification gesture",
+          "primitive": "bu",
+          "startFrame": 26
+        }
+      ],
+      "operatorSettings": {
+        "durationMs": 2400,
+        "cycles": 2,
+        "strokeMm": 1.5,
+        "rotationDeg": 90,
+        "lateralMm": 2,
+        "tiltDeg": 3,
+        "tempoBias": 0.7,
+        "direction": "alternating",
+        "grip": "two-finger",
+        "wristElevationDeg": 55,
+        "gripStyle": "tip-pinch",
+        "idleFingerPose": "curled",
+        "support": "none",
+        "hand": "left",
+        "gripApertureMm": 2,
+        "contactIntensity": 0.45
+      },
+      "camera": {
+        "inspectionButton": "手部 掌侧 Palm",
+        "wheelDeltaY": -850
+      },
+      "sceneRecordSha256": "76651f82c1f1bbe32584b01cc35acd744bd99f7526e8be9f7d208182602e15ba",
+      "sha256": "87d863af3f5b812da62f60c676c5891b32a2969b0b23dd4136351a7e781c1896"
+    },
+    {
+      "id": "xie",
+      "name": "泻",
+      "file": "xie.mp4",
+      "context": "retained",
+      "frames": 105,
+      "fps": 24,
+      "size": [
+        960,
+        720
+      ],
+      "durationSeconds": 4.375,
+      "phaseLabels": [
+        "Xie · reducing gesture"
+      ],
+      "phases": [
+        {
+          "label": "Xie · reducing gesture",
+          "primitive": "xie",
+          "startFrame": 26
+        }
+      ],
+      "operatorSettings": {
+        "durationMs": 2400,
+        "cycles": 2,
+        "strokeMm": 1.5,
+        "rotationDeg": 90,
+        "lateralMm": 2,
+        "tiltDeg": 3,
+        "tempoBias": 0.3,
+        "direction": "alternating",
+        "grip": "two-finger",
+        "wristElevationDeg": 55,
+        "gripStyle": "tip-pinch",
+        "idleFingerPose": "curled",
+        "support": "none",
+        "hand": "left",
+        "gripApertureMm": 2,
+        "contactIntensity": 0.45
+      },
+      "camera": {
+        "inspectionButton": "手部 掌侧 Palm",
+        "wheelDeltaY": -850
+      },
+      "sceneRecordSha256": "76651f82c1f1bbe32584b01cc35acd744bd99f7526e8be9f7d208182602e15ba",
+      "sha256": "f680927288f3d26585ab019c41d8ed1738fc7b85b362fad66a637ab6e5ba245a"
+    }
+  ]
+}

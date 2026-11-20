@@ -1,0 +1,226 @@
+{
+  "schema": "clinicalcraft/facility@1",
+  "id": "sg-tcm-skills-room",
+  "name": {
+    "zh-CN": "模拟针灸技能实训室（新加坡）",
+    "en": "Simulated acupuncture skills room, Singapore"
+  },
+  "description": {
+    "zh-CN": "诊所平面之外的模拟技能实训室：门厅和一间实训室，内有两个针刺练习台，各为一张治疗床和一具模拟人。这里没有患者，本版本的接诊也不在这里进行。仅作示意，并非真实机构。",
+    "en": "A simulated skills room beside the clinic's own floor plan: a lobby and one room with two needling practice stations, each a treatment couch with a patient simulator. Nobody here is a patient, and no encounter of this release is played here. Illustrative, not a real institution."
+  },
+  "bounds": {
+    "minX": -8,
+    "maxX": 8,
+    "minZ": -7,
+    "maxZ": 9
+  },
+  "spawn": {
+    "x": 0,
+    "z": 7.25,
+    "yaw": 0
+  },
+  "catalogs": [
+    "materials",
+    "core-furniture",
+    "core-clinical",
+    "acucraft-tcm"
+  ],
+  "terrain": {
+    "ground": "grass",
+    "paths": [
+      {
+        "x": 0,
+        "z": 7,
+        "w": 6,
+        "d": 4,
+        "material": "stone"
+      }
+    ],
+    "trees": [
+      {
+        "x": -6.5,
+        "z": 7.5,
+        "h": 4
+      },
+      {
+        "x": 6.5,
+        "z": 7.5,
+        "h": 5
+      },
+      {
+        "x": -6.5,
+        "z": -5.5,
+        "h": 5
+      },
+      {
+        "x": 6.5,
+        "z": -5.5,
+        "h": 4
+      }
+    ],
+    "flowers": {
+      "count": 30,
+      "seed": 7104,
+      "exclude": [
+        {
+          "x": 0,
+          "z": 0.5,
+          "w": 10,
+          "d": 10
+        },
+        {
+          "x": 0,
+          "z": 7,
+          "w": 6,
+          "d": 4
+        }
+      ]
+    }
+  },
+  "buildings": [
+    {
+      "id": "skills",
+      "name": {
+        "zh-CN": "技能实训室",
+        "en": "Skills room"
+      },
+      "rect": {
+        "x": 0,
+        "z": 0.5,
+        "w": 9,
+        "d": 9
+      },
+      "floor": "floor",
+      "walls": {
+        "height": 3.2,
+        "base": "acu-dado",
+        "body": "cream",
+        "top": "cream",
+        "thickness": 0.35
+      },
+      "roof": {
+        "material": "acu-ceiling"
+      },
+      "openings": [
+        {
+          "side": "s",
+          "offset": 0,
+          "width": 2.0,
+          "height": 2.6,
+          "kind": "double-door"
+        },
+        {
+          "side": "s",
+          "offset": -3,
+          "width": 1.6,
+          "height": 1.4,
+          "kind": "window",
+          "sill": 1.0
+        },
+        {
+          "side": "s",
+          "offset": 3,
+          "width": 1.6,
+          "height": 1.4,
+          "kind": "window",
+          "sill": 1.0
+        },
+        {
+          "side": "w",
+          "offset": -2.5,
+          "width": 2.0,
+          "height": 1.2,
+          "kind": "window",
+          "sill": 1.4
+        },
+        {
+          "side": "e",
+          "offset": 2.5,
+          "width": 1.6,
+          "height": 1.2,
+          "kind": "window",
+          "sill": 1.4
+        }
+      ],
+      "sign": {
+        "text": {
+          "zh-CN": "针灸技能实训室",
+          "en": "Acupuncture skills room"
+        },
+        "side": "s"
+      }
+    }
+  ],
+  "rooms": [
+    {
+      "id": "lobby",
+      "name": {
+        "zh-CN": "门厅",
+        "en": "Lobby"
+      },
+      "kind": "entrance",
+      "building": "skills",
+      "rect": {
+        "x": 0,
+        "z": 4,
+        "w": 9,
+        "d": 2
+      },
+      "floor": "floor",
+      "lights": [
+        {
+          "x": -2.5,
+          "z": 4
+        },
+        {
+          "x": 2.5,
+          "z": 4
+        }
+      ]
+    }
+  ],
+  "instances": [
+    {
+      "id": "skills-room",
+      "template": "acu-skills-room",
+      "x": 0,
+      "z": -0.5,
+      "building": "skills"
+    }
+  ],
+  "placements": [
+    {
+      "id": "lobby-chairs",
+      "type": "waiting-chairs",
+      "x": -3.0,
+      "z": 4.4,
+      "rot": 180,
+      "room": "lobby"
+    },
+    {
+      "id": "lobby-hand-rub",
+      "type": "hand-sanitizer",
+      "x": 2.2,
+      "z": 3.35,
+      "label": {
+        "zh-CN": "免洗手消毒液",
+        "en": "Hand-rub dispenser"
+      },
+      "room": "lobby"
+    },
+    {
+      "id": "lobby-plant",
+      "type": "potted-plant",
+      "x": 3.9,
+      "z": 4.4,
+      "room": "lobby"
+    }
+  ],
+  "staff": [],
+  "signs": [],
+  "outdoorRegion": {
+    "zh-CN": "门前",
+    "en": "Forecourt"
+  }
+}
