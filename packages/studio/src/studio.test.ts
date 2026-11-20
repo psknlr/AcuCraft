@@ -2,13 +2,23 @@ import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { ActionSchema, digest, replayLog } from "@acucraft/core";
-import { loadContentPack, requireScenario } from "@acucraft/bench";
+import { PassThrough } from "node:stream";
+import { ActionSchema, digest, patientRegion, replayLog, type Scenario } from "@acucraft/core";
+import { loadContentPack, requireScenario, type Agent } from "@acucraft/bench";
 import { readGesture, type Sample } from "./client/world/gesture.js";
-import { actionSpecs, buildClient, handleMcp, hintOf, localBackend, remoteBackend, sceneOf, startStudioServer, StudioError, StudioSession, type Snapshot, type StudioEvent, type StudioServer } from "./index.js";
+import { actionSpecs, buildClient, handleMcp, hintOf, localBackend, remoteBackend, resolveScenario, sceneOf, serveMcp, startStudioServer, StudioError, StudioSession, type AgentOffer, type Snapshot, type StudioEvent, type StudioServer } from "./index.js";
 
 const pack = loadContentPack();
 const SCENARIO = "sg-knee-oa/base";
+
+/** A test's own script of the encounter (the scenario's solution, replayed): not an agent the studio offers. */
+const scripted = (sc: Scenario): Agent => {
+  const steps = sc.field.solution.filter((r) => sc.field.cast.find((m) => m.id === r.actor)?.agent === "under-test");
+  let i = 0;
+  return { name: "script", next: () => (steps[i] ? { action: steps[i++]!.action } : { done: true }) };
+};
+const SCRIPT: Record<string, AgentOffer> = { script: { label: "a test's script", make: scripted } };
+const tick = (ms = 0) => new Promise<void>((r) => setTimeout(r, ms));
 
 const until = async (ok: () => boolean, ms = 20000) => {
   const end = Date.now() + ms;
@@ -50,7 +60,10 @@ describe("the scene", () => {
     expect(scene.walls.reduce((n, w) => n + w.boxes.length, 0)).toBeGreaterThan(10);
     expect(scene.openings.some((o) => o.kind === "window")).toBe(true);
     expect(scene.openings.some((o) => o.kind.includes("door"))).toBe(true);
-    const couch = scene.fixtures.find((f) => f.fixture?.kind === "couch")!;
+    const couch = scene.fixtures.find((f) => f.fixtures.some((x) => x.kind === "couch"))!;
+    // one piece of furniture may be several fixtures: the needle trolley is also where its sharps box is
+    const kinds = scene.fixtures.find((f) => f.id === "treatment-room.trolley")!.fixtures.map((x) => x.kind).sort();
+    expect(kinds).toEqual(["sharps-container", "trolley"]);
     expect(couch.parts.length).toBeGreaterThan(5);
     expect(couch.footprint.d).toBeGreaterThan(1.5);
     for (const f of scene.fixtures) for (const part of f.parts) expect(scene.materials[part.m], `${f.type}: material ${part.m}`).toBeDefined();
@@ -81,8 +94,8 @@ describe("the session", () => {
   });
 
   it("keeps what is hidden on the server in assessment mode", () => {
-    const session = new StudioSession(pack, { scenario: SCENARIO });
-    const agent = session.attachAgent("reference");
+    const session = new StudioSession(pack, { scenario: SCENARIO, agents: SCRIPT });
+    const agent = session.attachAgent("script");
     return agent.then(async () => {
       // far enough into the reference encounter for needles to be in
       for (let i = 0; i < 400 && session.snapshot().view.needling.length < 2; i++) await session.stepAgent();
@@ -106,6 +119,12 @@ describe("the session", () => {
     expect(region.landmarks.length).toBeGreaterThan(3);
     expect(region.layers[0]!.tissue).toBe("skin");
     expect(region.structures.length).toBeGreaterThan(0);
+    // a tissue zone is where the engine has it on this patient: the reference chart scaled by their build
+    const frame = patientRegion(session.sc, "knee-leg", "right", region.configuration);
+    const ref = session.sc.bundle.regions.get("knee-leg")!.tissue.zones;
+    expect(frame.scale.u).not.toBe(1);
+    expect(region.zones[0]).toMatchObject({ u: Math.round(ref[0]!.centre.u * frame.scale.u * 1000) / 1000, v: Math.round(ref[0]!.centre.v * frame.scale.v * 1000) / 1000 });
+    expect(region.zones[0]!.layers).toEqual(frame.layersAt({ u: region.zones[0]!.u, v: region.zones[0]!.v }).map((l) => ({ tissue: l.tissue, label: l.label ?? l.tissue, thicknessCm: Math.round(l.thicknessCm * 1000) / 1000, hazard: l.hazard ?? null })));
     const probe = session.teachingProbe({ region: "knee-leg", side: "right", u: region.landmarks[0]!.u, v: region.landmarks[0]!.v, angleDeg: 0, azimuthDeg: 0, depthCm: 1.5 });
     expect(probe.strata[0]!.from).toBe(0);
     expect(probe.traversed[0]).toBe("skin");
@@ -113,6 +132,8 @@ describe("the session", () => {
     for (let i = 0; i < 400 && session.snapshot().view.needling.length < 1; i++) await session.stepAgent();
     const snap = session.snapshot();
     expect(snap.teaching!.needles.length).toBe(1);
+    // what a step set off in the team is shown in teaching mode, and never as anyone's request
+    expect(snap.feed.filter((f) => f.actor !== "practitioner").every((f) => f.via === "team")).toBe(true);
     expect(snap.teaching!.needles[0]!.strata.length).toBeGreaterThan(2);
     expect(snap.session.reportReady).toBe(true);
     expect(session.report().schema).toBe("acucraft/report@2");
@@ -197,8 +218,8 @@ describe("the HTTP interface", () => {
 
   it("gives the session, the scene, the catalogue and the library", async () => {
     expect(await (await get("/api/health")).json()).toMatchObject({ ok: true });
-    const scenarios = (await (await get("/api/scenarios")).json()) as { id: string }[];
-    expect(scenarios.map((s) => s.id)).toContain(SCENARIO);
+    const scenarios = (await (await get("/api/scenarios")).json()) as { id: string; variants: string[] }[];
+    expect(scenarios.find((s) => s.id === "sg-knee-oa")!.variants).toContain("base");
     const snap = (await (await get("/api/session")).json()) as Snapshot;
     expect(snap.view.schema).toBe("acucraft/view@2");
     expect(((await (await get("/api/session/scene")).json()) as { fixtures: unknown[] }).fixtures.length).toBeGreaterThan(10);
@@ -218,6 +239,11 @@ describe("the HTTP interface", () => {
     const stale = (await (await post("/api/session/act", { action: { type: "observe" }, expectedVersion: 0 })).json()) as { attempt: { status: string; code: string } };
     expect(stale.attempt).toMatchObject({ status: "rejected", code: "stale-version" });
     expect((await post("/api/session/act", { action: { type: "observe" } }, { "content-type": "application/json", origin: "null" })).status).toBe(403);
+    // the same machine on another port is another origin; this server's own page is not
+    expect((await post("/api/session/act", { action: { type: "observe" } }, { "content-type": "application/json", origin: "http://127.0.0.1:9" })).status).toBe(403);
+    expect((await post("/api/session/act", { action: { type: "observe" }, via: "operator" }, { "content-type": "application/json", origin: studio.url })).status).toBe(200);
+    // the scenario's own solution is not on offer to whoever is being assessed
+    expect((await post("/api/session/agent", { agent: "reference" })).status).toBe(403);
     expect((await get("/api/session/report")).status).toBe(403);
     // the log names the variant: not before the end
     expect((await get("/api/session/log")).status).toBe(403);
@@ -265,7 +291,8 @@ describe("the HTTP interface", () => {
     expect((await get("/api/session/report")).status).toBe(200);
     expect(((await (await get("/api/session/log")).json()) as { scenarioId: string }).scenarioId).toBe(SCENARIO);
     expect(await (await get("/api/session/review")).text()).toContain("<svg");
-    expect((await post("/api/session", { scenario: "no/such" })).status).toBe(500);
+    expect((await post("/api/session", { scenario: "no/such" })).status).toBe(404);
+    expect(((await (await get("/api/session")).json()) as Snapshot).session).toMatchObject({ mode: "teaching", seed: 3 });
     await post("/api/session", { scenario: SCENARIO, mode: "assessment", seed: 1 });
   });
 
@@ -342,5 +369,153 @@ describe("a needle worked by hand", () => {
     expect(readGesture("n1", record(3, () => 0))).toMatchObject({ gesture: null, why: expect.stringContaining("held") });
     expect(readGesture("n1", record(1.2, (t) => 0.3 * wave(t, 2)))).toMatchObject({ gesture: null, why: expect.stringContaining("at least 2 s") });
     expect(readGesture("n1", [])).toMatchObject({ gesture: null });
+  });
+});
+
+describe("what an assessment keeps to itself", () => {
+  it("does not offer the scenario's solution as an agent", async () => {
+    const session = new StudioSession(pack, { scenario: "sg-low-back-pain/cauda-equina" });
+    expect(session.agentStatus().available.find((a) => a.name === "reference")).toMatchObject({ ready: false, why: expect.stringContaining("teaching mode only") });
+    await expect(session.attachAgent("reference")).rejects.toMatchObject({ status: 403 });
+    await expect(session.proposeAgent()).rejects.toThrow(/No agent/);
+    expect(session.agentStatus().name).toBeNull();
+    // nor one that reads it, whatever it is offered as
+    const sneaky = new StudioSession(pack, { scenario: SCENARIO, agents: { helper: { label: "a helper", make: (sc) => ({ ...scripted(sc), oracle: true }) } } });
+    await expect(sneaky.attachAgent("helper")).rejects.toMatchObject({ status: 403 });
+    expect(sneaky.agentStatus().name).toBeNull();
+    // in teaching mode it is a demonstration
+    const teaching = new StudioSession(pack, { scenario: SCENARIO, mode: "teaching" });
+    await expect(teaching.attachAgent("reference")).resolves.toMatchObject({ name: "reference" });
+    expect((teaching.log().meta as { agents: string[] }).agents).toEqual(["reference"]);
+  });
+
+  it("draws the variant of a family by the seed, and names it to no one", () => {
+    const drawn = new Set<string>();
+    for (let seed = 1; seed <= 24; seed++) {
+      const session = new StudioSession(pack, { scenario: "sg-knee-oa", seed });
+      drawn.add(session.sc.variant.id);
+      expect(new StudioSession(pack, { scenario: "sg-knee-oa", seed }).sc.id).toBe(session.sc.id);
+      expect(JSON.stringify(session.snapshot())).not.toContain(session.sc.id);
+    }
+    expect(drawn.size).toBe(3);
+    expect(() => resolveScenario(pack, "no-such-family", 1)).toThrow(StudioError);
+    expect(() => resolveScenario(pack, "sg-knee-oa/no-such-variant", 1)).toThrow(StudioError);
+    // starting again as it stands keeps the scenario it has
+    const session = new StudioSession(pack, { scenario: "sg-knee-oa/anticoagulated" });
+    session.act({ action: { type: "observe" } });
+    expect(session.reset({ mode: "teaching" }).session).toMatchObject({ steps: 0, mode: "teaching", epoch: 1 });
+    expect(session.sc.id).toBe("sg-knee-oa/anticoagulated");
+    expect(() => session.reset({ scenario: "no/such" })).toThrow(StudioError);
+    expect(session.sc.id).toBe("sg-knee-oa/anticoagulated");
+  });
+});
+
+describe("an agent under the operator's hand", () => {
+  it("is paused when told to, at any pace, and never runs twice over", async () => {
+    const session = new StudioSession(pack, { scenario: SCENARIO });
+    await session.attachAgent("protocol", { stepDelayMs: 0 });
+    session.runAgent();
+    await tick(15);
+    session.pauseAgent();
+    const paused = session.snapshot().session.steps;
+    expect(session.snapshot().session.finished).toBe(false);
+    await tick(40);
+    expect(session.snapshot().session.steps).toBe(paused);
+    // run, pause and run again inside one pace: one loop goes on, not three
+    session.setStepDelay(60);
+    session.runAgent();
+    session.pauseAgent();
+    session.runAgent();
+    session.pauseAgent();
+    session.runAgent();
+    await tick(330);
+    session.pauseAgent();
+    const taken = session.snapshot().session.steps - paused;
+    expect(taken).toBeGreaterThanOrEqual(3);
+    expect(taken).toBeLessThanOrEqual(8);
+  });
+
+  it("is seen to stop deciding when its decision fails, and what it sends malformed is on the record", async () => {
+    let fail = true;
+    const agents: Record<string, AgentOffer> = {
+      flaky: { label: "fails, then sends nonsense", make: () => ({ name: "flaky", next: async () => { await tick(5); if (fail) throw new Error("model call failed"); return { action: { nonsense: true } as never }; } }) },
+    };
+    const session = new StudioSession(pack, { scenario: SCENARIO, agents });
+    const events: StudioEvent[] = [];
+    session.on((e) => events.push(e));
+    await session.attachAgent("flaky");
+    await expect(session.stepAgent()).rejects.toThrow("model call failed");
+    expect(events.at(-1)!.snapshot.agent).toMatchObject({ busy: false, error: "model call failed", running: false });
+    fail = false;
+    const r = await session.stepAgent();
+    expect("attempt" in r && r.attempt).toMatchObject({ via: "agent", status: "rejected", code: "invalid-request" });
+    expect(session.log().requests.length).toBe(1);
+    // asking for an agent that does not exist leaves the one in place alone
+    await expect(session.attachAgent("nobody")).rejects.toMatchObject({ status: 404 });
+    expect(session.agentStatus().name).toBe("flaky");
+  });
+
+  it("tells an agent its proposal was declined, and applies one on the state as it is now", async () => {
+    const session = new StudioSession(pack, { scenario: SCENARIO, mode: "teaching" });
+    await session.attachAgent("reference");
+    const first = (await session.proposeAgent()).pending!.action;
+    session.discardProposal();
+    // the solution's step was not taken: it is still its next step
+    expect((await session.proposeAgent()).pending!.action).toEqual(first);
+    // someone acts before the proposal is applied: it is applied on the state as it now is, not refused as stale
+    session.act({ action: { type: "observe" }, via: "operator" });
+    const applied = await session.stepAgent();
+    expect("attempt" in applied && applied.attempt).toMatchObject({ via: "agent", action: first });
+    expect("attempt" in applied && applied.attempt.code).not.toBe("stale-version");
+    await expect(session.proposeAgent()).resolves.toMatchObject({ pending: expect.anything() });
+    session.runAgent();
+    await expect(session.proposeAgent()).rejects.toThrow(/pause it/);
+    session.pauseAgent();
+  });
+
+  it("takes back the request that was sent last, whoever sent it and as whom", () => {
+    const session = new StudioSession(pack, { scenario: SCENARIO, mode: "teaching" });
+    const r0 = session.snapshot().session.revision;
+    session.act({ action: { type: "say", text: "Good morning." }, via: "operator" });
+    session.act({ action: { type: "say", text: "I am here if you need me." }, via: "operator", as: "assistant" });
+    const before = session.snapshot();
+    const undone = session.undo();
+    expect(undone.feed.map((f) => [f.actor, f.type])).toEqual([["practitioner", "say"]]);
+    expect(undone.session.steps).toBe(1);
+    // every change is a later revision; only a start is another epoch
+    expect(before.session.revision).toBeGreaterThan(r0);
+    expect(undone.session.revision).toBeGreaterThan(before.session.revision);
+    expect(undone.session.epoch).toBe(before.session.epoch);
+  });
+});
+
+describe("the MCP bridge on the wire", () => {
+  it("answers every message it can, whatever came before it", async () => {
+    const input = new PassThrough();
+    const output = new PassThrough();
+    const lines: unknown[] = [];
+    let rest = "";
+    output.on("data", (chunk: Buffer) => {
+      rest += chunk.toString("utf8");
+      for (let at = rest.indexOf("\n"); at >= 0; at = rest.indexOf("\n")) {
+        lines.push(JSON.parse(rest.slice(0, at)));
+        rest = rest.slice(at + 1);
+      }
+    });
+    const served = serveMcp(localBackend(new StudioSession(pack, { scenario: SCENARIO })), { input, output });
+    input.write("null\n");
+    input.write("not json\n");
+    input.write(`${JSON.stringify([{ jsonrpc: "2.0", id: 1, method: "ping" }, { jsonrpc: "2.0", method: "notifications/initialized" }, { jsonrpc: "2.0", id: 2, method: "tools/list" }])}\n`);
+    input.write(`${JSON.stringify({ jsonrpc: "2.0", id: 3, method: "tools/call", params: { name: "lookup", arguments: {} } })}\n`);
+    input.end();
+    await served;
+    expect(lines.length).toBe(4);
+    expect(lines[0]).toMatchObject({ error: { code: -32600 } });
+    expect(lines[1]).toMatchObject({ error: { code: -32700 } });
+    expect(lines[2]).toMatchObject([{ id: 1, result: {} }, { id: 2 }]);
+    // a lookup without a topic is told so: it is not sent the whole library
+    const text = (lines[3] as { result: { content: { text: string }[] } }).result.content[0]!.text;
+    expect(text.length).toBeLessThan(2000);
+    expect(JSON.parse(text)).toMatchObject({ error: "give a topic", topics: expect.arrayContaining(["techniques", "deqi"]) });
   });
 });

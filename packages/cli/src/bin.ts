@@ -85,10 +85,11 @@ usage: npm run acu -- <command> [options]
                                             run a benchmark suite; writes suite-result.json and report.md
   export-clinicalcraft --out DIR            write every instance's ClinicalCraft case (cases/<id>/case.json) for
                                             ClinicalCraft's contentDirs setting
-  studio [family/variant] [--port 4173] [--host 127.0.0.1] [--mode teaching] [--seed N]
+  studio [family[/variant]] [--port 4173] [--host 127.0.0.1] [--mode teaching] [--seed N]
       [--agent protocol|reference|claude] [--run] [--no-build]
                                             the studio: one live encounter in a real-time 3D clinic that you and a
-                                            language model drive through the same actions (docs/STUDIO.md)
+                                            language model drive through the same actions (docs/STUDIO.md). A family
+                                            alone draws its variant by the seed; --agent reference needs teaching mode
   mcp [family/variant] [--attach URL] [--mode teaching] [--seed N]
                                             the practitioner's tools (act, view, lookup) for an MCP client, over stdio:
                                             an encounter of its own, or with --attach the one a running studio shows
@@ -583,6 +584,10 @@ async function main(): Promise<void> {
       const p = pack();
       const scenario = args[0] ?? scenarioIds(p)[0]!;
       requireScenario(p, scenario);
+      if (values.agent === "reference" && process.argv.some((a) => a === "--agent" || a.startsWith("--agent=")) && mode() !== "teaching") {
+        console.error("the reference agent replays the scenario's hidden solution: it is offered in teaching mode only (--mode teaching)");
+        process.exit(2);
+      }
       if (!values["no-build"]) {
         const built = await buildClient();
         console.log(`client built (${(built.bytes / 1024).toFixed(0)} kB, ${built.ms} ms)`);
@@ -595,6 +600,7 @@ async function main(): Promise<void> {
         if (values.run) studio.session().runAgent();
       }
       console.log(`AcuCraft studio — ${scenario} (${mode()} mode, seed ${values.seed})`);
+      if (values.host === "0.0.0.0" || values.host === "::") console.log("  note   bound to every address: there is no authentication, anyone who can reach this machine can drive the session");
       console.log(`  open   ${studio.url}/`);
       console.log(`  API    ${studio.url}/api/session  (view, act, events, agent: docs/STUDIO.md)`);
       console.log(`  MCP    npm run -s acu -- mcp --attach ${studio.url}`);

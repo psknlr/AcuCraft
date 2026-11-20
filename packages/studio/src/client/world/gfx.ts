@@ -64,6 +64,7 @@ export class Gfx {
 
   private build(): void {
     const q = this.quality;
+    for (const pass of this.composer?.passes ?? []) pass.dispose();
     this.composer?.dispose();
     this.composer = null;
     this.bokeh = null;
@@ -141,12 +142,15 @@ export class Gfx {
     }
   }
 
-  /** Draw a frame. `dt` is the time since the last one (s). */
-  render(dt: number): void {
+  /**
+   * Draw a frame. `dt` is the time since the last one (s). `watch`: judge the frame rate by it (not for a view that is
+   * deliberately drawn less often, whose `dt` says nothing about the machine).
+   */
+  render(dt: number, watch = true): void {
     if (this.bokeh && this.opts.focus) (this.bokeh.uniforms as Record<string, { value: number }>).focus!.value = this.opts.focus();
     if (this.composer) this.composer.render(dt);
     else this.renderer.render(this.scene, this.camera);
-    if (!this.adaptive || this.quality === "low") return;
+    if (!watch || !this.adaptive || this.quality === "low") return;
     this.frames++;
     if (this.frames > 30 && dt > 1 / 22) this.slow++;
     else if (this.slow > 0 && dt < 1 / 40) this.slow--;
@@ -157,8 +161,30 @@ export class Gfx {
     }
   }
 
-  /** The frame as a PNG (a still for the record, or a test's screenshot). */
-  still(): string {
-    return this.canvas.toDataURL("image/png");
+  /** Let go of everything on the graphics card: the view is being replaced. */
+  dispose(): void {
+    this.composer?.dispose();
+    this.composer = null;
+    this.scene.traverse((o) => {
+      const m = o as THREE.Mesh;
+      m.geometry?.dispose();
+      for (const material of Array.isArray(m.material) ? m.material : m.material ? [m.material] : []) {
+        for (const value of Object.values(material)) if (value && (value as THREE.Texture).isTexture) (value as THREE.Texture).dispose();
+        material.dispose();
+      }
+    });
+    this.scene.environment?.dispose();
+    this.renderer.dispose();
+    this.renderer.forceContextLoss();
   }
+}
+
+/** Free what a group's meshes hold on the graphics card, and empty it. Shared materials are left to their owners. */
+export function discard(group: THREE.Object3D, materials = true): void {
+  group.traverse((o) => {
+    const m = o as THREE.Mesh;
+    m.geometry?.dispose();
+    if (materials) for (const material of Array.isArray(m.material) ? m.material : m.material ? [m.material] : []) if (!material.userData.shared) material.dispose();
+  });
+  group.clear();
 }

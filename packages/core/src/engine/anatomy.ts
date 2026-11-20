@@ -16,6 +16,8 @@ export interface PatientRegion {
   configuration: string;
   /** +1 when the chart's `u` points lateral on this side; −1 when it points medial; 0 on the midline. */
   lateralSign: 1 | -1 | 0;
+  /** This patient's size against the reference chart, across and along: a tissue zone's centre and radius scale by it. */
+  scale: { u: number; v: number };
   landmark(id: string): ChartPoint | null;
   /** Length of one cun of this segment, for this patient (cm). */
   cunCm(segment: string): number | null;
@@ -162,6 +164,7 @@ export function patientRegion(sc: Scenario, regionId: string, side: Side, config
     side,
     configuration,
     lateralSign,
+    scale: { u: su, v: sv },
     landmark: (id) => landmarkIn(id, configuration),
     // the cun is a property of the patient's skeleton: measured in the region's reference configuration
     cunCm: (segId) => {

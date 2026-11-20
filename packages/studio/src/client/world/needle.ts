@@ -22,6 +22,8 @@ export interface Motion {
 const HANDLE_CM = 2.4;
 const steel = new THREE.MeshStandardMaterial({ color: "#d9dee2", metalness: 1, roughness: 0.2, envMapIntensity: 1.6 });
 const copper = new THREE.MeshStandardMaterial({ color: "#c98a5b", metalness: 1, roughness: 0.32, envMapIntensity: 1.4 });
+// every needle's shaft is of the one steel: a needle that is taken away leaves it to the others
+steel.userData.shared = true;
 
 function coil(radius: number, wire: number, length: number): THREE.BufferGeometry {
   const turns = Math.round(length / (wire * 1.9));

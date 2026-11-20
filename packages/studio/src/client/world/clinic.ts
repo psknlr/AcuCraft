@@ -9,6 +9,10 @@ import { MaterialLibrary, worldUV } from "./materials.js";
  * collision model and reach rules are computed from, so what is drawn is what can be walked round and reached.
  * Walls are painted plaster with a dado, a rail and a skirting; windows are glazed; doors slide and stand open;
  * furniture is each catalog entry's boxes, bevelled and given real materials.
+ *
+ * The building exists twice: whole, and cut down to just over the dado rail for the view from above. The cut one is
+ * geometry of its own, not a clipping plane, so that light, shadow and ambient occlusion all see the walls that are
+ * drawn and no others.
  */
 
 export interface ClinicView {
@@ -22,7 +26,7 @@ export interface ClinicView {
   roomLights: THREE.PointLight[];
   sun: THREE.DirectionalLight;
   wallHeight: number;
-  /** Cut the walls down to the dado so the rooms can be looked into (null: whole walls). */
+  /** Cut the walls down to the dado so the rooms can be looked into. */
   setCutaway(on: boolean): void;
 }
 
@@ -31,15 +35,26 @@ const DADO = 0.95;
 const CUT = 1.0;
 const TRIM = "#6b4a33";
 
-function box(w: number, h: number, d: number, x: number, y: number, z: number): THREE.BufferGeometry {
-  const g = new THREE.BoxGeometry(w, h, d);
-  g.translate(x, y, z);
+type Geo = THREE.BufferGeometry | null;
+
+/** Nothing of the building is built above this height (the cut-away variant lowers it). */
+let LIMIT = Infinity;
+
+/** A box, kept below `LIMIT`: null when nothing of it is left. */
+function box(w: number, h: number, d: number, x: number, y: number, z: number): Geo {
+  const y0 = y - h / 2;
+  const y1 = Math.min(y + h / 2, LIMIT);
+  if (y1 - y0 < 0.004) return null;
+  const g = new THREE.BoxGeometry(w, y1 - y0, d);
+  g.translate(x, (y0 + y1) / 2, z);
   return worldUV(g);
 }
 
-function mesh(geometries: THREE.BufferGeometry[], material: THREE.Material, cast = true, receive = true): THREE.Mesh | null {
-  if (geometries.length === 0) return null;
-  const merged = mergeGeometries(geometries, false);
+function mesh(geometries: Geo[], material: THREE.Material, cast = true, receive = true): THREE.Mesh | null {
+  const present = geometries.filter((g): g is THREE.BufferGeometry => g !== null);
+  if (present.length === 0) return null;
+  const merged = mergeGeometries(present, false);
+  for (const g of present) g.dispose();
   if (!merged) return null;
   const m = new THREE.Mesh(merged, material);
   m.castShadow = cast;
@@ -52,7 +67,7 @@ function onWall(o: Pick<SceneOpening, "axis" | "line">, along: number, across: n
   return o.axis === "x" ? { x: along, z: o.line + across } : { x: o.line + across, z: along };
 }
 
-function alongBox(o: Pick<SceneOpening, "axis" | "line">, a: number, b: number, y0: number, y1: number, depth: number, across = 0): THREE.BufferGeometry {
+function alongBox(o: Pick<SceneOpening, "axis" | "line">, a: number, b: number, y0: number, y1: number, depth: number, across = 0): Geo {
   const c = onWall(o, (a + b) / 2, across);
   const len = Math.abs(b - a);
   return o.axis === "x" ? box(len, y1 - y0, depth, c.x, (y0 + y1) / 2, c.z) : box(depth, y1 - y0, len, c.x, (y0 + y1) / 2, c.z);
@@ -86,7 +101,7 @@ function buildFixture(f: SceneFixture, lib: MaterialLibrary): THREE.Group {
 }
 
 /** A window: frame, mullion, glass and an inner sill. */
-function buildWindow(o: SceneOpening, frames: THREE.BufferGeometry[], glass: THREE.BufferGeometry[], sills: THREE.BufferGeometry[]): void {
+function buildWindow(o: SceneOpening, frames: Geo[], glass: Geo[], sills: Geo[]): void {
   const bar = 0.055;
   const depth = 0.09;
   frames.push(alongBox(o, o.a, o.b, o.y0, o.y0 + bar, depth), alongBox(o, o.a, o.b, o.y1 - bar, o.y1, depth), alongBox(o, o.a, o.a + bar, o.y0, o.y1, depth), alongBox(o, o.b - bar, o.b, o.y0, o.y1, depth));
@@ -102,7 +117,7 @@ function buildWindow(o: SceneOpening, frames: THREE.BufferGeometry[], glass: THR
 }
 
 /** A door that slides: its leaf parked beside the opening on the far side of the room, under a rail. */
-function buildDoor(o: SceneOpening, out: { frames: THREE.BufferGeometry[]; leaves: THREE.BufferGeometry[]; glass: THREE.BufferGeometry[]; rails: THREE.BufferGeometry[]; handles: THREE.BufferGeometry[] }): void {
+function buildDoor(o: SceneOpening, out: { frames: Geo[]; leaves: Geo[]; glass: Geo[]; rails: Geo[]; handles: Geo[] }): void {
   const width = o.b - o.a;
   const jamb = 0.05;
   // the lining of the opening
@@ -137,6 +152,79 @@ function buildDoor(o: SceneOpening, out: { frames: THREE.BufferGeometry[]; leave
   }
 }
 
+/** Walls, windows and doors, whole (`limit` = ∞) or cut off at `limit` with a dark cap where the section is. */
+function buildArchitecture(scene: StudioScene, lib: MaterialLibrary, wallHeight: number, limit: number): THREE.Group {
+  const group = new THREE.Group();
+  LIMIT = limit;
+  const body = new Map<string, Geo[]>();
+  const dado = new Map<string, Geo[]>();
+  const trims: Geo[] = [];
+  const caps: THREE.BufferGeometry[] = [];
+  const push = (map: Map<string, Geo[]>, key: string, g: Geo) => {
+    const list = map.get(key) ?? [];
+    list.push(g);
+    map.set(key, list);
+  };
+  for (const wall of scene.walls) {
+    const bodyColor = lib.colorOf(wall.materials.body, "#e6e2d2");
+    const dadoColor = lib.colorOf(wall.materials.base, "#3f7f74");
+    for (const bx of wall.boxes) {
+      const y0 = bx.minY;
+      const y1 = Math.min(bx.maxY, wallHeight);
+      if (y1 - y0 < 0.01 || y0 >= limit) continue;
+      const w = bx.maxX - bx.minX;
+      const d = bx.maxZ - bx.minZ;
+      const cx = (bx.minX + bx.maxX) / 2;
+      const cz = (bx.minZ + bx.maxZ) / 2;
+      const alongX = w >= d;
+      if (y0 < DADO) push(dado, dadoColor, box(w, Math.min(y1, DADO) - y0, d, cx, (y0 + Math.min(y1, DADO)) / 2, cz));
+      if (y1 > DADO) push(body, bodyColor, box(w, y1 - Math.max(y0, DADO), d, cx, (y1 + Math.max(y0, DADO)) / 2, cz));
+      const grow = 0.035;
+      if (y0 < 0.01) trims.push(box(alongX ? w : w + grow, 0.09, alongX ? d + grow : d, cx, 0.045, cz));
+      if (y0 < DADO && y1 > DADO) trims.push(box(alongX ? w : w + grow, 0.045, alongX ? d + grow : d, cx, DADO, cz));
+      // a dark cap on the section: where the wall ends, or where it was cut
+      const top = Math.min(y1, limit);
+      if (y1 >= wallHeight - 0.01 || y1 > limit) {
+        const cap = new THREE.BoxGeometry(w + 0.002, 0.014, d + 0.002);
+        cap.translate(cx, top + 0.007, cz);
+        caps.push(worldUV(cap));
+      }
+    }
+  }
+  for (const [color, gs] of body) {
+    const m = mesh(gs, lib.wall(color));
+    if (m) group.add(m);
+  }
+  for (const [color, gs] of dado) {
+    const m = mesh(gs, lib.wall(color, true));
+    if (m) group.add(m);
+  }
+  const frames: Geo[] = [];
+  const glass: Geo[] = [];
+  const sills: Geo[] = [];
+  const doors = { frames: [] as Geo[], leaves: [] as Geo[], glass, rails: [] as Geo[], handles: [] as Geo[] };
+  for (const o of scene.openings) {
+    if (o.kind === "window") buildWindow(o, frames, glass, sills);
+    else buildDoor(o, doors);
+  }
+  LIMIT = Infinity;
+  const white = new THREE.MeshPhysicalMaterial({ color: "#f3f2ec", roughness: 0.4, clearcoat: 0.5, clearcoatRoughness: 0.3 });
+  for (const m of [
+    mesh(trims, lib.trim(TRIM)),
+    mesh(caps, new THREE.MeshStandardMaterial({ color: "#2f3437", roughness: 0.9 }), false, false),
+    mesh(frames, white),
+    mesh(sills, lib.trim("#a87948")),
+    mesh(doors.frames, lib.trim(TRIM)),
+    mesh(doors.leaves, lib.trim("#b58a5c")),
+    mesh(doors.rails, lib.get("steel")),
+    mesh(doors.handles, lib.get("chrome")),
+    mesh(glass, lib.get("glass"), false, false),
+  ]) {
+    if (m) group.add(m);
+  }
+  return group;
+}
+
 export function buildClinic(scene: StudioScene, lib: MaterialLibrary): ClinicView {
   const group = new THREE.Group();
   group.name = "clinic";
@@ -153,7 +241,7 @@ export function buildClinic(scene: StudioScene, lib: MaterialLibrary): ClinicVie
   // slabs and floors
   const floors: THREE.Mesh[] = [];
   for (const bd of scene.buildings) {
-    const slab = new THREE.Mesh(box(bd.rect.maxX - bd.rect.minX + 0.5, 0.06, bd.rect.maxZ - bd.rect.minZ + 0.5, (bd.rect.minX + bd.rect.maxX) / 2, -0.031, (bd.rect.minZ + bd.rect.maxZ) / 2), new THREE.MeshStandardMaterial({ color: "#8f8f88", roughness: 0.95 }));
+    const slab = new THREE.Mesh(box(bd.rect.maxX - bd.rect.minX + 0.5, 0.06, bd.rect.maxZ - bd.rect.minZ + 0.5, (bd.rect.minX + bd.rect.maxX) / 2, -0.031, (bd.rect.minZ + bd.rect.maxZ) / 2)!, new THREE.MeshStandardMaterial({ color: "#8f8f88", roughness: 0.95 }));
     slab.receiveShadow = true;
     group.add(slab);
   }
@@ -172,86 +260,11 @@ export function buildClinic(scene: StudioScene, lib: MaterialLibrary): ClinicVie
     group.add(floor);
   }
 
-  // walls: a dado, the body above it, a rail and a skirting, and a dark cap where the section is cut
-  const body = new Map<string, THREE.BufferGeometry[]>();
-  const dado = new Map<string, THREE.BufferGeometry[]>();
-  const trims: THREE.BufferGeometry[] = [];
-  const caps: THREE.BufferGeometry[] = [];
-  const cutCaps: THREE.BufferGeometry[] = [];
-  // everything that is building is cut by one plane; furniture and people never are
-  const cut = new THREE.Plane(new THREE.Vector3(0, -1, 0), 1000);
-  const arch = <M extends THREE.Material>(material: M): M => {
-    const m = material.clone() as M;
-    m.clippingPlanes = [cut];
-    m.clipShadows = true;
-    return m;
-  };
-  const push = (map: Map<string, THREE.BufferGeometry[]>, key: string, g: THREE.BufferGeometry) => {
-    const list = map.get(key) ?? [];
-    list.push(g);
-    map.set(key, list);
-  };
-  for (const wall of scene.walls) {
-    const bodyColor = lib.colorOf(wall.materials.body, "#e6e2d2");
-    const dadoColor = lib.colorOf(wall.materials.base, "#3f7f74");
-    for (const bx of wall.boxes) {
-      const y0 = bx.minY;
-      const y1 = Math.min(bx.maxY, wallHeight);
-      if (y1 - y0 < 0.01) continue;
-      const w = bx.maxX - bx.minX;
-      const d = bx.maxZ - bx.minZ;
-      const cx = (bx.minX + bx.maxX) / 2;
-      const cz = (bx.minZ + bx.maxZ) / 2;
-      const alongX = w >= d;
-      if (y0 < DADO) push(dado, dadoColor, box(w, Math.min(y1, DADO) - y0, d, cx, (y0 + Math.min(y1, DADO)) / 2, cz));
-      if (y1 > DADO) push(body, bodyColor, box(w, y1 - Math.max(y0, DADO), d, cx, (y1 + Math.max(y0, DADO)) / 2, cz));
-      const grow = 0.035;
-      if (y0 < 0.01) trims.push(box(alongX ? w : w + grow, 0.09, alongX ? d + grow : d, cx, 0.045, cz));
-      if (y0 < DADO && y1 > DADO) trims.push(box(alongX ? w : w + grow, 0.045, alongX ? d + grow : d, cx, DADO, cz));
-      if (y1 >= wallHeight - 0.01) caps.push(box(w + 0.002, 0.02, d + 0.002, cx, wallHeight + 0.01, cz));
-      if (y0 < CUT && y1 > CUT) cutCaps.push(box(w + 0.002, 0.012, d + 0.002, cx, CUT + 0.006, cz));
-    }
-  }
-  for (const [color, gs] of body) {
-    const m = mesh(gs, arch(lib.wall(color)));
-    if (m) group.add(m);
-  }
-  for (const [color, gs] of dado) {
-    const m = mesh(gs, arch(lib.wall(color, true)));
-    if (m) group.add(m);
-  }
-  const trimMesh = mesh(trims, arch(lib.trim(TRIM)));
-  if (trimMesh) group.add(trimMesh);
-  const capMaterial = new THREE.MeshStandardMaterial({ color: "#2f3437", roughness: 0.9 });
-  const capMesh = mesh(caps, capMaterial, false, false);
-  if (capMesh) group.add(capMesh);
-  const cutCapMesh = mesh(cutCaps, capMaterial, false, false);
-  if (cutCapMesh) {
-    cutCapMesh.visible = false;
-    group.add(cutCapMesh);
-  }
-
-  // windows and doors
-  const frames: THREE.BufferGeometry[] = [];
-  const glass: THREE.BufferGeometry[] = [];
-  const sills: THREE.BufferGeometry[] = [];
-  const doors = { frames: [] as THREE.BufferGeometry[], leaves: [] as THREE.BufferGeometry[], glass, rails: [] as THREE.BufferGeometry[], handles: [] as THREE.BufferGeometry[] };
-  for (const o of scene.openings) {
-    if (o.kind === "window") buildWindow(o, frames, glass, sills);
-    else buildDoor(o, doors);
-  }
-  const white = new THREE.MeshPhysicalMaterial({ color: "#f3f2ec", roughness: 0.4, clearcoat: 0.5, clearcoatRoughness: 0.3 });
-  for (const m of [
-    mesh(frames, arch(white)),
-    mesh(sills, arch(lib.trim("#a87948"))),
-    mesh(doors.frames, arch(lib.trim(TRIM))),
-    mesh(doors.leaves, arch(lib.trim("#b58a5c"))),
-    mesh(doors.rails, arch(lib.get("steel"))),
-    mesh(doors.handles, arch(lib.get("chrome"))),
-    mesh(glass, arch(lib.get("glass")), false, false),
-  ]) {
-    if (m) group.add(m);
-  }
+  // the building, whole and cut away
+  const whole = buildArchitecture(scene, lib, wallHeight, Infinity);
+  const cut = buildArchitecture(scene, lib, wallHeight, CUT);
+  cut.visible = false;
+  group.add(whole, cut);
 
   // the ceiling: seen from inside the rooms only, so the clinic can be looked into from above
   const ceiling = new THREE.Group();
@@ -308,9 +321,8 @@ export function buildClinic(scene: StudioScene, lib: MaterialLibrary): ClinicVie
   }
 
   const setCutaway = (on: boolean) => {
-    cut.constant = on ? CUT : 1000;
-    if (capMesh) capMesh.visible = !on;
-    if (cutCapMesh) cutCapMesh.visible = on;
+    whole.visible = !on;
+    cut.visible = on;
     ceiling.visible = !on;
   };
   return { group, fixtures, floors, pickables: [...floors, ...fixtures.values()], ceiling, roomLights, sun, wallHeight, setCutaway };

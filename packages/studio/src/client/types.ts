@@ -11,13 +11,13 @@ export type { ActionSpec, ActResult, AgentStatus, AgentView, FeedItem, FieldEntr
 export type Library = ReturnType<typeof referenceLibrary>;
 export type Side = "left" | "right" | "midline";
 export type NeedleView = AgentView["needling"][number];
+/** A scenario family and the ids of its variants. */
 export interface ScenarioInfo {
   id: string;
-  family: string;
-  variant: string;
   title: string;
   condition: string | null;
   split: string;
+  variants: string[];
 }
 export interface Probe {
   inChart: boolean;

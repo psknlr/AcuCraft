@@ -45,8 +45,8 @@ export interface SceneFixture {
   footprint: { w: number; d: number; h: number };
   parts: VoxelPart[];
   category: string;
-  /** The clinic fixture standing on this placement (what actions name), if any. */
-  fixture: { id: string; kind: string; label: string; reach: number } | null;
+  /** The clinic fixtures standing on this placement (what actions name): a trolley is also where its sharps box is. */
+  fixtures: { id: string; kind: string; label: string; reach: number }[];
 }
 
 export interface SceneOpening {
@@ -101,18 +101,19 @@ export function sceneOf(sc: Scenario): StudioScene {
     const materials: Record<string, MaterialDef> = {};
     for (const c of sc.bundle.world.catalogs) for (const m of c.materials) materials[m.id] = m;
     for (const m of f.materials ?? []) materials[m.id] = m;
-    const byPlacement = new Map([...w.fixtures.values()].map((fx) => [fx.entity.id, fx]));
+    const byPlacement = new Map<string, { id: string; kind: string; label: string; reach: number }[]>();
+    for (const fx of w.fixtures.values()) byPlacement.set(fx.entity.id, [...(byPlacement.get(fx.entity.id) ?? []), { id: fx.id, kind: fx.kind, label: fx.label, reach: fx.reach }]);
     const fixtures: SceneFixture[] = [];
     for (const p of f.placements) {
       const entity = w.registry.entity(`eq:${p.id}`);
       const type = entity?.equipmentType;
       if (!entity || !type) continue;
-      const fx = byPlacement.get(entity.id) ?? null;
+      const here = byPlacement.get(entity.id) ?? [];
       const skip = new Set(p.hideParts ?? []);
       fixtures.push({
         id: p.id,
         type: type.id,
-        label: fx?.label ?? t(p.label ?? type.name, LOCALE),
+        label: here[0]?.label ?? t(p.label ?? type.name, LOCALE),
         room: entity.room,
         x: p.x,
         z: p.z,
@@ -120,7 +121,7 @@ export function sceneOf(sc: Scenario): StudioScene {
         footprint: type.footprint,
         parts: [...type.parts.filter((_, i) => !skip.has(i)), ...(p.extraParts ?? [])],
         category: type.category,
-        fixture: fx ? { id: fx.id, kind: fx.kind, label: fx.label, reach: fx.reach } : null,
+        fixtures: here,
       });
     }
     const openings: SceneOpening[] = [];
@@ -295,21 +296,29 @@ export function teachingRegion(sc: Scenario, s: EncounterState, regionId: string
     landmarks,
     structures: frame.structures.map((x) => ({ id: x.id, label: x.label, kind: x.kind, hazard: x.hazard, radiusCm: x.radiusCm, path: x.path.map((p) => ({ u: round3(p.u), v: round3(p.v), d: round3(p.d) })) })),
     // the general strata: those well away from every zone, else the model's own
-    layers: layersOut(frame.layersAt(farFromZones(region, mid))),
-    zones: region.tissue.zones.map((z) => ({ id: z.id, u: z.centre.u, v: z.centre.v, radiusCm: z.radiusCm, layers: layersOut(frame.layersAt(z.centre)) })),
+    layers: layersOut(frame.layersAt(farFromZones(region, mid, frame.scale))),
+    // a zone is where the engine has it on this patient: its centre and radius scale with the patient's build
+    zones: region.tissue.zones.map((z) => {
+      const at = { u: z.centre.u * frame.scale.u, v: z.centre.v * frame.scale.v };
+      return { id: z.id, u: round3(at.u), v: round3(at.v), radiusCm: round3(z.radiusCm * Math.max(frame.scale.u, frame.scale.v)), layers: layersOut(frame.layersAt(at)) };
+    }),
   };
 }
 
-function farFromZones(region: { tissue: { zones: { centre: { u: number; v: number }; radiusCm: number }[] }; chart: { uRange: [number, number]; vRange: [number, number] } }, start: { u: number; v: number }) {
-  const free = (p: { u: number; v: number }) => region.tissue.zones.every((z) => Math.hypot(p.u - z.centre.u, p.v - z.centre.v) > z.radiusCm);
-  if (free(start)) return start;
+/** A point of the patient's chart outside every tissue zone (the model's general strata hold there). */
+function farFromZones(region: { tissue: { zones: { centre: { u: number; v: number }; radiusCm: number }[] }; chart: { uRange: [number, number]; vRange: [number, number] } }, start: { u: number; v: number }, scale: { u: number; v: number }) {
+  const reach = Math.max(scale.u, scale.v);
+  const free = (p: { u: number; v: number }) => region.tissue.zones.every((z) => Math.hypot(p.u - z.centre.u * scale.u, p.v - z.centre.v * scale.v) > z.radiusCm * reach);
+  const at = (u: number, v: number) => ({ u: u * scale.u, v: v * scale.v });
+  const first = at(start.u, start.v);
+  if (free(first)) return first;
   for (let i = 1; i <= 8; i++) {
     for (let k = 0; k <= 8; k++) {
-      const p = { u: region.chart.uRange[0] + ((region.chart.uRange[1] - region.chart.uRange[0]) * i) / 9, v: region.chart.vRange[0] + ((region.chart.vRange[1] - region.chart.vRange[0]) * k) / 8 };
+      const p = at(region.chart.uRange[0] + ((region.chart.uRange[1] - region.chart.uRange[0]) * i) / 9, region.chart.vRange[0] + ((region.chart.vRange[1] - region.chart.vRange[0]) * k) / 8);
       if (free(p)) return p;
     }
   }
-  return start;
+  return first;
 }
 
 /** What lies under each needle in place this visit. Teaching mode only. */

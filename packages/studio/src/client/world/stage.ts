@@ -3,7 +3,7 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { CSS2DObject, CSS2DRenderer } from "three/addons/renderers/CSS2DRenderer.js";
 import type { SceneFixture, Side, Snapshot, StudioScene } from "../types.js";
 import { buildClinic, type ClinicView } from "./clinic.js";
-import { Gfx, type Quality } from "./gfx.js";
+import { discard, Gfx, type Quality } from "./gfx.js";
 import { MaterialLibrary } from "./materials.js";
 import { NeedleModel } from "./needle.js";
 import { Mannequin, Walker, type Outfit, type Pose } from "./people.js";
@@ -90,6 +90,7 @@ export class ClinicStage {
   private roomTags: CSS2DObject[] = [];
   private snapshot: Snapshot | null = null;
   private version = -1;
+  private epoch = -1;
   private session = "";
   private clock = 0;
   mode: CameraMode = "overview";
@@ -116,7 +117,6 @@ export class ClinicStage {
     this.clinic = buildClinic(def, new MaterialLibrary(def.materials));
     this.scene.add(this.clinic.group, this.needleGroup, this.dots, this.rings, this.trail);
     this.gfx = new Gfx(canvas, this.scene, this.camera, { quality, aoRadius: 0.55, bloom: 0.1, exposure: 0.8, environment: 0.38, onQuality: (q, why) => this.events.quality(q, why) });
-    this.gfx.renderer.localClippingEnabled = true;
     this.controls = new OrbitControls(this.camera, canvas);
     Object.assign(this.controls, { enableDamping: true, dampingFactor: 0.08, minDistance: 0.8, maxDistance: 60, maxPolarAngle: Math.PI * 0.495, zoomSpeed: 0.9, screenSpacePanning: false });
 
@@ -176,7 +176,7 @@ export class ClinicStage {
     } else if (seat && pose !== "standing") {
       figure.setPose(pose === "seated-forward" ? "seated-forward" : "seated");
       const rot = (seat.rot * Math.PI) / 180;
-      figure.placeSeated(p.x, p.z, { x: Math.sin(rot), z: Math.cos(rot) }, seat.fixture?.kind === "couch" ? surfaceTop(seat, 1.1) : surfaceTop(seat, 0.62));
+      figure.placeSeated(p.x, p.z, { x: Math.sin(rot), z: Math.cos(rot) }, seat.fixtures.some((x) => x.kind === "couch") ? surfaceTop(seat, 1.1) : surfaceTop(seat, 0.62));
     } else {
       figure.setPose("standing");
       this.patient.walker.set(p.x, p.z, p.yaw);
@@ -185,15 +185,17 @@ export class ClinicStage {
 
   /** Bring the stage to a snapshot: walks are played once, everything else is simply where it is. */
   update(s: Snapshot): void {
-    const fresh = s.session.id !== this.session || s.session.version < this.version;
+    // another encounter, or one taken back a step: everyone is simply where they now are
+    const fresh = s.session.id !== this.session || s.session.epoch !== this.epoch || s.session.version < this.version;
     const advanced = s.session.version !== this.version || fresh;
     this.session = s.session.id;
+    this.epoch = s.session.epoch;
     this.version = s.session.version;
     this.snapshot = s;
     const walked = new Set<string>();
     let escorted: Snapshot["stage"]["walks"][number] | null = null;
     if (advanced && !fresh) {
-      this.trail.clear();
+      discard(this.trail);
       for (const w of s.stage.walks) {
         const person = this.people.get(w.actor);
         if (!person || w.metres <= 0) continue;
@@ -268,12 +270,13 @@ export class ClinicStage {
     for (const [id, model] of this.needles) {
       if (seen.has(id)) continue;
       this.needleGroup.remove(model.group);
+      discard(model.group);
       this.needles.delete(id);
     }
   }
 
   private placeSites(s: Snapshot): void {
-    this.dots.clear();
+    discard(this.dots);
     if (!this.showSites || this.patient.walker.walking) return;
     const sites = s.view.space.patient.sites;
     const add = (key: string, inReach: boolean) => {
@@ -291,7 +294,7 @@ export class ClinicStage {
   }
 
   private placeRings(s: Snapshot): void {
-    this.rings.clear();
+    discard(this.rings);
     if (!this.showReach) return;
     const me = s.stage.actors.find((a) => a.id === s.session.actor);
     if (!me) return;
@@ -411,8 +414,10 @@ export class ClinicStage {
       this.outline.geometry.dispose();
       this.outline.geometry = new THREE.BufferGeometry().setFromPoints(pts);
       this.outline.visible = true;
-      const reach = f.fixture ? view?.space.fixtures.find((x) => x.id === f.fixture!.id) : null;
-      text = f.fixture ? `${f.fixture.label} — ${reach ? (reach.inReach ? "within reach" : `${reach.distance.toFixed(1)} m away`) : ""} · click to walk to it` : f.label;
+      // one piece of furniture may be several fixtures: it is in reach when any of them is
+      const reaches = f.fixtures.map((x) => view?.space.fixtures.find((y) => y.id === x.id)).filter((x) => x !== undefined);
+      const near = reaches.find((x) => x.inReach) ?? reaches[0];
+      text = f.fixtures.length ? `${f.fixtures.map((x) => x.label).join(" · ")} — ${near ? (near.inReach ? "within reach" : `${near.distance.toFixed(1)} m away`) : ""} · click to walk to it or use it` : f.label;
     } else if (h?.kind === "person") {
       const name = h.id === "patient" ? this.def.patient.name : (this.def.cast.find((c) => c.id === h.id)?.name ?? h.id);
       const d = h.id === "patient" ? view?.space.patient.distance : view?.space.team.find((t) => t.id === h.id)?.distance;
@@ -446,7 +451,13 @@ export class ClinicStage {
     this.labels.setSize(r.width, r.height);
   }
 
-  tick(dt: number): void {
+  /** Let go of the view (another clinic or patient is about to be built in its place). */
+  dispose(): void {
+    this.controls.dispose();
+    this.gfx.dispose();
+  }
+
+  tick(dt: number, watch = true): void {
     this.clock += dt;
     let moving = false;
     for (const p of this.people.values()) {
@@ -467,7 +478,7 @@ export class ClinicStage {
         const m = (l as THREE.Line).material as THREE.Material;
         m.opacity = Math.max(0, m.opacity - dt * 0.35);
       }
-      if (((this.trail.children[0] as THREE.Line).material as THREE.Material).opacity <= 0) this.trail.clear();
+      if (((this.trail.children[0] as THREE.Line).material as THREE.Material).opacity <= 0) discard(this.trail);
     }
     const me = this.me();
     if (this.fly) {
@@ -486,7 +497,7 @@ export class ClinicStage {
     this.controls.update();
     // the ceiling is there for whoever stands under it
     this.clinic.ceiling.visible = !this.cutaway && this.camera.position.y < this.clinic.wallHeight;
-    this.gfx.render(dt);
+    this.gfx.render(dt, watch);
     this.labels.render(this.scene, this.camera);
   }
 }

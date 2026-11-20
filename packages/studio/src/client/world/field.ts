@@ -3,7 +3,7 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 import { CSS2DObject, CSS2DRenderer } from "three/addons/renderers/CSS2DRenderer.js";
 import type { AgentView, NeedleView, Probe, Side, StudioScene, TeachingNeedle, TeachingRegion } from "../types.js";
-import { Gfx, type Quality } from "./gfx.js";
+import { discard, Gfx, type Quality } from "./gfx.js";
 import { skinMaps, worldUV } from "./materials.js";
 import { readGesture, type Gesture, type Sample } from "./gesture.js";
 import { NeedleModel } from "./needle.js";
@@ -58,6 +58,8 @@ const STRUCTURE: Record<string, string> = { artery: "#c9342b", vein: "#3a5fb0", 
 
 const INK = new THREE.MeshBasicMaterial({ color: "#3b2f8f", transparent: true, opacity: 0.85, depthWrite: false });
 const PEN = new THREE.MeshBasicMaterial({ color: "#1f4fa8", transparent: true, opacity: 0.85, depthWrite: false });
+// the pen and the ink are the same for every mark: a mark that is redrawn leaves them be
+INK.userData.shared = PEN.userData.shared = true;
 const flat = (color: string, opacity = 1) => new THREE.MeshBasicMaterial({ color, transparent: opacity < 1, opacity, depthWrite: false, side: THREE.DoubleSide });
 
 function label(text: string, cls: string): CSS2DObject {
@@ -97,10 +99,12 @@ export class FieldView {
   private needleGroup = new THREE.Group();
   private ghostGroup = new THREE.Group();
   private ghostModel: NeedleModel | null = null;
+  private ghostMarks = new THREE.Group();
   private cursor: THREE.Mesh;
   private selection: THREE.Mesh;
   private needles = new Map<string, { model: NeedleModel; view: NeedleView; tag: CSS2DObject; dose: THREE.Mesh; gone: boolean }>();
   private holes = new THREE.Group();
+  private holed = new Set<string>();
   region: StudioScene["regions"][number] | null = null;
   side: Side = "midline";
   selected: string | null = null;
@@ -194,11 +198,12 @@ export class FieldView {
     this.region = region;
     this.side = side;
     this.selected = null;
-    this.chart.clear();
+    discard(this.chart, false);
     for (const n of this.needles.values()) n.tag.removeFromParent();
     this.needles.clear();
-    this.needleGroup.clear();
-    this.holes.clear();
+    discard(this.needleGroup);
+    discard(this.holes);
+    this.holed.clear();
     const [u0, u1] = region.uRange;
     const [v0, v1] = region.vRange;
     const w = u1 - u0;
@@ -293,7 +298,7 @@ export class FieldView {
     const spec = /([\d.]+)\s*×\s*([\d.]+)\s*mm/.exec(view.equipment.packs[0]?.spec ?? "");
     if (spec) this.spec = { diameterMm: Number(spec[1]), lengthMm: Number(spec[2]) };
     const here = (r: string, s: string) => r === region.id && s === this.side;
-    this.marks.clear();
+    discard(this.marks);
     const lm = new Map(region.landmarks.map((l) => [l.id, l.label]));
     for (const l of view.localisation.landmarks) {
       if (!here(l.region, l.side)) continue;
@@ -395,26 +400,34 @@ export class FieldView {
     for (const [id, entry] of this.needles) {
       if (now.has(id) || entry.gone) continue;
       // no longer listed on this chart (a new visit): gone without ceremony
-      entry.tag.removeFromParent();
-      this.needleGroup.remove(entry.model.group, entry.dose);
-      this.needles.delete(id);
+      this.release(id, entry);
     }
     if (this.selected && !this.needles.has(this.selected)) this.select(null);
     this.setTeachingNeedles(teachingNeedles);
   }
 
+  /** The mark a withdrawn needle leaves: one for each needle, however often the chart is redrawn. */
   private hole(n: NeedleView): void {
+    if (this.holed.has(n.needle)) return;
+    this.holed.add(n.needle);
     const dot = new THREE.Mesh(new THREE.CircleGeometry(0.045, 12).rotateX(-Math.PI / 2), flat("#8c2f2a", 0.75));
     dot.position.copy(this.at(n.site.u, n.site.v, 0.022));
     this.holes.add(dot);
   }
 
+  private release(id: string, entry: { model: NeedleModel; tag: CSS2DObject; dose: THREE.Mesh }): void {
+    entry.tag.removeFromParent();
+    this.needleGroup.remove(entry.model.group, entry.dose);
+    discard(entry.model.group);
+    entry.dose.geometry.dispose();
+    (entry.dose.material as THREE.Material).dispose();
+    this.needles.delete(id);
+  }
+
   private dropNeedle(id: string, n: NeedleView): void {
     const entry = this.needles.get(id);
     if (!entry) return;
-    entry.tag.removeFromParent();
-    this.needleGroup.remove(entry.model.group, entry.dose);
-    this.needles.delete(id);
+    this.release(id, entry);
     this.hole(n);
   }
 
@@ -433,31 +446,38 @@ export class FieldView {
     return this.needles.has(needle);
   }
 
-  /** A needle that is not there yet: where the form would put it. */
+  /** A needle that is not there yet: where the form would put it. One model, moved as the form changes. */
   setGhost(g: Ghost | null): void {
-    this.ghostGroup.clear();
-    this.ghostModel = null;
-    if (!g) return;
-    const model = new NeedleModel(this.spec, 1, 2.2);
-    model.group.traverse((o) => {
-      const m = o as THREE.Mesh;
-      if (m.isMesh) m.material = new THREE.MeshStandardMaterial({ color: "#7fe3ff", emissive: "#2aa7d6", emissiveIntensity: 0.7, transparent: true, opacity: 0.55, depthWrite: false });
-    });
-    model.group.position.copy(this.at(g.u, g.v, 0));
-    model.aim(g.angleDeg, g.azimuthDeg);
-    model.setDepth(g.depthCm);
+    discard(this.ghostMarks);
+    if (!g) {
+      this.ghostGroup.visible = false;
+      return;
+    }
+    if (!this.ghostModel) {
+      const model = new NeedleModel(this.spec, 1, 2.2);
+      const glow = new THREE.MeshStandardMaterial({ color: "#7fe3ff", emissive: "#2aa7d6", emissiveIntensity: 0.7, transparent: true, opacity: 0.55, depthWrite: false });
+      model.group.traverse((o) => {
+        const m = o as THREE.Mesh;
+        if (m.isMesh) m.material = glow;
+      });
+      this.ghostGroup.add(model.group, this.ghostMarks);
+      this.ghostModel = model;
+    }
+    this.ghostGroup.visible = true;
+    this.ghostModel.group.position.copy(this.at(g.u, g.v, 0));
+    this.ghostModel.aim(g.angleDeg, g.azimuthDeg);
+    this.ghostModel.setDepth(g.depthCm);
     const spot = ring(0.12, 0.2, flat("#7fe3ff", 0.95), 32);
     spot.position.copy(this.at(g.u, g.v, 0.035));
+    this.ghostMarks.add(spot);
     // where the tip travels across the chart
     const theta = (g.angleDeg * Math.PI) / 180;
     const phi = (g.azimuthDeg * Math.PI) / 180;
     const reach = Math.sin(theta) * g.depthCm;
     if (reach > 0.05) {
       const lg = new THREE.BufferGeometry().setFromPoints([this.at(g.u, g.v, 0.03), this.at(g.u + reach * Math.sin(phi), g.v + reach * Math.cos(phi), 0.03)]);
-      this.ghostGroup.add(new THREE.Line(lg, new THREE.LineDashedMaterial({ color: "#7fe3ff", dashSize: 0.18, gapSize: 0.12 })).computeLineDistances());
+      this.ghostMarks.add(new THREE.Line(lg, new THREE.LineDashedMaterial({ color: "#7fe3ff", dashSize: 0.18, gapSize: 0.12 })).computeLineDistances());
     }
-    this.ghostGroup.add(model.group, spot);
-    this.ghostModel = model;
   }
 
   /* ---------------------------------------------------------------- */
@@ -469,6 +489,8 @@ export class FieldView {
   private probeCore = new THREE.Group();
 
   private core(group: THREE.Group, u: number, v: number, strata: { tissue: string; from: number; to: number }[], radius = 0.75): void {
+    // the strata as deep as a needle can go, and a little more: an organ's whole depth is not a core's business
+    strata = strata.filter((x) => x.from < 9).map((x) => ({ ...x, to: Math.min(x.to, 9) }));
     for (const s of strata) {
       const h = Math.max(0.02, s.to - s.from);
       const m = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, h, 28), new THREE.MeshStandardMaterial({ color: tissueColor(s.tissue), roughness: 0.7, transparent: true, opacity: 0.62, depthWrite: false }));
@@ -479,7 +501,7 @@ export class FieldView {
 
   /** The anatomy of the chart (teaching mode): structures, tissue zones and the landmarks' true places. */
   setTeachingRegion(t: TeachingRegion | null): void {
-    this.anatomy.clear();
+    discard(this.anatomy);
     if (!this.teach.children.includes(this.anatomy)) this.teach.add(this.anatomy, this.cores, this.probeCore);
     if (!t || !this.region || t.region !== this.region.id || t.side !== this.side) return;
     for (const s of t.structures) {
@@ -506,7 +528,7 @@ export class FieldView {
   }
 
   private setTeachingNeedles(list: TeachingNeedle[]): void {
-    this.cores.clear();
+    discard(this.cores);
     for (const t of list) {
       const e = this.needles.get(t.needle);
       if (e) this.core(this.cores, e.view.site.u, e.view.site.v, t.strata);
@@ -515,7 +537,7 @@ export class FieldView {
 
   /** The strata under the ghost needle (teaching mode). */
   setProbe(g: Ghost | null, probe: Probe | null): void {
-    this.probeCore.clear();
+    discard(this.probeCore);
     if (g && probe) this.core(this.probeCore, g.u, g.v, probe.strata, 0.6);
   }
 
@@ -646,7 +668,13 @@ export class FieldView {
     this.labels.setSize(r.width, r.height);
   }
 
-  tick(dt: number): void {
+  /** Let go of the view (another patient's charts are about to be built in its place). */
+  dispose(): void {
+    this.controls.dispose();
+    this.gfx.dispose();
+  }
+
+  tick(dt: number, watch = true): void {
     this.clock += dt;
     if (this.pending) {
       const k = Math.min(1, dt * 5);
@@ -661,7 +689,7 @@ export class FieldView {
     for (const n of this.needles.values()) n.model.update(dt, this.clock);
     this.ghostModel?.update(dt, this.clock);
     this.selection.rotation.y += dt * 0.6;
-    this.gfx.render(dt);
+    this.gfx.render(dt, watch);
     this.labels.render(this.scene, this.camera);
   }
 }

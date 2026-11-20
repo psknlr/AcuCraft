@@ -48,7 +48,8 @@ export function remoteBackend(base: string): McpBackend {
       const r = (await call("/api/session/act", { action, via: "mcp" })) as ActResult;
       return { view: r.snapshot.view, ...(r.attempt.hint ? { hint: r.attempt.hint } : {}) };
     },
-    lookup: async (input) => call(`/api/session/library?topic=${encodeURIComponent(input.topic ?? "")}${input.id ? `&id=${encodeURIComponent(input.id)}` : ""}`),
+    // a topic is always asked for: without one the server would send the whole library
+    lookup: async (input) => (input.topic ? call(`/api/session/library?topic=${encodeURIComponent(input.topic)}${input.id ? `&id=${encodeURIComponent(input.id)}` : ""}`) : null),
     report: async () => (await call("/api/session/report")) as EncounterReport,
   };
 }
@@ -100,6 +101,7 @@ const text = (value: unknown, isError = false) => ({ content: [{ type: "text", t
 
 /** Answer one JSON-RPC message (null: a notification, nothing to send). */
 export async function handleMcp(backend: McpBackend, msg: RpcMessage): Promise<Record<string, unknown> | null> {
+  if (!msg || typeof msg !== "object" || Array.isArray(msg)) return { jsonrpc: "2.0", id: null, error: { code: -32600, message: "not a request" } };
   const reply = (result: unknown) => ({ jsonrpc: "2.0", id: msg.id ?? null, result });
   const fail = (code: number, message: string) => ({ jsonrpc: "2.0", id: msg.id ?? null, error: { code, message } });
   if (typeof msg.method !== "string") return msg.id !== undefined ? fail(-32600, "not a request") : null;
@@ -127,7 +129,11 @@ export async function handleMcp(backend: McpBackend, msg: RpcMessage): Promise<R
       const args = (msg.params?.arguments ?? {}) as Record<string, unknown>;
       try {
         if (name === "view") return reply(text(await backend.view()));
-        if (name === "lookup") return reply(text((await backend.lookup({ ...(typeof args.topic === "string" ? { topic: args.topic } : {}), ...(typeof args.id === "string" ? { id: args.id } : {}) })) ?? { error: "unknown topic", topics: LOOKUP_TOPICS }));
+        if (name === "lookup") {
+          // a topic is asked for: the whole library is not an answer
+          if (typeof args.topic !== "string" || !LOOKUP_TOPICS.includes(args.topic)) return reply(text({ error: "give a topic", topics: LOOKUP_TOPICS }));
+          return reply(text((await backend.lookup({ topic: args.topic, ...(typeof args.id === "string" ? { id: args.id } : {}) })) ?? { error: "nothing under that topic", topics: LOOKUP_TOPICS }));
+        }
         if (name === "report") return reply(text(episodeMarkdown(await backend.report())));
         if (name === "act") {
           // a model may send the action itself, or wrapped as the schema asks
@@ -160,15 +166,31 @@ export async function serveMcp(backend: McpBackend, io: { input?: Readable; outp
     if (!raw) continue;
     // one message at a time, in order: an encounter has one clock
     chain = chain.then(async () => {
-      let msg: RpcMessage;
+      let msg: unknown;
       try {
-        msg = JSON.parse(raw) as RpcMessage;
+        msg = JSON.parse(raw);
       } catch {
         output.write(`${JSON.stringify({ jsonrpc: "2.0", id: null, error: { code: -32700, message: "parse error" } })}\n`);
         return;
       }
-      const answer = await handleMcp(backend, msg);
-      if (answer) output.write(`${JSON.stringify(answer)}\n`);
+      try {
+        if (Array.isArray(msg)) {
+          // a batch (the 2025-03-26 revision allows one): each message answered in order, the answers sent together
+          const answers: Record<string, unknown>[] = [];
+          for (const m of msg) {
+            const a = await handleMcp(backend, m as RpcMessage);
+            if (a) answers.push(a);
+          }
+          if (msg.length === 0) output.write(`${JSON.stringify({ jsonrpc: "2.0", id: null, error: { code: -32600, message: "an empty batch" } })}\n`);
+          else if (answers.length) output.write(`${JSON.stringify(answers)}\n`);
+          return;
+        }
+        const answer = await handleMcp(backend, msg as RpcMessage);
+        if (answer) output.write(`${JSON.stringify(answer)}\n`);
+      } catch (e) {
+        // one message that cannot be answered never silences the ones after it
+        output.write(`${JSON.stringify({ jsonrpc: "2.0", id: (msg as RpcMessage | null)?.id ?? null, error: { code: -32603, message: (e as Error).message } })}\n`);
+      }
     });
   }
   await chain;

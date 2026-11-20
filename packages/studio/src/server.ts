@@ -77,12 +77,11 @@ const num = (v: unknown): number | undefined => (typeof v === "number" && Number
 const modeOf = (v: unknown): Mode | undefined => (v === "teaching" || v === "assessment" ? v : undefined);
 const viaOf = (v: unknown): Via => (v === "operator" || v === "mcp" ? v : "api");
 
+/** The scenario families of the pack, each with the ids of its variants. */
 export function listScenarios(pack: ContentPack) {
-  return scenarioIds(pack).map((id) => {
-    const [family, variant] = id.split("/") as [string, string];
-    const entry = pack.families.get(family);
-    const source = entry?.source.family as { title?: string; condition?: string } | undefined;
-    return { id, family, variant, title: source?.title ?? family, condition: source?.condition ?? null, split: entry?.split ?? "dev" };
+  return [...pack.families.values()].map((f) => {
+    const source = f.source.family as { title?: string; condition?: string } | undefined;
+    return { id: f.id, title: source?.title ?? f.id, condition: source?.condition ?? null, split: f.split, variants: [...f.variantIds] };
   });
 }
 
@@ -90,6 +89,7 @@ export function listScenarios(pack: ContentPack) {
 export async function startStudioServer(opts: StudioServerOptions = {}): Promise<StudioServer> {
   const pack = opts.pack ?? loadContentPack(opts.contentDir);
   const host = opts.host ?? "127.0.0.1";
+  const open = host === "0.0.0.0" || host === "::";
   const first = opts.scenario ?? scenarioIds(pack)[0];
   if (!first) throw new Error("the content pack has no scenario");
   const session = new StudioSession(pack, { scenario: first, ...(opts.seed !== undefined ? { seed: opts.seed } : {}), ...(opts.mode ? { mode: opts.mode } : {}), ...(opts.agents ? { agents: opts.agents } : {}) });
@@ -114,19 +114,21 @@ export async function startStudioServer(opts: StudioServerOptions = {}): Promise
     const url = new URL(req.url ?? "/", "http://studio");
     const path = url.pathname.replace(/\/+$/, "") || "/";
     const method = req.method ?? "GET";
-    // a request must be addressed to this server by name: no other origin's page can reach it through a rebound name
-    const hostHeader = String(req.headers.host ?? "").replace(/:\d+$/, "");
-    const allowed = new Set(["127.0.0.1", "localhost", "[::1]", host]);
-    if (!allowed.has(hostHeader)) throw new StudioError(403, "host", "This server answers on its own address only.");
+    // a request must be addressed to this server by name: no other origin's page can reach it through a rebound name.
+    // Bound to every address (0.0.0.0, ::) it has no one name: whoever binds it so has opened it to the network.
+    const named = String(req.headers.host ?? "");
+    const bare = (h: string) => h.replace(/:\d+$/, "").replace(/^\[|\]$/g, "").toLowerCase();
+    if (!open && !new Set(["127.0.0.1", "localhost", "::1", bare(host)]).has(bare(named))) throw new StudioError(403, "host", "This server answers on its own address only.");
     const origin = req.headers.origin;
     if (origin && method !== "GET") {
       let from = "";
       try {
-        from = new URL(origin).hostname;
+        from = new URL(origin).host;
       } catch {
         // an opaque origin ("null") is not this server's page
       }
-      if (!allowed.has(from) && !allowed.has(`[${from}]`)) throw new StudioError(403, "origin", "Cross-origin requests are not accepted.");
+      // the same origin: the page this server served, on this port
+      if (from.toLowerCase() !== named.toLowerCase()) throw new StudioError(403, "origin", "Cross-origin requests are not accepted.");
     }
     const q = url.searchParams;
 

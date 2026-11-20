@@ -5,6 +5,7 @@ One live encounter, in a real-time 3D clinic, that **a person and a language mod
 ```bash
 npm run studio                                   # the first scenario, assessment mode → http://127.0.0.1:4173/
 npm run studio -- sg-knee-oa/base --mode teaching
+npm run studio -- sg-knee-oa --seed 7            # a family alone: its variant is drawn by the seed and named to no one
 npm run studio -- sg-knee-oa/base --agent protocol --run     # watch a built-in agent work; take over at any step
 ```
 
@@ -73,26 +74,34 @@ The **Hands** bar says who is acting.
 
 | | |
 | --- | --- |
-| **Attach** | a built-in agent: `protocol` (scripted, sees only its view), `reference` (the scenario's own solution — an oracle, for demonstration), `claude` (a live model; needs `ANTHROPIC_API_KEY`) |
+| **Attach** | a built-in agent: `protocol` (scripted, sees only its view), `claude` (a live model; needs `ANTHROPIC_API_KEY`), and — in teaching mode only — `reference` (the scenario's own solution: an oracle, for demonstration) |
 | **Step** | one action of the agent |
-| **Propose** | what the agent would do next, *without doing it*: **Apply** it, **discard** it, or **edit** it — the proposal is dropped and its action opens in the form as yours |
-| **Run / Pause** | the agent acts on its own, at the pace set; **Pause** stops it after the action in hand |
+| **Propose** | what the agent would do next, *without doing it*: **Apply** it (it is then carried out on the encounter as it stands now), **discard** it (the agent is told it was declined), or **edit** it — it is declined and its action opens in the form as yours |
+| **Run / Pause** | the agent acts on its own, at the pace set; **Pause** stops it after the action in hand, at any pace |
 | take over | while the agent runs, anything you send pauses it first |
 
-An agent decides on the view it was shown. If someone acted in the meantime its action carries a stale version, the
-engine says so (`stale-version`), and the agent sees that in its next view — nobody's action is silently dropped or
-silently applied to a state it was not decided on.
+An agent that runs decides on the view it was shown. If someone acted in the meantime its action carries a stale
+version, the engine says so (`stale-version`), and the agent sees that in its next view — nobody's action is silently
+dropped or silently applied to a state it was not decided on. What an agent sends malformed is on the record as the
+engine has it (`invalid-request`), as in a benchmark run.
 
-The log (`GET /api/session/log`) is the whole encounter — the requests in order, with who sent each (`meta.via`) —
-and replays to the same state whoever took each step.
+The log (`GET /api/session/log`) is the whole encounter — the requests in order, with who sent each (`meta.via`) and
+which agents were attached (`meta.agents`) — and replays to the same state whoever took each step.
+
+The page never rebuilds a control under your hand because someone else acted: buttons are updated in place, a panel
+waits for the pointer to be let go, and a form you are filling in is left alone (**refresh** in its head rebuilds it
+on the encounter as it now is, keeping what you typed).
 
 ### From outside: HTTP
 
-Bound to `127.0.0.1` unless `--host` says otherwise. JSON bodies only; requests from another origin are refused.
+Bound to `127.0.0.1` unless `--host` says otherwise. JSON bodies only; a request must be addressed to the server by
+its own name and, from a browser, come from its own page. There is no authentication: bound to every address
+(`--host 0.0.0.0`) the session is open to whoever can reach the machine.
 
 | | |
 | --- | --- |
-| `GET /api/session` | the snapshot: session, agent status, the practitioner's **view**, the stage, the feed |
+| `GET /api/scenarios` | the scenario families, each with the ids of its variants |
+| `GET /api/session` | the snapshot: session (with a `revision` that rises with every change and an `epoch` that changes when the session starts again), agent status, the practitioner's **view**, the stage, the feed |
 | `GET /api/session/view` | the view alone (what a model is shown) |
 | `POST /api/session/act` | `{ "action": { "type": …, … }, "expectedVersion"?: n, "takeover"?: true }` → the outcome and the new snapshot |
 | `GET /api/session/events` | server-sent events: every change, with the snapshot |
@@ -100,7 +109,7 @@ Bound to `127.0.0.1` unless `--host` says otherwise. JSON bodies only; requests 
 | `GET /api/session/library` | the public reference library (`?topic=point&id=ST36`, `techniques`, `pattern`, `deqi`, `floorplan` …) |
 | `GET /api/session/scene` | the clinic as a renderer draws it |
 | `POST /api/session/agent` | `{ "agent": "protocol" \| "reference" \| "claude" \| null, "run"?: true, "stepDelayMs"?: n }`; `/agent/step`, `/agent/propose`, `/agent/discard`, `/agent/run`, `/agent/pause` |
-| `POST /api/session` | start again: `{ "scenario"?, "seed"?, "mode"? }` |
+| `POST /api/session` | start again: `{ "scenario"?, "seed"?, "mode"? }` — `scenario` is `family/variant`, or a family alone (a variant is drawn by the seed); left out, the session keeps the scenario it has |
 | `GET /api/session/log` · `/report` · `/review` | the replayable log (it names the variant), the evaluator's report (`?format=markdown`) and the review page — when the encounter has finished, or in teaching mode |
 | `POST /api/session/undo` · `GET /api/session/teaching` | teaching mode only |
 
@@ -130,14 +139,21 @@ Attached, the model's actions appear in the page as they are taken (`via: mcp`),
 
 The snapshot a client receives is the practitioner's **view** — built by the engine from its allow-list
 (docs/ARCHITECTURE.md §7) — plus where people stand. In **assessment** mode nothing else leaves the server: no
-tissue, no structure, no reference location, no needle response, no report before the end, no variant id; an action
-cannot be taken back, and only the practitioner under test can be driven. A needle that fell out unseen is drawn
-where it was placed until someone looks.
+tissue, no structure, no reference location, no needle response, no report or log before the end, no variant id;
+the agent that replays the scenario's solution cannot be attached; an action cannot be taken back, and only the
+practitioner under test can be driven. A needle that fell out unseen is drawn where it was placed until someone
+looks.
+
+Who chooses the scenario knows what they chose. The page's picker therefore names variants in teaching mode only: in
+assessment mode it starts a *family*, the server draws the variant by the seed, and the page is never told which —
+starting again as it stands keeps it. (`acu studio family/variant` and `POST /api/session` with a full id are for
+whoever sets the assessment, not for who sits it.)
 
 **Teaching** mode adds what a teacher would point at: reference locations with their tolerance, **X-ray** (the skin
 turns translucent: vessels, nerves and tendons of the chart, the tissue zones, and under each needle a core of the
 strata it stands in), the section beside the needle coloured by tissue, a probe of the path the insert form
-describes before anything is inserted, the report at any time, **Undo**, and acting as another member of the team.
+describes before anything is inserted, what each step set off in the team (in the feed, `via: team`), the report and
+the log at any time, the reference agent, **Undo**, and acting as another member of the team.
 
 ![Teaching mode: the skin seen through, and the path the form describes probed before insertion](img/studio-xray.jpg)
 
@@ -152,7 +168,8 @@ grain and joints, speckled vinyl, plaster, upholstery, skin with pores and fine 
 | light | image-based lighting from a procedural studio environment, daylight with soft shadow maps, room lights, filmic (ACES) tone mapping |
 | materials | physically based: metalness/roughness, clearcoat on lacquer and vinyl, sheen on cloth and skin, transmission for glass |
 | post-processing | ground-truth ambient occlusion (GTAO), a restrained bloom on what glows, depth of field in the needling field |
-| quality | `low` (no post-processing, no shadows, plain glass) · `medium` (shadows) · `high` (default: + AO, bloom, depth of field in the field) · `ultra` (more samples). A view that cannot hold 22 frames a second steps its own quality down and says so; `?quality=low` starts there |
+| quality | `low` (no post-processing, no shadows, plain glass) · `medium` (shadows) · `high` (default: + AO, bloom, depth of field in the field) · `ultra` (more samples). A page that cannot hold 22 frames a second steps its quality down and says so; `?quality=low` starts there |
+| the cut-away | the walls cut down to the dado for the view from above are geometry of their own, not a clipping plane: light, shadow and ambient occlusion see the walls that are drawn and no others |
 
 **What this is not.** The people are articulated mannequins, plainly figures and not portraits; furniture is built
 from each catalog entry's boxes; the skin in the needling field is the flat chart, not a sculpted limb. There are no
@@ -165,6 +182,11 @@ slowly); frame rates on a GPU were not measured.
 ## 5. Tests
 
 `packages/studio/src/studio.test.ts` (part of `npm test`): the catalogue against the schema; the scene; the session
-(acting, refusals and their hints, what assessment mode withholds, teaching mode, undo, an agent run with an operator
-take-over, replay of the log); the HTTP interface (JSON only, own origin only, events); the MCP bridge on a studio's
-session; the reading of a hand gesture; and that the client bundles without the engine in it.
+(acting, refusals and their hints, what assessment mode withholds — the solution agent included — the blind draw of
+a variant, teaching mode, undo, an agent run with an operator take-over, pause at any pace, a failing agent, a
+declined proposal, replay of the log); the HTTP interface (JSON only, own origin only, events); the MCP bridge on a
+studio's session and on the wire; the reading of a hand gesture; and that the client bundles without the engine in it.
+
+The page itself is not in CI (it needs a browser with WebGL). It was driven by scripted browser sessions: every
+form path named above, click-to-walk and the menus, a needle worked by hand, the agent bar while an agent runs, and
+the scenarios an independent review found broken — each replayed after its fix.

@@ -193,6 +193,7 @@ export function claudeAgent(opts: ClaudeAgentOptions = {}): Agent {
   const messages: Anthropic.Beta.BetaMessageParam[] = [];
   const transcript: unknown[] = [];
   let pendingAct: string | null = null;
+  let declined = false;
   let nudges = 0;
 
   async function call(): Promise<Anthropic.Beta.BetaMessage> {
@@ -220,6 +221,9 @@ export function claudeAgent(opts: ClaudeAgentOptions = {}): Agent {
       lib = init.library;
     },
     transcript: () => transcript,
+    declined() {
+      declined = true;
+    },
     async next(view: AgentView): Promise<AgentTurn> {
       if (view.finished) return { done: true };
       if (messages.length === 0) {
@@ -228,8 +232,12 @@ export function claudeAgent(opts: ClaudeAgentOptions = {}): Agent {
           content: [{ type: "text", text: `A new encounter: ${view.title}. ${view.setting.clinic}, ${view.setting.date}; visit ${view.setting.visit} of ${view.setting.visits}. You are ${view.you.name} (${view.you.roleLabel}).\n\nYour current view:\n${JSON.stringify(view)}` }],
         });
       } else if (pendingAct) {
-        messages.push({ role: "user", content: [{ type: "tool_result", tool_use_id: pendingAct, content: JSON.stringify(agentOutcome(view)) }] });
+        // an action a supervising operator declined was never taken: the model is told so, not shown another result
+        const outcome = agentOutcome(view) as Record<string, unknown>;
+        const content = declined ? { ...outcome, result: { status: "not-carried-out", message: "The operator supervising this session declined that action: it was not carried out. Decide again on your current view." } } : outcome;
+        messages.push({ role: "user", content: [{ type: "tool_result", tool_use_id: pendingAct, content: JSON.stringify(content) }] });
         pendingAct = null;
+        declined = false;
       }
       for (let i = 0; i < maxCalls; i++) {
         let response: Anthropic.Beta.BetaMessage;

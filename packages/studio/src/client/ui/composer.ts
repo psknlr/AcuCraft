@@ -19,6 +19,8 @@ export interface Form {
   el: HTMLElement;
   /** The action as it would be sent (throws with a message when a required field is empty). */
   value(): Record<string, unknown>;
+  /** The action as far as it has been filled in, complete or not (what a rebuilt form starts from). */
+  peek(): Record<string, unknown>;
   /** Set a field from outside (a click on the chart, a measured gesture). */
   set(name: string, value: unknown): void;
   type: string;
@@ -120,26 +122,28 @@ function json(onChange: () => void, placeholder: string): Control {
   };
 }
 
-/** `ST36:right, SP9:right, ashi:a1` ⇄ point references. */
-const parseRef = (s: string): unknown => {
+/** `ST36:right, SP9:right, ashi:a1` ⇄ point references. A point id is given as the library spells it, however it was typed. */
+const parseRef = (s: string, ctx: FormContext): unknown => {
   const t = s.trim();
   if (/^ashi:/i.test(t)) return { ashi: t.slice(5).trim() };
-  const [point, side] = t.split(":").map((x) => x.trim());
-  return { point: (point ?? "").toUpperCase(), side: side || "right" };
+  const [typed = "", side] = t.split(":").map((x) => x.trim());
+  const key = typed.toLowerCase();
+  const known = ctx.library.points.find((p) => p.id.toLowerCase() === key) ?? ctx.library.points.find((p) => p.aliases.some((a) => a.toLowerCase() === key));
+  return { point: known?.id ?? typed, side: (side || "right").toLowerCase() };
 };
 const showRef = (r: unknown): string => {
   const o = r as { ashi?: string; point?: string; side?: string };
   return o?.ashi ? `ashi:${o.ashi}` : `${o?.point ?? ""}:${o?.side ?? ""}`;
 };
 
-function refs(many: boolean, onChange: () => void): Control {
+function refs(many: boolean, ctx: FormContext, onChange: () => void): Control {
   const el = h("input", { type: "text", placeholder: many ? "ST36:right, SP9:right, ashi:a1" : "ST36:right  or  ashi:a1", oninput: onChange });
   return {
     el,
     get: () => {
       const parts = el.value.split(",").map((x) => x.trim()).filter(Boolean);
       if (parts.length === 0) return undefined;
-      return many ? parts.map(parseRef) : parseRef(parts[0]!);
+      return many ? parts.map((x) => parseRef(x, ctx)) : parseRef(parts[0]!, ctx);
     },
     set: (v) => void (el.value = v === undefined ? "" : Array.isArray(v) ? v.map(showRef).join(", ") : showRef(v)),
   };
@@ -276,7 +280,7 @@ function control(type: string, f: FieldEntry, ctx: FormContext, onChange: () => 
     case "landmark":
     case "segment": {
       const el = h("select", { onchange: onChange }) as HTMLSelectElement & { refill?: () => void };
-      el.refill = () => {
+      const refill = () => {
         const region = ctx.scene.regions.find((r) => r.id === siblings().region?.get());
         const side = String(siblings().side?.get() ?? "right");
         const items = f.name === "landmark" ? (region?.landmarks ?? []).map((l) => ({ id: l.id.replace("{side}", side), label: l.label })) : (region?.segments ?? []).map((g) => ({ id: g.id, label: `${g.label} (${g.cun} cun)` }));
@@ -284,8 +288,24 @@ function control(type: string, f: FieldEntry, ctx: FormContext, onChange: () => 
         el.replaceChildren(...(f.optional ? [h("option", { value: "" }, "—")] : []), ...items.map((i) => h("option", { value: i.id }, i.label)));
         if (items.some((i) => i.id === keep)) el.value = keep;
       };
-      queueMicrotask(() => el.refill!());
-      return { el, get: () => el.value || undefined, set: (x) => void (el.value = typeof x === "string" ? x : "") };
+      el.refill = refill;
+      // once its siblings exist: the list as the chart and the side stand now, and again when the side changes
+      queueMicrotask(() => {
+        refill();
+        siblings().side?.el.addEventListener("change", () => {
+          refill();
+          onChange();
+        });
+      });
+      return {
+        el,
+        get: () => el.value || undefined,
+        // the chart and the side are set before this (the schema's order): the list is theirs before a value is chosen
+        set: (x) => {
+          refill();
+          el.value = typeof x === "string" ? x : "";
+        },
+      };
     }
     case "pattern":
       return named(ctx.library.vocabulary.patterns.map((p) => ({ value: p.id, text: `${p.label}${p.zh ? ` ${p.zh}` : ""}` })));
@@ -299,9 +319,9 @@ function control(type: string, f: FieldEntry, ctx: FormContext, onChange: () => 
       return responses(ctx, onChange);
     case "points":
     case "pointsUsed":
-      return refs(true, onChange);
+      return refs(true, ctx, onChange);
     case "target":
-      return refs(false, onChange);
+      return refs(false, ctx, onChange);
     case "to":
       if (type === "move") return moveTarget(ctx, onChange);
       if (type === "refer") return named(ctx.library.clinic.referralTargets.map((r) => ({ value: r.id, text: r.label })));
@@ -364,10 +384,10 @@ function group(type: string, fields: FieldEntry[], ctx: FormContext, onChange: (
         try {
           v = controls[f.name]!.get();
         } catch (e) {
-          if (e instanceof Incomplete) {
-            missing ??= e.message;
-            v = e.partial;
-          } else throw e;
+          if (!(e instanceof Incomplete)) throw e;
+          // an optional part left wholly empty (`at`, when the needle goes in at a mark) is simply not there
+          if (!(f.optional && e.partial === undefined)) missing ??= e.message;
+          v = e.partial;
         }
         if (v === undefined || (f.default !== undefined && typeof f.default !== "object" && v === f.default)) {
           if (!f.optional) missing ??= `${label(f.name)} is needed`;
@@ -432,6 +452,13 @@ export function buildForm(spec: ActionSpec, ctx: FormContext, initial: Record<st
     el,
     type: spec.type,
     value: read,
+    peek: () => {
+      try {
+        return read();
+      } catch (e) {
+        return { type: spec.type, ...((e instanceof Incomplete ? (e.partial as Record<string, unknown> | undefined) : undefined) ?? {}) };
+      }
+    },
     set: (name, value) => {
       const path = name.split(".");
       let c: Control | undefined = fields.controls[path[0]!];

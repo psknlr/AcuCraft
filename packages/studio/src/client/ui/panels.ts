@@ -180,7 +180,7 @@ export function feedPanel(feed: FeedItem[], onReuse: (action: unknown) => void):
 }
 
 /** A needle in section: how deep it lies, at what angle — and, in teaching mode, through what. */
-export function depthPanel(n: { title: string; depthCm: number; angleDeg: number; lengthCm: number; feel?: string }, strata: { tissue: string; label: string; from: number; to: number; hazard: string | null }[] | null, extra: Probe | TeachingNeedle | null): HTMLElement {
+export function depthPanel(n: { title: string; depthCm: number; angleDeg: number; lengthCm: number; feel?: string }, strata: { tissue: string; label: string; from: number; to: number; hazard: string | null }[] | null, extra: Probe | TeachingNeedle | null, teaching = false): HTMLElement {
   const W = 232;
   const pad = 30;
   const deepest = Math.max(n.depthCm * Math.cos((n.angleDeg * Math.PI) / 180) + 1, strata ? Math.min(8, strata[strata.length - 1]?.to ?? 0) : 0, 3);
@@ -237,6 +237,6 @@ export function depthPanel(n: { title: string; depthCm: number; angleDeg: number
     extra && "stoppedBy" in extra && extra.stoppedBy ? h("p", { class: "small teach" }, `Stops at ${fmt(extra.executedDepthCm)} cm: ${extra.stoppedBy}`) : null,
     extra && "critical" in extra && extra.critical ? h("p", { class: "small danger" }, "This path reaches a structure that must not be reached.") : null,
     near.map((x) => h("p", { class: `small ${x.contact ? "danger" : "teach"}` }, `${x.contact ? "Touches" : "Near"} ${x.label} (${x.kind})${x.contact ? "" : `: ${fmt(Math.max(0, x.clearanceCm), 2)} cm clear`}`)),
-    strata ? null : h("p", { class: "muted small" }, "What lies beneath is not shown in assessment mode."),
+    strata || teaching ? null : h("p", { class: "muted small" }, "What lies beneath is not shown in assessment mode."),
   );
 }

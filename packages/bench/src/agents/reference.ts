@@ -10,9 +10,14 @@ export function referenceAgent(sc: Scenario): Agent {
   let i = 0;
   return {
     name: "reference (oracle)",
+    oracle: true,
     next(): AgentTurn {
       const r = steps[i++];
       return r ? { action: r.action } : { done: true };
+    },
+    // a step that was not carried out is still the next step of the solution
+    declined(): void {
+      if (i > 0) i--;
     },
   };
 }
