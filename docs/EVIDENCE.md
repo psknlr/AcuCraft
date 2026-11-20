@@ -149,7 +149,7 @@ response = tissue at the tip × min(1, stimulation) × the patient's sensitivity
 | term | value |
 |---|---|
 | tissue at the tip | muscle 1.0 · fascia 0.9 · tendon, ligament, fat pad 0.7 · periosteum, bone 0.4 · joint space, subcutaneous 0.3 · skin 0.1 |
-| stimulation | the insertion 0.45; each lift-and-thrust +0.35; each rotation +0.3 — and beyond 1 it adds nothing to the response |
+| stimulation | the insertion 0.45; each lift-and-thrust +0.35; each rotation +0.3 — and beyond 1 it adds nothing to the response. On the operative catalogue of techniques ([TECHNIQUES.md](TECHNIQUES.md)) each of the 36 techniques adds its own dose instead (a scrape of the handle 0.1, a twirl 0.3, 烧山火 0.7), and an `adjust_needle` with a stated excursion, rate and time is dosed by them |
 | the patient's sensitivity | `patient.needleSensitivity` in the field (0.5–1.5, default 1) |
 | variation of the site | 0.8–1.2, fixed for this patient at this site (half a centimetre apart is another site). It is part of the patient, like their anatomy: the same in every encounter and every variant of the family, whatever the encounter's seed |
 
@@ -165,12 +165,26 @@ response = tissue at the tip × min(1, stimulation) × the patient's sensitivity
 - a nerve met by the shaft gives an electric sensation and a tendon a sharp one: sensations that are **not deqi**,
   whatever the response of the tissue.
 
+On the operative catalogue two more things are the field's:
+
+- **Winding** (`needle.winding`, degrees). Rolling a needle one way winds the tissue round the shaft: from half a
+  turn it is held, from a turn and a half it is stuck. A held needle is gripped **whether or not qi has arrived** —
+  the classic mistake is to take that grip for deqi. The feel evidence tells the two apart: *"the needle is gripped
+  … and the winding holds it as well"* (a grip, with deqi) against *"it is the winding that holds it, not the tissue
+  answering"* (no grip on record). A stuck needle's feel is *"will not turn or lift"*, and the patient's pain at it
+  is on the record as sharp pain.
+- **Warmth and coolness** (`response.thermal`). 烧山火 is done for warmth and 透天凉 for coolness. Whether this
+  patient feels it at this site is fixed like the variation of the site (about six patients in ten do), and it is
+  felt only while the needle has its response: it is one more quality the patient may name, never a substitute for
+  the response.
+
 ### What is observed
 
 | act | evidence |
 |---|---|
 | `check_sensation { needleId }` — or a question to the patient that names the needle or its point (*"What do you feel at ST36?"*) | `sense-N`: the patient's words and the qualities they name (`aching`, `heaviness` …; none when they feel little) |
 | `adjust_needle` with `technique` `lift-thrust` or `rotate` | `feel-N`: what the operator feels — the needle gripped, heavy and tight; a slight drag; or moving freely |
+| `perform_technique` on a retained needle, on the operative catalogue, with a method that holds the needle in the tissue (not 刮, 弹, 飞, 摩: a touch on the handle tells the hand nothing) | `feel-N`: the same, naming the method — and whether a grip is the tissue's or a winding's |
 | nothing: the patient speaks unasked — a shock, a sharp pain, *too strong*, or a strong response (0.8 and over: each time the needle is worked, and when a move first reaches it) | `sense-N`, marked unasked |
 
 With needles in, a question about what is felt that names no needle — *"How does it feel?"*, *"Do you feel any aching

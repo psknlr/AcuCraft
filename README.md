@@ -42,17 +42,30 @@ follows executed positions and needle geometry. Setup, units and clinical/visual
 **Move and manipulate in 3D.** Click the clinic map, use its step controls, or Shift-click the 3D floor to
 walk the practitioner along the engine's collision-planned path. GPT/OpenAI, MiniMax and Claude use the same
 validated action tools. A Blender-built articulated hand and length-preserving arm IK animate the approach,
-pinch, insertion, manipulation, release and withdrawal. The **Technique studio / 精细手法控制** offers 24 named
-maneuvers, 10 authored compound sequences, and bu/xie through the same `perform_technique` tool used by LLMs.
-Set timing, cycles, axial/rotational/exterior-shaft motion, grip aperture, handedness and supporting-hand contact;
+pinch, insertion, manipulation, release and withdrawal. The **Technique studio / 精细手法控制** offers the 36
+needling techniques — the 24 single methods (揣爪循摄 · 摇盘捻搓 · 进退提插 · 刮弹飞摩 · 动推颤弩 · 按扪搜拨), the 10
+compound methods and reinforcing and reducing — through the same `perform_technique` tool used by LLMs.
+
+**The 36 techniques are done to the needle.** A new encounter runs on the *operative* catalogue
+([docs/TECHNIQUES.md](docs/TECHNIQUES.md)): each technique has its card (what it is for, what each hand does, the
+numbers, what to watch for) and its stages in order — the level the tip stands at (天, 人, 地: thirds of the depth
+the needle already stands at, never deeper), how many times (九, 六), at what tempo (紧按慢提, 紧提慢按), turning
+which way — and the 3D view names the stage, the count and the level as it is played. Performed, a technique takes
+its time, adds its own dose to the needle's stimulation, leaves the feel of the needle as evidence, and reads as
+reinforcing or reducing. Rolling one way winds the needle: held, then stuck — and a stuck needle is freed (rolled
+back, 循, 摄, 弹, 刮), never forced. 烧山火 is done for warmth and 透天凉 for coolness, which some patients feel.
+The cards are authored from classical and textbook accounts and are not reviewed by a practitioner; forces are not
+modelled. Records made before the choice existed replay on the *illustrative* catalogue, unchanged.
+
+Set timing, counts, axial/rotational/exterior-shaft motion, grip aperture, handedness and supporting-hand contact;
 preview locally, pause, scrub and change parameters live before executing an attributed action. Compound techniques
-accept a repeat count for each phase. For example, set **阳中隐阴** to one Bu cycle followed by three Xie cycles
-in Studio, or send `"phaseCycles": [1, 3]` in the model's motion settings. For insertion the **Skin contact**
+take a count for each of their stages. For example, set **烧山火** to three strokes at each level
+in Studio, or send `"phaseCycles": [3, 3, 3]` in the model's motion settings. For insertion the **Skin contact**
 slider sets when the tip reaches the skin, relative to the start of the insertion movement. Both Blender hands
 use continuous finger skins, independent skeletons, individual pad/nail contacts and arm IK. Held fingers fit
 the actual handle with thumb/index by default; middle-finger support is optional. The opening control affects approach and release. Internal needle paths remain authoritative while exposed-shaft
 deflection is shown separately ([docs/TECHNIQUES.md](docs/TECHNIQUES.md), [docs/HANDS.md](docs/HANDS.md)).
-These profiles are illustrative choreography, without a model of their clinical efficacy or tissue loading.
+Neither catalogue models clinical efficacy or tissue loading.
 The [reference-based hand controls](docs/REFERENCE-POSES.md) add compact tip/side
 holding, wrist elevation and graduated idle-finger poses. The **手部 Grip** camera
 shows the complete hand from three angles for inspecting the actual motion.

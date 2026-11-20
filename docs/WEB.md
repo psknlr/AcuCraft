@@ -75,13 +75,15 @@ for the operator's approval, and a refusal — with a reason — is told to the 
 
 ### Fine manipulation controls
 
-The 3D card also has a manipulation panel. Choose one of the 36 Chinese/English catalogue entries, select a retained needle or surface mark as appropriate, and edit its applicable motion parameters: cycles, duration, axial stroke, rotation, lateral deflection, tilt, relative phase timing, direction, grip, supporting-hand mode, primary hand, aperture and normalized visual contact intensity. Reset restores that entry's catalogue defaults. Parameter edits remain a draft when new snapshots arrive.
+The 3D card also has a manipulation panel. On the operative catalogue — every encounter started here — the 36 techniques are listed in the groups they are taught in (揣爪循摄, 摇盘捻搓, 进退提插, 刮弹飞摩, 动推颤弩, 按扪搜拨, the compound methods, 补泻), and the technique chosen shows its card: the line it is taught by, what the hands do, its stages with their levels and counts, what one performance does (time, dose, reading, winding), and what to watch for. Execute does the technique to the needle; while it plays, the 3D view names the stage under way, counts its repetitions and shows the level the tip stands at (天, 人, 地). A record made on the illustrative catalogue shows that catalogue instead ([TECHNIQUES.md](TECHNIQUES.md)).
+
+Choose one of the 36 Chinese/English catalogue entries, select a retained needle or surface mark as appropriate, and edit its applicable motion parameters: cycles, duration, axial stroke, rotation, lateral deflection, tilt, relative phase timing, direction, grip, supporting-hand mode, primary hand, aperture and normalized visual contact intensity. Reset restores that entry's catalogue defaults. Parameter edits remain a draft when new snapshots arrive.
 
 Preview plays a local demonstration with pause, speed and preview-seeking controls; valid parameter edits update it while preserving playback progress, and changing the target or technique cancels it. Preview does not perform treatment or write to the encounter. Execute submits `perform_technique` through the same validated tool used by GPT, MiniMax, Claude and MCP clients, and displays the engine's acceptance or refusal. A new authoritative state cancels an obsolete preview. Current recorded gestures take precedence, so a preview may need to wait for their animation to finish. Closed records cannot execute new performances.
 
 Insertion has its own controls for the needle/mark, angle, direction and depth, plus optional grip, support, primary hand and animation duration. The clinical values pass the existing insertion guard. The animation draws the executed insertion, including a shorter partial result.
 
-Each catalogue entry labels the choreography as illustrative and unreviewed; contact intensity is a cosmetic fraction, not measured force. Surface contact keeps the encounter's normal preparation and hygiene consequences. The full parameter contract, lifecycle conditions, replay behavior and modeling limits are in [TECHNIQUES.md](TECHNIQUES.md).
+Each catalogue says what it is: the operative one authored from classical and textbook accounts and not reviewed by a practitioner, the illustrative one authored choreography; on both, contact intensity is a cosmetic fraction, not measured force. Surface contact keeps the encounter's normal preparation and hygiene consequences. The full parameter contract, lifecycle conditions, replay behavior and modeling limits are in [TECHNIQUES.md](TECHNIQUES.md).
 
 ### Working together
 
@@ -221,6 +223,7 @@ The view draws the encounter as the record has it, in step with it:
 | records kept, restored by replay, imported from a log | done |
 | the 3D view: the clinic's models, the people as the 3D world draws them, marks and needles on the skin, the directed camera | done; the chart-to-figure placement is schematic (§4) |
 | 36-entry manipulation catalogue, operator/LLM parameters, bimanual and finger-contact animation, local preview | done; authored illustrative choreography, external shaft deflection only ([TECHNIQUES.md](TECHNIQUES.md)) |
+| the 36 techniques done to the needle (operative catalogue): cards, stages with levels and counts, time, dose, reading, winding and a stuck needle, warmth and coolness; the stage caption | done; authored from classical and textbook accounts, not reviewed by a practitioner; forces not modelled ([TECHNIQUES.md](TECHNIQUES.md)) |
 | several operators at once | done (each tab is attributed by its name); no accounts, no roles per operator |
 | a patient voiced by a language model; Mandarin | not yet (the patient answers from the case's authored facts; English) |
 

@@ -265,11 +265,26 @@ claude mcp add --transport http acucraft http://127.0.0.1:8787/mcp
 
 ## 11. Shared manipulation controls
 
-`lookup { "topic": "techniques" }` exposes the 24 named basic maneuvers, ten authored compound demonstrations,
-and bu/xie. Each catalogue entry states its stable id, Chinese name, context (`skin`, `retained` or `removed`),
-per-technique defaults, motor phases, applicable controls and illustrative provenance. The result also includes
-the shared JSON `motionSchema`, canonical `defaults` by id, and a compact `parameters` map with bounds, units,
-steps and enum options. Both the browser panel and every LLM/MCP client use this same engine schema.
+`lookup { "topic": "techniques" }` answers from the catalogue the encounter runs on, which the view names
+(`techniques: operative`; no entry: the illustrative one). [TECHNIQUES.md](TECHNIQUES.md) describes both.
+
+**On the operative catalogue** (every new encounter) the lookup lists the 36 techniques with what one performance
+of each is — its counts, its time, its dose, how it reads, whether it winds or loosens a needle, how deep a needle
+it needs — and, with an id or a group, each technique in full: how it is done step by step, the line it is taught
+by, its stages with their levels and counts, its controls and defaults, what to watch for. `perform_technique`
+then does the technique to the needle: it takes its time on the clock, stimulates the needle by its own dose,
+returns the feel of the needle as evidence, and is read as reinforcing, reducing, mixed or even. One-way turning
+winds the needle; a stuck needle must be freed before anything else is done to it. The prompt's section "The 36
+needling techniques" (`acu prompt`) says the same to a model in a few paragraphs.
+
+**On the illustrative catalogue** the lookup exposes the 24 named basic maneuvers, ten authored compound
+demonstrations, and bu/xie. Each catalogue entry states its stable id, Chinese name, context (`skin`, `retained`
+or `removed`), per-technique defaults, motor phases, applicable controls and illustrative provenance; the rest of
+this section describes it.
+
+On either, the result includes the shared JSON `motionSchema`, canonical `defaults` by id, and a compact
+`parameters` map with bounds, units, steps and enum options. Both the browser panel and every LLM/MCP client use
+this same engine schema.
 
 For example, after inserting a needle and while its site is within reach:
 
