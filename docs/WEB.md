@@ -85,7 +85,7 @@ Insertion has its own controls for the needle/mark, angle, direction and depth, 
 
 ![The technique studio on the operative catalogue: the card of 烧山火 above its controls](img/technique-studio-operative.png)
 
-While an operative technique plays, a card at the foot of the 3D view names the stage in Chinese and English, counts its repetitions, shows which of the three levels the tip stands at — with a marker that follows the tip between them — and names the breath where the method does.
+While an operative technique plays, a card at the foot of the 3D view names the stage in Chinese and English, counts its repetitions, shows which of the three levels the tip stands at — with a marker that follows the tip between them — and names the breath where the method does. A technique of the skin (揣, 爪, 循, 摄, 按, 扪) shows its stage and count without the levels. Each method is played with its own hand — the pressing hand's thumbnail, the pulp of its thumb or the pad of its index finger on the skin; thumb and index, three fingers, or a nail on the handle of a needle ([the nine hands](img/technique-hands.jpg)).
 
 Each catalogue says what it is: the operative one authored from classical and textbook accounts and not reviewed by a practitioner, the illustrative one authored choreography; on both, contact intensity is a cosmetic fraction, not measured force. Surface contact keeps the encounter's normal preparation and hygiene consequences. The full parameter contract, lifecycle conditions, replay behavior and modeling limits are in [TECHNIQUES.md](TECHNIQUES.md).
 

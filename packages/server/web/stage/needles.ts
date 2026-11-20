@@ -190,6 +190,17 @@ export class NeedleLayer {
     return out;
   }
 
+  /** Every needle that stands in the patient: its exposed part, from where it enters the skin to the end of its handle. */
+  standing(): { id: string; foot: Vector3; top: Vector3 }[] {
+    const out: { id: string; foot: Vector3; top: Vector3 }[] = [];
+    for (const l of this.live.values()) {
+      if (l.leaving || l.inserted < 1) continue;
+      l.root.updateMatrixWorld(true);
+      out.push({ id: l.spec.id, foot: l.spec.site.p.clone(), top: l.handleRoot.localToWorld(new Vector3(0, NEEDLE_HANDLE_LENGTH_M, 0)) });
+    }
+    return out;
+  }
+
   /** Where a needle enters the skin, and the skin's normal there. */
   siteOf(id: string): SkinSite | null {
     return this.live.get(id)?.spec.site ?? null;

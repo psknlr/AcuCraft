@@ -100,10 +100,21 @@ and the next. Bearing is shown by the thumb flexing a few degrees further, which
 And the four fingers, which in life would rest on the patient, are held a finger's thickness clear of the skin:
 the detail hand may touch the patient only at its contact, or the clearance guard below would hide it.
 
+A hand on the skin works among needles. An open hand held low is a wide thing, and beside a retained needle its
+hovering fingers, or the ball of its thumb, went through the needle that stood there. Before a technique of the
+skin begins, the stage now tries the whole performance against every needle that stands in the patient, with the
+hand as twenty-one capsules (the bones of each digit, the rays of the palm, the ball of the thumb and the first
+web, each with the flesh round it): on either side of the channel where the method leaves the side free, and
+turned about the skin's normal by 0°, ±30°, ±60° or ±90°. The first way that keeps the hand 6 mm clear of every
+needle throughout is taken; failing that, the one that comes least near. Measured on the mesh itself, for a
+needle that stands deep and one that stands shallow and tall, with the practitioner on each side of it and at
+each end of the channel, no part of the hand comes within 5 mm of the needle in 循, 摄 or 按 (before, it came
+within a millimetre of it in eleven of those twenty-four cases).
+
 `packages/server/src/operative-stage.test.ts` checks, through every stage of each of the six techniques, which
 digit is on the skin, that no part of the hand is ever in it, that the next finger down is at least 4 mm clear,
-that the nail lands and lifts, and that the hand stays in place on the real patient — at the point, beside a
-retained needle, and as the pressing hand of a needle technique.
+that the nail lands and lifts, that the hand keeps clear of the needle beside it, and that it stays in place on
+the real patient — at the point, beside a retained needle, and as the pressing hand of a needle technique.
 
 ## Where the fingers meet the palm
 

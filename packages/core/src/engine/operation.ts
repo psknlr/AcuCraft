@@ -642,7 +642,7 @@ export interface OperationSample extends TechniqueMotionSample {
 }
 
 /** A hand that strokes or nips along the channel of a retained needle keeps this far to the side of its entry. */
-export const NEEDLE_CLEARANCE_MM = 12;
+export const NEEDLE_CLEARANCE_MM = 18;
 
 /** What a sampler is told of where the technique is done. */
 export interface OperationContext {

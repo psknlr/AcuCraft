@@ -68,7 +68,13 @@ down as it bears and stands two to three millimetres off the skin between one ni
 the thumb**, the thumb nearly straight, bearing down, holding and let up. 揣, 循 and 扪 are the **pad of the index
 finger**. In all of them the other fingers are held a finger's thickness clear of the skin: the detail hand touches
 the patient only at its contact, and the schematic skin does not dent under it. 循 and 摄 travel along the channel
-(`travelMm`), and named with a retained needle they keep clear of its entry.
+(`travelMm`), and named with a retained needle they keep 18 mm to the side of its entry.
+
+A hand that works on the skin also keeps clear of the needles that stand in it. Before the work begins the stage
+tries the whole performance — on either side of the channel, where the method leaves the side free (循 and 摄), and
+with the hand turned about the skin's normal by as little as will do — and takes the first way that keeps every
+finger and the palm clear of every standing needle throughout. 按 keeps the side the method presses on: only the
+hand is turned.
 
 A needle technique is one-handed unless `support` is set — touching a prepared site undoes its preparation. With
 `support: press` the pressing hand (押手) presses with the pulp of its thumb beside the needle while the needle hand

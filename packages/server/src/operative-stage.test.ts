@@ -5,7 +5,7 @@ import { Group, Mesh, Quaternion, SkinnedMesh, Vector3 } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { NeedleProcedure, type ProcedurePlayback, type TechniquePerformanceInput } from "../web/stage/procedure.js";
 import { NeedleLayer } from "../web/stage/needles.js";
-import { OPERATIVE_TECHNIQUES, resolveOperationMotion, resolveTechniqueMotion, sampleOperation } from "@acucraft/core";
+import { NEEDLE_CLEARANCE_MM, OPERATIVE_TECHNIQUES, resolveOperationMotion, resolveTechniqueMotion, sampleOperation } from "@acucraft/core";
 import type { Person } from "../web/stage/cast.js";
 import type { SkinSite } from "../web/stage/sites.js";
 import { sampleProcedure } from "../web/stage/choreography.js";
@@ -29,14 +29,14 @@ const input = (technique: TechniquePerformanceInput["technique"], extra: Partial
 beforeEach(() => vi.stubGlobal("document", { createElement: () => ({ width: 0, height: 0, getContext: () => ({ fillStyle: "", fillRect() {}, createRadialGradient: () => ({ addColorStop() {} }) }) }) }));
 afterEach(() => { vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
-async function makeScene() {
+async function makeScene(options: { shoulder?: (side: string) => Vector3; depthCm?: number } = {}) {
   const needles = new NeedleLayer();
   const actor = {
     isMoving: false, holder: new Group(),
-    shoulderAt: (side: string) => new Vector3(side === "left" ? -0.2 : 0.2, 1.3, 0),
+    shoulderAt: options.shoulder ?? ((side: string) => new Vector3(side === "left" ? -0.2 : 0.2, 1.3, 0)),
     reach: (_side: string, wrist: Vector3 | null, _blend?: number, _palm?: Quaternion) => ({ wrist: wrist?.clone() ?? new Vector3(), elbow: new Vector3(), reachable: true }),
   } as unknown as Person;
-  needles.sync([{ id: NEEDLE, target: "BL23:left", site, angleDeg: 0, azimuthDeg: 0, depthCm: DEPTH_CM, length: 0.04 }], 0, false);
+  needles.sync([{ id: NEEDLE, target: "BL23:left", site, angleDeg: 0, azimuthDeg: 0, depthCm: options.depthCm ?? DEPTH_CM, length: 0.04 }], 0, false);
   const procedure = new NeedleProcedure(needles, () => actor, () => {});
   const gltf = await new GLTFLoader().parseAsync(Uint8Array.from(asset).buffer, "");
   vi.spyOn(GLTFLoader.prototype, "loadAsync").mockResolvedValueOnce(gltf);
@@ -279,6 +279,46 @@ describe("the stage on the operative catalogue", () => {
     } finally { scene.dispose(); }
   });
 
+  it("keeps a hand that works on the skin clear of the needle that stands beside it, wherever the practitioner stands", async () => {
+    const nearest: Record<string, number> = {};
+    // a needle that stands deep and one that stands shallow and tall; the practitioner to each side of it and at each end of the channel
+    for (const depthCm of [1.8, 0.5]) for (const [x, z] of [[0.2, 0], [-0.2, 0], [0, 0.25], [0, -0.25]] as const) {
+      const scene = await makeScene({ depthCm, shoulder: (side) => new Vector3(side === "left" ? -x : x, 1.3, z) });
+      try {
+        const [needle] = scene.needles.standing();
+        expect(needle!.top.y - needle!.foot.y, "the needle's exposed part").toBeGreaterThan(depthCm > 1 ? 0.04 : 0.05);
+        for (const id of ["xun", "she", "an"] as const) {
+          const motion = resolveOperationMotion(id), envelope = sampleProcedure("work", 0, motion.durationMs);
+          expect(scene.procedure.preview(input(id, { needleId: NEEDLE }))).toBe(true);
+          scene.procedure.setPlayback({ paused: true });
+          const hand = scene.procedure.group.getObjectByName("needle-hand")!;
+          let least = Infinity;
+          for (let step = 1; step < 16; step++) {
+            scene.procedure.setPlayback({ progress: (envelope.operationStartMs + motion.durationMs * step / 16) / envelope.durationMs });
+            expect(hand.visible, `${id} at ${step}/16`).toBe(true);
+            hand.updateMatrixWorld(true);
+            hand.traverse((object) => {
+              if (!(object instanceof Mesh)) return;
+              const position = object.geometry.getAttribute("position"), v = new Vector3();
+              for (let i = 0; i < position.count; i++) {
+                if (object instanceof SkinnedMesh) object.getVertexPosition(i, v); else v.fromBufferAttribute(position, i);
+                // the distance from this point of the hand to the needle's exposed part, a segment from the skin to the handle's end
+                v.applyMatrix4(object.matrixWorld).sub(needle!.foot);
+                least = Math.min(least, Math.hypot(v.x, v.y - Math.max(0, Math.min(needle!.top.y - needle!.foot.y, v.y)), v.z));
+              }
+            });
+          }
+          nearest[id] = Math.min(nearest[id] ?? Infinity, least * 1000);
+          scene.procedure.stopPreview();
+        }
+      } finally { scene.dispose(); }
+    }
+    // no part of the hand within five millimetres of the needle at any time, in any of the sixteen cases of each
+    expect(nearest.xun).toBeGreaterThan(5);
+    expect(nearest.she).toBeGreaterThan(5);
+    expect(nearest.an).toBeGreaterThan(5);
+  }, 240_000);
+
   it("gives an insertion on an operative encounter the same pressing hand: the thumb beside the point", async () => {
     const thumbAbove = async (catalogue: "operative" | undefined) => {
       const scene = await makeScene();
@@ -412,13 +452,15 @@ describe("the stage on the operative catalogue", () => {
       scene.procedure.setPlayback({ paused: true });
       const beside: number[] = [];
       for (let ms = 20; ms < motion.durationMs; ms += 60) beside.push(contactAt(ms).x * 1000);
-      expect(Math.min(...beside)).toBeGreaterThan(11.5);
-      expect(Math.max(...beside)).toBeLessThan(12.5);
+      // on one side of the channel throughout — whichever keeps the hand clear of the needle — and that far from it
+      expect(new Set(beside.map(Math.sign)).size).toBe(1);
+      expect(Math.min(...beside.map(Math.abs))).toBeGreaterThan(NEEDLE_CLEARANCE_MM - 0.5);
+      expect(Math.max(...beside.map(Math.abs))).toBeLessThan(NEEDLE_CLEARANCE_MM + 0.5);
       // and it arrives there and leaves from there: the hand is never brought to the needle's own entry
       const along = (d: Vector3) => Math.hypot(d.x, d.z) * 1000;
       expect(along(contactAt(-1).sub(contactAt(1)))).toBeLessThan(1);
       expect(along(contactAt(motion.durationMs + 1).sub(contactAt(motion.durationMs - 1)))).toBeLessThan(1);
-      expect(along(contactAt(-40))).toBeGreaterThan(11);
+      expect(along(contactAt(-40))).toBeGreaterThan(NEEDLE_CLEARANCE_MM - 1);
       scene.procedure.stopPreview();
       // 摄 begins at its first station and ends at its last: the hand comes to the one and goes from the other
       const nips = resolveOperationMotion("she"), nipEnvelope = sampleProcedure("work", 0, nips.durationMs);
