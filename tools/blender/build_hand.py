@@ -394,30 +394,46 @@ def _finger_profile(along, positions, values):
 # middle pad, on either side of the DIP crease, at the fullest pulp and at the
 # bearing. Radial and ulnar half-widths are separate: the index and middle
 # finger lie closest to each other just beyond their PIP joints, and the pulp
-# on the index's radial side carries the lateral pinch.
+# on the index's radial side carries the lateral pinch. "root" is the dorsal
+# and volar depth of the ring that is sewn to the palm, at 60% of the proximal
+# phalanx: the opened thumb passes under the base of the index, whose pulp is
+# kept shallow there.
 FINGER_TISSUE_MM = {
-    "index": {"radial": (7.3, 7.1, 7.4, 6.3, 6.0), "ulnar": (8.1, 7.0, 7.5, 7.0, 6.7),
-              "dorsal": (5.6, 4.9, 4.8, 4.5, 4.3), "volar": (3.6, 5.5, 6.2, 5.0, 5.0, 5.3, 5.3)},
-    "middle": {"radial": (8.5, 7.3, 7.8, 7.4, 7.0), "ulnar": (8.6, 7.8, 8.2, 7.6, 7.2),
+    "index": {"root": (5.8, 3.0),
+              "radial": (7.1, 7.1, 7.4, 6.3, 6.0), "ulnar": (8.1, 7.0, 7.5, 6.9, 6.2),
+              "dorsal": (5.3, 4.9, 4.5, 4.45, 4.3), "volar": (3.6, 5.5, 6.2, 5.0, 5.0, 5.3, 5.3)},
+    "middle": {"root": (6.2, 5.0),
+               "radial": (8.5, 7.3, 7.8, 7.2, 6.3), "ulnar": (8.6, 7.8, 8.2, 7.4, 6.5),
                "dorsal": (5.9, 5.1, 5.0, 4.7, 4.5), "volar": (4.5, 5.9, 6.5, 5.2, 5.4, 6.2, 5.9)},
-    "ring": {"radial": (8.0, 7.2, 7.6, 7.0, 6.6), "ulnar": (8.0, 7.2, 7.6, 7.0, 6.6),
+    "ring": {"root": (5.8, 4.7),
+             "radial": (8.0, 7.2, 7.6, 6.8, 5.9), "ulnar": (8.0, 7.2, 7.6, 6.8, 5.9),
              "dorsal": (5.5, 4.8, 4.6, 4.3, 4.1), "volar": (4.2, 5.5, 6.0, 4.8, 5.0, 5.7, 5.4)},
-    "little": {"radial": (6.85, 6.1, 6.45, 5.9, 5.5), "ulnar": (6.85, 6.1, 6.45, 5.9, 5.5),
+    "little": {"root": (5.0, 4.0),
+               "radial": (6.85, 6.1, 6.45, 5.7, 4.9), "ulnar": (6.85, 6.1, 6.45, 5.7, 4.9),
                "dorsal": (4.7, 4.1, 3.9, 3.7, 3.5), "volar": (3.5, 4.6, 5.1, 4.1, 4.3, 4.9, 4.6)},
 }
 # Joint construction for the PIP and DIP: the ring stations either side of a
 # joint that fan over its knuckle or gather into its crease, the lengths of skin
-# over which the back, the pulp and the flanks change bone, and the crease.
+# over which the pulp and the flanks change bone, and the crease.
 FINGER_JOINTS_MM = {
     "knuckle": (0.25, 0.15),            # added dorsal depth at the PIP and DIP
+    # The hand is built flexed. A knuckle drawn as a circular arc about its
+    # joint sinks into the back of the straightened finger; one drawn as the
+    # corner where the two straight backs meet stays level but is sharp when
+    # flexed. This is the share of the corner that the knuckle head takes.
+    "knuckleMitre": 0.15,
     "dorsalStations": (4.5, 3.0),       # half-range of ring stations spread over a knuckle
+    "knuckleStations": 0.7,             # the middle share of those stations that lies on the knuckle itself
     "volarStationFactor": 1.5,          # crease range as a multiple of its setback from the joint
-    "dorsalBlend": (20.0, 10.0),
     "volarBlend": (7.0, 5.0),
     "lateralBlend": (8.0, 6.0),
-    "crease": (0.45, 0.35),             # depth of the groove left in the straightened pulp
-    "creaseSpread": 1.2,
-    "dorsalExponent": 2.5,              # a flatter back with rounded shoulders
+    "crease": (0.35, 0.28),             # depth of the groove left in the straightened pulp
+    "creaseSpread": 1.0,
+    "dorsalExponent": 2.25,             # a slightly flattened back with rounded shoulders
+    # The nails of the three ulnar fingers lie on an evenly arched bed. The
+    # index has a flatter one with squarer corners: the edge of its nail and
+    # the corner of its tip are working contacts.
+    "nailBedExponent": (2.5, 2.0),
     "volarExponent": 2.15,
     # The index's radial PIP shoulder passes next to the patient in a raised
     # three-finger hold: its back is drawn in there by this share of its depth.
@@ -457,10 +473,9 @@ def articulated_finger_sections(digit, points, hinge, along_samples, angles, pre
     paths, so the long back of a flexed joint is taken up over a longer
     stretch than its short inner side when the finger straightens.
 
-    root_ring holds the dorsal, volar, radial and ulnar points of the source
-    ring at 70% of the proximal phalanx. The root of every finger keeps its
-    source rings where it joins the palm, and the straight phalanx starts from
-    this ring.
+    root_ring holds the radial and ulnar points of the source's first free
+    ring: the palm's socket is sewn to that ring, which keeps its breadth and
+    stands at 60% of the proximal phalanx.
     """
     tissue = {key: [value / 1000 for value in values] for key, values in FINGER_TISSUE_MM[digit].items()}
     joints_mm = FINGER_JOINTS_MM
@@ -474,7 +489,7 @@ def articulated_finger_sections(digit, points, hinge, along_samples, angles, pre
         if directions[i + 1].dot(volar_normals[i]) <= 0:
             raise ValueError(f"{digit}: source joints must flex toward the pulp")
     starts = [0.0, joint_station[0], joint_station[1]]
-    root_station = 0.70*lengths[0]
+    root_station = 0.60*lengths[0]
 
     def segment_of(station):
         return 2 if station >= joint_station[1] else 1 if station >= joint_station[0] else 0
@@ -483,14 +498,10 @@ def articulated_finger_sections(digit, points, hinge, along_samples, angles, pre
         segment = segment_of(station) if segment is None else segment
         return points[segment] + directions[segment]*(station - starts[segment])
 
-    # The source ring, measured from the proximal bone: how far its flanks lie
-    # behind the bone, and its depths and half-widths.
-    root_bone = bone(root_station, 0)
     root_centre = (root_ring["radial"] + root_ring["ulnar"])/2
     root = {
-        "lift": -(root_centre - root_bone).dot(volar_normals[0]),
-        "dorsal": -(root_ring["dorsal"] - root_bone).dot(volar_normals[0]),
-        "volar": (root_ring["volar"] - root_bone).dot(volar_normals[0]),
+        "dorsal": tissue["root"][0],
+        "volar": tissue["root"][1],
         "radial": (root_ring["radial"] - root_centre).dot(hinge),
         "ulnar": -(root_ring["ulnar"] - root_centre).dot(hinge),
     }
@@ -505,11 +516,6 @@ def articulated_finger_sections(digit, points, hinge, along_samples, angles, pre
 
     def half_width(station, side):
         return _smooth_profile(station, knots, [root[side], *tissue[side]])
-
-    def lift(station):
-        # The source root lies behind its bone; the straight phalanx returns to it before the knuckle.
-        end = joint_station[0] - dorsal_range[0]
-        return root["lift"]*(1 - smoothstep((station - root_station)/(end - root_station)))
 
     # Either side of a crease the pulp may differ in depth; the two straight
     # pulps meet where each is at its own depth from its bone.
@@ -548,23 +554,35 @@ def articulated_finger_sections(digit, points, hinge, along_samples, angles, pre
         return slope*u + (1 - slope)*(3*u*u - 2*u**3)
 
     knuckle_radius = [dorsal_depth(joint) for joint in joint_station]
+    knuckle_head = [math.cos(bend/2)**-joints_mm["knuckleMitre"] - 1 for bend in bends]
 
     def dorsal_point(station):
-        """Back of the ring, with its distance along the skin from the nearest knuckle's middle."""
+        """Back of the ring, with the share of the next bone that it follows at the knuckle it lies on.
+
+        The two straight backs keep to their own bones. Between them the skin
+        of the knuckle is shared so that, when the joint is straightened, it
+        gathers on the line where the two backs meet instead of sinking in or
+        folding over.
+        """
         for j in range(2):
             joint, reach, radius, bend = joint_station[j], dorsal_range[j], knuckle_radius[j], bends[j]
             if abs(station - joint) >= reach:
                 continue
-            path = 2*reach + radius*bend
-            along = path*spread((station - joint + reach)/(2*reach), 2*reach/path)
-            if along <= reach:
-                foot = joint - reach + along
-                return bone(foot, j) - volar_normals[j]*dorsal_depth(foot), along - path/2, j
-            if along <= reach + radius*bend:
-                turn = Quaternion(hinge, (along - reach)/radius)
-                return points[j + 1] - (turn @ volar_normals[j])*radius, along - path/2, j
-            foot = joint + along - reach - radius*bend
-            return bone(foot, j + 1) - volar_normals[j + 1]*dorsal_depth(foot), along - path/2, j
+            # The outer rings of the range stay on the two straight backs and
+            # its middle rings fan evenly around the knuckle.
+            u = (station - joint + reach)/(2*reach)
+            edge = (1 - joints_mm["knuckleStations"])/2
+            if u <= edge:
+                foot = joint - reach*(1 - u/edge)
+                return bone(foot, j) - volar_normals[j]*dorsal_depth(foot), 0.0, j
+            if u < 1 - edge:
+                angle = bend*(u - edge)/(1 - 2*edge)
+                head = radius*(1 + knuckle_head[j]*math.sin(math.pi*angle/bend)**2)
+                turn = Quaternion(hinge, angle)
+                return (points[j + 1] - (turn @ volar_normals[j])*head,
+                        math.sin(angle)/(math.sin(angle) + math.sin(bend - angle)), j)
+            foot = joint + reach*(u - 1 + edge)/edge
+            return bone(foot, j + 1) - volar_normals[j + 1]*dorsal_depth(foot), 1.0, j
         segment = segment_of(station)
         return bone(station) - volar_normals[segment]*dorsal_depth(station), None, None
 
@@ -595,22 +613,22 @@ def articulated_finger_sections(digit, points, hinge, along_samples, angles, pre
             if side == "lateral":
                 blends.append(smoothstep((station - joint)/(joints_mm["lateralBlend"][j]/1000) + 0.5))
                 continue
-            width = joints_mm["dorsalBlend" if side == "dorsal" else "volarBlend"][j]/1000
             _, along, at = located
+            if side == "dorsal":
+                blends.append(along if at == j else 1.0 if station > joint else 0.0)
+                continue
             if at != j:
-                if side == "dorsal":
-                    along = station - joint + math.copysign(knuckle_radius[j]*bends[j]/2, station - joint)
-                else:
-                    along = station - joint - (setback[j][1] if station > joint else -setback[j][0])
-            blends.append(smoothstep(along/width + 0.5))
+                along = station - joint - (setback[j][1] if station > joint else -setback[j][0])
+            blends.append(smoothstep(along/(joints_mm["volarBlend"][j]/1000) + 0.5))
         return blends
 
-    dorsal_power = 2/joints_mm["dorsalExponent"]
     volar_power = 2/joints_mm["volarExponent"]
     vertices, weights = [], []
     for station in along_samples:
+        if 0.5*lengths[0] < station < root_station:
+            station = root_station
         segment = segment_of(station)
-        centre = bone(station) - volar_normals[segment]*(lift(station) if segment == 0 else 0.0)
+        centre = bone(station)
         dorsal = dorsal_point(station)
         volar = volar_point(station)
         radial_width, ulnar_width = half_width(station, "radial"), half_width(station, "ulnar")
@@ -625,6 +643,9 @@ def articulated_finger_sections(digit, points, hinge, along_samples, angles, pre
             rounding = 1.0
         blends = {side: joint_blends(station, located, side)
                   for side, located in (("dorsal", dorsal), ("volar", volar), ("lateral", None))}
+        nail_bed = smoothstep((station - joint_station[1])/(0.55*cap_start))
+        dorsal_power = 2/(joints_mm["dorsalExponent"]*(1 - nail_bed)
+                          + joints_mm["nailBedExponent"][0 if precise else 1]*nail_bed)
         root_weight = 1 - smoothstep(station/(lengths[0]*0.46))
         chart = station/(total + .0025)
         shoulder = (smoothstep((chart - .31)/.09)*(1 - smoothstep((chart - .49)/.065))) if digit == "index" else 0.0
@@ -896,25 +917,20 @@ def continuous_finger(digit, mat, parent):
 
     if digit != "thumb":
         # The four fingers have straight phalanges with a knuckle and a crease
-        # at each joint. Their roots keep the source rings that the palm's
-        # sockets are sewn to, and pass into the straight phalanx beyond them.
-        # The opposed thumb keeps its buried metacarpal construction.
+        # at each joint, from the ring that the palm's socket is sewn to. The rings before it lie inside the palm
+        # and are discarded when the sockets are built. The opposed thumb
+        # keeps its buried metacarpal construction.
         def nearest(target):
             return min(range(ring_size), key=lambda k: abs(angles[k] - target))
-        root = 5*ring_size  # the ring at 70% of the proximal phalanx
-        root_ring = {name: Vector(vertices[root + nearest(angle)]) for name, angle in
-                     (("volar", 0.0), ("radial", math.pi/2), ("dorsal", math.pi), ("ulnar", 3*math.pi/2))}
+        first = 4
+        root_ring = {name: Vector(vertices[first*ring_size + nearest(angle)])
+                     for name, angle in (("radial", math.pi/2), ("ulnar", 3*math.pi/2))}
         straight, straight_weights = articulated_finger_sections(
             digit, points, hinge, along_samples, angles, precise,
             cap_start, cap_round_start, cap_round_length, flat_angle, root_ring)
-        for ring, along in enumerate(along_samples):
-            passed = smoothstep((along/lengths[0] - 0.70)/0.18)
-            if passed <= 0:
-                continue
-            for side in range(ring_size):
-                i = ring*ring_size + side
-                vertices[i] = tuple(Vector(vertices[i]).lerp(straight[i], passed))
-                weights[i] = tuple(a + (b - a)*passed for a, b in zip(weights[i], straight_weights[i]))
+        for i in range(first*ring_size, len(along_samples)*ring_size):
+            vertices[i] = tuple(straight[i])
+            weights[i] = straight_weights[i]
     faces = []
     for ring in range(len(along_samples) - 1):
         for side in range(ring_size):
@@ -1885,12 +1901,12 @@ def integrate_finger_roots(palm, digits):
     volar_slope = (PALM_LONGITUDINAL * .55 - PALM_DORSAL * .835).normalized()
     for i in neighbors:
         x, y, z = inverse @ (positions[i] - origin)
-        radius = ((x + .0005) / .0067)**2 + ((y + .010) / .0056)**2 + ((z - .025) / .0095)**2
+        radius = ((x + .0020) / .0067)**2 + ((y + .0108) / .0056)**2 + ((z - .0245) / .0080)**2
         if radius >= 9:
             continue
         normal_fraction = smoothstep((topology.vertices[i].normal.dot(volar_slope) - .10) / .65)
         local = math.exp(-radius) * (1 - smoothstep((radius - 4) / 5))
-        positions[i] -= volar_slope * (.0007 * local * normal_fraction)
+        positions[i] -= volar_slope * (.0011 * local * normal_fraction)
     bpy.data.meshes.remove(topology)
     active = {i for i in neighbors if 1e-7 < sum(w for j, w in weights[i].items() if j != palm_joint) < 0.99999}
     for _ in range(6):
