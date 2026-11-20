@@ -57,7 +57,17 @@ npm run acu -- run sg-knee-oa/base --agent protocol --verbose
 npm run acu -- replay runs/sg-knee-oa--base--protocol--s1/log.json
 ```
 
-Play the practitioner yourself (`help` inside: `go`, `where`, `map`, `feel`, `evidence`; `--mode teaching` shows
+Open the studio — one live encounter in a real-time 3D clinic that you and a language model drive through the same
+actions ([docs/STUDIO.md](docs/STUDIO.md)): click to walk and act, work a needle by hand, attach an agent and step,
+run or stop it, or drive the session from outside over HTTP or MCP:
+
+```bash
+npm run studio -- sg-knee-oa/base --mode teaching
+```
+
+![The studio: the needling field in teaching mode](docs/img/studio-xray.jpg)
+
+Play the practitioner in the terminal (`help` inside: `go`, `where`, `map`, `feel`, `evidence`; `--mode teaching` shows
 reference locations and how each differentiation reads):
 
 ```bash
@@ -113,7 +123,8 @@ npm run bench -- --agent claude --split dev
 |---|---|
 | `packages/core` — `@acucraft/core` | schemas; scenario resolution (family + variant overlays); patient-specific anatomy, proportional (B-cun) localisation and needle path assessment; the deterministic encounter engine over ClinicalCraft's clinical session; the clinic as a walkable world over ClinicalCraft's world layer (stances, planned walks, reach); the evidence ledger, pattern support and the needle's response; needle lifecycle and invariants; roles, versioned rules and the simulation guard; consent; delegation and NPC policies; field events; replay; the agent view |
 | `packages/bench` — `@acucraft/bench` | content loader; the independent evaluator (primary endpoint, five tracks, critical errors, unsafe attempts executed/blocked, the evidence links, adjudication, STRICTA-informed documentation); agents (reference oracle, rule-based protocol, Claude); runner; suites; statistics; reports; the HTML viewer |
-| `packages/cli` — `acucraft` | `validate`, `list`, `points`, `show`, `map` (the floor plan), `vocabulary` (signs, pattern criteria, deqi), `locate`, `run`, `play`, `replay`, `evaluate`, `view` (an HTML encounter viewer: the floor plan with every walk, charts with landmarks, structures, reference locations and entries, the evidence links and the timeline), `bench`, `export-clinicalcraft` |
+| `packages/studio` — `@acucraft/studio` | one live encounter for a person and a model: the session (the one way to act, a built-in agent that can be stepped, proposed from, run and taken over from), its HTTP interface with live events, an MCP bridge (`act`, `view`, `lookup`), and the real-time 3D client — the clinic drawn from the facility the engine walks in, the needling field in chart centimetres, a form for every action, needles worked by hand |
+| `packages/cli` — `acucraft` | `validate`, `list`, `points`, `show`, `map` (the floor plan), `vocabulary` (signs, pattern criteria, deqi), `locate`, `run`, `play`, `replay`, `evaluate`, `view` (an HTML encounter viewer: the floor plan with every walk, charts with landmarks, structures, reference locations and entries, the evidence links and the timeline), `bench`, `export-clinicalcraft`, `studio`, `mcp` |
 | `content/` | 3 standard editions, the full point library (409: the WHO 2008 standard's 361 meridian points and the WHO 1991 nomenclature's 48 extra points; 399 localised and needleable), 18 regional models covering the whole body (the trunk and front of the neck derived from the HuBMAP Visible Human Male reference body, CC BY 4.0, see THIRD_PARTY.md; the head and limbs schematic) and where each lies on the body, Singapore roles, 3 rule-set series, the clinic and its floor plan (a ClinicalCraft facility with three room templates and an equipment catalog), the vocabulary (diagnoses, 66 signs, 13 patterns with their criteria, needle sensations, deqi), guideline evidence, 5 families, the pilot suite |
 | `tools/` | `bootstrap.sh` (the pinned engine), `check.sh` (what CI runs), `locate.ts`, `finish-solutions.ts` (replays the reference trajectories: drops idle walks, writes the needle responses from the evidence), `content/` (authoring scripts: families, the clinic's world, the vocabulary) |
 
@@ -163,6 +174,8 @@ an encounter. There are no live-model results: this release was built without AP
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — packages, the encounter engine, needles, roles and rules, NPCs, the agent view, replay
 - [docs/WORLD.md](docs/WORLD.md) — the clinic as a ClinicalCraft facility, standing and walking, what each act needs within reach, the body on the couch
 - [docs/EVIDENCE.md](docs/EVIDENCE.md) — the evidence ledger, pattern differentiation read from its findings, the needle's response and how a recorded deqi is checked
+- [docs/TECHNIQUE.md](docs/TECHNIQUE.md) — how a needle goes in, is worked and comes out: methods, parameters, stimulation, reinforcing and reducing, a stuck needle
+- [docs/STUDIO.md](docs/STUDIO.md) — the studio: the 3D clinic and needling field, the forms, a person and a model on one session, HTTP and MCP, what each mode shows
 - [docs/ANATOMY.md](docs/ANATOMY.md) — charts, configurations, patient-specific instances and cun, tissue, needle paths
 - [docs/EVALUATION.md](docs/EVALUATION.md) — endpoint, tracks, agents, statistics, the baseline
 - [docs/SINGAPORE.md](docs/SINGAPORE.md) — roles, rule sets and versions, what remains to verify

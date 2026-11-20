@@ -151,7 +151,7 @@ export function lookup(lib: AgentInit["library"], input: { topic?: string; id?: 
 }
 
 /** What the model is told after each action: the outcome and the parts of the view that change. */
-function outcome(v: AgentView): unknown {
+export function agentOutcome(v: AgentView): unknown {
   return {
     result: v.last,
     minute: v.minute,
@@ -228,7 +228,7 @@ export function claudeAgent(opts: ClaudeAgentOptions = {}): Agent {
           content: [{ type: "text", text: `A new encounter: ${view.title}. ${view.setting.clinic}, ${view.setting.date}; visit ${view.setting.visit} of ${view.setting.visits}. You are ${view.you.name} (${view.you.roleLabel}).\n\nYour current view:\n${JSON.stringify(view)}` }],
         });
       } else if (pendingAct) {
-        messages.push({ role: "user", content: [{ type: "tool_result", tool_use_id: pendingAct, content: JSON.stringify(outcome(view)) }] });
+        messages.push({ role: "user", content: [{ type: "tool_result", tool_use_id: pendingAct, content: JSON.stringify(agentOutcome(view)) }] });
         pendingAct = null;
       }
       for (let i = 0; i < maxCalls; i++) {

@@ -257,3 +257,8 @@ and is taken to 2.0 cm rather than worked harder.
   is or whether it matters to outcome, and no score depends on obtaining it.
 - Evidence of a needle is faithful to the field at the moment it is obtained: the patient reports what the model
   holds and the operator feels it. There is no unreliable witness yet.
+
+How a needle is put in, worked and withdrawn — the parameters of each technique, how much stimulation an act gives,
+how a working reads as reinforcing or reducing, and what to do with a needle that is stuck — is in
+[TECHNIQUE.md](TECHNIQUE.md). The studio ([STUDIO.md](STUDIO.md)) shows each needle's evidence beside it, and
+nothing of its response that has not been obtained.

@@ -11,6 +11,7 @@
   "workspaces": [
     "packages/core",
     "packages/bench",
+    "packages/studio",
     "packages/cli"
   ],
   "scripts": {
@@ -21,17 +22,21 @@
     "validate": "tsx packages/cli/src/bin.ts validate",
     "check": "bash tools/check.sh",
     "export:clinicalcraft": "tsx packages/cli/src/bin.ts export-clinicalcraft --out out/clinicalcraft",
-    "bench": "tsx packages/cli/src/bin.ts bench"
+    "bench": "tsx packages/cli/src/bin.ts bench",
+    "studio": "tsx packages/cli/src/bin.ts studio",
+    "studio:build": "tsx packages/studio/src/build.ts"
   },
   "dependencies": {
     "zod": "3.25.76"
   },
   "devDependencies": {
     "@types/node": "22.18.0",
+    "@types/three": "0.180.0",
+    "esbuild": "0.25.12",
     "tsx": "4.20.6",
     "typescript": "5.9.3",
-    "vitest": "4.1.11",
-    "vite": "6.4.4"
+    "vite": "6.4.4",
+    "vitest": "4.1.11"
   },
   "overrides": {
     "vite": "6.4.4"

@@ -54,6 +54,7 @@ import {
   type Effort,
 } from "@acucraft/bench";
 import type { Scenario } from "@acucraft/core";
+import { buildClient, clientBuilt, CLIENT_DIST, localBackend, remoteBackend, serveMcp, startStudioServer, StudioSession } from "@acucraft/studio";
 
 const HELP = `acucraft — acupuncture simulation and evaluation (Singapore edition)
 
@@ -84,6 +85,13 @@ usage: npm run acu -- <command> [options]
                                             run a benchmark suite; writes suite-result.json and report.md
   export-clinicalcraft --out DIR            write every instance's ClinicalCraft case (cases/<id>/case.json) for
                                             ClinicalCraft's contentDirs setting
+  studio [family/variant] [--port 4173] [--host 127.0.0.1] [--mode teaching] [--seed N]
+      [--agent protocol|reference|claude] [--run] [--no-build]
+                                            the studio: one live encounter in a real-time 3D clinic that you and a
+                                            language model drive through the same actions (docs/STUDIO.md)
+  mcp [family/variant] [--attach URL] [--mode teaching] [--seed N]
+                                            the practitioner's tools (act, view, lookup) for an MCP client, over stdio:
+                                            an encounter of its own, or with --attach the one a running studio shows
 
   --content DIR                             another content pack (default: ./content)
 `;
@@ -110,6 +118,11 @@ const { positionals, values } = parseArgs({
     verbose: { type: "boolean", default: false },
     library: { type: "boolean", default: false },
     json: { type: "boolean", default: false },
+    port: { type: "string" },
+    host: { type: "string" },
+    attach: { type: "string" },
+    run: { type: "boolean", default: false },
+    "no-build": { type: "boolean", default: false },
     help: { type: "boolean", short: "h", default: false },
   },
 });
@@ -564,6 +577,52 @@ async function main(): Promise<void> {
       }
       write(join(out, "README.md"), `# AcuCraft cases for ClinicalCraft\n\nExported ClinicalCraft cases, one per AcuCraft scenario instance. Add this directory to ClinicalCraft's \`contentDirs\` setting to play the consultation part in ClinicalCraft's front-ends; needling, roles, consent and the evaluation run in AcuCraft.\n`);
       console.log(`wrote ${scenarioIds(p).length} cases to ${out}/cases`);
+      return;
+    }
+    case "studio": {
+      const p = pack();
+      const scenario = args[0] ?? scenarioIds(p)[0]!;
+      requireScenario(p, scenario);
+      if (!values["no-build"]) {
+        const built = await buildClient();
+        console.log(`client built (${(built.bytes / 1024).toFixed(0)} kB, ${built.ms} ms)`);
+      } else if (!clientBuilt()) console.log("no built client: the API runs alone (drop --no-build, or run `npm run studio:build`)");
+      const studio = await startStudioServer({ pack: p, scenario, seed: Number(values.seed), mode: mode(), port: values.port ? Number(values.port) : 4173, ...(values.host ? { host: values.host } : {}), clientDir: clientBuilt() ? CLIENT_DIST : null });
+      // --agent has a default for `run` and `bench`: here an agent is attached only when one is asked for
+      const asked = process.argv.some((a) => a === "--agent" || a.startsWith("--agent="));
+      if (asked) {
+        await studio.session().attachAgent(values.agent!, { ...(values.model ? { model: values.model } : {}), ...(values.effort ? { effort: values.effort } : {}) });
+        if (values.run) studio.session().runAgent();
+      }
+      console.log(`AcuCraft studio — ${scenario} (${mode()} mode, seed ${values.seed})`);
+      console.log(`  open   ${studio.url}/`);
+      console.log(`  API    ${studio.url}/api/session  (view, act, events, agent: docs/STUDIO.md)`);
+      console.log(`  MCP    npm run -s acu -- mcp --attach ${studio.url}`);
+      if (asked) console.log(`  agent  ${values.agent}${values.run ? " (running)" : " (attached: step or run it from the page)"}`);
+      console.log("Ctrl-C stops it.");
+      await new Promise<void>((done) => {
+        process.on("SIGINT", () => done());
+        process.on("SIGTERM", () => done());
+      });
+      await studio.close();
+      return;
+    }
+    case "mcp": {
+      // stdout carries protocol messages only: everything else goes to stderr
+      if (values.attach) {
+        console.error(`acucraft mcp: attached to ${values.attach}`);
+        await serveMcp(remoteBackend(values.attach));
+        return;
+      }
+      const p = pack();
+      const scenario = args[0] ?? scenarioIds(p)[0]!;
+      const session = new StudioSession(p, { scenario, seed: Number(values.seed), mode: mode() });
+      console.error(`acucraft mcp: ${scenario} (${mode()} mode, seed ${values.seed})`);
+      await serveMcp(localBackend(session));
+      if (values.out) {
+        write(join(values.out, "log.json"), `${JSON.stringify(session.log(), null, 2)}\n`);
+        console.error(`wrote ${values.out}/log.json`);
+      }
       return;
     }
     default:
