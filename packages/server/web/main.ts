@@ -160,6 +160,9 @@ function drawNewForm(info: Info): void {
   fill();
   const seed = h("input", { type: "number", value: 1, min: 1, step: 1, class: "narrow", "aria-label": "seed" });
   const mode = h("select", { "aria-label": "mode" }, h("option", { value: "assessment" }, "assessment"), h("option", { value: "teaching" }, "teaching (shows reference locations)"));
+  // the catalogue of the 36 techniques the encounter runs on (docs/TECHNIQUES.md)
+  const techniques = h("select", { "aria-label": "techniques", title: "操作型：手法作用于该针（耗时、刺激量、补泻、缠针）。示意型：仅演示并记录。 · Operative: a technique is done to the needle. Illustrative: shown and recorded only." },
+    h("option", { value: "operative" }, "techniques: operative 操作型"), h("option", { value: "illustrative" }, "techniques: illustrative 示意型"));
   const file = h("input", { type: "file", accept: ".json,application/json", "aria-label": "import a log" });
   file.addEventListener("change", async () => {
     const f = file.files?.[0];
@@ -188,7 +191,7 @@ function drawNewForm(info: Info): void {
             submit: async (e: Event) => {
               e.preventDefault();
               try {
-                const made = await api.create({ family: family.value, ...(variant.value ? { variant: Number(variant.value) } : {}), seed: Number(seed.value) || 1, mode: mode.value });
+                const made = await api.create({ family: family.value, ...(variant.value ? { variant: Number(variant.value) } : {}), seed: Number(seed.value) || 1, mode: mode.value, techniques: techniques.value });
                 location.hash = `#/e/${made.id}`;
               } catch (err) {
                 toast(err instanceof ApiError ? err.message : String(err), "bad");
@@ -199,6 +202,7 @@ function drawNewForm(info: Info): void {
         family,
         variant,
         h("div", { class: "row" }, h("label", { class: "inline" }, "seed ", seed), mode),
+        techniques,
         h("button", { type: "submit", class: "primary" }, "Start the encounter"),
         h("p", { class: "muted small" }, "A variant changes one thing about the case. Its name is not shown while the encounter is open."),
       ),

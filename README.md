@@ -127,6 +127,17 @@ npm run acu -- map sg-knee-oa/base
 npm run acu -- vocabulary
 ```
 
+The 36 needling techniques — the list by group, or one technique in full (how it is done, its stages with their levels
+and counts, what to watch for):
+
+```bash
+npm run acu -- techniques
+```
+
+```bash
+npm run acu -- techniques 烧山火
+```
+
 An HTML view of a run — the floor plan with every walk, the charts, the evidence links and the timeline:
 
 ```bash

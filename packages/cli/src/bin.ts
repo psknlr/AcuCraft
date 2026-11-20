@@ -12,6 +12,9 @@ import { verifyCase } from "@clinicalcraft/core";
 import {
   ACUCRAFT_VERSION,
   ActionSchema,
+  DEPTH_LEVELS,
+  OPERATIVE_TECHNIQUES,
+  TECHNIQUE_GROUPS,
   clinicWorld,
   createEncounter,
   digest,
@@ -53,6 +56,9 @@ usage: npm run acu -- <command> [options]
                                             the agent's opening view (and the public reference library)
   map <family/variant>                      the clinic's floor plan: rooms, doors, fixtures and where everyone starts
   vocabulary [PATTERN]                      the signs, what each pattern is recognised by, and what counts as deqi
+  techniques [ID|GROUP]                     the 36 needling techniques of the operative catalogue: the list by group;
+                                            one technique (nian, 烧山火) or one group (compound) in full — how it is
+                                            done, its stages with their levels and counts, what to watch for
   locate <family/variant> <position> [POINT:side ...]
                                             authoring: the hidden patient-specific landmarks and points
   run <family/variant> [--agent protocol|reference|claude|openai|minimax|compatible|scripted-llm] [--seed N] [--mode assessment|teaching]
@@ -393,6 +399,37 @@ async function main(): Promise<void> {
       if (v.deqi) {
         console.log(`\nDeqi: ${v.deqi.definition}\nEvidence: ${v.deqi.evidence}`);
         for (const src of [...v.deqi.sources, ...v.differentiation.sources.filter((x) => !v.deqi!.sources.some((y) => y.title === x.title))]) console.log(`  source${src.verified ? "" : " (not verified)"}: ${src.title}${src.publishedAt ? `, ${src.publishedAt}` : ""}${src.locator ? ` — ${src.locator}` : ""}`);
+      }
+      return;
+    }
+    case "techniques": {
+      const key = args[0]?.toLowerCase();
+      const found = key ? OPERATIVE_TECHNIQUES.filter((t) => t.id === key || t.zh === args[0] || t.card.pinyin === key || t.card.group === key) : OPERATIVE_TECHNIQUES;
+      if (found.length === 0) throw new Error(`no technique or group ${args[0]} (groups: ${TECHNIQUE_GROUPS.map((g) => g.id).join(", ")})`);
+      const facts = (t: (typeof OPERATIVE_TECHNIQUES)[number]) => [
+        t.counts.map((c) => `${c.zh} ×${c.count}`).join(" · "), `${(t.defaults.durationMs / 1000).toFixed(1)} s`, t.effect.dose ? `dose ${t.effect.dose}` : "", t.effect.reading ?? "",
+        t.effect.winds ? "winds the needle" : "", t.effect.loosensDeg ? `loosens ${t.effect.loosensDeg}°` : "", t.effect.needsDepthMm ? `needs ≥ ${t.effect.needsDepthMm} mm` : "", t.effect.seeks ? `seeks ${t.effect.seeks}` : "",
+      ].filter(Boolean).join("; ");
+      if (!key) {
+        for (const g of TECHNIQUE_GROUPS) {
+          console.log(`\n${g.zh}  ${g.label} (${g.id})\n  ${g.note}`);
+          for (const t of OPERATIVE_TECHNIQUES.filter((x) => x.card.group === g.id)) console.log(`  ${t.zh.padEnd(4, "　")} ${t.id.padEnd(20)} ${t.card.name} — ${facts(t)}`);
+        }
+        console.log("\nThe operative catalogue (docs/TECHNIQUES.md): authored from classical and textbook accounts, not reviewed by a practitioner; forces are not modelled.");
+        return;
+      }
+      for (const t of found) {
+        console.log(`\n${t.zh}  ${t.card.name}  (${t.id}; ${t.context})\n  ${t.card.aim}`);
+        if (t.card.formula) console.log(`  「${t.card.formula.zh}」 ${t.card.formula.from}`);
+        console.log(`  one performance: ${facts(t)}`);
+        console.log("  how it is done:");
+        t.card.method.forEach((line, i) => console.log(`    ${i + 1}. ${line}`));
+        console.log("  stages:");
+        for (const x of t.stages) console.log(`    ${x.zh}${x.counted && x.count > 1 ? ` ×${x.count}` : ""} — ${x.label}${x.level ? ` [${DEPTH_LEVELS[x.level].zh}]` : ""}${x.breath ? ` (${x.breath})` : ""}`);
+        console.log(`  essentials: ${t.card.essentials.join(" ")}`);
+        if (t.card.cautions.length) console.log(`  watch for: ${t.card.cautions.join(" ")}`);
+        console.log(`  in the simulation: ${t.card.simulation}`);
+        console.log(`  controls: ${t.controls.join(", ")}`);
       }
       return;
     }

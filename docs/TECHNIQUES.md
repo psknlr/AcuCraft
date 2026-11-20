@@ -108,11 +108,13 @@ them, its dose follows what is stated, the form asked for is read (`bu`, `thrust
 `shao-shan-huo`) or a group (`channel`, `turning`, `levels`, `handle`, `shaft`, `closing`, `compound`, `bu-xie`) it
 gives each technique in full: how it is done step by step, the line it is taught by and where that is from, its
 stages with their levels and counts, its controls and defaults, what to watch for, and what the simulation does and
-leaves out. The operator's panel shows the same card beside the controls.
+leaves out. The operator's panel shows the same card beside the controls, and `npm run acu -- techniques [ID|GROUP]`
+prints it at the command line.
 
 ![The technique studio on the operative catalogue: 烧山火 with the line it is taught by, what one performance is, how it is done, its stages with their counts and the breath, what to watch for, and the controls — a count for each level](img/technique-studio-operative.png)
 
-The tables below are written from the catalogue (the dose is the stimulation one performance adds; an inserted needle
+The tables below are written from the catalogue by `npx tsx tools/technique-tables.ts`, and a test holds this page to
+them (the dose is the stimulation one performance adds; an inserted needle
 starts at 0.45, the response is complete at 1, and a typical patient tolerates 1.5).
 
 ### 揣爪循摄 · On the skin and along the channel

@@ -106,7 +106,7 @@ const enc = (id: string) => `/api/encounters/${encodeURIComponent(id)}`;
 export const api = {
   info: () => request<Info>("GET", "/api/info"),
   encounters: () => request<{ encounters: EncounterSummary[] }>("GET", "/api/encounters"),
-  create: (args: { family: string; variant?: number; seed?: number; mode?: string }) => request<{ id: string; summary: EncounterSummary }>("POST", "/api/encounters", { ...args, by: by() }),
+  create: (args: { family: string; variant?: number; seed?: number; mode?: string; techniques?: string }) => request<{ id: string; summary: EncounterSummary }>("POST", "/api/encounters", { ...args, by: by() }),
   importLog: (log: unknown) => request<{ id: string; summary: EncounterSummary }>("POST", "/api/encounters/import", { log, by: by() }),
   snapshot: (id: string) => request<EncounterSnapshot>("GET", enc(id)),
   tools: (id: string) => request<{ tools: ToolInfo[] }>("GET", `${enc(id)}/tools`),

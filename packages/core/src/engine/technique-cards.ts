@@ -46,6 +46,7 @@ export interface TechniqueCard {
 }
 
 const JZF = "《金针赋》";
+const NJ78 = "《难经 · 七十八难》";
 const ZJZN = "《针经指南》";
 const ZJDC = "《针灸大成》";
 
@@ -75,7 +76,7 @@ export const TECHNIQUE_CARDS: Readonly<Record<ManipulationTechniqueId, Technique
     formula: { zh: "爪而下之", from: `${ZJDC} · 下手八法` },
     essentials: ["Firm, steady pressure for two or three seconds.", "Two presses, crossed.", "Before disinfection, or the site is prepared again."],
     cautions: ["Not on broken or inflamed skin.", "Pressure enough to mark the skin, not to bruise it."],
-    simulation: "Two crossed nail contacts at the site. Contact intensity is shown, not measured.",
+    simulation: "Two crossed nail contacts at the site, drawn with the index nail: the hand model has no thumbnail contact. Contact intensity is shown, not measured.",
   },
   xun: {
     group: "channel", pinyin: "xun", name: "Stroking along the channel",
@@ -101,7 +102,7 @@ export const TECHNIQUE_CARDS: Readonly<Record<ManipulationTechniqueId, Technique
     formula: { zh: "摄者，下针如气涩滞，随经络上下用大指甲上下切之，其气血自得通行也", from: ZJZN },
     essentials: ["Firm, brief nips.", "Four stations: two below, two above.", "Along the channel of the needle."],
     cautions: ["Nail pressure on skin, not on the needle.", "A needle wound by one-way twirling is also unwound by twirling it back."],
-    simulation: "Nail contacts at four stations along the chart's long axis. Named with a retained needle, it lets go more of a wound needle's hold than stroking does.",
+    simulation: "Nail contacts at four stations along the chart's long axis, drawn with the index nail. Named with a retained needle, it lets go more of a wound needle's hold than stroking does.",
   },
   /* ---------------------------------------------------------------- 摇盘捻搓 */
   yao: {
@@ -151,7 +152,7 @@ export const TECHNIQUE_CARDS: Readonly<Record<ManipulationTechniqueId, Technique
       "Two or three rolls, stopping as soon as the needle feels held — never tight.",
       "Before the needle is withdrawn it is rolled back the other way until it is free.",
     ],
-    formula: { zh: "搓者，如搓线之状，勿转太紧", from: ZJZN },
+    formula: { zh: "搓而转者，如搓线之状，勿转太紧", from: `${ZJDC} · 下手八法` },
     essentials: ["One direction.", "Stop when the needle is held.", "Undo it before withdrawal."],
     cautions: ["Wound too far the needle is stuck: it will not turn or lift, and pulling it hurts and bleeds.", "Free a stuck needle by rolling it back, stroking (循) or nipping (摄) along the channel, or flicking and scraping the handle — never by force."],
     simulation: "One-way rotation is kept as winding on the needle: from half a turn the needle is held (a stronger response), from a turn and a half it is stuck. Rolling back, 循, 摄, 弹 and 刮 let it go.",
@@ -271,7 +272,7 @@ export const TECHNIQUE_CARDS: Readonly<Record<ManipulationTechniqueId, Technique
       "A few times, then the response is looked for again.",
     ],
     formula: { zh: "动者，如气不行，将针伸提而已", from: ZJZN },
-    essentials: ["Half strokes.", "A slight sway.", "Four or so."],
+    essentials: ["Half strokes.", "A slight sway.", "Four or so.", `The ${NJ78} pairs it with pushing: 动而伸之 (move and draw out) reduces, 推而内之 (push and send in) reinforces; here both are read as neither, as methods that move the qi.`],
     cautions: [],
     simulation: "Half-strokes outward with a small sway of the exposed shaft. A light stimulus.",
   },
@@ -283,7 +284,7 @@ export const TECHNIQUE_CARDS: Readonly<Record<ManipulationTechniqueId, Technique
       "A steady inward pressure is held, without the tip going any deeper.",
       "It is released, and done again.",
     ],
-    formula: { zh: "推之则行", from: "行气法 (teaching summary)" },
+    formula: { zh: "得气，因推而内之，是谓补", from: NJ78 },
     essentials: ["A small thumb-forward turn, held.", "Three times.", "No deeper."],
     cautions: ["Pressure, not travel: the depth set for the point is not exceeded."],
     simulation: "A small thumb-forward turn held and released; the tip does not move. A light stimulus that winds the needle slightly.",
@@ -308,7 +309,7 @@ export const TECHNIQUE_CARDS: Readonly<Record<ManipulationTechniqueId, Technique
       "The middle finger presses the shaft so that it bows like a drawn crossbow, the tip toward where the qi is to go.",
       "It is held for a few breaths and let go.",
     ],
-    formula: { zh: "如拨弩机之状", from: `${ZJDC} (described after)` },
+    formula: { zh: "如拨弩机之状", from: "弩法 (as commonly described, after the 《针灸问对》)" },
     essentials: ["A three-finger hold.", "Held, not pumped.", "Twice or so."],
     cautions: ["Gentle: a needle bowed too far kinks."],
     simulation: "The exposed shaft bows and is held, under a three-finger hold. The internal path does not change. A moderate stimulus.",
@@ -375,7 +376,7 @@ export const TECHNIQUE_CARDS: Readonly<Record<ManipulationTechniqueId, Technique
       "It goes in on the out-breath; at the end it is left at the deep level, and on withdrawal the hole is pressed closed at once.",
     ],
     formula: { zh: "烧山火，治顽麻冷痹，先浅后深，凡九阳而三进三退，慢提紧按，热至，紧闭插针，除寒之有准", from: JZF },
-    essentials: ["Shallow first, then deep.", "Nine at each level: quick thrust, slow lift.", "Advance on the out-breath; close the hole."],
+    essentials: ["Shallow first, then deep.", "Nine at each level: quick thrust, slow lift.", "Advance on the out-breath; close the hole.", "The 《金针赋》 has three advances and three withdrawals (三进三退); later texts and present teaching have three advances and one withdrawal (三进一退), the reading used here."],
     cautions: ["Needs a point with tissue deep enough for three levels.", "It is heavy stimulation: a second round is more than many patients bear."],
     simulation: "One round: back to the shallow third, nine thrust-led strokes at each third, ending at the depth the needle stands at. A heavy, reinforcing stimulus; a patient whose needle has the qi may then report warmth.",
   },
@@ -389,7 +390,7 @@ export const TECHNIQUE_CARDS: Readonly<Record<ManipulationTechniqueId, Technique
       "It goes in on the in-breath; on withdrawal the needle is rocked to widen the hole, which is left open.",
     ],
     formula: { zh: "透天凉，治肌热骨蒸，先深后浅，用六阴而三出三入，紧提慢按，徐徐举针，退热之可凭", from: JZF },
-    essentials: ["Deep first, then shallow.", "Six at each level: quick lift, slow thrust.", "Withdraw on the out-breath; leave the hole open."],
+    essentials: ["Deep first, then shallow.", "Six at each level: quick lift, slow thrust.", "Withdraw on the out-breath; leave the hole open.", "The 《金针赋》 has three out and three in (三出三入); present teaching has one advance and three withdrawals (一进三退), the reading used here."],
     cautions: ["Needs a point with tissue deep enough for three levels.", "Classically the needle is then left at the shallow level: here it returns to the depth it stood at — follow with adjust_needle to leave it shallower."],
     simulation: "One round: six lift-led strokes at the deep, middle and shallow thirds, then back to the depth the needle stands at. A heavy, reducing stimulus; a patient whose needle has the qi may then report coolness.",
   },
