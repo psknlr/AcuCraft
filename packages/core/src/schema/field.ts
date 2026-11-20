@@ -35,6 +35,7 @@ export const UNSAFE_CODES = [
   "hand-hygiene-omitted",
   "site-not-prepared",
   "repositioned-with-needles",
+  "forced-stuck-needle",
 ] as const;
 export const UnsafeCodeSchema = z.enum(UNSAFE_CODES);
 export type UnsafeCode = z.infer<typeof UnsafeCodeSchema>;

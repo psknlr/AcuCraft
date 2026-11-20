@@ -26,6 +26,10 @@ export const PointRefSchema = z.union([
 ]);
 export type PointRef = z.infer<typeof PointRefSchema>;
 
+/** How a needle is put through the skin, and how one in place is worked (docs/TECHNIQUE.md). */
+export const INSERTION_METHODS = ["single-hand", "fingernail-press", "pinching", "stretching", "pinch-up", "tube"] as const;
+export const NEEDLE_TECHNIQUES = ["none", "lift-thrust", "rotate", "scrape", "flick", "shake", "tremble"] as const;
+
 export const DISPOSITIONS = ["treat", "treat-modified", "further-assessment", "defer", "refer", "decline"] as const;
 export const DispositionSchema = z.enum(DISPOSITIONS);
 export type Disposition = z.infer<typeof DispositionSchema>;
@@ -193,9 +197,38 @@ export const ActionSchema = z.discriminatedUnion("type", [
       /** Direction the needle tip travels across the chart: 0 = cranial (+v), 90 = +u, 180 = caudal, 270 = −u. */
       azimuthDeg: z.number().min(0).max(360).default(0),
       depthCm: z.number().positive().max(10),
+      /** How the needle is put through the skin (docs/TECHNIQUE.md): recorded with the insertion. */
+      method: z.enum(INSERTION_METHODS).default("single-hand"),
+      /** Through the skin in one quick movement, or slowly (the patient feels the prick unless a guide tube is used). */
+      speed: z.enum(["swift", "slow"]).default("swift"),
     })
     .strict(),
-  z.object({ type: z.literal("adjust_needle"), needleId: IdSchema, depthCm: z.number().positive().max(10).optional(), technique: z.enum(["none", "lift-thrust", "rotate"]).default("none") }).strict(),
+  /**
+   * Move a needle to another depth and/or work it (docs/TECHNIQUE.md). `technique`: the two basic manipulations
+   * (`lift-thrust`, `rotate`) or an auxiliary one (`scrape`, `flick`, `shake`, `tremble`); the parameters each takes
+   * have defaults (lifting and thrusting 3 mm at 60/min for 10 s; twirling 180° at 80/min for 10 s). What the operator
+   * then feels in the needle is evidence of its response.
+   */
+  z
+    .object({
+      type: z.literal("adjust_needle"),
+      needleId: IdSchema,
+      depthCm: z.number().positive().max(10).optional(),
+      technique: z.enum(NEEDLE_TECHNIQUES).default("none"),
+      /** Lifting and thrusting: the excursion of the tip (mm); it never goes deeper than the depth set. */
+      amplitudeMm: z.number().min(0.5).max(10).optional(),
+      /** Lifts and thrusts, or twirls, a minute. */
+      frequencyPerMin: z.number().min(20).max(240).optional(),
+      /** Twirling: the arc of one twirl (degrees); turned one way, the whole turn. */
+      arcDeg: z.number().min(30).max(720).optional(),
+      /** How long the needle is worked (seconds). */
+      durationSec: z.number().min(2).max(120).optional(),
+      /** Twirling back and forth, or one way only (which winds the tissue round the shaft). */
+      direction: z.enum(["both", "clockwise", "counter-clockwise"]).default("both"),
+      /** Lifting and thrusting: the forceful phase (thrust: reinforcing; lift: reducing). */
+      emphasis: z.enum(["even", "thrust", "lift"]).default("even"),
+    })
+    .strict(),
   /** Ask the patient what they feel at one needle: their answer is evidence of that needle's response. */
   z.object({ type: z.literal("check_sensation"), needleId: IdSchema }).strict(),
   z.object({ type: z.literal("monitor") }).strict(),
@@ -203,7 +236,8 @@ export const ActionSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("stop_treatment"), reason: Text }).strict(),
 
   /* completion */
-  z.object({ type: z.literal("remove_needle"), needleId: IdSchema }).strict(),
+  /** Withdraw one needle: quickly or slowly; `press` holds a dry swab on the hole as it leaves (a site that bleeds stops). */
+  z.object({ type: z.literal("remove_needle"), needleId: IdSchema, speed: z.enum(["quick", "slow"]).default("quick"), press: z.boolean().default(false) }).strict(),
   /** Compound: removes every retained needle in turn; an interruption leaves the removals already made. */
   z.object({ type: z.literal("remove_all_needles") }).strict(),
   z.object({ type: z.literal("apply_pressure"), needleId: IdSchema }).strict(),

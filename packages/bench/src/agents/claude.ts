@@ -41,6 +41,7 @@ How the simulation works
 - Mark each point (\`mark_point\`) before inserting at it (\`insert_needle\` with \`mark\`). angleDeg 0 is perpendicular; azimuthDeg 0 points cranial (+v), 90 points to +u. depthCm is along the shaft. Choose depths for this patient's build and for what lies beneath.
 - Needles: sealed packs are on the shelf in the preparation area. Hand hygiene, fetch, open the pack (needles go onto the tray), \`pick_up\` one needle, insert it. Every opened needle must end in a sharps container (\`dispose\`, a needle id or a pack id for the rest of its tray) or have its loss reported. Count the needles before you end a visit.
 - The patient must consent to the current plan before any needle goes in. Change the plan and the consent may no longer cover it.
+- Technique (lookup "techniques"): a needle goes in by a method and at a speed (\`insert_needle\`: method, speed), and the result says what your fingers feel of the tissue it passed and where the tip lies. \`adjust_needle\` moves it to another depth and/or works it: lift-thrust (amplitudeMm, frequencyPerMin, durationSec, emphasis), rotate (arcDeg, frequencyPerMin, durationSec, direction), or an auxiliary technique (scrape, flick, shake, tremble). How you work a needle is read as reinforcing, reducing or even and compared with the stimulation your plan states. Twirling one way winds the tissue round the shaft: a needle that is stuck must never be pulled — turn it back, or flick or scrape the handle, then withdraw. \`remove_needle\` can be slow and can press the hole.
 - Someone must observe the patient while needles are in place: monitor yourself or delegate to the clinic assistant (\`assign_task\`). Respond at once to anything the patient reports.
 - End each visit with \`end_visit\`; start the follow-up visit with \`begin_follow_up\` if the encounter has one; finish with \`finish_encounter\`.
 
@@ -60,11 +61,11 @@ const TOOLS: Anthropic.Beta.BetaTool[] = [
   },
   {
     name: "lookup",
-    description: "Read the public reference library (no simulated time). Topics: points (the index: the ids of every point that can be needled, by regional model — the whole body is modelled — and every point id by channel; with id, the points of one channel, body area or region), point (one point in full, by id or alias), region (with id), regions, vocabulary (diagnosis, pattern and red-flag ids), pattern (what each pattern is recognised by: its key and supporting signs and what speaks against it; with id, one pattern in full), deqi (the needle sensations, which of them are deqi, and what counts as evidence of it), clinic, floorplan (rooms, doors, fixtures and reach distances in metres), roles, rules, evidence (guideline records for the condition), actions.",
+    description: "Read the public reference library (no simulated time). Topics: points (the index: the ids of every point that can be needled, by regional model — the whole body is modelled — and every point id by channel; with id, the points of one channel, body area or region), point (one point in full, by id or alias), region (with id), regions, vocabulary (diagnosis, pattern and red-flag ids), pattern (what each pattern is recognised by: its key and supporting signs and what speaks against it; with id, one pattern in full), deqi (the needle sensations, which of them are deqi, and what counts as evidence of it), techniques (how a needle is put in, worked and withdrawn: methods, parameters, how a manipulation is read, a stuck needle), clinic, floorplan (rooms, doors, fixtures and reach distances in metres), roles, rules, evidence (guideline records for the condition), actions.",
     input_schema: {
       type: "object",
       properties: {
-        topic: { type: "string", enum: ["points", "point", "region", "regions", "vocabulary", "pattern", "deqi", "clinic", "floorplan", "roles", "rules", "evidence", "actions"] },
+        topic: { type: "string", enum: ["points", "point", "region", "regions", "vocabulary", "pattern", "deqi", "techniques", "clinic", "floorplan", "roles", "rules", "evidence", "actions"] },
         id: { type: "string", description: "For point: a point id or alias (ST36, SJ5). For region: a region id (knee-leg). For points: a channel (ST), a body area (forearm) or a region (knee-leg). For pattern: a pattern id (wind-cold-damp-bi)." },
       },
       required: ["topic"],
@@ -130,6 +131,8 @@ export function lookup(lib: AgentInit["library"], input: { topic?: string; id?: 
     }
     case "deqi":
       return { ...(lib.vocabulary.deqi ?? { definition: "not described in this pack" }), sensations: lib.vocabulary.sensations, record: "document → needling.responses: one entry for each needle — { needle, response: deqi | none | not-sought, evidence: [ids of that needle's evidence] }." };
+    case "techniques":
+      return lib.techniques;
     case "clinic":
       return lib.clinic;
     case "floorplan":
@@ -170,7 +173,7 @@ function outcome(v: AgentView): unknown {
       vitals: v.record.vitals.map((x) => x.id),
       observations: v.record.observations.map((o) => o.id),
       pattern: v.assessment?.pattern ? { pattern: v.assessment.pattern, on: v.assessment.patternEvidence } : null,
-      needles: v.needling.map((n) => ({ needle: n.needle, target: n.target, inPlace: n.inPlace, worked: n.manipulations, evidence: n.evidence.map((e) => `${e.id} (${e.from}${e.unasked ? ", unasked" : ""}): ${e.text}`), recorded: n.recorded })),
+      needles: v.needling.map((n) => ({ needle: n.needle, target: n.target, inPlace: n.inPlace, depthCm: n.depthCm, feel: n.feel, stuck: n.stuck, worked: n.worked.map((m) => m.summary), stimulation: n.stimulation, evidence: n.evidence.map((e) => `${e.id} (${e.from}${e.unasked ? ", unasked" : ""}): ${e.text}`), recorded: n.recorded })),
     },
     recentConversation: v.conversation.slice(-6),
     needlesInPatient: v.equipment.needles.filter((n) => n.where.startsWith("in the patient")).map((n) => `${n.id}: ${n.where}`),

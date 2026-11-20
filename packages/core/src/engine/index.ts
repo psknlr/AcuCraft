@@ -4,6 +4,7 @@ export * from "./anatomy.js";
 export * from "./world.js";
 export * from "./space.js";
 export * from "./evidence.js";
+export * from "./technique.js";
 export * from "./queries.js";
 export * from "./conditions.js";
 export * from "./text.js";
