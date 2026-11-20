@@ -113,7 +113,9 @@ follows from it:
 - **the evidence of a differentiation** — an `assess` with a pattern names its findings (`patternEvidence`), ids of
   what the script asked and examined before it;
 - **the needle's response** — `needle(..., work="lift-thrust" | "rotate", ask=True)` works a needle once it is in and
-  asks the patient what they feel at it; `work()` and `feel()` do the same later;
+  asks the patient what they feel at it; `work()` and `feel()` do the same later, and `work()` takes the technique's
+  parameters when a script works a needle in a particular way (`work("n1", "lift-thrust", amplitudeMm=2,
+  frequencyPerMin=40, emphasis="thrust")`: docs/TECHNIQUE.md);
 - **finishing** — `write_family` runs `tools/finish-solutions.ts`, which replays each trajectory on the engine, drops
   the walks that covered no ground, writes each treatment record's `needling.responses` from the evidence the
   trajectory obtained (deqi where it shows it, none where it does not, not-sought where nothing was looked for), and

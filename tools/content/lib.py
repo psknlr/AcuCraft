@@ -217,9 +217,12 @@ class Trajectory:
     def _seek(self, n):
         if n[5]: self._emit({"type": "adjust_needle", "needleId": n[0], "technique": n[5]})
         if n[6]: self._emit({"type": "check_sensation", "needleId": n[0]})
-    def work(self, nid, technique="lift-thrust", depth=None):
-        """Work a needle that is in place (and, with `depth`, take it to another depth first)."""
-        a = {"type": "adjust_needle", "needleId": nid, "technique": technique}
+    def work(self, nid, technique="lift-thrust", depth=None, **how):
+        """Work a needle that is in place (and, with `depth`, take it to another depth first).
+
+        `how`: the technique's parameters as the action takes them (docs/TECHNIQUE.md) — amplitudeMm, frequencyPerMin,
+        arcDeg, durationSec, direction, emphasis. Left out, each takes its default."""
+        a = {"type": "adjust_needle", "needleId": nid, "technique": technique, **how}
         if depth is not None: a["depthCm"] = depth
         self(a)
     def feel(self, *nids):
