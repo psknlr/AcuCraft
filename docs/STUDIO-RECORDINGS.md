@@ -1,5 +1,11 @@
 # 36 种针法 Studio 实录 · Studio recordings
 
+> **These clips are of the illustrative catalogue**, recorded at the commit their links name, before the operative
+> catalogue existed and with the hand as it then was. They show the motion primitives of each entry, not the stages
+> a new encounter plays: on the operative catalogue 烧山火 is nine strokes at each of three levels, 龙虎交战 nine
+> turns to the left and six to the right, and so on ([TECHNIQUES.md](TECHNIQUES.md), with a still of the three levels).
+> 这些实录录制于"示意型目录"；新建病例默认使用"操作型目录"，其分段、层次与次数见 [TECHNIQUES.md](TECHNIQUES.md)。
+
 [连续观看全部 36 章 · Play all 36 chapters](https://rawcdn.githack.com/psknlr/AcuCraft/9328307179e88d2e1125dc6782e5288db4b400df/docs/media/studio-36.html) · [合集文件 · MP4](media/studio-36.mp4)
 
 手法按 Studio 菜单顺序排列。点击名称可单独播放，MP4 列链接到仓库里的原片。

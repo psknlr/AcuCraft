@@ -91,6 +91,13 @@ A technique of the pressing hand named with a retained needle (循, 摄, 按 wit
 needle, for it: a small stimulus without taking hold of it, and what it lets go of a wound needle. 揣 and 爪 are for
 the point before the needle goes in, and leave a needle alone.
 
+**In the evaluation.** Two items of the procedure track exist only on the operative catalogue, and only when what
+they judge happened: `wound-needle-freed` — a needle wound by one-way turning was freed, not forced out — and
+`stimulation-as-planned` — when the plan the patient agreed to names reinforcing or reducing stimulation, no needle
+was worked the opposite way (a mixed or even working is not the opposite). Working a needle past what the patient
+tolerates fails `no-overstimulation` as before, whichever action did it. Nothing is gained by performing a
+technique: deqi is never required, and a needle that was not worked, and said so, loses nothing.
+
 `adjust_needle` on the operative catalogue is the act it always was when no excursion, rate or time is stated. With
 them, its dose follows what is stated, the form asked for is read (`bu`, `thrust` or a clockwise turn reinforce;
 `xie`, `lift` or a counterclockwise turn reduce), and turning one way winds.
@@ -102,6 +109,8 @@ them, its dose follows what is stated, the form asked for is read (`bu`, `thrust
 gives each technique in full: how it is done step by step, the line it is taught by and where that is from, its
 stages with their levels and counts, its controls and defaults, what to watch for, and what the simulation does and
 leaves out. The operator's panel shows the same card beside the controls.
+
+![The technique studio on the operative catalogue: 烧山火 with the line it is taught by, what one performance is, how it is done, its stages with their counts and the breath, what to watch for, and the controls — a count for each level](img/technique-studio-operative.png)
 
 The tables below are written from the catalogue (the dose is the stimulation one performance adds; an inserted needle
 starts at 0.45, the response is complete at 1, and a typical patient tolerates 1.5).

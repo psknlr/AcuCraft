@@ -380,6 +380,22 @@ export function evaluateEncounter(sc: Scenario, s: EncounterState): EncounterRep
       procedure.push({ id: "no-overstimulation", label: "no needle worked beyond what the patient tolerated", met: strong.length === 0, weight: 1, ...(strong.length ? { detail: strong.map((n) => `${n.needle} (${n.field.manipulations} times)`).join(", ") } : {}) });
     }
   }
+  // on the operative catalogue of techniques (docs/TECHNIQUES.md): what was done to the needles, against the plan and
+  // against the needle. Neither item exists unless the thing it judges happened.
+  if (s.techniques === "operative") {
+    // a needle wound by one-way turning: freed before it came out, never pulled out by force
+    const wound = (s.performances ?? []).some((p) => (p.effect?.windingDeg ?? 0) !== 0)
+      || needleList(s).some((n) => n.events.some((e) => e.motion?.technique === "rotate" && e.motion.rotationDirection !== "alternating"));
+    if (wound) procedure.push({ id: "wound-needle-freed", label: "a needle wound by one-way turning was freed, not forced out", met: !anyUnsafe("stuck-needle-forced"), weight: 2 });
+    // the stimulation the patient agreed to: no needle worked the opposite way
+    const agreed = s.plans.at(-1)?.plan.technique.stimulation;
+    const opposite = agreed === "reinforcing" ? "reducing" : agreed === "reducing" ? "reinforcing" : null;
+    const worked = needleList(s).flatMap((n) => n.events.filter((e) => e.reading !== undefined).map((e) => ({ needle: n.id, reading: e.reading!, how: e.detail ?? "" })));
+    if (opposite && worked.length > 0) {
+      const against = worked.filter((w) => w.reading === opposite);
+      procedure.push({ id: "stimulation-as-planned", label: `no needle worked the opposite way to the plan (${agreed})`, met: against.length === 0, weight: 1, ...(against.length ? { detail: against.map((w) => `${w.needle}: ${w.how} reads as ${w.reading}`).join("; ") } : {}) });
+    }
+  }
   for (const e of sc.field.events) {
     const rec = s.events[e.id];
     if (!rec?.firedAt && rec?.firedAt !== 0) continue;

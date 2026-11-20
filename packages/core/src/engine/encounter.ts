@@ -852,8 +852,10 @@ function operationOnNeedle(ctx: Ctx, definition: OperativeTechnique, n: NeedleSt
       throw new Rejection("stuck-needle", `${n.id} is stuck: the tissue has wound round it and it will not turn or lift. Free it first — roll it back the other way (搓 ${before > 0 ? "counterclockwise" : "clockwise"}), stroke or nip along the channel (循, 摄), or flick or scrape the handle (弹, 刮).`);
     }
   }
+  // a needle worked in the hand is judged where it stands, as adjust_needle judges it; a hand on the skin beside it
+  // does not work it: its path is only read, for how the tissue answers
   const blockers: Protection[] = [];
-  const path = doInsertCheckPath(ctx, n, frame, loc.entry, loc.angleDeg, loc.azimuthDeg, loc.depthCm, blockers);
+  const path = inHand ? doInsertCheckPath(ctx, n, frame, loc.entry, loc.angleDeg, loc.azimuthDeg, loc.depthCm, blockers) : assessPath(frame, loc.entry, loc.angleDeg, loc.azimuthDeg, loc.depthCm, n.spec);
   blockIf(ctx, blockers, `${definition.zh} on ${n.id} stopped`);
   // winding: what the turning adds, then what the method lets go
   const loosenedDeg = Math.min(Math.abs(Math.max(-WINDING.capDeg, Math.min(WINDING.capDeg, before + effect.windingDeg))), effect.loosensDeg);

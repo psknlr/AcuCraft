@@ -83,6 +83,8 @@ Preview plays a local demonstration with pause, speed and preview-seeking contro
 
 Insertion has its own controls for the needle/mark, angle, direction and depth, plus optional grip, support, primary hand and animation duration. The clinical values pass the existing insertion guard. The animation draws the executed insertion, including a shorter partial result.
 
+![The technique studio on the operative catalogue: the card of 烧山火 above its controls](img/technique-studio-operative.png)
+
 While an operative technique plays, a card at the foot of the 3D view names the stage in Chinese and English, counts its repetitions, shows which of the three levels the tip stands at — with a marker that follows the tip between them — and names the breath where the method does.
 
 Each catalogue says what it is: the operative one authored from classical and textbook accounts and not reviewed by a practitioner, the illustrative one authored choreography; on both, contact intensity is a cosmetic fraction, not measured force. Surface contact keeps the encounter's normal preparation and hygiene consequences. The full parameter contract, lifecycle conditions, replay behavior and modeling limits are in [TECHNIQUES.md](TECHNIQUES.md).

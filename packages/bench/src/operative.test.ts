@@ -185,6 +185,51 @@ describe("a technique done to the needle", () => {
   });
 });
 
+describe("what was done to the needles, in the evaluation", () => {
+  const start = before(knee, "adjust_needle");
+  const item = (state: EncounterState, id: string) => evaluateEncounter(knee, state).tracks.procedure!.items.find((i) => i.id === id);
+
+  it("judges a wound needle by whether it was freed or forced — and says nothing when no needle was wound", () => {
+    expect(item(perform(knee, start, "nian").state, "wound-needle-freed")).toBeUndefined();
+    const stuck = perform(knee, perform(knee, start, "cuo").state, "cuo").state;
+    expect(item(stuck, "wound-needle-freed")).toMatchObject({ met: true });
+    expect(item(act(knee, stuck, { type: "remove_needle", needleId: NEEDLE }).state, "wound-needle-freed")).toMatchObject({ met: false });
+    const freed = perform(knee, perform(knee, stuck, "she").state, "cuo", { motion: { direction: "counterclockwise", cycles: 2 } }).state;
+    expect(item(act(knee, freed, { type: "remove_needle", needleId: NEEDLE }).state, "wound-needle-freed")).toMatchObject({ met: true });
+    // an encounter on the illustrative catalogue has no such item
+    const old = before(knee, "adjust_needle", "illustrative");
+    expect(evaluateEncounter(knee, perform(knee, old, "cuo", { motion: { support: "none" } }).state).tracks.procedure!.items.some((i) => i.id === "wound-needle-freed")).toBe(false);
+  });
+
+  it("holds the working of the needles to the stimulation the patient agreed to", () => {
+    // the plan of this encounter is for even stimulation: nothing is the opposite of even
+    expect(item(perform(knee, start, "xie").state, "stimulation-as-planned")).toBeUndefined();
+    // the same encounter with a reinforcing plan, agreed to before the needles
+    let s = createEncounter(knee, { seed: 1, techniques: "operative" });
+    for (const request of knee.field.solution) {
+      if (request.action.type === "adjust_needle") break;
+      const action = request.action.type === "propose_plan" ? { ...request.action, plan: { ...request.action.plan, technique: { ...request.action.plan.technique, stimulation: "reinforcing" as const } } } : request.action;
+      const done = step(knee, s, { ...request, action }, { strict: true });
+      expect(["executed", "partial"], done.attempt.message).toContain(done.attempt.status);
+      s = done.state;
+    }
+    expect(s.plans.at(-1)!.plan.technique.stimulation).toBe("reinforcing");
+    expect(item(s, "stimulation-as-planned")).toBeUndefined();
+    expect(item(perform(knee, s, "shao-shan-huo").state, "stimulation-as-planned")).toMatchObject({ met: true });
+    expect(item(perform(knee, s, "nian").state, "stimulation-as-planned")).toMatchObject({ met: true });
+    const against = item(perform(knee, s, "tou-tian-liang").state, "stimulation-as-planned")!;
+    expect(against).toMatchObject({ met: false });
+    expect(against.detail).toMatch(/pack-a\.1: .*透天凉.* reads as reducing/);
+    expect(item(act(knee, s, { type: "adjust_needle", needleId: NEEDLE, technique: "xie" }).state, "stimulation-as-planned")).toMatchObject({ met: false });
+  });
+
+  it("does not hold a needle's path against a hand that only strokes the channel beside it", () => {
+    const stroked = perform(knee, start, "xun");
+    expect(stroked.attempt.unsafe).toEqual([]);
+    expect(stroked.attempt.status).toBe("executed");
+  });
+});
+
 describe("warmth and coolness", () => {
   it("come to some patients and not to others, with the response and only with it", () => {
     const start = before(back, "adjust_needle");
