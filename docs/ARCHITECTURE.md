@@ -136,8 +136,11 @@ Every needle has an identity, a pack, a specification and an event history. Its 
 
 A lost needle (`dropped-hidden`) or a broken one stays an explicit unresolved object: `end_visit` refuses until it is
 found and disposed of, or the incident is reported after a search made since it fell (lost), or reported and the
-patient referred (broken). A needle that fell unseen is still listed in the agent's view where it was placed: only
-looking (`monitor` lists the needles actually in place), a count or a search shows that it is gone.
+patient referred (broken). A needle that fell unseen is taken to be where it was placed — in the view's equipment and
+needling lists, in the patient's general answer about the needles, in what is "still to remove" — until someone looks
+at the needles (`monitor`, `observe`, a count, a search, taking them all out), reaches for that needle (working,
+withdrawing or pressing on it finds it gone, and says so), reports it, or the visit ends (`fellUnseen`). Asked what
+they feel at it, the patient feels nothing there.
 
 ### What a needle was for
 

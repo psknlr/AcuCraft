@@ -73,17 +73,22 @@ export interface PatternSupport {
   idle: string[];
   /** The examinations the cited signs were found by (inquiry, inspection, tongue, pulse, palpation …). */
   methods: string[];
-  thresholds: { key: number; total: number; against: number };
+  thresholds: { key: number; total: number; against: number; idle: number };
   /** Enough key signs and enough signs in all. */
   sufficient: boolean;
   /** The evidence obtained speaks against the pattern. */
   contradicted: boolean;
-  /** Sufficient and not contradicted: the differentiation rests on its evidence. */
+  /**
+   * What is named bears on the pattern: the named findings that show none of its signs are at most `thresholds.idle`
+   * of those that show one (one is always allowed). Naming everything on record names no evidence.
+   */
+  focused: boolean;
+  /** Sufficient, not contradicted and focused: the differentiation rests on the findings it names. */
   supported: boolean;
 }
 
 /** The signs a piece of evidence shows in this scenario (the hidden reading of the case's findings). */
-export const signsOf = (sc: Scenario, evidenceId: string): readonly string[] => sc.field.evaluation.signs[evidenceId] ?? [];
+export const signsOf = (sc: Scenario, evidenceId: string): readonly string[] => (Object.prototype.hasOwnProperty.call(sc.field.evaluation.signs, evidenceId) ? sc.field.evaluation.signs[evidenceId]! : []);
 
 /**
  * Read a differentiation from the evidence it names. `obtained` is everything known when it was made (default: the
@@ -93,7 +98,7 @@ export function patternSupport(sc: Scenario, pattern: string, cited: readonly st
   const vocab = sc.bundle.vocabulary;
   const def = vocab.patterns.find((p) => p.id === pattern);
   const criteria = def?.criteria;
-  const thresholds = { key: vocab.differentiation.key, total: vocab.differentiation.total, against: vocab.differentiation.against };
+  const thresholds = { key: vocab.differentiation.key, total: vocab.differentiation.total, against: vocab.differentiation.against, idle: vocab.differentiation.idle };
   const citedIds = [...new Set(cited)];
   const shown = (signs: readonly string[], from: readonly string[]): SignShown[] =>
     signs.map((sign) => ({ sign, evidence: from.filter((id) => signsOf(sc, id).includes(sign)) })).filter((x) => x.evidence.length > 0);
@@ -106,13 +111,18 @@ export function patternSupport(sc: Scenario, pattern: string, cited: readonly st
   const methods = [...new Set([...key, ...supporting].map((x) => methodOf(x.sign)).filter((m): m is NonNullable<typeof m> => m !== undefined))];
   const sufficient = criteria !== undefined && key.length >= thresholds.key && key.length + supporting.length >= thresholds.total;
   const contradicted = against.length >= thresholds.against;
-  return { pattern, hasCriteria: criteria !== undefined, cited: citedIds, key, supporting, against, idle, methods, thresholds, sufficient, contradicted, supported: sufficient && !contradicted };
+  const focused = idle.length <= Math.max(1, Math.floor((citedIds.length - idle.length) * thresholds.idle));
+  return { pattern, hasCriteria: criteria !== undefined, cited: citedIds, key, supporting, against, idle, methods, thresholds, sufficient, contradicted, focused, supported: sufficient && !contradicted && focused };
 }
 
-/** The support of an assessment's pattern, on the evidence obtained when it was made (null: it names no pattern). */
+/**
+ * The support of an assessment's pattern, on the evidence obtained when it was made (null: it names no pattern). The
+ * ledger is in the order things were obtained, so "by then" is its first `ledger` items — not a time on the clock,
+ * which two acts can share.
+ */
 export function assessmentSupport(sc: Scenario, s: EncounterState, a: EncounterState["assessments"][number]): PatternSupport | null {
   if (a.pattern === null) return null;
-  return patternSupport(sc, a.pattern, a.patternEvidence, s.evidence.filter((e) => e.at <= a.at + 1e-9).map((e) => e.id));
+  return patternSupport(sc, a.pattern, a.patternEvidence, s.evidence.slice(0, a.ledger).map((e) => e.id));
 }
 
 /** What the whole case could show for a pattern at a visit's phase: every finding it has, obtained and cited. */
@@ -123,7 +133,9 @@ export function caseSupport(sc: Scenario, pattern: string, phase: string): Patte
     ...sc.case.exam.filter((e) => inPhase(e.phases)).map((e) => e.id),
     ...sc.case.investigations.filter((i) => Object.prototype.hasOwnProperty.call(i.results, phase)).map((i) => recordEvidenceId(i.id, phase)),
   ];
-  return patternSupport(sc, pattern, ids);
+  // every finding of the case is "named" here, so most of them bear on no one pattern: only what they show is asked
+  const all = patternSupport(sc, pattern, ids);
+  return { ...all, focused: true, supported: all.sufficient && !all.contradicted };
 }
 
 /* ------------------------------------------------------------------ */
@@ -174,8 +186,10 @@ export function needleResponse(sc: Scenario, s: EncounterState, n: NeedleState, 
   const rng = createRng(seedFrom(sc.family.id, "needle-response", site?.region ?? "", site?.side ?? "", Math.round((site?.entry.u ?? 0) * 2), Math.round((site?.entry.v ?? 0) * 2)));
   const variation = 0.8 + 0.4 * rng();
   const intensity = round3((TISSUE_RESPONSE[path.tipTissue] ?? 0) * Math.min(1, stimulation) * sensitivity * variation);
+  // too much begins with a stimulus: a needle that was tolerated does not become too strong by being moved, or
+  // because the patient has since grown anxious
   const felt = stimulation * sensitivity * (s.patient.anxiety >= 0.6 ? 1.25 : 1);
-  const overstimulated = (prev?.overstimulated ?? false) || felt > STIMULATION_TOLERANCE + 1e-9;
+  const overstimulated = (prev?.overstimulated ?? false) || (stimulus !== null && felt > STIMULATION_TOLERANCE + 1e-9);
   const nerve = path.findings.some((f) => f.contact && f.kind === "nerve");
   const tendon = path.findings.some((f) => f.contact && f.consequence === "tendon-pain");
   const noxious: NeedleSensation | null = nerve ? "electric" : tendon || overstimulated ? "sharp-pain" : null;
@@ -185,7 +199,7 @@ export function needleResponse(sc: Scenario, s: EncounterState, n: NeedleState, 
   const qualities: NeedleSensation[] = !deqi
     ? []
     : [...order.slice(0, 2), ...(path.findings.some((f) => f.near && f.kind === "nerve") ? (["numbness"] as NeedleSensation[]) : []), ...(intensity >= STRONG_RESPONSE ? (["spreading"] as NeedleSensation[]) : [])];
-  return { stimulation, manipulations, intensity, deqi, arrivedAt: prev?.arrivedAt ?? (deqi ? now(s) : null), qualities, noxious, overstimulated };
+  return { stimulation, manipulations, intensity, deqi, arrivedAt: prev?.arrivedAt ?? (deqi ? now(s) : null), deqiSince: deqi ? (prev?.deqiSince ?? now(s)) : null, qualities, noxious, overstimulated };
 }
 
 const PHRASE: Record<NeedleSensation, string> = {
@@ -240,8 +254,8 @@ export const needleEvidence = (s: EncounterState, needleId: string): EvidenceIte
 /**
  * `supported` — the record rests on evidence of that needle that shows what it says; `overclaimed` — deqi recorded on
  * evidence that does not show it; `contradicted` — the practitioner's own evidence shows deqi and the record says
- * otherwise; `out-of-date` — recorded as none on a check made before the needle was worked or moved, and qi arrived
- * after it; `not-sought` — no response looked for, and said so; `unrecorded` — nothing on record for the needle.
+ * otherwise; `out-of-date` — recorded as none on a check the needle has outlived: it was moved or worked afterwards
+ * and has had deqi since; `not-sought` — no response looked for, and said so; `unrecorded` — nothing on record.
  */
 export type NeedleVerdict = "supported" | "overclaimed" | "contradicted" | "out-of-date" | "not-sought" | "unrecorded";
 
@@ -293,8 +307,12 @@ export function needleAudit(sc: Scenario, s: EncounterState): NeedleAudit[] {
       verdict = "contradicted";
       detail = `recorded as ${claim.response}, but ${known.filter((e) => e.deqi).map((e) => e.id).join(", ")} shows deqi`;
     } else if (claim.response === "none") {
-      verdict = arrived ? "out-of-date" : "supported";
-      detail = arrived ? "recorded as none on a check made before qi arrived" : `none, on ${claim.evidence.join(", ")}`;
+      // the latest check the record names, against since when the needle has had deqi (if it has)
+      const checkedAt = Math.max(...evidence.filter((e) => claim!.evidence.includes(e.id)).map((e) => e.at));
+      const since = r?.deqiSince ?? null;
+      const stale = since !== null && since > checkedAt + 1e-9;
+      verdict = stale ? "out-of-date" : "supported";
+      detail = stale ? `recorded as none on a check at minute ${checkedAt.toFixed(1)}; the needle has had deqi since minute ${since.toFixed(1)}` : `none, on ${claim.evidence.join(", ")}`;
     } else {
       verdict = "not-sought";
       detail = "no response sought";

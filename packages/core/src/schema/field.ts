@@ -457,8 +457,8 @@ export const VocabularySchema = z
       .min(1),
     /**
      * When a differentiation rests on its evidence: the findings it cites show at least `key` of the pattern's key
-     * signs and `total` of its signs in all, and the findings obtained do not show `against` of the signs that speak
-     * against it. `sources`: where the criteria come from.
+     * signs and `total` of its signs in all, the findings obtained do not show `against` of the signs that speak
+     * against it, and what it names bears on it (`idle`). `sources`: where the criteria come from.
      */
     differentiation: z
       .object({
@@ -466,6 +466,11 @@ export const VocabularySchema = z
         total: z.number().int().min(1).default(3),
         /** A differentiation is contradicted when the findings obtained show this many signs that speak against the pattern. */
         against: z.number().int().min(1).default(2),
+        /**
+         * How much of what a differentiation names may show none of the pattern's signs: at most this fraction of the
+         * named findings that do show it (one is always allowed). Naming the whole record is not naming evidence.
+         */
+        idle: z.number().min(0).max(1).default(0.5),
         note: z.string().optional(),
         sources: z.array(SourceRefSchema).default([]),
       })

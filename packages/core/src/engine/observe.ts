@@ -162,9 +162,10 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
         return "in the sharps container";
       case "floor": {
         if (!l.hidden) return `on the ${l.area}`;
-        // nobody saw it fall: it is listed where it was placed until someone looks (monitor, count, search)
+        // nobody saw it fall: it is listed where it was placed until someone looks at the needles or reaches for it
         const ins = n.insertion;
         if (!ins) return "unknown";
+        if (!fellUnseen(s, n)) return "not where it was placed: unaccounted for";
         const placed = n.events.find((e) => e.what === "inserted")?.detail;
         return `in the patient: ${placed ? label(parseRef(placed)) : `${ins.region} ${ins.side}`} at u=${fmt(ins.entry.u)}, v=${fmt(ins.entry.v)}, ${fmt(ins.depthCm)} cm`;
       }
@@ -263,8 +264,9 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
       history: s.clinical.asked.map((id) => sc.case.history.find((h) => h.id === id)).filter((h) => h !== undefined).map((h) => ({ id: h.id, question: t(h.question, LOCALE), answer: t(h.answer, LOCALE) })),
       examination: s.clinical.examined.map((id) => sc.case.exam.find((e) => e.id === id)).filter((e) => e !== undefined).map((e) => ({ id: e.id, manoeuvre: t(e.maneuver, LOCALE), finding: t(e.finding, LOCALE) })),
       results,
-      vitals: s.vitalsLog.slice(-3).map((v) => ({ id: v.id, minute: v.at, vitals: v.vitals })),
-      observations: s.evidence.filter((e) => e.kind === "observation").slice(-3).map((e) => ({ id: e.id, minute: round2(e.at), text: e.text })),
+      // every reading and observation, not the latest few: what can be named has to be listed
+      vitals: s.vitalsLog.map((v) => ({ id: v.id, minute: v.at, vitals: v.vitals })),
+      observations: s.evidence.filter((e) => e.kind === "observation").map((e) => ({ id: e.id, minute: round2(e.at), text: e.text })),
       sites: sc.field.patient.siteConditions.filter((c) => s.revealedConditions.includes(c.id)).map((c) => `${c.label} (${c.region}, ${c.side}${c.centre ? `, around u=${fmt(c.centre.u)}, v=${fmt(c.centre.v)}, radius ${fmt(c.radiusCm ?? 0)} cm` : ""})`),
       tenderPoints: sc.field.patient.ashi.filter((a) => s.revealedAshi.includes(a.id)).map((a) => ({ id: a.id, label: a.label, region: a.region, side: a.side, centre: a.centre, radiusCm: a.radiusCm })),
     },
@@ -283,7 +285,7 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
           // the target the operator named, as elsewhere in the view: never the point the entry is judged to lie on
           target: placed ? label(parseRef(placed)) : `${n.insertion!.region} ${n.insertion!.side}`,
           // a needle that fell out unseen is still taken to be in place (as in `equipment`) until someone finds it
-          inPlace: n.location.kind === "patient" || fellUnseen(n),
+          inPlace: n.location.kind === "patient" || fellUnseen(s, n),
           manipulations: n.response?.manipulations ?? 0,
           evidence: needleEvidence(s, n.id).map((e) => ({ id: e.id, minute: round2(e.at), from: e.kind === "needle-feel" ? ("operator" as const) : ("patient" as const), text: e.text, qualities: [...(e.needle?.qualities ?? [])], grasp: e.needle?.grasp ?? null, unasked: e.needle?.volunteered ?? false })),
           recorded,
@@ -307,7 +309,8 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
       }),
       needles: needleList(s)
         .filter((n) => n.location.kind !== "pack")
-        .map((n) => ({ id: n.id, where: where(n), used: n.used, contaminated: n.contaminated && n.location.kind !== "patient" })),
+        // a needle taken to be in the patient is not yet known to be contaminated, whether it is there or fell out unseen
+        .map((n) => ({ id: n.id, where: where(n), used: n.used, contaminated: n.contaminated && n.location.kind !== "patient" && !fellUnseen(s, n) })),
       sharps: sc.clinic.rooms.flatMap((r) => r.fixtures.filter((f) => f.kind === "sharps-container").map((f) => `${f.id} (${r.label})`)),
     },
     team: sc.field.cast.map((m) => ({ id: m.id, name: m.name, role: roleOf(sc, m.id)?.label ?? m.role, location: s.actors[m.id]!.location })),

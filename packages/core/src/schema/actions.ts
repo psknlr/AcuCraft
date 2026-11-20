@@ -1,5 +1,12 @@
 import { z } from "zod";
-import { ChartPointSchema, IdSchema, PositionSchema } from "./common.js";
+import { ChartPointSchema, IdSchema as PlainIdSchema, PositionSchema } from "./common.js";
+
+/**
+ * An id as a request may give it. The state keeps its needles, packs, marks, tasks and actors in records keyed by id,
+ * so a name every object has (`constructor`, `toString` …) can never be the id of anything: a request that gives one
+ * is malformed, and is recorded as such instead of being looked up.
+ */
+const IdSchema = PlainIdSchema.refine((id) => !(id in Object.prototype), "not an id");
 
 /**
  * The action interface (proposal §7.3) — every actor (the practitioner or learner under test, the support agent,

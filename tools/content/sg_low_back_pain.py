@@ -269,6 +269,8 @@ variants = [
      {"id": "p-prone", "label": "Positioned prone in mid-pregnancy", "acceptable": False, "when": {"positioned": "prone"}},
      {"id": "p-cautioned", "label": "Needled points traditionally avoided in pregnancy", "acceptable": False, "when": {"unsafe": "insertion-at-cautioned-point"}}],
     "diagnoses": {"expected": {"$replace": ["pregnancy-related-lbp"]}, "acceptable": {"$replace": ["chronic-nonspecific-lbp"]}},
+    # her onset answer is another answer here ("gradually in the pregnancy … no injury"): it shows no sign
+    "signs": {"hx-onset": []},
     "points": {"recommended": {"$replace": [{"ashi": "ashi-right-l3"}]}, "acceptable": {"$replace": []},
      "avoid": [{"point": "BL23", "reason": "lumbosacral point cautioned in pregnancy", "severity": "major"}, {"point": "BL25", "reason": "lumbosacral point cautioned in pregnancy", "severity": "major"}, {"point": "GV3", "reason": "lumbosacral point cautioned in pregnancy", "severity": "major"}, {"point": "GV4", "reason": "lumbosacral point cautioned in pregnancy", "severity": "major"}, {"point": "LI4", "reason": "traditionally avoided in pregnancy", "severity": "critical"}, {"point": "SP6", "reason": "traditionally avoided in pregnancy", "severity": "critical"}], "maxNeedles": 3}}}),
 ]

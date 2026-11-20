@@ -135,6 +135,9 @@
           ]
         }
       },
+      "signs": {
+        "hx-onset": []
+      },
       "points": {
         "recommended": {
           "$replace": [

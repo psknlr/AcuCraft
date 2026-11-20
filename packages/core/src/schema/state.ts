@@ -75,6 +75,8 @@ export interface NeedleResponse {
   deqi: boolean;
   /** When deqi first arrived (null: it has not). */
   arrivedAt: number | null;
+  /** Since when the needle has had deqi without a break (null: it has none now). */
+  deqiSince: number | null;
   qualities: NeedleSensation[];
   /** A sensation that is not deqi and wants the needle adjusted or out (a nerve, a tendon, too strong). */
   noxious: NeedleSensation | null;
@@ -318,8 +320,11 @@ export interface EncounterState {
   sitesPrepared: { visit: number; region: string; side: Side; at: number; by: string }[];
   revealedConditions: string[];
   revealedAshi: string[];
-  /** `patternEvidence`: the evidence ids the pattern differentiation names (each was in `evidence` when it was made). */
-  assessments: { at: number; by: string; visit: number; diagnoses: string[]; pattern: string | null; patternEvidence: string[]; redFlags: string[]; rationale: string }[];
+  /**
+   * `patternEvidence`: the evidence ids the pattern differentiation names (each was in `evidence` when it was made);
+   * `ledger`: how many items the evidence ledger held then — what had been obtained by the time of the assessment.
+   */
+  assessments: { at: number; by: string; visit: number; ledger: number; diagnoses: string[]; pattern: string | null; patternEvidence: string[]; redFlags: string[]; rationale: string }[];
   decisions: { at: number; by: string; disposition: string; rationale: string; visit: number }[];
   plans: PlanVersion[];
   planApproved: number | null;

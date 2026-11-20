@@ -5,6 +5,7 @@ import {
   clone,
   createEncounter,
   DEQI_THRESHOLD,
+  detectClaims,
   digest,
   needleAudit,
   needleEvidence,
@@ -13,6 +14,7 @@ import {
   referenceLibrary,
   resolveScenario,
   showsDeqi,
+  signsOf,
   step,
   STIMULATION,
   STIMULATION_TOLERANCE,
@@ -451,16 +453,42 @@ describe("deqi is linked to evidence", () => {
     expect(again).toEqual({ "pack-a.1": "not-sought", "pack-a.2": "supported", "pack-a.3": "supported", "pack-a.4": "contradicted", "pack-a.5": "supported" });
   });
 
-  it("calls a negative record out of date when the needle was moved after the check", () => {
-    // the back's Ashi needle: asked about at 1.5 cm (nothing), then taken into the muscle without working or asking
-    let s = ref(back, (a) => a.type === "adjust_needle" && a.depthCm !== undefined);
+  it("calls a negative record out of date only when qi came after the check it names", () => {
+    // a patient who feels needles readily; the midline needle at 1.5 cm lies under the skin: asked about, nothing
+    const r = patched("sg-low-back-pain/base", (f) => ((f.patient as { needleSensitivity?: number }).needleSensitivity = 1.4));
+    if (!r.ok) throw new Error(r.issues.map((i) => i.message).join("; "));
+    const sc = r.scenario;
+    const id = "pack-a.4";
+    let s = ref(sc, (a) => a.type === "insert_needle", 5);
+    const checked = needleEvidence(s, id).at(-1)!;
+    expect(showsDeqi(sc, checked)).toBe(false);
+    // taken into the ligament without working it or asking again: qi arrives, quietly — nothing new is observed
+    s = act(sc, s, { type: "move", to: { region: "lumbar", side: "midline" } }).state;
+    s = act(sc, s, { type: "adjust_needle", needleId: id, depthCm: 2.2, technique: "none" }).state;
+    expect(needleEvidence(s, id).at(-1)!.id).toBe(checked.id); // moving a needle is not evidence of its response
+    expect(s.needles[id]!.response).toMatchObject({ deqi: true, manipulations: 0 });
+    expect(s.needles[id]!.response!.deqiSince!).toBeGreaterThan(checked.at);
+    s = act(sc, s, { type: "document", record: { needling: { responses: [{ needle: id, response: "none", evidence: [checked.id] }] } } }).state;
+    const stale = needleAudit(sc, s).find((a) => a.needle === id)!;
+    expect(stale).toMatchObject({ verdict: "out-of-date", field: { arrived: true, deqi: true } });
+    expect(stale.detail).toMatch(/has had deqi since minute/);
+  });
+
+  it("supports a negative record made on a check that came after the needle lost its response", () => {
+    // LI4 on the left answers at the insertion alone; nobody asks. Lifted to just under the skin, it no longer does
+    const headache = requireScenario(pack, "sg-tension-headache/base");
     const id = "pack-a.5";
-    const checked = needleEvidence(s, id).at(-1)!.id;
-    s = act(back, s, { type: "adjust_needle", needleId: id, depthCm: 2.0, technique: "none" }).state;
-    expect(needleEvidence(s, id).at(-1)!.id).toBe(checked); // moving a needle is not evidence of its response
+    let s = ref(headache, (a) => a.type === "adjust_needle" && a.needleId === id);
+    expect(s.needles[id]!.response).toMatchObject({ deqi: true, manipulations: 0 });
+    expect(needleEvidence(s, id)).toEqual([]);
+    s = act(headache, s, { type: "adjust_needle", needleId: id, depthCm: 0.3, technique: "none" }).state;
+    expect(s.needles[id]!.response).toMatchObject({ deqi: false, deqiSince: null });
     expect(s.needles[id]!.response!.arrivedAt).not.toBeNull();
-    s = act(back, s, { type: "document", record: { needling: { responses: [{ needle: id, response: "none", evidence: [checked] }] } } }).state;
-    expect(needleAudit(back, s).find((a) => a.needle === id)).toMatchObject({ verdict: "out-of-date", field: { arrived: true } });
+    s = act(headache, s, { type: "check_sensation", needleId: id }).state;
+    const checked = needleEvidence(s, id).at(-1)!;
+    s = act(headache, s, { type: "document", record: { needling: { responses: [{ needle: id, response: "none", evidence: [checked.id] }] } } }).state;
+    // qi did arrive once, before the check: the record of none is what was observed, and what is so
+    expect(needleAudit(headache, s).find((a) => a.needle === id)).toMatchObject({ verdict: "supported", field: { arrived: true, deqi: false } });
   });
 
   it("holds a sensation that is not deqi apart: a nerve met by the needle is evidence against, said unasked", () => {
@@ -481,8 +509,8 @@ describe("deqi is linked to evidence", () => {
     expect(needleAudit(nausea, s)[0]).toMatchObject({ verdict: "overclaimed" });
   });
 
-  it("gives nothing away about a needle that fell out unseen", () => {
-    // the first needle, worked and felt, drops to the floor during retention: nobody saw it
+  it("gives nothing away about a needle that fell out unseen, until someone looks or reaches for it", () => {
+    // the first needle, worked and asked about, drops to the floor during retention: nobody saw it
     const r = patched("sg-knee-oa/base", (f) => {
       f.events = [{ id: "ev-drop", when: { needlesRetained: { gte: 5 } }, afterMinutes: 1, effects: { needle: { select: "first-inserted", becomes: "dropped-hidden", area: "floor" } } }];
     });
@@ -493,9 +521,14 @@ describe("deqi is linked to evidence", () => {
     const fallen = Object.values(s.needles).find((x) => x.location.kind === "floor")!;
     expect(fallen.id).toBe("pack-a.1");
     const before = needleEvidence(s, fallen.id).length;
-    // the view still takes it to be in place, as its equipment list does
-    const row = () => observeAs(sc, s, "practitioner").needling.find((x) => x.needle === fallen.id)!;
+    // the view takes it to be in place, in every field: where it is, whether it is contaminated, the needling list
+    const view = () => observeAs(sc, s, "practitioner");
+    const row = () => view().needling.find((x) => x.needle === fallen.id)!;
+    const kit = () => view().equipment.needles.find((x) => x.id === fallen.id)!;
     expect(row().inPlace).toBe(true);
+    expect(kit().where).toMatch(/^in the patient: ST35:right/);
+    expect(kit().contaminated).toBe(false);
+    expect(view().equipment.needles.filter((x) => x.where.startsWith("in the patient")).every((x) => !x.contaminated)).toBe(true);
     // asked about it, the patient feels nothing there — an answer like that of any quiet needle, and evidence of it
     const asked = act(sc, s, { type: "check_sensation", needleId: fallen.id });
     s = asked.state;
@@ -503,10 +536,46 @@ describe("deqi is linked to evidence", () => {
     expect(s.utterances.at(-1)!.text).toBe("I hardly feel that one at all.");
     expect(needleEvidence(s, fallen.id).length).toBe(before + 1);
     expect(showsDeqi(sc, needleEvidence(s, fallen.id).at(-1)!)).toBe(false);
-    expect(row().inPlace).toBe(true);
-    // the same by naming its point
+    // the same by naming its point; stopping counts the needles the practitioner takes to be in
     s = act(sc, s, { type: "say", to: "patient", text: "And what do you feel at ST35?" }).state;
     expect(needleEvidence(s, fallen.id).length).toBe(before + 2);
+    expect(act(sc, s, { type: "stop_treatment", reason: "check" }).attempt.observations.join(" ")).toMatch(/5 needle\(s\) still to remove/);
+    expect(row().inPlace).toBe(true);
+    // reaching for it finds it gone: the act says so, and from then on the view knows
+    const reached = act(sc, s, { type: "adjust_needle", needleId: fallen.id, technique: "rotate" });
+    s = reached.state;
+    expect(reached.attempt.status).toBe("executed");
+    expect(reached.attempt.observations.join(" ")).toMatch(/pack-a\.1 is not where it was placed/);
+    expect(needleEvidence(s, fallen.id).length).toBe(before + 2); // nothing was felt: there was no needle to work
+    expect(row().inPlace).toBe(false);
+    expect(kit()).toMatchObject({ where: "not where it was placed: unaccounted for", contaminated: true });
+    expect(act(sc, s, { type: "check_sensation", needleId: fallen.id }).attempt.code).toBe("not-inserted");
+    expect(act(sc, s, { type: "say", to: "patient", text: "What do you feel at ST35?" }).state.evidence.length).toBe(s.evidence.length);
+  });
+
+  it("stops taking a fallen needle to be in place once anyone has looked at the needles, and in the next visit", () => {
+    // one needle only (the pregnant patient's), fallen unseen
+    const r = patched("sg-low-back-pain/pregnant", (f) => {
+      f.events = [{ id: "ev-drop", when: { needlesRetained: { gte: 1 } }, afterMinutes: 1, effects: { needle: { select: "first-inserted", becomes: "dropped-hidden", area: "floor" } } }];
+    });
+    if (!r.ok) throw new Error(r.issues.map((i) => i.message).join("; "));
+    const sc = r.scenario;
+    let s = ref(sc, (a) => a.type === "wait");
+    s = act(sc, s, { type: "wait", minutes: 2 }).state;
+    const id = "pack-a.1";
+    expect(s.needles[id]!.location).toMatchObject({ kind: "floor", hidden: true });
+    const where = () => observeAs(sc, s, "practitioner").equipment.needles.find((x) => x.id === id)!.where;
+    expect(where()).toMatch(/^in the patient/);
+    // asked how it feels, the patient answers as with a needle in: no "I'm fine", and the hint is there
+    const general = act(sc, s, { type: "say", to: "patient", text: "How does it feel now?" });
+    expect(general.state.utterances.at(-1)!.text).toBe("It's okay — I can hardly feel the needles.");
+    expect(general.attempt.observations.join(" ")).toMatch(/check_sensation/);
+    expect(act(sc, s, { type: "stop_treatment", reason: "check" }).attempt.observations.join(" ")).toMatch(/1 needle\(s\) still to remove/);
+    // a look at the patient shows no needle in place: from then on nobody takes it to be there
+    s = act(sc, s, { type: "monitor" }).state;
+    expect(where()).toBe("not where it was placed: unaccounted for");
+    expect(observeAs(sc, s, "practitioner").needling[0]!.inPlace).toBe(false);
+    expect(act(sc, s, { type: "check_sensation", needleId: id }).attempt.code).toBe("not-inserted");
   });
 
   it("checks a claim of deqi, spoken or written, against the evidence", () => {
@@ -517,6 +586,23 @@ describe("deqi is linked to evidence", () => {
     // a negative statement is no claim; nor is what was sought
     const quiet = act(knee, s, { type: "say", to: "assistant", text: "No deqi at that one, and deqi was not sought at the Ashi point." }).state;
     expect(quiet.claims.length).toBe(s.claims.length);
+    // a report is a claim; a plan, an explanation, a condition or a denial is not
+    const claims = (text: string) => detectClaims(text).includes("deqi-obtained");
+    for (const said of ["Deqi obtained at ST36.", "De-qi obtained at ST36.", "We got a clear deqi.", "Deqi obtained, not painful.", "Deqi obtained at ST36 and SP9. No deqi at the knee eyes.", "Tolerated. Deqi at 3 of 4 needles.", "得气。"]) {
+      expect(claims(said), said).toBe(true);
+    }
+    for (const said of [
+      "I will look for deqi at each needle and tell you what I am doing.",
+      "When deqi is reached you will feel a dull, heavy ache around the needle.",
+      "I will work each needle gently until deqi is obtained or you tell me to stop.",
+      "Tolerated. Deqi at 0 of 5 needles.",
+      "Deqi was not obtained.",
+      "No deqi at any needle.",
+      "Did we obtain deqi?",
+      "未得气。",
+    ]) {
+      expect(claims(said), said).toBe(false);
+    }
     // after the reference has worked and asked: the claim matches the evidence
     s = kneeNeedled();
     s = act(knee, s, { type: "say", to: "assistant", text: "We obtained deqi at ST36." }).state;
@@ -599,5 +685,191 @@ describe("the reference trajectories", () => {
     }
     // between them they show all three honest records
     expect([...seen].sort()).toEqual(["deqi:supported", "none:supported", "not-sought:not-sought"]);
+  });
+});
+
+describe("review regressions: evidence", () => {
+  const reasoning = (r: ReturnType<typeof evaluateEncounter>, id: string) => r.tracks.reasoning.items.find((i) => i.id === id);
+  /** The knee reference with its assessment changed. */
+  const assessing = (change: (a: Extract<ActionInput, { type: "assess" }>, s: EncounterState) => ActionInput) => {
+    let s = createEncounter(knee, { seed: 1 });
+    for (const r of knee.field.solution) s = step(knee, s, r.action.type === "assess" ? { ...r, action: change(r.action as Extract<ActionInput, { type: "assess" }>, s) } : r, { strict: true }).state;
+    return { s, report: evaluateEncounter(knee, s) };
+  };
+
+  it("does not credit a differentiation that names the whole record", () => {
+    // the right pattern, "on" everything asked, examined and read: most of it bears on nothing
+    const all = assessing((a, s) => ({ ...a, patternEvidence: s.evidence.map((e) => e.id) }));
+    const sup = all.report.evidence.pattern!;
+    expect(sup.cited.length).toBeGreaterThan(15);
+    expect(sup).toMatchObject({ sufficient: true, contradicted: false, focused: false, supported: false });
+    expect(reasoning(all.report, "pattern-evidence")).toMatchObject({ met: false });
+    expect(reasoning(all.report, "pattern-evidence")!.detail).toMatch(/naming the record is not naming evidence/);
+    // one finding beside the point is allowed: a reading can differ from the scenario's
+    const one = assessing((a) => ({ ...a, patternEvidence: [...a.patternEvidence!, "hx-meds"] }));
+    expect(one.report.evidence.pattern).toMatchObject({ idle: ["hx-meds"], focused: true, supported: true });
+    // an unlisted pattern cannot be passed that way either
+    const other = assessing((a, s) => ({ ...a, pattern: "kidney-yang-deficiency", patternEvidence: s.evidence.map((e) => e.id) }));
+    expect(reasoning(other.report, "pattern-evidence")).toMatchObject({ met: false });
+  });
+
+  it("does not let naming no pattern outscore a thin differentiation", () => {
+    const thin = assessing((a) => ({ ...a, patternEvidence: ["hx-general-tcm", "ex-tongue"] }));
+    const none = assessing((a) => {
+      const { pattern: _p, patternEvidence: _e, ...rest } = a;
+      return rest as ActionInput;
+    });
+    expect(reasoning(none.report, "pattern")).toMatchObject({ met: false });
+    expect(reasoning(none.report, "pattern-evidence")).toMatchObject({ met: false, weight: 2, detail: "no pattern differentiation was made" });
+    expect(none.report.evidence.pattern).toBeNull();
+    expect(none.report.tracks.reasoning.score!).toBeLessThan(thin.report.tracks.reasoning.score!);
+    // where no pattern is expected (a red flag: refer), none is asked for
+    const referred = evaluateEncounter(hotKnee, full(hotKnee));
+    expect(reasoning(referred, "pattern-evidence")).toBeUndefined();
+    expect(referred.tracks.reasoning.score).toBe(1);
+  });
+
+  it("answers a question about what is felt at the needles for the needles, not from the history", () => {
+    let s = kneeNeedled();
+    for (const [type, text] of [
+      ["ask", "How does it feel now?"],
+      ["ask", "Do you feel any aching or heaviness around the needles?"],
+      ["say", "Are you feeling a dull ache or a heavy feeling where the needles are?"],
+    ] as const) {
+      const before = s.evidence.length;
+      const asked = s.clinical.asked.length;
+      const r = act(knee, s, type === "ask" ? { type, text } : { type, to: "patient", text });
+      s = r.state;
+      expect(s.utterances.at(-1)!.text, text).toMatch(/dull ache at some of them/);
+      expect(s.evidence.length, text).toBe(before); // no answer from the history, and evidence of no needle
+      expect(s.clinical.asked.length, text).toBe(asked);
+      expect(r.attempt.observations.join(" "), text).toMatch(/check_sensation/);
+    }
+    // a question about the patient's history still is one, needles in or not
+    s = act(knee, s, { type: "ask", text: "Do you feel the cold more than other people?" }).state;
+    expect(s.utterances.at(-1)!.text).toMatch(/feel the cold more than my husband/);
+  });
+
+  it("does not turn a tolerated needle into a painful one by moving it", () => {
+    const insomnia = requireScenario(pack, "sg-insomnia/base");
+    let s = ref(insomnia, (a) => a.type === "monitor");
+    const work = (id: string, side: "left" | "right") => {
+      s = act(insomnia, s, { type: "move", to: { region: "knee-leg", side } }).state;
+      s = act(insomnia, s, { type: "adjust_needle", needleId: id, technique: "lift-thrust" }).state;
+    };
+    // SP6 on the left: worked three times in all — as much as is tolerated, and no more
+    work("pack-a.3", "left");
+    work("pack-a.3", "left");
+    expect(s.needles["pack-a.3"]!.response).toMatchObject({ manipulations: 3, overstimulated: false });
+    // SP6 on the right is worked once too often: it hurts, and he is anxious now
+    for (let i = 0; i < 3; i++) work("pack-a.4", "right");
+    expect(s.needles["pack-a.4"]!.response).toMatchObject({ manipulations: 4, overstimulated: true });
+    expect(s.patient.anxiety).toBeGreaterThanOrEqual(0.6);
+    // the left needle is lifted a little, without working it: it does not become too strong for that
+    s = act(insomnia, s, { type: "move", to: { region: "knee-leg", side: "left" } }).state;
+    const moved = act(insomnia, s, { type: "adjust_needle", needleId: "pack-a.3", depthCm: 1.2, technique: "none" });
+    s = moved.state;
+    expect(s.needles["pack-a.3"]!.response).toMatchObject({ overstimulated: false, noxious: null });
+    expect(s.patient.feedback.filter((f) => f.kind === "too-strong").map((f) => f.needleId)).toEqual(["pack-a.4"]);
+  });
+
+  it("says so when a needle hurts, however long ago it began", () => {
+    let s = kneeNeedled();
+    for (let i = 0; i < 3; i++) {
+      s = act(knee, s, { type: "move", to: { region: "knee-leg", side: "right" } }).state;
+      s = act(knee, s, { type: "adjust_needle", needleId: "pack-a.3", technique: "lift-thrust" }).state;
+    }
+    expect(s.needles["pack-a.3"]!.response).toMatchObject({ overstimulated: true });
+    s = act(knee, s, { type: "wait", minutes: 4 }).state;
+    s = act(knee, s, { type: "say", to: "patient", text: "How does it feel now?" }).state;
+    // (the knee scenario's own event has the Ashi needle burning by now: whichever it is, a needle hurts and she says so)
+    expect(s.utterances.at(-1)!.text).not.toMatch(/hardly feel|It's okay/);
+  });
+
+  it("speaks of a strong response a move first reaches, as of one from working the needle", () => {
+    // the back's Ashi needle, worked once at 1.5 cm (nothing), then taken into the muscle without working it again
+    let s = ref(back, (a) => a.type === "adjust_needle" && a.depthCm !== undefined);
+    const id = "pack-a.5";
+    const before = needleEvidence(s, id).length;
+    s = act(back, s, { type: "adjust_needle", needleId: id, depthCm: 2.0, technique: "none" }).state;
+    expect(s.needles[id]!.response!.intensity).toBeGreaterThanOrEqual(0.8);
+    const said = needleEvidence(s, id);
+    expect(said.length).toBe(before + 1);
+    expect(said.at(-1)).toMatchObject({ kind: "sensation", needle: { volunteered: true } });
+    // moved again within the same tissue, it is not said again
+    s = act(back, s, { type: "adjust_needle", needleId: id, depthCm: 2.2, technique: "none" }).state;
+    expect(needleEvidence(s, id).length).toBe(before + 1);
+  });
+
+  it("reads a record of the needles written in parts as one record", () => {
+    const steps = knee.field.solution.flatMap((r) => {
+      if (r.action.type !== "document" || !r.action.record.needling?.responses) return [r];
+      const all = r.action.record.needling.responses;
+      const first = { ...r, requestId: `${r.requestId}-a`, action: { type: "document" as const, record: { needling: { responses: all.slice(0, 3) } } } };
+      const second = { ...r, action: { ...r.action, record: { ...r.action.record, needling: { ...r.action.record.needling, responses: all.slice(3) } } } };
+      return [first, second];
+    });
+    let s = createEncounter(knee, { seed: 1 });
+    for (const r of steps) s = step(knee, s, r, { strict: true }).state;
+    const report = evaluateEncounter(knee, s);
+    expect(report.evidence.responses).toMatchObject({ needles: 5, recorded: 5 });
+    expect(report.documentation.issues).toEqual([]);
+    expect(report.documentation.consistent).toBe(true);
+  });
+
+  it("reads a variant's changed answer as the variant has it", () => {
+    // pregnant: "It came on gradually in the pregnancy … No injury." — no stress in it, and no long course
+    const pregnant = requireScenario(pack, "sg-low-back-pain/pregnant");
+    expect(signsOf(back, "hx-onset")).toEqual(["emotional-strain", "chronic-course"]);
+    expect(signsOf(pregnant, "hx-onset")).toEqual([]);
+    expect(patternSupport(pregnant, "liver-qi-stagnation", ["hx-onset", "ex-palpate-back", "ex-tongue"]).supported).toBe(false);
+    // a name every object has is no finding of any case
+    expect(signsOf(back, "constructor")).toEqual([]);
+  });
+
+  it("takes what was obtained by an assessment from the order of the ledger, not from the clock", () => {
+    let s = createEncounter(hotKnee, { seed: 1 });
+    s = act(hotKnee, s, { type: "ask", itemId: "hx-weather" }).state;
+    s = act(hotKnee, s, { type: "assess", diagnoses: ["knee-osteoarthritis"], pattern: "wind-cold-damp-bi", patternEvidence: ["hx-weather"], redFlags: [] }).state;
+    expect(s.assessments[0]!.ledger).toBe(1);
+    for (const itemId of ["hx-swelling", "hx-systemic"]) s = act(hotKnee, s, { type: "ask", itemId }).state;
+    // even were the later answers stamped with the assessment's own minute (a case whose questions take no time)
+    const sameMinute = clone(s);
+    for (const e of sameMinute.evidence) e.at = sameMinute.assessments[0]!.at;
+    expect(assessmentSupport(hotKnee, sameMinute, sameMinute.assessments[0]!)!.against).toEqual([]);
+    // a later assessment has them to answer for
+    s = act(hotKnee, s, { type: "assess", diagnoses: ["knee-osteoarthritis"], pattern: "wind-cold-damp-bi", patternEvidence: ["hx-weather"], redFlags: [] }).state;
+    expect(assessmentSupport(hotKnee, s, s.assessments[1]!)!.against.map((x) => x.sign)).toEqual(["joint-hot-red-swollen", "fever"]);
+  });
+
+  it("records a request that names something every object has as malformed, instead of looking it up", () => {
+    const s = kneeNeedled();
+    for (const action of [
+      { type: "check_sensation", needleId: "constructor" },
+      { type: "adjust_needle", needleId: "toString", technique: "rotate" },
+      { type: "remove_needle", needleId: "valueOf" },
+      { type: "apply_pressure", needleId: "hasOwnProperty" },
+      { type: "pick_up", object: "constructor" },
+      { type: "fetch", item: "toString" },
+      { type: "handover", object: "pack-a", to: "constructor" },
+      { type: "acknowledge_task", taskId: "constructor" },
+      { type: "document", record: { needling: { responses: [{ needle: "constructor", response: "not-sought", evidence: [] }] } } },
+      { type: "assess", diagnoses: [], pattern: "wind-cold-damp-bi", patternEvidence: ["constructor"], redFlags: [] },
+    ] as ActionInput[]) {
+      const r = step(knee, s, req(action), { strict: true });
+      expect(r.attempt, JSON.stringify(action)).toMatchObject({ status: "rejected", code: "invalid-request" });
+      expect(r.state.version).toBe(s.version);
+    }
+    const stranger = step(knee, s, { requestId: "e-stranger", actor: "constructor", patient: "patient", action: { type: "monitor" } }, { strict: true });
+    expect(stranger.attempt).toMatchObject({ status: "rejected", code: "invalid-request" });
+  });
+
+  it("lists every reading and observation, so that whatever can be named is in view", () => {
+    let s = act(knee, createEncounter(knee, { seed: 1 }), { type: "move", to: { person: "patient" } }).state;
+    for (let i = 0; i < 5; i++) s = act(knee, s, { type: "check_vitals" }).state;
+    for (let i = 0; i < 4; i++) s = act(knee, s, { type: "observe" }).state;
+    const v = observeAs(knee, s, "practitioner");
+    expect(v.record.vitals.map((x) => x.id)).toEqual(["vitals-1", "vitals-2", "vitals-3", "vitals-4", "vitals-5"]);
+    expect(v.record.observations.map((x) => x.id)).toEqual(["obs-1", "obs-2", "obs-3", "obs-4"]);
   });
 });

@@ -38,17 +38,30 @@ const CLAIM_PATTERNS: [RegExp, Claim][] = [
   [/\bconsent (has been |was |is )?(obtained|given|signed)\b|\b(she|he|they|the patient) (has |have )?(consented|agreed to (the )?(treatment|acupuncture))\b/, "consent-obtained"],
   [/\b(skin|site|sites) (is |are |has been |have been )?(cleaned|prepared|swabbed|disinfected)\b/, "site-prepared"],
   [/\b(i('ve| have)|hands (are|have been)) (washed|cleaned|sanitised|sanitized)\b|\bhands are clean\b/, "hands-clean"],
-  // "deqi obtained", "obtained de qi at ST36", "得气": a claim that qi arrived (never "deqi sought", "no deqi")
-  [/\bde ?qi (was |has been |is |were )?(obtained|achieved|elicited|felt|reached|arrived|present)\b|\b(obtained|achieved|elicited|got|felt) (a |good |strong |mild |clear )*de ?qi\b|\bde ?qi at\b|\bwith de ?qi\b|得气/, "deqi-obtained"],
 ];
 
-/** "No deqi", "deqi not obtained", "without deqi", "deqi was not sought": the opposite of the claim. */
-const NO_DEQI = /\b(no|not|without|never|none|nil|absent)\b[^.;]{0,24}\bde ?qi\b|\bde ?qi\b[^.;]{0,24}\b(not|none|absent|sought)\b|未得气|不得气/;
+/**
+ * A claim that qi arrived — "deqi obtained at ST36", "got a clear de-qi", "得气" — read clause by clause, and only where
+ * it is a report: what is planned, sought or conditional ("I will look for deqi", "when deqi is reached you will
+ * feel …", "until deqi is obtained") is not, nor is its denial ("no deqi", "deqi not obtained", "deqi at 0 of 5").
+ */
+const DEQI_SAID = /\bde[ -]?qi (was |has been |is |were )?(obtained|achieved|elicited|felt|reached|arrived|present)\b|\b(obtained|achieved|elicited|got|felt) (a |an |the |good |strong |mild |clear |some )*de[ -]?qi\b|\bde[ -]?qi at\b|\bwith de[ -]?qi\b|得气/;
+const DEQI_INTENT = /\b(will|would|shall|going to|until|when|whenever|if|once|unless|aim\w*|seek\w*|sought|look(ing)? for|try(ing)?|may|might|should|can|could|before|expect\w*|hop(e|es|ed|ing)|want\w*|plan\w*)\b/;
+const DEQI_DENIED = /\b(no|not|without|never|none|nil|absent|didn'?t|wasn'?t|isn'?t|hasn'?t|couldn'?t)\b[^,]*\bde[ -]?qi\b|\bde[ -]?qi (was |is |has been |were )?(not|never|absent|none|nil)\b|\bde[ -]?qi at (0|no|none|zero)\b|未得气|不得气|没有得气/;
+
+function claimsDeqi(text: string): boolean {
+  return text
+    .toLowerCase()
+    .split(/[.;!?\n]+|,\s*(?:but|and|though|while)\s+/)
+    .some((clause) => DEQI_SAID.test(clause) && !DEQI_INTENT.test(clause) && !DEQI_DENIED.test(clause));
+}
 
 export function detectClaims(text: string): Claim[] {
   const t = text.toLowerCase();
   if (/\?\s*$/.test(t)) return []; // a question is not a claim
-  return CLAIM_PATTERNS.filter(([re, c]) => re.test(t) && !(c === "deqi-obtained" && NO_DEQI.test(t))).map(([, c]) => c);
+  const claims = CLAIM_PATTERNS.filter(([re]) => re.test(t)).map(([, c]) => c);
+  if (claimsDeqi(text)) claims.push("deqi-obtained");
+  return claims;
 }
 
 const TOPICS: [RegExp, string][] = [

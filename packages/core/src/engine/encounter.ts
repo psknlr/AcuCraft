@@ -393,23 +393,31 @@ function presentState(ctx: Ctx): void {
   const { s } = ctx;
   inEarshot(ctx);
   const recent = s.patient.feedback.filter((f) => f.abnormal && f.at >= now(s) - 3);
-  const needleIds = new Set(retainedNeedles(s).map((n) => n.id));
+  const inPlace = retainedNeedles(s);
+  const needleIds = new Set(inPlace.map((n) => n.id));
+  // the needles the practitioner takes to be in: one that fell out unseen is asked about like the others
+  const believed = apparentlyRetained(s).length;
   const ongoing = recent.filter((f) => !f.needleId || needleIds.has(f.needleId));
   let reply: string;
   if (s.patient.fainted) reply = "I feel dizzy and sick… everything is going grey.";
   else if (ongoing.length > 0) reply = ongoing[ongoing.length - 1]!.text;
   else if (recent.length > 0) reply = "That's better now, thank you.";
   else if (s.patient.anxiety >= 0.6) reply = "I'm all right, just a bit nervous.";
-  else if (needleIds.size === 0) reply = "I'm fine, thank you.";
+  else if (believed === 0) reply = "I'm fine, thank you.";
   else {
     // how the needles feel in general, from the field: it says nothing of any one needle, so it is evidence of none
-    const felt = retainedNeedles(s).filter((n) => n.response?.deqi).length;
-    reply = felt === 0 ? "It's okay — I can hardly feel the needles." : felt === needleIds.size ? "It's okay — a dull, heavy feeling around the needles." : "It's okay — a dull ache at some of them; the others I hardly feel.";
+    const sore = inPlace.filter((n) => n.response?.noxious).length;
+    const felt = inPlace.filter((n) => n.response?.deqi).length;
+    if (sore > 0) reply = believed === 1 ? "The needle hurts." : sore === 1 ? "One of the needles hurts." : "Some of the needles hurt.";
+    else reply = felt === 0 ? "It's okay — I can hardly feel the needles." : felt === believed ? "It's okay — a dull, heavy feeling around the needles." : "It's okay — a dull ache at some of them; the others I hardly feel.";
     observe(ctx, "(For what they feel at one needle, ask about that needle: check_sensation.)");
   }
   utter(s, s.patient.id, ctx.actor.id, reply, "answer");
   ctx.out.detail = "the patient said how they feel";
 }
+
+/** A question about what is felt that speaks of the needles, or asks how it feels or what is felt. */
+const GENERAL_SENSATION = /\bneedles?\b|\bhow (does|do|is|are) (it|that|they|these|those|this) feel|\bwhat (do|can|are) you feel/;
 
 /** "What do you feel at ST36?": a question about the sensation at needles it names (by needle id or by their point). */
 const ABOUT_SENSATION = /\b(feel|feeling|feels|sensation|ache|aching|heavy|heaviness|numb|tingl\w*|de ?qi)\b|得气/;
@@ -432,7 +440,7 @@ function askSensation(ctx: Ctx, n: NeedleState): void {
   const r = n.response;
   if (!r) return;
   // a needle that fell out unseen is felt no more: the patient says so, and nobody is told why
-  const said = fellUnseen(n) ? { text: "I hardly feel that one at all.", qualities: [] } : describeSensation(r);
+  const said = fellUnseen(s, n) ? { text: "I hardly feel that one at all.", qualities: [] } : describeSensation(r);
   utter(s, s.patient.id, ctx.actor.id, said.text, "answer");
   const e = addEvidence(s, { kind: "sensation", ref: n.id, by: ctx.actor.id, text: said.text, needle: { id: n.id, qualities: said.qualities, grasp: null, volunteered: false } });
   const placed = n.events.find((x) => x.what === "inserted")?.detail;
@@ -495,8 +503,23 @@ function freeQuestion(ctx: Ctx, text: string, opts: { minScore?: number; howAreY
     ctx.out.detail = `asked what they feel at ${named.slice(0, 3).map((n) => n.id).join(", ")}`;
     return;
   }
-  if (opts.howAreYou && HOW_ARE_YOU.test(text.toLowerCase())) presentState(ctx);
+  // with needles in, a question about what is felt at them is about now, not about the history: it is answered for
+  // the needles in general (which is evidence of none of them), whether asked or said
+  const lower = text.toLowerCase();
+  const ofTheNeedles = apparentlyRetained(ctx.s).length > 0 && ABOUT_SENSATION.test(lower) && GENERAL_SENSATION.test(lower);
+  if (ofTheNeedles || (opts.howAreYou && HOW_ARE_YOU.test(lower))) presentState(ctx);
   else answerQuestion(ctx, undefined, text, opts.minScore);
+}
+
+/** Reaching for a needle that fell out unseen finds it gone: the act finds that out and does nothing else. */
+function goneOnReaching(ctx: Ctx, n: NeedleState): boolean {
+  if (!fellUnseen(ctx.s, n) || !n.insertion) return false;
+  atSite(ctx, n.insertion.region, n.insertion.side);
+  observe(ctx, `${n.id} is not where it was placed: it is no longer in the patient. Search for it, and count the needles.`);
+  ctx.out.target = `needle:${n.id}`;
+  ctx.out.detail = `${n.id} is not in place`;
+  ctx.out.cost = 0.25;
+  return true;
 }
 
 function formatResult(name: string, r: Result): string {
@@ -965,7 +988,7 @@ const HANDLERS: HandlerMap = {
     if (missing.length > 0) {
       throw new Rejection("evidence-not-obtained", `Not in the evidence obtained in this encounter: ${missing.join(", ")}. A differentiation rests only on what was asked, examined or read — ask or examine first, and cite its id.`);
     }
-    s.assessments.push({ at: now(s), by: ctx.actor.id, visit: visitIndex(s), diagnoses: a.diagnoses, pattern: a.pattern ?? null, patternEvidence: cited, redFlags: a.redFlags, rationale: a.rationale ?? "" });
+    s.assessments.push({ at: now(s), by: ctx.actor.id, visit: visitIndex(s), ledger: s.evidence.length, diagnoses: a.diagnoses, pattern: a.pattern ?? null, patternEvidence: cited, redFlags: a.redFlags, rationale: a.rationale ?? "" });
     ctx.out.detail = `assessment recorded${a.pattern ? ` (pattern ${a.pattern}, on ${cited.length} finding(s))` : ""}`;
     if (a.pattern && s.mode === "teaching") {
       const sup = patternSupport(sc, a.pattern, cited, s.evidence.map((e) => e.id));
@@ -1463,6 +1486,7 @@ const HANDLERS: HandlerMap = {
   adjust_needle(ctx, a) {
     const { s, sc } = ctx;
     const n = s.needles[a.needleId];
+    if (n && goneOnReaching(ctx, n)) return;
     if (!n || n.location.kind !== "patient") throw new Rejection("not-inserted", `${a.needleId} is not in the patient.`);
     const loc = n.location;
     atSite(ctx, loc.region, loc.side);
@@ -1490,18 +1514,21 @@ const HANDLERS: HandlerMap = {
     const before = n.response;
     n.response = needleResponse(sc, s, n, path, a.technique === "none" ? null : a.technique);
     consequences(ctx, n, path);
+    const strong = n.response.deqi && n.response.intensity >= STRONG_RESPONSE;
+    const wasStrong = before !== null && before.deqi && before.intensity >= STRONG_RESPONSE;
+    // a strong response is spoken of unasked: each time the needle is worked, and when a move first reaches it
+    const speakOfIt = () => {
+      const said = describeSensation(n.response!);
+      volunteer(ctx, n, "deqi", `Oh — ${said.text.charAt(0).toLowerCase()}${said.text.slice(1)}`, said.qualities);
+    };
     if (a.technique !== "none") {
       // working the needle tells the operator how the tissue holds it: evidence of this needle's response
       const feel = describeGrasp(n.response, a.technique);
       const e = addEvidence(s, { kind: "needle-feel", ref: n.id, by: ctx.actor.id, text: feel.text, needle: { id: n.id, qualities: [], grasp: feel.grasp, volunteered: false } });
       observe(ctx, `${feel.text} (evidence ${e.id})`);
       if (n.response.overstimulated && !before?.overstimulated) volunteer(ctx, n, "too-strong", "That's too strong now — it's getting painful.", ["sharp-pain"]);
-      else if (n.response.deqi && n.response.intensity >= STRONG_RESPONSE) {
-        // a strong response is spoken of unasked
-        const said = describeSensation(n.response);
-        volunteer(ctx, n, "deqi", `Oh — ${said.text.charAt(0).toLowerCase()}${said.text.slice(1)}`, said.qualities);
-      }
-    }
+      else if (strong) speakOfIt();
+    } else if (strong && !wasStrong) speakOfIt();
     ctx.out.target = `needle:${n.id}`;
     ctx.out.detail = `${n.id} to ${fmt(path.executedDepthCm)} cm (${a.technique})`;
     ctx.out.cost = 0.5;
@@ -1511,7 +1538,7 @@ const HANDLERS: HandlerMap = {
     const n = s.needles[a.needleId];
     if (!n) throw new Rejection("unknown-id", `There is no needle ${a.needleId}.`);
     // a needle that fell out unseen can still be asked about: the patient feels nothing there
-    if (n.location.kind !== "patient" && !fellUnseen(n)) throw new Rejection("not-inserted", `${a.needleId} is not in the patient: there is nothing to feel at it.`);
+    if (n.location.kind !== "patient" && !fellUnseen(s, n)) throw new Rejection("not-inserted", `${a.needleId} is not in the patient: there is nothing to feel at it.`);
     inEarshot(ctx);
     ctx.out.target = `needle:${n.id}`;
     ctx.out.cost = 0.25;
@@ -1550,10 +1577,12 @@ const HANDLERS: HandlerMap = {
   stop_treatment(ctx, a) {
     const { s } = ctx;
     s.stopped = { visit: visitIndex(s), at: now(s), by: ctx.actor.id, reason: a.reason };
-    observe(ctx, `Treatment stopped: ${a.reason}. ${retainedNeedles(s).length} needle(s) still to remove.`);
+    observe(ctx, `Treatment stopped: ${a.reason}. ${apparentlyRetained(s).length} needle(s) still to remove.`);
   },
   remove_needle(ctx, a) {
-    const loc = ctx.s.needles[a.needleId]?.location;
+    const held = ctx.s.needles[a.needleId];
+    if (held && goneOnReaching(ctx, held)) return;
+    const loc = held?.location;
     if (loc?.kind === "patient") atSite(ctx, loc.region, loc.side);
     doRemove(ctx, a.needleId);
     ctx.out.target = `needle:${a.needleId}`;
@@ -1596,6 +1625,7 @@ const HANDLERS: HandlerMap = {
     const { s } = ctx;
     const n = s.needles[a.needleId];
     if (!n) throw new Rejection("unknown-id", `There is no needle ${a.needleId}.`);
+    if (goneOnReaching(ctx, n)) return;
     if (n.location.kind === "patient") throw new Rejection("not-withdrawn", `${n.id} is still in place.`);
     if (n.insertion) atSite(ctx, n.insertion.region, n.insertion.side);
     else atSide(ctx, "apply pressure");

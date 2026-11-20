@@ -15,11 +15,31 @@ export const needleList = (s: EncounterState): NeedleState[] => Object.values(s.
 
 export const retainedNeedles = (s: EncounterState): NeedleState[] => needleList(s).filter((n) => n.location.kind === "patient");
 
-/** A needle that fell out of the patient unseen: until someone finds it, everyone takes it to be where it was placed. */
-export const fellUnseen = (n: NeedleState): boolean => n.location.kind === "floor" && n.location.hidden && n.insertion !== null;
+/** Acts that show whoever does them which needles are in the patient. */
+const LOOKS: ReadonlySet<string> = new Set(["monitor", "observe", "count_needles", "search", "remove_all_needles"]);
+/** Acts on one needle: reaching for a needle that is gone finds it gone. */
+const TOUCHES: ReadonlySet<string> = new Set(["adjust_needle", "remove_needle", "apply_pressure"]);
 
-/** Needles the team takes to be in the patient: those that are, and any that fell out unseen. */
-export const apparentlyRetained = (s: EncounterState): NeedleState[] => needleList(s).filter((n) => n.location.kind === "patient" || fellUnseen(n));
+/**
+ * A needle that fell out of the patient unseen and that nobody has missed yet. Everyone takes it to be where it was
+ * placed until someone looks at the needles (monitoring, observing, a count, a search, taking them all out), reaches
+ * for that needle, reports it, or the visit is over.
+ */
+export function fellUnseen(s: EncounterState, n: NeedleState): boolean {
+  if (n.location.kind !== "floor" || !n.location.hidden || n.insertion === null) return false;
+  if (n.resolution !== null || n.insertion.visit !== visitIndex(s)) return false;
+  const fell = [...n.events].reverse().find((e) => e.what === "dropped");
+  if (!fell) return false;
+  // an act committed after the fall (the state version it fell at is that of the act under way then)
+  return !s.attempts.some((a) => {
+    if ((a.status !== "executed" && a.status !== "partial") || a.resultVersion <= fell.version) return false;
+    const type = a.request.action.type;
+    return LOOKS.has(type) || (TOUCHES.has(type) && (a.request.action as { needleId?: string }).needleId === n.id);
+  });
+}
+
+/** Needles the team takes to be in the patient: those that are, and any that fell out unseen and are not yet missed. */
+export const apparentlyRetained = (s: EncounterState): NeedleState[] => needleList(s).filter((n) => n.location.kind === "patient" || fellUnseen(s, n));
 
 /** Needles taken out of their sealed pack (opened onto a tray): each must end disposed or with a recorded response. */
 export const openedNeedles = (s: EncounterState): NeedleState[] => needleList(s).filter((n) => n.location.kind !== "pack");

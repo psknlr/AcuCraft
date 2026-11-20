@@ -52,7 +52,9 @@ none looks like a numbered id (checked when the scenario is resolved).
 - for each of the 13 **patterns**, its `criteria`: `key` signs (its defining manifestations), `supporting` signs (what
   goes with it: tongue, pulse, general signs) and signs that speak `against` it;
 - the rule (`differentiation`): a differentiation **rests on its evidence** when the findings it names show at least
-  **1 key sign** and **3 signs in all**, and the findings obtained do not show **2 signs against** it.
+  **1 key sign** and **3 signs in all**, the findings obtained do not show **2 signs against** it, and what it names
+  **bears on it** — named findings that show none of its signs may be at most half as many as those that do (one is
+  always allowed). Naming the whole record names no evidence.
 
 This is reference knowledge: `lookup pattern` for an agent, `npm run acu -- vocabulary` on the command line.
 
@@ -100,10 +102,12 @@ the named findings show, what speaks against it, whether that is enough).
   finding out of the citation does not remove it;
 - `idle` — named findings that show none of the pattern's signs;
 - `methods` — the examinations the named signs were found by;
-- `sufficient` (enough key signs and enough in all), `contradicted` (enough signs against), and `supported`:
-  sufficient and not contradicted.
+- `sufficient` (enough key signs and enough in all), `contradicted` (enough signs against), `focused` (no more idle
+  findings than the rule allows), and `supported`: sufficient, not contradicted and focused.
 
-Evidence obtained after an assessment does not count against it; a later assessment is read on what was known then.
+Evidence obtained after an assessment does not count against it: "by then" is the order of the ledger (each
+assessment keeps how many items it held), not a time on the clock, which two acts can share. A later assessment is
+read on what was known then.
 
 ### Scenario lists are held to the same reading
 
@@ -118,7 +122,7 @@ Three items of the reasoning track, apart from each other:
 | item | weight | asks |
 |---|---|---|
 | `pattern` | 1 | is the pattern among those the scenario lists as defensible? (the conclusion; an unlisted pattern goes to adjudication) |
-| `pattern-evidence` | 2 | does the differentiation rest on the findings it names? (the link) |
+| `pattern-evidence` | 2 | does the differentiation rest on the findings it names? (the link) — not met either when a differentiation is expected and none was made: making none is not a way round its evidence |
 | `four-examinations` | 1 | where the case's tongue or pulse bears on the pattern, does the differentiation draw on it as well as on the history? |
 
 A right name on findings that do not show it scores the first and not the second. `report.evidence.pattern` has the
@@ -156,7 +160,8 @@ response = tissue at the tip × min(1, stimulation) × the patient's sensitivity
   and depth is governed by the anatomy beneath (the same model that stops a needle over the lung);
 - **stimulation past what the patient tolerates** (1.5 in all — a fourth lift-and-thrust; sooner in a sensitive or an
   anxious patient) brings no more response: it hurts, the patient says so (`too-strong`, an abnormal reaction), and
-  the needle is from then on a painful one;
+  the needle is from then on a painful one. Too much begins with a stimulus: a needle that was tolerated does not
+  become painful by being moved, or because the patient has since grown anxious;
 - a nerve met by the shaft gives an electric sensation and a tendon a sharp one: sensations that are **not deqi**,
   whatever the response of the tissue.
 
@@ -166,10 +171,12 @@ response = tissue at the tip × min(1, stimulation) × the patient's sensitivity
 |---|---|
 | `check_sensation { needleId }` — or a question to the patient that names the needle or its point (*"What do you feel at ST36?"*) | `sense-N`: the patient's words and the qualities they name (`aching`, `heaviness` …; none when they feel little) |
 | `adjust_needle` with `technique` `lift-thrust` or `rotate` | `feel-N`: what the operator feels — the needle gripped, heavy and tight; a slight drag; or moving freely |
-| nothing: the patient speaks unasked — a shock, a sharp pain, *too strong*, or a strong response (0.8 and over) | `sense-N`, marked unasked |
+| nothing: the patient speaks unasked — a shock, a sharp pain, *too strong*, or a strong response (0.8 and over: each time the needle is worked, and when a move first reaches it) | `sense-N`, marked unasked |
 
-*"How does it feel?"* is answered about the needles in general and is evidence of no needle. Inserting a needle,
-moving it to another depth (`technique: "none"`) and watching the patient are not evidence of its response either.
+With needles in, a question about what is felt that names no needle — *"How does it feel?"*, *"Do you feel any aching
+around the needles?"*, asked or said — is answered for the needles in general (a painful needle is mentioned) and is
+evidence of no needle; it is never answered from the history. Inserting a needle, moving it to another depth
+(`technique: "none"`) and watching the patient are not evidence of its response either.
 Whether an item shows deqi is for the practitioner to judge from the vocabulary: the view gives the words, the
 qualities and the grip — never the response, and never a verdict.
 
@@ -195,13 +202,14 @@ observed and what was recorded:
 | `supported` | `deqi` on evidence of that needle that shows it; or `none` on a check that showed none, with nothing since |
 | `overclaimed` | `deqi` recorded on evidence that does not show it |
 | `contradicted` | `none` or `not-sought` recorded while the practitioner's own evidence of that needle shows deqi |
-| `out-of-date` | `none` recorded on a check made before the needle was moved or worked: qi arrived after it, unobserved |
+| `out-of-date` | `none` recorded on a check the needle has outlived: it was moved or worked afterwards and has had deqi since. (A needle that answered once, lost its response and was then checked is `supported`: the record says what was observed, and what is so) |
 | `not-sought` | nothing looked for, and recorded so |
 | `unrecorded` | no response on record for the needle |
 
 A spoken or written claim is checked the same way: *"deqi obtained at ST36"* in `say`, or in a record's `response`
-text, is the claim `deqi-obtained`, supported when evidence of a needle of this visit shows deqi (*"no deqi"*,
-*"deqi was not sought"* are not claims).
+text, is the claim `deqi-obtained`, supported when evidence of a needle of this visit shows deqi. Only a report is a
+claim, read clause by clause: a plan (*"I will look for deqi"*), an explanation (*"when deqi is reached you will
+feel …"*), a condition (*"until deqi is obtained"*) and a denial (*"no deqi"*, *"deqi at 0 of 5 needles"*) are not.
 
 ### In the evaluation
 

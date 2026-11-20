@@ -234,13 +234,16 @@ export function evaluateEncounter(sc: Scenario, s: EncounterState): EncounterRep
       label: "the pattern differentiation rests on the findings it names",
       met: support.hasCriteria ? support.supported : null,
       weight: 2,
-      detail: `${support.pattern} on ${support.cited.join(", ")}: ${support.key.length} key sign(s)${support.key.length ? ` (${signs(support.key)})` : ""}, ${support.supporting.length} supporting${support.supporting.length ? ` (${signs(support.supporting)})` : ""}; needs ${support.thresholds.key} key and ${support.thresholds.total} in all${support.against.length ? `; against it: ${signs(support.against)}${support.contradicted ? " — contradicted" : ""}` : ""}${support.idle.length ? `; cited without showing it: ${support.idle.join(", ")}` : ""}`,
+      detail: `${support.pattern} on ${support.cited.join(", ")}: ${support.key.length} key sign(s)${support.key.length ? ` (${signs(support.key)})` : ""}, ${support.supporting.length} supporting${support.supporting.length ? ` (${signs(support.supporting)})` : ""}; needs ${support.thresholds.key} key and ${support.thresholds.total} in all${support.against.length ? `; against it: ${signs(support.against)}${support.contradicted ? " — contradicted" : ""}` : ""}${support.idle.length ? `; cited without showing it: ${support.idle.join(", ")}${support.focused ? "" : ` — ${support.idle.length} of the ${support.cited.length} findings named bear on nothing: naming the record is not naming evidence`}` : ""}`,
     });
     // the four examinations: where the case's tongue or pulse bears on the pattern, a differentiation draws on it
     const offered = caseSupport(sc, support.pattern, sc.field.visits[0]!.phase).methods;
     if (support.hasCriteria && (offered.includes("tongue") || offered.includes("pulse"))) {
       reasoning.push({ id: "four-examinations", label: "the differentiation draws on the tongue or the pulse as well as the history", met: support.methods.length >= 2 && (support.methods.includes("tongue") || support.methods.includes("pulse")), weight: 1, detail: support.methods.join(", ") || "none" });
     }
+  } else if (ev.patterns.defensible.length > 0) {
+    // where a differentiation is expected, making none is not a way round its evidence: there is no link to credit
+    reasoning.push({ id: "pattern-evidence", label: "the pattern differentiation rests on the findings it names", met: false, weight: 2, detail: "no pattern differentiation was made" });
   }
   reasoning.push({ id: "disposition", label: "the disposition fits an acceptable pathway", met: achieved !== null, weight: 3, ...(achieved ? { detail: achieved.id } : wrong ? { detail: `unacceptable: ${wrong.id}` } : {}) });
   const treated = needleList(s).some((n) => n.used);
@@ -448,9 +451,9 @@ export function evaluateEncounter(sc: Scenario, s: EncounterState): EncounterRep
         consistent = false;
         docIssues.push(`visit ${v.index}: ${count} needles recorded, ${inserted} inserted`);
       }
-      const responses = s.documents.filter((d) => d.visit === v.index).map((d) => d.record.needling?.responses).reverse().find((r) => r !== undefined);
-      if (responses) {
-        const unrecorded = needleList(s).filter((n) => n.insertion?.visit === v.index && !responses.some((r) => r.needle === n.id)).map((n) => n.id);
+      // a record of the needles' responses may be written in parts: what counts is what is on record needle by needle
+      if (s.documents.some((d) => d.visit === v.index && d.record.needling?.responses !== undefined)) {
+        const unrecorded = audit.filter((n) => n.visit === v.index && n.claim === null).map((n) => n.needle);
         if (unrecorded.length > 0) {
           consistent = false;
           docIssues.push(`visit ${v.index}: no response recorded for ${unrecorded.join(", ")}`);

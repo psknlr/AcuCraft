@@ -178,8 +178,8 @@ VOCABULARY = {
     "signs": SIGNS,
     "patterns": PATTERNS,
     "differentiation": {
-        "key": 1, "total": 3, "against": 2,
-        "note": "A pattern differentiation names the findings it rests on. It rests on its evidence when those findings show at least one of the pattern's key signs and three of its signs in all (key or supporting), and the findings obtained do not show two signs that speak against it. A biomedical diagnosis never implies one pattern, and one sign never makes one.",
+        "key": 1, "total": 3, "against": 2, "idle": 0.5,
+        "note": "A pattern differentiation names the findings it rests on. It rests on them when they show at least one of the pattern's key signs and three of its signs in all (key or supporting), when the findings obtained do not show two signs that speak against it, and when what is named bears on it: findings that show none of its signs may be at most half as many as those that do (one is always allowed) — naming the whole record names no evidence. A biomedical diagnosis never implies one pattern, and one sign never makes one.",
         "sources": [WHO_IST, ICD11, GBT],
     },
     "sensations": [
