@@ -18,7 +18,6 @@ export default defineConfig({
       { find: /^@clinicalcraft\/world$/, replacement: world },
       { find: /^@acucraft\/core$/, replacement: here("./packages/core/src/index.ts") },
       { find: /^@acucraft\/bench$/, replacement: here("./packages/bench/src/index.ts") },
-      { find: /^@acucraft\/studio$/, replacement: here("./packages/studio/src/index.ts") },
       // one zod for AcuCraft and the engine sources, whatever node_modules the engine checkout has
       { find: /^zod$/, replacement: require.resolve("zod") },
     ],

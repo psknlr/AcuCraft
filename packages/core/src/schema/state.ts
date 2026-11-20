@@ -1,5 +1,5 @@
 import type { DomainEvent, SessionState } from "@clinicalcraft/core";
-import type { Action, ActionRequest, ActionType, DocumentRecord, INSERTION_METHODS, NEEDLE_TECHNIQUES, PlanBody, PointRef, TaskKind } from "./actions.js";
+import type { Action, ActionRequest, ActionType, DocumentRecord, PlanBody, PointRef, TaskKind } from "./actions.js";
 import type { ChartPoint, Position, Side } from "./common.js";
 import type { ConsentStatus, FeedbackKind, NeedleSensation, NeedleSpec, UnsafeCode } from "./field.js";
 
@@ -78,35 +78,10 @@ export interface NeedleResponse {
   /** Since when the needle has had deqi without a break (null: it has none now). */
   deqiSince: number | null;
   qualities: NeedleSensation[];
-  /** A sensation that is not deqi and wants the needle adjusted or out (a nerve, a tendon, too strong, a stuck needle). */
+  /** A sensation that is not deqi and wants the needle adjusted or out (a nerve, a tendon, too strong). */
   noxious: NeedleSensation | null;
   /** Stimulated beyond what the patient tolerates. */
   overstimulated: boolean;
-  /** Net one-way twirling (degrees, clockwise positive): the tissue wound round the shaft. */
-  winding: number;
-  /** Wound tight: the needle will not move and must not be pulled (docs/TECHNIQUE.md). */
-  stuck: boolean;
-}
-
-/** One working of a needle as it was done (public: the operator's own act), and how it reads. */
-export interface ManipulationRecord {
-  at: number;
-  by: string;
-  technique: Exclude<(typeof NEEDLE_TECHNIQUES)[number], "none">;
-  amplitudeMm?: number;
-  frequencyPerMin?: number;
-  arcDeg?: number;
-  durationSec: number;
-  direction?: "both" | "clockwise" | "counter-clockwise";
-  emphasis?: "even" | "thrust" | "lift";
-  /** The stimulation it gave. */
-  dose: number;
-  /** Reinforcing, reducing or even, by how it was done (null: an auxiliary technique). */
-  character: "reinforcing" | "reducing" | "even" | null;
-  /** The depth the needle stood at. */
-  depthCm: number;
-  /** The evidence of what the operator felt. */
-  evidence: string;
 }
 
 export interface ActorState {
@@ -138,7 +113,7 @@ export interface NeedleEvent {
   at: number;
   version: number;
   actor: string;
-  what: "pack-opened" | "picked-up" | "handed-over" | "inserted" | "adjusted" | "stuck" | "released" | "withdrawn" | "disposed" | "dropped" | "found" | "broken" | "contaminated" | "pressure";
+  what: "pack-opened" | "picked-up" | "handed-over" | "inserted" | "adjusted" | "withdrawn" | "disposed" | "dropped" | "found" | "broken" | "contaminated" | "pressure";
   detail?: string;
 }
 
@@ -173,14 +148,7 @@ export interface NeedleState {
     azimuthDeg: number;
     tipTissue: string;
     findings: { structure: string; contact: boolean; clearanceCm: number }[];
-    /** How it was put through the skin. */
-    method: (typeof INSERTION_METHODS)[number];
-    speed: "swift" | "slow";
   } | null;
-  /** Every working of the needle, in order. */
-  manipulations: ManipulationRecord[];
-  /** How it came out (null: it has not, or not by hand). */
-  withdrawal: { at: number; by: string; speed: "quick" | "slow"; pressed: boolean } | null;
   /** Responsible observer while retained (the actor holding a monitoring task, else the operator). */
   observer: string | null;
   /** Incident response recorded for a lost or broken needle. */

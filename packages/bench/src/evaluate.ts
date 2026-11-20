@@ -358,27 +358,6 @@ export function evaluateEncounter(sc: Scenario, s: EncounterState): EncounterRep
       const strong = audit.filter((n) => n.field.overstimulated);
       procedure.push({ id: "no-overstimulation", label: "no needle worked beyond what the patient tolerated", met: strong.length === 0, weight: 1, ...(strong.length ? { detail: strong.map((n) => `${n.needle} (${n.field.manipulations} times)`).join(", ") } : {}) });
     }
-    // technique (docs/TECHNIQUE.md): how the needles were worked against the stimulation the plan states — what was
-    // done is compared with what was said, as everywhere; no manner of working a needle is rewarded for itself
-    for (const v of s.visits) {
-      const needles = audit.filter((n) => n.visit === v.index);
-      if (needles.length === 0) continue;
-      const end = v.endedAt ?? s.clinical.clock;
-      const plan = [...s.plans].reverse().find((p) => p.at <= end);
-      if (!plan) continue;
-      const stated = plan.plan.technique.stimulation;
-      const worked = needles.flatMap((n) => n.technique.worked.map((m) => ({ needle: n.needle, ...m })));
-      const basic = worked.filter((m) => m.character !== null);
-      const against = stated === "reinforcing" ? "reducing" : "reinforcing";
-      const met = stated === "none" ? worked.length === 0 : basic.length === 0 ? null : stated === "even" ? basic.every((m) => m.character === "even") : basic.some((m) => m.character === stated) && !basic.some((m) => m.character === against);
-      if (met === null) continue;
-      const odd = stated === "none" ? worked : basic.filter((m) => (stated === "even" ? m.character !== "even" : m.character === against));
-      procedure.push({ id: `stimulation-as-planned:v${v.index}`, label: `the needles were worked as the plan states (${stated}; visit ${v.index})`, met, weight: 1, ...(met ? {} : { detail: odd.length ? odd.map((m) => `${m.needle}: ${m.summary}`).join("; ") : `no ${stated} manipulation among: ${basic.map((m) => m.summary).join("; ")}` }) });
-    }
-    if (audit.some((n) => n.technique.everStuck)) {
-      const forced = s.attempts.filter((a) => a.unsafe.includes("forced-stuck-needle")).length;
-      procedure.push({ id: "stuck-needle-released", label: "a stuck needle was turned back or loosened, never forced", met: forced === 0, weight: 2, ...(forced ? { detail: `${forced} attempt(s) to pull or drive a stuck needle (blocked)` } : {}) });
-    }
   }
   for (const e of sc.field.events) {
     const rec = s.events[e.id];

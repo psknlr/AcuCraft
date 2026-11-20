@@ -4,7 +4,6 @@ import type { EncounterState } from "../schema/state.js";
 import { pointInstance, regionAccess } from "./anatomy.js";
 import { consentCovers, currentPlan, currentVisit, fellUnseen, fmt, needleList, now, parseRef, refKey, visitIndex } from "./queries.js";
 import { needleEvidence, recordEvidenceId } from "./evidence.js";
-import { describeManipulation, techniqueCatalogue, tipFeel } from "./technique.js";
 import { ACTION_PERMISSIONS } from "./rules.js";
 import { LOCALE } from "./runtime.js";
 import { clinicWorld, modelledRegions, roleOf, type Scenario } from "./scenario.js";
@@ -99,22 +98,8 @@ export interface AgentView {
     needle: string;
     target: string;
     inPlace: boolean;
-    /** Where and how it went in, as the operator placed it: chart position (cm), angle from the perpendicular, direction, depth along the shaft. */
-    site: { region: string; side: string; u: number; v: number };
-    depthCm: number;
-    angleDeg: number;
-    azimuthDeg: number;
-    method: string;
-    /** What the fingers feel of the tissue the tip lies in (touch, not anatomy). */
-    feel: string;
-    /** The operator has felt it bound tight: it must not be pulled (docs/TECHNIQUE.md). */
-    stuck: boolean;
-    /** Times the needle has been worked. */
+    /** Times the needle has been worked (lift-thrust or rotation). */
     manipulations: number;
-    /** Every working of the needle as it was done, with the stimulation it gave and how it reads. */
-    worked: { minute: number; technique: string; amplitudeMm?: number; frequencyPerMin?: number; arcDeg?: number; durationSec: number; direction?: string; emphasis?: string; dose: number; character: string | null; summary: string; evidence: string }[];
-    /** The stimulation the needle has had in all (the insertion counts 0.45; past 1.5 a typical patient no longer tolerates it). */
-    stimulation: number;
     evidence: { id: string; minute: number; from: "patient" | "operator"; text: string; qualities: string[]; grasp: boolean | null; unasked: boolean }[];
     /** The response on record for it (`deqi`, `none`, `not-sought`), if any. */
     recorded: string | null;
@@ -301,20 +286,7 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
           target: placed ? label(parseRef(placed)) : `${n.insertion!.region} ${n.insertion!.side}`,
           // a needle that fell out unseen is still taken to be in place (as in `equipment`) until someone finds it
           inPlace: n.location.kind === "patient" || fellUnseen(s, n),
-          site: { region: n.insertion!.region, side: n.insertion!.side, u: round2(n.insertion!.entry.u), v: round2(n.insertion!.entry.v) },
-          depthCm: round2(n.insertion!.depthCm),
-          angleDeg: n.insertion!.angleDeg,
-          azimuthDeg: n.insertion!.azimuthDeg,
-          method: n.insertion!.method,
-          feel: tipFeel(n.insertion!.tipTissue),
-          // felt on the needle when it was last worked: a needle that fell out unseen is no longer felt at all
-          stuck: (n.response?.stuck ?? false) && n.location.kind === "patient",
           manipulations: n.response?.manipulations ?? 0,
-          worked: n.manipulations.map((m) => {
-            const { at, by: _by, evidence, dose, character, depthCm: _depth, ...how } = m;
-            return { minute: round2(at), ...how, dose, character, summary: describeManipulation({ ...how, character }), evidence };
-          }),
-          stimulation: n.response?.stimulation ?? 0,
           evidence: needleEvidence(s, n.id).map((e) => ({ id: e.id, minute: round2(e.at), from: e.kind === "needle-feel" ? ("operator" as const) : ("patient" as const), text: e.text, qualities: [...(e.needle?.qualities ?? [])], grasp: e.needle?.grasp ?? null, unasked: e.needle?.volunteered ?? false })),
           recorded,
         };
@@ -429,8 +401,6 @@ export function referenceLibrary(sc: Scenario) {
     roles: sc.roles.roles.map((r) => ({ id: r.id, label: r.label, kind: r.kind, registration: r.registration, grants: r.grants, acceptsTasks: r.acceptsTasks })),
     rules: [...sc.rules.entries()].map(([visit, sets]) => ({ visit, sets: sets.map((r) => ({ id: r.id, title: r.title, version: r.version, effectiveFrom: r.effectiveFrom, encoding: r.encoding, source: r.source, rules: r.rules.map((x) => ({ id: x.id, title: x.title, summary: x.summary, severity: x.severity, enforcement: x.enforcement })) })) })),
     evidence: sc.bundle.evidence.filter((e) => e.condition === sc.family.condition),
-    // how a needle is put in, worked and withdrawn: the techniques, their parameters and how they are read
-    techniques: techniqueCatalogue(),
   };
 }
 

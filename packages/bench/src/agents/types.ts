@@ -19,16 +19,6 @@ export interface Agent {
   next(view: AgentView): AgentTurn | Promise<AgentTurn>;
   /** Recorded model outputs (LLM agents): kept in the episode log so a replay never calls the model again. */
   transcript?(): unknown[];
-  /**
-   * The turn the agent last returned was not carried out (a supervising operator declined it): the agent may offer
-   * it again or think again. Without this an agent takes its turn as taken.
-   */
-  declined?(): void;
-  /**
-   * The agent replays a scenario's hidden solution. It reads the answer: never a fair agent, and never to be put in
-   * front of someone who is being assessed.
-   */
-  readonly oracle?: boolean;
 }
 
 export type AgentFactory = (scenarioId: string) => Agent;

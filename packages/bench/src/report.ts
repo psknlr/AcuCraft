@@ -45,12 +45,6 @@ export function episodeMarkdown(r: EncounterReport): string {
       out.push(`| ${n.needle} | ${n.target} | ${field} | ${n.evidence.map((e) => `${e.id}${e.deqi ? " ✓" : " ✗"}`).join(", ") || "nothing"} | ${n.claim ? `${n.claim.response}${n.claim.evidence.length ? ` on ${n.claim.evidence.join(", ")}` : ""}` : "—"} | ${n.verdict}${n.verdict === "supported" || n.verdict === "not-sought" || n.verdict === "unrecorded" ? "" : `: ${n.detail}`} |`);
     }
     out.push("", "✓ shows deqi, ✗ does not. Deqi is never required: a needle that was not worked, and recorded so, loses nothing.", "");
-    out.push("**Technique** — how each needle was put in, worked and taken out:", "");
-    for (const n of ev.needles) {
-      const t = n.technique;
-      out.push(`- ${n.needle} (${n.target}): ${t.depthCm} cm at ${t.angleDeg}° from the perpendicular, ${t.method}, ${t.speed}${t.worked.length ? `; worked: ${t.worked.map((m) => `${m.summary} [+${m.dose}]`).join("; ")}; stimulation ${t.stimulation.toFixed(2)} in all` : "; not worked"}${t.everStuck ? "; **was stuck**" : ""}${t.withdrawal ? `; withdrawn ${t.withdrawal}` : ""}`);
-    }
-    out.push("");
   }
   out.push("## Documentation (STRICTA-informed, scored apart)", "", `Completeness ${score(r.documentation.completeness)}; consistent with the actions: ${r.documentation.consistent === null ? "—" : r.documentation.consistent ? "yes" : "no"}.`, ...r.documentation.issues.map((i) => `- ${i}`), "");
   out.push(`Claims of completion: ${r.claims.total} (${r.claims.unsupported} not supported by the state).`, "");

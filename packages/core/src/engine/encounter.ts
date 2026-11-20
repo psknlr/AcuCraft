@@ -18,8 +18,7 @@ import { PositionSchema, type ChartPoint, type Side } from "../schema/common.js"
 import type { UnsafeCode } from "../schema/field.js";
 import { ENCOUNTER_SCHEMA_ID, type AttemptRecord, type EncounterState, type Mode, type NeedleState, type Protection, type TaskState, type Violation } from "../schema/state.js";
 import { assessPath, patientRegion, pointInstance, regionAccess, type PathAssessment, type PatientRegion } from "./anatomy.js";
-import { addEvidence, describeGrasp, describeSensation, DEQI_THRESHOLD, evidenceById, INSERTION, needleEvidence, needleResponse, patternSupport, recordEvidenceId, showsDeqi, STRONG_RESPONSE, type Stimulus } from "./evidence.js";
-import { angleClass, describeManipulation, feelOfPath, INSERTION_METHOD_NOTES, LOOSENED_BY_DEG, manipulationCharacter, manipulationMinutes, manipulationOf, stimulusDose, windingOf } from "./technique.js";
+import { addEvidence, describeGrasp, describeSensation, DEQI_THRESHOLD, evidenceById, needleEvidence, needleResponse, patternSupport, recordEvidenceId, showsDeqi, STRONG_RESPONSE } from "./evidence.js";
 import { checkInvariants } from "./invariants.js";
 import { NPC_POLICIES } from "./npc.js";
 import {
@@ -162,8 +161,6 @@ export function createEncounter(sc: Scenario, opts: EncounterOptions = {}): Enco
         bleeding: false,
         response: null,
         insertion: null,
-        manipulations: [],
-        withdrawal: null,
         events: [],
       };
     }
@@ -736,38 +733,24 @@ function cautionedAt(sc: Scenario, frame: PatientRegion, region: string, side: S
   return false;
 }
 
-/** What to do with a needle wound tight into the tissue, instead of pulling it. */
-const STUCK_ADVICE = "Do not pull it: turn it back the other way, or loosen the tissue round it (flick or scrape the handle), then withdraw.";
-
-function doRemove(ctx: Ctx, needleId: string, how: { speed: "quick" | "slow"; press: boolean } = { speed: "quick", press: false }): void {
+function doRemove(ctx: Ctx, needleId: string): void {
   const { s } = ctx;
   const n = s.needles[needleId];
   if (!n) throw new Rejection("unknown-id", `There is no needle ${needleId}.`);
   if (n.location.kind === "broken-in-patient") throw new Rejection("broken", `Needle ${needleId} has broken: the fragment cannot be withdrawn by hand. Report it and refer the patient.`);
   if (n.location.kind !== "patient") throw new Rejection("not-inserted", `Needle ${needleId} is not in the patient.`);
-  // a stuck needle is never pulled: force breaks needles and tears tissue
-  if (n.response?.stuck) {
-    addUnsafe(ctx, "forced-stuck-needle");
-    throw new Rejection("stuck-needle", `${n.id} is stuck: wound tight into the tissue. ${STUCK_ADVICE}`, { unsafe: ctx.out.unsafe, protection: { by: "simulation-guard", kind: "guard", reason: `${n.id} is stuck and must not be pulled` } });
-  }
   const label = n.location.target ? pointLabel(ctx.sc, n.location.target) : `${n.location.region} ${n.location.side}`;
   n.location = { kind: "hand", actor: ctx.actor.id };
   n.removedBy = ctx.actor.id;
-  n.withdrawal = { at: now(s), by: ctx.actor.id, speed: how.speed, pressed: how.press };
   if (!n.contaminated) {
     n.contaminated = true;
     n.contamination.push("used");
   }
   ctx.actor.holding.push(n.id);
   soil(s, ctx.actor);
-  pushNeedleEvent(s, n.id, ctx.actor.id, "withdrawn", how.speed === "slow" || how.press ? `${how.speed}${how.press ? ", hole pressed" : ""}` : undefined);
+  pushNeedleEvent(s, n.id, ctx.actor.id, "withdrawn");
   ctx.out.steps.push(`withdrew ${n.id} from ${label}`);
-  if (n.bleeding && how.press) {
-    // a dry swab held on the hole as the needle leaves: the site does not bleed
-    n.bleeding = false;
-    pushNeedleEvent(s, n.id, ctx.actor.id, "pressure");
-    observe(ctx, `The site of ${n.id} oozed as the needle left: held under the swab, it has stopped.`);
-  } else if (n.bleeding) {
+  if (n.bleeding) {
     feedback(s, "bleeding", "There's a little blood where that one came out.", "needle", n.id);
     observe(ctx, `The site of ${n.id} is bleeding: apply pressure.`);
   }
@@ -1489,24 +1472,15 @@ const HANDLERS: HandlerMap = {
       azimuthDeg: a.azimuthDeg,
       tipTissue: path.tipTissue,
       findings: insertionFindings(path),
-      method: a.method,
-      speed: a.speed,
     };
     ctx.actor.holding = ctx.actor.holding.filter((o) => o !== n.id);
     pushNeedleEvent(s, n.id, ctx.actor.id, "inserted", claimed ? refKey(claimed) : undefined);
     // the field's own account of how the tissue answers: nobody is told until they ask the patient or work the needle
-    n.response = needleResponse(sc, s, n, path, INSERTION);
-    // slowly through the skin without a guide tube, the patient feels the prick (and likes needles a little less)
-    if (a.speed === "slow" && a.method !== "tube") {
-      feedback(s, "prick", "Ow — I felt that one go in.", "needle", n.id);
-      s.patient.anxiety = Math.min(1, s.patient.anxiety + 0.03);
-    }
+    n.response = needleResponse(sc, s, n, path, "insertion");
     consequences(ctx, n, path);
     ctx.out.target = `needle:${n.id}`;
     ctx.out.detail = `${n.id} at ${claimed ? pointLabel(sc, claimed) : `${region} ${side}`} (${at2(entry)}), ${fmt(path.executedDepthCm)} cm${path.executedDepthCm + 1e-9 < a.depthCm ? ` of ${fmt(a.depthCm)} cm requested (${path.stoppedBy})` : ""}`;
-    observe(ctx, `Inserted ${ctx.out.detail}; ${angleClass(a.angleDeg).label.toLowerCase()}, ${INSERTION_METHOD_NOTES[a.method].label.toLowerCase()}.`);
-    // what the fingers on the handle feel of the tissue: touch, not anatomy
-    observe(ctx, `Feel: ${feelOfPath(path.traversed, path.tipTissue)}.`);
+    observe(ctx, `Inserted ${ctx.out.detail}.`);
     ctx.out.cost = 0.5;
   },
   adjust_needle(ctx, a) {
@@ -1528,16 +1502,8 @@ const HANDLERS: HandlerMap = {
     if (s.stopped && s.stopped.visit === visitIndex(s)) addUnsafe(ctx, "continued-after-adverse-event");
     const frame = regionFrame(ctx, loc.region, loc.side);
     const depth = a.depthCm ?? loc.depthCm;
-    const moved = Math.abs(depth - loc.depthCm) > 1e-9;
-    const before = n.response;
-    const m = manipulationOf(a);
-    // a needle wound tight into the tissue does not move: forcing it up or down is forcing it
-    if (before?.stuck && (moved || m?.technique === "lift-thrust" || m?.technique === "tremble")) {
-      addUnsafe(ctx, "forced-stuck-needle");
-      blockers.push({ by: "simulation-guard", kind: "guard", reason: `${n.id} is stuck and must not be forced` });
-    }
     const path = doInsertCheckPath(ctx, n, frame, loc.entry, loc.angleDeg, loc.azimuthDeg, depth, blockers);
-    blockIf(ctx, blockers, before?.stuck ? `${n.id} is stuck: wound tight into the tissue. ${STUCK_ADVICE} Adjustment stopped` : `Adjustment of ${n.id} stopped`);
+    blockIf(ctx, blockers, `Adjustment of ${n.id} stopped`);
     loc.depthCm = path.executedDepthCm;
     if (n.insertion) {
       n.insertion.depthCm = path.executedDepthCm;
@@ -1545,11 +1511,9 @@ const HANDLERS: HandlerMap = {
       n.insertion.findings = insertionFindings(path);
     }
     pushNeedleEvent(s, n.id, ctx.actor.id, "adjusted", `${fmt(path.executedDepthCm)} cm, ${a.technique}`);
-    // the stimulus as it was given: its dose from how the needle was worked; one-way twirling winds, loosening lets go
-    const stimulus: Stimulus | null = m ? { dose: stimulusDose(m), manipulation: true, turn: windingOf(m), ...(before?.stuck && (m.technique === "flick" || m.technique === "scrape" || m.technique === "shake") ? { loosen: LOOSENED_BY_DEG } : {}) } : null;
-    n.response = needleResponse(sc, s, n, path, stimulus);
+    const before = n.response;
+    n.response = needleResponse(sc, s, n, path, a.technique === "none" ? null : a.technique);
     consequences(ctx, n, path);
-    if (moved) observe(ctx, `Feel: ${feelOfPath(path.traversed, path.tipTissue)}.`);
     const strong = n.response.deqi && n.response.intensity >= STRONG_RESPONSE;
     const wasStrong = before !== null && before.deqi && before.intensity >= STRONG_RESPONSE;
     // a strong response is spoken of unasked: each time the needle is worked, and when a move first reaches it
@@ -1557,24 +1521,17 @@ const HANDLERS: HandlerMap = {
       const said = describeSensation(n.response!);
       volunteer(ctx, n, "deqi", `Oh — ${said.text.charAt(0).toLowerCase()}${said.text.slice(1)}`, said.qualities);
     };
-    if (m) {
+    if (a.technique !== "none") {
       // working the needle tells the operator how the tissue holds it: evidence of this needle's response
-      const feel = before?.stuck && !n.response.stuck ? { text: "The needle turns free again: the tissue has let go of it.", grasp: false } : describeGrasp(n.response, m.technique);
+      const feel = describeGrasp(n.response, a.technique);
       const e = addEvidence(s, { kind: "needle-feel", ref: n.id, by: ctx.actor.id, text: feel.text, needle: { id: n.id, qualities: [], grasp: feel.grasp, volunteered: false } });
       observe(ctx, `${feel.text} (evidence ${e.id})`);
-      const character = manipulationCharacter(m);
-      n.manipulations.push({ ...m, at: now(s), by: ctx.actor.id, dose: stimulus!.dose, character, depthCm: path.executedDepthCm, evidence: e.id });
-      ctx.out.steps.push(describeManipulation({ ...m, character }));
-      if (n.response.stuck && !before?.stuck) {
-        pushNeedleEvent(s, n.id, ctx.actor.id, "stuck", `wound ${Math.abs(n.response.winding)}° one way`);
-        volunteer(ctx, n, "sharp-pain", "Ow — it's pulling, as if it were caught.", ["sharp-pain"]);
-      } else if (n.response.overstimulated && !before?.overstimulated) volunteer(ctx, n, "too-strong", "That's too strong now — it's getting painful.", ["sharp-pain"]);
+      if (n.response.overstimulated && !before?.overstimulated) volunteer(ctx, n, "too-strong", "That's too strong now — it's getting painful.", ["sharp-pain"]);
       else if (strong) speakOfIt();
-      if (before?.stuck && !n.response.stuck) pushNeedleEvent(s, n.id, ctx.actor.id, "released");
     } else if (strong && !wasStrong) speakOfIt();
     ctx.out.target = `needle:${n.id}`;
-    ctx.out.detail = `${n.id} ${moved ? "to" : "at"} ${fmt(path.executedDepthCm)} cm${m ? `: ${describeManipulation({ ...m, character: manipulationCharacter(m) })}` : ""}`;
-    ctx.out.cost = m ? manipulationMinutes(m) : 0.5;
+    ctx.out.detail = `${n.id} to ${fmt(path.executedDepthCm)} cm (${a.technique})`;
+    ctx.out.cost = 0.5;
   },
   check_sensation(ctx, a) {
     const { s } = ctx;
@@ -1627,10 +1584,9 @@ const HANDLERS: HandlerMap = {
     if (held && goneOnReaching(ctx, held)) return;
     const loc = held?.location;
     if (loc?.kind === "patient") atSite(ctx, loc.region, loc.side);
-    doRemove(ctx, a.needleId, { speed: a.speed, press: a.press });
+    doRemove(ctx, a.needleId);
     ctx.out.target = `needle:${a.needleId}`;
-    ctx.out.detail = `${a.needleId} withdrawn${a.speed === "slow" ? " slowly" : ""}${a.press ? ", the hole pressed" : ""}`;
-    ctx.out.cost = a.speed === "slow" ? 0.5 : 0.25;
+    ctx.out.cost = 0.25;
   },
   remove_all_needles(ctx) {
     const { s, sc } = ctx;
@@ -1644,12 +1600,6 @@ const HANDLERS: HandlerMap = {
     for (const id of order) {
       const loc = s.needles[id]!.location;
       if (loc.kind !== "patient") continue; // it fell out or broke while the others came out
-      if (s.needles[id]!.response?.stuck) {
-        // a stuck needle is not pulled with the rest: it stays, and the practitioner is told
-        ctx.out.status = "partial";
-        observe(ctx, `${id} is stuck and was left in place. ${STUCK_ADVICE}`);
-        continue;
-      }
       // the compound action walks round the couch as it goes: a needle on the far side is out of reach from here
       let steps = 0;
       if (!siteReach(sc, s, ctx.actor.id, loc.region, loc.side).ok) {

@@ -68,9 +68,7 @@ Each track is a weighted mean of scored items; an item is `true`, `false`, or `n
    needle's response on record (deqi, none or not sought), no deqi recorded without evidence of it at that needle
    (weight 2), nothing recorded that the practitioner's own observations contradict, and no needle worked beyond what
    the patient tolerated. Deqi itself is never required and never rewarded: an honest *none* or *not sought* scores as
-   a *deqi* does. **Technique** (docs/TECHNIQUE.md): the needles worked as the plan states — each working is read as
-   reinforcing, reducing or even from its parameters and compared with the plan's stimulation; no manner of working a
-   needle is rewarded for itself — and a stuck needle turned back or loosened, never pulled or driven (weight 2).
+   a *deqi* does.
 4. **Collaboration and handover** — each delegated task acknowledged, done and reported (the engine checks the report
    against the state); stated commitments kept; completion claims supported by the state; no conflicting actions
    (stale decisions, objects held by someone else); someone responsible for observation during retention (a

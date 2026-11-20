@@ -4,7 +4,6 @@ import type { NeedleSensation } from "../schema/field.js";
 import type { EncounterState, EvidenceItem, EvidenceKind, NeedleResponse, NeedleState } from "../schema/state.js";
 import type { PathAssessment } from "./anatomy.js";
 import { needleList, now, refKey, visitIndex } from "./queries.js";
-import { describeManipulation, RELEASED_BELOW_DEG, STUCK_AT_DEG } from "./technique.js";
 import type { Scenario } from "./scenario.js";
 
 /**
@@ -147,23 +146,9 @@ export function caseSupport(sc: Scenario, pattern: string, phase: string): Patte
 export const DEQI_THRESHOLD = 0.5;
 export const STRONG_RESPONSE = 0.8;
 
-/**
- * What each act adds to the stimulation a needle has had: the insertion, and the two basic manipulations at their
- * default parameters (docs/TECHNIQUE.md has the dose of every technique). The response grows with it up to 1 and no
- * further.
- */
+/** What each act adds to the stimulation a needle has had. The response grows with it up to 1 and no further. */
 export const STIMULATION = { insertion: 0.45, "lift-thrust": 0.35, rotate: 0.3 } as const;
-
-/** A stimulus given to a needle: its dose; whether it was a working of the needle; one-way turning and loosening. */
-export interface Stimulus {
-  dose: number;
-  manipulation: boolean;
-  /** Degrees of one-way twirling (clockwise positive). */
-  turn?: number;
-  /** Degrees of winding let go (the tissue round a stuck needle loosened). */
-  loosen?: number;
-}
-export const INSERTION: Stimulus = { dose: STIMULATION.insertion, manipulation: false };
+export type Stimulus = keyof typeof STIMULATION;
 
 /** Stimulation beyond this is more than a typical patient tolerates: it hurts, and it brings no more response. */
 export const STIMULATION_TOLERANCE = 1.5;
@@ -194,12 +179,8 @@ const round3 = (n: number) => Math.round(n * 1000) / 1000;
  */
 export function needleResponse(sc: Scenario, s: EncounterState, n: NeedleState, path: PathAssessment, stimulus: Stimulus | null): NeedleResponse {
   const prev = n.response;
-  const stimulation = round3((prev?.stimulation ?? 0) + (stimulus?.dose ?? 0));
-  const manipulations = (prev?.manipulations ?? 0) + (stimulus?.manipulation ? 1 : 0);
-  // one-way twirling winds the tissue round the shaft; turning back, or loosening the tissue, lets it go
-  let winding = (prev?.winding ?? 0) + (stimulus?.turn ?? 0);
-  if (stimulus?.loosen) winding = Math.sign(winding) * Math.max(0, Math.abs(winding) - stimulus.loosen);
-  const stuck = Math.abs(winding) >= (prev?.stuck ? RELEASED_BELOW_DEG : STUCK_AT_DEG);
+  const stimulation = round3((prev?.stimulation ?? 0) + (stimulus ? STIMULATION[stimulus] : 0));
+  const manipulations = (prev?.manipulations ?? 0) + (stimulus && stimulus !== "insertion" ? 1 : 0);
   const sensitivity = sc.field.patient.needleSensitivity;
   const site = n.insertion;
   const rng = createRng(seedFrom(sc.family.id, "needle-response", site?.region ?? "", site?.side ?? "", Math.round((site?.entry.u ?? 0) * 2), Math.round((site?.entry.v ?? 0) * 2)));
@@ -211,14 +192,14 @@ export function needleResponse(sc: Scenario, s: EncounterState, n: NeedleState, 
   const overstimulated = (prev?.overstimulated ?? false) || (stimulus !== null && felt > STIMULATION_TOLERANCE + 1e-9);
   const nerve = path.findings.some((f) => f.contact && f.kind === "nerve");
   const tendon = path.findings.some((f) => f.contact && f.consequence === "tendon-pain");
-  const noxious: NeedleSensation | null = nerve ? "electric" : tendon || overstimulated || stuck ? "sharp-pain" : null;
+  const noxious: NeedleSensation | null = nerve ? "electric" : tendon || overstimulated ? "sharp-pain" : null;
   const deqi = noxious === null && intensity >= DEQI_THRESHOLD;
   // what the patient would call it: two of the three commonest, numbness beside a nerve, spreading when it is strong
   const order = (["aching", "heaviness", "distension"] as NeedleSensation[]).map((q) => ({ q, r: rng() })).sort((a, b) => a.r - b.r).map((x) => x.q);
   const qualities: NeedleSensation[] = !deqi
     ? []
     : [...order.slice(0, 2), ...(path.findings.some((f) => f.near && f.kind === "nerve") ? (["numbness"] as NeedleSensation[]) : []), ...(intensity >= STRONG_RESPONSE ? (["spreading"] as NeedleSensation[]) : [])];
-  return { stimulation, manipulations, intensity, deqi, arrivedAt: prev?.arrivedAt ?? (deqi ? now(s) : null), deqiSince: deqi ? (prev?.deqiSince ?? now(s)) : null, qualities, noxious, overstimulated, winding, stuck };
+  return { stimulation, manipulations, intensity, deqi, arrivedAt: prev?.arrivedAt ?? (deqi ? now(s) : null), deqiSince: deqi ? (prev?.deqiSince ?? now(s)) : null, qualities, noxious, overstimulated };
 }
 
 const PHRASE: Record<NeedleSensation, string> = {
@@ -236,7 +217,6 @@ const PHRASE: Record<NeedleSensation, string> = {
 /** What the patient says they feel at a needle, and the qualities they name. */
 export function describeSensation(r: NeedleResponse): { text: string; qualities: NeedleSensation[] } {
   if (r.noxious === "electric") return { text: "It's like an electric shock shooting from that needle — it's horrible.", qualities: ["electric"] };
-  if (r.stuck) return { text: "That one is pulling — it hurts, as if it were caught.", qualities: ["sharp-pain"] };
   if (r.overstimulated) return { text: "That one is too strong — it's painful now.", qualities: ["sharp-pain"] };
   if (r.noxious) return { text: "That one is sharp — it stings.", qualities: [r.noxious] };
   if (r.deqi) {
@@ -248,16 +228,13 @@ export function describeSensation(r: NeedleResponse): { text: string; qualities:
   return { text: "I hardly feel that one at all.", qualities: [] };
 }
 
-const ACT: Record<string, string> = { "lift-thrust": "lift and thrust it", rotate: "twirl it", scrape: "scrape its handle", flick: "flick its handle", shake: "shake it", tremble: "make it tremble" };
-
 /** What the operator feels in the needle on working it. */
-export function describeGrasp(r: NeedleResponse, technique: string): { text: string; grasp: boolean } {
-  const act = `${ACT[technique] ?? "work it"}`.replace(/\bits?\b/, (w) => (w === "its" ? "the needle's" : "the needle"));
-  if (r.stuck) return { text: `The needle is bound tight as you ${act}: wound into the tissue, it will not turn further and does not lift. It is stuck.`, grasp: false };
-  if (r.noxious !== null) return { text: `The patient flinches as you ${act}.`, grasp: false };
-  if (r.deqi) return { text: `The needle is gripped as you ${act}: it feels heavy and tight.`, grasp: true };
-  if (r.intensity >= 0.3) return { text: `A slight drag on the needle as you ${act}, no more.`, grasp: false };
-  return { text: `The needle moves freely as you ${act}: nothing takes hold of it.`, grasp: false };
+export function describeGrasp(r: NeedleResponse, technique: "lift-thrust" | "rotate"): { text: string; grasp: boolean } {
+  const act = technique === "rotate" ? "rotate" : "lift and thrust";
+  if (r.noxious !== null) return { text: `The patient flinches as you ${act} the needle.`, grasp: false };
+  if (r.deqi) return { text: `The needle is gripped as you ${act} it: it feels heavy and tight.`, grasp: true };
+  if (r.intensity >= 0.3) return { text: `A slight drag on the needle as you ${act} it, no more.`, grasp: false };
+  return { text: `The needle moves freely as you ${act} it: nothing takes hold of it.`, grasp: false };
 }
 
 /** Does a piece of needle evidence show deqi? A grip felt; or the patient naming its sensations and none that is not. */
@@ -288,8 +265,6 @@ export interface NeedleAudit {
   target: string;
   /** The field: what the tissue did. */
   field: { arrived: boolean; deqi: boolean; intensity: number; tipTissue: string; manipulations: number; overstimulated: boolean; noxious: string | null };
-  /** How the needle was put in, worked and taken out (the operator's own acts), and whether it was ever stuck. */
-  technique: { angleDeg: number; depthCm: number; method: string; speed: string; worked: { summary: string; dose: number; character: string | null }[]; stimulation: number; everStuck: boolean; withdrawal: string | null };
   /** The evidence obtained at this needle and what each item shows. */
   evidence: { id: string; kind: EvidenceKind; at: number; deqi: boolean }[];
   /** The record: the last response recorded for this needle and what it cites. */
@@ -347,16 +322,6 @@ export function needleAudit(sc: Scenario, s: EncounterState): NeedleAudit[] {
       visit: ins.visit,
       target: ins.target ? refKey(ins.target as PointRef) : "untargeted",
       field: { arrived, deqi: r?.deqi ?? false, intensity: r?.intensity ?? 0, tipTissue: ins.tipTissue, manipulations: r?.manipulations ?? 0, overstimulated: r?.overstimulated ?? false, noxious: r?.noxious ?? null },
-      technique: {
-        angleDeg: ins.angleDeg,
-        depthCm: ins.depthCm,
-        method: ins.method,
-        speed: ins.speed,
-        worked: n.manipulations.map((m) => ({ summary: describeManipulation(m), dose: m.dose, character: m.character })),
-        stimulation: r?.stimulation ?? 0,
-        everStuck: n.events.some((e) => e.what === "stuck"),
-        withdrawal: n.withdrawal ? `${n.withdrawal.speed}${n.withdrawal.pressed ? ", hole pressed" : ""}` : null,
-      },
       evidence,
       claim,
       verdict,

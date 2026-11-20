@@ -27,12 +27,8 @@ adds what an acupuncture encounter needs on top of it.
         │
  @acucraft/bench (Node)     content loader · independent evaluator · agents (reference, protocol, Claude)
         │                   · episode runner · suites · statistics · reports · the HTML viewer
- @acucraft/studio (Node     one live encounter for a person and a model (docs/STUDIO.md): the session — the one
-   + a browser client)      way to act, with a built-in agent that is stepped, proposed from, run and taken over
-        │                   from · HTTP with live events · an MCP bridge · the real-time 3D client (three.js), which
-        │                   imports the engine's types only and is given everything it shows as JSON
  @acucraft/cli              acucraft validate | list | points | show | map | vocabulary | locate | run | play
-                            | replay | evaluate | view | bench | export-clinicalcraft | studio | mcp
+                            | replay | evaluate | view | bench | export-clinicalcraft
 ```
 
 ## 1. Relationship to ClinicalCraft
