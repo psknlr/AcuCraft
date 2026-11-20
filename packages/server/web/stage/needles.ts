@@ -23,7 +23,7 @@ import {
 import { exteriorShaftMaterial } from "./needle-shaft-material.js";
 import type { SkinSite } from "./sites.js";
 import { insertionDepth, INSERTION_HOVER_M } from "./choreography.js";
-import { INSERTION_SKIN_CONTACT, ActionSchema, hasClinicalNeedleMotion, needleMotion, sampleNeedleMotion, sampleTechnique, techniqueMotion, type ManipulationMotionSettings, type ManipulationTechniqueId, type NeedleMotion, type NeedleTechnique, type NeedleMotionSettings, type TechniqueMotionSample } from "@acucraft/core";
+import { INSERTION_SKIN_CONTACT, ActionSchema, hasClinicalNeedleMotion, needleMotion, sampleManipulation, sampleNeedleMotion, techniqueMotion, type ManipulationMotionSettings, type ManipulationTechniqueId, type NeedleMotion, type NeedleTechnique, type NeedleMotionSettings, type TechniqueModel, type TechniqueMotionSample } from "@acucraft/core";
 import { exteriorGeometry, exteriorShape, updateExteriorGeometry, NEEDLE_HANDLE_GRIP_Y_M, NEEDLE_HANDLE_LENGTH_M, NEEDLE_HANDLE_RADIUS_M, needleHandleRadiusAt } from "./needle-shape.js";
 
 /**
@@ -124,7 +124,11 @@ interface Live {
   leaving: boolean;
   wiggle: { type: "legacy"; kind: NeedleTechnique; start: number; motion?: NeedleMotionSettings }
     | { type: "clinical"; motion: NeedleMotion; start: number } | null;
-  performance: { technique: ManipulationTechniqueId; start: number; elapsed?: number; motion?: ManipulationMotionSettings } | null;
+  performance: { technique: ManipulationTechniqueId; start: number; elapsed?: number; motion?: ManipulationMotionSettings; model?: TechniqueModel } | null;
+  /** One-way turning accepted performances have left on the needle: where its handle rests (radians). */
+  spinRest: number;
+  /** The turn of the performance under way, without what rests on the needle: what the holding fingers follow. */
+  spin: number;
   controlled: boolean;
   needsInsertion: boolean;
   needsRemoval: boolean;
@@ -207,7 +211,13 @@ export class NeedleLayer {
     const l = this.live.get(id);
     if (!l) return null;
     l.root.updateMatrixWorld(true);
-    return { point: l.handleRoot.localToWorld(new Vector3(0, NEEDLE_HANDLE_GRIP_Y_M, 0)), axis: new Vector3(0, 1, 0).applyQuaternion(l.handleRoot.getWorldQuaternion(new Quaternion())), rotation: l.body.rotation.y };
+    return { point: l.handleRoot.localToWorld(new Vector3(0, NEEDLE_HANDLE_GRIP_Y_M, 0)), axis: new Vector3(0, 1, 0).applyQuaternion(l.handleRoot.getWorldQuaternion(new Quaternion())), rotation: l.spin };
+  }
+
+  /** The depth a needle stands at (mm), for a technique that works between levels of it. */
+  depthMm(id: string): number | null {
+    const l = this.live.get(id);
+    return l && !l.leaving ? l.targetDepth * 1000 : null;
   }
 
   /** Carry the uninserted needle between the approaching fingers, preserving its full shaft length. */
@@ -299,24 +309,31 @@ export class NeedleLayer {
   }
 
   /** Begin one accepted catalogue performance. Presentation does not mutate the needle's executed geometry. */
-  workTechnique(id: string, technique: ManipulationTechniqueId, start: number, motion?: ManipulationMotionSettings): void {
+  workTechnique(id: string, technique: ManipulationTechniqueId, start: number, motion?: ManipulationMotionSettings, model?: TechniqueModel): void {
     const l = this.live.get(id);
-    if (l) { l.wiggle = null; l.performance = { technique, start, motion }; }
+    if (l) { l.wiggle = null; l.performance = { technique, start, motion, model }; }
   }
 
   /** Exact deterministic pose for a local preview or a locally paused record performance. */
-  poseTechnique(id: string, technique: ManipulationTechniqueId, elapsed: number, motion?: ManipulationMotionSettings): void {
+  poseTechnique(id: string, technique: ManipulationTechniqueId, elapsed: number, motion?: ManipulationMotionSettings, model?: TechniqueModel): void {
     const l = this.live.get(id);
     if (!l) return;
-    l.performance = { technique, start: 0, elapsed, motion };
-    this.applyPose(l, sampleTechnique(technique, elapsed, motion));
+    l.performance = { technique, start: 0, elapsed, motion, model };
+    this.applyPose(l, this.samplePerformance(l, elapsed));
   }
 
-  clearTechnique(id: string): void {
+  /** End a performance. `residualRad`: one-way turning it has left on the needle, which stays where it was turned to. */
+  clearTechnique(id: string, residualRad = 0): void {
     const l = this.live.get(id);
     if (!l) return;
     l.performance = null;
+    if (Number.isFinite(residualRad)) l.spinRest = (l.spinRest + residualRad) % (2 * Math.PI);
     this.applyPose(l);
+  }
+
+  private samplePerformance(l: Live, elapsed: number) {
+    const p = l.performance!;
+    return sampleManipulation(p.model, p.technique, elapsed, p.motion, { depthMm: l.targetDepth * 1000 });
   }
 
   /** A response on record at a needle: a glow spreads round it once. */
@@ -393,9 +410,11 @@ export class NeedleLayer {
       if (Math.abs(l.depth - l.targetDepth) > 1e-5) l.depth += (l.targetDepth - l.depth) * Math.min(1, dt / 220);
       let motion: NeedlePose | undefined;
       if (l.performance) {
-        const sample = sampleTechnique(l.performance.technique, l.performance.elapsed ?? now - l.performance.start, l.performance.motion);
-        if (sample.complete && l.performance.elapsed === undefined) l.performance = null;
-        else motion = sample;
+        const sample = this.samplePerformance(l, l.performance.elapsed ?? now - l.performance.start);
+        if (sample.complete && l.performance.elapsed === undefined) {
+          l.spinRest = (l.spinRest + (sample.windingRad ?? 0)) % (2 * Math.PI);
+          l.performance = null;
+        } else motion = sample;
       } else if (l.wiggle) {
         if (l.wiggle.type === "clinical") {
           const seconds = Math.max(0, now - l.wiggle.start) / 1000;
@@ -459,7 +478,7 @@ export class NeedleLayer {
     body.add(shaft, tip, exterior, hit);
     root.add(body);
     const pending = inserted === 0;
-    const l: Live = { spec, root, body, interior: shaft, exterior, exteriorShaft, handleRoot, handle, hit, inserted, depth: spec.depthCm / 100, targetDepth: spec.depthCm / 100, leaving: false, wiggle: null, performance: null, controlled: pending, needsInsertion: pending, needsRemoval: false, skinContactFraction: INSERTION_SKIN_CONTACT.default, glow: null, highlight: false };
+    const l: Live = { spec, root, body, interior: shaft, exterior, exteriorShaft, handleRoot, handle, hit, inserted, depth: spec.depthCm / 100, targetDepth: spec.depthCm / 100, leaving: false, wiggle: null, performance: null, spinRest: 0, spin: 0, controlled: pending, needsInsertion: pending, needsRemoval: false, skinContactFraction: INSERTION_SKIN_CONTACT.default, glow: null, highlight: false };
     root.visible = !pending;
     this.place(l);
     this.live.set(spec.id, l);
@@ -484,7 +503,9 @@ export class NeedleLayer {
       : baseDepth * smooth(l.inserted) - (l.needsRemoval && l.controlled ? INSERTION_HOVER_M * (1 - smooth(l.inserted)) : 0);
     const outward = Math.min(Math.max(0, retained), Math.max(0, motion?.withdrawalMm ?? 0) / 1000);
     const depth = retained - outward;
-    const spin = motion?.rotationRad ?? 0;
+    // the turn of what is being done now, on top of what one-way turning has left on the needle
+    l.spin = motion?.rotationRad ?? 0;
+    const spin = l.spinRest + l.spin;
     l.body.position.set(0, -depth, 0);
     if (l.needsInsertion && l.inserted > 0 && l.inserted < 1 && l.spec.site.currentSurface) {
       const skin = l.spec.site.currentSurface(), axis = new Vector3(0, 1, 0).applyQuaternion(l.root.quaternion);

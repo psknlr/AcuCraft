@@ -17,9 +17,10 @@ import { ActionRequestSchema, type Action, type ActionRequest, type ActionReques
 import { PositionSchema, type ChartPoint, type Position, type Side } from "../schema/common.js";
 import type { AcupointDefinition } from "../schema/knowledge.js";
 import type { UnsafeCode } from "../schema/field.js";
+import type { TechniqueModel } from "../schema/manipulation.js";
 import { ENCOUNTER_SCHEMA_ID, type AttemptRecord, type EncounterState, type ManipulationPerformance, type Mode, type NeedleState, type Protection, type TaskState, type Violation } from "../schema/state.js";
 import { assessPath, patientRegion, pointInstance, pointTargets, regionAccess, type PathAssessment, type PatientRegion } from "./anatomy.js";
-import { addEvidence, describeGrasp, describeSensation, DEQI_THRESHOLD, evidenceById, needleEvidence, needleResponse, patternSupport, recordEvidenceId, showsDeqi, STRONG_RESPONSE } from "./evidence.js";
+import { addEvidence, describeGrasp, describeHold, describeSensation, DEQI_THRESHOLD, evidenceById, needleEvidence, needleResponse, patternSupport, recordEvidenceId, showsDeqi, STRONG_RESPONSE } from "./evidence.js";
 import { checkInvariants } from "./invariants.js";
 import { NPC_POLICIES } from "./npc.js";
 import {
@@ -61,14 +62,15 @@ import {
   type Ctx,
 } from "./runtime.js";
 import { clinicWorld, roleOf, type Scenario } from "./scenario.js";
-import { hasClinicalNeedleMotion, needleMotion, motionEnvelope } from "./manipulation.js";
+import { hasClinicalNeedleMotion, needleMotion, motionEnvelope, type NeedleMotion } from "./manipulation.js";
 import { roomAt, walkMinutes } from "./world.js";
 import { atFixture, atFixtureOfKind, nearActor, patientBody, patientContact, patientSight, patientTalk, placeEveryone, placePatient, seatIn, siteOf, siteReach, walk, walkTarget, type MoveTarget, type Spatial } from "./space.js";
 import { ARM_REACH_M, CONTACT_RANGE_M, distanceToArea, fixtureReach, planWalk, seesArea, spotsNear } from "./world.js";
 import { detectClaims, detectCommitment, detectTopics, questionCount, type Claim } from "./text.js";
 import { clone } from "./util.js";
 import { techniqueStimulus } from "./techniques.js";
-import { HAND_PRESENTATION_PROFILES, handWristBounds, manipulationTechnique, phaseCyclesError, resolveManipulationMotion } from "./performance.js";
+import { HAND_PRESENTATION_PROFILES, handWristBounds, phaseCyclesError } from "./performance.js";
+import { WINDING, needleHold, operationCountsError, operationEffect, resolveTechniqueMotion, techniqueDefinition, type OperativeTechnique, type TechniqueReading } from "./operation.js";
 
 /**
  * The encounter engine: `createEncounter` and `step`. Pure — `step` never mutates its input and returns a new state.
@@ -82,6 +84,8 @@ import { HAND_PRESENTATION_PROFILES, handWristBounds, manipulationTechnique, pha
 export interface EncounterOptions {
   seed?: number;
   mode?: Mode;
+  /** The catalogue of techniques the encounter runs on (default: illustrative, as before the choice existed). */
+  techniques?: TechniqueModel;
 }
 
 export function createEncounter(sc: Scenario, opts: EncounterOptions = {}): EncounterState {
@@ -142,6 +146,7 @@ export function createEncounter(sc: Scenario, opts: EncounterOptions = {}): Enco
     flags: [],
     events: {},
     walks: [],
+    ...(opts.techniques === "operative" ? { techniques: "operative" as const } : {}),
     evidence: [],
     attempts: [],
     finished: false,
@@ -789,6 +794,99 @@ function cautionedAt(sc: Scenario, frame: PatientRegion, region: string, side: S
   return false;
 }
 
+/**
+ * Winding added to a needle, then winding let go (degrees): the needle's hold is kept, and what the operator and
+ * the patient make of a change of hold is returned or said. Clockwise from the handle is positive.
+ */
+function windNeedle(ctx: Ctx, n: NeedleState, addDeg: number, loosenDeg: number): string[] {
+  const before = n.winding ?? 0, hold = needleHold(before);
+  let winding = Math.max(-WINDING.capDeg, Math.min(WINDING.capDeg, before + addDeg));
+  winding -= Math.sign(winding) * Math.min(Math.abs(winding), loosenDeg);
+  if (Math.abs(winding) < 1e-9) delete n.winding;
+  else n.winding = Math.round(winding * 10) / 10;
+  const now = needleHold(n.winding);
+  if (now === hold) return [];
+  if (now === "stuck") {
+    volunteer(ctx, n, "sharp-pain", "Ow — it's pulling at that needle. That hurts.", ["sharp-pain"]);
+    return [`${n.id} is stuck: wound too far, the tissue has seized it. Free it before anything else is done to it.`];
+  }
+  if (now === "held") return [hold === "stuck" ? `${n.id} gives a little: it is no longer stuck, though the tissue still holds it.` : `${n.id} is held: the fibres have taken the shaft. Roll it back before it is withdrawn.`];
+  return [`${n.id} is free again.`];
+}
+
+/** The stimulation an `adjust_needle` with a stated excursion, rate and time gives: the act's own, scaled by the square root of each ratio to its default. */
+function adjustmentDose(stimulus: "lift-thrust" | "rotate", m: NeedleMotion): number {
+  const base = stimulus === "rotate" ? 0.3 : 0.35;
+  const amplitude = stimulus === "rotate" ? Math.min(360, m.rotationDeg) / 90 : m.strokeMm / 2;
+  return Math.round(Math.min(1, base * Math.sqrt(Math.max(0, amplitude)) * Math.sqrt(m.frequencyHz) * Math.sqrt(m.durationSeconds / 30)) * 1000) / 1000;
+}
+
+/** How an `adjust_needle` reads: by the form asked for — the thrust or the thumb going forward reinforces, the lift or the thumb going back reduces. */
+function adjustmentReading(technique: Exclude<Extract<Action, { type: "adjust_needle" }>["technique"], "none">, m: NeedleMotion | null): TechniqueReading {
+  if (technique === "bu" || technique === "thrust") return "reinforcing";
+  if (technique === "xie" || technique === "lift") return "reducing";
+  if (m && m.technique === "rotate" && m.rotationDirection !== "alternating") return m.rotationDirection === "clockwise" ? "reinforcing" : "reducing";
+  return "even";
+}
+
+/**
+ * A technique of the operative catalogue done to a needle: the retained needle it is performed on, or — for the
+ * strokes and nips of the pressing hand — the needle whose channel is handled. Everything is checked before anything
+ * changes; then the needle is stimulated by the technique's own dose, what one-way turning winds onto it stays, what
+ * a loosening method lets go is let go, and the operator has the feel of it as evidence.
+ */
+function operationOnNeedle(ctx: Ctx, definition: OperativeTechnique, n: NeedleState, frame: PatientRegion, motion: ReturnType<typeof resolveTechniqueMotion>): { dose: number; windingDeg: number; loosenedDeg: number; said: string[] } | null {
+  const { s, sc } = ctx;
+  if (n.location.kind !== "patient") return null;
+  const loc = n.location, inHand = definition.context === "retained";
+  const effect = operationEffect(definition.id, motion);
+  const before = n.winding ?? 0, hold = needleHold(before);
+  if (inHand) {
+    const depthMm = loc.depthCm * 10;
+    if (definition.effect.needsDepthMm > depthMm + 1e-9) {
+      throw new Rejection("too-shallow", `${definition.zh} works between levels of the needle's depth: ${n.id} stands at ${fmt(depthMm, 0)} mm, and it needs at least ${definition.effect.needsDepthMm} mm. Use it at a point with deeper tissue, or a single method.`);
+    }
+    // a needle the tissue has seized is freed, never worked: only what unwinds or loosens it is done to it
+    const unwinds = effect.windingDeg !== 0 && Math.sign(effect.windingDeg) !== Math.sign(before);
+    if (hold === "stuck" && !unwinds && effect.loosensDeg === 0) {
+      throw new Rejection("stuck-needle", `${n.id} is stuck: the tissue has wound round it and it will not turn or lift. Free it first — roll it back the other way (搓 ${before > 0 ? "counterclockwise" : "clockwise"}), stroke or nip along the channel (循, 摄), or flick or scrape the handle (弹, 刮).`);
+    }
+  }
+  const blockers: Protection[] = [];
+  const path = doInsertCheckPath(ctx, n, frame, loc.entry, loc.angleDeg, loc.azimuthDeg, loc.depthCm, blockers);
+  blockIf(ctx, blockers, `${definition.zh} on ${n.id} stopped`);
+  // winding: what the turning adds, then what the method lets go
+  const loosenedDeg = Math.min(Math.abs(Math.max(-WINDING.capDeg, Math.min(WINDING.capDeg, before + effect.windingDeg))), effect.loosensDeg);
+  const prior = n.response;
+  n.response = needleResponse(sc, s, n, path, effect.dose, { seeks: effect.seeks, handled: inHand });
+  const said: string[] = [];
+  const windingSaid = windNeedle(ctx, n, effect.windingDeg, effect.loosensDeg);
+  const holdNow = needleHold(n.winding);
+  if (inHand) {
+    pushNeedleEvent(s, n.id, ctx.actor.id, "adjusted", `${fmt(loc.depthCm)} cm, ${definition.zh} (${definition.id})`);
+    if (effect.reading) n.events[n.events.length - 1]!.reading = effect.reading;
+    consequences(ctx, n, path);
+  }
+  const r = n.response;
+  // what the hand on the needle is told: only methods that hold the needle in the tissue tell it anything
+  if (inHand && definition.family !== "handle") {
+    const feel = describeHold(r, definition.zh, holdNow);
+    const e = addEvidence(s, { kind: "needle-feel", ref: n.id, by: ctx.actor.id, text: feel.text, needle: { id: n.id, qualities: [], grasp: feel.grasp, volunteered: false } });
+    said.push(`${feel.text} (evidence ${e.id})`);
+  }
+  said.push(...windingSaid);
+  const strong = r.deqi && r.intensity >= STRONG_RESPONSE;
+  if (r.overstimulated && !prior?.overstimulated) volunteer(ctx, n, "too-strong", "That's too strong now — it's getting painful.", ["sharp-pain"]);
+  else if (r.deqi && r.thermal && r.qualities.includes(r.thermal) && !prior?.qualities.includes(r.thermal)) {
+    volunteer(ctx, n, "deqi", r.thermal === "warmth" ? "Oh — it's getting warm around that needle." : "Oh — it feels cool around that needle.", [...r.qualities]);
+  } else if (strong && inHand) {
+    const felt = describeSensation(r);
+    volunteer(ctx, n, "deqi", `Oh — ${felt.text.charAt(0).toLowerCase()}${felt.text.slice(1)}`, felt.qualities);
+  }
+  if (s.mode === "teaching") said.push(`Teaching: ${definition.zh} gave a dose of ${fmt(effect.dose, 2)} (stimulation ${fmt(prior?.stimulation ?? 0, 2)} → ${fmt(r.stimulation, 2)}, response ${fmt(r.intensity, 2)}); winding ${fmt(n.winding ?? 0, 0)}° (${holdNow}).`);
+  return { dose: effect.dose, windingDeg: effect.windingDeg, loosenedDeg, said };
+}
+
 function doRemove(ctx: Ctx, needleId: string): void {
   const { s } = ctx;
   const n = s.needles[needleId];
@@ -796,6 +894,14 @@ function doRemove(ctx: Ctx, needleId: string): void {
   if (n.location.kind === "broken-in-patient") throw new Rejection("broken", `Needle ${needleId} has broken: the fragment cannot be withdrawn by hand. Report it and refer the patient.`);
   if (n.location.kind !== "patient") throw new Rejection("not-inserted", `Needle ${needleId} is not in the patient.`);
   const label = n.location.target ? pointLabel(ctx.sc, n.location.target) : `${n.location.region} ${n.location.side}`;
+  // a needle the tissue has seized comes out only by force: it hurts and it bleeds. Whatever held it is gone with it.
+  if (needleHold(n.winding) === "stuck") {
+    addUnsafe(ctx, "stuck-needle-forced");
+    n.bleeding = true;
+    feedback(s, "sharp-pain", "Ow! That one really hurt coming out.", "needle", n.id);
+    observe(ctx, `${n.id} was stuck and has been pulled out by force: it should have been freed first (rolled back, the channel stroked or nipped, the handle flicked or scraped).`);
+  }
+  delete n.winding;
   n.location = { kind: "hand", actor: ctx.actor.id };
   n.removedBy = ctx.actor.id;
   if (!n.contaminated) {
@@ -1631,6 +1737,13 @@ const HANDLERS: HandlerMap = {
     const motion = needleMotion(a, depth);
     const envelope = motionEnvelope(motion);
     if (clinicalMotion && envelope.minDepthCm <= 0) throw new Rejection("invalid", "The lift would withdraw the needle through the skin; use remove_needle instead.");
+    // on the operative catalogue: turning one way winds the tissue round the shaft, and a needle it has seized is freed, not worked
+    const operative = s.techniques === "operative";
+    const turned = operative && clinicalMotion && stimulus === "rotate" && motion.rotationDirection !== "alternating"
+      ? (motion.rotationDirection === "clockwise" ? 1 : -1) * Math.min(WINDING.capDeg, motion.rotationDeg * motion.frequencyHz * motion.durationSeconds) : 0;
+    if (operative && needleHold(n.winding) === "stuck" && !(turned !== 0 && Math.sign(turned) !== Math.sign(n.winding ?? 0))) {
+      throw new Rejection("stuck-needle", `${n.id} is stuck: the tissue has wound round it and it will not turn or lift. Free it first — roll it back the other way, stroke or nip along the channel (循, 摄), or flick or scrape the handle (弹, 刮).`);
+    }
     if (clinicalMotion && s.stopped && s.stopped.visit === visitIndex(s)) blockers.push({ by: "simulation-guard", kind: "guard", reason: "treatment has stopped: remove the needles" });
     let deepest: PathAssessment | undefined;
     if (clinicalMotion && motion.strokeMm > 0) {
@@ -1650,7 +1763,10 @@ const HANDLERS: HandlerMap = {
     // Keep legacy events and replay output unchanged for presentation-only requests.
     if (clinicalMotion) event.motion = { ...motion, depthCm: path.executedDepthCm };
     const before = n.response;
-    n.response = needleResponse(sc, s, n, path, stimulus);
+    // a stated excursion, rate and time are the dose on the operative catalogue; elsewhere every act gives the same
+    n.response = needleResponse(sc, s, n, path, operative && clinicalMotion && stimulus ? adjustmentDose(stimulus, motion) : stimulus);
+    if (operative && a.technique !== "none") event.reading = adjustmentReading(a.technique, clinicalMotion ? motion : null);
+    const wound = operative ? windNeedle(ctx, n, turned, 0) : [];
     consequences(ctx, n, deepest ?? path);
     const strong = n.response.deqi && n.response.intensity >= STRONG_RESPONSE;
     const wasStrong = before !== null && before.deqi && before.intensity >= STRONG_RESPONSE;
@@ -1667,6 +1783,7 @@ const HANDLERS: HandlerMap = {
       if (n.response.overstimulated && !before?.overstimulated) volunteer(ctx, n, "too-strong", "That's too strong now — it's getting painful.", ["sharp-pain"]);
       else if (strong) speakOfIt();
     } else if (strong && !wasStrong) speakOfIt();
+    for (const line of wound) observe(ctx, line);
     ctx.out.target = `needle:${n.id}`;
     ctx.out.detail = clinicalMotion
       ? `${n.id} to ${fmt(path.executedDepthCm)} cm (${a.technique}; stroke ${motion.strokeMm} mm, rotation ${motion.rotationDeg} degrees, ${motion.frequencyHz} Hz, ${motion.durationSeconds} s)`
@@ -1674,15 +1791,17 @@ const HANDLERS: HandlerMap = {
     ctx.out.cost = clinicalMotion && a.technique !== "none" ? motion.durationSeconds / 60 : 0.5;
   },
   perform_technique(ctx, a) {
-    const { s } = ctx;
-    const definition = manipulationTechnique(a.technique);
+    const { s, sc } = ctx;
+    const operative = s.techniques === "operative";
+    const definition = techniqueDefinition(s.techniques, a.technique);
     if (!definition) throw new Rejection("unknown-technique", `Unknown manipulation ${a.technique}: read lookup techniques.`);
-    const phaseError = phaseCyclesError(definition, a.motion?.phaseCycles);
+    if (!operative && a.motion?.travelMm !== undefined) throw new Rejection("technique-parameter", "travelMm belongs to the operative technique catalogue; this encounter runs on the illustrative one.");
+    const phaseError = operative ? operationCountsError(definition as OperativeTechnique, a.motion) : phaseCyclesError(definition, a.motion?.phaseCycles);
     if (phaseError) throw new Rejection("technique-parameter", phaseError);
     if (definition.controls.includes("grip") && a.motion?.grip === "three-finger" && a.motion.gripStyle !== undefined && !(HAND_PRESENTATION_PROFILES.threeFinger.gripStyles as readonly string[]).includes(a.motion.gripStyle)) {
       throw new Rejection("technique-parameter", "Three-finger holding uses tip-pinch on this hand; read lookup techniques handProfiles.");
     }
-    const contactBounds = { wristElevationDeg: handWristBounds(a.motion, a.technique === "gua" || a.technique === "tan"), ...definition.parameterBounds };
+    const contactBounds = { wristElevationDeg: handWristBounds(operative ? { grip: a.motion?.grip ?? definition.defaults.grip } : a.motion, a.technique === "gua" || a.technique === "tan"), ...definition.parameterBounds };
     for (const [key, bounds] of Object.entries(contactBounds)) {
       const value = a.motion?.[key as keyof NonNullable<typeof a.motion>];
       if (typeof value === "number" && (value < bounds.min || value > bounds.max)) {
@@ -1709,9 +1828,12 @@ const HANDLERS: HandlerMap = {
     let side: Side;
     let entry: ChartPoint;
     let needleId: string | null = null;
+    let needle: NeedleState | null = null;
     if (definition.context === "retained" || definition.context === "removed" || a.needleId) {
       const n = a.needleId ? s.needles[a.needleId] : null;
       if (!n) throw new Rejection("unknown-id", "Give a needleId from this encounter for this technique.");
+      // on the operative catalogue a needle is reached for like any other: one that fell out unseen is found gone
+      if (operative && goneOnReaching(ctx, n)) return;
       if (!n.insertion || n.insertion.visit !== visitIndex(s)) throw new Rejection("wrong-visit", `${n.id} was not inserted in this visit.`);
       if (definition.context === "retained" && n.location.kind !== "patient") throw new Rejection("not-inserted", `${n.id} is not retained in the patient.`);
       if (definition.context === "removed" && (n.location.kind === "patient" || !n.removedBy || !n.events.some((event) => event.what === "withdrawn"))) {
@@ -1721,6 +1843,7 @@ const HANDLERS: HandlerMap = {
       ({ region, side } = placement);
       entry = { ...placement.entry };
       needleId = n.id;
+      needle = n;
       if ((a.region && a.region !== region) || (a.side && a.side !== side) || (a.at && (Math.abs(a.at.u - entry.u) > 1e-6 || Math.abs(a.at.v - entry.v) > 1e-6))) {
         throw new Rejection("target-mismatch", "The supplied chart target does not match the needle's executed site.");
       }
@@ -1748,7 +1871,11 @@ const HANDLERS: HandlerMap = {
     const frame = regionFrame(ctx, region, side);
     if (!frame.inChart(entry)) throw new Rejection("off-chart", `${at2(entry)} is outside the ${frame.region.title} chart.`);
     atSite(ctx, region, side);
-    const motion = resolveManipulationMotion(a.technique, a.motion);
+    const motion = resolveTechniqueMotion(s.techniques, a.technique, a.motion);
+    // done to the needle: checked against the needle as it stands before anything is touched
+    // (a method of the pressing hand that neither stimulates nor loosens — palpating, the nail — leaves the needle alone)
+    const reaches = definition.context === "retained" || (definition as OperativeTechnique).effect?.dose > 0 || (definition as OperativeTechnique).effect?.loosensDeg > 0;
+    const worked = operative && needle !== null && reaches ? operationOnNeedle(ctx, definition as OperativeTechnique, needle, frame, motion) : null;
     const touchesSkin = definition.context !== "retained" || motion.support !== "none";
     if (touchesSkin) {
       touchSite(ctx, region, side, `${definition.zh} (${definition.id}) performance`);
@@ -1757,24 +1884,45 @@ const HANDLERS: HandlerMap = {
     // Presentation-only controls must not change the authoritative state of historical requests:
     // their recorded digests were made from the original 13-field motion object.
     const recordedMotion: ManipulationPerformance["motion"] = { ...motion };
-    if (a.motion?.wristElevationDeg === undefined && a.motion?.gripStyle === undefined && a.motion?.idleFingerPose === undefined) {
+    if (!operative && a.motion?.wristElevationDeg === undefined && a.motion?.gripStyle === undefined && a.motion?.idleFingerPose === undefined) {
       delete recordedMotion.wristElevationDeg;
       delete recordedMotion.gripStyle;
       delete recordedMotion.idleFingerPose;
     }
+    const effect = operative ? operationEffect(definition.id, motion) : null;
     const performance: ManipulationPerformance = {
       id: `performance-${s.attempts.length}`, requestId: ctx.req.requestId, attempt: s.attempts.length - 1, at: now(s), visit: visitIndex(s), actor: ctx.actor.id,
       technique: definition.id, context: definition.context, needleId, site: { region, side, u: entry.u, v: entry.v },
       patientPosition: s.patient.position, motion: recordedMotion,
-      provenance: { kind: "illustrative", source: "acucraft-authored-demonstration-v1", review: "unreviewed", forces: "not-modelled" },
+      provenance: operative
+        ? { kind: "operative", source: "acucraft-operative-techniques-v2", review: "unreviewed", forces: "not-modelled" }
+        : { kind: "illustrative", source: "acucraft-authored-demonstration-v1", review: "unreviewed", forces: "not-modelled" },
+      ...(effect ? { effect: { minutes: effect.minutes, dose: worked?.dose ?? 0, reading: effect.reading, windingDeg: worked?.windingDeg ?? 0, loosenedDeg: worked?.loosenedDeg ?? 0 } } : {}),
     };
     (s.performances ??= []).push(performance);
     ctx.out.target = needleId ? `needle:${needleId}` : `${region}:${side}`;
-    const repeats = motion.phaseCycles ? `${motion.phaseCycles.join("/")} cycles by phase` : `${motion.cycles} cycle(s)`;
-    ctx.out.detail = `${definition.zh} (${definition.label}) at ${region} ${side}; ${motion.durationMs} ms, ${repeats}; illustrative choreography`;
-    observe(ctx, `Recorded ${performance.id}: ${ctx.out.detail}. Needle depth and clinical response are unchanged; displayed contact intensity is not measured force.`);
-    // Presentation time is independent of the clinical clock; no invented treatment dose or physiological effect.
-    ctx.out.cost = 0;
+    const repeats = motion.phaseCycles ? `${motion.phaseCycles.join("/")} ${operative ? "by count" : "cycles by phase"}` : `${motion.cycles} ${operative ? "time(s)" : "cycle(s)"}`;
+    if (!effect) {
+      ctx.out.detail = `${definition.zh} (${definition.label}) at ${region} ${side}; ${motion.durationMs} ms, ${repeats}; illustrative choreography`;
+      observe(ctx, `Recorded ${performance.id}: ${ctx.out.detail}. Needle depth and clinical response are unchanged; displayed contact intensity is not measured force.`);
+      // Presentation time is independent of the clinical clock; no invented treatment dose or physiological effect.
+      ctx.out.cost = 0;
+      return;
+    }
+    const where = !needleId ? `at ${region} ${side}` : definition.context === "retained" ? `on ${needleId}` : definition.context === "removed" ? `on the hole of ${needleId}` : `beside ${needleId}`;
+    ctx.out.detail = `${definition.zh} (${definition.label}) ${where}; ${repeats}, ${fmt(motion.durationMs / 1000)} s${effect.reading && definition.context !== "skin" ? `; reads as ${effect.reading}` : ""}`;
+    observe(ctx, `Performed ${performance.id}: ${ctx.out.detail}.`);
+    for (const line of worked?.said ?? []) observe(ctx, line);
+    if (definition.context === "removed" && needle) {
+      // 扪: the hole is pressed closed as the needle leaves it
+      if (needle.bleeding) {
+        needle.bleeding = false;
+        pushNeedleEvent(s, needle.id, ctx.actor.id, "pressure");
+        observe(ctx, `The hole of ${needle.id} is pressed closed: the bleeding has stopped.`);
+      } else observe(ctx, `The hole of ${needle.id} is pressed closed.`);
+      needle.holeClosed = true;
+    }
+    ctx.out.cost = Math.max(0.05, effect.minutes);
   },
   check_sensation(ctx, a) {
     const { s } = ctx;
@@ -2182,6 +2330,8 @@ export interface EncounterLog {
   engine: { acucraft: string; clinicalcraft: string };
   seed: number;
   mode: Mode;
+  /** The catalogue of techniques the encounter ran on. Absent: the illustrative one. */
+  techniques?: TechniqueModel;
   requests: ActionRequest[];
   /** Digest of the final state when the log was written (replay must reproduce it). */
   finalDigest?: string;
@@ -2189,7 +2339,7 @@ export interface EncounterLog {
 }
 
 export function replayLog(sc: Scenario, log: EncounterLog, opts: StepOptions = {}): { state: EncounterState; attempts: AttemptRecord[] } {
-  let s = createEncounter(sc, { seed: log.seed, mode: log.mode });
+  let s = createEncounter(sc, { seed: log.seed, mode: log.mode, techniques: log.techniques });
   const attempts: AttemptRecord[] = [];
   for (const r of log.requests) {
     const res = step(sc, s, r, opts);

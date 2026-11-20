@@ -188,6 +188,7 @@ VOCABULARY = {
         {"id": "heaviness", "label": "Heaviness", "zh": "重", "deqi": True},
         {"id": "distension", "label": "Distension or fullness", "zh": "胀", "deqi": True},
         {"id": "warmth", "label": "Warmth", "zh": "热", "deqi": True},
+        {"id": "coolness", "label": "Coolness", "zh": "凉", "deqi": True},
         {"id": "spreading", "label": "A sensation spreading from the needle", "zh": "感传", "deqi": True},
         {"id": "sharp-pain", "label": "Sharp pain", "zh": "锐痛", "deqi": False},
         {"id": "burning", "label": "Burning", "zh": "灼痛", "deqi": False},

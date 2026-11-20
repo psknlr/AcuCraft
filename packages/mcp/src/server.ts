@@ -102,7 +102,7 @@ export class McpServer {
       },
       {
         name: "start_encounter",
-        description: "Start an encounter as the practitioner: returns a session_id and your opening view. `variant` picks one of the family's variants by number (default: chosen from the seed); `mode` teaching shows reference locations and anatomical notes, assessment (default) shows none.",
+        description: "Start an encounter as the practitioner: returns a session_id and your opening view. `variant` picks one of the family's variants by number (default: chosen from the seed); `mode` teaching shows reference locations and anatomical notes, assessment (default) shows none. `techniques` operative (default): the 36 techniques are done to the needle — they take time, stimulate it, read as reinforcing or reducing, and one-way turning winds it; illustrative: a performance is shown and recorded only.",
         inputSchema: {
           type: "object",
           properties: {
@@ -110,6 +110,7 @@ export class McpServer {
             variant: { type: "integer", minimum: 1, description: "Which of the family's variants, by number." },
             seed: { type: "integer", description: "The seed of the encounter's chance events (default 1)." },
             mode: { type: "string", enum: ["assessment", "teaching"] },
+            techniques: { type: "string", enum: ["operative", "illustrative"], description: "The catalogue of the 36 techniques the encounter runs on (default operative)." },
           },
           required: ["family"],
           additionalProperties: false,

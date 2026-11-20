@@ -32,6 +32,8 @@ export interface AgentView {
   finished: boolean;
   /** Latest accepted visual performances, including resolved parameters and an explicit illustrative provenance. */
   performances?: ManipulationPerformance[];
+  /** Present when the encounter runs on the operative catalogue of techniques (absent: the illustrative one). */
+  techniques?: "operative";
   you: { id: string; name: string; role: string; roleLabel: string; location: string; holding: string[]; may: string[] };
   /**
    * Where you are in the clinic (metres on its floor plan: +x east, +z south) and what is within reach from there.
@@ -279,7 +281,9 @@ export function observeAs(sc: Scenario, s: EncounterState, actorId: string): Age
       actor: performance.actor, technique: performance.technique, context: performance.context, needleId: performance.needleId,
       site: { ...performance.site }, patientPosition: performance.patientPosition, motion: { ...performance.motion },
       provenance: { ...performance.provenance },
+      ...(performance.effect ? { effect: { ...performance.effect } } : {}),
     })) } : {}),
+    ...(s.techniques ? { techniques: s.techniques } : {}),
     you: {
       id: actorId,
       name: isPatient ? t(sc.case.patient.displayName, LOCALE) : member.name,

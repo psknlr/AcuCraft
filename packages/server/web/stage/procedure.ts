@@ -2,9 +2,9 @@ import { Box3, Group, Mesh, Quaternion, SkinnedMesh, Texture, Vector3, type Mate
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { clone as cloneSkeleton } from "three/examples/jsm/utils/SkeletonUtils.js";
 import {
-  ActionSchema, handWristBounds, hasClinicalNeedleMotion, manipulationTechnique, needleMotion, resolveManipulationMotion, resolveNeedleMotion, sampleTechnique,
+  ActionSchema, handWristBounds, hasClinicalNeedleMotion, needleMotion, resolveNeedleMotion, resolveTechniqueMotion, sampleManipulation, techniqueDefinition,
   type ManipulationMotionSettings, type ManipulationTechniqueId, type NeedleMotionSettings, type NeedleTechnique,
-  type ResolvedManipulationMotion, type TechniqueMotionSample,
+  type ResolvedManipulationMotion, type TechniqueModel,
   type InsertionPresentation as SharedInsertionPresentation,
 } from "@acucraft/core";
 import type { Person } from "./cast.js";
@@ -41,6 +41,20 @@ export interface TechniquePerformanceInput {
   site: SkinSite;
   needleId?: string;
   motion?: ManipulationMotionSettings;
+  /** The catalogue the performance is of (absent: the illustrative one, as in records made before the choice). */
+  model?: TechniqueModel;
+}
+/** The stage of an operative performance under way: what the caption shows. */
+export interface PlaybackStage {
+  zh: string;
+  label: string;
+  /** The repetition under way of how many (0 of 0: the stage is not counted). */
+  count: number;
+  of: number;
+  level: "tian" | "ren" | "di" | null;
+  breath: "inhale" | "exhale" | null;
+  /** Where the tip stands, as a fraction of the depth the needle stands at. */
+  depthFraction: number;
 }
 export interface ProcedurePlayback {
   mode: "idle" | "record" | "preview";
@@ -52,6 +66,8 @@ export interface ProcedurePlayback {
   durationMs: number;
   /** A schematic pose, patient-clearance or arm-reach problem; the affected detail hand is hidden. */
   reachWarning?: string | null;
+  /** On the operative catalogue: the stage under way (null: approach, release, or the illustrative catalogue). */
+  stage?: PlaybackStage | null;
 }
 export interface PlaybackControl { paused?: boolean; speed?: number; progress?: number }
 interface LegacyGesture {
@@ -69,6 +85,8 @@ type Gesture = LegacyGesture | PerformanceGesture;
 type ActiveGesture = Gesture & {
   start: number; side: "left" | "right"; worked: boolean; finished: boolean;
   grip: Vector3; axis: Vector3; initialGrip: Vector3; elapsed: number; lastNow: number; primeClock: boolean;
+  /** One-way turning an accepted performance has left on the needle by its end (radians). */
+  residualRad?: number;
 };
 const finiteClamp = (value: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, Number.isFinite(value) ? value : lo));
 const copySite = (site: SkinSite): SkinSite => ({ ...site, p: site.p.clone(), n: site.n.clone(), uDir: site.uDir.clone(), vDir: site.vDir.clone() });
@@ -244,8 +262,8 @@ export class NeedleProcedure {
   /** Preview only while the actor is idle; never discard accepted actions to show an operator draft. */
   preview(input: TechniquePerformanceInput): boolean {
     if (this.queue.length || this.active && (this.active.kind !== "performance" || !this.active.preview)) return false;
-    if (!manipulationTechnique(input.technique) || !this.validSite(input.site)) return false;
-    const definition = manipulationTechnique(input.technique)!;
+    if (!techniqueDefinition(input.model, input.technique) || !this.validSite(input.site)) return false;
+    const definition = techniqueDefinition(input.model, input.technique)!;
     if (definition.context === "retained" && (!input.needleId || !this.needles.has(input.needleId))) return false;
     const person = this.practitioner();
     if (!person || person.isMoving) return false;
@@ -264,13 +282,13 @@ export class NeedleProcedure {
     const active = this.active;
     if (active?.kind === "performance" && active.preview && control.paused === false) {
       if (wasPaused) active.primeClock = true;
-      const duration = sampleProcedure("work", 0, resolveManipulationMotion(active.input.technique, active.input.motion).durationMs).durationMs;
+      const duration = sampleProcedure("work", 0, resolveTechniqueMotion(active.input.model, active.input.technique, active.input.motion).durationMs).durationMs;
       if (active.elapsed >= duration) { active.elapsed = 0; active.primeClock = true; }
     }
     // Seeking recorded actions would conceal ordering; only a clearly labelled local preview can be sought.
     if (control.progress !== undefined && active?.kind === "performance" && active.preview) {
       this.clearanceRoll.clear();
-      const motion = resolveManipulationMotion(active.input.technique, active.input.motion);
+      const motion = resolveTechniqueMotion(active.input.model, active.input.technique, active.input.motion);
       active.elapsed = finiteClamp(control.progress, 0, 1) * sampleProcedure("work", 0, motion.durationMs).durationMs;
       active.lastNow = this.lastNow;
       active.primeClock = true;
@@ -306,13 +324,14 @@ export class NeedleProcedure {
     let requested: "auto" | "left" | "right" = "auto";
     if (next.kind === "performance") {
       if (!this.validSite(next.input.site)) return false;
-      const definition = manipulationTechnique(next.input.technique);
+      const definition = techniqueDefinition(next.input.model, next.input.technique);
       if (!definition) return false;
-      const grip = next.input.needleId ? this.needles.grip(next.input.needleId) : null;
+      // a method of the pressing hand named with a needle is done on the skin beside it, not on its handle
+      const grip = next.input.needleId && !(definition.context === "skin" && next.input.model === "operative") ? this.needles.grip(next.input.needleId) : null;
       if (definition.context === "retained" && !grip) return false;
       point = grip?.point ?? next.input.site.p.clone();
       axis = grip?.axis ?? next.input.site.n.clone();
-      requested = resolveManipulationMotion(next.input.technique, next.input.motion).hand;
+      requested = resolveTechniqueMotion(next.input.model, next.input.technique, next.input.motion).hand;
     } else {
       const grip = this.needles.grip(next.id);
       if (!grip) return false;
@@ -413,26 +432,38 @@ export class NeedleProcedure {
 
   private renderPerformance(gesture: ActiveGesture & PerformanceGesture, person: Person | null): void {
     if (!person) return;
-    const input = gesture.input, definition = manipulationTechnique(input.technique)!;
-    const motion = resolveManipulationMotion(input.technique, input.motion);
+    const input = gesture.input, definition = techniqueDefinition(input.model, input.technique)!;
+    const motion = resolveTechniqueMotion(input.model, input.technique, input.motion);
     const envelope = sampleProcedure("work", gesture.elapsed, motion.durationMs);
     const elapsed = finiteClamp(gesture.elapsed - envelope.operationStartMs, 0, motion.durationMs);
-    const sample = sampleTechnique(input.technique, elapsed, motion);
+    const sample = this.sample(input, elapsed, motion);
     // Keep the same attachment and base pose through approach and release; sampling the resting endpoint
     // would otherwise switch a scraper back to a pinch in one frame.
-    const poseSample = elapsed === 0 || sample.complete ? sampleTechnique(input.technique, elapsed === 0 ? 0.001 : motion.durationMs - 0.001, motion) : sample;
+    const poseSample = elapsed === 0 || sample.complete ? this.sample(input, elapsed === 0 ? 0.001 : motion.durationMs - 0.001, motion) : sample;
     if (definition.context === "retained" && input.needleId) {
       if (!this.needles.grip(input.needleId)) { this.finish(gesture); this.active = null; return; }
       if (!gesture.worked && elapsed > 0 && !gesture.preview) {
-        this.needles.workTechnique(input.needleId, input.technique, this.lastNow - elapsed, motion);
+        this.needles.workTechnique(input.needleId, input.technique, this.lastNow - elapsed, motion, input.model);
         gesture.worked = true;
       }
-      this.needles.poseTechnique(input.needleId, input.technique, elapsed, motion);
+      this.needles.poseTechnique(input.needleId, input.technique, elapsed, motion, input.model);
+      // what one-way turning leaves on the needle stays on it once an accepted performance is over
+      if (sample.complete && !gesture.preview) gesture.residualRad = sample.windingRad ?? 0;
     }
     const handle = definition.context === "retained" && input.needleId ? this.needles.grip(input.needleId) : null;
     const site = handle ? input.site : input.site.currentSurface?.() ?? input.site;
-    const contact = handle?.point.clone() ?? site.p.clone().addScaledVector(site.uDir, sample.lateralMm.u / 1000).addScaledVector(site.vDir, sample.lateralMm.v / 1000);
+    const contact = handle?.point.clone() ?? site.p.clone().addScaledVector(site.uDir, (sample.lateralMm.u + (sample.offsetMm ?? 0)) / 1000).addScaledVector(site.vDir, (sample.lateralMm.v + (sample.travelMm ?? 0)) / 1000);
     const axis = handle?.axis.clone() ?? site.n.clone();
+    // a hand that travels along the channel follows the skin it is drawn on, not the plane of the point
+    if (!handle && ((sample.travelMm ?? 0) !== 0 || (sample.offsetMm ?? 0) !== 0)) {
+      const patient = this.patient();
+      if (patient) {
+        let finder = this.supportSites.get(patient);
+        if (!finder) { finder = new SiteFinder(patient.rig); this.supportSites.set(patient, finder); }
+        const skin = finder.nearbySkin(contact, site.n);
+        if (skin) { contact.copy(skin.p); axis.copy(skin.n); }
+      }
+    }
     let anchor: HandContact = handle ? "handle" : "index";
     if (!handle && poseSample.handPose === "skin-nail") anchor = "nail";
     else if (!handle && poseSample.handPose === "press") anchor = "palm";
@@ -450,12 +481,23 @@ export class NeedleProcedure {
     this.placeSupport(person, gesture.side, site, motion.support, envelope.reach, envelope.grip, sample.phase.progress, motion.contactIntensity);
     this.settleHands(person);
     this.group.visible = !!this.hand?.root.visible || !!this.supportHand?.root.visible;
+    const working = gesture.elapsed >= envelope.operationStartMs && elapsed < motion.durationMs;
     this.publish({ reachWarning: this.reachWarning, mode: gesture.preview ? "preview" : "record", playing: !this.paused && !envelope.complete,
       progress: finiteClamp(gesture.elapsed / envelope.durationMs, 0, 1), speed: this.speed,
       technique: input.technique, phase: gesture.elapsed < envelope.operationStartMs ? "Approach and grip"
-        : elapsed < motion.durationMs ? sample.phase.label : envelope.complete ? "Complete" : "Release and retreat", durationMs: envelope.durationMs });
+        : elapsed < motion.durationMs ? sample.phase.label : envelope.complete ? "Complete" : "Release and retreat", durationMs: envelope.durationMs,
+      stage: working && sample.stage ? { zh: sample.stage.zh, label: sample.stage.label, count: sample.stage.count, of: sample.stage.of, level: sample.stage.level, breath: sample.stage.breath, depthFraction: sample.depthFraction ?? 1 } : null });
     if (envelope.complete && !gesture.preview) { this.finish(gesture); this.active = null; this.publish({ ...IDLE, speed: this.speed }); }
     else if (envelope.complete && gesture.preview) this.paused = true;
+  }
+
+  /** Where the needle and hands are, on the catalogue the performance is of, told the depth the needle stands at. */
+  private sample(input: TechniquePerformanceInput, elapsed: number, motion: ResolvedManipulationMotion) {
+    const depthMm = input.needleId ? this.needles.depthMm(input.needleId) : null;
+    return sampleManipulation(input.model, input.technique, elapsed, motion, {
+      ...(depthMm !== null ? { depthMm } : {}),
+      besideNeedle: !!input.needleId && this.needles.has(input.needleId) && techniqueDefinition(input.model, input.technique)?.context === "skin",
+    });
   }
 
   private poseHand(hand: ArticulatedHand, pose: FingerPose): void {
@@ -468,11 +510,12 @@ export class NeedleProcedure {
     const poses = [current], gesture = this.active;
     const endpoints = [current];
     if (hand === this.hand && gesture?.kind === "performance") {
-      const motion = resolveManipulationMotion(gesture.input.technique, gesture.input.motion);
-      const steps = Math.max(...(motion.phaseCycles ?? [motion.cycles])) * 32;
+      const motion = resolveTechniqueMotion(gesture.input.model, gesture.input.technique, gesture.input.motion);
+      // an operative program has many more repetitions than hand shapes: a fixed number of samples covers them
+      const steps = gesture.input.model === "operative" ? 128 : Math.max(...(motion.phaseCycles ?? [motion.cycles])) * 32;
       for (let step = 0; step <= steps; step++) {
         const elapsed = finiteClamp(motion.durationMs * step / steps, 0.001, motion.durationMs - 0.001);
-        const sample = sampleTechnique(gesture.input.technique, elapsed, motion);
+        const sample = this.sample(gesture.input, elapsed, motion);
         const pose: FingerPose = { ...current, pose: sample.handPose, grip: sample.gripEngagement, stabilizerGrip: 1,
           phase: sample.phase.cycleProgress, rotationRad: sample.rotationRad,
           nailContact: sample.nailContact, axialDisplacementMm: sample.withdrawalMm };
@@ -659,7 +702,7 @@ export class NeedleProcedure {
   }
 
   private finish(gesture: ActiveGesture): void {
-    if (gesture.kind === "performance" && gesture.input.needleId) this.needles.clearTechnique(gesture.input.needleId);
+    if (gesture.kind === "performance" && gesture.input.needleId) this.needles.clearTechnique(gesture.input.needleId, gesture.preview ? 0 : gesture.residualRad ?? 0);
     this.clearHands();
     this.insertion.delete(gesture.id);
   }

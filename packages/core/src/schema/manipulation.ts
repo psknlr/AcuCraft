@@ -44,13 +44,29 @@ export const ManipulationMotionSettingsSchema = z.object({
   gripApertureMm: z.number().min(0).max(12).optional(),
   /** Normalized visual contact intensity; never a measured or prescribed force. */
   contactIntensity: z.number().min(0).max(1).optional(),
+  /**
+   * How far along the channel a tracing or nipping hand travels each way from the point (循, 摄, 按). Used by the
+   * operative catalogue only: an encounter on the illustrative catalogue refuses it.
+   */
+  travelMm: z.number().min(0).max(60).optional(),
 }).strict();
 export type ManipulationMotionSettings = z.infer<typeof ManipulationMotionSettingsSchema>;
-export type ResolvedManipulationMotion = Required<Omit<ManipulationMotionSettings, "phaseCycles">>
-  & Pick<ManipulationMotionSettings, "phaseCycles">;
+/** Settings the illustrative catalogue never resolves, so its records keep the fields they were made with. */
+type OperativeOnlySettings = "phaseCycles" | "travelMm";
+export type ResolvedManipulationMotion = Required<Omit<ManipulationMotionSettings, OperativeOnlySettings>>
+  & Pick<ManipulationMotionSettings, OperativeOnlySettings>;
 /** Historical records keep their original 13 resolved fields unless the request uses new hand controls. */
 export type RecordedManipulationMotion = Omit<ResolvedManipulationMotion, keyof typeof HandPresentationSettingsShape>
   & Pick<ManipulationMotionSettings, keyof typeof HandPresentationSettingsShape>;
+
+/**
+ * Which account of the 36 techniques an encounter runs on. `illustrative` (the default, and every record made before
+ * the choice existed): a performance is shown and recorded, and changes nothing else. `operative`: a technique is
+ * done to the needle — it takes its time, stimulates, reads as reinforcing or reducing, and can wind the tissue.
+ */
+export const TECHNIQUE_MODELS = ["illustrative", "operative"] as const;
+export const TechniqueModelSchema = z.enum(TECHNIQUE_MODELS);
+export type TechniqueModel = z.infer<typeof TechniqueModelSchema>;
 
 /** The engine resolves the optional target against the technique's skin/retained/removed context. */
 export const PerformTechniqueSchema = z.object({

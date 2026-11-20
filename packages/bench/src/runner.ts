@@ -1,5 +1,5 @@
 import { EncounterSession, type Agent } from "@acucraft/agent";
-import type { ActionRequest, EncounterLog, EncounterState, Mode, Scenario } from "@acucraft/core";
+import type { ActionRequest, EncounterLog, EncounterState, Mode, Scenario, TechniqueModel } from "@acucraft/core";
 import { readFileSync } from "node:fs";
 import { evaluateEncounter, type EncounterReport } from "./evaluate.js";
 
@@ -18,6 +18,8 @@ export interface RunOptions {
   maxSteps?: number;
   /** Check the needle invariants after every step (default true). */
   strict?: boolean;
+  /** The catalogue of techniques the encounter runs on (default operative: a technique is done to the needle). */
+  techniques?: TechniqueModel;
   onStep?: (info: { index: number; request: ActionRequest; status: string; message: string }) => void;
 }
 
@@ -41,7 +43,7 @@ export interface EpisodeResult {
  */
 export async function runEpisode(sc: Scenario, agent: Agent, opts: RunOptions = {}): Promise<EpisodeResult> {
   const maxSteps = opts.maxSteps ?? 250;
-  const session = new EncounterSession(sc, { ...(opts.seed !== undefined ? { seed: opts.seed } : {}), ...(opts.mode ? { mode: opts.mode } : {}), strict: opts.strict !== false });
+  const session = new EncounterSession(sc, { ...(opts.seed !== undefined ? { seed: opts.seed } : {}), ...(opts.mode ? { mode: opts.mode } : {}), strict: opts.strict !== false, techniques: opts.techniques ?? "operative" });
   let stopReason: EpisodeResult["stopReason"] = "max-steps";
   let error: string | undefined;
   /** Why the agent stopped by itself, when it said (a model that could not be reached, a refusal). */

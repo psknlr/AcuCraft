@@ -83,6 +83,11 @@ usage: npm run acu -- <command> [options]
                                             ACUCRAFT_TOKEN; any address but loopback needs one (made up if not given)
 
   --content DIR                             another content pack (default: ./content)
+  --techniques operative|illustrative       (show, run, play, bench) the catalogue of the 36 techniques a new encounter
+                                            runs on. operative (default): a technique is done to the needle — it takes
+                                            time, stimulates, reads as reinforcing or reducing, and one-way turning
+                                            winds the needle. illustrative: shown and recorded only, as in records
+                                            made before the choice existed (those replay on it whatever is given here)
 `;
 
 // a closed pipe (`acu points | head`) ends the command quietly
@@ -97,6 +102,7 @@ const { positionals, values } = parseArgs({
     agent: { type: "string", default: "protocol" },
     seed: { type: "string", default: "1" },
     mode: { type: "string", default: "assessment" },
+    techniques: { type: "string", default: "operative" },
     model: { type: "string" },
     effort: { type: "string" },
     "max-steps": { type: "string" },
@@ -134,6 +140,8 @@ const write = (path: string, data: string) => {
   writeFileSync(path, data);
 };
 const mode = (): Mode => (values.mode === "teaching" ? "teaching" : "assessment");
+/** The catalogue of the 36 techniques a new encounter runs on: operative unless the illustrative one is asked for. */
+const techniques = (): "operative" | "illustrative" => (values.techniques === "illustrative" ? "illustrative" : "operative");
 
 const FIXTURE_GLYPH: Record<string, string> = { couch: "C", chair: "h", trolley: "T", supplies: "S", "hand-hygiene": "w", "sharps-container": "!", "records-terminal": "R", screen: "|" };
 
@@ -352,7 +360,7 @@ async function main(): Promise<void> {
     case "show": {
       const p = pack();
       const sc = requireScenario(p, args[0] ?? "");
-      const s = createEncounter(sc, { seed: Number(values.seed), mode: mode() });
+      const s = createEncounter(sc, { seed: Number(values.seed), mode: mode(), techniques: techniques() });
       const actor = sc.field.cast.find((m) => m.agent === "under-test")!.id;
       console.log(JSON.stringify(values.library ? { view: observeAs(sc, s, actor), library: referenceLibrary(sc) } : observeAs(sc, s, actor), null, 2));
       return;
@@ -430,6 +438,7 @@ async function main(): Promise<void> {
       const e = await runEpisode(sc, agent, {
         seed: Number(values.seed),
         mode: mode(),
+        techniques: techniques(),
         ...(values["max-steps"] ? { maxSteps: Number(values["max-steps"]) } : {}),
         onStep: (i) => {
           if (values.verbose) console.log(`  ${String(i.index + 1).padStart(3)} ${i.request.action.type.padEnd(18)} ${i.status.padEnd(9)} ${i.message.slice(0, 110)}`);
@@ -453,7 +462,7 @@ async function main(): Promise<void> {
       const id = args[0] ?? "";
       const sc = requireScenario(p, id);
       const actor = sc.field.cast.find((m) => m.agent === "under-test")!.id;
-      let s = createEncounter(sc, { seed: Number(values.seed), mode: mode() });
+      let s = createEncounter(sc, { seed: Number(values.seed), mode: mode(), techniques: techniques() });
       const lib = referenceLibrary(sc);
       const rl = createInterface({ input: process.stdin, output: process.stdout });
       let n = 0;
@@ -536,7 +545,7 @@ async function main(): Promise<void> {
       rl.close();
       const report = evaluateEncounter(sc, s);
       const out = values.out ?? join("runs", `${id.replace("/", "--")}--play`);
-      const log: EncounterLog = { schema: "acucraft/log@1", scenarioId: sc.id, scenarioVersion: sc.family.version, engine: { acucraft: ACUCRAFT_VERSION, clinicalcraft: CLINICALCRAFT_REV }, seed: Number(values.seed), mode: mode(), requests: requests as never, finalDigest: digest(s), meta: { agent: "human" } };
+      const log: EncounterLog = { schema: "acucraft/log@1", scenarioId: sc.id, scenarioVersion: sc.family.version, engine: { acucraft: ACUCRAFT_VERSION, clinicalcraft: CLINICALCRAFT_REV }, seed: Number(values.seed), mode: mode(), ...(techniques() === "operative" ? { techniques: "operative" as const } : {}), requests: requests as never, finalDigest: digest(s), meta: { agent: "human" } };
       write(join(out, "log.json"), `${JSON.stringify(log, null, 2)}\n`);
       write(join(out, "report.md"), episodeMarkdown(report));
       console.log(`\n${report.primary.status}: ${report.primary.reasons.join("; ") || report.primary.pathway}. Wrote ${out}/log.json and report.md`);
@@ -573,6 +582,7 @@ async function main(): Promise<void> {
       const split = (values.split ?? "all") as "dev" | "held-out" | "all";
       const result = await runSuite(p, suite, (id) => makeAgent(id, p), {
         split,
+        techniques: techniques(),
         onEpisode: (e) => console.log(`${e.report.primary.status.padEnd(10)} ${e.scenario}  seed ${e.seed}  (${e.stopReason}, ${e.steps} actions)${e.report.criticalErrors.length ? `  critical: ${e.report.criticalErrors.map((c) => c.id).join(", ")}` : ""}`),
       });
       const out = values.out ?? join("runs", `bench--${suite.id}--${values.agent}--${split}`);

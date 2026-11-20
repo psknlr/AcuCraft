@@ -74,6 +74,15 @@ export class Hud {
   private readonly timer = el("div", "hud-timer");
   private readonly tools = el("div", "hud-tools");
   private readonly performanceLabel = el("div", "hud-performance");
+  /** The stage of an operative technique under way: its name, the count, the level the tip stands at, the breath. */
+  private readonly stageCard = el("div", "hud-stage");
+  private readonly stageName = el("div", "hud-stage-name");
+  private readonly stageLabel = el("div", "hud-stage-label");
+  private readonly stageCount = el("div", "hud-stage-count");
+  private readonly stageBreath = el("span", "hud-stage-breath");
+  private readonly stageGauge = el("div", "hud-stage-gauge");
+  private readonly stageTip = el("i", "hud-stage-tip");
+  private stageKey = "";
   private readonly loading = el("div", "stage-loading");
   private readonly fader = el("div", "stage-fade");
   private readonly note = el("div", "hud-note", "Schematic figure: positions on the body are drawn approximately");
@@ -89,7 +98,18 @@ export class Hud {
 
   constructor(private readonly controls: HudControls) {
     this.performanceLabel.hidden = true;
-    this.root.append(this.labels, this.cluster, this.tl, this.tr, this.caption, this.sub, this.timer, this.tools, this.performanceLabel, this.note, this.fader, this.loading);
+    this.stageCard.hidden = true;
+    this.stageCard.setAttribute("role", "status");
+    // the three levels of the depth the needle stands at, the skin at the top, with the tip's marker over them
+    for (const [id, zh] of [["tian", "天"], ["ren", "人"], ["di", "地"]] as const) {
+      const cell = el("span", "hud-stage-level", zh);
+      cell.dataset.level = id;
+      this.stageGauge.append(cell);
+    }
+    this.stageGauge.append(this.stageTip);
+    this.stageCard.append(el("div", "hud-stage-text"), this.stageGauge);
+    this.stageCard.firstElementChild!.append(this.stageName, this.stageLabel, this.stageCount, this.stageBreath);
+    this.root.append(this.labels, this.cluster, this.tl, this.tr, this.caption, this.sub, this.timer, this.tools, this.performanceLabel, this.stageCard, this.note, this.fader, this.loading);
     this.cluster.type = "button";
     this.cluster.title = "the needles: a closer look";
     this.cluster.addEventListener("click", () => this.controls.shot("needle"));
@@ -151,6 +171,7 @@ export class Hud {
   }
 
   performance(state: TechniquePlayback): void {
+    this.stage(state);
     if (state.mode === "idle") {
       this.performanceLabel.hidden = !state.reachWarning;
       this.performanceLabel.textContent = state.reachWarning ?? "";
@@ -160,6 +181,32 @@ export class Hud {
     this.performanceLabel.hidden = false;
     this.performanceLabel.textContent = `${state.mode === "preview" ? "本地预览 Preview" : "记录回放 Record"} · ${state.technique ?? ""}${state.phase ? ` · ${state.phase}` : ""} · ${Math.round(state.progress * 100)}% · ${state.speed}×${state.playing ? "" : " · 暂停 Paused"}${state.reachWarning ? ` · ${state.reachWarning}` : ""}`;
     this.performanceLabel.dataset.mode = state.mode;
+  }
+
+  /** The stage card of an operative technique: redrawn only when what it says changes; the tip's marker every frame. */
+  private stage(state: TechniquePlayback): void {
+    const stage = state.mode === "idle" ? null : state.stage ?? null;
+    this.stageCard.hidden = !stage;
+    if (!stage) { this.stageKey = ""; return; }
+    this.stageCard.dataset.mode = state.mode;
+    const key = `${stage.zh}|${stage.label}|${stage.count}|${stage.of}|${stage.level}|${stage.breath}`;
+    if (key !== this.stageKey) {
+      this.stageKey = key;
+      this.stageName.textContent = stage.zh;
+      this.stageLabel.textContent = stage.label;
+      this.stageCount.replaceChildren();
+      this.stageCount.hidden = stage.of === 0;
+      if (stage.of > 0) {
+        this.stageCount.setAttribute("aria-label", `${stage.count} of ${stage.of}`);
+        for (let i = 1; i <= stage.of; i++) this.stageCount.append(el("i", i < stage.count ? "done" : i === stage.count ? "now" : ""));
+        this.stageCount.append(el("b", "", `${stage.count}/${stage.of}`));
+      }
+      this.stageBreath.hidden = !stage.breath;
+      this.stageBreath.textContent = stage.breath === "exhale" ? "呼 · out-breath" : stage.breath === "inhale" ? "吸 · in-breath" : "";
+      for (const cell of Array.from(this.stageGauge.querySelectorAll<HTMLElement>(".hud-stage-level"))) cell.classList.toggle("on", cell.dataset.level === stage.level);
+    }
+    // the skin is the top of the gauge, the depth the needle stands at its foot
+    this.stageTip.style.top = `${Math.max(0, Math.min(1, stage.depthFraction)) * 100}%`;
   }
 
   failed(message: string): void {

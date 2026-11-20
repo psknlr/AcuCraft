@@ -1,4 +1,4 @@
-import type { EncounterLog, Mode } from "@acucraft/core";
+import { TECHNIQUE_MODELS, type EncounterLog, type Mode, type TechniqueModel } from "@acucraft/core";
 import { EncounterSession, openingText, type ToolContext, type ToolDefinition } from "@acucraft/agent";
 import { CLINICALCRAFT_REV, evaluateEncounter, requireScenario, type ContentPack, type EncounterReport, type FamilyEntry } from "@acucraft/bench";
 
@@ -36,7 +36,7 @@ export interface EncounterStore {
 }
 
 /** What `start_encounter` asked for, checked against the pack: the scenario to open, or why there is none. */
-export type StartChoice = { ok: true; family: FamilyEntry; index: number; seed: number; mode: Mode; scenarioId: string } | { ok: false; output: unknown };
+export type StartChoice = { ok: true; family: FamilyEntry; index: number; seed: number; mode: Mode; techniques: TechniqueModel; scenarioId: string } | { ok: false; output: unknown };
 
 export function startChoice(pack: ContentPack, args: Record<string, unknown>): StartChoice {
   const family = typeof args.family === "string" ? pack.families.get(args.family) : undefined;
@@ -46,7 +46,10 @@ export function startChoice(pack: ContentPack, args: Record<string, unknown>): S
   if (args.variant !== undefined && !(Number.isInteger(args.variant) && (args.variant as number) >= 1 && (args.variant as number) <= n)) return { ok: false, output: { error: `variant is a number from 1 to ${n}` } };
   const index = args.variant !== undefined ? (args.variant as number) - 1 : (((seed - 1) % n) + n) % n;
   const mode: Mode = args.mode === "teaching" ? "teaching" : "assessment";
-  return { ok: true, family, index, seed, mode, scenarioId: `${family.id}/${family.variantIds[index]}` };
+  if (args.techniques !== undefined && !(TECHNIQUE_MODELS as readonly unknown[]).includes(args.techniques)) return { ok: false, output: { error: `techniques is one of ${TECHNIQUE_MODELS.join(", ")}` } };
+  // an encounter started here runs on the operative catalogue unless the illustrative one is asked for
+  const techniques: TechniqueModel = args.techniques === "illustrative" ? "illustrative" : "operative";
+  return { ok: true, family, index, seed, mode, techniques, scenarioId: `${family.id}/${family.variantIds[index]}` };
 }
 
 /** The families of a pack, as `list_encounters` gives them. */
@@ -120,7 +123,7 @@ export class MemoryStore implements EncounterStore {
   open(args: Record<string, unknown>): StoreResult {
     const choice = startChoice(this.pack, args);
     if (!choice.ok) return choice;
-    const session = new EncounterSession(requireScenario(this.pack, choice.scenarioId), { seed: choice.seed, mode: choice.mode });
+    const session = new EncounterSession(requireScenario(this.pack, choice.scenarioId), { seed: choice.seed, mode: choice.mode, techniques: choice.techniques });
     // an opaque id: it names neither the variant nor anything else of the scenario
     const id = `enc-${++this.opened}-${Math.abs(Math.imul(choice.seed + 0x9e3779b9, this.opened * 2654435761)).toString(36)}`;
     this.sessions.set(id, { id, session, used: ++this.clock, closed: false });

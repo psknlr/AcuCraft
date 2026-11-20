@@ -1,4 +1,4 @@
-import { ACUCRAFT_VERSION, createEncounter, digest, LOG_SCHEMA_ID, observeAs, referenceLibrary, step, type ActionInput, type ActionRequest, type AgentView, type AttemptRecord, type EncounterLog, type EncounterState, type Mode, type Scenario } from "@acucraft/core";
+import { ACUCRAFT_VERSION, createEncounter, digest, LOG_SCHEMA_ID, observeAs, referenceLibrary, step, type ActionInput, type ActionRequest, type AgentView, type AttemptRecord, type EncounterLog, type EncounterState, type Mode, type Scenario, type TechniqueModel } from "@acucraft/core";
 import { outcomeOf } from "./render.js";
 
 /**
@@ -14,6 +14,11 @@ export interface SessionOptions {
   strict?: boolean;
   /** The cast member acting (default: the one under test). */
   actor?: string;
+  /**
+   * The catalogue of techniques the encounter runs on (default: illustrative, the engine's own default). The places
+   * that start encounters for people and models — the workspace, the MCP server, the benchmark — ask for operative.
+   */
+  techniques?: TechniqueModel;
 }
 
 export interface ActOutcome {
@@ -30,6 +35,7 @@ export class EncounterSession {
   readonly actor: string;
   readonly seed: number;
   readonly mode: Mode;
+  readonly techniques: TechniqueModel;
   private readonly strict: boolean;
   private current: EncounterState;
   private readonly made: ActionRequest[] = [];
@@ -40,7 +46,8 @@ export class EncounterSession {
     this.mode = options.mode ?? "assessment";
     this.strict = options.strict !== false;
     this.actor = options.actor ?? scenario.field.cast.find((m) => m.agent === "under-test")!.id;
-    this.current = createEncounter(scenario, { seed: this.seed, mode: this.mode });
+    this.techniques = options.techniques ?? "illustrative";
+    this.current = createEncounter(scenario, { seed: this.seed, mode: this.mode, techniques: this.techniques });
   }
 
   /**
@@ -48,9 +55,10 @@ export class EncounterSession {
    * and versions), so the state is the one the log was written from. The engine is deterministic: a log whose
    * digest the replay does not reproduce was written by another engine or content, and is refused.
    */
-  static fromLog(scenario: Scenario, log: EncounterLog, options: Omit<SessionOptions, "seed" | "mode"> = {}): EncounterSession {
+  static fromLog(scenario: Scenario, log: EncounterLog, options: Omit<SessionOptions, "seed" | "mode" | "techniques"> = {}): EncounterSession {
     if (log.scenarioId !== scenario.id) throw new Error(`the log is of ${log.scenarioId}, not ${scenario.id}`);
-    const session = new EncounterSession(scenario, { ...options, seed: log.seed, mode: log.mode });
+    // a log says which catalogue it ran on; one that does not was made on the illustrative one
+    const session = new EncounterSession(scenario, { ...options, seed: log.seed, mode: log.mode, techniques: log.techniques ?? "illustrative" });
     for (const request of log.requests) {
       const stepped = step(scenario, session.current, request, { strict: session.strict });
       session.current = stepped.state;
@@ -103,6 +111,7 @@ export class EncounterSession {
       engine: { acucraft: ACUCRAFT_VERSION, clinicalcraft: engine.clinicalcraft },
       seed: this.seed,
       mode: this.mode,
+      ...(this.techniques === "operative" ? { techniques: "operative" as const } : {}),
       requests: [...this.made],
       finalDigest: digest(this.current),
       meta,

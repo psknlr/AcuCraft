@@ -37,6 +37,8 @@ export const UNSAFE_CODES = [
   "hand-hygiene-omitted",
   "site-not-prepared",
   "repositioned-with-needles",
+  /** A needle the tissue had seized (wound by one-way turning) pulled out without being freed first. */
+  "stuck-needle-forced",
 ] as const;
 export const UnsafeCodeSchema = z.enum(UNSAFE_CODES);
 export type UnsafeCode = z.infer<typeof UnsafeCodeSchema>;
@@ -434,7 +436,7 @@ export type Variant = z.infer<typeof VariantSchema>;
 export const SIGN_METHODS = ["inquiry", "inspection", "tongue", "pulse", "palpation", "listening"] as const;
 
 /** Qualities of what a patient feels at a needle (`deqi: true` — one of the sensations of deqi; false — not deqi). */
-export const NEEDLE_SENSATIONS = ["aching", "numbness", "heaviness", "distension", "warmth", "spreading", "sharp-pain", "burning", "electric"] as const;
+export const NEEDLE_SENSATIONS = ["aching", "numbness", "heaviness", "distension", "warmth", "coolness", "spreading", "sharp-pain", "burning", "electric"] as const;
 export const NeedleSensationSchema = z.enum(NEEDLE_SENSATIONS);
 export type NeedleSensation = z.infer<typeof NeedleSensationSchema>;
 

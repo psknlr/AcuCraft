@@ -330,7 +330,7 @@ export class RecordHub {
   create(args: Record<string, unknown>, by: Attribution): HubResult<{ id: string; summary: EncounterSummary } | { error: unknown }> {
     const choice = startChoice(this.pack, args);
     if (!choice.ok) return { status: 400, body: { error: (choice.output as { error: unknown }).error ?? choice.output } };
-    const session = new EncounterSession(requireScenario(this.pack, choice.scenarioId), { seed: choice.seed, mode: choice.mode });
+    const session = new EncounterSession(requireScenario(this.pack, choice.scenarioId), { seed: choice.seed, mode: choice.mode, techniques: choice.techniques });
     const live = this.adopt(session, choice.family.id, choice.index + 1, by, []);
     this.save(live);
     this.emit({ type: "summary", summary: this.summaryOf(live) });

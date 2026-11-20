@@ -10,7 +10,7 @@ import { SiteFinder, siteOfInsertion, type SkinSite } from "./sites.js";
 import { refineSkin } from "./skin.js";
 import { NeedleProcedure } from "./procedure.js";
 import { patientFloorPlacement, practitionerFloorPlacement } from "./navigation.js";
-import { PerformTechniqueSchema, manipulationTechnique } from "@acucraft/core";
+import { PerformTechniqueSchema, manipulationTechnique, techniqueDefinition } from "@acucraft/core";
 import type { TechniquePlayback, TechniquePreview } from "../manipulation.js";
 import { previewSite } from "./performance-target.js";
 import type { AgentView, CameraMode, ChartSite, Quality, StageInfo, StageState, TimelineEntry } from "./types.js";
@@ -79,7 +79,7 @@ function describe(e: TimelineEntry, view: AgentView): string {
     case "adjust_needle":
       return `works ${s("needleId")}${s("technique") && s("technique") !== "none" ? ` (${s("technique")})` : ""}`;
     case "perform_technique": {
-      const technique = manipulationTechnique(s("technique"));
+      const technique = techniqueDefinition(view.techniques, s("technique"));
       return `${technique?.zh ?? s("technique")} · ${technique?.label ?? "technique"}`;
     }
     case "mark_point":
@@ -364,7 +364,8 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
           seenPerformances.add(performance.id);
           const site = performance.patientPosition === view.patient.position && performance.visit === view.setting.visit && performance.actor === view.you.id ? finder?.find(performance.site) : null;
           if (site && (!stopped || performance.context === "removed")) {
-            procedure.perform({ id: performance.id, technique: performance.technique, needleId: performance.needleId ?? undefined, site, motion: performance.motion });
+            procedure.perform({ id: performance.id, technique: performance.technique, needleId: performance.needleId ?? undefined, site, motion: performance.motion,
+              ...(performance.provenance.kind === "operative" ? { model: "operative" as const } : {}) });
             focus = site;
           }
         }
@@ -486,7 +487,8 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
       const target = previewSite(state.view, parsed.data);
       const site = finder.find(target);
       if (!site || !site.bare) throw new Error("当前图形未显示此处裸露皮肤，请选择可见标记 · Choose a site on the visible skin.");
-      if (!procedure.preview({ id: `preview-${++previewSequence}`, technique: parsed.data.technique, needleId: parsed.data.needleId, site, motion: parsed.data.motion })) throw new Error("请等待当前动作完成，再开始预览 · Wait for the current recorded action or walk to finish.");
+      if (!procedure.preview({ id: `preview-${++previewSequence}`, technique: parsed.data.technique, needleId: parsed.data.needleId, site, motion: parsed.data.motion,
+        ...(state.view.techniques ? { model: state.view.techniques } : {}) })) throw new Error("请等待当前动作完成，再开始预览 · Wait for the current recorded action or walk to finish.");
       director.cut({ ...director.closeOn(site.p, site.n, 0.5), hold: 60_000 }, 650);
       engine.invalidate(45);
     },

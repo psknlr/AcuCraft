@@ -15,8 +15,24 @@ export interface TechniqueDefinition {
   phases?: readonly { primitive: string; label: string }[];
   parameterBounds?: Record<string, { min: number; max: number }>;
   source?: { id: string; review: string; note: string };
+  /* the operative catalogue's card: what the technique is for and one performance of it; in full with `id` */
+  name?: string;
+  pinyin?: string;
+  group?: string;
+  counts?: readonly { zh: string; label: string; count: number }[];
+  seconds?: number;
+  effect?: { minutes: number; dose: number; reading: string | null; windingDeg: number; loosensDeg: number; seeks: string | null; needsDepthMm: number };
+  method?: readonly string[];
+  formula?: { zh: string; from: string } | null;
+  essentials?: readonly string[];
+  cautions?: readonly string[];
+  simulation?: string;
+  stages?: readonly { zh: string; does: string; level?: string; times?: number; breath?: string; seconds: number }[];
 }
 export interface TechniqueLibrary {
+  /** `operative`: the techniques are done to the needle. Absent: the illustrative catalogue. */
+  model?: string;
+  groups?: readonly { id: string; zh: string; label: string; note: string }[];
   techniques: readonly TechniqueDefinition[];
   defaults: Record<string, TechniqueParameters>;
   motionSchema: JsonSchema;
@@ -53,6 +69,8 @@ export interface TechniquePlayback {
   phase: string | null;
   durationMs: number;
   reachWarning?: string | null;
+  /** On the operative catalogue: the stage under way — its name, the repetition of how many, the level, the breath. */
+  stage?: { zh: string; label: string; count: number; of: number; level: "tian" | "ren" | "di" | null; breath: "inhale" | "exhale" | null; depthFraction: number } | null;
 }
 export interface TechniqueDraft {
   technique: string;
@@ -145,7 +163,41 @@ const LABELS: Record<string, [string, string?]> = {
   tempoBias: ["提插时相比 Phase balance"], direction: ["旋转方向 Direction"], grip: ["持针方式 Grip"], support: ["辅助手 Support"],
   hand: ["主操作手 Main hand"], gripApertureMm: ["接近与释放开口 Opening", "mm"], contactIntensity: ["接触表现 Contact intensity"],
   wristElevationDeg: ["手腕抬高角 Wrist elevation", "°"], gripStyle: ["持针接触 Grip style"], idleFingerPose: ["闲置手指 Idle fingers"],
+  travelMm: ["沿经移动距离 Travel along the channel", "mm"],
 };
+const READINGS: Record<string, string> = { reinforcing: "补 reinforcing", reducing: "泻 reducing", mixed: "补泻兼施 mixed", even: "平补平泻 even" };
+
+/**
+ * The card of a technique of the operative catalogue: the line it is taught by, what the hands do, the numbers that go
+ * with it, its stages in order with their levels and counts, what one performance does, and what to watch for.
+ */
+export function techniqueCard(entry: TechniqueDefinition): HTMLElement[] {
+  const out: HTMLElement[] = [];
+  if (entry.formula) out.push(h("blockquote", { class: "manipulation-formula", lang: "zh" }, entry.formula.zh, h("cite", null, entry.formula.from)));
+  const effect = entry.effect;
+  if (effect) {
+    const facts = [
+      entry.counts?.length ? entry.counts.map((c) => `${c.zh} ×${c.count}`).join(" · ") : null,
+      entry.seconds ? `${entry.seconds.toFixed(1)} s` : null,
+      effect.reading ? READINGS[effect.reading] ?? effect.reading : null,
+      effect.dose > 0 ? `刺激量 dose ${effect.dose.toFixed(2)}` : null,
+      effect.needsDepthMm > 0 ? `需针深 ≥ ${effect.needsDepthMm} mm` : null,
+      effect.windingDeg !== 0 ? `缠针 winds ${Math.abs(effect.windingDeg)}°` : null,
+      effect.loosensDeg > 0 ? `松解 loosens ${effect.loosensDeg}°` : null,
+      effect.seeks === "warmth" ? "求热感 seeks warmth" : effect.seeks === "coolness" ? "求凉感 seeks coolness" : null,
+    ].filter((x): x is string => x !== null);
+    if (facts.length) out.push(h("p", { class: "manipulation-facts" }, facts.map((f) => h("span", null, f))));
+  }
+  if (entry.method?.length) out.push(h("div", { class: "manipulation-card-part" }, h("h4", null, "操作 How it is done"), h("ol", null, entry.method.map((line) => h("li", null, line)))));
+  if (entry.stages?.length) out.push(h("div", { class: "manipulation-card-part" }, h("h4", null, "分段 Stages of one performance"),
+    h("ol", { class: "manipulation-stages" }, entry.stages.map((x) => h("li", null,
+      h("b", { lang: "zh" }, x.zh), x.times ? h("i", null, `×${x.times}`) : null, h("span", null, x.does),
+      x.breath ? h("em", null, x.breath === "exhale" ? "呼 out-breath" : "吸 in-breath") : null, h("small", null, `${x.seconds.toFixed(1)} s`))))));
+  if (entry.essentials?.length) out.push(h("div", { class: "manipulation-card-part" }, h("h4", null, "要领 Essentials"), h("ul", null, entry.essentials.map((line) => h("li", null, line)))));
+  if (entry.cautions?.length) out.push(h("div", { class: "manipulation-card-part caution" }, h("h4", null, "注意 Watch for"), h("ul", null, entry.cautions.map((line) => h("li", null, line)))));
+  if (entry.simulation) out.push(h("p", { class: "manipulation-simulation" }, h("b", null, "模拟 In the simulation: "), entry.simulation));
+  return out;
+}
 const VALUES: Record<string, string> = {
   alternating: "往返 Alternating", clockwise: "顺时针 Clockwise", counterclockwise: "逆时针 Counterclockwise",
   "two-finger": "拇指＋食指（默认） Thumb–index", "three-finger": "拇食主夹持＋中指辅助 Thumb–index + middle support", none: "无 None", stabilize: "稳定 Stabilize",
@@ -237,6 +289,7 @@ export function manipulationControls(id: string, hooks: Hooks): ManipulationCont
   const mode = h("select", { "aria-label": "操作类别 Action category" }, h("option", { value: "technique" }, "手法 Manipulation"), h("option", { value: "insertion" }, "进针 Insertion"));
   const technique = h("select", { "aria-label": "针刺手法 Acupuncture technique" });
   const description = h("p", { class: "manipulation-description" });
+  const card = h("div", { class: "manipulation-card", hidden: true });
   const holdingRoles = h("p", { class: "manipulation-intro manipulation-holding-roles" });
   const provenance = h("p", { class: "manipulation-provenance" }, "示意动画 · Illustrative choreography");
   const context = h("span", { class: "manipulation-context" });
@@ -281,7 +334,7 @@ export function manipulationControls(id: string, hooks: Hooks): ManipulationCont
   const phase = h("output", { class: "manipulation-phase" }, "等待播放 · Ready");
   const transport = h("div", { class: "manipulation-transport" }, play, speed, seek, phase, stopPreview);
   const recorded = h("div", { class: "manipulation-recorded" });
-  el.append(introduction, h("div", { class: "manipulation-selection" }, field("操作 Action", mode), field("手法 Technique", technique), context), description, provenance, holdingRoles, targets, parameters, insertion,
+  el.append(introduction, h("div", { class: "manipulation-selection" }, field("操作 Action", mode), field("手法 Technique", technique), context), description, card, provenance, holdingRoles, targets, parameters, insertion,
     h("p", { class: "manipulation-intro" }, "持针时指腹自动贴合针柄；开口控制接近与释放，松手保留必要间隙。", h("br"), "Held fingers fit the handle. Opening controls approach/release, with clearance when letting go."),
     h("div", { class: "manipulation-actions" }, preview, execute, approach, reset), transport, status, recorded);
 
@@ -290,7 +343,27 @@ export function manipulationControls(id: string, hooks: Hooks): ManipulationCont
   let snapshot: EncounterSnapshot | null = null;
   let closed = false, busy = false, gone = false, scrubbing = false, handErrorShown = false;
   let lastPlayback: TechniquePlayback = { mode: "idle", playing: false, progress: 0, speed: 1, technique: "", phase: "", durationMs: 0 };
-  let targetSignature = "", recordSignature = "";
+  let targetSignature = "", recordSignature = "", cardFor = "";
+  /** The full entry of each technique of the operative catalogue, read once when it is first chosen. */
+  const fullEntries = new Map<string, TechniqueDefinition>();
+  function drawCard(): void {
+    const entry = definition(), operative = library?.model === "operative" && mode.value !== "insertion";
+    card.hidden = !operative || !entry;
+    if (!operative || !entry) { cardFor = ""; return; }
+    const full = fullEntries.get(entry.id);
+    const key = `${entry.id}|${full ? "full" : "lean"}`;
+    if (key === cardFor) return;
+    cardFor = key;
+    replace(card, techniqueCard(full ?? entry));
+    if (full) return;
+    const wanted = entry.id;
+    void api.act(id, "lookup", { topic: "techniques", id: wanted }).then((answer) => {
+      const found = answer.ok ? (answer.output as TechniqueLibrary).techniques?.find((t) => t.id === wanted) : undefined;
+      if (gone || !found) return;
+      fullEntries.set(wanted, found);
+      if (definition()?.id === wanted) drawCard();
+    }).catch(() => { /* the lean card stays: the catalogue's index has what a performance is */ });
+  }
   const parameterFields = new Map<string, { el: HTMLElement; inputs: (HTMLInputElement | HTMLSelectElement)[]; unit?: HTMLElement }>();
   const previewUpdates = previewParameterUpdates({
     read: () => input(),
@@ -388,7 +461,10 @@ export function manipulationControls(id: string, hooks: Hooks): ManipulationCont
     technique.disabled = disabled || insertionMode;
     context.textContent = insertionMode ? "建立针路 · Insertion path" : CONTEXT[entry?.context ?? ""] ?? "";
     description.textContent = insertionMode ? "深度与方向由模拟引擎核验；持针和辅助手参数控制插入动画。Depth and direction are checked by the encounter engine." : entry?.description ?? "";
-    provenance.textContent = insertionMode ? "动画参数不改变核准针路 · Animation settings do not change the approved path." : "示意动作，尚未实测校准 · Illustrative choreography, not measurement-calibrated.";
+    provenance.textContent = insertionMode ? "动画参数不改变核准针路 · Animation settings do not change the approved path."
+      : library?.model === "operative" ? "操作型手法：执行即作用于该针（耗时、刺激量、补泻、缠针）。据古籍与教材整理，未经医师审校；未建力学模型。 · Operative: Execute does the technique to the needle (time, stimulation, reinforcing or reducing, winding). Authored from classical and textbook accounts, not reviewed by a practitioner; forces are not modelled."
+      : "示意动作，尚未实测校准 · Illustrative choreography, not measurement-calibrated.";
+    drawCard();
     const controls = entry?.controls;
     for (const [key, field] of parameterFields) field.el.hidden =
       !!controls?.length && !controls.includes(key) || key === "cycles" && Array.isArray(draft?.motion.phaseCycles);
@@ -397,19 +473,22 @@ export function manipulationControls(id: string, hooks: Hooks): ManipulationCont
     if (!library || !draft) return;
     parameterFields.clear(); replace(parameters);
     const entry = definition(), techniques = library.techniques;
+    const operative = library.model === "operative";
     for (const [key, schema] of Object.entries(library.motionSchema.properties ?? {})) {
-      const [label, unit = ""] = LABELS[key] ?? [key];
+      let [label, unit = ""] = LABELS[key] ?? [key];
+      // on the operative catalogue a count is the method's own: name what it counts
+      if (operative && key === "cycles") label = entry?.counts?.length === 1 ? `次数 Count · ${entry.counts[0]!.zh} ${entry.counts[0]!.label}` : "各段次数 Count of every stage";
       if (key === "phaseCycles" && entry?.family === "compound" && entry.phases && schema.items) {
         const { minimum, maximum } = schema.items;
         const sharedCycles = draft.motion.cycles;
         const custom = h("input", { type: "checkbox", checked: Array.isArray(draft.motion.phaseCycles) });
         const group = h("div", { class: "manipulation-phase-cycles" },
-          h("label", null, custom, " 各阶段分别设定循环次数 · Set repeat counts by phase"));
+          h("label", null, custom, operative ? " 按段设定次数（默认为该法本数，如九、六） · Set each count (default: the method's own numbers)" : " 各阶段分别设定循环次数 · Set repeat counts by phase"));
         const counts = h("div", { class: "manipulation-phase-counts", hidden: !custom.checked });
         const saved = draft.motion.phaseCycles;
         const inputs = entry.phases.map((phase, index) => {
           const zh = techniques.find(t => t.id === phase.primitive)?.zh ?? phase.primitive;
-          const label = `${index + 1}. ${zh} · ${phase.label}`;
+          const label = operative ? `${index + 1}. ${phase.label}` : `${index + 1}. ${zh} · ${phase.label}`;
           const control = h("input", { type: "number", min: minimum, max: maximum, step: 1,
             value: Array.isArray(saved) ? saved[index] : sharedCycles, "aria-label": label });
           counts.append(field(label, control));
@@ -423,7 +502,7 @@ export function manipulationControls(id: string, hooks: Hooks): ManipulationCont
           motionChanged();
         };
         custom.addEventListener("change", () => {
-          if (custom.checked && draft) for (const input of inputs) input.value = String(draft.motion.cycles);
+          if (custom.checked && draft) inputs.forEach((input, index) => { input.value = String(operative ? entry.counts?.[index]?.count ?? draft!.motion.cycles : draft!.motion.cycles); });
           update();
         });
         for (const input of inputs) input.addEventListener("input", update);
@@ -572,14 +651,19 @@ export function manipulationControls(id: string, hooks: Hooks): ManipulationCont
     insertionNumbers.wristElevationDeg.number.value = String(initialWrist.default);
     const families = new Map<string, HTMLOptGroupElement>();
     for (const entry of library.techniques) {
-      let group = families.get(entry.family);
-      if (!group) { group = h("optgroup", { label: FAMILIES[entry.family] ?? entry.family }); families.set(entry.family, group); technique.append(group); }
-      group.append(h("option", { value: entry.id }, `${entry.zh} · ${entry.label}`));
+      // the operative catalogue is read in its own groups (揣爪循摄 …); the illustrative one by kind of movement
+      const named = library.groups?.find((g) => g.id === entry.group);
+      const of = named?.id ?? entry.family;
+      let group = families.get(of);
+      if (!group) { group = h("optgroup", { label: named ? `${named.zh} · ${named.label}` : FAMILIES[entry.family] ?? entry.family }); families.set(of, group); technique.append(group); }
+      group.append(h("option", { value: entry.id }, named ? `${entry.zh} · ${entry.name ?? entry.label}` : `${entry.zh} · ${entry.label}`));
     }
     technique.value = library.techniques.some((t) => t.id === "nian") ? "nian" : library.techniques[0]?.id ?? "";
     draft = techniqueDraft(library, technique.value);
     drawParameters(); drawTargets(); availability();
-    status.textContent = `${library.techniques.length} 种手法可调 · ${library.techniques.length} parameterized gestures. ${library.note ?? ""}`;
+    status.textContent = library.model === "operative"
+      ? `${library.techniques.length} 种手法（操作型目录） · ${library.techniques.length} techniques on the operative catalogue: Execute does the technique to the needle.`
+      : `${library.techniques.length} 种手法可调 · ${library.techniques.length} parameterized gestures. ${library.note ?? ""}`;
   }).catch((error) => { if (!gone) showError(error); });
 
   return {
@@ -624,7 +708,7 @@ export function manipulationControls(id: string, hooks: Hooks): ManipulationCont
       play.textContent = next.playing ? "暂停 Pause" : "继续 Play";
       if (!scrubbing) seek.value = String(Math.max(0, Math.min(1, next.progress)));
       if (document.activeElement !== speed) speed.value = String(next.speed);
-      phase.textContent = `${next.phase || "等待播放 Ready"} · ${Math.round(next.progress * 100)}%${next.reachWarning ? ` · ${next.reachWarning}` : ""}`;
+      phase.textContent = `${next.phase || "等待播放 Ready"}${next.stage?.breath ? ` · ${next.stage.breath === "exhale" ? "呼 out-breath" : "吸 in-breath"}` : ""} · ${Math.round(next.progress * 100)}%${next.reachWarning ? ` · ${next.reachWarning}` : ""}`;
       availability();
     },
     dispose() { gone = true; previewUpdates.dispose(); hooks.cancelPreview(); },

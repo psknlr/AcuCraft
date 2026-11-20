@@ -1,12 +1,12 @@
-import { manipulationTechnique, phaseCyclesError, type AgentView, type PerformTechniqueAction } from "@acucraft/core";
+import { operationCountsError, phaseCyclesError, techniqueDefinition, type AgentView, type OperativeTechnique, type PerformTechniqueAction } from "@acucraft/core";
 import type { ChartSite } from "./types.js";
 
 /** Public-view target validation for local preview. Execute still passes the complete encounter engine. */
 export function previewSite(view: AgentView, request: PerformTechniqueAction): ChartSite {
   if (request.at && ![request.at.u, request.at.v].every(Number.isFinite)) throw new Error("坐标必须为有限数值 · Coordinates must be finite.");
-  const definition = manipulationTechnique(request.technique);
+  const definition = techniqueDefinition(view.techniques, request.technique);
   if (!definition) throw new Error("未知手法 · Unknown technique.");
-  const phaseError = phaseCyclesError(definition, request.motion?.phaseCycles);
+  const phaseError = view.techniques === "operative" ? operationCountsError(definition as OperativeTechnique, request.motion) : phaseCyclesError(definition, request.motion?.phaseCycles);
   if (phaseError) throw new Error(phaseError);
   let site: ChartSite;
   if (definition.context !== "skin" || request.needleId) {

@@ -51,7 +51,15 @@ export interface ManipulationPerformance {
   site: { region: string; side: Side; u: number; v: number };
   patientPosition: Position;
   motion: RecordedManipulationMotion;
-  provenance: { kind: "illustrative"; source: "acucraft-authored-demonstration-v1"; review: "unreviewed"; forces: "not-modelled" };
+  provenance:
+    | { kind: "illustrative"; source: "acucraft-authored-demonstration-v1"; review: "unreviewed"; forces: "not-modelled" }
+    | { kind: "operative"; source: "acucraft-operative-techniques-v2"; review: "unreviewed"; forces: "not-modelled" };
+  /**
+   * On the operative catalogue only: what the performance did — the time it took, the stimulation it gave the needle,
+   * how its form reads, and what it wound onto the needle or let go. Public: it is what the operator did, not how
+   * the tissue answered.
+   */
+  effect?: { minutes: number; dose: number; reading: "reinforcing" | "reducing" | "mixed" | "even" | null; windingDeg: number; loosenedDeg: number };
 }
 
 /**
@@ -100,6 +108,11 @@ export interface NeedleResponse {
    */
   deqiSince?: number;
   qualities: NeedleSensation[];
+  /**
+   * The warmth or coolness a compound method was done for (烧山火, 透天凉), kept while the needle has its response.
+   * Whether this patient feels it at this site is the field's, like the rest of the response. Absent: none sought.
+   */
+  thermal?: "warmth" | "coolness";
   /** A sensation that is not deqi and wants the needle adjusted or out (a nerve, a tendon, too strong). */
   noxious: NeedleSensation | null;
   /** Stimulated beyond what the patient tolerates. */
@@ -138,6 +151,8 @@ export interface NeedleEvent {
   what: "pack-opened" | "picked-up" | "handed-over" | "inserted" | "adjusted" | "withdrawn" | "disposed" | "dropped" | "found" | "broken" | "contaminated" | "pressure";
   detail?: string;
   motion?: import("../engine/manipulation.js").NeedleMotion;
+  /** On the operative catalogue: how the working of the needle reads (reinforcing, reducing, mixed, even). */
+  reading?: "reinforcing" | "reducing" | "mixed" | "even";
 }
 
 export interface NeedleState {
@@ -184,6 +199,13 @@ export interface NeedleState {
   bleeding: boolean;
   /** The tissue's response while the needle is, or was, in place (null: never inserted). */
   response: NeedleResponse | null;
+  /**
+   * On the operative catalogue: degrees of one-way turning the tissue has wound round the shaft (clockwise from the
+   * handle positive). Absent: none. Held from half a turn, stuck from a turn and a half (`needleHold`).
+   */
+  winding?: number;
+  /** The hole pressed closed after the needle came out (扪). Absent: not closed. */
+  holeClosed?: true;
   events: NeedleEvent[];
 }
 
@@ -386,6 +408,11 @@ export interface EncounterState {
   events: Record<string, { armedAt: number; draw: boolean; firedAt: number | null }>;
   /** Every walk made, in order. */
   walks: WalkRecord[];
+  /**
+   * The catalogue of techniques the encounter runs on. Absent: the illustrative one, as in every record made before
+   * the choice existed — so those records replay to the state they had.
+   */
+  techniques?: "operative";
   /** Created only by perform_technique, leaving historical encounter/replay digests unchanged. */
   performances?: ManipulationPerformance[];
   /** The evidence ledger: everything obtained, in order, each item once. */

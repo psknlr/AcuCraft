@@ -7,6 +7,8 @@ export * from "./space.js";
 export * from "./evidence.js";
 export * from "./techniques.js";
 export * from "./performance.js";
+export * from "./technique-cards.js";
+export * from "./operation.js";
 export * from "./queries.js";
 export * from "./conditions.js";
 export * from "./text.js";

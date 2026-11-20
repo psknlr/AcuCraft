@@ -20,14 +20,15 @@ export interface ManipulationTechnique {
   context: ManipulationContext;
   needsNeedle: boolean;
   description: string;
-  evidence: "illustrative";
+  /** `illustrative`: shown and recorded only. `operative`: done to the needle (the catalogue in `operation.ts`). */
+  evidence: "illustrative" | "operative";
   primitives: ManipulationTechniqueId[];
   phases: ManipulationPhase[];
   controls: ManipulationControl[];
   /** Additional bounds of an authored contact variant, published to both operator and model tools. */
   parameterBounds?: Partial<Record<ManipulationControl, { min: number; max: number }>>;
   defaults: ResolvedManipulationMotion;
-  source: { id: "acucraft-authored-demonstration-v1"; review: "unreviewed"; note: string };
+  source: { id: "acucraft-authored-demonstration-v1" | "acucraft-operative-techniques-v2"; review: "unreviewed"; note: string };
 }
 
 export const MANIPULATION_CATALOGUE_VERSION = "acucraft/manipulation-catalogue@1" as const;
@@ -147,7 +148,7 @@ const RECIPES: Partial<Record<ManipulationTechniqueId, [primitive: ManipulationT
 export const MANIPULATION_TECHNIQUES: readonly ManipulationTechnique[] = ENTRIES.map(([id, zh, label, family, context, description, defaults]) => {
   const phases = (RECIPES[id] ?? [[id, label]]).map(([primitive, name, weight], index) => ({ id: `${id}:${index + 1}`, label: name, primitive, weight: weight ?? 1 }));
   return {
-    id, zh, label, family, context, needsNeedle: context !== "skin", description, evidence: "illustrative",
+    id, zh, label, family, context, needsNeedle: context !== "skin", description, evidence: "illustrative" as const,
     primitives: phases.map((p) => p.primitive), phases,
     controls: [...new Set<ManipulationControl>([...COMMON, ...(family === "compound" ? ["phaseCycles" as const] : []), ...(context === "retained" ? REFERENCE_HAND : []), ...phases.flatMap((p) => PRIMITIVE_CONTROLS[p.primitive] ?? [])])],
     ...(id === "gua" || id === "tan" ? { parameterBounds: { wristElevationDeg: { ...NAIL_WORK_WRIST_BOUNDS } } } : {}),
@@ -171,7 +172,12 @@ const finite = (v: number | undefined, fallback: number, lo: number, hi: number)
 const enumValue = <T extends string>(v: T | undefined, allowed: readonly T[], fallback: T): T => v !== undefined && allowed.includes(v) ? v : fallback;
 /** Defensive resolution also protects direct previews, which do not necessarily pass through an action parser. */
 export function resolveManipulationMotion(id: ManipulationTechniqueId, settings: ManipulationMotionSettings = {}): ResolvedManipulationMotion {
-  const definition = manipulationTechnique(id), base = definition?.defaults ?? BASE;
+  return resolveMotionFor(manipulationTechnique(id), id, settings);
+}
+
+/** The same bounded resolution against any catalogue's entry (the operative catalogue has its own defaults). */
+export function resolveMotionFor(definition: ManipulationTechnique | null, id: ManipulationTechniqueId, settings: ManipulationMotionSettings = {}): ResolvedManipulationMotion {
+  const base = definition?.defaults ?? BASE;
   const grip = enumValue(settings.grip, ["two-finger", "three-finger"], base.grip);
   const wristBounds = handWristBounds({ grip }, id === "gua" || id === "tan");
   return {
@@ -219,9 +225,13 @@ const clamp = (x: number) => Math.min(1, Math.max(0, x));
 const smooth = (x: number) => { const t = clamp(x); return t * t * t * (t * (t * 6 - 15) + 10); };
 const pulse = (t: number, split: number) => t < split ? smooth(t / split) : 1 - smooth((t - split) / (1 - split));
 const rad = (deg: number) => deg * Math.PI / 180;
+/** The curves every sampler of this package is built from (quintic: no jump in speed or acceleration where they meet). */
+export const MOTION_CURVES = { clamp, smooth, pulse, rad } as const;
+/** The controls every technique takes, and those of the hand that holds a retained needle. */
+export const SHARED_CONTROLS = { common: COMMON, referenceHand: REFERENCE_HAND, grip: GRIP } as const;
 
 /** Signed excursion about the outward shaft axis. Consecutive quintic strokes meet with zero speed and acceleration. */
-function twistExcursion(cycle: number, bias: number, direction: ResolvedManipulationMotion["direction"]): number {
+export function twistExcursion(cycle: number, bias: number, direction: ResolvedManipulationMotion["direction"]): number {
   if (direction !== "alternating") return (direction === "clockwise" ? -1 : 1) * pulse(cycle, bias);
   const firstPeak = bias / 2, secondPeak = (1 + bias) / 2;
   if (cycle < firstPeak) return smooth(cycle / firstPeak);

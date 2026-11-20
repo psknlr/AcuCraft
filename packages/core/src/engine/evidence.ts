@@ -168,7 +168,13 @@ export const STIMULATION_TOLERANCE = 1.5;
  */
 export const TISSUE_RESPONSE: Readonly<Record<string, number>> = { muscle: 1, fascia: 0.9, tendon: 0.7, ligament: 0.7, "fat-pad": 0.7, periosteum: 0.4, bone: 0.4, "joint-space": 0.3, subcutaneous: 0.3, skin: 0.1 };
 
-const DEQI_QUALITIES: readonly NeedleSensation[] = ["aching", "numbness", "heaviness", "distension", "warmth", "spreading"];
+const DEQI_QUALITIES: readonly NeedleSensation[] = ["aching", "numbness", "heaviness", "distension", "warmth", "coolness", "spreading"];
+
+/**
+ * How many of the patients who have the response feel the warmth or coolness a compound method is done for. Whether
+ * this patient does at this site is fixed like the rest of their response: the same in every encounter with them.
+ */
+export const THERMAL_RESPONDERS = 0.6;
 
 /** The sensations that count as deqi: the vocabulary's, or the usual four with warmth and spreading. */
 export function deqiQualities(sc: Scenario): ReadonlySet<NeedleSensation> {
@@ -186,10 +192,13 @@ const round3 = (n: number) => Math.round(n * 1000) / 1000;
  * and chance). A nerve or a tendon met by the shaft, or stimulation past what the patient tolerates, gives a
  * sensation that is not deqi.
  */
-export function needleResponse(sc: Scenario, s: EncounterState, n: NeedleState, path: PathAssessment, stimulus: Stimulus | null): NeedleResponse {
+export function needleResponse(sc: Scenario, s: EncounterState, n: NeedleState, path: PathAssessment, stimulus: Stimulus | number | null, how: { seeks?: "warmth" | "coolness" | null; handled?: boolean } = {}): NeedleResponse {
   const prev = n.response;
-  const stimulation = round3((prev?.stimulation ?? 0) + (stimulus ? STIMULATION[stimulus] : 0));
-  const manipulations = (prev?.manipulations ?? 0) + (stimulus && stimulus !== "insertion" ? 1 : 0);
+  // a named act gives its fixed stimulation; the operative catalogue gives a technique's own dose
+  const dose = typeof stimulus === "number" ? Math.max(0, stimulus) : stimulus ? STIMULATION[stimulus] : 0;
+  const stimulation = round3((prev?.stimulation ?? 0) + dose);
+  // a manipulation is the needle worked in the hand: not its insertion, and not the channel stroked beside it
+  const manipulations = (prev?.manipulations ?? 0) + (stimulus !== null && stimulus !== "insertion" && how.handled !== false ? 1 : 0);
   const sensitivity = sc.field.patient.needleSensitivity;
   const site = n.insertion;
   const rng = createRng(seedFrom(sc.family.id, "needle-response", site?.region ?? "", site?.side ?? "", Math.round((site?.entry.u ?? 0) * 2), Math.round((site?.entry.v ?? 0) * 2)));
@@ -205,13 +214,16 @@ export function needleResponse(sc: Scenario, s: EncounterState, n: NeedleState, 
   const deqi = noxious === null && intensity >= DEQI_THRESHOLD;
   // what the patient would call it: two of the three commonest, numbness beside a nerve, spreading when it is strong
   const order = (["aching", "heaviness", "distension"] as NeedleSensation[]).map((q) => ({ q, r: rng() })).sort((a, b) => a.r - b.r).map((x) => x.q);
+  // the warmth or coolness a compound method was done for: felt by some patients and not others, with the response only
+  const thermal = how.seeks ?? prev?.thermal;
+  const feelsIt = thermal !== undefined && createRng(seedFrom(sc.family.id, "needle-thermal", site?.region ?? "", site?.side ?? "", Math.round((site?.entry.u ?? 0) * 2), Math.round((site?.entry.v ?? 0) * 2)))() < THERMAL_RESPONDERS;
   const qualities: NeedleSensation[] = !deqi
     ? []
-    : [...order.slice(0, 2), ...(path.findings.some((f) => f.near && f.kind === "nerve") ? (["numbness"] as NeedleSensation[]) : []), ...(intensity >= STRONG_RESPONSE ? (["spreading"] as NeedleSensation[]) : [])];
+    : [...order.slice(0, 2), ...(path.findings.some((f) => f.near && f.kind === "nerve") ? (["numbness"] as NeedleSensation[]) : []), ...(feelsIt ? [thermal!] : []), ...(intensity >= STRONG_RESPONSE ? (["spreading"] as NeedleSensation[]) : [])];
   // a needle that lost its response and has it again has had it since now, not since it first arrived
   const regained = deqi && prev !== null && prev !== undefined && prev.arrivedAt !== null && !prev.deqi;
   const since = regained ? now(s) : deqi ? prev?.deqiSince : undefined;
-  return { stimulation, manipulations, intensity, deqi, arrivedAt: prev?.arrivedAt ?? (deqi ? now(s) : null), ...(since !== undefined ? { deqiSince: since } : {}), qualities, noxious, overstimulated };
+  return { stimulation, manipulations, intensity, deqi, arrivedAt: prev?.arrivedAt ?? (deqi ? now(s) : null), ...(since !== undefined ? { deqiSince: since } : {}), qualities, ...(thermal !== undefined ? { thermal } : {}), noxious, overstimulated };
 }
 
 const PHRASE: Record<NeedleSensation, string> = {
@@ -220,6 +232,7 @@ const PHRASE: Record<NeedleSensation, string> = {
   heaviness: "a heavy feeling",
   distension: "a tight, full feeling",
   warmth: "a warm feeling",
+  coolness: "a cool feeling",
   spreading: "",
   "sharp-pain": "a sharp pain",
   burning: "a burning feeling",
@@ -247,6 +260,19 @@ export function describeGrasp(r: NeedleResponse, technique: Exclude<NeedleTechni
   if (r.deqi) return { text: `The needle is gripped as you ${act} it: it feels heavy and tight.`, grasp: true };
   if (r.intensity >= 0.3) return { text: `A slight drag on the needle as you ${act} it, no more.`, grasp: false };
   return { text: `The needle moves freely as you ${act} it: nothing takes hold of it.`, grasp: false };
+}
+
+/**
+ * What the operator feels in a needle on working it with a technique of the operative catalogue. A needle wound by
+ * one-way turning is held whether or not the tissue has answered: the hand can tell the two apart, and says which.
+ */
+export function describeHold(r: NeedleResponse, zh: string, hold: "free" | "held" | "stuck"): { text: string; grasp: boolean } {
+  if (r.noxious !== null) return { text: `The patient flinches as you work the needle (${zh}).`, grasp: false };
+  if (hold === "stuck") return { text: `The needle will not turn or lift (${zh}): it is wound fast in the tissue.`, grasp: false };
+  if (r.deqi) return { text: `The needle is gripped as you work it (${zh}): it feels heavy and tight${hold === "held" ? ", and the winding holds it as well" : ""}.`, grasp: true };
+  if (hold === "held") return { text: `The needle is held as you work it (${zh}), but it is the winding that holds it, not the tissue answering: turned back, it would come free.`, grasp: false };
+  if (r.intensity >= 0.3) return { text: `A slight drag on the needle as you work it (${zh}), no more.`, grasp: false };
+  return { text: `The needle moves freely as you work it (${zh}): nothing takes hold of it.`, grasp: false };
 }
 
 /** Does a piece of needle evidence show deqi? A grip felt; or the patient naming its sensations and none that is not. */

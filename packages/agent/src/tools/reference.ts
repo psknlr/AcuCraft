@@ -1,5 +1,8 @@
-import type { AgentView } from "@acucraft/core";
-import { HAND_PRESENTATION_PROFILES, INSERTION_SKIN_CONTACT, InsertionPresentationSchema, MANIPULATION_TECHNIQUES, ManipulationMotionSettingsSchema, resolveManipulationMotion } from "@acucraft/core";
+import type { AgentView, OperativeTechnique, TechniqueModel } from "@acucraft/core";
+import {
+  DEPTH_LEVELS, HAND_PRESENTATION_PROFILES, INSERTION_SKIN_CONTACT, InsertionPresentationSchema, MANIPULATION_TECHNIQUES, ManipulationMotionSettingsSchema,
+  OPERATIVE_CATALOGUE_VERSION, OPERATIVE_TECHNIQUES, TECHNIQUE_GROUPS, WINDING, operationEffect, resolveManipulationMotion,
+} from "@acucraft/core";
 import { objectSchemaOf } from "./schema.js";
 import { constructPoint, requirements, type Observed } from "../localise.js";
 import type { Library, ReadTool, ToolContext } from "./types.js";
@@ -22,8 +25,27 @@ const idsByChannel = (lib: Library) => {
   return out;
 };
 
-/** One entry of the reference library. */
-export function lookup(lib: Library, input: { topic?: string; id?: string }): unknown {
+/**
+ * A technique of the operative catalogue in the shape the illustrative catalogue serves — so one panel and one model
+ * read either — with what it is for, what it counts and what one performance does. `full`: with how it is done step
+ * by step, its stages in order and what to watch for.
+ */
+const operativeDefinition = (t: OperativeTechnique, full: boolean) => ({
+  id: t.id, zh: t.zh, label: t.label, family: t.family, context: t.context, needsNeedle: t.needsNeedle,
+  description: t.description, evidence: t.evidence,
+  name: t.card.name, pinyin: t.card.pinyin, group: t.card.group,
+  counts: t.counts, phases: t.phases, controls: t.controls, ...(t.parameterBounds ? { parameterBounds: t.parameterBounds } : {}),
+  seconds: t.defaults.durationMs / 1000,
+  effect: { ...operationEffect(t.id), needsDepthMm: t.effect.needsDepthMm },
+  ...(full ? {
+    method: t.card.method, formula: t.card.formula, essentials: t.card.essentials, cautions: t.card.cautions, simulation: t.card.simulation,
+    stages: t.stages.map((x) => ({ zh: x.zh, does: x.label, ...(x.level ? { level: `${DEPTH_LEVELS[x.level].zh} (${DEPTH_LEVELS[x.level].label})` } : {}), ...(x.counted ? { times: x.count } : {}), ...(x.breath ? { breath: x.breath } : {}), seconds: Math.round((x.end - x.start) * t.defaults.durationMs / 100) / 10 })),
+    defaults: t.defaults, source: t.source,
+  } : {}),
+});
+
+/** One entry of the reference library. `model`: the catalogue of techniques the encounter runs on. */
+export function lookup(lib: Library, input: { topic?: string; id?: string }, model?: TechniqueModel): unknown {
   switch (input.topic) {
     case "points": {
       const summary = (p: Library["points"][number]) => ({ id: p.id, name: `${p.names.pinyin} ${p.names.hanzi}`, channel: p.channel, area: p.area, region: p.region });
@@ -84,10 +106,8 @@ export function lookup(lib: Library, input: { topic?: string; id?: string }): un
       return lib.evidence;
     case "techniques": {
       const key = input.id?.toLowerCase();
-      const techniques = key ? MANIPULATION_TECHNIQUES.filter((definition) => definition.id === key || definition.zh === input.id || definition.label.toLowerCase() === key) : MANIPULATION_TECHNIQUES;
-      if (techniques.length === 0) return { error: `no technique ${input.id}`, available: MANIPULATION_TECHNIQUES.map((definition) => definition.id) };
       const motionSchema = objectSchemaOf(ManipulationMotionSettingsSchema);
-      const units: Record<string, string> = { durationMs: "ms", cycles: "cycles", strokeMm: "mm", rotationDeg: "deg", lateralMm: "mm", tiltDeg: "deg", tempoBias: "ratio", gripApertureMm: "mm", contactIntensity: "normalized visual amount", wristElevationDeg: "deg" };
+      const units: Record<string, string> = { durationMs: "ms", cycles: "cycles", strokeMm: "mm", rotationDeg: "deg", lateralMm: "mm", tiltDeg: "deg", tempoBias: "ratio", gripApertureMm: "mm", contactIntensity: "normalized visual amount", wristElevationDeg: "deg", travelMm: "mm" };
       const parameters = Object.fromEntries(Object.entries(motionSchema.properties).map(([name, schema]) => [name, {
         ...(schema.minimum !== undefined ? { min: schema.minimum } : {}),
         ...(schema.maximum !== undefined ? { max: schema.maximum } : {}),
@@ -100,7 +120,28 @@ export function lookup(lib: Library, input: { topic?: string; id?: string }): un
         ...(name === "wristElevationDeg" ? { description: "Authored wrist/hand elevation, distinct from the clinical needle angle. Use handProfiles.threeFinger for explicit three-finger support and handProfiles.ordinary for two-finger holding; omission uses the selected profile's default. Technique parameterBounds take precedence; Gua/Tan use handProfiles.nailWork." } : {}),
         ...(name === "gripStyle" ? { description: "Tip-pinch uses thumb/index tip pulp; side-pinch leaves the index tip extending below the hold. Explicit three-finger support accepts only handProfiles.threeFinger.gripStyles. Use only for gestures advertising this control; Gua/Tan use their fixed nail-work roles." } : {}),
         ...(name === "idleFingerPose" ? { description: "Graded curled or relaxed pose for unused fingers; it does not replace active holding or nail contacts." } : {}),
+        ...(name === "travelMm" ? { description: "Operative catalogue only (循, 摄, 按): how far along the channel the hand travels each way from the point, or how far from a retained needle it presses." } : {}),
       }]));
+      if (model === "operative") {
+        const found = key ? OPERATIVE_TECHNIQUES.filter((t) => t.id === key || t.zh === input.id || t.card.pinyin === key || t.card.name.toLowerCase() === key || t.card.group === key) : OPERATIVE_TECHNIQUES;
+        if (found.length === 0) return { error: `no technique ${input.id}`, available: OPERATIVE_TECHNIQUES.map((t) => t.id), groups: TECHNIQUE_GROUPS.map((g) => g.id) };
+        // the index names every technique and what one performance is; one technique (or one group) comes in full
+        const full = key !== undefined;
+        return {
+          catalogue: OPERATIVE_CATALOGUE_VERSION, model: "operative",
+          techniques: found.map((t) => operativeDefinition(t, full)),
+          defaults: Object.fromEntries(found.map((t) => [t.id, t.defaults])),
+          groups: TECHNIQUE_GROUPS,
+          levels: Object.fromEntries(Object.entries(DEPTH_LEVELS).map(([id, l]) => [id, `${l.zh}: the ${l.label}, ${id === "di" ? "the depth the needle stands at" : `${id === "tian" ? "one third" : "two thirds"} of it`}`])),
+          winding: { heldFromDeg: WINDING.heldFromDeg, stuckFromDeg: WINDING.stuckFromDeg, note: "One-way turning (搓, or adjust_needle rotating clockwise or counterclockwise only) winds the tissue round the shaft. A held needle is gripped by the winding, not by the response: that feel is not deqi. A stuck needle must be freed before anything else — rolled back the other way, the channel stroked (循) or nipped (摄), the handle flicked (弹) or scraped (刮) — and never pulled out by force." },
+          parameters, motionSchema, insertionPresentationSchema: objectSchemaOf(InsertionPresentationSchema),
+          insertionSkinContactDefault: INSERTION_SKIN_CONTACT.default, handProfiles: HAND_PRESENTATION_PROFILES,
+          ...(full ? {} : { read: "lookup techniques with an id (nian, 烧山火, shao-shan-huo) or a group (channel, turning, levels, handle, shaft, closing, compound, bu-xie) gives each technique in full: how it is done step by step, its stages with their levels and counts, its cautions." }),
+          note: "The operative catalogue: perform_technique does the technique to the needle. It takes the time it takes, adds its dose to the needle's stimulation (too much hurts; depth, not force, is what a shallow tip lacks), tells you how the tissue holds the needle (evidence), and reads as reinforcing, reducing, mixed or even. Levels are thirds of the depth the needle already stands at: no technique takes the tip deeper, or redirects it inside the patient. Authored from classical and textbook accounts and not reviewed by a practitioner; forces are not modelled.",
+        };
+      }
+      const techniques = key ? MANIPULATION_TECHNIQUES.filter((definition) => definition.id === key || definition.zh === input.id || definition.label.toLowerCase() === key) : MANIPULATION_TECHNIQUES;
+      if (techniques.length === 0) return { error: `no technique ${input.id}`, available: MANIPULATION_TECHNIQUES.map((definition) => definition.id) };
       return {
         techniques: techniques.map((definition) => ({ ...definition, defaults: resolveManipulationMotion(definition.id) })),
         defaults: Object.fromEntries(techniques.map((definition) => [definition.id, resolveManipulationMotion(definition.id)])),
@@ -121,7 +162,7 @@ export const lookupTool: ReadTool = {
   kind: "read",
   name: "lookup",
   description:
-    "Read the public reference library. Topics: points (the index: every point that can be needled, by regional model, and every point id by channel; with id, the points of one channel, body area or region), point (one point in full by id or alias: location, construction, cautions), region (one regional chart by id: landmarks and how each is found, segments and their cun, seams with neighbouring charts), regions, vocabulary (the diagnosis, pattern and red-flag ids to assess with), pattern (what each pattern is recognised by and what speaks against it; with id, one pattern), deqi (the needle sensations, which of them are deqi, what counts as evidence), clinic (rooms, where supplies are kept, referral targets), floorplan (rooms, doors, fixtures and reach distances in metres), roles, rules (the rule sets in force on each visit's date), evidence (guideline records for the condition), techniques (the illustrative manipulation catalogue, source status, contexts, parameters, defaults and bounds; with id, one technique). Call it whenever a decision rests on a definition, an id or a rule you have not read in this encounter.",
+    "Read the public reference library. Topics: points (the index: every point that can be needled, by regional model, and every point id by channel; with id, the points of one channel, body area or region), point (one point in full by id or alias: location, construction, cautions), region (one regional chart by id: landmarks and how each is found, segments and their cun, seams with neighbouring charts), regions, vocabulary (the diagnosis, pattern and red-flag ids to assess with), pattern (what each pattern is recognised by and what speaks against it; with id, one pattern), deqi (the needle sensations, which of them are deqi, what counts as evidence), clinic (rooms, where supplies are kept, referral targets), floorplan (rooms, doors, fixtures and reach distances in metres), roles, rules (the rule sets in force on each visit's date), evidence (guideline records for the condition), techniques (the 36 needling techniques — the 24 single methods, the 10 compound methods, reinforcing and reducing: what each is for and what one performance is; with id, one technique in full: how it is done, its stages, levels and counts, its controls, defaults and cautions). Call it whenever a decision rests on a definition, an id or a rule you have not read in this encounter.",
   inputSchema: {
     type: "object",
     properties: {
@@ -133,7 +174,7 @@ export const lookupTool: ReadTool = {
   },
   run(input, ctx) {
     const { topic, id } = record(input);
-    const output = lookup(ctx.library, { topic: text(topic), id: text(id) });
+    const output = lookup(ctx.library, { topic: text(topic), id: text(id) }, ctx.view.techniques);
     return { ok: !(output && typeof output === "object" && "error" in output), output };
   },
 };
