@@ -216,7 +216,8 @@ export interface TechniqueMotionSample {
   contact: "none" | "skin" | "handle" | "nail-handle";
   nailContact: number;
   supportContact: number;
-  handPose: "pinch" | "tripod" | "palpate" | "press" | "skin-nail" | "stretch" | "scrape" | "flick" | "release";
+  /** `thumb-press` and `thumb-nail` (the pressing hand's thumb on the skin: its pulp, its nail) are used by the operative catalogue only. */
+  handPose: "pinch" | "tripod" | "palpate" | "press" | "skin-nail" | "stretch" | "scrape" | "flick" | "release" | "thumb-press" | "thumb-nail";
   phase: { index: number; id: string; label: string; primitive: ManipulationTechniqueId; progress: number; cycleProgress: number };
   complete: boolean;
   durationMs: number;

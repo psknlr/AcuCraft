@@ -735,9 +735,10 @@ export function sampleOperation(id: ManipulationTechniqueId, elapsedMs: number, 
 
   switch (stage.motif) {
     case "hold":
-      if (stage.primitive === "chuai") out.handPose = "palpate";
-      else if (stage.primitive === "zhua") { out.handPose = "skin-nail"; out.nailContact = motion.contactIntensity * edge; }
-      else if (stage.primitive === "men" || stage.primitive === "an") out.handPose = "press";
+      // the pressing hand at rest on its point: the finger that found it, the thumbnail that marked it, the thumb that presses
+      if (stage.primitive === "chuai" || stage.primitive === "men") out.handPose = "palpate";
+      else if (stage.primitive === "zhua") { out.handPose = "thumb-nail"; out.nailContact = motion.contactIntensity * edge; }
+      else if (stage.primitive === "an") out.handPose = "thumb-press";
       break;
     case "move":
       // a small twirl carries the needle from one level to the next; a turning thrust or lift turns one way and is let back
@@ -831,7 +832,8 @@ export function sampleOperation(id: ManipulationTechniqueId, elapsedMs: number, 
       break;
     }
     case "knead":
-      out.handPose = stage.primitive === "men" ? "press" : "palpate";
+      // the pad of the index finger: feeling for the hollow (揣), or closing the needle's hole (扪)
+      out.handPose = "palpate";
       // a small circle that starts and ends on the point
       out.lateralMm.u += lateral * 0.5 * sine * edge;
       out.lateralMm.v += lateral * 0.5 * (1 - Math.cos(2 * Math.PI * c)) * edge;
@@ -839,7 +841,7 @@ export function sampleOperation(id: ManipulationTechniqueId, elapsedMs: number, 
     case "nail": {
       // a line with the nail, then one across it: the cross
       const along = (2 * smooth(c) - 1) * lateral, held = plateau(c, 0.2, 0.2);
-      out.handPose = "skin-nail";
+      out.handPose = "thumb-nail";
       out.nailContact = held * motion.contactIntensity;
       if (k % 2 === 0) out.lateralMm.u += along * held; else out.lateralMm.v += along * held;
       break;
@@ -856,15 +858,16 @@ export function sampleOperation(id: ManipulationTechniqueId, elapsedMs: number, 
       const stations = [-1, -0.5, 0.5, 1], reach = motion.travelMm ?? 0;
       const here = stations[k % 4]! * reach, before = k === 0 ? here : stations[(k - 1) % 4]! * reach;
       const arrive = 0.3;
-      out.handPose = "skin-nail";
+      out.handPose = "thumb-nail";
       out.offsetMm = context.besideNeedle ? NEEDLE_CLEARANCE_MM : 0;
       out.travelMm = before + (here - before) * smooth(c / arrive);
       out.nailContact = c < arrive ? 0 : plateau((c - arrive) / (1 - arrive), 0.25, 0.3) * motion.contactIntensity;
       break;
     }
     case "press": {
-      out.handPose = "press";
-      // beside the needle, on its channel, when there is a needle to keep clear of
+      // the thumb's pulp bears down, holds, and is let up: beside the needle, on its channel, when there is a needle to keep clear of
+      out.handPose = "thumb-press";
+      out.gripEngagement = 0.35 + 0.65 * plateau(c, 0.25, 0.25);
       out.travelMm = context.besideNeedle ? motion.travelMm ?? 0 : 0;
       break;
     }

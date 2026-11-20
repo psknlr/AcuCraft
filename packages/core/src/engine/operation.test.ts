@@ -257,6 +257,16 @@ describe("the operative sampler", () => {
     expect(fly.filter((s) => s.gripEngagement < 0.5).every((s) => Math.abs(s.rotationRad) < 0.35)).toBe(true);
     // 弩 is a three-finger hold, held
     expect(new Set(run("nu").map((s) => s.handPose))).toEqual(new Set(["tripod"]));
+    // the pressing hand on the skin: the thumbnail marks and nips, the thumb's pulp presses, the index pad feels, strokes and closes
+    const hands = Object.fromEntries((["chuai", "zhua", "xun", "she", "an", "men"] as const).map((id) => [id, [...new Set(run(id).map((s) => s.handPose))].join("+")]));
+    expect(hands).toEqual({ chuai: "palpate", zhua: "thumb-nail", xun: "palpate", she: "thumb-nail", an: "thumb-press", men: "palpate" });
+    // the pressing thumb bears down, holds and is let up within each press
+    const press = run("an").map((s) => s.gripEngagement);
+    expect(Math.max(...press)).toBe(1);
+    expect(Math.min(...press)).toBeCloseTo(0.35, 2);
+    // the thumbnail's bearing is a share of the contact intensity set, and is off the skin between nips
+    expect(Math.max(...run("she").map((s) => s.nailContact))).toBeCloseTo(resolveOperationMotion("she").contactIntensity, 6);
+    expect(Math.min(...run("she").map((s) => s.nailContact))).toBe(0);
     // 循 travels along the channel both ways from the point; beside a needle it keeps clear of the entry
     const trace = run("xun");
     expect(Math.max(...trace.map((s) => s.travelMm))).toBeCloseTo(30, 0);

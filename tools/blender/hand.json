@@ -5,19 +5,19 @@
   "license": "CC0-1.0",
   "source": "tools/blender/build_hand.py",
   "choreography": "tools/blender/hand_poses.json",
-  "builderSourceSha256": "eba2e3d4206dcdfbb9f1d4155a95ce00edaa9699cfd836254d475ec1c302de29",
-  "anatomySourceSha256": "1a81dce62851d92ae1480764d740b1fd6e7ed41ff61c596c01759f8a77136ae3",
-  "choreographySha256": "2a027ce1a7413c835db804a0c9b4efd55be84a7ac2ea46f7599f0a614460479a",
+  "builderSourceSha256": "c40db2546d972492522a13482dd08c57c1d562bbf33f28e558892e7b9de72a70",
+  "anatomySourceSha256": "569028778976961f36480bf72aebbb735927840dd664bc3b7fe50b7b381f2369",
+  "choreographySha256": "8b4ed0990930218931e5a208104f132d75261a0c7d4f7504d3424f80d1aa4f90",
   "choreographyProvenance": {
     "calibrationInputAsset": {
-      "path": "../../../tmp/claude-0/-home-user-AcuCraft/fa9a6bd6-3b47-5914-8007-401dad5b07a4/scratchpad/rebake/c2-calibration.glb",
-      "sha256": "31a10cb9160fe32737fc940fcebcc988f519670046b8f65c874e0b60cccfbb6d",
+      "path": "../../../tmp/claude-0/-home-user-AcuCraft/fa9a6bd6-3b47-5914-8007-401dad5b07a4/scratchpad/rebake/t2-calibration.glb",
+      "sha256": "e2ae1aec9ff223a3160dce49864e5e636616e1b0eb68aed17a937dbd918806da",
       "role": "immutable geometry calibration input; not the subsequently rebuilt GLB output hash"
     },
     "sources": {
       "hand": {
         "path": "packages/server/web/stage/hand.ts",
-        "sha256": "509d864405dad2ebf1d2a2890e7d3db4d0b5ad8145d6cc1f4a7c5501515d54ba"
+        "sha256": "122027a4b3e48d2c569c29d01aeb5075a67d8829959b382fe47c501c55d5cec1"
       },
       "physiology": {
         "path": "packages/server/web/stage/hand-physiology.ts",
@@ -29,15 +29,15 @@
       },
       "anatomy": {
         "path": "tools/blender/hand_anatomy.json",
-        "sha256": "1a81dce62851d92ae1480764d740b1fd6e7ed41ff61c596c01759f8a77136ae3"
+        "sha256": "569028778976961f36480bf72aebbb735927840dd664bc3b7fe50b7b381f2369"
       },
       "builder": {
         "path": "tools/blender/build_hand.py",
-        "sha256": "eba2e3d4206dcdfbb9f1d4155a95ce00edaa9699cfd836254d475ec1c302de29"
+        "sha256": "c40db2546d972492522a13482dd08c57c1d562bbf33f28e558892e7b9de72a70"
       },
       "correctives": {
         "path": "tools/blender/hand_thumb_web_correctives.json",
-        "sha256": "e47852a1f098913bde028e7f50e896555df3ed6738f7cb628f9aab041003a838"
+        "sha256": "77bebf015ec7568ec10a6ed20cb27ec53a42451d98c5e6bbc7ccc57650f11c37"
       },
       "exporter": {
         "path": "tools/blender/export_hand_poses.ts",
@@ -113,14 +113,14 @@
       "packages/core/src/engine/manipulation.ts": "a7538877d20ac0ffd3c880a06313e778a5646f8037b47603a7b612bd274a6a99",
       "packages/core/src/engine/npc.ts": "674a617d1cd419fe833da123b8e5ed3f537e27473fddf681eddc89f0cefbbb95",
       "packages/core/src/engine/observe.ts": "1054483d04a7b782a81a5f84c1e77a717c9d747489c1e57ea0659356ba006c95",
-      "packages/core/src/engine/operation.ts": "2f68fa2ab4d7ffb1de597db84ef2aedd9d8e2eea9a7b2daf08423e831881d2dc",
-      "packages/core/src/engine/performance.ts": "e8b7947583a36e309e809fcccfd16720ff0e02e1988c5ca5194f8aa3a6443d34",
+      "packages/core/src/engine/operation.ts": "c21e68cbed1fc28b39f40824bc6f3f7f71cd6afddaf4f975afcff99ac42d50a8",
+      "packages/core/src/engine/performance.ts": "bf61664b9c3134bbdc51a9725fa9cd25746401fd64509590b60243a17f4bffa6",
       "packages/core/src/engine/queries.ts": "a8fc6ae00c028605cfca375100898937e5f022cf37fed11afe9c53e0a8994b92",
       "packages/core/src/engine/rules.ts": "fd20d815375d2f26312d5d29fd026b8925b3c117d53f95cb9b03ebf47eb58bef",
       "packages/core/src/engine/runtime.ts": "5aec2b9c60b0bc81009b3924d71f5f3363bc1691d7a6b31ac1740cf7d5a4cf7e",
       "packages/core/src/engine/scenario.ts": "198bf61ef77ed61727bd48812eb7bb2e1d641e312f60178a6c6fe904164b521d",
       "packages/core/src/engine/space.ts": "8957fd0fdd431c63a518a906b0edb057aaa6cbf485d500cc8a9418f38925647e",
-      "packages/core/src/engine/technique-cards.ts": "deabb8e14362f24c685be3eee2c71497355aa0ff3838ad6a201d8bf8eb2b3a9d",
+      "packages/core/src/engine/technique-cards.ts": "0c9326bfa4fa7df9b189b8b14af56514fbdc6c94006c6a483914292d1690bf93",
       "packages/core/src/engine/techniques.ts": "8db0aca9c8a3743862a9c2ecab853d22bb193ad78ae6a7924f0cd5b01bdbe793",
       "packages/core/src/engine/text.ts": "8446698ed8f3a8a2c02576eb1fabe9c657586891a63fe788a60a9932adf38cce",
       "packages/core/src/engine/util.ts": "100d5cffb226724644f4a6ff597d1a4e98a4810f8a53e8daa5e5eda6f9e4504e",
@@ -138,14 +138,14 @@
       "packages/server/web/stage/hand-nail-work.ts": "e7402ad9af73cd8a90a7f79647b81afde52d78faba6e0874a9a4cc0894580aca",
       "packages/server/web/stage/hand-physiology.ts": "221ca74afde3847f9237af22f18f5de4356e319c478185a9c5ce5348958e917b",
       "packages/server/web/stage/hand-skin-correctives.ts": "78d0aa72b412cbf73bb1a8e23a5f0b68d9221ca823ba9ad998ef530ddd41b572",
-      "packages/server/web/stage/hand.ts": "509d864405dad2ebf1d2a2890e7d3db4d0b5ad8145d6cc1f4a7c5501515d54ba",
+      "packages/server/web/stage/hand.ts": "122027a4b3e48d2c569c29d01aeb5075a67d8829959b382fe47c501c55d5cec1",
       "packages/server/web/stage/needle-shape.ts": "fac5a591b616d78084049513223edda478acfb7e73e12ef7b71bfdf9da47cd8e"
     },
     "animationsRead": false,
     "runtimeContactsValidAtEveryExportedFrame": true
   },
-  "sha256": "590b798786952e81ba86053647b3b1ec95a63d81660950062fbebf96fe7171df",
-  "bytes": 1592604,
+  "sha256": "970ad06b8efccdc891931da004a834e13ddec6f0be9220cfde67cf49f369b35b",
+  "bytes": 1592612,
   "triangles": 18686,
   "root": "acu_practitioner_hand",
   "authoredPoseFrame": "hand_pose_frame",
@@ -752,9 +752,9 @@
       }
     ]
   },
-  "thumbWebCorrectivesSourceSha256": "e47852a1f098913bde028e7f50e896555df3ed6738f7cb628f9aab041003a838",
-  "correctiveSourceSha256": "e47852a1f098913bde028e7f50e896555df3ed6738f7cb628f9aab041003a838",
-  "thumbWebCorrectivesBindSha256": "28688fc43d5bf73816fb56f8a63d361b9b5d90a310e75945c32c464f01225428",
+  "thumbWebCorrectivesSourceSha256": "77bebf015ec7568ec10a6ed20cb27ec53a42451d98c5e6bbc7ccc57650f11c37",
+  "correctiveSourceSha256": "77bebf015ec7568ec10a6ed20cb27ec53a42451d98c5e6bbc7ccc57650f11c37",
+  "thumbWebCorrectivesBindSha256": "511adbd7da4d89cc1d0fdcf4184eba3d7b79d0820d255c8dbc9cf7411de8d6fa",
   "palm": {
     "surface": "palm_surface",
     "topology": "closed palm and five-digit composite",
@@ -2831,14 +2831,14 @@
   "poseContacts": {
     "pinch": {
       "palm_contact": [
-        -0.021019997,
-        0.089628831,
-        0.022823865
+        -0.019796019,
+        0.089229114,
+        0.024848171
       ],
       "support_contact": [
-        -0.021019997,
-        0.089628831,
-        0.022823865
+        -0.019796019,
+        0.089229114,
+        0.024848171
       ],
       "thumb_pad_contact": [
         -1.3e-08,
@@ -3148,14 +3148,14 @@
     },
     "open": {
       "palm_contact": [
-        -0.021019997,
-        0.089628831,
-        0.022823865
+        -0.019796019,
+        0.089229114,
+        0.024848171
       ],
       "support_contact": [
-        -0.021019997,
-        0.089628831,
-        0.022823865
+        -0.019796019,
+        0.089229114,
+        0.024848171
       ],
       "thumb_pad_contact": [
         0.001745991,
@@ -3465,14 +3465,14 @@
     },
     "support": {
       "palm_contact": [
-        0.071121171,
-        0.055969626,
-        0.01693779
+        0.071291029,
+        0.054856539,
+        0.019056257
       ],
       "support_contact": [
-        0.071121171,
-        0.055969626,
-        0.01693779
+        0.071291029,
+        0.054856539,
+        0.019056257
       ],
       "thumb_pad_contact": [
         -6.5852e-05,
@@ -3782,14 +3782,14 @@
     },
     "three_finger": {
       "palm_contact": [
-        -0.02395728,
-        0.077695735,
-        -0.035080727
+        -0.023764055,
+        0.078239888,
+        -0.032752149
       ],
       "support_contact": [
-        -0.02395728,
-        0.077695735,
-        -0.035080727
+        -0.023764055,
+        0.078239888,
+        -0.032752149
       ],
       "thumb_pad_contact": [
         -7e-09,
@@ -4099,14 +4099,14 @@
     },
     "scrape_start": {
       "palm_contact": [
-        0.062376596,
-        0.081697896,
-        -0.024578102
+        0.06396056,
+        0.079899319,
+        -0.0244691
       ],
       "support_contact": [
-        0.062376596,
-        0.081697896,
-        -0.024578102
+        0.06396056,
+        0.079899319,
+        -0.0244691
       ],
       "thumb_pad_contact": [
         -2e-09,
@@ -4416,14 +4416,14 @@
     },
     "scrape": {
       "palm_contact": [
-        0.062376596,
-        0.081697896,
-        -0.024578102
+        0.06396056,
+        0.079899319,
+        -0.0244691
       ],
       "support_contact": [
-        0.062376596,
-        0.081697896,
-        -0.024578102
+        0.06396056,
+        0.079899319,
+        -0.0244691
       ],
       "thumb_pad_contact": [
         -2e-09,
@@ -4733,14 +4733,14 @@
     },
     "flick_loaded": {
       "palm_contact": [
-        0.0238261,
-        0.081915267,
-        0.002955663
+        0.022589847,
+        0.081591852,
+        0.000925193
       ],
       "support_contact": [
-        0.0238261,
-        0.081915267,
-        0.002955663
+        0.022589847,
+        0.081591852,
+        0.000925193
       ],
       "thumb_pad_contact": [
         -0.002143947,
@@ -5050,14 +5050,14 @@
     },
     "flick_release": {
       "palm_contact": [
-        0.0238261,
-        0.081915267,
-        0.002955663
+        0.022589847,
+        0.081591852,
+        0.000925193
       ],
       "support_contact": [
-        0.0238261,
-        0.081915267,
-        0.002955663
+        0.022589847,
+        0.081591852,
+        0.000925193
       ],
       "thumb_pad_contact": [
         -0.002143947,
@@ -5367,14 +5367,14 @@
     },
     "flick_return": {
       "palm_contact": [
-        0.0238261,
-        0.081915267,
-        0.002955663
+        0.022589847,
+        0.081591852,
+        0.000925193
       ],
       "support_contact": [
-        0.0238261,
-        0.081915267,
-        0.002955663
+        0.022589847,
+        0.081591852,
+        0.000925193
       ],
       "thumb_pad_contact": [
         -0.002533185,
@@ -5688,14 +5688,14 @@
     "source": "tools/blender/hand_poses.json",
     "provenance": {
       "calibrationInputAsset": {
-        "path": "../../../tmp/claude-0/-home-user-AcuCraft/fa9a6bd6-3b47-5914-8007-401dad5b07a4/scratchpad/rebake/c2-calibration.glb",
-        "sha256": "31a10cb9160fe32737fc940fcebcc988f519670046b8f65c874e0b60cccfbb6d",
+        "path": "../../../tmp/claude-0/-home-user-AcuCraft/fa9a6bd6-3b47-5914-8007-401dad5b07a4/scratchpad/rebake/t2-calibration.glb",
+        "sha256": "e2ae1aec9ff223a3160dce49864e5e636616e1b0eb68aed17a937dbd918806da",
         "role": "immutable geometry calibration input; not the subsequently rebuilt GLB output hash"
       },
       "sources": {
         "hand": {
           "path": "packages/server/web/stage/hand.ts",
-          "sha256": "509d864405dad2ebf1d2a2890e7d3db4d0b5ad8145d6cc1f4a7c5501515d54ba"
+          "sha256": "122027a4b3e48d2c569c29d01aeb5075a67d8829959b382fe47c501c55d5cec1"
         },
         "physiology": {
           "path": "packages/server/web/stage/hand-physiology.ts",
@@ -5707,15 +5707,15 @@
         },
         "anatomy": {
           "path": "tools/blender/hand_anatomy.json",
-          "sha256": "1a81dce62851d92ae1480764d740b1fd6e7ed41ff61c596c01759f8a77136ae3"
+          "sha256": "569028778976961f36480bf72aebbb735927840dd664bc3b7fe50b7b381f2369"
         },
         "builder": {
           "path": "tools/blender/build_hand.py",
-          "sha256": "eba2e3d4206dcdfbb9f1d4155a95ce00edaa9699cfd836254d475ec1c302de29"
+          "sha256": "c40db2546d972492522a13482dd08c57c1d562bbf33f28e558892e7b9de72a70"
         },
         "correctives": {
           "path": "tools/blender/hand_thumb_web_correctives.json",
-          "sha256": "e47852a1f098913bde028e7f50e896555df3ed6738f7cb628f9aab041003a838"
+          "sha256": "77bebf015ec7568ec10a6ed20cb27ec53a42451d98c5e6bbc7ccc57650f11c37"
         },
         "exporter": {
           "path": "tools/blender/export_hand_poses.ts",
@@ -5791,14 +5791,14 @@
         "packages/core/src/engine/manipulation.ts": "a7538877d20ac0ffd3c880a06313e778a5646f8037b47603a7b612bd274a6a99",
         "packages/core/src/engine/npc.ts": "674a617d1cd419fe833da123b8e5ed3f537e27473fddf681eddc89f0cefbbb95",
         "packages/core/src/engine/observe.ts": "1054483d04a7b782a81a5f84c1e77a717c9d747489c1e57ea0659356ba006c95",
-        "packages/core/src/engine/operation.ts": "2f68fa2ab4d7ffb1de597db84ef2aedd9d8e2eea9a7b2daf08423e831881d2dc",
-        "packages/core/src/engine/performance.ts": "e8b7947583a36e309e809fcccfd16720ff0e02e1988c5ca5194f8aa3a6443d34",
+        "packages/core/src/engine/operation.ts": "c21e68cbed1fc28b39f40824bc6f3f7f71cd6afddaf4f975afcff99ac42d50a8",
+        "packages/core/src/engine/performance.ts": "bf61664b9c3134bbdc51a9725fa9cd25746401fd64509590b60243a17f4bffa6",
         "packages/core/src/engine/queries.ts": "a8fc6ae00c028605cfca375100898937e5f022cf37fed11afe9c53e0a8994b92",
         "packages/core/src/engine/rules.ts": "fd20d815375d2f26312d5d29fd026b8925b3c117d53f95cb9b03ebf47eb58bef",
         "packages/core/src/engine/runtime.ts": "5aec2b9c60b0bc81009b3924d71f5f3363bc1691d7a6b31ac1740cf7d5a4cf7e",
         "packages/core/src/engine/scenario.ts": "198bf61ef77ed61727bd48812eb7bb2e1d641e312f60178a6c6fe904164b521d",
         "packages/core/src/engine/space.ts": "8957fd0fdd431c63a518a906b0edb057aaa6cbf485d500cc8a9418f38925647e",
-        "packages/core/src/engine/technique-cards.ts": "deabb8e14362f24c685be3eee2c71497355aa0ff3838ad6a201d8bf8eb2b3a9d",
+        "packages/core/src/engine/technique-cards.ts": "0c9326bfa4fa7df9b189b8b14af56514fbdc6c94006c6a483914292d1690bf93",
         "packages/core/src/engine/techniques.ts": "8db0aca9c8a3743862a9c2ecab853d22bb193ad78ae6a7924f0cd5b01bdbe793",
         "packages/core/src/engine/text.ts": "8446698ed8f3a8a2c02576eb1fabe9c657586891a63fe788a60a9932adf38cce",
         "packages/core/src/engine/util.ts": "100d5cffb226724644f4a6ff597d1a4e98a4810f8a53e8daa5e5eda6f9e4504e",
@@ -5816,7 +5816,7 @@
         "packages/server/web/stage/hand-nail-work.ts": "e7402ad9af73cd8a90a7f79647b81afde52d78faba6e0874a9a4cc0894580aca",
         "packages/server/web/stage/hand-physiology.ts": "221ca74afde3847f9237af22f18f5de4356e319c478185a9c5ce5348958e917b",
         "packages/server/web/stage/hand-skin-correctives.ts": "78d0aa72b412cbf73bb1a8e23a5f0b68d9221ca823ba9ad998ef530ddd41b572",
-        "packages/server/web/stage/hand.ts": "509d864405dad2ebf1d2a2890e7d3db4d0b5ad8145d6cc1f4a7c5501515d54ba",
+        "packages/server/web/stage/hand.ts": "122027a4b3e48d2c569c29d01aeb5075a67d8829959b382fe47c501c55d5cec1",
         "packages/server/web/stage/needle-shape.ts": "fac5a591b616d78084049513223edda478acfb7e73e12ef7b71bfdf9da47cd8e"
       },
       "animationsRead": false,
@@ -12642,7 +12642,7 @@
   "sourceAnatomy": {
     "file": "tools/blender/hand_anatomy.json",
     "sourceHandedness": "right",
-    "sha256": "1a81dce62851d92ae1480764d740b1fd6e7ed41ff61c596c01759f8a77136ae3",
+    "sha256": "569028778976961f36480bf72aebbb735927840dd664bc3b7fe50b7b381f2369",
     "primaryMaterialContactNames": [
       "thumb_pad_contact",
       "index_pad_contact",

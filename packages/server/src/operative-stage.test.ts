@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { Group, Quaternion, Vector3 } from "three";
+import { Group, Mesh, Quaternion, SkinnedMesh, Vector3 } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { NeedleProcedure, type ProcedurePlayback, type TechniquePerformanceInput } from "../web/stage/procedure.js";
 import { NeedleLayer } from "../web/stage/needles.js";
@@ -197,6 +197,99 @@ describe("the stage on the operative catalogue", () => {
       expect(Math.abs(spinOf())).toBeLessThan(1e-6);
     } finally { scene.dispose(); }
   });
+
+  it("gives each technique of the skin its own hand: the thumbnail for 爪 and 摄, the thumb's pulp for 按, the index pad for 揣, 循 and 扪", async () => {
+    const scene = await makeScene();
+    try {
+      const digits = ["thumb", "index", "middle", "ring", "little"] as const;
+      const working: Record<string, string> = {};
+      for (const id of ["chuai", "zhua", "xun", "she", "an", "men"] as const) {
+        const motion = resolveOperationMotion(id);
+        const envelope = sampleProcedure("work", 0, motion.durationMs);
+        expect(scene.procedure.preview(input(id)), id).toBe(true);
+        scene.procedure.setPlayback({ paused: true });
+        const hand = scene.procedure.group.getObjectByName("needle-hand")!;
+        const lowestOf = new Map<string, number>(digits.map((digit) => [digit, Infinity]));
+        let palm = Infinity;
+        for (let step = 1; step < 20; step++) {
+          scene.procedure.setPlayback({ progress: (envelope.operationStartMs + motion.durationMs * step / 20) / envelope.durationMs });
+          expect(hand.visible && !scene.procedure.playback.reachWarning, `${id} at ${step}/20`).toBe(true);
+          hand.updateMatrixWorld(true);
+          // how far above the skin the lowest point of each digit's own skin and nail comes, and how high the palm is held
+          for (const digit of digits) for (const part of ["skin", "nail"]) {
+            const mesh = hand.getObjectByName(`${digit}_${part}`) as Mesh, position = mesh.geometry.getAttribute("position"), v = new Vector3();
+            for (let i = 0; i < position.count; i++) {
+              if (mesh instanceof SkinnedMesh) mesh.getVertexPosition(i, v); else v.fromBufferAttribute(position, i);
+              lowestOf.set(digit, Math.min(lowestOf.get(digit)!, v.applyMatrix4(mesh.matrixWorld).sub(site.p).dot(site.n) * 1000));
+            }
+          }
+          palm = Math.min(palm, hand.getObjectByName("palm_frame")!.getWorldPosition(new Vector3()).sub(site.p).dot(site.n) * 1000);
+        }
+        const [first, ...rest] = [...lowestOf].sort((a, b) => a[1] - b[1]);
+        working[id] = first![0];
+        // one finger is on the skin and never in it; the others are held clear of it, a finger's thickness up; the palm is over them
+        expect(first![1], `${id}: the working ${first![0]}, mm above the skin`).toBeGreaterThan(-0.05);
+        expect(first![1], `${id}: the working ${first![0]}, mm above the skin`).toBeLessThan(1.6);
+        expect(rest[0]![1], `${id}: the next finger down (${rest[0]![0]}), mm above the skin`).toBeGreaterThan(4);
+        expect(palm, `${id}: the palm above the skin, mm`).toBeGreaterThan(20);
+        scene.procedure.stopPreview();
+      }
+      expect(working).toEqual({ chuai: "index", zhua: "thumb", xun: "index", she: "thumb", an: "thumb", men: "index" });
+    } finally { scene.dispose(); }
+  }, 120_000);
+
+  it("brings the thumbnail down onto the skin as it nips and lifts it between one nip and the next", async () => {
+    const scene = await makeScene();
+    try {
+      const motion = resolveOperationMotion("she"), envelope = sampleProcedure("work", 0, motion.durationMs);
+      expect(scene.procedure.preview(input("she"))).toBe(true);
+      scene.procedure.setPlayback({ paused: true });
+      const hand = scene.procedure.group.getObjectByName("needle-hand")!, nail = hand.getObjectByName("thumb_nail") as Mesh;
+      const rimAbove = () => {
+        hand.updateMatrixWorld(true);
+        const position = nail.geometry.getAttribute("position"), v = new Vector3();
+        let lowest = Infinity;
+        for (let i = 0; i < position.count; i++) lowest = Math.min(lowest, v.fromBufferAttribute(position, i).applyMatrix4(nail.matrixWorld).sub(site.p).dot(site.n));
+        return lowest * 1000;
+      };
+      const bearing: number[] = [], lifted: number[] = [];
+      for (let ms = 10; ms < motion.durationMs; ms += 30) {
+        scene.procedure.setPlayback({ progress: (envelope.operationStartMs + ms) / envelope.durationMs });
+        const share = sampleOperation("she", ms, motion).nailContact / motion.contactIntensity;
+        if (share > 0.98) bearing.push(rimAbove()); else if (share < 0.02) lifted.push(rimAbove());
+      }
+      expect(bearing.length).toBeGreaterThan(8);
+      expect(lifted.length).toBeGreaterThan(8);
+      // on the skin (the schematic skin does not give: a hair above it), and two to three millimetres off it in between
+      expect(Math.max(...bearing)).toBeLessThan(0.5);
+      expect(Math.min(...bearing)).toBeGreaterThan(0);
+      expect(Math.min(...lifted)).toBeGreaterThan(2);
+      expect(Math.max(...lifted)).toBeLessThan(3.2);
+    } finally { scene.dispose(); }
+  });
+
+  it("keeps the pressing hand in place on the real patient: at the point, and beside the needle that stands in it", async () => {
+    const scene = await makeWorkingScene();
+    try {
+      const cases = [["chuai", false], ["zhua", false], ["xun", false], ["she", false], ["an", false], ["men", false], ["xun", true], ["she", true], ["an", true]] as const;
+      for (const [id, beside] of cases) {
+        const motion = resolveOperationMotion(id);
+        const envelope = sampleProcedure("work", 0, motion.durationMs);
+        expect(scene.procedure.preview({ id: `preview-${id}`, technique: id, site: scene.site, model: "operative", ...(beside ? { needleId: NEEDLE } : {}) }), id).toBe(true);
+        scene.procedure.setPlayback({ paused: true });
+        const lost: string[] = [];
+        for (let step = 1; step < 24; step++) {
+          const progress = step / 24, at = progress * envelope.durationMs;
+          scene.procedure.setPlayback({ progress });
+          if (at <= envelope.operationStartMs + 1 || at >= envelope.operationStartMs + motion.durationMs - 1) continue;
+          const state = scene.procedure.playback;
+          if (!scene.procedure.group.getObjectByName("needle-hand")!.visible || state.reachWarning) lost.push(`${Math.round(progress * 100)}% ${state.phase}: ${state.reachWarning ?? "hidden"}`);
+        }
+        expect(lost, `${id}${beside ? " beside the needle" : ""}: the hand left the skin`).toEqual([]);
+        scene.procedure.stopPreview();
+      }
+    } finally { scene.dispose(); }
+  }, 300_000);
 
   it("takes the stroking hand along the channel on the skin, and beside a needle keeps it clear of the entry", async () => {
     const scene = await makeScene();

@@ -63,7 +63,7 @@ export const TECHNIQUE_CARDS: Readonly<Record<ManipulationTechniqueId, Technique
     formula: { zh: "揣而寻之", from: `${ZJDC} · 下手八法` },
     essentials: ["Light at first, then firmer.", "A few small circles, then to and fro.", "Done before the skin is disinfected."],
     cautions: ["Palpating cleaned skin undoes its preparation: prepare the site again before a needle goes in."],
-    simulation: "A kneading path at the site, then a settling press. It touches the skin, so a prepared site is no longer prepared.",
+    simulation: "The pad of the index finger kneads a small path at the site, then settles on it. It touches the skin, so a prepared site is no longer prepared.",
   },
   zhua: {
     group: "channel", pinyin: "zhua", name: "Pressing with the nail",
@@ -76,7 +76,7 @@ export const TECHNIQUE_CARDS: Readonly<Record<ManipulationTechniqueId, Technique
     formula: { zh: "爪而下之", from: `${ZJDC} · 下手八法` },
     essentials: ["Firm, steady pressure for two or three seconds.", "Two presses, crossed.", "Before disinfection, or the site is prepared again."],
     cautions: ["Not on broken or inflamed skin.", "Pressure enough to mark the skin, not to bruise it."],
-    simulation: "Two crossed nail contacts at the site, drawn with the index nail: the hand model has no thumbnail contact. Contact intensity is shown, not measured.",
+    simulation: "Two crossed presses of the thumbnail at the site, the open hand held low over the skin with its fingers clear of it. The schematic skin does not dent under the nail; contact intensity is shown, not measured.",
   },
   xun: {
     group: "channel", pinyin: "xun", name: "Stroking along the channel",
@@ -89,7 +89,7 @@ export const TECHNIQUE_CARDS: Readonly<Record<ManipulationTechniqueId, Technique
     formula: { zh: "循者，凡下针于属部分经络之处，用手上下循之，使气血往来而已", from: ZJZN },
     essentials: ["Gentle, even pressure.", "Along the channel, a few centimetres each way from the point.", "Three or more passes."],
     cautions: ["It handles the skin: with a needle in place, keep clear of the needle and of its prepared entry."],
-    simulation: "To-and-fro strokes along the chart's long axis for the travel set. Named with a retained needle, it is a small stimulus to that needle and lets go some of a wound needle's hold.",
+    simulation: "To-and-fro strokes of the index pad along the chart's long axis for the travel set (one finger is drawn, not three). Named with a retained needle, it is a small stimulus to that needle and lets go some of a wound needle's hold.",
   },
   she: {
     group: "channel", pinyin: "she", name: "Nipping along the channel",
@@ -102,7 +102,7 @@ export const TECHNIQUE_CARDS: Readonly<Record<ManipulationTechniqueId, Technique
     formula: { zh: "摄者，下针如气涩滞，随经络上下用大指甲上下切之，其气血自得通行也", from: ZJZN },
     essentials: ["Firm, brief nips.", "Four stations: two below, two above.", "Along the channel of the needle."],
     cautions: ["Nail pressure on skin, not on the needle.", "A needle wound by one-way twirling is also unwound by twirling it back."],
-    simulation: "Nail contacts at four stations along the chart's long axis, drawn with the index nail. Named with a retained needle, it lets go more of a wound needle's hold than stroking does.",
+    simulation: "The thumbnail nips at four stations along the chart's long axis and is lifted off the skin between one and the next; the thumbnail alone is drawn. Named with a retained needle, it lets go more of a wound needle's hold than stroking does.",
   },
   /* ---------------------------------------------------------------- 摇盘捻搓 */
   yao: {
@@ -326,7 +326,7 @@ export const TECHNIQUE_CARDS: Readonly<Record<ManipulationTechniqueId, Technique
     formula: { zh: "按之在前，使气在后；按之在后，使气在前", from: JZF },
     essentials: ["Firm, steady, held.", "Beside the needle, on its channel.", "Sources also use 按 for holding the needle pressed at its depth without moving it."],
     cautions: ["It handles the skin beside a needle: keep clear of the entry."],
-    simulation: "A held press at the site — beside the needle, along the chart's long axis, when a retained needle is named. A very small stimulus to that needle.",
+    simulation: "The pulp of the thumb bears down, holds and is let up at the site — beside the needle, along the chart's long axis, when a retained needle is named. A very small stimulus to that needle.",
   },
   men: {
     group: "closing", pinyin: "men", name: "Closing the hole",
@@ -338,7 +338,7 @@ export const TECHNIQUE_CARDS: Readonly<Record<ManipulationTechniqueId, Technique
     formula: { zh: "扪者，凡补时，用手扪闭其穴是也", from: ZJZN },
     essentials: ["At once, on the hole itself.", "Press, knead a little, hold.", "When reducing the hole is left open instead."],
     cautions: ["Only after the needle is out and accounted for."],
-    simulation: "A press with a small kneading circle on the hole of a needle withdrawn in this visit. It stops bleeding there and the hole is recorded as closed.",
+    simulation: "The pad of the index finger presses and kneads a small circle on the hole of a needle withdrawn in this visit (no swab is drawn). It stops bleeding there and the hole is recorded as closed.",
   },
   sou: {
     group: "closing", pinyin: "sou", name: "Searching",

@@ -5,8 +5,8 @@ import { ORDINARY_THUMB_PULP_ACQUISITION, ORDINARY_TIP_HOLDING_Y_M, PRECISION_TH
 import { createNailWorkRig, sampleNailWork, type NailWorkRig, type NailWorkSample } from "./hand-nail-work.js";
 import { createHandSkinCorrectives } from "./hand-skin-correctives.js";
 
-export type HandPose = "pinch" | "tripod" | "palpate" | "press" | "skin-nail" | "stretch" | "scrape" | "flick" | "release";
-export type HandContact = "pinch" | "index" | "nail" | "palm" | "handle";
+export type HandPose = "pinch" | "tripod" | "palpate" | "press" | "skin-nail" | "stretch" | "scrape" | "flick" | "release" | "thumb-press" | "thumb-nail";
+export type HandContact = "pinch" | "index" | "nail" | "palm" | "handle" | "thumb";
 export interface FingerPose {
   pose: HandPose;
   grip: number;
@@ -51,6 +51,22 @@ export interface HandMaterialContact {
 }
 
 const clamp = (x: number, lo = 0, hi = 1) => Math.max(lo, Math.min(hi, Number.isFinite(x) ? x : lo));
+/**
+ * The thumb of the pressing hand on the skin, under an open hand held low and level over it: the rim of its nail
+ * (爪切, 摄切) or the front of its pulp (按). Angles in degrees. `abduct` opens the first web in the plane of the palm,
+ * `elevate` carries the thumb toward the skin, `pronate` turns its pulp; `mcp` and `ip` are flexion from the lightest
+ * touch to full bearing. `lead` is where on the fingertip the skin is met: from the long axis of the last phalanx
+ * toward the back of the thumb when positive (the nail's rim leads its pulp from about thirty degrees), toward the
+ * pulp when negative. The four fingers are [MCP, PIP, DIP, spread toward the little finger]: nearly straight, their
+ * tips a finger's thickness above the skin, since the detail hand may not touch the patient anywhere but at its contact.
+ */
+const THUMB_ON_SKIN = {
+  "thumb-nail": { abductDeg: 62, elevateDeg: 12, pronateDeg: -10, mcpDeg: [33, 35], ipDeg: [77, 80], leadDeg: 40,
+    fingers: { index: [12, 14, 8, 0], middle: [9, 13, 8, 4], ring: [12, 13, 8, 8], little: [16, 14, 8, 12] } },
+  "thumb-press": { abductDeg: 65, elevateDeg: 25, pronateDeg: -10, mcpDeg: [6, 8], ipDeg: [3, 5], leadDeg: -50,
+    fingers: { index: [15, 16, 8, 0], middle: [12, 15, 8, 4], ring: [15, 15, 8, 8], little: [20, 16, 8, 12] } },
+} as const;
+const onThumb = (pose: HandPose): pose is "thumb-press" | "thumb-nail" => pose === "thumb-press" || pose === "thumb-nail";
 const primaryHoldingY = (pose: HandPose) => ["tripod", "scrape", "flick"].includes(pose) ? -0.012 : 0;
 const anatomical: Record<string, string> = {
   thumb_CMC: "thumb_proximal", thumb_MCP: "thumb_middle", thumb_IP: "thumb_distal",
@@ -100,6 +116,7 @@ export class ArticulatedHand {
   private readonly rollingEngagement = new Map<string, number>();
   private readonly materialEngagement = new Map<string, number>();
   private walkingRetreatTransition: { from: { point: Vector3; normal: Vector3 }; to: { point: Vector3; normal: Vector3 }; progress: number } | undefined;
+  private thumbLeads: Record<"thumb-press" | "thumb-nail", { point: Vector3; out: Vector3 }> | undefined;
 
   constructor(readonly model: Group, clips: AnimationClip[], skin: string) {
     this.root.add(model);
@@ -169,6 +186,44 @@ export class ArticulatedHand {
     // authored pose frame is cleared and before any animation or role is sampled.
     this.nailWorkRig = createNailWorkRig(model);
     this.skinCorrectives = createHandSkinCorrectives(model);
+    this.captureThumbLeads();
+  }
+
+  /**
+   * Where the thumb meets the skin in each of its two skin poses, in the frame of its last phalanx: the part of the
+   * nail's rim, or of the pulp, that is furthest along the direction the pose presses in. Taken from the actual nail
+   * and skin, so a re-modelled thumb or nail is followed without a constant to keep in step.
+   */
+  private captureThumbLeads(): void {
+    const distal = this.model.getObjectByName("thumb_distal"), tip = this.model.getObjectByName("thumb_tip"), bed = this.model.getObjectByName("thumb_nail_contact");
+    const nail = this.model.getObjectByName("thumb_nail"), skin = this.model.getObjectByName("thumb_skin");
+    if (!distal || !tip || !bed || !(nail instanceof Mesh) || !(skin instanceof Mesh)) return;
+    this.model.updateMatrixWorld(true);
+    const inverse = distal.matrixWorld.clone().invert();
+    const end = tip.getWorldPosition(new Vector3()).applyMatrix4(inverse), along = end.clone().normalize();
+    const origin = bed.getWorldPosition(new Vector3());
+    const dorsal = bed.localToWorld(new Vector3(0, 1, 0)).sub(origin).transformDirection(inverse);
+    dorsal.addScaledVector(along, -dorsal.dot(along));
+    if (dorsal.lengthSq() < 1e-10) return;
+    dorsal.normalize();
+    const lead = (mesh: Mesh, leadDeg: number, band: number) => {
+      const angle = leadDeg * Math.PI / 180;
+      const out = along.clone().multiplyScalar(Math.cos(angle)).addScaledVector(dorsal, Math.sin(angle)).normalize();
+      const position = mesh.geometry.getAttribute("position"), v = new Vector3();
+      // only the fingertip: the thenar end of the same skin is no part of this contact
+      const at = (i: number) => {
+        if (mesh instanceof SkinnedMesh) mesh.getVertexPosition(i, v); else v.fromBufferAttribute(position, i);
+        return v.applyMatrix4(mesh.matrixWorld).applyMatrix4(inverse).distanceToSquared(end) < 0.02 ** 2;
+      };
+      let furthest = -Infinity;
+      for (let i = 0; i < position.count; i++) if (at(i)) furthest = Math.max(furthest, v.dot(out));
+      const point = new Vector3();
+      let count = 0;
+      for (let i = 0; i < position.count; i++) if (at(i) && v.dot(out) > furthest - band) { point.add(v); count++; }
+      return count ? { point: point.multiplyScalar(1 / count), out } : undefined;
+    };
+    const rim = lead(nail, THUMB_ON_SKIN["thumb-nail"].leadDeg, 0.00015), pulp = lead(skin, THUMB_ON_SKIN["thumb-press"].leadDeg, 0.0002);
+    if (rim && pulp) this.thumbLeads = { "thumb-nail": rim, "thumb-press": pulp };
   }
 
   setSide(side: "left" | "right"): void {
@@ -213,7 +268,7 @@ export class ArticulatedHand {
     const grip = clamp(settings.grip), phase = clamp(settings.phase);
     // Legacy nodes carry the Blender clips; zero-offset anatomical parents can add fine articulation.
     this.mixer.stopAllAction();
-    const clip = ["press", "stretch", "palpate", "skin-nail"].includes(settings.pose) ? "hand_support"
+    const clip = ["press", "stretch", "palpate", "skin-nail", "thumb-press", "thumb-nail"].includes(settings.pose) ? "hand_support"
       : settings.pose === "scrape" ? "hand_scrape" : settings.pose === "flick" ? "hand_flick"
       : settings.pose === "tripod" ? "hand_three_finger" : "hand_open";
     const action = this.actions.get(clip) ?? this.actions.get("hand_open");
@@ -282,6 +337,7 @@ export class ArticulatedHand {
         if (this.palmFrame || settings.pose === "skin-nail") this.relaxSurfaceFingers(settings);
         this.relaxSurfaceThumb();
       }
+      if (onThumb(settings.pose)) this.presentThumb(settings, settings.pose);
       if (settings.pose === "skin-nail") {
         // The nail works on the skin while the remaining long fingers rest clear of it.
         this.relaxUnusedFingers({ ...settings, idleFingerPose: "relaxed" });
@@ -703,6 +759,67 @@ export class ArticulatedHand {
     }
   }
 
+  /**
+   * The pressing hand as it nips or presses with its thumb: the hand open and low over the skin, the thumb carried
+   * out from it and down to the point. Every joint is set outright from THUMB_ON_SKIN; the bearing (how firmly the
+   * nail or the pulp is on the skin) flexes the thumb a little further, which brings the whole hand down on it.
+   */
+  private presentThumb(settings: FingerPose, pose: "thumb-press" | "thumb-nail"): void {
+    if (!this.palmFrame || !this.thumbLeads) {
+      // an asset without a palm frame or a thumbnail: the index does what it can
+      this.relaxSurfaceFingers({ ...settings, pose: "palpate" });
+      this.relaxSurfaceThumb();
+      return;
+    }
+    const shape = THUMB_ON_SKIN[pose], rad = Math.PI / 180;
+    const bearing = clamp(pose === "thumb-nail" ? settings.nailContact ?? 0 : settings.grip);
+    const palm = this.palmTransform();
+    const signed = (x: Vector3, y: Vector3, hinge: Vector3) => Math.atan2(x.clone().cross(y).dot(hinge), x.dot(y));
+    for (const digit of ["index", "middle", "ring", "little"] as const) {
+      const joints = ["MCP", "PIP", "DIP"].map((label) => this.controls.get(`${digit}_${label}`));
+      const legacy = ["proximal", "middle", "distal"].map((label) => this.model.getObjectByName(`${digit}_${label}`));
+      const tip = this.model.getObjectByName(`${digit}_tip`);
+      if (!tip || joints.some((joint) => !joint) || legacy.some((joint) => !joint)) continue;
+      const a = joints[1]!.position, b = joints[2]!.position, c = tip.position;
+      const hingeA = a.clone().cross(b).normalize(), hingeB = b.clone().cross(c).normalize();
+      if (hingeB.dot(hingeA) < 0) hingeB.negate();
+      const [mcpDeg, pipDeg, dipDeg, spreadDeg] = shape.fingers[digit];
+      const rotations = [restingFingerBaseRotation(a, hingeA, palm, mcpDeg, spreadDeg),
+        new Quaternion().setFromAxisAngle(hingeA, pipDeg * rad - signed(a, b, hingeA)),
+        new Quaternion().setFromAxisAngle(hingeB, dipDeg * rad - signed(b, c, hingeB))];
+      for (let i = 0; i < 3; i++) joints[i]!.quaternion.copy(rotations[i]!).multiply(legacy[i]!.quaternion.clone().invert());
+    }
+    const cmc = this.controls.get("thumb_CMC"), mcp = this.controls.get("thumb_MCP"), ip = this.controls.get("thumb_IP");
+    const proximal = this.model.getObjectByName("thumb_proximal"), middle = this.model.getObjectByName("thumb_middle"), distal = this.model.getObjectByName("thumb_distal"), tip = this.model.getObjectByName("thumb_tip");
+    if (!cmc || !mcp || !ip || !proximal || !middle || !distal || !tip) return;
+    const a = mcp.position, b = ip.position, c = tip.position;
+    const hingeA = a.clone().cross(b).normalize(), hingeB = b.clone().cross(c).normalize();
+    if (hingeB.dot(hingeA) < 0) hingeB.negate();
+    // In the palm's frame the fingers run along -x, the palm faces -y and the thumb is on +z.
+    const abduct = shape.abductDeg * rad, elevate = shape.elevateDeg * rad;
+    const along = new Vector3(-Math.cos(elevate) * Math.cos(abduct), -Math.sin(elevate), Math.cos(elevate) * Math.sin(abduct)).transformDirection(palm);
+    const volar = new Vector3(0, -1, 0).transformDirection(palm);
+    // the thumb's joints bend it toward the skin, turned a little about its own length
+    const hinge = along.clone().cross(volar).normalize().applyAxisAngle(along, shape.pronateDeg * rad);
+    const frame = (x: Vector3, z: Vector3) => new Matrix4().makeBasis(x.clone().normalize(), z.clone().cross(x).normalize(), z.clone().normalize());
+    const base = new Quaternion().setFromRotationMatrix(frame(along, hinge).multiply(frame(a, hingeA).transpose()));
+    const flexion = (range: readonly [number, number]) => (range[0] + (range[1] - range[0]) * bearing) * rad;
+    cmc.quaternion.copy(base).multiply(proximal.quaternion.clone().invert());
+    mcp.quaternion.setFromAxisAngle(hingeA, flexion(shape.mcpDeg) - signed(a, b, hingeA)).multiply(middle.quaternion.clone().invert());
+    ip.quaternion.setFromAxisAngle(hingeB, flexion(shape.ipDeg) - signed(b, c, hingeB)).multiply(distal.quaternion.clone().invert());
+  }
+
+  /** The thumb's contact with the skin and the direction it bears in, in the root's frame. */
+  private thumbLead(): { point: Vector3; out: Vector3 } | undefined {
+    const pose = this.poseState?.pose, distal = this.model.getObjectByName("thumb_distal");
+    const lead = pose && onThumb(pose) ? this.thumbLeads?.[pose] : this.thumbLeads?.["thumb-press"];
+    if (!lead || !distal) return undefined;
+    this.root.updateWorldMatrix(true, true);
+    const point = this.root.worldToLocal(distal.localToWorld(lead.point.clone()));
+    const beyond = this.root.worldToLocal(distal.localToWorld(lead.point.clone().add(lead.out)));
+    return { point, out: beyond.sub(point).normalize() };
+  }
+
   /** Fold the supporting thumb clear of the contact plane and the extended supporting fingers. */
   private relaxSurfaceThumb(): void {
     const cmc = this.controls.get("thumb_CMC"), mcp = this.controls.get("thumb_MCP"), ip = this.controls.get("thumb_IP");
@@ -1087,6 +1204,7 @@ export class ArticulatedHand {
     if (pose === "skin-nail") return this.contact("nail");
     if (pose === "press") return this.contact("palm");
     if (pose === "palpate" || pose === "stretch") return this.contact("index");
+    if (onThumb(pose)) return this.contact("thumb");
     return new Vector3(0, this.holdingY(pose), 0);
   }
 
@@ -1104,6 +1222,12 @@ export class ArticulatedHand {
     };
     if (pose === "skin-nail") return {
       index_nail_contact: { surface: "index_nail", normalField: "area-weighted-nail-bed", definition: { role: "surface-index-nail" } },
+    };
+    if (pose === "thumb-nail") return {
+      thumb_nail_contact: { surface: "thumb_nail", normalField: "nail-rim-lead", definition: { role: "surface-thumb-nail", leadDeg: THUMB_ON_SKIN[pose].leadDeg } },
+    };
+    if (pose === "thumb-press") return {
+      thumb_pad_contact: { surface: "thumb_skin", normalField: "pulp-lead", definition: { role: "surface-thumb-pulp", leadDeg: THUMB_ON_SKIN[pose].leadDeg } },
     };
     if (["palpate", "stretch", "press"].includes(pose)) return {
       [pose === "press" ? "palm_contact" : "index_volar_contact"]: pose === "press"
@@ -1130,6 +1254,7 @@ export class ArticulatedHand {
   /** Contacts follow the moving phalanges, rather than static empties at the model origin. */
   contact(kind: HandContact): Vector3 {
     if (kind === "handle") return new Vector3();
+    if (kind === "thumb") return this.thumbLead()?.point ?? this.anchor(["thumb_pad_contact", "thumb_tip"], new Vector3(0, 0, -0.006));
     const index = this.anchor([this.indexHoldingName, "index_pad_contact", "index_pad", "index_tip"], new Vector3(0, 0, 0.006));
     if (kind === "index") return this.anchor(["index_volar_contact", "index_pad_contact", "index_pad", "index_tip"], index);
     if (kind === "nail") return this.anchor(this.nailWorkSample ? ["index_nail_edge_contact", "index_nail_contact", "index_tip"] : ["index_nail_contact", "index_tip"], index);
@@ -1139,7 +1264,8 @@ export class ArticulatedHand {
   }
 
   contactNormal(kind: HandContact): Vector3 {
-    const names = kind === "nail" ? this.nailWorkSample ? ["index_nail_edge_contact"] : ["index_nail_contact"] : kind === "palm" ? ["palm_contact", "support_contact"]
+    if (kind === "thumb") { const lead = this.thumbLead(); if (lead) return lead.out; }
+    const names = kind === "thumb" ? ["thumb_pad_contact"] : kind === "nail" ? this.nailWorkSample ? ["index_nail_edge_contact"] : ["index_nail_contact"] : kind === "palm" ? ["palm_contact", "support_contact"]
       : kind === "index" ? ["index_volar_contact", "index_pad_contact", "index_pad"] : [this.indexHoldingName, "index_pad_contact", "index_pad"];
     const node = names.map((name) => this.model.getObjectByName(name)).find(Boolean);
     this.root.updateWorldMatrix(true, true);

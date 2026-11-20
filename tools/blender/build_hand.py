@@ -1423,6 +1423,15 @@ def palm(root, skin):
             # Separate hypothenar cushion and a mild central longitudinal arch.
             v -= .0030*math.exp(-((u-.046*scale_u)/(.034*scale_u))**2-((angle-3.95)/.48)**2)*end_fade
             v += .0015*math.exp(-((u-.035*scale_u)/(.032*scale_u))**2)*max(0,-c)**8*end_fade
+            # The hypothenar eminence is fullest in the proximal half of the
+            # ulnar palm and rounds its border; between it and the thenar the
+            # palm is hollow. Both leave the wrist ring, the row that the
+            # finger sockets start from and the thumb's aperture as they are.
+            body = smoothstep((u-.022)/.016)*(1-smoothstep((u-.078)/.018))
+            eminence = body*math.exp(-((u-.066)/.026)**2)
+            v -= .0035*eminence*math.exp(-((angle-3.95)/.50)**2)
+            r -= .0020*eminence*math.exp(-((angle-4.45)/.45)**2)
+            v += .0020*body*math.exp(-((u-.048)/.024)**2-((angle-3.32)/.24)**2)
             # The first web is a recess between the index metacarpal and
             # the proximal thenar mass. It does not cover the free thumb IP.
             web_recess=.0065*math.exp(-((u-.020*scale_u)/(.020*scale_u))**2-((r-.025)/.012)**2)*max(0,-c)**2*end_fade

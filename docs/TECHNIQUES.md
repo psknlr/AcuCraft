@@ -60,9 +60,16 @@ the time of day, which the simulation does not model.
 
 **The hands.** Thumb and index hold the handle (`grip: two-finger`); 弩 takes a three-finger hold, the middle finger
 on the shaft. 刮 and 弹 have their own hands: the thumb on the tail and the index nail on the handle; the index
-loaded behind the thumb and let go. In 飞 the fingers leave the handle completely after each run of twirls. 循 and
-摄 travel along the channel on the skin (`travelMm`), and named with a retained needle they keep clear of its entry.
-The pressing hand touches the skin only when `support` is set — touching a prepared site undoes its preparation.
+loaded behind the thumb and let go. In 飞 the fingers leave the handle completely after each run of twirls.
+
+The techniques of the skin have the pressing hand's own shapes. 爪 and 摄 are done with the **thumbnail**: the hand
+open and low over the skin, the thumb hooked down from it so that the rim of its nail leads its pulp; the nail comes
+down as it bears and stands two to three millimetres off the skin between one nip and the next. 按 is the **pulp of
+the thumb**, the thumb nearly straight, bearing down, holding and let up. 揣, 循 and 扪 are the **pad of the index
+finger**. In all of them the other fingers are held a finger's thickness clear of the skin: the detail hand touches
+the patient only at its contact, and the schematic skin does not dent under it. 循 and 摄 travel along the channel
+(`travelMm`), and named with a retained needle they keep clear of its entry. The pressing hand touches the skin
+only when `support` is set — touching a prepared site undoes its preparation.
 
 ## 2. What a technique does
 

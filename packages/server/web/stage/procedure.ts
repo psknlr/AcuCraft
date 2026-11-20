@@ -479,7 +479,11 @@ export class NeedleProcedure {
     let anchor: HandContact = handle ? "handle" : "index";
     if (!handle && poseSample.handPose === "skin-nail") anchor = "nail";
     else if (!handle && poseSample.handPose === "press") anchor = "palm";
-    if (!handle && anchor !== "nail") contact.addScaledVector(site.n, 0.0015);
+    else if (!handle && (poseSample.handPose === "thumb-press" || poseSample.handPose === "thumb-nail")) anchor = "thumb";
+    // A pad is held just off the schematic skin, which does not give under it. The thumbnail comes down onto the skin
+    // as it bears and stands a little above it between one nip and the next.
+    if (!handle && poseSample.handPose === "thumb-nail") contact.addScaledVector(site.n, 0.0003 + 0.0025 * (1 - finiteClamp(sample.nailContact / Math.max(0.05, motion.contactIntensity), 0, 1)));
+    else if (!handle && anchor !== "nail") contact.addScaledVector(site.n, 0.0015);
     const grip = envelope.grip * sample.gripEngagement;
     person.faceToward?.(site.p, envelope.reach);
     this.placements = [];
