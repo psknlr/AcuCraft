@@ -265,7 +265,7 @@ const AUTHORED: Readonly<Record<ManipulationTechniqueId, Authored>> = {
   an: {
     counts: [{ zh: "按", label: "presses", count: 1 }],
     program: ([n]) => [work("按压", "A finger presses the channel beside the point and holds", "press", n!, 3, {})],
-    defaults: { support: "press", lateralMm: 0, travelMm: 18, contactIntensity: 0.7 }, controls: ["travelMm"], dose: 0.03, reading: null, loosensDeg: 60,
+    defaults: { support: "none", lateralMm: 0, travelMm: 18, contactIntensity: 0.7 }, controls: ["travelMm"], dose: 0.03, reading: null, loosensDeg: 60,
   },
   men: {
     counts: [{ zh: "揉", label: "kneading circles", count: 3 }],
@@ -274,7 +274,7 @@ const AUTHORED: Readonly<Record<ManipulationTechniqueId, Authored>> = {
       work("轻揉", "Kneading lightly", "knead", n!, 0.7, { lateral: 1, primitive: "men" }),
       hold("按定", "Holding", 0.9, { primitive: "men" }),
     ],
-    defaults: { support: "press", lateralMm: 1.5, contactIntensity: 0.6 }, controls: ["lateralMm"], dose: 0, reading: "reinforcing",
+    defaults: { support: "none", lateralMm: 1.5, contactIntensity: 0.6 }, controls: ["lateralMm"], dose: 0, reading: "reinforcing",
   },
   sou: {
     counts: [{ zh: "遍", label: "rounds of four directions", count: 1, max: 3 }],
@@ -737,7 +737,7 @@ export function sampleOperation(id: ManipulationTechniqueId, elapsedMs: number, 
     case "hold":
       if (stage.primitive === "chuai") out.handPose = "palpate";
       else if (stage.primitive === "zhua") { out.handPose = "skin-nail"; out.nailContact = motion.contactIntensity * edge; }
-      else if (stage.primitive === "men" || stage.primitive === "an") { out.handPose = "press"; out.supportContact *= motion.contactIntensity; }
+      else if (stage.primitive === "men" || stage.primitive === "an") out.handPose = "press";
       break;
     case "move":
       // a small twirl carries the needle from one level to the next; a turning thrust or lift turns one way and is let back
@@ -832,7 +832,6 @@ export function sampleOperation(id: ManipulationTechniqueId, elapsedMs: number, 
     }
     case "knead":
       out.handPose = stage.primitive === "men" ? "press" : "palpate";
-      if (stage.primitive === "men") out.supportContact *= motion.contactIntensity;
       // a small circle that starts and ends on the point
       out.lateralMm.u += lateral * 0.5 * sine * edge;
       out.lateralMm.v += lateral * 0.5 * (1 - Math.cos(2 * Math.PI * c)) * edge;
@@ -865,7 +864,6 @@ export function sampleOperation(id: ManipulationTechniqueId, elapsedMs: number, 
     }
     case "press": {
       out.handPose = "press";
-      out.supportContact = (motion.support === "none" ? 0 : gripEnvelope) * motion.contactIntensity * plateau(t, 0.15, 0.15);
       // beside the needle, on its channel, when there is a needle to keep clear of
       out.travelMm = context.besideNeedle ? motion.travelMm ?? 0 : 0;
       break;

@@ -1,0 +1,861 @@
+{
+ "schema": "acucraft/log@1",
+ "scenarioId": "sg-knee-oa/base",
+ "scenarioVersion": "0.2.0",
+ "engine": {
+  "acucraft": "0.3.0",
+  "clinicalcraft": "b48995acb9bf5688292c68a19c7b1f586cf0689f"
+ },
+ "seed": 1,
+ "mode": "assessment",
+ "techniques": "operative",
+ "requests": [
+  {
+   "requestId": "practitioner-0001",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "ask",
+    "itemId": "hx-chief"
+   },
+   "expectedVersion": 0
+  },
+  {
+   "requestId": "practitioner-0002",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "ask",
+    "itemId": "hx-onset"
+   },
+   "expectedVersion": 1
+  },
+  {
+   "requestId": "practitioner-0003",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "ask",
+    "itemId": "hx-site"
+   },
+   "expectedVersion": 2
+  },
+  {
+   "requestId": "practitioner-0004",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "ask",
+    "itemId": "hx-pattern"
+   },
+   "expectedVersion": 3
+  },
+  {
+   "requestId": "practitioner-0005",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "ask",
+    "itemId": "hx-swelling"
+   },
+   "expectedVersion": 4
+  },
+  {
+   "requestId": "practitioner-0006",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "ask",
+    "itemId": "hx-systemic"
+   },
+   "expectedVersion": 5
+  },
+  {
+   "requestId": "practitioner-0007",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "ask",
+    "itemId": "hx-mechanical"
+   },
+   "expectedVersion": 6
+  },
+  {
+   "requestId": "practitioner-0008",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "ask",
+    "itemId": "hx-pmh"
+   },
+   "expectedVersion": 7
+  },
+  {
+   "requestId": "practitioner-0009",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "ask",
+    "itemId": "hx-meds"
+   },
+   "expectedVersion": 8
+  },
+  {
+   "requestId": "practitioner-0010",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "ask",
+    "itemId": "hx-bleeding"
+   },
+   "expectedVersion": 9
+  },
+  {
+   "requestId": "practitioner-0011",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "ask",
+    "itemId": "hx-prior-care"
+   },
+   "expectedVersion": 10
+  },
+  {
+   "requestId": "practitioner-0012",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "ask",
+    "itemId": "hx-acupuncture-before"
+   },
+   "expectedVersion": 11
+  },
+  {
+   "requestId": "practitioner-0013",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "ask",
+    "itemId": "hx-weather"
+   },
+   "expectedVersion": 12
+  },
+  {
+   "requestId": "practitioner-0014",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "ask",
+    "itemId": "hx-general-tcm"
+   },
+   "expectedVersion": 13
+  },
+  {
+   "requestId": "practitioner-0015",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "ask",
+    "itemId": "hx-ice"
+   },
+   "expectedVersion": 14
+  },
+  {
+   "requestId": "practitioner-0016",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "review_result",
+    "investigationId": "inv-xray"
+   },
+   "expectedVersion": 15
+  },
+  {
+   "requestId": "practitioner-0017",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "move",
+    "to": "treatment-room",
+    "withPatient": true
+   },
+   "expectedVersion": 16
+  },
+  {
+   "requestId": "practitioner-0018",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "move",
+    "to": {
+     "fixture": "treat-sink"
+    },
+    "withPatient": false
+   },
+   "expectedVersion": 17
+  },
+  {
+   "requestId": "practitioner-0019",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "hand_hygiene"
+   },
+   "expectedVersion": 18
+  },
+  {
+   "requestId": "practitioner-0020",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "move",
+    "to": {
+     "person": "patient"
+    },
+    "withPatient": false
+   },
+   "expectedVersion": 19
+  },
+  {
+   "requestId": "practitioner-0021",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "examine",
+    "findingId": "ex-inspect"
+   },
+   "expectedVersion": 20
+  },
+  {
+   "requestId": "practitioner-0022",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "examine",
+    "findingId": "ex-legs-skin"
+   },
+   "expectedVersion": 21
+  },
+  {
+   "requestId": "practitioner-0023",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "examine",
+    "findingId": "ex-palpate"
+   },
+   "expectedVersion": 22
+  },
+  {
+   "requestId": "practitioner-0024",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "examine",
+    "findingId": "ex-effusion"
+   },
+   "expectedVersion": 23
+  },
+  {
+   "requestId": "practitioner-0025",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "examine",
+    "findingId": "ex-rom"
+   },
+   "expectedVersion": 24
+  },
+  {
+   "requestId": "practitioner-0026",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "examine",
+    "findingId": "ex-tongue"
+   },
+   "expectedVersion": 25
+  },
+  {
+   "requestId": "practitioner-0027",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "examine",
+    "findingId": "ex-pulse-tcm"
+   },
+   "expectedVersion": 26
+  },
+  {
+   "requestId": "practitioner-0028",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "check_vitals"
+   },
+   "expectedVersion": 27
+  },
+  {
+   "requestId": "practitioner-0029",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "assess",
+    "diagnoses": [
+     "knee-osteoarthritis"
+    ],
+    "pattern": "wind-cold-damp-bi",
+    "patternEvidence": [
+     "hx-weather",
+     "hx-general-tcm",
+     "hx-pattern",
+     "ex-tongue",
+     "ex-pulse-tcm"
+    ],
+    "redFlags": [],
+    "rationale": "Gradual mechanical medial knee pain, short morning stiffness, joint-line tenderness, X-ray changes; worse with cold and damp, heaviness, pale tongue with a white greasy coat."
+   },
+   "expectedVersion": 28
+  },
+  {
+   "requestId": "practitioner-0030",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "decide",
+    "disposition": "treat",
+    "rationale": "No red flags; she wants to try acupuncture after hearing the evidence and alternatives."
+   },
+   "expectedVersion": 29
+  },
+  {
+   "requestId": "practitioner-0031",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "propose_plan",
+    "plan": {
+     "points": [
+      {
+       "point": "ST35",
+       "side": "right"
+      },
+      {
+       "point": "EX-LE4",
+       "side": "right"
+      },
+      {
+       "point": "ST36",
+       "side": "right"
+      },
+      {
+       "point": "SP9",
+       "side": "right"
+      },
+      {
+       "ashi": "ashi-medial-joint-line"
+      }
+     ],
+     "technique": {
+      "method": "manual-filiform",
+      "stimulation": "even",
+      "retentionMinutes": 20
+     },
+     "rationale": "Local knee points (the knee eyes, SP9, the Ashi point) with ST36 for cold-damp Bi.",
+     "alternatives": [
+      "Exercise therapy and weight management (first line)",
+      "Physiotherapy",
+      "Pain relief through her doctor"
+     ],
+     "followUp": "Review in one week."
+    }
+   },
+   "expectedVersion": 30
+  },
+  {
+   "requestId": "practitioner-0032",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "explain",
+    "topics": [
+     "procedure",
+     "benefits",
+     "risks",
+     "alternatives",
+     "evidence",
+     "right-to-stop"
+    ],
+    "text": "I'd suggest a course of acupuncture: five fine, single-use sterile needles around your right knee and leg, left in for about twenty minutes. It may ease the pain; the evidence is mixed — the UK NICE guideline advises against acupuncture for osteoarthritis, while the American College of Rheumatology guideline conditionally recommends it. The risks are small: soreness, a little bleeding or bruising, feeling faint, and very rarely infection. The alternatives are strengthening exercises and keeping active, physiotherapy, and pain relief through your doctor — exercise matters whatever we decide. You can ask me to stop at any time."
+   },
+   "expectedVersion": 31
+  },
+  {
+   "requestId": "practitioner-0033",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "seek_consent"
+   },
+   "expectedVersion": 32
+  },
+  {
+   "requestId": "practitioner-0034",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "position_patient",
+    "position": "supine-knee-flexed"
+   },
+   "expectedVersion": 33
+  },
+  {
+   "requestId": "practitioner-0035",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "assign_task",
+    "to": "assistant",
+    "kind": "monitor-patient",
+    "params": {
+     "intervalMinutes": 5
+    },
+    "note": "Please stay with Mdm Lim and check on her every five minutes while the needles are in; tell me at once if anything changes."
+   },
+   "expectedVersion": 34
+  },
+  {
+   "requestId": "practitioner-0036",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "move",
+    "to": {
+     "region": "knee-leg",
+     "side": "right"
+    },
+    "withPatient": false
+   },
+   "expectedVersion": 36
+  },
+  {
+   "requestId": "practitioner-0037",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "identify_landmark",
+    "region": "knee-leg",
+    "side": "right",
+    "landmark": "st35-depression"
+   },
+   "expectedVersion": 37
+  },
+  {
+   "requestId": "practitioner-0038",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "identify_landmark",
+    "region": "knee-leg",
+    "side": "right",
+    "landmark": "medial-knee-eye"
+   },
+   "expectedVersion": 38
+  },
+  {
+   "requestId": "practitioner-0039",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "identify_landmark",
+    "region": "knee-leg",
+    "side": "right",
+    "landmark": "ankle-anterior-midpoint"
+   },
+   "expectedVersion": 39
+  },
+  {
+   "requestId": "practitioner-0040",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "identify_landmark",
+    "region": "knee-leg",
+    "side": "right",
+    "landmark": "lateral-malleolus"
+   },
+   "expectedVersion": 40
+  },
+  {
+   "requestId": "practitioner-0041",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "identify_landmark",
+    "region": "knee-leg",
+    "side": "right",
+    "landmark": "medial-condyle-inferior"
+   },
+   "expectedVersion": 41
+  },
+  {
+   "requestId": "practitioner-0042",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "measure",
+    "region": "knee-leg",
+    "side": "right",
+    "segment": "seg.knee-ankle-lateral"
+   },
+   "expectedVersion": 42
+  },
+  {
+   "requestId": "practitioner-0043",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "mark_point",
+    "target": {
+     "point": "ST35",
+     "side": "right"
+    },
+    "region": "knee-leg",
+    "side": "right",
+    "at": {
+     "u": 2.24,
+     "v": -1.42
+    },
+    "method": "landmark"
+   },
+   "expectedVersion": 43
+  },
+  {
+   "requestId": "practitioner-0044",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "mark_point",
+    "target": {
+     "point": "EX-LE4",
+     "side": "right"
+    },
+    "region": "knee-leg",
+    "side": "right",
+    "at": {
+     "u": -2.24,
+     "v": -1.42
+    },
+    "method": "landmark"
+   },
+   "expectedVersion": 44
+  },
+  {
+   "requestId": "practitioner-0045",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "mark_point",
+    "target": {
+     "point": "ST36",
+     "side": "right"
+    },
+    "region": "knee-leg",
+    "side": "right",
+    "at": {
+     "u": 2.01,
+     "v": -8.01
+    },
+    "method": "proportional"
+   },
+   "expectedVersion": 45
+  },
+  {
+   "requestId": "practitioner-0046",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "mark_point",
+    "target": {
+     "point": "SP9",
+     "side": "right"
+    },
+    "region": "knee-leg",
+    "side": "right",
+    "at": {
+     "u": -6.62,
+     "v": -5.97
+    },
+    "method": "landmark"
+   },
+   "expectedVersion": 46
+  },
+  {
+   "requestId": "practitioner-0047",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "mark_point",
+    "target": {
+     "ashi": "ashi-medial-joint-line"
+    },
+    "region": "knee-leg",
+    "side": "right",
+    "at": {
+     "u": -4.6,
+     "v": -0.8
+    },
+    "method": "palpation"
+   },
+   "expectedVersion": 47
+  },
+  {
+   "requestId": "practitioner-0048",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "move",
+    "to": {
+     "fixture": "prep-sink"
+    },
+    "withPatient": false
+   },
+   "expectedVersion": 48
+  },
+  {
+   "requestId": "practitioner-0049",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "hand_hygiene"
+   },
+   "expectedVersion": 49
+  },
+  {
+   "requestId": "practitioner-0050",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "move",
+    "to": {
+     "fixture": "shelf"
+    },
+    "withPatient": false
+   },
+   "expectedVersion": 50
+  },
+  {
+   "requestId": "practitioner-0051",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "fetch",
+    "item": "pack-a"
+   },
+   "expectedVersion": 51
+  },
+  {
+   "requestId": "practitioner-0052",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "move",
+    "to": {
+     "region": "knee-leg",
+     "side": "right"
+    },
+    "withPatient": false
+   },
+   "expectedVersion": 52
+  },
+  {
+   "requestId": "practitioner-0053",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "prepare_site",
+    "region": "knee-leg",
+    "side": "right"
+   },
+   "expectedVersion": 53
+  },
+  {
+   "requestId": "practitioner-0054",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "open_pack",
+    "packId": "pack-a"
+   },
+   "expectedVersion": 54
+  },
+  {
+   "requestId": "practitioner-0055",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "pick_up",
+    "object": "pack-a.1"
+   },
+   "expectedVersion": 55
+  },
+  {
+   "requestId": "practitioner-0056",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "insert_needle",
+    "needleId": "pack-a.1",
+    "mark": "m1",
+    "angleDeg": 30,
+    "azimuthDeg": 270,
+    "depthCm": 1.5
+   },
+   "expectedVersion": 56
+  },
+  {
+   "requestId": "practitioner-0057",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "perform_technique",
+    "technique": "nian",
+    "needleId": "pack-a.1"
+   },
+   "expectedVersion": 58
+  },
+  {
+   "requestId": "practitioner-0058",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "perform_technique",
+    "technique": "cuo",
+    "needleId": "pack-a.1"
+   },
+   "expectedVersion": 59
+  },
+  {
+   "requestId": "practitioner-0059",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "perform_technique",
+    "technique": "cuo",
+    "needleId": "pack-a.1"
+   },
+   "expectedVersion": 60
+  },
+  {
+   "requestId": "practitioner-0060",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "perform_technique",
+    "technique": "ti",
+    "needleId": "pack-a.1"
+   },
+   "expectedVersion": 63
+  },
+  {
+   "requestId": "practitioner-0061",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "perform_technique",
+    "technique": "xun",
+    "needleId": "pack-a.1"
+   },
+   "expectedVersion": 63
+  },
+  {
+   "requestId": "practitioner-0062",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "perform_technique",
+    "technique": "she",
+    "needleId": "pack-a.1"
+   },
+   "expectedVersion": 64
+  },
+  {
+   "requestId": "practitioner-0063",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "perform_technique",
+    "technique": "cuo",
+    "needleId": "pack-a.1",
+    "motion": {
+     "direction": "counterclockwise"
+    }
+   },
+   "expectedVersion": 67
+  },
+  {
+   "requestId": "practitioner-0064",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "perform_technique",
+    "technique": "shao-shan-huo",
+    "needleId": "pack-a.1",
+    "motion": {
+     "phaseCycles": [
+      3,
+      3,
+      3
+     ]
+    }
+   },
+   "expectedVersion": 68
+  },
+  {
+   "requestId": "practitioner-0065",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "check_sensation",
+    "needleId": "pack-a.1"
+   },
+   "expectedVersion": 69
+  },
+  {
+   "requestId": "practitioner-0066",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "adjust_needle",
+    "needleId": "pack-a.1",
+    "technique": "bu"
+   },
+   "expectedVersion": 70
+  },
+  {
+   "requestId": "practitioner-0067",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "remove_needle",
+    "needleId": "pack-a.1"
+   },
+   "expectedVersion": 71
+  },
+  {
+   "requestId": "practitioner-0068",
+   "actor": "practitioner",
+   "patient": "patient",
+   "action": {
+    "type": "perform_technique",
+    "technique": "men",
+    "needleId": "pack-a.1"
+   },
+   "expectedVersion": 73
+  }
+ ],
+ "finalDigest": "14c1a9634328e2",
+ "meta": {
+  "agent": "operative fixture"
+ }
+}

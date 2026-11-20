@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync, writeFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import {
   OPERATIVE_TECHNIQUES, clone, createEncounter, digest, now, observeAs, replayLog, resolveScenario, step,
-  type ActionInput, type EncounterState, type Mode, type Scenario, type TechniqueModel,
+  type ActionInput, type EncounterLog, type EncounterState, type Mode, type Scenario, type TechniqueModel,
 } from "@acucraft/core";
 import { EncounterSession, lookupTool, referenceAgent } from "@acucraft/agent";
 import { CLINICALCRAFT_REV, evaluateEncounter, loadContentPack, requireScenario, runEpisode } from "./index.js";
@@ -506,5 +508,59 @@ describe("what an independent review found, and what holds now", () => {
     const served = lookupTool.run({ topic: "techniques" }, context).output as Record<string, any>;
     expect("travelMm" in served.motionSchema.properties).toBe(false);
     expect("travelMm" in served.parameters).toBe(false);
+  });
+});
+
+describe("a record made on the operative catalogue, kept", () => {
+  /**
+   * fixtures/operative-technique-log.json: the knee encounter up to its first needle, then that needle twirled, wound
+   * until it is stuck, refused, freed three ways, taken through 烧山火, asked about, reinforced, withdrawn and its hole
+   * closed. The engine that wrote it is the engine that must replay it: a change to what a technique does is a
+   * change to this file, made on purpose (ACUCRAFT_UPDATE_FIXTURES=1 writes it again).
+   */
+  const path = fileURLToPath(new URL("./fixtures/operative-technique-log.json", import.meta.url));
+  const after: ActionInput[] = [
+    { type: "perform_technique", technique: "nian", needleId: NEEDLE },
+    { type: "perform_technique", technique: "cuo", needleId: NEEDLE },
+    { type: "perform_technique", technique: "cuo", needleId: NEEDLE },
+    { type: "perform_technique", technique: "ti", needleId: NEEDLE },
+    { type: "perform_technique", technique: "xun", needleId: NEEDLE },
+    { type: "perform_technique", technique: "she", needleId: NEEDLE },
+    { type: "perform_technique", technique: "cuo", needleId: NEEDLE, motion: { direction: "counterclockwise" } },
+    { type: "perform_technique", technique: "shao-shan-huo", needleId: NEEDLE, motion: { phaseCycles: [3, 3, 3] } },
+    { type: "check_sensation", needleId: NEEDLE },
+    { type: "adjust_needle", needleId: NEEDLE, technique: "bu" },
+    { type: "remove_needle", needleId: NEEDLE },
+    { type: "perform_technique", technique: "men", needleId: NEEDLE },
+  ] as ActionInput[];
+
+  function record(): EncounterLog {
+    const session = new EncounterSession(knee, { seed: 1, techniques: "operative" });
+    for (const request of knee.field.solution) { if (request.action.type === "adjust_needle") break; session.act(request.action as ActionInput, request.actor); }
+    for (const action of after) session.act(action);
+    return session.log({ clinicalcraft: CLINICALCRAFT_REV }, { agent: "operative fixture" });
+  }
+
+  it("replays to the state it was saved with, and that state is what the catalogue says it should be", () => {
+    if (process.env.ACUCRAFT_UPDATE_FIXTURES) writeFileSync(path, `${JSON.stringify(record(), null, 1)}\n`);
+    const log = JSON.parse(readFileSync(path, "utf8")) as EncounterLog;
+    expect(log.techniques).toBe("operative");
+    const { state } = replayLog(knee, log);
+    expect(digest(state)).toBe(log.finalDigest);
+    // what today's engine makes of the same requests is the same record
+    expect(record().finalDigest).toBe(log.finalDigest);
+    const done = state.attempts.filter((a) => a.request.actor === "practitioner").slice(-after.length);
+    expect(done.map((a) => [a.request.action.type === "perform_technique" ? a.request.action.technique : a.request.action.type, a.status, a.code ?? null])).toEqual([
+      ["nian", "executed", null], ["cuo", "executed", null], ["cuo", "executed", null], ["ti", "rejected", "stuck-needle"], ["xun", "executed", null], ["she", "executed", null],
+      ["cuo", "executed", null], ["shao-shan-huo", "executed", null], ["check_sensation", "executed", null], ["adjust_needle", "executed", null], ["remove_needle", "executed", null], ["men", "executed", null],
+    ]);
+    const n = state.needles[NEEDLE]!;
+    expect(n).toMatchObject({ holeClosed: true, bleeding: false, location: { kind: "hand" } });
+    expect(n.winding).toBeUndefined();
+    expect(state.performances!.map((p) => [p.technique, p.effect!.windingDeg, p.effect!.loosenedDeg, p.effect!.reading])).toEqual([
+      ["nian", 0, 0, "even"], ["cuo", 360, 0, null], ["cuo", 360, 0, null], ["xun", 0, 120, null], ["she", 0, 240, null], ["cuo", -360, 0, null], ["shao-shan-huo", 0, 0, "reinforcing"], ["men", 0, 0, "reinforcing"],
+    ]);
+    expect(n.events.filter((e) => e.reading).map((e) => e.reading)).toEqual(["even", "reinforcing", "reinforcing"]);
+    expect(done.every((a) => a.unsafe.length === 0)).toBe(true);
   });
 });
