@@ -80,3 +80,11 @@ export const PerformTechniqueSchema = z.object({
   motion: ManipulationMotionSettingsSchema.optional(),
 }).strict();
 export type PerformTechniqueAction = z.infer<typeof PerformTechniqueSchema>;
+
+/**
+ * The settings and the action as an encounter on the illustrative catalogue reads them: without what the operative
+ * catalogue added. A request is refused there for the reasons, and in the words, it was refused for before — so a
+ * record that holds one replays to the state it had.
+ */
+export const IllustrativeMotionSettingsSchema = ManipulationMotionSettingsSchema.omit({ travelMm: true });
+export const IllustrativePerformTechniqueSchema = PerformTechniqueSchema.extend({ motion: IllustrativeMotionSettingsSchema.optional() });

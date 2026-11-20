@@ -387,13 +387,14 @@ export function evaluateEncounter(sc: Scenario, s: EncounterState): EncounterRep
     const wound = (s.performances ?? []).some((p) => (p.effect?.windingDeg ?? 0) !== 0)
       || needleList(s).some((n) => n.events.some((e) => e.motion?.technique === "rotate" && e.motion.rotationDirection !== "alternating"));
     if (wound) procedure.push({ id: "wound-needle-freed", label: "a needle wound by one-way turning was freed, not forced out", met: !anyUnsafe("stuck-needle-forced"), weight: 2 });
-    // the stimulation the patient agreed to: no needle worked the opposite way
-    const agreed = s.plans.at(-1)?.plan.technique.stimulation;
-    const opposite = agreed === "reinforcing" ? "reducing" : agreed === "reducing" ? "reinforcing" : null;
-    const worked = needleList(s).flatMap((n) => n.events.filter((e) => e.reading !== undefined).map((e) => ({ needle: n.id, reading: e.reading!, how: e.detail ?? "" })));
-    if (opposite && worked.length > 0) {
-      const against = worked.filter((w) => w.reading === opposite);
-      procedure.push({ id: "stimulation-as-planned", label: `no needle worked the opposite way to the plan (${agreed})`, met: against.length === 0, weight: 1, ...(against.length ? { detail: against.map((w) => `${w.needle}: ${w.how} reads as ${w.reading}`).join("; ") } : {}) });
+    // the stimulation of the plan: no needle worked the opposite way. Each working is judged by the plan in force
+    // when it was done — a plan proposed afterwards neither condemns nor excuses it
+    const planAt = (at: number) => [...s.plans].reverse().find((p) => p.at <= at + 1e-9)?.plan.technique.stimulation;
+    const worked = needleList(s).flatMap((n) => n.events.filter((e) => e.reading !== undefined).map((e) => ({ needle: n.id, reading: e.reading!, how: e.detail ?? "", planned: planAt(e.at) })));
+    const judged = worked.filter((w) => w.planned === "reinforcing" || w.planned === "reducing");
+    if (judged.length > 0) {
+      const against = judged.filter((w) => w.reading === (w.planned === "reinforcing" ? "reducing" : "reinforcing"));
+      procedure.push({ id: "stimulation-as-planned", label: "no needle worked the opposite way to the plan in force (reinforcing or reducing)", met: against.length === 0, weight: 1, ...(against.length ? { detail: against.map((w) => `${w.needle}: ${w.how} reads as ${w.reading} under a ${w.planned} plan`).join("; ") } : {}) });
     }
   }
   for (const e of sc.field.events) {

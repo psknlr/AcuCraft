@@ -34,7 +34,9 @@ export function fellUnseen(s: EncounterState, n: NeedleState): boolean {
   return !s.attempts.some((a) => {
     if ((a.status !== "executed" && a.status !== "partial") || a.resultVersion <= fell.version) return false;
     const type = a.request.action.type;
-    return LOOKS.has(type) || (TOUCHES.has(type) && (a.request.action as { needleId?: string }).needleId === n.id);
+    // (on the operative catalogue a technique is done to the needle it names: reaching for it is a touch)
+    const touches = TOUCHES.has(type) || (type === "perform_technique" && s.techniques === "operative");
+    return LOOKS.has(type) || (touches && (a.request.action as { needleId?: string }).needleId === n.id);
   });
 }
 

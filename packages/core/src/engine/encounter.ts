@@ -13,7 +13,7 @@ import {
   vitalsAt,
   type Result,
 } from "@clinicalcraft/core";
-import { ActionRequestSchema, type Action, type ActionRequest, type ActionRequestInput, type ActionType, type PointRef } from "../schema/actions.js";
+import { ActionRequestSchema, IllustrativeActionRequestSchema, type Action, type ActionRequest, type ActionRequestInput, type ActionType, type PointRef } from "../schema/actions.js";
 import { PositionSchema, type ChartPoint, type Position, type Side } from "../schema/common.js";
 import type { AcupointDefinition } from "../schema/knowledge.js";
 import type { UnsafeCode } from "../schema/field.js";
@@ -198,7 +198,8 @@ export interface StepResult {
 }
 
 export function step(sc: Scenario, s: EncounterState, input: ActionRequestInput, opts: StepOptions = {}): StepResult {
-  const parsed = ActionRequestSchema.safeParse(input);
+  // an encounter on the illustrative catalogue reads a request as it always did
+  const parsed = (s.techniques === "operative" ? ActionRequestSchema : IllustrativeActionRequestSchema).safeParse(input) as ReturnType<typeof ActionRequestSchema.safeParse>;
   if (!parsed.success) {
     const raw = input as Partial<ActionRequest>;
     if (typeof raw?.requestId !== "string" || typeof raw?.actor !== "string") throw new TypeError(`invalid action request: ${parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; ")}`);
@@ -796,22 +797,46 @@ function cautionedAt(sc: Scenario, frame: PatientRegion, region: string, side: S
 
 /**
  * Winding added to a needle, then winding let go (degrees): the needle's hold is kept, and what the operator and
- * the patient make of a change of hold is returned or said. Clockwise from the handle is positive.
+ * the patient make of a change of hold is said or returned. Clockwise from the handle is positive. A turn against the
+ * winding takes it off and stops when the needle is free: rolling back frees a needle, it does not wind it the other
+ * way. `wound` and `loosened` are what was done to the needle, not what was asked for.
  */
-function windNeedle(ctx: Ctx, n: NeedleState, addDeg: number, loosenDeg: number): string[] {
+function windNeedle(ctx: Ctx, n: NeedleState, addDeg: number, loosenDeg: number): { said: string[]; wound: number; loosened: number } {
   const before = n.winding ?? 0, hold = needleHold(before);
-  let winding = Math.max(-WINDING.capDeg, Math.min(WINDING.capDeg, before + addDeg));
-  winding -= Math.sign(winding) * Math.min(Math.abs(winding), loosenDeg);
+  const against = before !== 0 && addDeg !== 0 && Math.sign(addDeg) !== Math.sign(before);
+  const turned = against ? Math.sign(before) * Math.max(0, Math.abs(before) - Math.abs(addDeg)) : Math.max(-WINDING.capDeg, Math.min(WINDING.capDeg, before + addDeg));
+  const loosened = Math.min(Math.abs(turned), loosenDeg);
+  const winding = turned - Math.sign(turned) * loosened;
   if (Math.abs(winding) < 1e-9) delete n.winding;
   else n.winding = Math.round(winding * 10) / 10;
+  const done = { wound: Math.round((turned - before) * 10) / 10, loosened: Math.round(loosened * 10) / 10 };
   const now = needleHold(n.winding);
-  if (now === hold) return [];
+  if (now === hold) return { said: [], ...done };
   if (now === "stuck") {
     volunteer(ctx, n, "sharp-pain", "Ow — it's pulling at that needle. That hurts.", ["sharp-pain"]);
-    return [`${n.id} is stuck: wound too far, the tissue has seized it. Free it before anything else is done to it.`];
+    return { said: [`${n.id} is stuck: wound too far, the tissue has seized it. Free it before anything else is done to it.`], ...done };
   }
-  if (now === "held") return [hold === "stuck" ? `${n.id} gives a little: it is no longer stuck, though the tissue still holds it.` : `${n.id} is held: the fibres have taken the shaft. Roll it back before it is withdrawn.`];
-  return [`${n.id} is free again.`];
+  if (now === "held") return { said: [hold === "stuck" ? `${n.id} gives a little: it is no longer stuck, though the tissue still holds it.` : `${n.id} is held: the fibres have taken the shaft. Roll it back before it is withdrawn.`], ...done };
+  return { said: [`${n.id} is free again.`], ...done };
+}
+
+/**
+ * Is this technique, with these settings, a way of freeing this needle? A needle the tissue holds or has seized is
+ * freed by what loosens it (the channel stroked or nipped, the handle flicked or scraped) and by rolling it back.
+ * Freeing a needle is part of taking it out: nothing that stops a treatment stops it.
+ */
+function freesNeedle(definition: OperativeTechnique, motion: Extract<Action, { type: "perform_technique" }>["motion"], n: NeedleState | undefined): boolean {
+  if (!n || n.location.kind !== "patient" || needleHold(n.winding) === "free") return false;
+  const effect = operationEffect(definition.id, motion);
+  return effect.loosensDeg > 0 || (effect.windingDeg !== 0 && Math.sign(effect.windingDeg) !== Math.sign(n.winding!));
+}
+
+/** The same of an `adjust_needle`: a turn one way, against the winding, with the needle left at its depth. */
+function unwindsNeedle(a: Extract<Action, { type: "adjust_needle" }>, n: NeedleState): boolean {
+  if (n.location.kind !== "patient" || needleHold(n.winding) === "free") return false;
+  if (techniqueStimulus(a.technique) !== "rotate" || a.rotationDirection === undefined || a.rotationDirection === "alternating") return false;
+  if (a.depthCm !== undefined && Math.abs(a.depthCm - n.location.depthCm) > 1e-9) return false;
+  return (a.rotationDirection === "clockwise" ? 1 : -1) !== Math.sign(n.winding!);
 }
 
 /** The stimulation an `adjust_needle` with a stated excursion, rate and time gives: the act's own, scaled by the square root of each ratio to its default. */
@@ -847,8 +872,7 @@ function operationOnNeedle(ctx: Ctx, definition: OperativeTechnique, n: NeedleSt
       throw new Rejection("too-shallow", `${definition.zh} works between levels of the needle's depth: ${n.id} stands at ${fmt(depthMm, 0)} mm, and it needs at least ${definition.effect.needsDepthMm} mm. Use it at a point with deeper tissue, or a single method.`);
     }
     // a needle the tissue has seized is freed, never worked: only what unwinds or loosens it is done to it
-    const unwinds = effect.windingDeg !== 0 && Math.sign(effect.windingDeg) !== Math.sign(before);
-    if (hold === "stuck" && !unwinds && effect.loosensDeg === 0) {
+    if (hold === "stuck" && !freesNeedle(definition, motion, n)) {
       throw new Rejection("stuck-needle", `${n.id} is stuck: the tissue has wound round it and it will not turn or lift. Free it first — roll it back the other way (搓 ${before > 0 ? "counterclockwise" : "clockwise"}), stroke or nip along the channel (循, 摄), or flick or scrape the handle (弹, 刮).`);
     }
   }
@@ -857,12 +881,11 @@ function operationOnNeedle(ctx: Ctx, definition: OperativeTechnique, n: NeedleSt
   const blockers: Protection[] = [];
   const path = inHand ? doInsertCheckPath(ctx, n, frame, loc.entry, loc.angleDeg, loc.azimuthDeg, loc.depthCm, blockers) : assessPath(frame, loc.entry, loc.angleDeg, loc.azimuthDeg, loc.depthCm, n.spec);
   blockIf(ctx, blockers, `${definition.zh} on ${n.id} stopped`);
-  // winding: what the turning adds, then what the method lets go
-  const loosenedDeg = Math.min(Math.abs(Math.max(-WINDING.capDeg, Math.min(WINDING.capDeg, before + effect.windingDeg))), effect.loosensDeg);
   const prior = n.response;
   n.response = needleResponse(sc, s, n, path, effect.dose, { seeks: effect.seeks, handled: inHand });
   const said: string[] = [];
-  const windingSaid = windNeedle(ctx, n, effect.windingDeg, effect.loosensDeg);
+  // winding: what the turning adds, then what the method lets go
+  const wind = windNeedle(ctx, n, effect.windingDeg, effect.loosensDeg);
   const holdNow = needleHold(n.winding);
   if (inHand) {
     pushNeedleEvent(s, n.id, ctx.actor.id, "adjusted", `${fmt(loc.depthCm)} cm, ${definition.zh} (${definition.id})`);
@@ -876,7 +899,7 @@ function operationOnNeedle(ctx: Ctx, definition: OperativeTechnique, n: NeedleSt
     const e = addEvidence(s, { kind: "needle-feel", ref: n.id, by: ctx.actor.id, text: feel.text, needle: { id: n.id, qualities: [], grasp: feel.grasp, volunteered: false } });
     said.push(`${feel.text} (evidence ${e.id})`);
   }
-  said.push(...windingSaid);
+  said.push(...wind.said);
   const strong = r.deqi && r.intensity >= STRONG_RESPONSE;
   if (r.overstimulated && !prior?.overstimulated) volunteer(ctx, n, "too-strong", "That's too strong now — it's getting painful.", ["sharp-pain"]);
   else if (r.deqi && r.thermal && r.qualities.includes(r.thermal) && !prior?.qualities.includes(r.thermal)) {
@@ -886,7 +909,7 @@ function operationOnNeedle(ctx: Ctx, definition: OperativeTechnique, n: NeedleSt
     volunteer(ctx, n, "deqi", `Oh — ${felt.text.charAt(0).toLowerCase()}${felt.text.slice(1)}`, felt.qualities);
   }
   if (s.mode === "teaching") said.push(`Teaching: ${definition.zh} gave a dose of ${fmt(effect.dose, 2)} (stimulation ${fmt(prior?.stimulation ?? 0, 2)} → ${fmt(r.stimulation, 2)}, response ${fmt(r.intensity, 2)}); winding ${fmt(n.winding ?? 0, 0)}° (${holdNow}).`);
-  return { dose: effect.dose, windingDeg: effect.windingDeg, loosenedDeg, said };
+  return { dose: effect.dose, windingDeg: wind.wound, loosenedDeg: wind.loosened, said };
 }
 
 function doRemove(ctx: Ctx, needleId: string): void {
@@ -1719,16 +1742,20 @@ const HANDLERS: HandlerMap = {
     if (!n || n.location.kind !== "patient") throw new Rejection("not-inserted", `${a.needleId} is not in the patient.`);
     const loc = n.location;
     atSite(ctx, loc.region, loc.side);
+    // on the operative catalogue: turning one way winds the tissue round the shaft, and a needle it holds is freed
+    // by turning it back. Freeing a needle is part of taking it out: nothing that stops a treatment stops it.
+    const operative = s.techniques === "operative";
+    const freeing = operative && unwindsNeedle(a, n);
     const blockers: Protection[] = [];
-    if (s.patient.fainted) {
+    if (s.patient.fainted && !freeing) {
       addUnsafe(ctx, "continued-after-adverse-event");
       blockers.push({ by: "simulation-guard", kind: "guard", reason: "the patient is unwell: attend to them" });
     }
-    if (s.patient.consent.status === "withdrawn") {
+    if (s.patient.consent.status === "withdrawn" && !freeing) {
       addUnsafe(ctx, "insertion-after-consent-withdrawn");
       blockers.push({ by: "simulation-guard", kind: "guard", reason: "the patient has withdrawn consent: remove the needles" });
     }
-    if (s.stopped && s.stopped.visit === visitIndex(s)) addUnsafe(ctx, "continued-after-adverse-event");
+    if (s.stopped && s.stopped.visit === visitIndex(s) && !freeing) addUnsafe(ctx, "continued-after-adverse-event");
     const frame = regionFrame(ctx, loc.region, loc.side);
     const depth = a.depthCm ?? loc.depthCm;
     const clinicalMotion = hasClinicalNeedleMotion(a);
@@ -1739,14 +1766,13 @@ const HANDLERS: HandlerMap = {
     const motion = needleMotion(a, depth);
     const envelope = motionEnvelope(motion);
     if (clinicalMotion && envelope.minDepthCm <= 0) throw new Rejection("invalid", "The lift would withdraw the needle through the skin; use remove_needle instead.");
-    // on the operative catalogue: turning one way winds the tissue round the shaft, and a needle it has seized is freed, not worked
-    const operative = s.techniques === "operative";
     const turned = operative && clinicalMotion && stimulus === "rotate" && motion.rotationDirection !== "alternating"
       ? (motion.rotationDirection === "clockwise" ? 1 : -1) * Math.min(WINDING.capDeg, motion.rotationDeg * motion.frequencyHz * motion.durationSeconds) : 0;
-    if (operative && needleHold(n.winding) === "stuck" && !(turned !== 0 && Math.sign(turned) !== Math.sign(n.winding ?? 0))) {
-      throw new Rejection("stuck-needle", `${n.id} is stuck: the tissue has wound round it and it will not turn or lift. Free it first — roll it back the other way, stroke or nip along the channel (循, 摄), or flick or scrape the handle (弹, 刮).`);
+    // a needle the tissue has seized is freed, not worked: only a turn against the winding, at the depth it stands at
+    if (operative && needleHold(n.winding) === "stuck" && !freeing) {
+      throw new Rejection("stuck-needle", `${n.id} is stuck: the tissue has wound round it and it will not turn or lift. Free it first — roll it back the other way (rotate ${(n.winding ?? 0) > 0 ? "counterclockwise" : "clockwise"}, without changing its depth), stroke or nip along the channel (循, 摄), or flick or scrape the handle (弹, 刮).`);
     }
-    if (clinicalMotion && s.stopped && s.stopped.visit === visitIndex(s)) blockers.push({ by: "simulation-guard", kind: "guard", reason: "treatment has stopped: remove the needles" });
+    if (clinicalMotion && s.stopped && s.stopped.visit === visitIndex(s) && !freeing) blockers.push({ by: "simulation-guard", kind: "guard", reason: "treatment has stopped: remove the needles" });
     let deepest: PathAssessment | undefined;
     if (clinicalMotion && motion.strokeMm > 0) {
       deepest = doInsertCheckPath(ctx, n, frame, loc.entry, loc.angleDeg, loc.azimuthDeg, envelope.maxDepthCm, blockers);
@@ -1768,7 +1794,7 @@ const HANDLERS: HandlerMap = {
     // a stated excursion, rate and time are the dose on the operative catalogue; elsewhere every act gives the same
     n.response = needleResponse(sc, s, n, path, operative && clinicalMotion && stimulus ? adjustmentDose(stimulus, motion) : stimulus);
     if (operative && a.technique !== "none") event.reading = adjustmentReading(a.technique, clinicalMotion ? motion : null);
-    const wound = operative ? windNeedle(ctx, n, turned, 0) : [];
+    const wound = operative ? windNeedle(ctx, n, turned, 0).said : [];
     consequences(ctx, n, deepest ?? path);
     const strong = n.response.deqi && n.response.intensity >= STRONG_RESPONSE;
     const wasStrong = before !== null && before.deqi && before.intensity >= STRONG_RESPONSE;
@@ -1778,8 +1804,10 @@ const HANDLERS: HandlerMap = {
       volunteer(ctx, n, "deqi", `Oh — ${said.text.charAt(0).toLowerCase()}${said.text.slice(1)}`, said.qualities);
     };
     if (a.technique !== "none") {
-      // working the needle tells the operator how the tissue holds it: evidence of this needle's response
-      const feel = describeGrasp(n.response, a.technique);
+      // working the needle tells the operator how the tissue holds it: evidence of this needle's response. A needle
+      // the winding holds is told apart from one the tissue has answered (the operative catalogue)
+      const hold = needleHold(n.winding);
+      const feel = hold === "free" ? describeGrasp(n.response, a.technique) : describeHold(n.response, a.technique, hold);
       const e = addEvidence(s, { kind: "needle-feel", ref: n.id, by: ctx.actor.id, text: feel.text, needle: { id: n.id, qualities: [], grasp: feel.grasp, volunteered: false } });
       observe(ctx, `${feel.text} (evidence ${e.id})`);
       if (n.response.overstimulated && !before?.overstimulated) volunteer(ctx, n, "too-strong", "That's too strong now — it's getting painful.", ["sharp-pain"]);
@@ -1800,27 +1828,32 @@ const HANDLERS: HandlerMap = {
     if (!operative && a.motion?.travelMm !== undefined) throw new Rejection("technique-parameter", "travelMm belongs to the operative technique catalogue; this encounter runs on the illustrative one.");
     const phaseError = operative ? operationCountsError(definition as OperativeTechnique, a.motion) : phaseCyclesError(definition, a.motion?.phaseCycles);
     if (phaseError) throw new Rejection("technique-parameter", phaseError);
-    if (definition.controls.includes("grip") && a.motion?.grip === "three-finger" && a.motion.gripStyle !== undefined && !(HAND_PRESENTATION_PROFILES.threeFinger.gripStyles as readonly string[]).includes(a.motion.gripStyle)) {
+    // the grip the performance will be done with: the one asked for, or — on the operative catalogue — the method's own
+    const grip = a.motion?.grip ?? (operative ? definition.defaults.grip : undefined);
+    if (definition.controls.includes("grip") && grip === "three-finger" && a.motion?.gripStyle !== undefined && !(HAND_PRESENTATION_PROFILES.threeFinger.gripStyles as readonly string[]).includes(a.motion.gripStyle)) {
       throw new Rejection("technique-parameter", "Three-finger holding uses tip-pinch on this hand; read lookup techniques handProfiles.");
     }
-    const contactBounds = { wristElevationDeg: handWristBounds(operative ? { grip: a.motion?.grip ?? definition.defaults.grip } : a.motion, a.technique === "gua" || a.technique === "tan"), ...definition.parameterBounds };
+    const contactBounds = { wristElevationDeg: handWristBounds(operative ? { grip } : a.motion, a.technique === "gua" || a.technique === "tan"), ...definition.parameterBounds };
     for (const [key, bounds] of Object.entries(contactBounds)) {
       const value = a.motion?.[key as keyof NonNullable<typeof a.motion>];
       if (typeof value === "number" && (value < bounds.min || value > bounds.max)) {
         throw new Rejection("technique-parameter", `${a.technique}: ${key} must be ${bounds.min} to ${bounds.max} for this authored contact pose; read lookup techniques handProfiles.`);
       }
     }
+    // freeing a needle the tissue holds (the operative catalogue) is part of taking it out: like closing the hole of
+    // one that is out, it is not stopped by what stops a treatment
+    const aftercare = definition.context === "removed" || (operative && freesNeedle(definition as OperativeTechnique, a.motion, a.needleId ? s.needles[a.needleId] : undefined));
     const blockers: Protection[] = [];
-    if (definition.context !== "removed" && s.patient.fainted) {
+    if (!aftercare && s.patient.fainted) {
       addUnsafe(ctx, "continued-after-adverse-event");
       blockers.push({ by: "simulation-guard", kind: "guard", reason: "the patient is unwell: attend to them" });
     }
-    if (definition.context !== "removed" && !consentCovers(s)) {
+    if (!aftercare && !consentCovers(s)) {
       if (s.patient.consent.status === "withdrawn") addUnsafe(ctx, "insertion-after-consent-withdrawn");
       else addUnsafe(ctx, "insertion-without-consent");
       blockers.push({ by: "simulation-guard", kind: "guard", reason: "obtain consent to the current plan before a technique performance" });
     }
-    if (definition.context !== "removed" && s.stopped?.visit === visitIndex(s)) {
+    if (!aftercare && s.stopped?.visit === visitIndex(s)) {
       addUnsafe(ctx, "continued-after-adverse-event");
       blockers.push({ by: "simulation-guard", kind: "guard", reason: "treatment is stopped: attend to the patient" });
     }
@@ -1892,6 +1925,8 @@ const HANDLERS: HandlerMap = {
       delete recordedMotion.idleFingerPose;
     }
     const effect = operative ? operationEffect(definition.id, motion) : null;
+    // the least a performance takes on the clock is three seconds: taking hold of the needle and letting it go
+    const minutes = effect ? Math.max(0.05, effect.minutes) : 0;
     const performance: ManipulationPerformance = {
       id: `performance-${s.attempts.length}`, requestId: ctx.req.requestId, attempt: s.attempts.length - 1, at: now(s), visit: visitIndex(s), actor: ctx.actor.id,
       technique: definition.id, context: definition.context, needleId, site: { region, side, u: entry.u, v: entry.v },
@@ -1899,7 +1934,7 @@ const HANDLERS: HandlerMap = {
       provenance: operative
         ? { kind: "operative", source: "acucraft-operative-techniques-v2", review: "unreviewed", forces: "not-modelled" }
         : { kind: "illustrative", source: "acucraft-authored-demonstration-v1", review: "unreviewed", forces: "not-modelled" },
-      ...(effect ? { effect: { minutes: effect.minutes, dose: worked?.dose ?? 0, reading: effect.reading, windingDeg: worked?.windingDeg ?? 0, loosenedDeg: worked?.loosenedDeg ?? 0 } } : {}),
+      ...(effect ? { effect: { minutes, dose: worked?.dose ?? 0, reading: effect.reading, windingDeg: worked?.windingDeg ?? 0, loosenedDeg: worked?.loosenedDeg ?? 0 } } : {}),
     };
     (s.performances ??= []).push(performance);
     ctx.out.target = needleId ? `needle:${needleId}` : `${region}:${side}`;
@@ -1924,7 +1959,7 @@ const HANDLERS: HandlerMap = {
       } else observe(ctx, `The hole of ${needle.id} is pressed closed.`);
       needle.holeClosed = true;
     }
-    ctx.out.cost = Math.max(0.05, effect.minutes);
+    ctx.out.cost = minutes;
   },
   check_sensation(ctx, a) {
     const { s } = ctx;

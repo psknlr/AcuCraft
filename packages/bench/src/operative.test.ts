@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  OPERATIVE_TECHNIQUES, createEncounter, digest, now, observeAs, replayLog, step,
+  OPERATIVE_TECHNIQUES, clone, createEncounter, digest, now, observeAs, replayLog, resolveScenario, step,
   type ActionInput, type EncounterState, type Mode, type Scenario, type TechniqueModel,
 } from "@acucraft/core";
 import { EncounterSession, lookupTool, referenceAgent } from "@acucraft/agent";
@@ -76,9 +76,9 @@ describe("a technique done to the needle", () => {
     expect(r.state.evidence).toEqual(old.evidence);
     expect(r.state.performances!.at(-1)).toMatchObject({ provenance: { kind: "illustrative" } });
     expect(r.state.performances!.at(-1)!.effect).toBeUndefined();
-    // and it will not take a setting that belongs to the other catalogue
+    // and it will not take a setting that belongs to the other catalogue: to it, that is not a request at all
     expect(act(knee, old, { type: "perform_technique", technique: "xun", needleId: NEEDLE, motion: { travelMm: 20 } } as ActionInput).attempt)
-      .toMatchObject({ status: "rejected", code: "technique-parameter" });
+      .toMatchObject({ status: "rejected", code: "invalid-request" });
   });
 
   it("works between levels of the depth the needle stands at, and refuses a needle too shallow for them", () => {
@@ -369,5 +369,142 @@ describe("records, replay and what a practitioner is shown", () => {
     expect(/"stimulation":\s*[\d.]/.test(shown)).toBe(false);
     // the illustrative view has no such entry at all
     expect("techniques" in observeAs(knee, before(knee, "adjust_needle", "illustrative"), "practitioner")).toBe(false);
+  });
+});
+
+describe("what an independent review found, and what holds now", () => {
+  const start = before(knee, "adjust_needle");
+  const stuck = () => act(knee, start, { type: "adjust_needle", needleId: NEEDLE, technique: "rotate", rotationDirection: "clockwise" } as ActionInput).state;
+
+  it("a wound needle can always be freed: stopping the treatment, a faint or a withdrawn consent do not stop that", () => {
+    for (const [why, state] of [
+      ["stopped", act(knee, stuck(), { type: "stop_treatment", reason: "the patient asks to stop" } as ActionInput).state],
+      ["fainted", (() => { const s = clone(stuck()); s.patient.fainted = true; return s; })()],
+      ["consent withdrawn", (() => { const s = clone(stuck()); s.patient.consent.status = "withdrawn"; return s; })()],
+    ] as const) {
+      expect(needle(state).winding, why).toBe(1080);
+      // working the needle is refused as before — it is stuck, and the treatment is over
+      expect(perform(knee, state, "nian").attempt.status, why).not.toBe("executed");
+      // every way of freeing it is open, and none of them is an unsafe act
+      for (const [technique, extra] of [["xun", {}], ["she", {}], ["tan", {}], ["gua", {}], ["an", {}], ["cuo", { motion: { direction: "counterclockwise" } }]] as const) {
+        const freed = perform(knee, state, technique, extra);
+        expect(freed.attempt.status, `${why}: ${technique}: ${freed.attempt.message}`).toBe("executed");
+        expect(freed.attempt.unsafe, `${why}: ${technique}`).toEqual([]);
+        expect(Math.abs(needle(freed.state).winding ?? 0), `${why}: ${technique}`).toBeLessThan(1080);
+      }
+      const back = act(knee, state, { type: "adjust_needle", needleId: NEEDLE, technique: "rotate", rotationDirection: "counterclockwise" } as ActionInput);
+      expect(back.attempt.status, `${why}: ${back.attempt.message}`).toBe("executed");
+      expect(back.attempt.unsafe, why).toEqual([]);
+      expect(needle(back.state).winding, why).toBeUndefined();
+      // freed, it comes out without force
+      expect(act(knee, back.state, { type: "remove_needle", needleId: NEEDLE }).attempt.unsafe, why).not.toContain("stuck-needle-forced");
+    }
+    // on a needle that is not wound none of this is an exemption: after a stop, 循 is refused like any other technique
+    const stopped = act(knee, start, { type: "stop_treatment", reason: "the patient asks to stop" } as ActionInput).state;
+    expect(perform(knee, stopped, "xun").attempt.status).toBe("blocked");
+  });
+
+  it("a turn against the winding frees the needle and stops there, and unlocks nothing else", () => {
+    const seized = stuck();
+    // with a change of depth it is not a freeing turn: the needle is stuck
+    expect(act(knee, seized, { type: "adjust_needle", needleId: NEEDLE, technique: "rotate", depthCm: 1, rotationDirection: "counterclockwise", rotationDeg: 1, frequencyHz: 0.5, durationSeconds: 1 } as ActionInput).attempt)
+      .toMatchObject({ status: "rejected", code: "stuck-needle" });
+    // a small turn back is a little freed, and the hand says the needle is still fast: no grip is on record
+    const little = act(knee, seized, { type: "adjust_needle", needleId: NEEDLE, technique: "rotate", rotationDirection: "counterclockwise", rotationDeg: 90, frequencyHz: 1, durationSeconds: 1 } as ActionInput);
+    expect(needle(little.state).winding).toBe(990);
+    expect(little.state.evidence.filter((e) => e.kind === "needle-feel").at(-1)).toMatchObject({ needle: { grasp: false } });
+    expect(little.state.evidence.filter((e) => e.kind === "needle-feel").at(-1)!.text).toMatch(/will not turn or lift/);
+    // rolled back further than it was wound, it is free — not wound the other way
+    const over = perform(knee, perform(knee, start, "cuo").state, "cuo", { motion: { direction: "counterclockwise", cycles: 12, rotationDeg: 180 } });
+    expect(needle(over.state).winding).toBeUndefined();
+    // and the record says what was taken off the needle, not what was asked for
+    expect(over.state.performances!.at(-1)!.effect).toMatchObject({ windingDeg: -360 });
+    // the hand that winds a needle with adjust_needle is told what holds it
+    const shallow = act(knee, start, { type: "adjust_needle", needleId: NEEDLE, depthCm: 0.5, technique: "none" }).state;
+    const wound = act(knee, shallow, { type: "adjust_needle", needleId: NEEDLE, technique: "rotate", rotationDirection: "clockwise" } as ActionInput);
+    expect(wound.state.evidence.filter((e) => e.kind === "needle-feel").at(-1)!.text).toMatch(/will not turn or lift/);
+    const held = act(knee, shallow, { type: "adjust_needle", needleId: NEEDLE, technique: "rotate", rotationDirection: "clockwise", rotationDeg: 90, frequencyHz: 1, durationSeconds: 3 } as ActionInput);
+    expect(needle(held.state).winding).toBe(270);
+    const worked = act(knee, held.state, { type: "adjust_needle", needleId: NEEDLE, technique: "lift-thrust" });
+    expect(worked.state.evidence.filter((e) => e.kind === "needle-feel").at(-1)).toMatchObject({ needle: { grasp: false } });
+    expect(worked.state.evidence.filter((e) => e.kind === "needle-feel").at(-1)!.text).toMatch(/it is the winding that holds it/);
+  });
+
+  it("doses by the counts a performance really has, and its defaults are a performance the engine accepts", () => {
+    // 进 is two advances: a count does not apply, and changes nothing
+    const plain = perform(knee, start, "jin"), counted = perform(knee, start, "jin", { motion: { cycles: 12 } });
+    expect(needle(counted.state).response!.stimulation).toBe(needle(plain.state).response!.stimulation);
+    expect(counted.state.performances!.at(-1)!.motion.cycles).toBe(2);
+    expect(OPERATIVE_TECHNIQUES.find((t) => t.id === "jin")!.controls).not.toContain("cycles");
+    // 搜 has room for three rounds: asked for twelve, three are performed, recorded and dosed
+    const searched = perform(knee, start, "sou", { motion: { cycles: 12 } });
+    expect(searched.state.performances!.at(-1)!.motion.cycles).toBe(3);
+    expect(searched.state.performances!.at(-1)!.effect!.dose).toBeCloseTo(0.25 * Math.sqrt(3), 3);
+    // every technique performed with the defaults the catalogue serves is accepted (弩 with the wrist of its own grip)
+    const withdrawn = act(knee, start, { type: "remove_needle", needleId: NEEDLE }).state;
+    for (const t of OPERATIVE_TECHNIQUES) {
+      const done = perform(knee, t.context === "removed" ? withdrawn : start, t.id, { motion: t.defaults });
+      expect(done.attempt.status, `${t.id}: ${done.attempt.message}`).toBe("executed");
+      expect(done.state.performances!.at(-1)!.motion, t.id).toEqual(t.defaults);
+    }
+    expect(OPERATIVE_TECHNIQUES.find((t) => t.id === "nu")!.defaults).toMatchObject({ grip: "three-finger", wristElevationDeg: 48 });
+    // the three-finger hold takes tip-pinch whether it was asked for or is the method's own
+    expect(perform(knee, start, "nu", { motion: { gripStyle: "side-pinch" } }).attempt).toMatchObject({ status: "rejected", code: "technique-parameter" });
+    // the clock and the record agree, also for the shortest performance
+    const quick = perform(knee, start, "tan", { motion: { durationMs: 400 } });
+    expect(quick.state.performances!.at(-1)!.effect!.minutes).toBe(0.05);
+    expect(now(quick.state) - now(start)).toBeCloseTo(0.05, 6);
+  });
+
+  it("finds a needle gone when a technique reaches for it", () => {
+    const family = pack.families.get("sg-knee-oa")!;
+    const field = clone(family.source.field) as Record<string, unknown>;
+    field.events = [{ id: "ev-drop", when: { needlesRetained: { gte: 1 } }, afterMinutes: 1, effects: { needle: { select: "first-inserted", becomes: "dropped-hidden", area: "floor" } } }];
+    const resolved = resolveScenario(pack.bundle, { ...family.source, field, variants: new Map(family.source.variants) }, "base");
+    if (!resolved.ok) throw new Error("the patched scenario did not resolve");
+    const sc = resolved.scenario;
+    let s = before(sc, "adjust_needle");
+    s = act(sc, s, { type: "wait", minutes: 2 }).state;
+    expect(needle(s).location).toMatchObject({ kind: "floor", hidden: true });
+    const where = (state: EncounterState) => observeAs(sc, state, "practitioner").equipment.needles.find((x) => x.id === NEEDLE)!.where;
+    expect(where(s)).toMatch(/^in the patient/);
+    const reached = perform(sc, s, "nian");
+    expect(reached.attempt.observations.join(" ")).toMatch(/not where it was placed/);
+    // from then on it is known to be gone: the view says so, and there is nothing to feel at it
+    expect(where(reached.state)).not.toMatch(/^in the patient/);
+    expect(act(sc, reached.state, { type: "check_sensation", needleId: NEEDLE }).attempt).toMatchObject({ status: "rejected", code: "not-inserted" });
+  });
+
+  it("judges each working by the plan in force when it was done", () => {
+    const item = (state: EncounterState) => evaluateEncounter(knee, state).tracks.procedure!.items.find((i) => i.id === "stimulation-as-planned");
+    let s = createEncounter(knee, { seed: 1, techniques: "operative" });
+    let proposal: Extract<ActionInput, { type: "propose_plan" }> | null = null;
+    for (const request of knee.field.solution) {
+      if (request.action.type === "adjust_needle") break;
+      const action = request.action.type === "propose_plan" ? (proposal = { ...request.action, plan: { ...request.action.plan, technique: { ...request.action.plan.technique, stimulation: "reinforcing" as const } } }) : request.action;
+      s = step(knee, s, { ...request, action }, { strict: true }).state;
+    }
+    const replan = (state: EncounterState, stimulation: "reducing" | "even") =>
+      act(knee, state, { ...proposal!, plan: { ...proposal!.plan, technique: { ...proposal!.plan.technique, stimulation } } }).state;
+    // 补 under a reinforcing plan is as planned — and stays so when another plan is proposed afterwards
+    const reinforced = perform(knee, s, "bu").state;
+    expect(item(reinforced)).toMatchObject({ met: true });
+    expect(item(replan(reinforced, "reducing"))).toMatchObject({ met: true });
+    // 透天凉 under a reinforcing plan is against it — and a later plan does not make it disappear
+    const reduced = perform(knee, s, "tou-tian-liang").state;
+    expect(item(reduced)).toMatchObject({ met: false });
+    expect(item(replan(reduced, "even"))).toMatchObject({ met: false });
+  });
+
+  it("an encounter on the illustrative catalogue refuses the operative catalogue's settings in the words it always used", () => {
+    const old = before(knee, "adjust_needle", "illustrative");
+    const refused = act(knee, old, { type: "perform_technique", technique: "xun", needleId: NEEDLE, motion: { travelMm: 20 } } as ActionInput).attempt;
+    expect(refused).toMatchObject({ status: "rejected", code: "invalid-request" });
+    expect(refused.message).toBe("action.motion: Unrecognized key(s) in object: 'travelMm'");
+    // and its lookup does not offer them
+    const context = { library: new EncounterSession(knee).library(), view: observeAs(knee, old, "practitioner"), skills: [] };
+    const served = lookupTool.run({ topic: "techniques" }, context).output as Record<string, any>;
+    expect("travelMm" in served.motionSchema.properties).toBe(false);
+    expect("travelMm" in served.parameters).toBe(false);
   });
 });

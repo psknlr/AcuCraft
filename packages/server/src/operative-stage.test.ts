@@ -225,6 +225,21 @@ describe("the stage on the operative catalogue", () => {
       for (let ms = 20; ms < motion.durationMs; ms += 60) beside.push(contactAt(ms).x * 1000);
       expect(Math.min(...beside)).toBeGreaterThan(11.5);
       expect(Math.max(...beside)).toBeLessThan(12.5);
+      // and it arrives there and leaves from there: the hand is never brought to the needle's own entry
+      const along = (d: Vector3) => Math.hypot(d.x, d.z) * 1000;
+      expect(along(contactAt(-1).sub(contactAt(1)))).toBeLessThan(1);
+      expect(along(contactAt(motion.durationMs + 1).sub(contactAt(motion.durationMs - 1)))).toBeLessThan(1);
+      expect(along(contactAt(-40))).toBeGreaterThan(11);
+      scene.procedure.stopPreview();
+      // 摄 begins at its first station and ends at its last: the hand comes to the one and goes from the other
+      const nips = resolveOperationMotion("she"), nipEnvelope = sampleProcedure("work", 0, nips.durationMs);
+      expect(scene.procedure.preview(input("she"))).toBe(true);
+      scene.procedure.setPlayback({ paused: true });
+      const nipAt = (ms: number) => { scene.procedure.setPlayback({ progress: (nipEnvelope.operationStartMs + ms) / nipEnvelope.durationMs }); return scene.procedure.inspectionFrame()!.contact.clone().sub(site.p); };
+      expect(nipAt(-1).z * 1000).toBeCloseTo(-24, 0);
+      expect(nipAt(1).z * 1000).toBeCloseTo(-24, 0);
+      expect(nipAt(nips.durationMs - 1).z * 1000).toBeCloseTo(24, 0);
+      expect(nipAt(nips.durationMs + 1).z * 1000).toBeCloseTo(24, 0);
       scene.procedure.stopPreview();
     } finally { scene.dispose(); }
   });

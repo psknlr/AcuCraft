@@ -96,8 +96,13 @@ const THRUST_LED = 0.72, LIFT_LED = 0.28;
 export type TechniqueReading = "reinforcing" | "reducing" | "mixed" | "even";
 
 interface Authored {
-  /** What `cycles` (one entry) or `phaseCycles` (several) count: the canonical numbers of the method. */
-  counts: { zh: string; label: string; count: number }[];
+  /**
+   * What `cycles` (one entry) or `phaseCycles` (several) count: the canonical numbers of the method, and the most the
+   * program performs of each (12 when not said). A method whose stages are what they are (进: two advances) has
+   * `fixed` counts: `cycles` does not apply to it.
+   */
+  counts: { zh: string; label: string; count: number; max?: number }[];
+  fixed?: boolean;
   program: (c: number[], m: ResolvedManipulationMotion) => Spec[];
   defaults?: Partial<ResolvedManipulationMotion>;
   controls: ManipulationControl[];
@@ -178,7 +183,7 @@ const AUTHORED: Readonly<Record<ManipulationTechniqueId, Authored>> = {
   },
   /* 进退提插 */
   jin: {
-    counts: [{ zh: "进", label: "advances", count: 2 }],
+    counts: [{ zh: "进", label: "advances", count: 2 }], fixed: true,
     program: () => [
       move("退至天部", "Back to the shallow level, to begin", 1 / 3, 1.0, { level: "tian" }),
       hold("候气", "Waiting at the shallow level", 0.5, { level: "tian" }),
@@ -190,7 +195,7 @@ const AUTHORED: Readonly<Record<ManipulationTechniqueId, Authored>> = {
     controls: [...GRIP, "rotationDeg"], dose: 0.2, reading: "reinforcing", needsDepthMm: 6,
   },
   "tui-withdraw": {
-    counts: [{ zh: "退", label: "withdrawals", count: 2 }],
+    counts: [{ zh: "退", label: "withdrawals", count: 2 }], fixed: true,
     program: () => [
       move("退至人部", "Drawing back to the middle level", 2 / 3, 1.0, { level: "ren", breath: "exhale" }),
       hold("少停", "Pausing at the middle level", 0.6, { level: "ren" }),
@@ -272,10 +277,10 @@ const AUTHORED: Readonly<Record<ManipulationTechniqueId, Authored>> = {
     defaults: { support: "press", lateralMm: 1.5, contactIntensity: 0.6 }, controls: ["lateralMm"], dose: 0, reading: "reinforcing",
   },
   sou: {
-    counts: [{ zh: "遍", label: "rounds of four directions", count: 1 }],
+    counts: [{ zh: "遍", label: "rounds of four directions", count: 1, max: 3 }],
     program: ([n]) => [
       move("退至浅层", "Back to the shallow half", 0.5, 0.9, {}),
-      ...Array.from({ length: Math.min(3, n!) }).flatMap(() => ([["前", "forward", UP], ["后", "back", DOWN], ["左", "left", LEFT], ["右", "right", RIGHT]] as const).flatMap(([zh, en, lean]) => [
+      ...Array.from({ length: n! }).flatMap(() => ([["前", "forward", UP], ["后", "back", DOWN], ["左", "left", LEFT], ["右", "right", RIGHT]] as const).flatMap(([zh, en, lean]) => [
         move(`向${zh}探`, `Leaning ${en} and advancing, feeling for the response`, 1, 0.8, { leanTo: lean, lateral: 1, tilt: 1, primitive: "sou" }),
         move("退回", "Back to the shallow half", 0.5, 0.6, { leanTo: NONE, lateral: 1, tilt: 1, primitive: "sou" }),
       ])),
@@ -334,10 +339,10 @@ const AUTHORED: Readonly<Record<ManipulationTechniqueId, Authored>> = {
     defaults: { lateralMm: 2.5, tiltDeg: 5, rotationDeg: 90 }, controls: [...LEAN, "rotationDeg"], dose: 0.4, scalesWith: "lateralMm", reading: "reducing", needsDepthMm: 6,
   },
   "cang-gui-tan-xue": {
-    counts: [{ zh: "遍", label: "rounds of four directions", count: 1 }],
+    counts: [{ zh: "遍", label: "rounds of four directions", count: 1, max: 3 }],
     program: ([n]) => [
       move("退至浅层", "Back to just under the skin", 0.25, 1.0, { level: "tian" }),
-      ...Array.from({ length: Math.min(3, n!) }).flatMap(() => ([["上", "upward", UP], ["下", "downward", DOWN], ["左", "to the left", LEFT], ["右", "to the right", RIGHT]] as const).flatMap(([zh, en, lean]) => [
+      ...Array.from({ length: n! }).flatMap(() => ([["上", "upward", UP], ["下", "downward", DOWN], ["左", "to the left", LEFT], ["右", "to the right", RIGHT]] as const).flatMap(([zh, en, lean]) => [
         move(`向${zh} · 一进`, `Leaning ${en}: first step in`, 0.5, 0.55, { leanTo: lean, lateral: 1, tilt: 1, primitive: "sou", level: "tian" }),
         move(`向${zh} · 二进`, `Leaning ${en}: second step in`, 0.75, 0.55, { primitive: "sou", lateral: 1, tilt: 1, level: "ren" }),
         move(`向${zh} · 三进`, `Leaning ${en}: third step in`, 1, 0.55, { primitive: "sou", lateral: 1, tilt: 1, level: "di" }),
@@ -348,15 +353,14 @@ const AUTHORED: Readonly<Record<ManipulationTechniqueId, Authored>> = {
     defaults: { lateralMm: 2.5, tiltDeg: 5 }, controls: LEAN, dose: 0.45, reading: "reinforcing", needsDepthMm: 8,
   },
   "chi-feng-ying-yuan": {
-    counts: [{ zh: "飞", label: "twirl-and-release", count: 8 }],
-    program: ([n]) => {
+    counts: [{ zh: "飞", label: "twirl-and-release to each of the four sides", count: 2, max: 3 }],
+    program: ([each]) => {
       const sides = [["上", "above", UP], ["下", "below", DOWN], ["左", "left", LEFT], ["右", "right", RIGHT]] as const;
-      const each = Math.max(1, Math.round(n! / 4));
       return [
         move("提针至天", "Lifting to the shallow level", 1 / 3, 1.0, { level: "tian" }),
         hold("候针自摇", "Waiting for the needle to stir of itself", 0.9, { level: "tian", primitive: "fei" }),
         move("复进其原", "Advancing again, to the middle level", 2 / 3, 0.8, { level: "ren" }),
-        ...sides.map(([zh, en, lean]) => work(`${zh} · 展翅飞旋`, `Twirl and release, ${en}: the fingers open like wings`, "fly", each, 1.4,
+        ...sides.map(([zh, en, lean]) => work(`${zh} · 展翅飞旋`, `Twirl and release, ${en}: the fingers open like wings`, "fly", each!, 1.4,
           { rotation: 0.5, lateral: 0.6, tilt: 0.6, turn: 1, leanTo: { u: lean.u * 0.4, v: lean.v * 0.4 }, level: "ren" })),
         move("复原", "Returning to the depth the needle stood at", 1, 0.9, { leanTo: NONE, lateral: 1, tilt: 1, level: "di" }),
       ];
@@ -372,10 +376,10 @@ const AUTHORED: Readonly<Record<ManipulationTechniqueId, Authored>> = {
     defaults: { rotationDeg: 120 }, controls: [...TURN], dose: 0.5, scalesWith: "rotationDeg", reading: "mixed",
   },
   "zi-wu-dao-jiu": {
-    counts: [{ zh: "度", label: "rounds of three in, two out", count: 3 }],
+    counts: [{ zh: "度", label: "rounds of three in, two out", count: 3, max: 6 }],
     program: ([n]) => [
       move("退至浅层", "Back to the shallow quarter, to begin", 0.25, 1.0, { level: "tian" }),
-      ...Array.from({ length: Math.min(6, n!) }).flatMap((_, round) => [
+      ...Array.from({ length: n! }).flatMap((_, round) => [
         ...[0.5, 0.75, 1].map((to, i) => move(`${["一", "二", "三"][i]}进 · 左转`, `Round ${round + 1}: thrust ${i + 1} of 3, turning left`, to, 0.6, { rotation: 0.6, turn: 1 as const, primitive: "cha" as const, level: (["tian", "ren", "di"] as const)[i] })),
         ...[0.625, 0.25].map((to, i) => move(`${["一", "二"][i]}退 · 右转`, `Round ${round + 1}: lift ${i + 1} of 2, turning right`, to, 0.7, { rotation: 0.6, turn: -1 as const, primitive: "ti" as const, level: (["ren", "tian"] as const)[i] })),
       ]),
@@ -433,8 +437,10 @@ const MOTIF_PRIMITIVE: Readonly<Record<StageMotif, ManipulationTechniqueId | nul
 export interface OperativeTechnique extends ManipulationTechnique {
   evidence: "operative";
   card: TechniqueCard;
-  /** What `cycles` (one entry) or `phaseCycles` (several, in this order) count. */
-  counts: { zh: string; label: string; count: number }[];
+  /** What `cycles` (one entry) or `phaseCycles` (several, in this order) count, and the most of each a performance has. */
+  counts: { zh: string; label: string; count: number; max: number }[];
+  /** The stages are what they are: `cycles` does not apply. */
+  fixedCounts: boolean;
   /** The stages of one performance at the catalogue's defaults. */
   stages: OperationStage[];
   /** Done to a retained needle: what one performance at the defaults does. */
@@ -475,12 +481,16 @@ function build(id: ManipulationTechniqueId): OperativeTechnique {
   const several = counts.length > 1;
   const controls = [...new Set<ManipulationControl>([
     ...SHARED_CONTROLS.common, ...(several ? ["phaseCycles" as const] : []), ...(base.context === "retained" ? SHARED_CONTROLS.referenceHand : []), ...authored.controls,
-  ])];
+  ])].filter((control) => !(authored.fixed && control === "cycles"));
   // the illustrative defaults are the starting point: a control this catalogue does not touch keeps its value
   // and the pressing hand stays off the skin unless the method is its work: touching a prepared site undoes it
   const seed: ResolvedManipulationMotion = { ...base.defaults, ...(base.context === "retained" ? { support: "none" as const } : {}), ...authored.defaults, cycles: several ? base.defaults.cycles : counts[0]!, ...(several ? { phaseCycles: counts } : {}) };
   const specs = authored.program(counts, seed);
-  const defaults: ResolvedManipulationMotion = { ...seed, durationMs: nominalMs(specs) };
+  // the defaults are a performance the engine accepts as it stands: the wrist of the grip they name, not of another
+  const defaults: ResolvedManipulationMotion = {
+    ...resolveMotionFor({ ...base, defaults: seed }, id, {}), cycles: seed.cycles, ...(several ? { phaseCycles: counts } : {}),
+    ...(seed.travelMm !== undefined ? { travelMm: seed.travelMm } : {}), durationMs: nominalMs(specs),
+  };
   const stages = stagesOf(id, specs);
   return {
     id, zh: base.zh, label: `${card.name} · ${base.zh} ${card.pinyin}`, family: base.family, context: base.context, needsNeedle: base.needsNeedle,
@@ -489,7 +499,7 @@ function build(id: ManipulationTechniqueId): OperativeTechnique {
     // the count parameters, in the shape the illustrative catalogue calls phases: one repeat count each
     phases: authored.counts.map((c, index) => ({ id: `${id}:count:${index + 1}`, label: `${c.zh} · ${c.label}`, primitive: id, weight: 1 })),
     controls, ...(base.parameterBounds ? { parameterBounds: base.parameterBounds } : {}), defaults, source: SOURCE,
-    card, counts: authored.counts.map((c) => ({ ...c })), stages,
+    card, counts: authored.counts.map((c) => ({ ...c, max: authored.fixed ? c.count : c.max ?? 12 })), fixedCounts: authored.fixed ?? false, stages,
     effect: { dose: authored.dose, reading: authored.reading, winds: authored.winds ?? false, loosensDeg: authored.loosensDeg ?? 0, needsDepthMm: authored.needsDepthMm ?? 0, seeks: authored.seeks ?? null },
   };
 }
@@ -523,9 +533,12 @@ export function operationCountsError(definition: OperativeTechnique, settings: M
 
 function countsOf(definition: OperativeTechnique, settings: ManipulationMotionSettings): number[] {
   const canonical = definition.counts.map((c) => c.count);
-  if (canonical.length === 1) return [Math.round(finite(settings.cycles, canonical[0]!, 1, 12))];
-  if (Array.isArray(settings.phaseCycles) && settings.phaseCycles.length === canonical.length) return settings.phaseCycles.map((n, i) => Math.round(finite(n, canonical[i]!, 1, 12)));
-  return settings.cycles === undefined ? canonical : canonical.map(() => Math.round(finite(settings.cycles, 3, 1, 12)));
+  if (definition.fixedCounts) return canonical;
+  // a count is one the program performs: never more than the method has room for
+  const within = (n: number | undefined, i: number, fallback: number) => Math.round(finite(n, fallback, 1, definition.counts[i]!.max));
+  if (canonical.length === 1) return [within(settings.cycles, 0, canonical[0]!)];
+  if (Array.isArray(settings.phaseCycles) && settings.phaseCycles.length === canonical.length) return settings.phaseCycles.map((n, i) => within(n, i, canonical[i]!));
+  return settings.cycles === undefined ? canonical : canonical.map((_, i) => within(settings.cycles, i, 3));
 }
 
 /**
@@ -536,13 +549,13 @@ function countsOf(definition: OperativeTechnique, settings: ManipulationMotionSe
 export function resolveOperationMotion(id: ManipulationTechniqueId, settings: ManipulationMotionSettings = {}): ResolvedManipulationMotion {
   const definition = operativeTechnique(id) ?? OPERATIVE_TECHNIQUES[0]!;
   const { phaseCycles: _counts, travelMm: _travel, ...plain } = settings;
-  const base = resolveMotionFor(definition, id, plain);
+  const base = resolveMotionFor(definition, definition.id, plain);
   const counts = countsOf(definition, settings);
   const motion: ResolvedManipulationMotion = {
     ...base, cycles: counts.length === 1 ? counts[0]! : base.cycles, ...(counts.length > 1 ? { phaseCycles: counts } : {}),
     ...(definition.controls.includes("travelMm") ? { travelMm: finite(settings.travelMm, definition.defaults.travelMm ?? 0, 0, 60) } : {}),
   };
-  if (settings.durationMs === undefined || !Number.isFinite(settings.durationMs)) motion.durationMs = nominalMs(AUTHORED[id].program(counts, motion));
+  if (settings.durationMs === undefined || !Number.isFinite(settings.durationMs)) motion.durationMs = nominalMs(AUTHORED[definition.id].program(counts, motion));
   return motion;
 }
 

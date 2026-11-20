@@ -44,9 +44,12 @@ three levels, 8 mm for 子午捣臼 and 苍龟探穴): on a shallower one it is 
 with thin tissue.
 
 **Counts.** Nine is the yang number of a reinforcing stage, six the yin number of a reducing one. Each technique
-names what its counts are (`lookup techniques`: `counts`). `cycles` sets the count of a method that has one, or of
-every counted stage of a compound; `phaseCycles` sets each count of a compound that has several, in order. Without
-a `durationMs` a performance takes the time its counts take at the tempo the method is taught at.
+names what its counts are and the most of each a performance has (`lookup techniques`: `counts`). `cycles` sets the
+count of a method that has one, or of every counted stage of a compound; `phaseCycles` sets each count of a compound
+that has several, in order. A count beyond what the method has room for is brought back to it (three rounds of 搜
+or 苍龟探穴, six of 子午捣臼), and a method whose stages are what they are (进, 退: two steps) takes no count. What
+was performed is what is recorded and dosed. Without a `durationMs` a performance takes the time its counts take at
+the tempo the method is taught at.
 
 **Tempo.** 紧按慢提 — quick thrust, slow lift — reinforces; 紧提慢按 — quick lift, slow thrust — reduces. In the
 sampler a stroke is outward from its level and back; the *slow* half is the longer part of it.
@@ -80,8 +83,12 @@ Done to a retained needle on the operative catalogue (`packages/core/src/engine/
   round the shaft. From half a turn the needle is **held**: that is what 搓 is for (守气), but a held needle's grip is
   the winding's, not the tissue answering — the evidence says so, and it is not deqi. From a turn and a half it is
   **stuck** (滞针): it hurts, and nothing that works the needle is accepted until it is freed — rolled back the other
-  way, the channel stroked (循) or nipped (摄), the handle flicked (弹) or scraped (刮). A stuck needle pulled out by
-  force comes out, hurts, bleeds, and is recorded as the unsafe act `stuck-needle-forced`.
+  way, the channel stroked (循) or nipped (摄), the handle flicked (弹) or scraped (刮). A turn against the winding
+  takes it off and stops when the needle is free: rolling back does not wind it the other way, and it frees nothing
+  else (a change of depth in the same request is refused while the needle is stuck). Freeing a wound needle is part
+  of taking it out: a stopped treatment, a patient who has fainted or a withdrawn consent do not stop it, and it is
+  not an unsafe act. A stuck needle pulled out by force comes out, hurts, bleeds, and is recorded as the unsafe act
+  `stuck-needle-forced`.
 - **Warmth and coolness.** 烧山火 is done for warmth and 透天凉 for coolness. Some patients feel it and others do not
   — fixed per patient and site like the rest of their response — and only while the needle has its response. A
   patient who feels it says so, and names it when asked (`check_sensation`).

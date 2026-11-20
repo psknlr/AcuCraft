@@ -4,10 +4,11 @@
  *
  *   npx tsx tools/technique-tables.ts            print the tables
  *   npx tsx tools/technique-tables.ts --check    fail when docs/TECHNIQUES.md does not have them
+ *   npx tsx tools/technique-tables.ts --write    put them into docs/TECHNIQUES.md (§3, up to §4's heading)
  *
  * tools/test/technique-tables.test.ts holds the document to them: change the catalogue, and the page follows.
  */
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { OPERATIVE_TECHNIQUES, TECHNIQUE_GROUPS } from "../packages/core/src/index.js";
 
@@ -35,7 +36,14 @@ export function missingFromDocument(): string[] {
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
-  if (process.argv.includes("--check")) {
+  if (process.argv.includes("--write")) {
+    const path = fileURLToPath(new URL("../docs/TECHNIQUES.md", import.meta.url));
+    const document = readFileSync(path, "utf8"), tables = techniqueTables();
+    const from = document.indexOf(tables[0]!), to = document.indexOf("## 4. ");
+    if (from < 0 || to < from) throw new Error("docs/TECHNIQUES.md has no §3 tables to replace (the first group's heading, then '## 4. ')");
+    writeFileSync(path, `${document.slice(0, from)}${tables.join("\n")}\n${document.slice(to)}`);
+    console.log("docs/TECHNIQUES.md: §3's tables written from the catalogue");
+  } else if (process.argv.includes("--check")) {
     const missing = missingFromDocument();
     if (missing.length > 0) {
       console.error(`docs/TECHNIQUES.md is not what the catalogue writes (${missing.length} lines differ): run npx tsx tools/technique-tables.ts and paste §3's tables`);

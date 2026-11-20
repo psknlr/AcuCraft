@@ -66,6 +66,13 @@ describe("the operative catalogue", () => {
     expect(counts("bai-hu-yao-tou")).toEqual([6]);
     expect(counts("bu")).toEqual([9]);
     expect(counts("xie")).toEqual([6]);
+    // a count is one the method has room for: three rounds of searching, six of the mortar, two advances and no other number
+    const limit = (id: ManipulationTechniqueId) => operativeTechnique(id)!.counts.map((c) => c.max);
+    expect([limit("sou"), limit("cang-gui-tan-xue"), limit("chi-feng-ying-yuan"), limit("zi-wu-dao-jiu"), limit("jin"), limit("nian")]).toEqual([[3], [3], [3], [6], [2], [12]]);
+    expect(resolveOperationMotion("sou", { cycles: 12 }).cycles).toBe(3);
+    expect(resolveOperationMotion("jin", { cycles: 12 }).cycles).toBe(2);
+    expect(operationEffect("jin", { cycles: 12 })).toEqual(operationEffect("jin"));
+    expect(operationStages("chi-feng-ying-yuan").filter((x) => x.counted).map((x) => x.count)).toEqual([2, 2, 2, 2]);
     const work = (id: ManipulationTechniqueId) => operativeTechnique(id)!.stages.filter((x) => x.counted);
     // 烧山火: shallow, middle, deep — each a quick thrust and a slow lift (most of the stroke is the lift)
     expect(work("shao-shan-huo").map((x) => [x.level, x.count, x.bias > 0.5])).toEqual([["tian", 9, true], ["ren", 9, true], ["di", 9, true]]);
@@ -276,6 +283,13 @@ describe("the operative sampler", () => {
     const amplitude = (samples: OperationSample[]) => { const at = stageOf(samples, "地部 · 紧按慢提").map((s) => s.withdrawalMm); return Math.max(...at) - Math.min(...at); };
     expect(amplitude(deep)).toBeCloseTo(3, 1);
     expect(amplitude(shallow)).toBeLessThan(1.7);
+  });
+
+  it("falls back to a technique it knows when asked for one it does not, like the rest of the package", () => {
+    const bogus = "no-such-technique" as ManipulationTechniqueId;
+    expect(() => resolveOperationMotion(bogus)).not.toThrow();
+    expect(() => resolveTechniqueMotion("operative", bogus)).not.toThrow();
+    expect(sampleOperation(bogus, 100).complete).toBe(false);
   });
 
   it("samples either catalogue through one door, and tells them apart", () => {

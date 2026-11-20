@@ -1,6 +1,6 @@
 import type { AgentView, OperativeTechnique, TechniqueModel } from "@acucraft/core";
 import {
-  DEPTH_LEVELS, HAND_PRESENTATION_PROFILES, INSERTION_SKIN_CONTACT, InsertionPresentationSchema, MANIPULATION_TECHNIQUES, ManipulationMotionSettingsSchema,
+  DEPTH_LEVELS, HAND_PRESENTATION_PROFILES, INSERTION_SKIN_CONTACT, IllustrativeMotionSettingsSchema, InsertionPresentationSchema, MANIPULATION_TECHNIQUES, ManipulationMotionSettingsSchema,
   OPERATIVE_CATALOGUE_VERSION, OPERATIVE_TECHNIQUES, TECHNIQUE_GROUPS, WINDING, operationEffect, resolveManipulationMotion,
 } from "@acucraft/core";
 import { objectSchemaOf } from "./schema.js";
@@ -106,7 +106,8 @@ export function lookup(lib: Library, input: { topic?: string; id?: string }, mod
       return lib.evidence;
     case "techniques": {
       const key = input.id?.toLowerCase();
-      const motionSchema = objectSchemaOf(ManipulationMotionSettingsSchema);
+      // the settings the encounter's catalogue takes: the illustrative one has no travel
+      const motionSchema = objectSchemaOf(model === "operative" ? ManipulationMotionSettingsSchema : IllustrativeMotionSettingsSchema);
       const units: Record<string, string> = { durationMs: "ms", cycles: "cycles", strokeMm: "mm", rotationDeg: "deg", lateralMm: "mm", tiltDeg: "deg", tempoBias: "ratio", gripApertureMm: "mm", contactIntensity: "normalized visual amount", wristElevationDeg: "deg", travelMm: "mm" };
       const parameters = Object.fromEntries(Object.entries(motionSchema.properties).map(([name, schema]) => [name, {
         ...(schema.minimum !== undefined ? { min: schema.minimum } : {}),

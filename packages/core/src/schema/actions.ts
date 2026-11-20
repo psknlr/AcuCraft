@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { ChartPointSchema, PositionSchema, RequestIdSchema as IdSchema } from "./common.js";
-import { HandPresentationSettingsShape, PerformTechniqueSchema } from "./manipulation.js";
+import { HandPresentationSettingsShape, IllustrativePerformTechniqueSchema, PerformTechniqueSchema } from "./manipulation.js";
 
 /**
  * The action interface (proposal §7.3) — every actor (the practitioner or learner under test, the support agent,
@@ -281,4 +281,13 @@ export const ActionRequestSchema = z
   })
   .strict();
 export type ActionRequest = z.infer<typeof ActionRequestSchema>;
+
+/**
+ * Requests as an encounter on the illustrative catalogue of techniques parses them (`manipulation.ts`): every action
+ * as above, `perform_technique` without the operative catalogue's settings. What it accepts, `ActionRequestSchema`
+ * accepts with the same result.
+ */
+export const IllustrativeActionRequestSchema = ActionRequestSchema.extend({
+  action: z.discriminatedUnion("type", ActionSchema.options.map((option) => (option === PerformTechniqueSchema ? IllustrativePerformTechniqueSchema : option)) as unknown as typeof ActionSchema.options),
+});
 export type ActionRequestInput = z.input<typeof ActionRequestSchema>;

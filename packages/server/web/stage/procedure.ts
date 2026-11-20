@@ -461,10 +461,13 @@ export class NeedleProcedure {
     }
     const handle = definition.context === "retained" && input.needleId ? this.needles.grip(input.needleId) : null;
     const site = handle ? input.site : input.site.currentSurface?.() ?? input.site;
-    const contact = handle?.point.clone() ?? site.p.clone().addScaledVector(site.uDir, (sample.lateralMm.u + (sample.offsetMm ?? 0)) / 1000).addScaledVector(site.vDir, (sample.lateralMm.v + (sample.travelMm ?? 0)) / 1000);
+    // where on the skin the working hand is. Before the work and after it the hand is at the place the work begins
+    // or ends at — a station along the channel, a finger's breadth beside a needle — never at the needle's own entry
+    const offsetMm = poseSample.offsetMm ?? 0, travelMm = (elapsed === 0 || sample.complete ? poseSample.travelMm : sample.travelMm) ?? 0;
+    const contact = handle?.point.clone() ?? site.p.clone().addScaledVector(site.uDir, (sample.lateralMm.u + offsetMm) / 1000).addScaledVector(site.vDir, (sample.lateralMm.v + travelMm) / 1000);
     const axis = handle?.axis.clone() ?? site.n.clone();
     // a hand that travels along the channel follows the skin it is drawn on, not the plane of the point
-    if (!handle && ((sample.travelMm ?? 0) !== 0 || (sample.offsetMm ?? 0) !== 0)) {
+    if (!handle && (travelMm !== 0 || offsetMm !== 0)) {
       const patient = this.patient();
       if (patient) {
         let finder = this.supportSites.get(patient);
