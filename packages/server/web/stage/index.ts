@@ -445,6 +445,8 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
     const inspection = procedure.inspectionFrame();
     if (!inspection) leaveGrip();
     hud.gripAvailable(!!inspection);
+    // for whoever drives the page from outside (a recording, a test): whether the detail hand is in place
+    engine.renderer.domElement.dataset.detailHand = inspection ? "shown" : playback.mode === "idle" ? "idle" : "hidden";
     engine.focus(director.focusDistance, director.focusPoint, inspection ? { point: inspection.contact, normal: inspection.surfaceNormal ?? new Vector3(0, 1, 0) } : undefined);
     const r = host.getBoundingClientRect();
     const anchors = needles.anchors();

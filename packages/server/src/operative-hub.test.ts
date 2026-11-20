@@ -4,6 +4,7 @@ import { EncounterSession, scriptedProvider } from "@acucraft/agent";
 import { CLINICALCRAFT_REV, loadContentPack, requireScenario } from "@acucraft/bench";
 import { McpServer, type JsonRpcResponse } from "@acucraft/mcp";
 import { operator, RecordHub } from "./hub.js";
+import { actsBesideNeedle, techniqueDraft, techniqueInput, type TechniqueLibrary } from "../web/manipulation.js";
 
 /**
  * The workspace on the operative catalogue of techniques (docs/TECHNIQUES.md): an operator, a language model the
@@ -114,5 +115,31 @@ describe("the workspace on the operative catalogue", () => {
     const log = hub.logOf(id)!;
     expect(log.techniques).toBe("operative");
     expect(digest(replayLog(scenario, log).state)).toBe(log.finalDigest);
+  });
+
+  it("lets the operator's panel ask for a pressing-hand technique beside a retained needle, or at a mark as before", () => {
+    const hub = new RecordHub({ pack });
+    const id = open(hub, retained("operative"));
+    const library = (hub.act(id, "lookup", { topic: "techniques" }, by).body as { output: TechniqueLibrary }).output;
+    const entry = (technique: string) => library.techniques.find((t) => t.id === technique)!;
+    // which techniques offer it: the ones that do something for the needle
+    expect(library.techniques.filter(actsBesideNeedle).map((t) => t.id)).toEqual(["xun", "she", "an"]);
+    // beside the needle: the needle is the whole target
+    const beside = techniqueInput({ ...techniqueDraft(library, "xun"), needleId: NEEDLE, mark: "m1" }, entry("xun"));
+    expect(beside).toMatchObject({ technique: "xun", needleId: NEEDLE });
+    expect("mark" in beside || "region" in beside).toBe(false);
+    const done = hub.act(id, "perform_technique", beside as unknown as Record<string, unknown>, by).body as { ok: boolean; entry: { message: string } };
+    expect(done.ok, done.entry?.message).toBe(true);
+    expect(done.entry.message).toMatch(/beside pack-a\.1/);
+    // at a mark: no needle is named
+    const marked = techniqueInput({ ...techniqueDraft(library, "xun"), mark: "m1" }, entry("xun"));
+    expect(marked).toMatchObject({ technique: "xun", mark: "m1" });
+    expect("needleId" in marked).toBe(false);
+    // palpating is for the point: a needle left chosen in the panel is not sent with it
+    const palpate = techniqueInput({ ...techniqueDraft(library, "chuai"), needleId: NEEDLE, mark: "m1" }, entry("chuai"));
+    expect("needleId" in palpate).toBe(false);
+    // and on the illustrative catalogue nothing offers it
+    const old = (hub.act(open(hub, retained("illustrative")), "lookup", { topic: "techniques" }, by).body as { output: TechniqueLibrary }).output;
+    expect(old.techniques.filter(actsBesideNeedle)).toEqual([]);
   });
 });

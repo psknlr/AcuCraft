@@ -132,12 +132,25 @@ export function motionErrors(motion: Record<string, unknown>, schema: JsonSchema
   return errors;
 }
 
+/**
+ * A technique of the pressing hand that does something for a retained needle (循, 摄, 按 on the operative catalogue):
+ * it may be done beside one, on its channel, instead of at a mark.
+ */
+export function actsBesideNeedle(definition: TechniqueDefinition | undefined): boolean {
+  return definition?.context === "skin" && ((definition.effect?.dose ?? 0) > 0 || (definition.effect?.loosensDeg ?? 0) > 0);
+}
+
 /** Build one action from the visible draft without supplying a hidden patient location or choosing a different needle. */
 export function techniqueInput(draft: TechniqueDraft, definition: TechniqueDefinition): TechniquePreview {
   const input: TechniquePreview = { technique: draft.technique, motion: { ...draft.motion } };
   if (definition.context !== "skin" || definition.needsNeedle) {
     if (!draft.needleId) throw new Error("请选择针具 · Choose a needle.");
     input.needleId = draft.needleId;
+  }
+  // beside a needle: the needle's own site is the site, and nothing else is to be chosen
+  if (actsBesideNeedle(definition) && draft.needleId) {
+    input.needleId = draft.needleId;
+    return input;
   }
   if (definition.context === "skin") {
     if (draft.mark) input.mark = draft.mark;
@@ -453,9 +466,11 @@ export function manipulationControls(id: string, hooks: Hooks): ManipulationCont
     stopPreview.disabled = busy || lastPlayback.mode !== "preview";
     preview.disabled = busy || !library || insertionMode || lastPlayback.mode === "record";
     execute.disabled = disabled || !snapshot;
-    needleField.hidden = !insertionMode && entry?.context === "skin" && !entry.needsNeedle;
-    markField.hidden = !insertionMode && entry?.context !== "skin";
-    explicitSite.hidden = insertionMode || entry?.context !== "skin" || !!mark.value;
+    const beside = !insertionMode && actsBesideNeedle(entry);
+    needleField.hidden = !insertionMode && entry?.context === "skin" && !entry.needsNeedle && !beside;
+    needleField.firstElementChild!.textContent = beside ? "针旁施术（可选） Beside a needle (optional)" : "针具 Needle";
+    markField.hidden = !insertionMode && (entry?.context !== "skin" || beside && !!needle.value);
+    explicitSite.hidden = insertionMode || entry?.context !== "skin" || !!mark.value || beside && !!needle.value;
     insertion.hidden = !insertionMode;
     parameters.hidden = insertionMode;
     technique.disabled = disabled || insertionMode;
@@ -613,7 +628,7 @@ export function manipulationControls(id: string, hooks: Hooks): ManipulationCont
     if (busy || closed || !snapshot || !draft) return;
     const view = snapshot.view;
     const entry = definition();
-    const onNeedle = mode.value !== "insertion" && entry?.context !== "skin";
+    const onNeedle = mode.value !== "insertion" && (entry?.context !== "skin" || actsBesideNeedle(entry) && !!needle.value);
     const needleSite = onNeedle ? view.needling.find((n) => n.needle === needle.value)?.placement : null;
     const markSite = !onNeedle ? view.localisation.marks.find((m) => m.id === mark.value && !m.stale) : null;
     const target = needleSite ?? markSite ?? (!onNeedle && region.value ? { region: region.value, side: side.value } : null);
