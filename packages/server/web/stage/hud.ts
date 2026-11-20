@@ -189,7 +189,7 @@ export class Hud {
     this.stageCard.hidden = !stage;
     if (!stage) { this.stageKey = ""; return; }
     this.stageCard.dataset.mode = state.mode;
-    const key = `${stage.zh}|${stage.label}|${stage.count}|${stage.of}|${stage.level}|${stage.breath}`;
+    const key = `${stage.zh}|${stage.label}|${stage.count}|${stage.of}|${stage.level}|${stage.breath}|${stage.needle}`;
     if (key !== this.stageKey) {
       this.stageKey = key;
       this.stageName.textContent = stage.zh;
@@ -204,6 +204,8 @@ export class Hud {
       this.stageBreath.hidden = !stage.breath;
       this.stageBreath.textContent = stage.breath === "exhale" ? "呼 · out-breath" : stage.breath === "inhale" ? "吸 · in-breath" : "";
       for (const cell of Array.from(this.stageGauge.querySelectorAll<HTMLElement>(".hud-stage-level"))) cell.classList.toggle("on", cell.dataset.level === stage.level);
+      // the three levels are a needle's: a technique of the skin shows its stage and count alone
+      this.stageGauge.hidden = !stage.needle;
     }
     // the skin is the top of the gauge, the depth the needle stands at its foot
     this.stageTip.style.top = `${Math.max(0, Math.min(1, stage.depthFraction)) * 100}%`;

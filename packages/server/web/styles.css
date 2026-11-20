@@ -482,6 +482,7 @@ html { scroll-behavior: smooth; }
 .hud-stage-count b { margin-left: 6px; font: 700 12px/1 ui-monospace, monospace; color: #ffe2a8; }
 .hud-stage-breath { justify-self: start; margin-top: 2px; padding: 1px 8px; border-radius: 999px; font: 600 11px/1.5 inherit; color: #0e2a2c; background: #9fe0f0; }
 .hud-stage-gauge { position: relative; display: grid; grid-template-rows: repeat(3, 1fr); width: 30px; min-height: 66px; border-radius: 7px; overflow: hidden; border: 1px solid rgb(255 255 255 / 0.2); border-top: 3px solid #e7b99a; }
+.hud-stage-gauge[hidden] { display: none; }
 .hud-stage-level { display: grid; place-items: center; font: 600 11px/1 inherit; color: rgb(255 255 255 / 0.5); background: rgb(255 255 255 / 0.05); border-bottom: 1px solid rgb(255 255 255 / 0.1); }
 .hud-stage-level:nth-child(2) { background: rgb(255 255 255 / 0.08); }
 .hud-stage-level:nth-child(3) { background: rgb(255 255 255 / 0.11); border-bottom: 0; }

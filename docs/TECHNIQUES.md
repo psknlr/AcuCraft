@@ -68,8 +68,21 @@ down as it bears and stands two to three millimetres off the skin between one ni
 the thumb**, the thumb nearly straight, bearing down, holding and let up. 揣, 循 and 扪 are the **pad of the index
 finger**. In all of them the other fingers are held a finger's thickness clear of the skin: the detail hand touches
 the patient only at its contact, and the schematic skin does not dent under it. 循 and 摄 travel along the channel
-(`travelMm`), and named with a retained needle they keep clear of its entry. The pressing hand touches the skin
-only when `support` is set — touching a prepared site undoes its preparation.
+(`travelMm`), and named with a retained needle they keep clear of its entry.
+
+A needle technique is one-handed unless `support` is set — touching a prepared site undoes its preparation. With
+`support: press` the pressing hand (押手) presses with the pulp of its thumb beside the needle while the needle hand
+works it; `stabilize` and `stretch` lay the index finger beside the point, and `pinch` lifts a fold of skin.
+
+![The hands of the 36 techniques: thumb and index on the handle, three fingers for 弩, the fingers leaving the handle in 飞, 刮, 弹, the pressing hand beside the needle, the thumbnail, the pulp of the thumb, the pad of the index finger](img/technique-hands.jpg)
+
+These are the stage's own hands and needle on a flat patch of skin, without the room ([HANDS.md](HANDS.md) has the
+pressing hand before and after, and the hand's reshaping). In the workspace, 爪 on the patient's back:
+
+![爪 in the workspace: the pressing hand open and low over the back, its thumbnail on the point; the caption names the stage and counts the two presses](img/technique-zhua-thumbnail.png)
+
+The three levels (天, 人, 地) are shown beside the stage only while a needle is worked: a technique of the skin has
+no tip to place among them.
 
 ## 2. What a technique does
 

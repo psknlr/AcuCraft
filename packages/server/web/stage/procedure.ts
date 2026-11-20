@@ -56,6 +56,8 @@ export interface PlaybackStage {
   breath: "inhale" | "exhale" | null;
   /** Where the tip stands, as a fraction of the depth the needle stands at. */
   depthFraction: number;
+  /** Whether a needle is being worked: the levels and the tip are a needle's, and a technique of the skin has neither. */
+  needle: boolean;
 }
 export interface ProcedurePlayback {
   mode: "idle" | "record" | "preview";
@@ -200,10 +202,13 @@ export class NeedleProcedure {
     if (this.gone) { this.disposeAssets(); return; }
     // the detail hand's skin answers light as the figures' skin does: warm where it is in shade (and the wrist
     // bridge, made from this material, with it)
+    // The nail is a clear plate over living tissue: turned from the light it takes the same warm return, a little
+    // more of it, or a nail in shade reads as grey horn.
     for (const material of this.assetMaterials) {
-      if (!(material instanceof MeshStandardMaterial) || material.name !== "hand_skin") continue;
-      material.onBeforeCompile = (shader) => { shader.fragmentShader = shader.fragmentShader.replace("#include <lights_fragment_end>", `#include <lights_fragment_end>${subsurfaceShade("1.0")}`); };
-      material.customProgramCacheKey = () => "hand-skin-shade-1";
+      if (!(material instanceof MeshStandardMaterial) || (material.name !== "hand_skin" && material.name !== "hand_nails")) continue;
+      const nail = material.name === "hand_nails";
+      material.onBeforeCompile = (shader) => { shader.fragmentShader = shader.fragmentShader.replace("#include <lights_fragment_end>", `#include <lights_fragment_end>${subsurfaceShade("1.0", nail ? 0.36 : undefined)}`); };
+      material.customProgramCacheKey = () => nail ? "hand-nail-shade-1" : "hand-skin-shade-1";
       material.needsUpdate = true;
     }
     this.hand = new ArticulatedHand(gltf.scene, gltf.animations, skin);
@@ -220,6 +225,9 @@ export class NeedleProcedure {
       if (this.active.kind === "performance") this.renderPerformance(this.active, this.actor);
     }
   }
+
+  /** The catalogue of the encounter shown: on the operative one a pressing hand asked for at an insertion presses with its thumb too. */
+  catalogue: TechniqueModel | undefined;
 
   setInsertionPresentation(id: string, presentation: InsertionPresentation): void {
     this.insertion.set(id, { ...presentation });
@@ -429,7 +437,7 @@ export class NeedleProcedure {
     } else this.group.visible = false;
     const support = gesture.presentation?.support ?? "none";
     const site = this.needles.siteOf(gesture.id);
-    this.placeSupport(person, gesture.side, site, support, sample.reach, sample.grip, phaseValue(now - gesture.start, duration), 0.5);
+    this.placeSupport(person, gesture.side, site, support, sample.reach, sample.grip, phaseValue(now - gesture.start, duration), 0.5, this.catalogue === "operative");
     this.settleHands(person);
     if (gesture.kind === "insert" && !gesture.worked && hand?.root.visible) this.needles.carry(gesture.id, hand.contactAt("handle"), gesture.axis);
     this.group.visible = !!this.hand?.root.visible || !!this.supportHand?.root.visible;
@@ -494,7 +502,7 @@ export class NeedleProcedure {
       axialDisplacementMm: handle && sample.withdrawalMm > 0 ? Math.max(0, contact.clone().sub(gesture.initialGrip).dot(gesture.axis) * 1000) : 0,
       rotationRad: sample.fingerRollRad ?? sample.rotationRad, nailContact: sample.nailContact, intensity: motion.contactIntensity });
     if (this.hand) this.placeHand(this.hand, person, gesture.side, contact, axis, envelope.reach, anchor, Math.sin(handle?.rotation ?? 0) * 0.04, !handle);
-    this.placeSupport(person, gesture.side, site, motion.support, envelope.reach, envelope.grip, sample.phase.progress, motion.contactIntensity);
+    this.placeSupport(person, gesture.side, site, motion.support, envelope.reach, envelope.grip, sample.phase.progress, motion.contactIntensity, input.model === "operative");
     this.settleHands(person);
     this.group.visible = !!this.hand?.root.visible || !!this.supportHand?.root.visible;
     const working = gesture.elapsed >= envelope.operationStartMs && elapsed < motion.durationMs;
@@ -502,7 +510,7 @@ export class NeedleProcedure {
       progress: finiteClamp(gesture.elapsed / envelope.durationMs, 0, 1), speed: this.speed,
       technique: input.technique, phase: gesture.elapsed < envelope.operationStartMs ? "Approach and grip"
         : elapsed < motion.durationMs ? sample.phase.label : envelope.complete ? "Complete" : "Release and retreat", durationMs: envelope.durationMs,
-      stage: working && sample.stage ? { zh: sample.stage.zh, label: sample.stage.label, count: sample.stage.count, of: sample.stage.of, level: sample.stage.level, breath: sample.stage.breath, depthFraction: sample.depthFraction ?? 1 } : null });
+      stage: working && sample.stage ? { zh: sample.stage.zh, label: sample.stage.label, count: sample.stage.count, of: sample.stage.of, level: sample.stage.level, breath: sample.stage.breath, depthFraction: sample.depthFraction ?? 1, needle: !!handle } : null });
     if (envelope.complete && !gesture.preview) { this.finish(gesture); this.active = null; this.publish({ ...IDLE, speed: this.speed }); }
     else if (envelope.complete && gesture.preview) this.paused = true;
   }
@@ -686,7 +694,8 @@ export class NeedleProcedure {
       : unreachable.length ? `Move closer: the ${unreachable.join(" and ")} hand cannot reach the selected contact.` : null;
   }
 
-  private placeSupport(person: Person, mainSide: "left" | "right", site: SkinSite | null, support: NonNullable<InsertionPresentation["support"]>, reach: number, grip: number, phase: number, intensity: number): void {
+  /** `thumb`: on the operative catalogue the pressing hand presses with the pulp of its thumb (押手), not with the heel of its palm. */
+  private placeSupport(person: Person, mainSide: "left" | "right", site: SkinSite | null, support: NonNullable<InsertionPresentation["support"]>, reach: number, grip: number, phase: number, intensity: number, thumb = false): void {
     const side = mainSide === "left" ? "right" : "left", hand = this.supportHand;
     if (!hand || !site || support === "none") {
       if (hand) hand.root.visible = false;
@@ -694,7 +703,8 @@ export class NeedleProcedure {
       return;
     }
     site = site.currentSurface?.() ?? site;
-    const pose: HandPose = support === "stretch" ? "stretch" : support === "pinch" ? "pinch" : support === "press" ? "press" : "palpate";
+    const thumbPress = thumb && support === "press";
+    const pose: HandPose = support === "stretch" ? "stretch" : support === "pinch" ? "pinch" : thumbPress ? "thumb-press" : support === "press" ? "press" : "palpate";
     const pinch = support === "pinch" ? poseSupportPinch(hand, grip) : null;
     if (!pinch) this.poseHand(hand, { pose, grip, phase, apertureMm: support === "stretch" ? 8 : 2, intensity });
     // Contact remains beside the entry, toward the supporting shoulder, rather than underneath the needle.
@@ -714,7 +724,7 @@ export class NeedleProcedure {
     // An open pair approaches with both rounded tips just above the patch,
     // then settles its bearing surfaces as the thumb and index close.
     contact.addScaledVector(normal, pinch ? 0.00012 + 0.0004 * (1 - grip) : 0.002);
-    this.placeHand(hand, person, side, contact, normal, reach, support === "press" ? "palm" : support === "pinch" ? "pinch" : "index", 0, true, pinch);
+    this.placeHand(hand, person, side, contact, normal, reach, thumbPress ? "thumb" : support === "press" ? "palm" : support === "pinch" ? "pinch" : "index", 0, true, pinch);
   }
 
   private finish(gesture: ActiveGesture): void {

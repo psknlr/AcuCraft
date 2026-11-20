@@ -126,6 +126,10 @@ export class ArticulatedHand {
       object.castShadow = object.receiveShadow = true;
       for (const material of Array.isArray(object.material) ? object.material : [object.material]) {
         if (material instanceof MeshStandardMaterial && material.name === "hand_skin") material.color.set(skin);
+        // A nail plate lies a fraction of a millimetre over the skin it grows from: nearer than a shadow map can
+        // tell apart, so the fingertip under it shaded it and every nail was drawn in permanent shadow, a bruised
+        // purple. A nail takes no shadow; it still casts its own.
+        if (material.name === "hand_nails") object.receiveShadow = false;
       }
     });
     this.mixer = new AnimationMixer(model);

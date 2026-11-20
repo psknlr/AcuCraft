@@ -135,7 +135,7 @@ export const ACTION_DOCS: Record<ActionType, ActionDoc> = {
       "presentation.skinContactFraction": "Fraction of the insertion movement at which the tip first meets the skin, after approach and grasp. Range 0.2 to 0.8, default 0.45.",
       "presentation.durationMs": "Insertion movement duration in milliseconds, 400 to 8000.",
       "presentation.grip": "Default two-finger holding uses the thumb and index. Explicit three-finger holding retains the thumb-index pinch and adds middle-finger support.",
-      "presentation.support": "Illustrative supporting-hand pose: none, stabilize, stretch, pinch or press.",
+      "presentation.support": "The pressing hand's pose: none, stabilize, stretch, pinch or press. At an insertion it is shown only and changes nothing clinical. On the operative catalogue press is the pulp of the thumb beside the point; on the illustrative one, the heel of the palm.",
       "presentation.hand": "auto chooses the closer hand; left or right requests the named hand.",
       "presentation.gripApertureMm": "Approach/release opening in millimetres, 0 to 12, with minimum clearance when letting go. Engaged fingers fit the actual rendered handle; this is not contact force.",
       "presentation.wristElevationDeg": `Authored hand/wrist elevation. ${wristProfiles} Changes the holding pose without changing the clinical needle angle or path.`,

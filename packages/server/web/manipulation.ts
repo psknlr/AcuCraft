@@ -70,7 +70,7 @@ export interface TechniquePlayback {
   durationMs: number;
   reachWarning?: string | null;
   /** On the operative catalogue: the stage under way — its name, the repetition of how many, the level, the breath. */
-  stage?: { zh: string; label: string; count: number; of: number; level: "tian" | "ren" | "di" | null; breath: "inhale" | "exhale" | null; depthFraction: number } | null;
+  stage?: { zh: string; label: string; count: number; of: number; level: "tian" | "ren" | "di" | null; breath: "inhale" | "exhale" | null; depthFraction: number; needle: boolean } | null;
 }
 export interface TechniqueDraft {
   technique: string;

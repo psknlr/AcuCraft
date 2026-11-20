@@ -54,6 +54,9 @@ which way — and the 3D view names the stage, the count and the level as it is 
 its time, adds its own dose to the needle's stimulation, leaves the feel of the needle as evidence, and reads as
 reinforcing or reducing. Rolling one way winds the needle: held, then stuck — and a stuck needle is freed (rolled
 back, 循, 摄, 弹, 刮), never forced. 烧山火 is done for warmth and 透天凉 for coolness, which some patients feel.
+Each method has its own hand: thumb and index on the handle, three fingers for 弩, the nail on the handle for 刮
+and 弹, and for the pressing hand the thumbnail (爪, 摄), the pulp of the thumb (按, and the pressing hand of a
+two-handed technique) or the pad of the index finger (揣, 循, 扪) ([docs/HANDS.md](docs/HANDS.md)).
 The cards are authored from classical and textbook accounts and are not reviewed by a practitioner; forces are not
 modelled. Records made before the choice existed replay on the *illustrative* catalogue, unchanged.
 

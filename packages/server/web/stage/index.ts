@@ -345,6 +345,7 @@ export async function mountStage(host: HTMLElement, info: StageInfoWithModels, o
     needles.syncMarks(marks);
     patient?.distress(/faint|clammy|grey/.test(view.patient.appearance));
 
+    procedure.catalogue = view.techniques;
     // what is new on the record: captions, the camera, the needles' movements, what is said
     const fresh = next.timeline.slice(animate ? seenEntries : next.timeline.length);
     seenEntries = next.timeline.length;

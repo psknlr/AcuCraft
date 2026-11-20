@@ -692,6 +692,12 @@ def articulated_finger_sections(digit, points, hinge, along_samples, angles, pre
     return vertices, weights
 
 
+# Added half-breadth of the flanks and back of the thumb's distal phalanx from its middle to the nail.
+THUMB_DISTAL_BREADTH_M = 0.0009
+# Added half-breadth and dorsal height of the thumb's IP knuckle.
+THUMB_IP_KNUCKLE_M = (0.0006, 0.0009)
+
+
 def continuous_finger(digit, mat, parent):
     """Closed, anatomically transported skin with continuous joint contours.
 
@@ -865,6 +871,18 @@ def continuous_finger(digit, mat, parent):
         # distal bearing plane that runtime IK measures on actual triangles.
         crease = sum(math.exp(-((along - joint)/0.00125)**2)
                      for joint in cumulative[1:])*0.00014
+        # The thumb's distal phalanx is broad: beyond the IP joint its flanks
+        # and back stay nearly parallel under the nail instead of tapering
+        # into a ball. The pulp that carries the pinch, the base of the thumb
+        # and the first web keep their shape.
+        broad = 0.0
+        if digit == "thumb" and segment == 2:
+            broad = THUMB_DISTAL_BREADTH_M*smoothstep((along - cumulative[2])/(cap_start*0.5))*rounding/half_width
+        if digit == "thumb":
+            # The IP joint shows as a knuckle on the back and flanks of the thumb.
+            knuckle = math.exp(-((along - cumulative[2])/0.0045)**2)
+            broad += THUMB_IP_KNUCKLE_M[0]*knuckle/half_width
+            dorsal_depth += THUMB_IP_KNUCKLE_M[1]*knuckle
         section_centres.append(centre)
         section_weights.append(weighting)
         # The extensor side of an interphalangeal joint has two shoulders.
@@ -897,6 +915,8 @@ def continuous_finger(digit, mat, parent):
                 transverse = half_width*math.sin(angle)
                 depth = ((volar_depth if math.cos(angle) >= 0 else dorsal_depth)*math.cos(angle)
                          - crease*max(0, math.cos(angle))**6)
+            if broad:
+                transverse *= 1 + broad*smoothstep((absolute - 0.9)/0.6)
             if sculpt:
                 back = max(0.0, -math.cos(angle))
                 flank = abs(math.sin(angle))
@@ -1526,6 +1546,13 @@ def palm(root, skin):
     return surface
 
 
+# Dorsal relief of the index, middle, ring and little metacarpal heads, in
+# millimetres: how far each crown rises above the faired knuckle row, its half
+# breadth, and the depth of the dimples between neighbouring heads as a share
+# of that rise.
+METACARPAL_HEADS_MM = {"height": (2.0, 2.3, 1.9, 1.6), "halfBreadth": (6.6, 6.8, 6.2, 5.2), "dimple": 0.32}
+
+
 def integrate_finger_roots(palm, digits):
     """Replace the distal palm and enclosed finger bases with a single branched skin.
 
@@ -1853,6 +1880,30 @@ def integrate_finger_roots(palm, digits):
         for i, point in updates.items():
             positions[i] = point
 
+    # The heads of the four metacarpals stand out on the back of the flexed
+    # hand, each with a dimple either side of it. Raise the faired skin over
+    # the outside of every flexed MCP joint, away from the joint's centre, and
+    # let it fall off across the head and around the joint.
+    for i in neighbors:
+        point = positions[i]
+        shift = Vector()
+        for idx, (mcp, pip, axis, volar, lateral) in enumerate(frames):
+            offset = point - mcp
+            across = offset.dot(lateral)
+            planar = offset - lateral * across
+            reach = planar.length
+            if not 0.004 < reach < 0.024:
+                continue
+            crown = (PALM_DORSAL - volar).normalized()
+            facing = planar.dot(crown) / reach
+            if facing <= 0:
+                continue
+            side = across / METACARPAL_HEADS_MM["halfBreadth"][idx] * 1000
+            profile = math.exp(-side * side) - METACARPAL_HEADS_MM["dimple"] * math.exp(-((abs(side) - 1.5) / 0.45) ** 2)
+            lift = METACARPAL_HEADS_MM["height"][idx] / 1000 * facing ** 3 * profile * smoothstep((reach - 0.004) / 0.004)
+            shift += planar * (lift / reach)
+        positions[i] = point + shift
+
     # The reference hand is built in flexion. Determine how much of the
     # dorsal hood should follow the phalanx as it extends. Tracking volume
     # at a straight MCP prevents the dorsal surface collapsing into a
@@ -2056,6 +2107,10 @@ def nail_plate(name, parent, skin_surface, centre, dorsal, axis, half_length, ha
     if centre_hit is None:
         centre_hit, _, _, _ = tree.find_nearest(Vector(centre))
     bed_height = centre_hit.dot(n)
+    # The thumb and index nails are seen close up in every grip.
+    arched_free_edge = name.startswith(("thumb_", "index_"))
+    crest, _, _, _ = tree.ray_cast(Vector(centre) + u * (half_length * 0.45) + n * 0.025, -n, 0.05)
+    arch_crest = crest.dot(n) if crest is not None else None
     top, bottom = [], []
     for radius, angle in points:
         longitudinal = radius * math.cos(angle)
@@ -2073,7 +2128,16 @@ def nail_plate(name, parent, skin_surface, centre, dorsal, axis, half_length, ha
         # A rigid nail's free edge continues the dorsal nail-bed tangent. It
         # must not wrap down the soft fingertip like another piece of skin.
         free_edge = smoothstep((radius * math.cos(angle) - 0.45) / 0.22)
-        height = hit.dot(n) * (1 - free_edge) + bed_height * free_edge
+        free_height = bed_height
+        if arched_free_edge and free_edge > 0:
+            # The plate keeps the arch it has across the bed where its free
+            # part begins, instead of flattening into a blade whose corners
+            # stand off the fingertip. Its middle line stays where it was.
+            across = Vector(centre) + u * (half_length * 0.45) + v * (half_width * transverse)
+            bed, _, _, _ = tree.ray_cast(across + n * 0.025, -n, 0.05)
+            if bed is not None and arch_crest is not None:
+                free_height = bed_height + min(0.0, bed.dot(n) - arch_crest)
+        height = hit.dot(n) * (1 - free_edge) + free_height * free_edge
         hit = plane + n * (height - plane.dot(n))
         # Thin, seated cuticles; only the free edge projects beyond its bed.
         # The flat faces of a thin plate span a curved nail bed. Give the

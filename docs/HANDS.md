@@ -9,6 +9,102 @@ visual simulation, without anatomical, motion-capture or clinical validation.
 [Reference interpretation, shared controls and inspection views](REFERENCE-POSES.md)
 describes how the supplied images inform the implementation.
 
+## Jointed fingers, knuckles, nails and the ulnar palm
+
+The hand the 36-technique catalogue arrived with read as a mitten with hoses for fingers: a curled finger was one
+even arc, an open one waved, and the palm was a slab. `tools/blender/build_hand.py` now builds it in seven steps
+further, each one carried through the same build, the same pinned poses and the same tests, with no test
+expectation changed:
+
+1. **Fingers.** Fuller, less flat sections along every phalanx.
+2. **Finger roots and knuckles.** Each finger is rebuilt straight from the ring the palm's socket is sewn to;
+   the proximal phalanges, which were bowed, are straight; the knuckles gather on a line when a finger straightens
+   instead of folding; the fingertips taper and the creases are softer.
+3. **Palm.** A hypothenar eminence, a rounder ulnar border and a shallow hollow.
+4. **Metacarpal heads.** The four knuckles of the fist are raised on the back of the flexed hand, with a dimple
+   either side.
+5. **Nails.** The thumb and index plates keep their arch through the free edge instead of flattening into a blade
+   whose corners stood off the tip.
+6. **Thumb tip.** The last phalanx is broader on its flanks and back, from mid-phalanx to the nail.
+7. **Thumb knuckle.** The interphalangeal joint has a knuckle on its back and flanks.
+
+![Open hand, back of the hand, radial side and pinch: the catalogue's hand and this one](img/hand-reshaping-open-and-pinch.jpg)
+
+![The pinch at the nails, the three-finger hold, curled fingers and straightened knuckles: the catalogue's hand and this one](img/hand-reshaping-nails-and-knuckles.jpg)
+
+Measured on the built asset (width × depth, mm; the catalogue's hand → this one):
+
+| | Index | Middle | Ring | Little |
+|---|---|---|---|---|
+| PIP joint | 15.5×10.7 → 15.2×13.0 | 16.5×11.3 → 17.1×13.0 | 15.2×10.4 → 16.0×12.5 | 12.7×8.8 → 13.7×10.7 |
+| Middle of the middle phalanx | 11.5×8.6 → 14.1×11.0 | 12.1×9.1 → 15.1×11.5 | 11.2×8.4 → 14.4×10.7 | 9.3×7.1 → 12.2×9.1 |
+| DIP joint | 12.8×8.6 → 14.9×9.9 | 13.7×9.2 → 16.0×10.7 | 12.7×8.6 → 15.2×9.9 | 10.6×7.2 → 12.9×8.5 |
+| Pad | 11.0×9.0 → 12.9×9.7 | 11.7×9.4 → 14.1×10.8 | 10.7×8.7 → 13.1×9.9 | 8.8×7.5 → 11.0×8.5 |
+| Metacarpal head above the joint centre | 8.3 → 10.1 | 7.9 → 9.9 | 8.7 → 10.5 | 7.0 → 8.4 |
+
+The PIP depth is taken across a sheared ring and reads about 2 mm high. The relief from a metacarpal head to the
+valley beside it grew from about 1.3 mm to about 3.5 mm. The thumb is 16.3×10.4 at its last joint (15.1×9.5) and
+14.8×9.5 where it bears on the needle (13.0×9.5); its knuckle at the palm is unchanged. A third of the way from
+the wrist the palm is 14.0 mm thick at its ulnar edge (9.6) and 21.7 mm two centimetres to the ulnar side of its
+centre (18.0); the centre itself is within a millimetre and a half of what it was. The clearances that decide
+whether a hold can be shown beside the patient: the three-finger hold at 51° passes 0.25 mm from her (0.10; measured
+before the last step, which changes only the thumb's knuckle), 刮 at 3.6 cm passes 0.35 and 0.51 mm (0.35 and
+0.15), and in the open pinch the thumb passes 0.38 mm over the index pad (0.40) — which is why the thumb's tip
+could be broadened on its flanks and back only.
+
+Two things about how the hand is lit changed with it, in the browser's view only. A nail plate lies a fraction of
+a millimetre over the skin it grows from — nearer than a shadow map can tell apart — so the fingertip shaded its
+own nail and every nail was drawn in permanent shadow, a bruised purple. A nail now takes no shadow, though it
+casts one. And a nail turned from the light takes the same warm return as the skin round it
+(`subsurfaceShade`), a little more strongly, so that it reads as a nail and not as grey horn.
+
+This is still a procedural hand, not a sculpted or scanned one, and it shows. Most visibly: the thumb is a tube
+with a rounded end in profile, and its thenar eminence and first web are as they were; the nails are thin plates
+without lateral or proximal folds, and the index nail is small for its fingertip; a flexed PIP knuckle is a
+little angular and the index is shaved on its radial shoulder, where it has to clear the patient; the fingers are
+flatter than a hand's (10–11 mm deep for 15–17 mm wide); the webs between the fingers are still V-shaped notches
+(moving them was tried and failed the junction checks); the back of the hand is a trapezoid with faint tendons;
+and the palm has no heel or distal pads.
+
+## The pressing hand on the skin
+
+Six of the 36 techniques are done on the skin by the pressing hand, and on the operative catalogue each has the
+hand it is taught with ([TECHNIQUES.md](TECHNIQUES.md)):
+
+| Technique | Contact | Pose |
+|---|---|---|
+| 爪, 摄 | the rim of the thumbnail | `thumb-nail` |
+| 按; `support: press` beside a needle, at its insertion or while it is worked | the front of the thumb's pulp | `thumb-press` |
+| 揣, 循, 扪 | the pad of the index finger | `palpate` |
+
+Before this, 爪 and 摄 stood the hand on the back of a curled index nail and 按 and 扪 pressed with the heel of the
+palm, every finger in the air; the illustrative catalogue keeps those hands, since its recordings were made with them.
+
+![The pressing hand before and now](img/hand-pressing-hand-shapes.jpg)
+
+In both thumb poses the hand is open, low and nearly level over the skin, the first web wide, and the thumb is
+carried out from the palm and down to the point. For the nail the thumb is hooked (about 35° at its knuckle and 80°
+at its last joint) and turned so that the skin is met 40° round from the long axis of the last phalanx toward the
+nail: on this hand the nail's rim leads the pulp from a little over 20°, and by about 0.8 mm at 40°. For the pulp the thumb
+is nearly straight and meets the skin 50° round the other way. `THUMB_ON_SKIN` in
+`packages/server/web/stage/hand.ts` holds these angles.
+
+Where the thumb meets the skin is not a constant. When the hand is loaded, the controller takes the nail mesh and
+the thumb's skin as they are, finds the part of each that is furthest along the direction the pose bears in, and
+keeps that point and direction in the frame of the last phalanx. A re-modelled nail or thumb tip is therefore
+followed without a number to keep in step with it.
+
+Three things are drawn that the schematic patient cannot supply. The skin does not dent, so the nail is brought
+down to a third of a millimetre above it as it bears, and stands two to three millimetres off it between one nip
+and the next. Bearing is shown by the thumb flexing a few degrees further, which brings the whole hand down on it.
+And the four fingers, which in life would rest on the patient, are held a finger's thickness clear of the skin:
+the detail hand may touch the patient only at its contact, or the clearance guard below would hide it.
+
+`packages/server/src/operative-stage.test.ts` checks, through every stage of each of the six techniques, which
+digit is on the skin, that no part of the hand is ever in it, that the next finger down is at least 4 mm clear,
+that the nail lands and lifts, and that the hand stays in place on the real patient — at the point, beside a
+retained needle, and as the pressing hand of a needle technique.
+
 ## Where the fingers meet the palm
 
 The previous hand had four individually capped fingers overlapping the palm.
