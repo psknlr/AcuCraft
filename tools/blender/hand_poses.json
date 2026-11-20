@@ -4,7 +4,7 @@
   "quaternionOrder": "xyzw",
   "provenance": {
     "calibrationInputAsset": {
-      "path": "../../../tmp/claude-0/-home-user-AcuCraft/fa9a6bd6-3b47-5914-8007-401dad5b07a4/scratchpad/rebake/checkpoint1-calibration.glb",
+      "path": "../../../tmp/claude-0/-home-user-AcuCraft/fa9a6bd6-3b47-5914-8007-401dad5b07a4/scratchpad/rebake/checkpoint2-calibration.glb",
       "sha256": "faf35a24688a2922200aab004ec58b06d0f2f009bc47f2d116ee7b00b369e351",
       "role": "immutable geometry calibration input; not the subsequently rebuilt GLB output hash"
     },
@@ -107,7 +107,7 @@
       "packages/core/src/engine/manipulation.ts": "a7538877d20ac0ffd3c880a06313e778a5646f8037b47603a7b612bd274a6a99",
       "packages/core/src/engine/npc.ts": "674a617d1cd419fe833da123b8e5ed3f537e27473fddf681eddc89f0cefbbb95",
       "packages/core/src/engine/observe.ts": "1054483d04a7b782a81a5f84c1e77a717c9d747489c1e57ea0659356ba006c95",
-      "packages/core/src/engine/operation.ts": "2651292fa8f5300752f7c9661fd75baa3870c1350b69cbc25fa456fcadcb5609",
+      "packages/core/src/engine/operation.ts": "b7d06cdda7bc1a243adce6dff073d03369976e064fdcaebc310984d1db395048",
       "packages/core/src/engine/performance.ts": "e8b7947583a36e309e809fcccfd16720ff0e02e1988c5ca5194f8aa3a6443d34",
       "packages/core/src/engine/queries.ts": "55cb7fb051711fba8a674fbf17858f6c4a2fdcc15e76d1573f60a68845d63eca",
       "packages/core/src/engine/rules.ts": "fd20d815375d2f26312d5d29fd026b8925b3c117d53f95cb9b03ebf47eb58bef",

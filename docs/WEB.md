@@ -83,6 +83,8 @@ Preview plays a local demonstration with pause, speed and preview-seeking contro
 
 Insertion has its own controls for the needle/mark, angle, direction and depth, plus optional grip, support, primary hand and animation duration. The clinical values pass the existing insertion guard. The animation draws the executed insertion, including a shorter partial result.
 
+While an operative technique plays, a card at the foot of the 3D view names the stage in Chinese and English, counts its repetitions, shows which of the three levels the tip stands at — with a marker that follows the tip between them — and names the breath where the method does.
+
 Each catalogue says what it is: the operative one authored from classical and textbook accounts and not reviewed by a practitioner, the illustrative one authored choreography; on both, contact intensity is a cosmetic fraction, not measured force. Surface contact keeps the encounter's normal preparation and hygiene consequences. The full parameter contract, lifecycle conditions, replay behavior and modeling limits are in [TECHNIQUES.md](TECHNIQUES.md).
 
 ### Working together
@@ -206,7 +208,9 @@ The view draws the encounter as the record has it, in step with it:
 - **Rendering**: physically based materials lit by an image of a room, a low sun through the window with soft
   shadows (and the blinds' stripes), the ceiling panel as an area light, ground-truth ambient occlusion, a shallow
   depth of field on close shots, a touch of bloom, a filmic grade and vignette; on skin seen close, a fine grain
-  filtered by pixel size. Quality follows the frame rate (high → medium → low by itself) or is fixed with
+  filtered by pixel size. Skin keeps its modelling: the figure kit's even glow is mostly taken back and returned
+  only where the surface itself is in shade — warm, as light that entered the skin elsewhere comes back out — on
+  the figures, the detail hands and the wrist between them alike. Quality follows the frame rate (high → medium → low by itself) or is fixed with
   `?quality=high|medium|low` in the address.
 - **The bundle**: `/app/stage.js` is built by the server with esbuild from `web/stage/` and the pinned
   ClinicalCraft checkout (`.deps/clinicalcraft`, `npm run bootstrap`), when first asked for and again when a source

@@ -10,6 +10,27 @@ import { figureMaterial } from "@clinicalcraft/web/world/figure/material.js";
  */
 let done = false;
 
+/**
+ * The share of the kit's skin glow the stage keeps. The kit gives skin a little of its own colour back everywhere,
+ * which keeps a small figure in a wide room rosy — and, seen close, flattens every form it has. Here most of that
+ * light is given back only where the surface itself is in shade (`subsurfaceShade`), as light that entered the skin
+ * elsewhere does: lit skin keeps its modelling, and skin in shade stays warm instead of going grey.
+ */
+export const SKIN_GLOW_KEPT = 0.3;
+
+/**
+ * GLSL for after `<lights_fragment_end>`: the warm light that comes back out of skin where it is not lit directly.
+ * `mask` is a float expression that is 1 on skin.
+ */
+export function subsurfaceShade(mask: string, strength = 0.24): string {
+  return `
+{
+  float skinLuma = max(1e-4, dot(diffuseColor.rgb, vec3(0.2126, 0.7152, 0.0722)));
+  float skinLit = dot(reflectedLight.directDiffuse, vec3(0.2126, 0.7152, 0.0722)) / skinLuma;
+  reflectedLight.indirectDiffuse += diffuseColor.rgb * vec3(1.0, 0.44, 0.32) * (${mask}) * ${strength.toFixed(3)} * (1.0 - smoothstep(0.03, 0.8, skinLit));
+}`;
+}
+
 export function refineSkin(): void {
   if (done) return;
   done = true;
@@ -59,11 +80,15 @@ normal = normalize(mix(normal, skinBumped, skinMask * max(pores, broad)));`,
         "#include <emissivemap_fragment>",
         `#include <emissivemap_fragment>
 {
+  float skinGlowMask = smoothstep(0.02, 0.12, vFinish.y);
+  // most of the kit's even glow is taken back here, and returned below only to skin that is in shade
+  totalEmissiveRadiance -= diffuseColor.rgb * vec3(1.0, 0.66, 0.5) * vFinish.y * ${(1 - SKIN_GLOW_KEPT).toFixed(3)} * skinGlowMask;
   float edge = pow(1.0 - clamp(dot(normalize(vNormal), normalize(vViewPosition)), 0.0, 1.0), 3.0);
-  totalEmissiveRadiance += diffuseColor.rgb * vec3(1.0, 0.55, 0.42) * edge * 0.16 * smoothstep(0.02, 0.12, vFinish.y);
+  totalEmissiveRadiance += diffuseColor.rgb * vec3(1.0, 0.55, 0.42) * edge * 0.16 * skinGlowMask;
 }`,
-      );
+      )
+      .replace("#include <lights_fragment_end>", `#include <lights_fragment_end>${subsurfaceShade("smoothstep(0.02, 0.12, vFinish.y)")}`);
   };
-  m.customProgramCacheKey = () => "cc-figure-skin";
+  m.customProgramCacheKey = () => "cc-figure-skin-2";
   m.needsUpdate = true;
 }

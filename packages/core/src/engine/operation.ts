@@ -617,6 +617,11 @@ export interface OperationSample extends TechniqueMotionSample {
   };
   /** One-way turning that has stayed on the needle so far in this performance (radians, signed like rotationRad). */
   windingRad: number;
+  /**
+   * The turn the holding fingers make with the needle (radians): the needle's own turn without what earlier rolls
+   * left on it. In a one-way roll the fingers go with the needle, let go, and come back for a fresh hold.
+   */
+  fingerRollRad: number;
   /** How far along the channel the working hand is from the point (mm, along chart v): tracing and nipping. */
   travelMm: number;
   /** How far to the side of the point the working hand keeps (mm, along chart u): clear of a retained needle. */
@@ -682,7 +687,7 @@ export function sampleOperation(id: ManipulationTechniqueId, elapsedMs: number, 
     grip: 0, gripEngagement: 1, contact: "none", nailContact: 0, supportContact: 0, handPose: "release",
     phase: { index, id: stage.id, label: stage.counted && of > 1 ? `${stage.zh} ${k + 1}/${of} · ${stage.label}` : `${stage.zh} · ${stage.label}`, primitive: stage.primitive, progress: t, cycleProgress: c },
     complete, durationMs: motion.durationMs,
-    depthFraction: 1, windingRad: wound, travelMm: 0, offsetMm: 0,
+    depthFraction: 1, windingRad: wound, fingerRollRad: 0, travelMm: 0, offsetMm: 0,
     stage: { index, id: stage.id, zh: stage.zh, label: stage.label, motif: stage.motif, level: stage.level, count: stage.counted ? k + 1 : 0, of: stage.counted ? of : 0, breath: stage.breath, progress: t },
   };
   if (complete) {
@@ -737,7 +742,9 @@ export function sampleOperation(id: ManipulationTechniqueId, elapsedMs: number, 
       // roll, let go a little, take a fresh hold: what was rolled stays on the needle
       const rolled = k + smooth(c / 0.62);
       out.rotationRad = CLOCKWISE * stage.turn * arc * Math.min(of, rolled);
-      out.gripEngagement = c > 0.62 && k < of - 1 ? 1 - 0.6 * Math.sin(Math.PI * (c - 0.62) / 0.38) : 1;
+      out.gripEngagement = c > 0.62 ? 1 - 0.6 * Math.sin(Math.PI * (c - 0.62) / 0.38) : 1;
+      // the fingers go round with this roll, then ease off and come back over the handle for a fresh hold
+      out.fingerRollRad = CLOCKWISE * stage.turn * arc * (c <= 0.62 ? smooth(c / 0.62) : 1 - smooth((c - 0.62) / 0.38));
       break;
     }
     case "sway":
@@ -860,6 +867,7 @@ export function sampleOperation(id: ManipulationTechniqueId, elapsedMs: number, 
     const scaled = stroke > 0 ? strokeOut * room / stroke : 0;
     out.withdrawalMm = Math.min(Math.max(0, depthMm - keep), (1 - out.depthFraction) * depthMm + scaled);
   }
+  if (stage.motif !== "wind") out.fingerRollRad = out.rotationRad;
   out.rotationRad += wound;
   out.windingRad = stage.motif === "wind" ? out.rotationRad : wound;
   // shares of a whole, whatever the arithmetic above left in the last bit
@@ -878,7 +886,7 @@ export function resolveTechniqueMotion(model: TechniqueModel | undefined, id: Ma
 }
 
 /** Where the needle and hands are, on the catalogue the encounter uses. Illustrative samples carry no level or stage. */
-export function sampleManipulation(model: TechniqueModel | undefined, id: ManipulationTechniqueId, elapsedMs: number, settings?: ManipulationMotionSettings, context?: OperationContext): TechniqueMotionSample & Partial<Pick<OperationSample, "depthFraction" | "stage" | "windingRad" | "travelMm" | "offsetMm">> {
+export function sampleManipulation(model: TechniqueModel | undefined, id: ManipulationTechniqueId, elapsedMs: number, settings?: ManipulationMotionSettings, context?: OperationContext): TechniqueMotionSample & Partial<Pick<OperationSample, "depthFraction" | "stage" | "windingRad" | "fingerRollRad" | "travelMm" | "offsetMm">> {
   return model === "operative" ? sampleOperation(id, elapsedMs, settings, context) : sampleTechnique(id, elapsedMs, settings);
 }
 

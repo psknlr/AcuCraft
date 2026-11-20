@@ -1,4 +1,5 @@
 import { BufferAttribute, BufferGeometry, DynamicDrawUsage, Group, Matrix3, Matrix4, Mesh, MeshStandardMaterial, Quaternion, SkinnedMesh, Vector3 } from "three";
+import { SKIN_GLOW_KEPT } from "./skin.js";
 import type { PersonRig } from "@clinicalcraft/web/world/npc.js";
 
 export interface HandWristSurface {
@@ -170,10 +171,10 @@ function bridgeMaterial(source: MeshStandardMaterial): MeshStandardMaterial {
       .replace("#include <color_fragment>", "#include <color_fragment>\ndiffuseColor.rgb = mix(vWristColour, diffuseColor.rgb, vWristBlend);")
       .replace("#include <roughnessmap_fragment>", "#include <roughnessmap_fragment>\nroughnessFactor = mix(clamp(0.82 - 0.66 * vWristFinish.x, 0.05, 1.0), roughnessFactor, vWristBlend);")
       .replace("#include <normal_fragment_maps>", "vec3 wristBaseNormal = normal;\n#include <normal_fragment_maps>\nnormal = normalize(mix(wristBaseNormal, normal, vWristBlend));")
-      .replace("#include <emissivemap_fragment>", "#include <emissivemap_fragment>\ntotalEmissiveRadiance = totalEmissiveRadiance * vWristBlend + vWristColour * vec3(1.0, 0.66, 0.5) * vWristFinish.y * (1.0 - vWristBlend);")
+      .replace("#include <emissivemap_fragment>", `#include <emissivemap_fragment>\ntotalEmissiveRadiance = totalEmissiveRadiance * vWristBlend + vWristColour * vec3(1.0, 0.66, 0.5) * vWristFinish.y * ${SKIN_GLOW_KEPT.toFixed(3)} * (1.0 - vWristBlend);`)
       .replace("#include <lights_physical_fragment>", "#include <lights_physical_fragment>\nmaterial.specularColor = mix(vec3(0.04), material.specularColor, vWristBlend);\nmaterial.specularF90 = mix(1.0, material.specularF90, vWristBlend);");
   };
-  material.customProgramCacheKey = () => `wrist-join-v2:${key}`;
+  material.customProgramCacheKey = () => `wrist-join-v3:${key}`;
   return material;
 }
 

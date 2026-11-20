@@ -49,6 +49,8 @@ export interface NeedleSpec {
 
 type NeedlePose = Pick<TechniqueMotionSample, "withdrawalMm" | "rotationRad" | "lateralMm" | "tiltRad"> & {
   phase?: TechniqueMotionSample["phase"];
+  /** The part of the turn the holding fingers make with the needle, when one-way rolling leaves the rest behind. */
+  fingerRollRad?: number;
   /** An executed adjust_needle envelope, sampled by the shared clinical-motion implementation. */
   depthM?: number;
 };
@@ -504,8 +506,8 @@ export class NeedleLayer {
     const outward = Math.min(Math.max(0, retained), Math.max(0, motion?.withdrawalMm ?? 0) / 1000);
     const depth = retained - outward;
     // the turn of what is being done now, on top of what one-way turning has left on the needle
-    l.spin = motion?.rotationRad ?? 0;
-    const spin = l.spinRest + l.spin;
+    l.spin = motion?.fingerRollRad ?? motion?.rotationRad ?? 0;
+    const spin = l.spinRest + (motion?.rotationRad ?? 0);
     l.body.position.set(0, -depth, 0);
     if (l.needsInsertion && l.inserted > 0 && l.inserted < 1 && l.spec.site.currentSurface) {
       const skin = l.spec.site.currentSurface(), axis = new Vector3(0, 1, 0).applyQuaternion(l.root.quaternion);

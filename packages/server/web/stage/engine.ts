@@ -115,13 +115,13 @@ export class Engine {
     const roomEnvironment = new RoomEnvironment();
     this.environment = pmrem.fromScene(roomEnvironment, 0.04);
     this.scene.environment = this.environment.texture;
-    this.scene.environmentIntensity = 0.55;
+    this.scene.environmentIntensity = 0.44;
     this.scene.background = new Color(0xe9e6df);
     pmrem.dispose();
     roomEnvironment.dispose();
 
     RectAreaLightUniformsLib.init();
-    const sun = new DirectionalLight(0xfff5ea, 2.25);
+    const sun = new DirectionalLight(0xfff5ea, 2.55);
     sun.castShadow = true;
     sun.shadow.bias = -0.00025;
     sun.shadow.normalBias = 0.018;
@@ -136,7 +136,7 @@ export class Engine {
     panel.rotation.x = -Math.PI / 2;
     const rim = new SpotLight(0xe4eeff, 18, 9, 0.62, 0.85, 1.6);
     rim.castShadow = false;
-    const sky = new HemisphereLight(0xfbfaf6, 0xcfc8ba, 0.32);
+    const sky = new HemisphereLight(0xfbfaf6, 0xcfc8ba, 0.24);
     // The room-sized shadow map cannot resolve millimetre-scale finger/handle contact.
     // This bounded inspection light keeps that precision local to the working hand.
     const detail = new DirectionalLight(0xfff2e6, 0);

@@ -26,6 +26,8 @@ This page is about the operative catalogue first; the illustrative one, unchange
 > not modelled. Doses are a teaching simplification that makes "how much stimulation" a quantity. It is a teaching
 > aid, not a clinical standard, and nothing here is a claim that a method has an effect on a patient.
 
+![烧山火 in the workspace: nine quick thrusts and slow lifts at the shallow level (天), at the middle level (人) and at the depth the needle stands at (地) — the hand follows the needle down, and the caption names the stage, counts it and shows the level](img/technique-levels-shao-shan-huo.png)
+
 ## 1. What a technique is made of
 
 **Stages.** One performance is a sequence of stages. A *counted* stage repeats a stroke a number of times (`天部 ·

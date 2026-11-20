@@ -1,4 +1,4 @@
-import { Box3, Group, Mesh, Quaternion, SkinnedMesh, Texture, Vector3, type Material } from "three";
+import { Box3, Group, Mesh, MeshStandardMaterial, Quaternion, SkinnedMesh, Texture, Vector3, type Material } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { clone as cloneSkeleton } from "three/examples/jsm/utils/SkeletonUtils.js";
 import {
@@ -18,6 +18,7 @@ import type { GripSubjects } from "./director.js";
 import { NEEDLE_HANDLE_GRIP_Y_M, NEEDLE_HANDLE_RADIUS_M } from "./needle-shape.js";
 import { PatientClearance } from "./clearance.js";
 import { handWristSurface, type HandWristSurface } from "./wrist-join.js";
+import { subsurfaceShade } from "./skin.js";
 
 export type InsertionPresentation = SharedInsertionPresentation;
 export interface HandInspectionFrame {
@@ -197,6 +198,14 @@ export class NeedleProcedure {
       }
     });
     if (this.gone) { this.disposeAssets(); return; }
+    // the detail hand's skin answers light as the figures' skin does: warm where it is in shade (and the wrist
+    // bridge, made from this material, with it)
+    for (const material of this.assetMaterials) {
+      if (!(material instanceof MeshStandardMaterial) || material.name !== "hand_skin") continue;
+      material.onBeforeCompile = (shader) => { shader.fragmentShader = shader.fragmentShader.replace("#include <lights_fragment_end>", `#include <lights_fragment_end>${subsurfaceShade("1.0")}`); };
+      material.customProgramCacheKey = () => "hand-skin-shade-1";
+      material.needsUpdate = true;
+    }
     this.hand = new ArticulatedHand(gltf.scene, gltf.animations, skin);
     this.supportHand = new ArticulatedHand(cloneSkeleton(gltf.scene) as Group, gltf.animations, skin);
     for (const hand of [this.hand, this.supportHand]) {
@@ -476,7 +485,7 @@ export class NeedleProcedure {
       stabilizerGrip: envelope.grip, phase: sample.phase.cycleProgress,
       wristElevationDeg: motion.wristElevationDeg, gripStyle: motion.gripStyle, idleFingerPose: motion.idleFingerPose,
       axialDisplacementMm: handle && sample.withdrawalMm > 0 ? Math.max(0, contact.clone().sub(gesture.initialGrip).dot(gesture.axis) * 1000) : 0,
-      rotationRad: sample.rotationRad, nailContact: sample.nailContact, intensity: motion.contactIntensity });
+      rotationRad: sample.fingerRollRad ?? sample.rotationRad, nailContact: sample.nailContact, intensity: motion.contactIntensity });
     if (this.hand) this.placeHand(this.hand, person, gesture.side, contact, axis, envelope.reach, anchor, Math.sin(handle?.rotation ?? 0) * 0.04, !handle);
     this.placeSupport(person, gesture.side, site, motion.support, envelope.reach, envelope.grip, sample.phase.progress, motion.contactIntensity);
     this.settleHands(person);
@@ -517,7 +526,7 @@ export class NeedleProcedure {
         const elapsed = finiteClamp(motion.durationMs * step / steps, 0.001, motion.durationMs - 0.001);
         const sample = this.sample(gesture.input, elapsed, motion);
         const pose: FingerPose = { ...current, pose: sample.handPose, grip: sample.gripEngagement, stabilizerGrip: 1,
-          phase: sample.phase.cycleProgress, rotationRad: sample.rotationRad,
+          phase: sample.phase.cycleProgress, rotationRad: sample.fingerRollRad ?? sample.rotationRad,
           nailContact: sample.nailContact, axialDisplacementMm: sample.withdrawalMm };
         poses.push(pose);
         if (step === 0 || step === steps) endpoints.push(pose);

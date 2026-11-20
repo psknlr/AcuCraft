@@ -468,7 +468,7 @@ html { scroll-behavior: smooth; }
 .hud-performance[data-mode="preview"] { color: #ffe0a9; background: rgb(67 48 19 / 0.94); border-color: #9e7e45; }
 .hud-performance[hidden] { display: none; }
 /* the stage of an operative technique under way: name, count, the level the tip stands at */
-.hud-stage { position: absolute; left: 50%; bottom: 74px; transform: translateX(-50%); display: flex; gap: 14px; align-items: stretch; max-width: min(560px, calc(100% - 24px)); padding: 10px 14px 10px 16px; border-radius: 12px; color: #f2f7f4; background: linear-gradient(180deg, rgb(13 30 32 / 0.9), rgb(9 21 24 / 0.94)); border: 1px solid rgb(152 226 196 / 0.34); box-shadow: 0 10px 34px rgb(0 0 0 / 0.42); backdrop-filter: blur(6px); pointer-events: none; font-family: system-ui, "PingFang SC", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; }
+.hud-stage { position: absolute; left: 12px; bottom: 62px; display: flex; gap: 14px; align-items: stretch; max-width: min(560px, calc(100% - 24px)); padding: 10px 14px 10px 16px; border-radius: 12px; color: #f2f7f4; background: linear-gradient(180deg, rgb(13 30 32 / 0.9), rgb(9 21 24 / 0.94)); border: 1px solid rgb(152 226 196 / 0.34); box-shadow: 0 10px 34px rgb(0 0 0 / 0.42); backdrop-filter: blur(6px); pointer-events: none; font-family: system-ui, "PingFang SC", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; }
 .hud-stage[data-mode="preview"] { border-color: rgb(236 190 110 / 0.55); }
 .hud-stage[hidden] { display: none; }
 .hud-stage-text { display: grid; gap: 3px; align-content: center; min-width: 0; }
@@ -487,7 +487,7 @@ html { scroll-behavior: smooth; }
 .hud-stage-level:nth-child(3) { background: rgb(255 255 255 / 0.11); border-bottom: 0; }
 .hud-stage-level.on { color: #10292a; background: #7fd9b4; }
 .hud-stage-tip { position: absolute; left: -1px; right: -1px; height: 0; border-top: 2px solid #ffd27a; box-shadow: 0 0 6px #ffd27a; transition: top 60ms linear; }
-@media (max-width: 560px) { .hud-stage { bottom: 62px; padding: 8px 10px; } .hud-stage-name { font-size: 16px; } }
+@media (max-width: 560px) { .hud-stage { bottom: 104px; padding: 8px 10px; } .hud-stage-name { font-size: 16px; } }
 
 .movement { color: #dae5df; background: #152027; }
 .movement select, .movement button { color: #e4efea; background: #223a3b; border-color: #45625c; }
